@@ -85,6 +85,26 @@ button, input { font: inherit; }
 }
 .header-icon-button:hover { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .55); }
 .header-icon-button svg { display: block; }
+
+.header-home-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .35);
+    color: #fff;
+    background: rgba(255, 255, 255, .08);
+    transition: background .15s, border-color .15s;
+}
+.header-home-button:hover { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .55); }
+.header-home-button svg { display: block; }
 h1 {
     font-size: clamp(22px, 2.2vw, 28px);
     margin: 2px 0 3px;
@@ -413,6 +433,14 @@ input::placeholder { color: #929fac; }
     .brand-panel { grid-template-columns: 1fr; }
     .header-content { text-align: left; }
     .header-topline { justify-content: space-between; }
+    .header-home-button {
+        position: static;
+        transform: none;
+        width: 30px;
+        height: 30px;
+        margin-bottom: 8px;
+    }
+    .header-home-button svg { width: 18px; height: 18px; }
     .page-header p { margin-left: 0; }
     .article-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .accessory-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
