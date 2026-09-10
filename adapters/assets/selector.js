@@ -42,6 +42,10 @@
         return Array.from(new Set(values.filter((v) => v))).sort(sortFn);
     }
 
+    function capitalize(text) {
+        return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+    }
+
     function fillSelect(select, values, allLabel) {
         const previous = select.value;
         select.innerHTML = '';
@@ -52,7 +56,7 @@
         values.forEach((value) => {
             const option = document.createElement('option');
             option.value = value;
-            option.textContent = value;
+            option.textContent = capitalize(value);
             select.appendChild(option);
         });
         select.value = values.includes(previous) ? previous : ALL;
@@ -87,9 +91,13 @@
         (a, b) => connectieOrder.indexOf(a) - connectieOrder.indexOf(b)
     );
 
-    const hoekOrder = ['recht', 'haaks', '45°', 'T-stuk', 'kruis', 'n.v.t.'];
+    // "n.v.t." betekent dat er geen hoek van toepassing is (bv. rechte
+    // koppelstukken zonder echte vorm) - dat is al precies wat "Alle" (geen
+    // filter) toont, dus die waarde wordt niet als apart keuzevakje
+    // aangeboden.
+    const hoekOrder = ['recht', 'haaks', '45°', 'T-stuk', 'kruis'];
     const hoekValues = uniqueSorted(
-        articles.map((a) => a.hoek),
+        articles.map((a) => a.hoek).filter((hoek) => hoek !== 'n.v.t.'),
         (a, b) => hoekOrder.indexOf(a) - hoekOrder.indexOf(b)
     );
 
@@ -153,7 +161,7 @@
     function formatSide(soort, maat, connectie) {
         if (!soort && !maat) return '—';
         const parts = [soort, maat].filter(Boolean).join(' ');
-        return connectie ? `${parts} (${connectie})` : parts;
+        return connectie ? `${parts} (${capitalize(connectie)})` : parts;
     }
 
     function render() {
@@ -194,7 +202,7 @@
                 a.artnr,
                 a.crossRef || '—',
                 [a.familieCode, a.familieNaam].filter(Boolean).join(' – '),
-                a.hoek || '—',
+                capitalize(a.hoek) || '—',
                 side1,
                 side2,
             ];
