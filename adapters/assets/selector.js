@@ -171,6 +171,18 @@
         shown.forEach(({ article: a, orientation }) => {
             const tr = document.createElement('tr');
 
+            const imgTd = document.createElement('td');
+            imgTd.className = 'result-table-image-col';
+            if (a.familieCode) {
+                const img = document.createElement('img');
+                img.src = `images/${a.familieCode}.png`;
+                img.alt = a.familieNaam || a.familieCode;
+                img.loading = 'lazy';
+                img.addEventListener('error', () => { imgTd.replaceChildren(); }, { once: true });
+                imgTd.appendChild(img);
+            }
+            tr.appendChild(imgTd);
+
             const side1 = orientation === 'swapped'
                 ? formatSide(a.draadsoort2, a.draadmaat2, a.connectieType2)
                 : formatSide(a.draadsoort1, a.draadmaat1, a.connectieType1);
