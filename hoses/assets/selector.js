@@ -274,7 +274,7 @@
             ['ParKoil', accessories.parKoil, 'parkoil'],
             ['Spring Guard', accessories.springGuard, 'springguard'],
             ['Firesleeve', accessories.firesleeve, 'firesleeve'],
-            ['PolyGuard, SpiralGuard', joinValues(accessories.polyGuard, accessories.spiralGuard), ['polyguard', 'spiralguard']],
+            ['PolyGuard, SpiralGuard', joinValues(accessories.polyGuard, accessories.spiralGuard), 'spiralguard'],
             ['Texsleeve', accessories.texsleeve, 'texsleeve'],
             ['Huls Texsleeve (Staal)', accessories.hulsTexStaal, '19001'],
             ['Huls Texsleeve (RVS)', accessories.hulsTexRvs, '19001'],
