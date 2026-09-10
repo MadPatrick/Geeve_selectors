@@ -40,6 +40,8 @@ function h(string $value): string
         </div>
     </header>
 
+    <div class="selector-layout">
+    <div class="selector-main">
     <section class="panel search-panel">
         <div class="section-heading">
             <div>
@@ -193,6 +195,49 @@ function h(string $value): string
     </section>
 
     <section id="warningBox" class="warning-box" hidden></section>
+    </div>
+
+    <aside class="panel image-panel">
+        <div class="section-heading">
+            <div>
+                <span class="step">Afbeeldingen</span>
+                <h2>Gekozen onderdelen</h2>
+            </div>
+        </div>
+
+        <div class="image-slot is-empty" data-location="1">
+            <span class="image-slot-label">1 &middot; Lasplaat / Glijmoer</span>
+            <div class="image-slot-frame">
+                <img id="shapeImg1" alt="" hidden>
+                <span class="image-slot-placeholder">&mdash;</span>
+            </div>
+        </div>
+
+        <div class="image-slot is-empty" data-location="2">
+            <span class="image-slot-label">2 &middot; Beugel</span>
+            <div class="image-slot-frame">
+                <img id="shapeImg2" alt="" hidden>
+                <span class="image-slot-placeholder">&mdash;</span>
+            </div>
+        </div>
+
+        <div class="image-slot is-empty" data-location="4">
+            <span class="image-slot-label">4 &middot; Dekplaat</span>
+            <div class="image-slot-frame">
+                <img id="shapeImg4" alt="" hidden>
+                <span class="image-slot-placeholder">&mdash;</span>
+            </div>
+        </div>
+
+        <div class="image-slot is-empty" data-location="5">
+            <span class="image-slot-label">5 &middot; Bout</span>
+            <div class="image-slot-frame">
+                <img id="shapeImg5" alt="" hidden>
+                <span class="image-slot-placeholder">&mdash;</span>
+            </div>
+        </div>
+    </aside>
+    </div>
 </main>
 <script src="assets/selector.js?v=<?= h(APP_VERSION) ?>"></script>
 </body>

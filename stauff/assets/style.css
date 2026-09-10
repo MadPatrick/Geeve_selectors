@@ -106,6 +106,20 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 
 .section-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
+.selector-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 20px; align-items: start; }
+.selector-main { min-width: 0; }
+.selector-main > .panel:first-child,
+.selector-main > .code-panel:first-child { margin-top: 0; }
+.image-panel { margin-top: 0; position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.image-slot { border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: #fbfcfd; }
+.image-slot-label { display: block; font-size: 12px; font-weight: 750; color: var(--muted); margin-bottom: 8px; }
+.image-slot-frame { display: flex; align-items: center; justify-content: center; height: 96px; background: #fff; border-radius: 8px; border: 1px solid var(--line); }
+.image-slot-frame img { max-width: 82%; max-height: 82%; object-fit: contain; display: block; }
+.image-slot-placeholder { display: none; color: var(--muted); font-size: 22px; }
+.image-slot.is-empty .image-slot-frame { opacity: .55; }
+.image-slot.is-empty .image-slot-placeholder { display: block; }
+
 .field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .field > span { font-weight: 750; font-size: 14px; }
 .field small { color: var(--muted); font-size: 12px; line-height: 1.4; }
@@ -213,6 +227,9 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
         margin-bottom: 8px;
     }
     .header-home-button svg { width: 18px; height: 18px; }
+    .selector-layout { grid-template-columns: 1fr; }
+    .image-panel { position: static; flex-direction: row; flex-wrap: wrap; }
+    .image-slot { flex: 1 1 140px; }
     .filter-grid { flex-wrap: wrap; }
     .serie-field,
     .uitvoering-field,

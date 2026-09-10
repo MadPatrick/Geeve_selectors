@@ -37,6 +37,10 @@
         factSerie: el('factSerie'),
         factExecution: el('factExecution'),
         clampFacts: el('clampFacts'),
+        shapeImg1: el('shapeImg1'),
+        shapeImg2: el('shapeImg2'),
+        shapeImg4: el('shapeImg4'),
+        shapeImg5: el('shapeImg5'),
     };
 
     const norm = value => String(value ?? '').trim();
@@ -110,6 +114,76 @@
         const s = norm(article);
         const match = s.match(/^([A-Z+]+)/i);
         return match ? match[1].toUpperCase() : s.split(/[\s-]/)[0].toUpperCase();
+    }
+
+    const SHAPE_IMAGE_DIR = 'images/';
+
+    // Welk plaatje (images/<key>.png) hoort bij een gekozen rij. Lasplaat en
+    // Dekplaat hebben zelf geen "Enkel / Dubbel"-waarde in de brondata die
+    // een dubbele uitvoering onderscheidt (GD daargelaten); of het om een
+    // dubbele samenstelling gaat wordt daarom afgeleid van de gekozen beugel
+    // zelf. sp1d (lasplaat), 1dpp (beugel) en gd1 (dekplaat) horen zo als
+    // vast drietal bij elkaar zodra de beugel dubbel is.
+    function isDubbelClamp() {
+        return !!state.selectedClamp && norm(state.selectedClamp['Enkel / Dubbel']) === 'Dubbel';
+    }
+
+    function shapeImageKey(row) {
+        if (!row) return null;
+        const onderdeel = row['Onderdeel'];
+        const bouwgroep = upper(row['Bouwgroep']);
+        const serie = row['Serie'];
+        const ed = row['Enkel / Dubbel'];
+        const prefix = firstCodePart(row['Artikelcode']);
+
+        switch (onderdeel) {
+            case 'Glijmoer':
+                return 'gmv';
+            case 'Lasplaat':
+                if (isDubbelClamp()) return 'sp1d';
+                if (prefix === 'SP') return bouwgroep === '1' ? 'sp1' : 'sp1a';
+                if (prefix === 'SPAL') return 'sp1a';
+                if (prefix === 'SPV') return bouwgroep === '1' ? 'spv1' : 'spv1a';
+                return null;
+            case 'Beugel':
+                if (ed === 'Dubbel') return '1dpp';
+                return (bouwgroep === '1' && serie === 'Licht (standaard)') ? '1pp' : '1app';
+            case 'Dekplaat':
+                if (isDubbelClamp() || prefix === 'GD') return 'gd1';
+                return bouwgroep === '1' ? 'dp1' : 'dp1a';
+            case 'Stapelbout':
+                return 'af';
+            case 'Inbusbout':
+                return 'is';
+            case 'Zeskantbout':
+                return 'as';
+            default:
+                // Lasplaat (hoek) en Borgplaat: geen plaatje beschikbaar.
+                return null;
+        }
+    }
+
+    function setShapeImage(imgEl, row) {
+        if (!imgEl) return;
+        const slot = imgEl.closest('.image-slot');
+        const key = shapeImageKey(row);
+        if (!key) {
+            imgEl.hidden = true;
+            imgEl.removeAttribute('src');
+            if (slot) slot.classList.add('is-empty');
+            return;
+        }
+        imgEl.hidden = false;
+        imgEl.alt = key;
+        imgEl.src = `${SHAPE_IMAGE_DIR}${key}.png`;
+        if (slot) slot.classList.remove('is-empty');
+    }
+
+    function updateShapeImages() {
+        setShapeImage(ui.shapeImg1, selectedRow(ui.loc1));
+        setShapeImage(ui.shapeImg2, state.selectedClamp);
+        setShapeImage(ui.shapeImg4, selectedRow(ui.loc4));
+        setShapeImage(ui.shapeImg5, selectedRow(ui.loc5));
     }
 
     function groupMatches(componentGroup, clampGroup) {
@@ -476,6 +550,7 @@
         const r3 = selectedRow(ui.loc3);
         const r4 = selectedRow(ui.loc4);
         const r5 = selectedRow(ui.loc5);
+        updateShapeImages();
         if (!clamp) {
             ui.assemblyCode.textContent = 'Selecteer eerst een beugel';
             ui.copyButton.disabled = true;
