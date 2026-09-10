@@ -168,7 +168,7 @@
 
     function setShapeImage(imgEl, row) {
         if (!imgEl) return;
-        const slot = imgEl.closest('.image-slot');
+        const slot = imgEl.closest('.location-image');
         const key = shapeImageKey(row);
         if (!key) {
             imgEl.hidden = true;

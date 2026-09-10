@@ -49,6 +49,21 @@ button, input, select { font: inherit; }
 .brand-logo-img { display: block; height: 66px; width: auto; }
 .brand-rubix-img { display: block; height: 33px; width: auto; border-radius: 4px; }
 .header-content { text-align: right; padding-top: 0; }
+.header-topline {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
+    min-height: 16px;
+    margin-bottom: 4px;
+}
+.version-inline {
+    font-size: 12px;
+    font-weight: 700;
+    color: #f1f1f1;
+    opacity: .92;
+    white-space: nowrap;
+}
 
 .header-home-button {
     position: absolute;
@@ -105,20 +120,6 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 .step { display: none !important; }
 
 .section-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-
-.selector-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 20px; align-items: start; }
-.selector-main { min-width: 0; }
-.selector-main > .panel:first-child,
-.selector-main > .code-panel:first-child { margin-top: 0; }
-.image-panel { margin-top: 0; position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px; }
-
-.image-slot { border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: #fbfcfd; }
-.image-slot-label { display: block; font-size: 12px; font-weight: 750; color: var(--muted); margin-bottom: 8px; }
-.image-slot-frame { display: flex; align-items: center; justify-content: center; height: 96px; background: #fff; border-radius: 8px; border: 1px solid var(--line); }
-.image-slot-frame img { max-width: 82%; max-height: 82%; object-fit: contain; display: block; }
-.image-slot-placeholder { display: none; color: var(--muted); font-size: 22px; }
-.image-slot.is-empty .image-slot-frame { opacity: .55; }
-.image-slot.is-empty .image-slot-placeholder { display: block; }
 
 .field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .field > span { font-weight: 750; font-size: 14px; }
@@ -184,8 +185,13 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 .material-code-field { width: min(300px, 100%); }
 
 .assembly-list { display: grid; gap: 10px; }
-.location-card { display: grid; grid-template-columns: 52px minmax(0, 1fr); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; background: #fff; }
+.location-card { display: grid; grid-template-columns: 52px 64px minmax(0, 1fr); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; background: #fff; }
 .location-number { display: grid; place-items: center; background: #fdeaee; color: var(--accent-dark); font-size: 20px; font-weight: 850; border-right: 1px solid var(--line); }
+.location-image { display: flex; align-items: center; justify-content: center; padding: 6px; border-right: 1px solid var(--line); background: #fbfcfd; }
+.location-image img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.location-image-placeholder { display: none; color: var(--muted); font-size: 20px; }
+.location-image.is-empty { opacity: .5; }
+.location-image.is-empty .location-image-placeholder { display: block; }
 .location-content { padding: 14px 16px; display: grid; grid-template-columns: minmax(190px, .75fr) minmax(0, 1.25fr); align-items: center; gap: 18px; }
 .location-title strong, .location-title span { display: block; }
 .location-title span { color: var(--muted); font-size: 12px; margin-top: 2px; }
@@ -227,9 +233,6 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
         margin-bottom: 8px;
     }
     .header-home-button svg { width: 18px; height: 18px; }
-    .selector-layout { grid-template-columns: 1fr; }
-    .image-panel { position: static; flex-direction: row; flex-wrap: wrap; }
-    .image-slot { flex: 1 1 140px; }
     .filter-grid { flex-wrap: wrap; }
     .serie-field,
     .uitvoering-field,
@@ -257,5 +260,5 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
     .clamp-facts { grid-template-columns: 1fr 1fr; }
     .segmented { width: 100%; }
     .segment { flex: 1; }
-    .location-card { grid-template-columns: 44px minmax(0,1fr); }
+    .location-card { grid-template-columns: 40px 52px minmax(0,1fr); }
 }

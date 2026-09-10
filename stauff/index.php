@@ -35,13 +35,14 @@ function h(string $value): string
                 </svg>
             </a>
             <div class="header-content">
+                <div class="header-topline">
+                    <span class="version-inline">Versie <?= h(APP_VERSION) ?></span>
+                </div>
                 <h1>Stauff Selector</h1>
             </div>
         </div>
     </header>
 
-    <div class="selector-layout">
-    <div class="selector-main">
     <section class="panel search-panel">
         <div class="section-heading">
             <div>
@@ -137,6 +138,10 @@ function h(string $value): string
         <div class="assembly-list">
             <article class="location-card" data-location="1">
                 <div class="location-number">1</div>
+                <div class="location-image is-empty">
+                    <img id="shapeImg1" alt="" hidden>
+                    <span class="location-image-placeholder">&mdash;</span>
+                </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Lasplaat / Glijmoer</strong><span>Standaard Lasplaat &middot; Onderzijde</span></div>
                     <select id="location1Select" disabled><option value="">Kies eerst een beugel</option></select>
@@ -145,6 +150,10 @@ function h(string $value): string
 
             <article class="location-card clamp-location" data-location="2">
                 <div class="location-number">2</div>
+                <div class="location-image is-empty">
+                    <img id="shapeImg2" alt="" hidden>
+                    <span class="location-image-placeholder">&mdash;</span>
+                </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Beugel</strong><span>Beugelcode (bouwgroep + maat + materiaal)</span></div>
                     <div id="location2Value" class="fixed-value">&mdash;</div>
@@ -153,6 +162,10 @@ function h(string $value): string
 
             <article class="location-card" data-location="3">
                 <div class="location-number">3</div>
+                <div class="location-image is-empty">
+                    <img id="shapeImg3" alt="" hidden>
+                    <span class="location-image-placeholder">&mdash;</span>
+                </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Borgplaat</strong><span>Optioneel &middot; opties uit bouwgroep</span></div>
                     <select id="location3Select" disabled><option value="">Kies eerst een beugel</option></select>
@@ -161,6 +174,10 @@ function h(string $value): string
 
             <article class="location-card" data-location="4">
                 <div class="location-number">4</div>
+                <div class="location-image is-empty">
+                    <img id="shapeImg4" alt="" hidden>
+                    <span class="location-image-placeholder">&mdash;</span>
+                </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Dekplaat</strong><span>Standaard geselecteerd &middot; opties uit bouwgroep</span></div>
                     <select id="location4Select" disabled><option value="">Kies eerst een beugel</option></select>
@@ -169,6 +186,10 @@ function h(string $value): string
 
             <article class="location-card" data-location="5">
                 <div class="location-number">5</div>
+                <div class="location-image is-empty">
+                    <img id="shapeImg5" alt="" hidden>
+                    <span class="location-image-placeholder">&mdash;</span>
+                </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Bout</strong><span>Optioneel &middot; stapel-, inbus- of zeskantbout</span></div>
                     <select id="location5Select" disabled><option value="">Kies eerst een beugel</option></select>
@@ -177,6 +198,9 @@ function h(string $value): string
 
             <article class="location-card material-location" data-location="6">
                 <div class="location-number">6</div>
+                <div class="location-image is-empty">
+                    <span class="location-image-placeholder">&mdash;</span>
+                </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Materiaal</strong><span>Optioneel &middot; W-code bevestigingsdelen</span></div>
                     <div id="location6Value" class="fixed-value">&mdash;</div>
@@ -195,57 +219,6 @@ function h(string $value): string
     </section>
 
     <section id="warningBox" class="warning-box" hidden></section>
-    </div>
-
-    <aside class="panel image-panel">
-        <div class="section-heading">
-            <div>
-                <span class="step">Afbeeldingen</span>
-                <h2>Gekozen onderdelen</h2>
-            </div>
-        </div>
-
-        <div class="image-slot is-empty" data-location="1">
-            <span class="image-slot-label">1 &middot; Lasplaat / Glijmoer</span>
-            <div class="image-slot-frame">
-                <img id="shapeImg1" alt="" hidden>
-                <span class="image-slot-placeholder">&mdash;</span>
-            </div>
-        </div>
-
-        <div class="image-slot is-empty" data-location="2">
-            <span class="image-slot-label">2 &middot; Beugel</span>
-            <div class="image-slot-frame">
-                <img id="shapeImg2" alt="" hidden>
-                <span class="image-slot-placeholder">&mdash;</span>
-            </div>
-        </div>
-
-        <div class="image-slot is-empty" data-location="3">
-            <span class="image-slot-label">3 &middot; Borgplaat</span>
-            <div class="image-slot-frame">
-                <img id="shapeImg3" alt="" hidden>
-                <span class="image-slot-placeholder">&mdash;</span>
-            </div>
-        </div>
-
-        <div class="image-slot is-empty" data-location="4">
-            <span class="image-slot-label">4 &middot; Dekplaat</span>
-            <div class="image-slot-frame">
-                <img id="shapeImg4" alt="" hidden>
-                <span class="image-slot-placeholder">&mdash;</span>
-            </div>
-        </div>
-
-        <div class="image-slot is-empty" data-location="5">
-            <span class="image-slot-label">5 &middot; Bout</span>
-            <div class="image-slot-frame">
-                <img id="shapeImg5" alt="" hidden>
-                <span class="image-slot-placeholder">&mdash;</span>
-            </div>
-        </div>
-    </aside>
-    </div>
 </main>
 <script src="assets/selector.js?v=<?= h(APP_VERSION) ?>"></script>
 </body>
