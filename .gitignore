@@ -1,0 +1,3 @@
+# Brondocumentatie (PDF-catalogi) - blijft lokaal beschikbaar als
+# referentie, maar wordt niet meegenomen in git (te groot, geen broncode).
+/adapters/docs/*.pdf
