@@ -235,20 +235,27 @@
         textWrap.append(labelEl, valueEl);
         item.appendChild(textWrap);
 
-        if (imageKey) {
+        const imageKeys = Array.isArray(imageKey) ? imageKey : (imageKey ? [imageKey] : []);
+        if (imageKeys.length) {
             const imgWrap = document.createElement('div');
             imgWrap.className = 'accessory-fact-image';
-            const img = document.createElement('img');
-            img.src = `images/${imageKey}.png`;
-            img.alt = label;
-            img.loading = 'lazy';
-            img.addEventListener('error', () => { imgWrap.remove(); }, { once: true });
-            imgWrap.appendChild(img);
+            imageKeys.forEach((key) => {
+                const img = document.createElement('img');
+                img.src = `images/${key}.png`;
+                img.alt = label;
+                img.loading = 'lazy';
+                img.addEventListener('error', () => { img.remove(); }, { once: true });
+                imgWrap.appendChild(img);
+            });
             item.appendChild(imgWrap);
             item.classList.add('has-image');
         }
 
         return item;
+    }
+
+    function joinValues(...values) {
+        return values.map((v) => String(v ?? '').trim()).filter(Boolean).join(', ');
     }
 
     function renderAccessories(article) {
@@ -263,11 +270,11 @@
 
         const fields = [
             ['Buitenmaat slang', formatMillimetres(accessories.outside), 'buitenmaat'],
-            ['PolyGuard', accessories.polyGuard, 'polyguard'],
+            ['RVS Omvlechting', accessories.rvsOmvlechting, null],
             ['ParKoil', accessories.parKoil, 'parkoil'],
             ['Spring Guard', accessories.springGuard, 'springguard'],
             ['Firesleeve', accessories.firesleeve, 'firesleeve'],
-            ['SpiralGuard', accessories.spiralGuard, 'spiralguard'],
+            ['PolyGuard, SpiralGuard', joinValues(accessories.polyGuard, accessories.spiralGuard), ['polyguard', 'spiralguard']],
             ['Texsleeve', accessories.texsleeve, 'texsleeve'],
             ['Huls Texsleeve (Staal)', accessories.hulsTexStaal, '19001'],
             ['Huls Texsleeve (RVS)', accessories.hulsTexRvs, '19001'],

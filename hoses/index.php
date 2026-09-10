@@ -121,15 +121,16 @@ function loadAccessoryRows(?string $csvFile, array &$errors): array
         }
 
         $rows[articleKey($articleNumber)] = [
-            'outside'       => getColumn($row, 'Buitenmaat slang (mm)'),
-            'polyGuard'     => getColumn($row, 'PolyGuard'),
-            'parKoil'       => getColumn($row, 'ParKoil'),
-            'springGuard'   => getColumn($row, 'Spring Guard'),
-            'firesleeve'    => getColumn($row, 'Firesleeve'),
-            'spiralGuard'   => getColumn($row, 'SpiralGuard'),
-            'texsleeve'     => getColumn($row, 'Texsleeve'),
-            'hulsTexStaal'  => getColumn($row, 'Huls tex staal'),
-            'hulsTexRvs'    => getColumn($row, 'Huls tex RVS'),
+            'outside'         => getColumn($row, 'Buitenmaat slang (mm)'),
+            'rvsOmvlechting'  => getColumn($row, 'RVS Omvlechting'),
+            'polyGuard'       => getColumn($row, 'PolyGuard'),
+            'parKoil'         => getColumn($row, 'ParKoil'),
+            'springGuard'     => getColumn($row, 'Spring Guard'),
+            'firesleeve'      => getColumn($row, 'Firesleeve'),
+            'spiralGuard'     => getColumn($row, 'SpiralGuard'),
+            'texsleeve'       => getColumn($row, 'Texsleeve'),
+            'hulsTexStaal'    => getColumn($row, 'Huls tex staal'),
+            'hulsTexRvs'      => getColumn($row, 'Huls tex RVS'),
         ];
     }
 
