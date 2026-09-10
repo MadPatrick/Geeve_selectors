@@ -110,7 +110,6 @@
 8244-06-08;-;8244;Female thread coupling;Female BSPP thread;recht;BSPP;3/8-19;binnen;BSPP;1/2-14;binnen;;;6
 8244-06-12;-;8244;Female thread coupling;Female BSPP thread;recht;BSPP;3/8-19;binnen;BSPP;3/4-14;binnen;;;6
 8244-04-08;-;8244;Female thread coupling;Female BSPP thread;recht;BSPP;1/4-19;binnen;BSPP;1/2-14;binnen;;;6
-8244-06-08;-;8244;Female thread coupling;Female BSPP thread;recht;BSPP;3/8-16;binnen;BSPP;1/2-14;binnen;;;6
 8244-08-08;1/2GG44MS;8244;Female thread coupling;Female BSPP thread;recht;BSPP;1/2-14;binnen;BSPP;1/2-14;binnen;;;6
 8244-08-10;-;8244;Female thread coupling;Female BSPP thread;recht;BSPP;1/2-14;binnen;BSPP;5/8-14;binnen;;;6
 8244-08-12;-;8244;Female thread coupling;Female BSPP thread;recht;BSPP;1/2-14;binnen;BSPP;3/4-14;binnen;;;6
@@ -193,7 +192,7 @@
 2243-04-08;4-8F6MK4S;2243;Swivel male stud;BSPP 60° cone end / BSPP 60° Female swivel end;recht;BSPP;1/4-19;buiten;BSPP;1/2-14;wartelend;;;11
 2243-06-06;6-6F6MK4S;2243;Swivel male stud;BSPP 60° cone end / BSPP 60° Female swivel end;recht;BSPP;3/8-19;buiten;BSPP;3/8-19;wartelend;;;11
 2243-06-02;-;2243;Swivel male stud;BSPP 60° cone end / BSPP 60° Female swivel end;recht;BSPP;3/8-19;buiten;BSPP;1/8-28;wartelend;;;11
-2243-06-04;4-6F6MK4S;2243;Swivel male stud;BSPP 60° cone end / BSPP 60° Female swivel end;recht;BSPP;3/8-14;buiten;BSPP;1/4-19;wartelend;;;11
+2243-06-04;4-6F6MK4S;2243;Swivel male stud;BSPP 60° cone end / BSPP 60° Female swivel end;recht;BSPP;3/8-19;buiten;BSPP;1/4-19;wartelend;;;11
 2243-06-08;8-6F6MK4S;2243;Swivel male stud;BSPP 60° cone end / BSPP 60° Female swivel end;recht;BSPP;3/8-19;buiten;BSPP;1/2-14;wartelend;;;11
 2243-08-08;8-8F6MK4S;2243;Swivel male stud;BSPP 60° cone end / BSPP 60° Female swivel end;recht;BSPP;1/2-14;buiten;BSPP;1/2-14;wartelend;;;11
 2243-08-04;4-8F6MK4S;2243;Swivel male stud;BSPP 60° cone end / BSPP 60° Female swivel end;recht;BSPP;1/2-14;buiten;BSPP;1/4-19;wartelend;;;11
@@ -1419,8 +1418,8 @@
 2227-04-08;4-8G4MXSMO;2227;Pressure gauge connector;Triple-Lok® 37° Flare end / Female BSPP gauge thread;recht;JIC;7/16-20;buiten;BSPP;1/2-14;binnen;6;1/4;82
 2227-05-04;5-4G4MXSMO;2227;Pressure gauge connector;Triple-Lok® 37° Flare end / Female BSPP gauge thread;recht;JIC;1/2-20;buiten;BSPP;1/4-19;binnen;8;5/16;82
 2227-05-08;5-8G4MXSMO;2227;Pressure gauge connector;Triple-Lok® 37° Flare end / Female BSPP gauge thread;recht;JIC;1/2-20;buiten;BSPP;1/2-14;binnen;8;5/16;82
-2227-06-04;6G4MXSMO;2227;Pressure gauge connector;Triple-Lok® 37° Flare end / Female BSPP gauge thread;recht;JIC;9/16-20;buiten;BSPP;1/4-19;binnen;10;3/8;82
-2227-06-08;6-8G4MXSMO;2227;Pressure gauge connector;Triple-Lok® 37° Flare end / Female BSPP gauge thread;recht;JIC;9/16-20;buiten;BSPP;1/2-14;binnen;10;3/8;82
+2227-06-04;6G4MXSMO;2227;Pressure gauge connector;Triple-Lok® 37° Flare end / Female BSPP gauge thread;recht;JIC;9/16-18;buiten;BSPP;1/4-19;binnen;10;3/8;82
+2227-06-08;6-8G4MXSMO;2227;Pressure gauge connector;Triple-Lok® 37° Flare end / Female BSPP gauge thread;recht;JIC;9/16-18;buiten;BSPP;1/2-14;binnen;10;3/8;82
 2227-08-04;8-4G4MXSMO;2227;Pressure gauge connector;Triple-Lok® 37° Flare end / Female BSPP gauge thread;recht;JIC;3/4-16;buiten;BSPP;1/4-19;binnen;12;1/2;82
 2227-08-08;8-8G4MXSMO;2227;Pressure gauge connector;Triple-Lok® 37° Flare end / Female BSPP gauge thread;recht;JIC;3/4-16;buiten;BSPP;1/2-14;binnen;12;1/2;82
 2115-02;2 FNTX-S;2115;Cap;Triple-Lok® 37° Flare female swivel cap end;n.v.t.;JIC;5/16-24;wartelend;;;;;1/8;82

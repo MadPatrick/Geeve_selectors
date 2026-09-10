@@ -116,10 +116,10 @@ tekstlay-out) om kolommen betrouwbaar te scheiden, inclusief tabellen waarbij:
   (koppelteken tussen "1" en "11" ontbreekt door een renderingsartefact). Op basis van het
   patroon van de omliggende rijen (en de identieke maat "1-11" die elders in dezelfde tabel wél
   correct staat) is dit gecorrigeerd naar "1-11".
-- **10 artikelcodes komen tweemaal voor** met verschillende afmetingen (bijv. `8244-06-08`,
-  `2224-20-24`, ...). Dit is een echte eigenschap van de brondata: dezelfde nominale
-  maatcodering dekt in een paar gevallen twee net iets andere afmetingen aan de randen van
-  aangrenzende maatbereiken. Beide rijen zijn bewaard.
+- **9 artikelcodes komen tweemaal voor** met verschillende afmetingen (bijv. `2224-20-24`, ...).
+  Dit is een echte eigenschap van de brondata: dezelfde nominale maatcodering dekt in een paar
+  gevallen twee net iets andere afmetingen aan de randen van aangrenzende maatbereiken. Beide
+  rijen zijn bewaard.
 - **Familie `7224` (Male stud connector)**: als enige van de vier vergelijkbare families
   (`7223`/`7224`/`7225`/`7226`) ontbreekt in de PDF de kolomkop-tekst voor de tweede
   draadmaat-kolom (de andere drie hebben wél twee losse standaardnamen in die kopregel). Zonder
@@ -127,6 +127,25 @@ tekstlay-out) om kolommen betrouwbaar te scheiden, inclusief tabellen waarbij:
   Elke rij bevat betrouwbaar precies twee complete maat-tokens, dus deze zijn uit elkaar
   getrokken; de draadsoort van aansluiting 2 (`BSPP`) komt uit de subtitel-tekst van de familie
   ("Male BSPP thread"), die daar wél correct in staat.
+- **Draadmaten met een verkeerde spoed (tikfouten in de brondata)**: BSPP-, NPTF- en
+  JIC-draadmaten hebben een vaste spoed per nominale maat (bijv. BSPP 3/8" is altijd 19 tpi).
+  Drie plekken in de PDF wijken daarvan af terwijl de rest van diezelfde draadsoort/maat overal
+  consistent de standaardspoed gebruikt — met hoge zekerheid tikfouten, gecorrigeerd naar de
+  standaardwaarde:
+  - `2243-06-04`: las "BSPP 3/8-14" i.p.v. "BSPP 3/8-19" (elke andere BSPP-3/8-rij in de hele
+    catalogus, 101 stuks, leest "19").
+  - `8244-06-08`: stond **twee keer** in de PDF voor exact dezelfde artikelcode — één keer
+    correct ("BSPP 3/8-19 × 1/2-14") en één keer met tikfout ("BSPP 3/8-16 × 1/2-14"), zelfde
+    kruisverwijzing (leeg) op beide regels. De foutieve duplicaatregel is verwijderd.
+  - `2227-06-04`/`2227-06-08`: lazen "JIC 9/16-20" i.p.v. "JIC 9/16-18" (93 andere JIC-9/16-rijen
+    lezen "18"; de regel erboven in dezelfde tabel gebruikt toevallig ook "-20", voor een andere,
+    kleinere maat — vermoedelijk per ongeluk doorgekopieerd).
+
+  Bewust **niet** aangepast: `8677-40-40` leest "NPTF 2 1/2-11.5" i.p.v. de in NPT/NPTF
+  gebruikelijke 8 tpi voor maten vanaf 2 1/2". Dit is de enige plek waar deze combinatie
+  voorkomt (2 rijen "8" vs. 2 rijen "11.5" over de hele catalogus) én de hele tabel van familie
+  `8677` is zelf consistent — te weinig eenduidig bewijs om als tikfout te bestempelen, dus als
+  ambigu ongewijzigd gelaten.
 
 ## Bestanden overgenomen uit Geeve_hose
 De basislayout (paginastructuur, CSS, upload/download-infrastructuur) is 1-op-1 overgenomen uit
