@@ -135,6 +135,12 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
             <div class="header-content">
                 <div class="header-topline">
                     <span class="version-inline">Versie <?= h(APP_VERSION) ?></span>
+                    <a href="../index.php" class="header-icon-button" title="Terug naar hoofdmenu" aria-label="Terug naar hoofdmenu">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 11.5 12 4l9 7.5"></path>
+                            <path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5a2 2 0 1 1 4 0v5h3.5a1 1 0 0 0 1-1V9.5"></path>
+                        </svg>
+                    </a>
                     <a href="data.php" class="header-icon-button" title="Data downloaden / uploaden" aria-label="Data downloaden / uploaden">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <ellipse cx="12" cy="5" rx="8" ry="3"></ellipse>
