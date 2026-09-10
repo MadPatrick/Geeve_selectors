@@ -215,10 +215,13 @@
         return row;
     }
 
-    function createAccessoryFact(label, value) {
+    function createAccessoryFact(label, value, imageKey) {
         const text = String(value ?? '').trim() || '-';
         const item = document.createElement('div');
         item.className = 'accessory-fact';
+
+        const textWrap = document.createElement('div');
+        textWrap.className = 'accessory-fact-text';
 
         const labelEl = document.createElement('span');
         labelEl.textContent = label;
@@ -229,7 +232,22 @@
             valueEl.classList.add('is-empty');
         }
 
-        item.append(labelEl, valueEl);
+        textWrap.append(labelEl, valueEl);
+        item.appendChild(textWrap);
+
+        if (imageKey) {
+            const imgWrap = document.createElement('div');
+            imgWrap.className = 'accessory-fact-image';
+            const img = document.createElement('img');
+            img.src = `images/${imageKey}.png`;
+            img.alt = label;
+            img.loading = 'lazy';
+            img.addEventListener('error', () => { imgWrap.remove(); }, { once: true });
+            imgWrap.appendChild(img);
+            item.appendChild(imgWrap);
+            item.classList.add('has-image');
+        }
+
         return item;
     }
 
@@ -244,15 +262,15 @@
             : {};
 
         const fields = [
-            ['Buitenmaat slang', formatMillimetres(accessories.outside)],
-            ['PolyGuard', accessories.polyGuard],
-            ['ParKoil', accessories.parKoil],
-            ['Spring Guard', accessories.springGuard],
-            ['Firesleeve', accessories.firesleeve],
-            ['SpiralGuard', accessories.spiralGuard],
-            ['Texsleeve', accessories.texsleeve],
-            ['Huls Texsleeve (Staal)', accessories.hulsTexStaal],
-            ['Huls Texsleeve (RVS)', accessories.hulsTexRvs],
+            ['Buitenmaat slang', formatMillimetres(accessories.outside), null],
+            ['PolyGuard', accessories.polyGuard, null],
+            ['ParKoil', accessories.parKoil, 'parkoil'],
+            ['Spring Guard', accessories.springGuard, 'springguard'],
+            ['Firesleeve', accessories.firesleeve, 'firesleeve'],
+            ['SpiralGuard', accessories.spiralGuard, 'spiralguard'],
+            ['Texsleeve', accessories.texsleeve, 'texsleeve'],
+            ['Huls Texsleeve (Staal)', accessories.hulsTexStaal, '19001'],
+            ['Huls Texsleeve (RVS)', accessories.hulsTexRvs, '19001'],
         ];
 
         const hasAccessoryData = fields.some(([, value]) => String(value ?? '').trim() !== '');
@@ -261,7 +279,7 @@
             return false;
         }
 
-        fields.forEach(([label, value]) => accessoryGrid.appendChild(createAccessoryFact(label, value)));
+        fields.forEach(([label, value, imageKey]) => accessoryGrid.appendChild(createAccessoryFact(label, value, imageKey)));
         accessorySection.hidden = false;
         return true;
     }

@@ -285,7 +285,12 @@ input::placeholder { color: #929fac; }
     min-width: 0;
     padding: 12px 15px;
     background: #fafcfd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
+.accessory-fact-text { min-width: 0; flex: 1 1 auto; }
 .accessory-fact span {
     display: block;
     margin-bottom: 3px;
@@ -299,6 +304,8 @@ input::placeholder { color: #929fac; }
     overflow-wrap: anywhere;
 }
 .accessory-fact strong.is-empty { color: #8c98a6; font-weight: 600; }
+.accessory-fact-image { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; }
+.accessory-fact-image img { display: block; max-width: 110px; max-height: 46px; width: auto; height: auto; object-fit: contain; }
 
 .result-section { margin-top: 22px; }
 .result-section[hidden] { display: none; }
