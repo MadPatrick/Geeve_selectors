@@ -10,17 +10,24 @@ Startpagina met tegels naar de Geeve-selectors:
 ## Gebruik
 
 Zet de hele map op een PHP-webserver (PHP 8+, geen database nodig) en open `index.php`. Elke
-subapp is zelfstandig en gebruikt alleen relatieve paden (`assets/...`, `images/...`, `data/...`),
-dus werkt zonder aanpassingen op elke diepte.
+subapp gebruikt verder alleen eigen relatieve paden (`assets/...`, `data/...`, eigen `images/...`
+voor productfoto's), met twee uitzonderingen die uitgaan van de vaste nesting één niveau onder de
+root: de "terug naar hoofdmenu"-knop (`../index.php`) en het Geeve/Rubix-merklogo
+(`../images/geeve.jpg` en `../images/rubix.jpg`, zie hieronder). Een subapp-map los deployen buiten
+`Geeve_selectors` werkt dus niet zonder die twee bestanden zelf mee te kopiëren — gebruik daarvoor
+de eigen bronrepo (`madpatrick/Geeve_hose`, `madpatrick/Geeve_adapters`, `madpatrick/Geeve_stauff`),
+die elk nog wel hun eigen lokale `images/geeve.jpg`/`rubix.jpg` hebben.
 
 ## Structuur
 
 ```
 index.php              Startpagina met tegels
 assets/style.css        Styling van alleen de startpagina
-images/                 Logo's voor de startpagina (Geeve + Rubix)
+images/                 Gedeeld Geeve/Rubix-merklogo (geeve.jpg, rubix.jpg) - door alle
+                        subapps gebruikt via ../images/..., één plek om bij te werken
 hoses/                  Volledige Slangen fitting Selector-app (eigen assets/data/docs/etc.)
-adapters/               Volledige Adapters Selector-app (eigen assets/data/docs/etc.)
+adapters/               Volledige Adapters Selector-app (eigen assets/data/docs + eigen
+                        images/ met alleen de productfoto's per adapterfamilie)
 stauff/                 Volledige Stauff Selector-app (eigen assets/data/api/etc.)
 ```
 
@@ -31,4 +38,5 @@ stauff/                 Volledige Stauff Selector-app (eigen assets/data/api/etc
 `assets/selector.js` en `api/stauff.php` is ongewijzigd). Wijzigingen in `madpatrick/Geeve_hose`,
 `madpatrick/Geeve_adapters` of `madpatrick/Geeve_stauff` komen hier dus niet automatisch door —
 kopieer de bijgewerkte bestanden opnieuw naar de betreffende submap wanneer een van de apps los is
-bijgewerkt.
+bijgewerkt. Kopieer daarbij **niet** `images/geeve.jpg`/`images/rubix.jpg` uit de bronrepo terug
+in de submap — die verwijzing loopt hier bewust via het gedeelde `../images/` op rootniveau.

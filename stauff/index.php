@@ -24,8 +24,8 @@ function h(string $value): string
         <div class="brand-panel">
             <div class="brand-copy">
                 <div class="brand-logo-row">
-                    <img src="images/geeve.jpg" alt="Geeve Hydraulics - know how in hydraulics" class="brand-logo-img">
-                    <img src="images/rubix.jpg" alt="Powered by Rubix" class="brand-rubix-img">
+                    <img src="../images/geeve.jpg" alt="Geeve Hydraulics - know how in hydraulics" class="brand-logo-img">
+                    <img src="../images/rubix.jpg" alt="Powered by Rubix" class="brand-rubix-img">
                 </div>
             </div>
             <a href="../index.php" class="header-home-button" title="Terug naar hoofdmenu" aria-label="Terug naar hoofdmenu">
