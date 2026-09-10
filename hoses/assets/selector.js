@@ -262,7 +262,7 @@
             : {};
 
         const fields = [
-            ['Buitenmaat slang', formatMillimetres(accessories.outside), null],
+            ['Buitenmaat slang', formatMillimetres(accessories.outside), 'buitenmaat'],
             ['PolyGuard', accessories.polyGuard, null],
             ['ParKoil', accessories.parKoil, 'parkoil'],
             ['Spring Guard', accessories.springGuard, 'springguard'],
