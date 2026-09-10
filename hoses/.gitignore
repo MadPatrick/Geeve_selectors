@@ -1,0 +1,3 @@
+# Automatische backups van geüploade CSV-bestanden (upload.php) - alleen
+# lokaal op de server, niet meenemen in git.
+/data/backups/
