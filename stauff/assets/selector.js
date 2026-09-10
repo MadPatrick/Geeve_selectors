@@ -153,7 +153,7 @@
                 if (isDubbelClamp() || prefix === 'GD') return 'gd1';
                 return bouwgroep === '1' ? 'dp1' : 'dp1a';
             case 'Borgplaat':
-                return prefix === 'SIG' ? 'sig' : null;
+                return (prefix === 'SIG' || prefix === 'SIP') ? 'sig' : null;
             case 'Stapelbout':
                 return 'af';
             case 'Inbusbout':
