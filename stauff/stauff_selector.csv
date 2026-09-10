@@ -1,0 +1,1283 @@
+﻿Artikelcode;Onderdeel;Positie;Diameter 1;Diameter 2;Bouwgroep;Enkel / Dubbel;Materiaal;Materiaalcode;Serie;Variant / specificatie;Status
+100A PA;Beugel;2;0;;1A;Enkel;Polyamide;PA;Licht (standaard);;OK
+10168 AL;Beugel;2;168;;10;Enkel;Aluminium;AL;Zwaar;;OK
+10168 PA;Beugel;2;168;;10;Enkel;Polyamide;PA;Zwaar;;OK
+10168 PP;Beugel;2;168;;10;Enkel;Polypropyleen;PP;Zwaar;;OK
+10177,8 PP;Beugel;2;177,8;;10;Enkel;Polypropyleen;PP;Zwaar;;OK
+10190 PP;Beugel;2;190;;10;Enkel;Polypropyleen;PP;Zwaar;;OK
+10193,7 PP;Beugel;2;193,7;;10;Enkel;Polypropyleen;PP;Zwaar;;OK
+10219 AL;Beugel;2;219;;10;Enkel;Aluminium;AL;Zwaar;;OK
+10219 PA;Beugel;2;219;;10;Enkel;Polyamide;PA;Zwaar;;OK
+10219 PP;Beugel;2;219;;10;Enkel;Polypropyleen;PP;Zwaar;;OK
+10219.1 PP;Beugel;2;219.1;;10;Enkel;Polypropyleen;PP;Zwaar;;OK
+10220 PP;Beugel;2;220;;10;Enkel;Polypropyleen;PP;Zwaar;;OK
+103,2 PA;Beugel;2;3,2;;1;Enkel;Polyamide;PA;Licht (standaard);;OK
+103,2 PP;Beugel;2;3,2;;1;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+103,2/03,2 PA;Beugel;2;3,2;3,2;1;Dubbel;Polyamide;PA;Licht (standaard);;OK
+103,2/03,2 PP;Beugel;2;3,2;3,2;1;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+103,2A PA;Beugel;2;3,2;;1A;Enkel;Polyamide;PA;Licht (standaard);;OK
+103/03 PA;Beugel;2;3;3;1;Dubbel;Polyamide;PA;Licht (standaard);;OK
+105 PP;Beugel;2;5;;1;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+106 PA;Beugel;2;6;;1;Enkel;Polyamide;PA;Licht (standaard);;OK
+106 PP;Beugel;2;6;;1;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+106 PPH;Beugel;2;6;;1;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+106 SA;Beugel;2;6;;1;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+106,4 PA;Beugel;2;6,4;;1;Enkel;Polyamide;PA;Licht (standaard);;OK
+106,4 PAH;Beugel;2;6,4;;1;Enkel;Polyamide;PAH;Licht (standaard);;OK
+106,4 PP;Beugel;2;6,4;;1;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+106,4 PPH;Beugel;2;6,4;;1;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+106,4/06,4 ACT;Beugel;2;6,4;6,4;1;Dubbel;ACT;ACT;Licht (standaard);;OK
+106,4/06,4 PA;Beugel;2;6,4;6,4;1;Dubbel;Polyamide;PA;Licht (standaard);;OK
+106,4/06,4 PAH;Beugel;2;6,4;6,4;1;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+106,4/06,4 PP;Beugel;2;6,4;6,4;1;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+106,4/06,4 PP ACHV;Beugel;2;6,4;6,4;1;Dubbel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+106,4A ACT;Beugel;2;6,4;;1A;Enkel;ACT;ACT;Licht (standaard);;OK
+106,4A AL;Beugel;2;6,4;;1A;Enkel;Aluminium;AL;Licht (standaard);;OK
+106,4A PA;Beugel;2;6,4;;1A;Enkel;Polyamide;PA;Licht (standaard);;OK
+106,4A PAH;Beugel;2;6,4;;1A;Enkel;Polyamide;PAH;Licht (standaard);;OK
+106,4A PP;Beugel;2;6,4;;1A;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+106,4A PP ACHV;Beugel;2;6,4;;1A;Enkel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+106,4A PPH;Beugel;2;6,4;;1A;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+106/06 ACT;Beugel;2;6;6;1;Dubbel;ACT;ACT;Licht (standaard);;OK
+106/06 PA;Beugel;2;6;6;1;Dubbel;Polyamide;PA;Licht (standaard);;OK
+106/06 PA V0;Beugel;2;6;6;1;Dubbel;Polyamide;PA;Licht (standaard);V0;OK
+106/06 PP;Beugel;2;6;6;1;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+106/06 PP-BK;Beugel;2;6;6;1;Dubbel;Polypropyleen;PP-BK;Licht (standaard);;OK
+106A ACT;Beugel;2;6;;1A;Enkel;ACT;ACT;Licht (standaard);;OK
+106A AL;Beugel;2;6;;1A;Enkel;Aluminium;AL;Licht (standaard);;OK
+106A PA;Beugel;2;6;;1A;Enkel;Polyamide;PA;Licht (standaard);;OK
+106A PA V0;Beugel;2;6;;1A;Enkel;Polyamide;PA;Licht (standaard);V0;OK
+106A PP;Beugel;2;6;;1A;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+106A PPH;Beugel;2;6;;1A;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+108 PA;Beugel;2;8;;1;Enkel;Polyamide;PA;Licht (standaard);;OK
+108 PP;Beugel;2;8;;1;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+108 PPH;Beugel;2;8;;1;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+108.7/08.7 PP;Beugel;2;8.7;8.7;1;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+108/06 PP;Beugel;2;8;6;1;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+108/08 PA;Beugel;2;8;8;1;Dubbel;Polyamide;PA;Licht (standaard);;OK
+108/08 PP;Beugel;2;8;8;1;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+108/08 PP-BK;Beugel;2;8;8;1;Dubbel;Polypropyleen;PP-BK;Licht (standaard);;OK
+108A ACT;Beugel;2;8;;1A;Enkel;ACT;ACT;Licht (standaard);;OK
+108A AL;Beugel;2;8;;1A;Enkel;Aluminium;AL;Licht (standaard);;OK
+108A PA;Beugel;2;8;;1A;Enkel;Polyamide;PA;Licht (standaard);;OK
+108A PAH;Beugel;2;8;;1A;Enkel;Polyamide;PAH;Licht (standaard);;OK
+108A PP;Beugel;2;8;;1A;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+108A PP-BK;Beugel;2;8;;1A;Enkel;Polypropyleen;PP-BK;Licht (standaard);;OK
+108A PPH;Beugel;2;8;;1A;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+108A SA;Beugel;2;8;;1A;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+108A SAH;Beugel;2;8;;1A;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+109,5 PA;Beugel;2;9,5;;1;Enkel;Polyamide;PA;Licht (standaard);;OK
+109,5 PAH;Beugel;2;9,5;;1;Enkel;Polyamide;PAH;Licht (standaard);;OK
+109,5 PP;Beugel;2;9,5;;1;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+109,5 PPH;Beugel;2;9,5;;1;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+109,5/09,5 ACT;Beugel;2;9,5;9,5;1;Dubbel;ACT;ACT;Licht (standaard);;OK
+109,5/09,5 PA;Beugel;2;9,5;9,5;1;Dubbel;Polyamide;PA;Licht (standaard);;OK
+109,5/09,5 PAH;Beugel;2;9,5;9,5;1;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+109,5/09,5 PP;Beugel;2;9,5;9,5;1;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+109,5/09,5 PP ACHV;Beugel;2;9,5;9,5;1;Dubbel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+109,5/09,5 PPH;Beugel;2;9,5;9,5;1;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+109,5/09,5 PPH-BK;Beugel;2;9,5;9,5;1;Dubbel;Polypropyleen;PPH-BK;Licht (standaard);;OK
+109,5A ACT;Beugel;2;9,5;;1A;Enkel;ACT;ACT;Licht (standaard);;OK
+109,5A AL;Beugel;2;9,5;;1A;Enkel;Aluminium;AL;Licht (standaard);;OK
+109,5A PA;Beugel;2;9,5;;1A;Enkel;Polyamide;PA;Licht (standaard);;OK
+109,5A PAH;Beugel;2;9,5;;1A;Enkel;Polyamide;PAH;Licht (standaard);;OK
+109,5A PP;Beugel;2;9,5;;1A;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+109,5A PP ACHV;Beugel;2;9,5;;1A;Enkel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+109,5A PPH;Beugel;2;9,5;;1A;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+110 PA;Beugel;2;10;;1;Enkel;Polyamide;PA;Licht (standaard);;OK
+110 PAH;Beugel;2;10;;1;Enkel;Polyamide;PAH;Licht (standaard);;OK
+110 PP;Beugel;2;10;;1;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+110 SA;Beugel;2;10;;1;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+110 SAH;Beugel;2;10;;1;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+110/10 ACT;Beugel;2;10;10;1;Dubbel;ACT;ACT;Licht (standaard);;OK
+110/10 PA;Beugel;2;10;10;1;Dubbel;Polyamide;PA;Licht (standaard);;OK
+110/10 PA V0;Beugel;2;10;10;1;Dubbel;Polyamide;PA;Licht (standaard);V0;OK
+110/10 PAH;Beugel;2;10;10;1;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+110/10 PP;Beugel;2;10;10;1;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+110/10 PPH;Beugel;2;10;10;1;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+110A ACT;Beugel;2;10;;1A;Enkel;ACT;ACT;Licht (standaard);;OK
+110A AL;Beugel;2;10;;1A;Enkel;Aluminium;AL;Licht (standaard);;OK
+110A PA;Beugel;2;10;;1A;Enkel;Polyamide;PA;Licht (standaard);;OK
+110A PA V0;Beugel;2;10;;1A;Enkel;Polyamide;PA;Licht (standaard);V0;OK
+110A PAH;Beugel;2;10;;1A;Enkel;Polyamide;PAH;Licht (standaard);;OK
+110A PP;Beugel;2;10;;1A;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+110A PP-BK;Beugel;2;10;;1A;Enkel;Polypropyleen;PP-BK;Licht (standaard);;OK
+110A PPH;Beugel;2;10;;1A;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+110A SA;Beugel;2;10;;1A;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+110A SAH;Beugel;2;10;;1A;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+112 PA;Beugel;2;12;;1;Enkel;Polyamide;PA;Licht (standaard);;OK
+112 PAH;Beugel;2;12;;1;Enkel;Polyamide;PAH;Licht (standaard);;OK
+112 PP;Beugel;2;12;;1;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+112 PP-BK;Beugel;2;12;;1;Enkel;Polypropyleen;PP-BK;Licht (standaard);;OK
+112 PPH;Beugel;2;12;;1;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+112 SA;Beugel;2;12;;1;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+112,7 PA;Beugel;2;12,7;;1;Enkel;Polyamide;PA;Licht (standaard);;OK
+112,7 PAH;Beugel;2;12,7;;1;Enkel;Polyamide;PAH;Licht (standaard);;OK
+112,7 PP;Beugel;2;12,7;;1;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+112,7/12,7 PP;Beugel;2;12,7;12,7;1;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+112/12 ACT;Beugel;2;12;12;1;Dubbel;ACT;ACT;Licht (standaard);;OK
+112/12 PA;Beugel;2;12;12;1;Dubbel;Polyamide;PA;Licht (standaard);;OK
+112/12 PA V0;Beugel;2;12;12;1;Dubbel;Polyamide;PA;Licht (standaard);V0;OK
+112/12 PAH;Beugel;2;12;12;1;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+112/12 PP;Beugel;2;12;12;1;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+112/12 PP-BK;Beugel;2;12;12;1;Dubbel;Polypropyleen;PP-BK;Licht (standaard);;OK
+112/12 PPH;Beugel;2;12;12;1;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+11219 PP;Beugel;2;1219;;1;Enkel;Polypropyleen;PP;Zwaar;;OK
+11273 PP;Beugel;2;1273;;1;Enkel;Polypropyleen;PP;Zwaar;;OK
+112A ACT;Beugel;2;12;;1A;Enkel;ACT;ACT;Licht (standaard);;OK
+112A AL;Beugel;2;12;;1A;Enkel;Aluminium;AL;Licht (standaard);;OK
+112A PA;Beugel;2;12;;1A;Enkel;Polyamide;PA;Licht (standaard);;OK
+112A PA V0;Beugel;2;12;;1A;Enkel;Polyamide;PA;Licht (standaard);V0;OK
+112A PA-FF;Beugel;2;12;;1A;Enkel;Polyamide;PA-FF;Licht (standaard);;OK
+112A PAH;Beugel;2;12;;1A;Enkel;Polyamide;PAH;Licht (standaard);;OK
+112A PP;Beugel;2;12;;1A;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+112A PP-BK;Beugel;2;12;;1A;Enkel;Polypropyleen;PP-BK;Licht (standaard);;OK
+112A PPH;Beugel;2;12;;1A;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+112A SA;Beugel;2;12;;1A;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+112A SAH;Beugel;2;12;;1A;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+11324 PP;Beugel;2;1324;;1;Enkel;Polypropyleen;PP;Zwaar;;OK
+116 PP;Beugel;2;16;;1;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+116 PPH-BK-15877;Beugel;2;16;;1;Enkel;Polypropyleen;PPH-BK-15877;Licht (standaard);;OK
+12356 PP;Beugel;2;2356;;1;Enkel;Polypropyleen;PP;Zwaar;;OK
+200 PP;Beugel;2;0;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+210 PP;Beugel;2;10;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+212 AL;Beugel;2;12;;2;Enkel;Aluminium;AL;Licht (standaard);;OK
+212 PA;Beugel;2;12;;2;Enkel;Polyamide;PA;Licht (standaard);;OK
+212 PP;Beugel;2;12;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+212,7 ACT;Beugel;2;12,7;;2;Enkel;ACT;ACT;Licht (standaard);;OK
+212,7 AL;Beugel;2;12,7;;2;Enkel;Aluminium;AL;Licht (standaard);;OK
+212,7 PA;Beugel;2;12,7;;2;Enkel;Polyamide;PA;Licht (standaard);;OK
+212,7 PAH;Beugel;2;12,7;;2;Enkel;Polyamide;PAH;Licht (standaard);;OK
+212,7 PA-IS M W3;Beugel;2;12,7;;2;Enkel;Polyamide;PA-IS;Licht (standaard);M W3;OK
+212,7 PP;Beugel;2;12,7;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+212,7 PP ACHV;Beugel;2;12,7;;2;Enkel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+212,7 PP-BK;Beugel;2;12,7;;2;Enkel;Polypropyleen;PP-BK;Licht (standaard);;OK
+212,7 PPH;Beugel;2;12,7;;2;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+212,7/12,7 ACT;Beugel;2;12,7;12,7;2;Dubbel;ACT;ACT;Licht (standaard);;OK
+212,7/12,7 PA;Beugel;2;12,7;12,7;2;Dubbel;Polyamide;PA;Licht (standaard);;OK
+212,7/12,7 PAH;Beugel;2;12,7;12,7;2;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+212,7/12,7 PP;Beugel;2;12,7;12,7;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+212,7/12,7 PP ACHV;Beugel;2;12,7;12,7;2;Dubbel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+212,7/12,7 PP-BK;Beugel;2;12,7;12,7;2;Dubbel;Polypropyleen;PP-BK;Licht (standaard);;OK
+212,7/12,7 PPH-BK;Beugel;2;12,7;12,7;2;Dubbel;Polypropyleen;PPH-BK;Licht (standaard);;OK
+212/12 PP;Beugel;2;12;12;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+213,5 AL;Beugel;2;13,5;;2;Enkel;Aluminium;AL;Licht (standaard);;OK
+213,5 PA;Beugel;2;13,5;;2;Enkel;Polyamide;PA;Licht (standaard);;OK
+213,5 PAH;Beugel;2;13,5;;2;Enkel;Polyamide;PAH;Licht (standaard);;OK
+213,5 PP;Beugel;2;13,5;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+213,5/13,5 PAH;Beugel;2;13,5;13,5;2;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+213,5/13,5 PP;Beugel;2;13,5;13,5;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+214 ACT;Beugel;2;14;;2;Enkel;ACT;ACT;Licht (standaard);;OK
+214 AL;Beugel;2;14;;2;Enkel;Aluminium;AL;Licht (standaard);;OK
+214 PA;Beugel;2;14;;2;Enkel;Polyamide;PA;Licht (standaard);;OK
+214 PAH;Beugel;2;14;;2;Enkel;Polyamide;PAH;Licht (standaard);;OK
+214 PP;Beugel;2;14;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+214,3 ACT;Beugel;2;14,3;;2;Enkel;ACT;ACT;Licht (standaard);;OK
+214/14 PA;Beugel;2;14;14;2;Dubbel;Polyamide;PA;Licht (standaard);;OK
+214/14 PAH;Beugel;2;14;14;2;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+214/14 PP;Beugel;2;14;14;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+214/14 PPH;Beugel;2;14;14;2;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+215 AL;Beugel;2;15;;2;Enkel;Aluminium;AL;Licht (standaard);;OK
+215 PA;Beugel;2;15;;2;Enkel;Polyamide;PA;Licht (standaard);;OK
+215 PAH;Beugel;2;15;;2;Enkel;Polyamide;PAH;Licht (standaard);;OK
+215 PP;Beugel;2;15;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+215 PP WH9003;Beugel;2;15;;2;Enkel;Polypropyleen;PP;Licht (standaard);WH9003;OK
+215 PP-BK;Beugel;2;15;;2;Enkel;Polypropyleen;PP-BK;Licht (standaard);;OK
+215 PPH;Beugel;2;15;;2;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+215 SA;Beugel;2;15;;2;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+215 SAH;Beugel;2;15;;2;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+215/10 PP;Beugel;2;15;10;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+215/12 PA;Beugel;2;15;12;2;Dubbel;Polyamide;PA;Licht (standaard);;OK
+215/12 PP;Beugel;2;15;12;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+215/15 PA;Beugel;2;15;15;2;Dubbel;Polyamide;PA;Licht (standaard);;OK
+215/15 PP;Beugel;2;15;15;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+216 ACT;Beugel;2;16;;2;Enkel;ACT;ACT;Licht (standaard);;OK
+216 AL;Beugel;2;16;;2;Enkel;Aluminium;AL;Licht (standaard);;OK
+216 PA;Beugel;2;16;;2;Enkel;Polyamide;PA;Licht (standaard);;OK
+216 PAH;Beugel;2;16;;2;Enkel;Polyamide;PAH;Licht (standaard);;OK
+216 PP;Beugel;2;16;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+216 PP ACHV;Beugel;2;16;;2;Enkel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+216 PP-BK;Beugel;2;16;;2;Enkel;Polypropyleen;PP-BK;Licht (standaard);;OK
+216 PPH;Beugel;2;16;;2;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+216 SA;Beugel;2;16;;2;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+216/16 PA;Beugel;2;16;16;2;Dubbel;Polyamide;PA;Licht (standaard);;OK
+216/16 PAH;Beugel;2;16;16;2;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+216/16 PP;Beugel;2;16;16;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+216/16 PP-BK;Beugel;2;16;16;2;Dubbel;Polypropyleen;PP-BK;Licht (standaard);;OK
+216/16 PPH;Beugel;2;16;16;2;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+217,2 PA;Beugel;2;17,2;;2;Enkel;Polyamide;PA;Licht (standaard);;OK
+217,2 PAH;Beugel;2;17,2;;2;Enkel;Polyamide;PAH;Licht (standaard);;OK
+217,2 PP;Beugel;2;17,2;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+217,2 PPH;Beugel;2;17,2;;2;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+217,2/17,2 PA;Beugel;2;17,2;17,2;2;Dubbel;Polyamide;PA;Licht (standaard);;OK
+217,2/17,2 PAH;Beugel;2;17,2;17,2;2;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+217,2/17,2 PP;Beugel;2;17,2;17,2;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+217,2/17,2 PPH;Beugel;2;17,2;17,2;2;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+218 ACT;Beugel;2;18;;2;Enkel;ACT;ACT;Licht (standaard);;OK
+218 AL;Beugel;2;18;;2;Enkel;Aluminium;AL;Licht (standaard);;OK
+218 PA;Beugel;2;18;;2;Enkel;Polyamide;PA;Licht (standaard);;OK
+218 PAH;Beugel;2;18;;2;Enkel;Polyamide;PAH;Licht (standaard);;OK
+218 PP;Beugel;2;18;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+218 PP-BK;Beugel;2;18;;2;Enkel;Polypropyleen;PP-BK;Licht (standaard);;OK
+218 PPH;Beugel;2;18;;2;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+218 SA;Beugel;2;18;;2;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+218 SA64 H;Beugel;2;18;;2;Enkel;SA / elastomeer;SA64;Licht (standaard);H;OK
+218 SAH;Beugel;2;18;;2;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+218/12 PA;Beugel;2;18;12;2;Dubbel;Polyamide;PA;Licht (standaard);;OK
+218/18 PA;Beugel;2;18;18;2;Dubbel;Polyamide;PA;Licht (standaard);;OK
+218/18 PAH;Beugel;2;18;18;2;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+218/18 PP;Beugel;2;18;18;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+218/18 SA;Beugel;2;18;18;2;Dubbel;SA / elastomeer;SA;Licht (standaard);;OK
+219 PP;Beugel;2;19;;2;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+219/19 PP;Beugel;2;19;19;2;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+3006 PA;Beugel;2;06;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3006 PP;Beugel;2;06;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3006,4 PA;Beugel;2;06,4;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3006,4 PP;Beugel;2;06,4;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3008 AL;Beugel;2;08;;3;Enkel;Aluminium;AL;Zwaar;;OK
+3008 PA;Beugel;2;08;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3008 PP;Beugel;2;08;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3008 PPH;Beugel;2;08;;3;Enkel;Polypropyleen;PPH;Zwaar;;OK
+3009,5 PA;Beugel;2;09,5;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3009,5 PP;Beugel;2;09,5;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3010 AL;Beugel;2;10;;3;Enkel;Aluminium;AL;Zwaar;;OK
+3010 PA;Beugel;2;10;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3010 PP;Beugel;2;10;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3010 PPH;Beugel;2;10;;3;Enkel;Polypropyleen;PPH;Zwaar;;OK
+3012 AL;Beugel;2;12;;3;Enkel;Aluminium;AL;Zwaar;;OK
+3012 PA;Beugel;2;12;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3012 PAH;Beugel;2;12;;3;Enkel;Polyamide;PAH;Zwaar;;OK
+3012 PP;Beugel;2;12;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3012 PPH;Beugel;2;12;;3;Enkel;Polypropyleen;PPH;Zwaar;;OK
+3012 SA;Beugel;2;12;;3;Enkel;SA / elastomeer;SA;Zwaar;;OK
+3012,7 AL;Beugel;2;12,7;;3;Enkel;Aluminium;AL;Zwaar;;OK
+3012,7 PA;Beugel;2;12,7;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3012,7 PP;Beugel;2;12,7;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3012,7 PPH;Beugel;2;12,7;;3;Enkel;Polypropyleen;PPH;Zwaar;;OK
+3013,5 AL;Beugel;2;13,5;;3;Enkel;Aluminium;AL;Zwaar;;OK
+3013,5 PP;Beugel;2;13,5;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3013,5 PPH;Beugel;2;13,5;;3;Enkel;Polypropyleen;PPH;Zwaar;;OK
+3014 AL;Beugel;2;14;;3;Enkel;Aluminium;AL;Zwaar;;OK
+3014 PA;Beugel;2;14;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3014 PP;Beugel;2;14;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3015 PA;Beugel;2;15;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3015 PP;Beugel;2;15;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3015 PPH;Beugel;2;15;;3;Enkel;Polypropyleen;PPH;Zwaar;;OK
+3015 SA;Beugel;2;15;;3;Enkel;SA / elastomeer;SA;Zwaar;;OK
+3016 AL;Beugel;2;16;;3;Enkel;Aluminium;AL;Zwaar;;OK
+3016 PA;Beugel;2;16;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3016 PAH;Beugel;2;16;;3;Enkel;Polyamide;PAH;Zwaar;;OK
+3016 PP;Beugel;2;16;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3016 PPH;Beugel;2;16;;3;Enkel;Polypropyleen;PPH;Zwaar;;OK
+3017,2 AL;Beugel;2;17,2;;3;Enkel;Aluminium;AL;Zwaar;;OK
+3017,2 PP;Beugel;2;17,2;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3017,2 PPH;Beugel;2;17,2;;3;Enkel;Polypropyleen;PPH;Zwaar;;OK
+3018 AL;Beugel;2;18;;3;Enkel;Aluminium;AL;Zwaar;;OK
+3018 PA;Beugel;2;18;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3018 PAH;Beugel;2;18;;3;Enkel;Polyamide;PAH;Zwaar;;OK
+3018 PP;Beugel;2;18;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+3018 PPH;Beugel;2;18;;3;Enkel;Polypropyleen;PPH;Zwaar;;OK
+3018 SA;Beugel;2;18;;3;Enkel;SA / elastomeer;SA;Zwaar;;OK
+3020 PA;Beugel;2;20;;3;Enkel;Polyamide;PA;Zwaar;;OK
+3020 PP;Beugel;2;20;;3;Enkel;Polypropyleen;PP;Zwaar;;OK
+312 PP;Beugel;2;12;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+316 PP;Beugel;2;16;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+316 PPH;Beugel;2;16;;3;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+318 AL;Beugel;2;18;;3;Enkel;Aluminium;AL;Licht (standaard);;OK
+318 PA;Beugel;2;18;;3;Enkel;Polyamide;PA;Licht (standaard);;OK
+318 PP;Beugel;2;18;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+319 ACT;Beugel;2;19;;3;Enkel;ACT;ACT;Licht (standaard);;OK
+319 AL;Beugel;2;19;;3;Enkel;Aluminium;AL;Licht (standaard);;OK
+319 PA;Beugel;2;19;;3;Enkel;Polyamide;PA;Licht (standaard);;OK
+319 PAH;Beugel;2;19;;3;Enkel;Polyamide;PAH;Licht (standaard);;OK
+319 PA-IS M W3;Beugel;2;19;;3;Enkel;Polyamide;PA-IS;Licht (standaard);M W3;OK
+319 PP;Beugel;2;19;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+319 PP ACHV;Beugel;2;19;;3;Enkel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+319 PPH;Beugel;2;19;;3;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+319/19 ACT;Beugel;2;19;19;3;Dubbel;ACT;ACT;Licht (standaard);;OK
+319/19 PA;Beugel;2;19;19;3;Dubbel;Polyamide;PA;Licht (standaard);;OK
+319/19 PAH;Beugel;2;19;19;3;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+319/19 PP;Beugel;2;19;19;3;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+319/19 PP ACHV;Beugel;2;19;19;3;Dubbel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+319/19 PPH-BK;Beugel;2;19;19;3;Dubbel;Polypropyleen;PPH-BK;Licht (standaard);;OK
+320 ACT;Beugel;2;20;;3;Enkel;ACT;ACT;Licht (standaard);;OK
+320 AL;Beugel;2;20;;3;Enkel;Aluminium;AL;Licht (standaard);;OK
+320 PA;Beugel;2;20;;3;Enkel;Polyamide;PA;Licht (standaard);;OK
+320 PAH;Beugel;2;20;;3;Enkel;Polyamide;PAH;Licht (standaard);;OK
+320 PP;Beugel;2;20;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+320 PPH;Beugel;2;20;;3;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+320 SA;Beugel;2;20;;3;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+320.5/20.5 PPH;Beugel;2;20.5;20.5;3;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+320/20 PA;Beugel;2;20;20;3;Dubbel;Polyamide;PA;Licht (standaard);;OK
+320/20 PAH;Beugel;2;20;20;3;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+320/20 PP;Beugel;2;20;20;3;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+321,3 ACT;Beugel;2;21,3;;3;Enkel;ACT;ACT;Licht (standaard);;OK
+321,3 AL;Beugel;2;21,3;;3;Enkel;Aluminium;AL;Licht (standaard);;OK
+321,3 PA;Beugel;2;21,3;;3;Enkel;Polyamide;PA;Licht (standaard);;OK
+321,3 PAH;Beugel;2;21,3;;3;Enkel;Polyamide;PAH;Licht (standaard);;OK
+321,3 PP;Beugel;2;21,3;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+321,3 PP BK;Beugel;2;21,3;;3;Enkel;Polypropyleen;PP;Licht (standaard);BK;OK
+321,3 PPH;Beugel;2;21,3;;3;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+321,3 SA;Beugel;2;21,3;;3;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+321,3/21,3 PA;Beugel;2;21,3;21,3;3;Dubbel;Polyamide;PA;Licht (standaard);;OK
+321,3/21,3 PP;Beugel;2;21,3;21,3;3;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+321,3/21,3 PPH;Beugel;2;21,3;21,3;3;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+322 AL;Beugel;2;22;;3;Enkel;Aluminium;AL;Licht (standaard);;OK
+322 PA;Beugel;2;22;;3;Enkel;Polyamide;PA;Licht (standaard);;OK
+322 PAH;Beugel;2;22;;3;Enkel;Polyamide;PAH;Licht (standaard);;OK
+322 PP;Beugel;2;22;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+322 PP BK;Beugel;2;22;;3;Enkel;Polypropyleen;PP;Licht (standaard);BK;OK
+322 PPH;Beugel;2;22;;3;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+322 SA;Beugel;2;22;;3;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+322/18 PP;Beugel;2;22;18;3;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+322/22 PA;Beugel;2;22;22;3;Dubbel;Polyamide;PA;Licht (standaard);;OK
+322/22 PP;Beugel;2;22;22;3;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+323 AL;Beugel;2;23;;3;Enkel;Aluminium;AL;Licht (standaard);;OK
+323 PA;Beugel;2;23;;3;Enkel;Polyamide;PA;Licht (standaard);;OK
+323 PP;Beugel;2;23;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+323,9 PPH;Beugel;2;23,9;;3;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+324 PP;Beugel;2;24;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+324 PPH;Beugel;2;24;;3;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+325 ACT;Beugel;2;25;;3;Enkel;ACT;ACT;Licht (standaard);;OK
+325 AL;Beugel;2;25;;3;Enkel;Aluminium;AL;Licht (standaard);;OK
+325 PA;Beugel;2;25;;3;Enkel;Polyamide;PA;Licht (standaard);;OK
+325 PAH;Beugel;2;25;;3;Enkel;Polyamide;PAH;Licht (standaard);;OK
+325 PP;Beugel;2;25;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+325 PPH;Beugel;2;25;;3;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+325 SA;Beugel;2;25;;3;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+325 SAH;Beugel;2;25;;3;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+325,4 ACT;Beugel;2;25,4;;3;Enkel;ACT;ACT;Licht (standaard);;OK
+325,4 AL;Beugel;2;25,4;;3;Enkel;Aluminium;AL;Licht (standaard);;OK
+325,4 PA;Beugel;2;25,4;;3;Enkel;Polyamide;PA;Licht (standaard);;OK
+325,4 PAH;Beugel;2;25,4;;3;Enkel;Polyamide;PAH;Licht (standaard);;OK
+325,4 PP;Beugel;2;25,4;;3;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+325,4 PP ACHV;Beugel;2;25,4;;3;Enkel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+325,4 PPH;Beugel;2;25,4;;3;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+325,4 SA;Beugel;2;25,4;;3;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+325,4/25,4 PP ACHV;Beugel;2;25,4;25,4;3;Dubbel;Polypropyleen;PP;Licht (standaard);ACHV;OK
+325,4/25,4 PPH;Beugel;2;25,4;25,4;3;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+325.4/25.4 ACT;Beugel;2;25.4;25.4;3;Dubbel;ACT;ACT;Licht (standaard);;OK
+325.4/25.4 PP;Beugel;2;25.4;25.4;3;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+325/25 PA;Beugel;2;25;25;3;Dubbel;Polyamide;PA;Licht (standaard);;OK
+325/25 PP;Beugel;2;25;25;3;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+325/25 PPH;Beugel;2;25;25;3;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+4 PAR;Beugel;2;;;4;Enkel;PAR;PAR;Licht (standaard);;Controle
+4 PPR;Beugel;2;;;4;Enkel;PPR;PPR;Licht (standaard);;Controle
+4 S PPR;Beugel;2;;;4;Enkel;Controle;S;Licht (standaard);PPR;Controle
+4000 PP;Beugel;2;00;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4010 PPR;Beugel;2;10;;4;Enkel;PPR;PPR;Zwaar;;OK
+4010/10 PP;Beugel;2;10;10;4;Dubbel;Polypropyleen;PP;Zwaar;;OK
+4012 AL;Beugel;2;12;;4;Enkel;Aluminium;AL;Zwaar;;OK
+4012 PP;Beugel;2;12;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4012 PPR;Beugel;2;12;;4;Enkel;PPR;PPR;Zwaar;;OK
+4012,7 PP;Beugel;2;12,7;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4012,7 PPR;Beugel;2;12,7;;4;Enkel;PPR;PPR;Zwaar;;OK
+4012,7/12,7 PP;Beugel;2;12,7;12,7;4;Dubbel;Polypropyleen;PP;Zwaar;;OK
+4014 PP;Beugel;2;14;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4014 PPR;Beugel;2;14;;4;Enkel;PPR;PPR;Zwaar;;OK
+4015 PAR;Beugel;2;15;;4;Enkel;PAR;PAR;Zwaar;;OK
+4015 PPR;Beugel;2;15;;4;Enkel;PPR;PPR;Zwaar;;OK
+4016 PAH;Beugel;2;16;;4;Enkel;Polyamide;PAH;Zwaar;;OK
+4016 PAR;Beugel;2;16;;4;Enkel;PAR;PAR;Zwaar;;OK
+4016 PE MECH;Beugel;2;16;;4;Enkel;Polyethyleen;PE;Zwaar;MECH;OK
+4016 PP;Beugel;2;16;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4016 PPH;Beugel;2;16;;4;Enkel;Polypropyleen;PPH;Zwaar;;OK
+4016 PPR;Beugel;2;16;;4;Enkel;PPR;PPR;Zwaar;;OK
+4016/16 PA;Beugel;2;16;16;4;Dubbel;Polyamide;PA;Zwaar;;OK
+4016/16 PP;Beugel;2;16;16;4;Dubbel;Polypropyleen;PP;Zwaar;;OK
+4017,2 PPR;Beugel;2;17,2;;4;Enkel;PPR;PPR;Zwaar;;OK
+4017,2/17,2 PPR;Beugel;2;17,2;17,2;4;Dubbel;PPR;PPR;Zwaar;;OK
+4018 PP;Beugel;2;18;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4018 PPH;Beugel;2;18;;4;Enkel;Polypropyleen;PPH;Zwaar;;OK
+4018/18 PPR;Beugel;2;18;18;4;Dubbel;PPR;PPR;Zwaar;;OK
+4019 PA;Beugel;2;19;;4;Enkel;Polyamide;PA;Zwaar;;OK
+4019 PP;Beugel;2;19;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4019 PPH;Beugel;2;19;;4;Enkel;Polypropyleen;PPH;Zwaar;;OK
+4020 AL;Beugel;2;20;;4;Enkel;Aluminium;AL;Zwaar;;OK
+4020 PA;Beugel;2;20;;4;Enkel;Polyamide;PA;Zwaar;;OK
+4020 PAH;Beugel;2;20;;4;Enkel;Polyamide;PAH;Zwaar;;OK
+4020 PE MECH;Beugel;2;20;;4;Enkel;Polyethyleen;PE;Zwaar;MECH;OK
+4020 PP;Beugel;2;20;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4020 PPH;Beugel;2;20;;4;Enkel;Polypropyleen;PPH;Zwaar;;OK
+4020 SAH;Beugel;2;20;;4;Enkel;SA / elastomeer;SAH;Zwaar;;OK
+4020/20 PP;Beugel;2;20;20;4;Dubbel;Polypropyleen;PP;Zwaar;;OK
+4021,3 AL;Beugel;2;21,3;;4;Enkel;Aluminium;AL;Zwaar;;OK
+4021,3 PA;Beugel;2;21,3;;4;Enkel;Polyamide;PA;Zwaar;;OK
+4021,3 PP;Beugel;2;21,3;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4021,3 PPH;Beugel;2;21,3;;4;Enkel;Polypropyleen;PPH;Zwaar;;OK
+4022 AL;Beugel;2;22;;4;Enkel;Aluminium;AL;Zwaar;;OK
+4022 PA;Beugel;2;22;;4;Enkel;Polyamide;PA;Zwaar;;OK
+4022 PAH;Beugel;2;22;;4;Enkel;Polyamide;PAH;Zwaar;;OK
+4022 PP;Beugel;2;22;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4022 PPH;Beugel;2;22;;4;Enkel;Polypropyleen;PPH;Zwaar;;OK
+4022 SA;Beugel;2;22;;4;Enkel;SA / elastomeer;SA;Zwaar;;OK
+4022/22 PP;Beugel;2;22;22;4;Dubbel;Polypropyleen;PP;Zwaar;;OK
+4023 PP;Beugel;2;23;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4024.6 PP;Beugel;2;24.6;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4025 AL;Beugel;2;25;;4;Enkel;Aluminium;AL;Zwaar;;OK
+4025 PA;Beugel;2;25;;4;Enkel;Polyamide;PA;Zwaar;;OK
+4025 PAH;Beugel;2;25;;4;Enkel;Polyamide;PAH;Zwaar;;OK
+4025 PP;Beugel;2;25;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4025 PPH;Beugel;2;25;;4;Enkel;Polypropyleen;PPH;Zwaar;;OK
+4025 SA;Beugel;2;25;;4;Enkel;SA / elastomeer;SA;Zwaar;;OK
+4025 SAH;Beugel;2;25;;4;Enkel;SA / elastomeer;SAH;Zwaar;;OK
+4025,4 PA;Beugel;2;25,4;;4;Enkel;Polyamide;PA;Zwaar;;OK
+4025,4 PP;Beugel;2;25,4;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4025,4/25,4 PP;Beugel;2;25,4;25,4;4;Dubbel;Polypropyleen;PP;Zwaar;;OK
+4026,9 AL;Beugel;2;26,9;;4;Enkel;Aluminium;AL;Zwaar;;OK
+4026,9 PA;Beugel;2;26,9;;4;Enkel;Polyamide;PA;Zwaar;;OK
+4026,9 PP;Beugel;2;26,9;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4026,9 PPH;Beugel;2;26,9;;4;Enkel;Polypropyleen;PPH;Zwaar;;OK
+4028 PA;Beugel;2;28;;4;Enkel;Polyamide;PA;Zwaar;;OK
+4028 PAH;Beugel;2;28;;4;Enkel;Polyamide;PAH;Zwaar;;OK
+4028 PP;Beugel;2;28;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4028 PPH;Beugel;2;28;;4;Enkel;Polypropyleen;PPH;Zwaar;;OK
+4028 SA-73SH;Beugel;2;28;;4;Enkel;SA / elastomeer;SA-73SH;Zwaar;;OK
+4029 AL;Beugel;2;29;;4;Enkel;Aluminium;AL;Zwaar;;OK
+4029 PP;Beugel;2;29;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4030 AL;Beugel;2;30;;4;Enkel;Aluminium;AL;Zwaar;;OK
+4030 PA;Beugel;2;30;;4;Enkel;Polyamide;PA;Zwaar;;OK
+4030 PAH;Beugel;2;30;;4;Enkel;Polyamide;PAH;Zwaar;;OK
+4030 PP;Beugel;2;30;;4;Enkel;Polypropyleen;PP;Zwaar;;OK
+4030 PPH;Beugel;2;30;;4;Enkel;Polypropyleen;PPH;Zwaar;;OK
+4030 SA;Beugel;2;30;;4;Enkel;SA / elastomeer;SA;Zwaar;;OK
+406 PPR;Beugel;2;6;;4;Enkel;PPR;PPR;Licht (standaard);;OK
+410 PPR;Beugel;2;10;;4;Enkel;PPR;PPR;Licht (standaard);;OK
+412 PPR;Beugel;2;12;;4;Enkel;PPR;PPR;Licht (standaard);;OK
+412,7 PPR;Beugel;2;12,7;;4;Enkel;PPR;PPR;Licht (standaard);;OK
+414 PPR;Beugel;2;14;;4;Enkel;PPR;PPR;Licht (standaard);;OK
+415 PPR;Beugel;2;15;;4;Enkel;PPR;PPR;Licht (standaard);;OK
+416 PAR;Beugel;2;16;;4;Enkel;PAR;PAR;Licht (standaard);;OK
+416 PPR;Beugel;2;16;;4;Enkel;PPR;PPR;Licht (standaard);;OK
+418 PPR;Beugel;2;18;;4;Enkel;PPR;PPR;Licht (standaard);;OK
+419 PPR;Beugel;2;19;;4;Enkel;PPR;PPR;Licht (standaard);;OK
+421,3 PP;Beugel;2;21,3;;4;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+422 PP;Beugel;2;22;;4;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+424 PP;Beugel;2;24;;4;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+426,9 AL;Beugel;2;26,9;;4;Enkel;Aluminium;AL;Licht (standaard);;OK
+426,9 PA;Beugel;2;26,9;;4;Enkel;Polyamide;PA;Licht (standaard);;OK
+426,9 PP;Beugel;2;26,9;;4;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+426,9 PP BK;Beugel;2;26,9;;4;Enkel;Polypropyleen;PP;Licht (standaard);BK;OK
+426,9 PPH;Beugel;2;26,9;;4;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+426,9/26,9 PA;Beugel;2;26,9;26,9;4;Dubbel;Polyamide;PA;Licht (standaard);;OK
+426,9/26,9 PP;Beugel;2;26,9;26,9;4;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+426,9/26,9 PPH;Beugel;2;26,9;26,9;4;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+428 ACT;Beugel;2;28;;4;Enkel;ACT;ACT;Licht (standaard);;OK
+428 AL;Beugel;2;28;;4;Enkel;Aluminium;AL;Licht (standaard);;OK
+428 PA;Beugel;2;28;;4;Enkel;Polyamide;PA;Licht (standaard);;OK
+428 PAH;Beugel;2;28;;4;Enkel;Polyamide;PAH;Licht (standaard);;OK
+428 PP;Beugel;2;28;;4;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+428 PP BK;Beugel;2;28;;4;Enkel;Polypropyleen;PP;Licht (standaard);BK;OK
+428 PPH;Beugel;2;28;;4;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+428 SA;Beugel;2;28;;4;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+428 SAH;Beugel;2;28;;4;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+428/28 PA;Beugel;2;28;28;4;Dubbel;Polyamide;PA;Licht (standaard);;OK
+428/28 PP;Beugel;2;28;28;4;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+428/28 PPH;Beugel;2;28;28;4;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+429 PP;Beugel;2;29;;4;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+430 ACT;Beugel;2;30;;4;Enkel;ACT;ACT;Licht (standaard);;OK
+430 AL;Beugel;2;30;;4;Enkel;Aluminium;AL;Licht (standaard);;OK
+430 PA;Beugel;2;30;;4;Enkel;Polyamide;PA;Licht (standaard);;OK
+430 PAH;Beugel;2;30;;4;Enkel;Polyamide;PAH;Licht (standaard);;OK
+430 PP;Beugel;2;30;;4;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+430 PPH;Beugel;2;30;;4;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+430 SA;Beugel;2;30;;4;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+430 SAH;Beugel;2;30;;4;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+430/30 PA;Beugel;2;30;30;4;Dubbel;Polyamide;PA;Licht (standaard);;OK
+430/30 PAH;Beugel;2;30;30;4;Dubbel;Polyamide;PAH;Licht (standaard);;OK
+430/30 PP;Beugel;2;30;30;4;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+430/30 PPH;Beugel;2;30;30;4;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+432 AL;Beugel;2;32;;4;Enkel;Aluminium;AL;Licht (standaard);;OK
+432 PA;Beugel;2;32;;4;Enkel;Polyamide;PA;Licht (standaard);;OK
+432 PP;Beugel;2;32;;4;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+432 PPH;Beugel;2;32;;4;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+434 PP;Beugel;2;34;;4;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+468,3 SA;Beugel;2;68,3;;4;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+5 S PPR;Beugel;2;;;5;Enkel;Controle;S;Licht (standaard);PPR;Controle
+5012 PAH;Beugel;2;12;;5;Enkel;Polyamide;PAH;Zwaar;;OK
+5020 PAR;Beugel;2;20;;5;Enkel;PAR;PAR;Zwaar;;OK
+5020 PP;Beugel;2;20;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5020 PPR;Beugel;2;20;;5;Enkel;PPR;PPR;Zwaar;;OK
+5021,3 PP;Beugel;2;21,3;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5021,3 PPR;Beugel;2;21,3;;5;Enkel;PPR;PPR;Zwaar;;OK
+5022 PPR;Beugel;2;22;;5;Enkel;PPR;PPR;Zwaar;;OK
+5025 PA;Beugel;2;25;;5;Enkel;Polyamide;PA;Zwaar;;OK
+5025 PAH;Beugel;2;25;;5;Enkel;Polyamide;PAH;Zwaar;;OK
+5025 PAR;Beugel;2;25;;5;Enkel;PAR;PAR;Zwaar;;OK
+5025 PP;Beugel;2;25;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5025 PPH;Beugel;2;25;;5;Enkel;Polypropyleen;PPH;Zwaar;;OK
+5025 PPR;Beugel;2;25;;5;Enkel;PPR;PPR;Zwaar;;OK
+5026,7 PP;Beugel;2;26,7;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5026,9 PP;Beugel;2;26,9;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5026,9 PPR;Beugel;2;26,9;;5;Enkel;PPR;PPR;Zwaar;;OK
+5028 PPR;Beugel;2;28;;5;Enkel;PPR;PPR;Zwaar;;OK
+5030 AL;Beugel;2;30;;5;Enkel;Aluminium;AL;Zwaar;;OK
+5030 PA;Beugel;2;30;;5;Enkel;Polyamide;PA;Zwaar;;OK
+5030 PAH;Beugel;2;30;;5;Enkel;Polyamide;PAH;Zwaar;;OK
+5030 PAR;Beugel;2;30;;5;Enkel;PAR;PAR;Zwaar;;OK
+5030 PE;Beugel;2;30;;5;Enkel;Polyethyleen;PE;Zwaar;;OK
+5030 PP;Beugel;2;30;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5030 PPH;Beugel;2;30;;5;Enkel;Polypropyleen;PPH;Zwaar;;OK
+5030 PPR;Beugel;2;30;;5;Enkel;PPR;PPR;Zwaar;;OK
+5030 SA;Beugel;2;30;;5;Enkel;SA / elastomeer;SA;Zwaar;;OK
+5030/30 PA;Beugel;2;30;30;5;Dubbel;Polyamide;PA;Zwaar;;OK
+5032 PA;Beugel;2;32;;5;Enkel;Polyamide;PA;Zwaar;;OK
+5032 PP;Beugel;2;32;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5032 PPH;Beugel;2;32;;5;Enkel;Polypropyleen;PPH;Zwaar;;OK
+5032 PPR;Beugel;2;32;;5;Enkel;PPR;PPR;Zwaar;;OK
+5033,4 PP;Beugel;2;33,4;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5033,7 AL;Beugel;2;33,7;;5;Enkel;Aluminium;AL;Zwaar;;OK
+5033,7 PA;Beugel;2;33,7;;5;Enkel;Polyamide;PA;Zwaar;;OK
+5033,7 PP;Beugel;2;33,7;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5033,7 PPH;Beugel;2;33,7;;5;Enkel;Polypropyleen;PPH;Zwaar;;OK
+5034 AL;Beugel;2;34;;5;Enkel;Aluminium;AL;Zwaar;;OK
+5034 PP;Beugel;2;34;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5035 AL;Beugel;2;35;;5;Enkel;Aluminium;AL;Zwaar;;OK
+5035 PA;Beugel;2;35;;5;Enkel;Polyamide;PA;Zwaar;;OK
+5035 PAH;Beugel;2;35;;5;Enkel;Polyamide;PAH;Zwaar;;OK
+5035 PP;Beugel;2;35;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5035 PPH;Beugel;2;35;;5;Enkel;Polypropyleen;PPH;Zwaar;;OK
+5035 SA;Beugel;2;35;;5;Enkel;SA / elastomeer;SA;Zwaar;;OK
+5037 PP;Beugel;2;37;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5038 AL;Beugel;2;38;;5;Enkel;Aluminium;AL;Zwaar;;OK
+5038 PA;Beugel;2;38;;5;Enkel;Polyamide;PA;Zwaar;;OK
+5038 PAH;Beugel;2;38;;5;Enkel;Polyamide;PAH;Zwaar;;OK
+5038 PP;Beugel;2;38;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5038 PPH;Beugel;2;38;;5;Enkel;Polypropyleen;PPH;Zwaar;;OK
+5038 PPR;Beugel;2;38;;5;Enkel;PPR;PPR;Zwaar;;OK
+5038 SAH;Beugel;2;38;;5;Enkel;SA / elastomeer;SAH;Zwaar;;OK
+5038/38 PP;Beugel;2;38;38;5;Dubbel;Polypropyleen;PP;Zwaar;;OK
+5040 PA;Beugel;2;40;;5;Enkel;Polyamide;PA;Zwaar;;OK
+5040 PP;Beugel;2;40;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5040 PPH;Beugel;2;40;;5;Enkel;Polypropyleen;PPH;Zwaar;;OK
+5041 PP;Beugel;2;41;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5041,3 PPH;Beugel;2;41,3;;5;Enkel;Polypropyleen;PPH;Zwaar;;OK
+5042 AL;Beugel;2;42;;5;Enkel;Aluminium;AL;Zwaar;;OK
+5042 PA;Beugel;2;42;;5;Enkel;Polyamide;PA;Zwaar;;OK
+5042 PAH;Beugel;2;42;;5;Enkel;Polyamide;PAH;Zwaar;;OK
+5042 PP;Beugel;2;42;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5042 PPH;Beugel;2;42;;5;Enkel;Polypropyleen;PPH;Zwaar;;OK
+5042 SA;Beugel;2;42;;5;Enkel;SA / elastomeer;SA;Zwaar;;OK
+5042 SA87 H;Beugel;2;42;;5;Enkel;SA / elastomeer;SA87;Zwaar;H;OK
+5042,4 PP;Beugel;2;42,4;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5043 PP;Beugel;2;43;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+5044,5 PP;Beugel;2;44,5;;5;Enkel;Polypropyleen;PP;Zwaar;;OK
+522 PP;Beugel;2;22;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+525 PP;Beugel;2;25;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+525 PP-NRC;Beugel;2;25;;5;Enkel;Polypropyleen;PP-NRC;Licht (standaard);;OK
+525.4 PPH;Beugel;2;25.4;;5;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+526,9 PA;Beugel;2;26,9;;5;Enkel;Polyamide;PA;Licht (standaard);;OK
+528 PA;Beugel;2;28;;5;Enkel;Polyamide;PA;Licht (standaard);;OK
+528 PAH;Beugel;2;28;;5;Enkel;Polyamide;PAH;Licht (standaard);;OK
+529 PP;Beugel;2;29;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+530 PP;Beugel;2;30;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+530/25 PP;Beugel;2;30;25;5;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+532 ACT;Beugel;2;32;;5;Enkel;ACT;ACT;Licht (standaard);;OK
+532 AL;Beugel;2;32;;5;Enkel;Aluminium;AL;Licht (standaard);;OK
+532 PA;Beugel;2;32;;5;Enkel;Polyamide;PA;Licht (standaard);;OK
+532 PAH;Beugel;2;32;;5;Enkel;Polyamide;PAH;Licht (standaard);;OK
+532 PP;Beugel;2;32;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+532 SA;Beugel;2;32;;5;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+532/32 PP;Beugel;2;32;32;5;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+533,7 AL;Beugel;2;33,7;;5;Enkel;Aluminium;AL;Licht (standaard);;OK
+533,7 PA;Beugel;2;33,7;;5;Enkel;Polyamide;PA;Licht (standaard);;OK
+533,7 PAH;Beugel;2;33,7;;5;Enkel;Polyamide;PAH;Licht (standaard);;OK
+533,7 PP;Beugel;2;33,7;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+533,7 PPH;Beugel;2;33,7;;5;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+533,7 SA;Beugel;2;33,7;;5;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+533,7 SAH;Beugel;2;33,7;;5;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+533,7/33,7 PA;Beugel;2;33,7;33,7;5;Dubbel;Polyamide;PA;Licht (standaard);;OK
+533,7/33,7 PP;Beugel;2;33,7;33,7;5;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+534 PP;Beugel;2;34;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+535 ACT;Beugel;2;35;;5;Enkel;ACT;ACT;Licht (standaard);;OK
+535 AL;Beugel;2;35;;5;Enkel;Aluminium;AL;Licht (standaard);;OK
+535 PA;Beugel;2;35;;5;Enkel;Polyamide;PA;Licht (standaard);;OK
+535 PAH;Beugel;2;35;;5;Enkel;Polyamide;PAH;Licht (standaard);;OK
+535 PP;Beugel;2;35;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+535 PP BK;Beugel;2;35;;5;Enkel;Polypropyleen;PP;Licht (standaard);BK;OK
+535 PPH;Beugel;2;35;;5;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+535 SA;Beugel;2;35;;5;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+535 SAH;Beugel;2;35;;5;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+535/35 PA;Beugel;2;35;35;5;Dubbel;Polyamide;PA;Licht (standaard);;OK
+535/35 PP;Beugel;2;35;35;5;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+535/35 PPH;Beugel;2;35;35;5;Dubbel;Polypropyleen;PPH;Licht (standaard);;OK
+536 PA CHC;Beugel;2;36;;5;Enkel;Polyamide;PA;Licht (standaard);CHC;OK
+536 PPH;Beugel;2;36;;5;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+536,5 PA;Beugel;2;36,5;;5;Enkel;Polyamide;PA;Licht (standaard);;OK
+538 ACT;Beugel;2;38;;5;Enkel;ACT;ACT;Licht (standaard);;OK
+538 PA;Beugel;2;38;;5;Enkel;Polyamide;PA;Licht (standaard);;OK
+538 PAH;Beugel;2;38;;5;Enkel;Polyamide;PAH;Licht (standaard);;OK
+538 PP;Beugel;2;38;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+538 PPH;Beugel;2;38;;5;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+538 SA;Beugel;2;38;;5;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+538/30 PP;Beugel;2;38;30;5;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+538/38 PP;Beugel;2;38;38;5;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+540 AL;Beugel;2;40;;5;Enkel;Aluminium;AL;Licht (standaard);;OK
+540 PA;Beugel;2;40;;5;Enkel;Polyamide;PA;Licht (standaard);;OK
+540 PP;Beugel;2;40;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+540 PPH;Beugel;2;40;;5;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+540/40 PP;Beugel;2;40;40;5;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+541 PA;Beugel;2;41;;5;Enkel;Polyamide;PA;Licht (standaard);;OK
+541.3 PP;Beugel;2;41.3;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+542 ACT;Beugel;2;42;;5;Enkel;ACT;ACT;Licht (standaard);;OK
+542 AL;Beugel;2;42;;5;Enkel;Aluminium;AL;Licht (standaard);;OK
+542 PA;Beugel;2;42;;5;Enkel;Polyamide;PA;Licht (standaard);;OK
+542 PAH;Beugel;2;42;;5;Enkel;Polyamide;PAH;Licht (standaard);;OK
+542 PP;Beugel;2;42;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+542 PPH;Beugel;2;42;;5;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+542 SA;Beugel;2;42;;5;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+542,4 PP;Beugel;2;42,4;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+542/42 PP;Beugel;2;42;42;5;Dubbel;Polypropyleen;PP;Licht (standaard);;OK
+544 PP;Beugel;2;44;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+545 PP;Beugel;2;45;;5;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+6 PPR;Beugel;2;;;6;Enkel;PPR;PPR;Licht (standaard);;Controle
+6 S PPR;Beugel;2;;;6;Enkel;Controle;S;Licht (standaard);PPR;Controle
+6025 PP;Beugel;2;25;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6033,7 PP;Beugel;2;33,7;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6033,7 PPR;Beugel;2;33,7;;6;Enkel;PPR;PPR;Zwaar;;OK
+6035 PPR;Beugel;2;35;;6;Enkel;PPR;PPR;Zwaar;;OK
+6038 AL;Beugel;2;38;;6;Enkel;Aluminium;AL;Zwaar;;OK
+6038 PA;Beugel;2;38;;6;Enkel;Polyamide;PA;Zwaar;;OK
+6038 PAR;Beugel;2;38;;6;Enkel;PAR;PAR;Zwaar;;OK
+6038 PP;Beugel;2;38;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6038 PPH;Beugel;2;38;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6038 PPR;Beugel;2;38;;6;Enkel;PPR;PPR;Zwaar;;OK
+6038,7 PPR;Beugel;2;38,7;;6;Enkel;PPR;PPR;Zwaar;;OK
+6040 PP;Beugel;2;40;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6040 PPR;Beugel;2;40;;6;Enkel;PPR;PPR;Zwaar;;OK
+6042 PA;Beugel;2;42;;6;Enkel;Polyamide;PA;Zwaar;;OK
+6042 PP;Beugel;2;42;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6042 PPH;Beugel;2;42;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6042 PPR;Beugel;2;42;;6;Enkel;PPR;PPR;Zwaar;;OK
+6042,4 AL;Beugel;2;42,4;;6;Enkel;Aluminium;AL;Zwaar;;OK
+6042,4 PP;Beugel;2;42,4;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6043 PP;Beugel;2;43;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6044,5 PP;Beugel;2;44,5;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6044,5 PPH;Beugel;2;44,5;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6044,5 SA;Beugel;2;44,5;;6;Enkel;SA / elastomeer;SA;Zwaar;;OK
+6045 PP;Beugel;2;45;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6045,5 PPR;Beugel;2;45,5;;6;Enkel;PPR;PPR;Zwaar;;OK
+6048 PP;Beugel;2;48;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6048 PPR;Beugel;2;48;;6;Enkel;PPR;PPR;Zwaar;;OK
+6048,3 AL;Beugel;2;48,3;;6;Enkel;Aluminium;AL;Zwaar;;OK
+6048,3 PA;Beugel;2;48,3;;6;Enkel;Polyamide;PA;Zwaar;;OK
+6048,3 PAH;Beugel;2;48,3;;6;Enkel;Polyamide;PAH;Zwaar;;OK
+6048,3 PE;Beugel;2;48,3;;6;Enkel;Polyethyleen;PE;Zwaar;;OK
+6048,3 PP;Beugel;2;48,3;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6048,3 PPH;Beugel;2;48,3;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6050 AL;Beugel;2;50;;6;Enkel;Aluminium;AL;Zwaar;;OK
+6050 PA;Beugel;2;50;;6;Enkel;Polyamide;PA;Zwaar;;OK
+6050 PAH;Beugel;2;50;;6;Enkel;Polyamide;PAH;Zwaar;;OK
+6050 PP;Beugel;2;50;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6050 PPH;Beugel;2;50;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6050 PPR;Beugel;2;50;;6;Enkel;PPR;PPR;Zwaar;;OK
+6050,8 PA;Beugel;2;50,8;;6;Enkel;Polyamide;PA;Zwaar;;OK
+6050,8 PP;Beugel;2;50,8;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6050,8 PPH;Beugel;2;50,8;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6050,8 SA;Beugel;2;50,8;;6;Enkel;SA / elastomeer;SA;Zwaar;;OK
+6051 PP;Beugel;2;51;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6051 PPR;Beugel;2;51;;6;Enkel;PPR;PPR;Zwaar;;OK
+6052 PA;Beugel;2;52;;6;Enkel;Polyamide;PA;Zwaar;;OK
+6052 PAH;Beugel;2;52;;6;Enkel;Polyamide;PAH;Zwaar;;OK
+6053 PA;Beugel;2;53;;6;Enkel;Polyamide;PA;Zwaar;;OK
+6053,4 PPR;Beugel;2;53,4;;6;Enkel;PPR;PPR;Zwaar;;OK
+6054 PP;Beugel;2;54;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6054 PPH;Beugel;2;54;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6055 PP;Beugel;2;55;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6055 PPH;Beugel;2;55;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6055 PPR;Beugel;2;55;;6;Enkel;PPR;PPR;Zwaar;;OK
+6057 PP;Beugel;2;57;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6057 PPH;Beugel;2;57;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6060,3 AL;Beugel;2;60,3;;6;Enkel;Aluminium;AL;Zwaar;;OK
+6060,3 PA;Beugel;2;60,3;;6;Enkel;Polyamide;PA;Zwaar;;OK
+6060,3 PAH;Beugel;2;60,3;;6;Enkel;Polyamide;PAH;Zwaar;;OK
+6060,3 PP;Beugel;2;60,3;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6060,3 PPH;Beugel;2;60,3;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6060,3 SA;Beugel;2;60,3;;6;Enkel;SA / elastomeer;SA;Zwaar;;OK
+6063 PP;Beugel;2;63;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6063,5 AL;Beugel;2;63,5;;6;Enkel;Aluminium;AL;Zwaar;;OK
+6063,5 PA;Beugel;2;63,5;;6;Enkel;Polyamide;PA;Zwaar;;OK
+6063,5 PP;Beugel;2;63,5;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6064 PPH;Beugel;2;64;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6065 PP;Beugel;2;65;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6065 PPH;Beugel;2;65;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6066 PP;Beugel;2;66;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6067 PP;Beugel;2;67;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6067 PPH;Beugel;2;67;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6068 PPH;Beugel;2;68;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+6070 PA;Beugel;2;70;;6;Enkel;Polyamide;PA;Zwaar;;OK
+6070 PP;Beugel;2;70;;6;Enkel;Polypropyleen;PP;Zwaar;;OK
+6070 PPH;Beugel;2;70;;6;Enkel;Polypropyleen;PPH;Zwaar;;OK
+620 PAR;Beugel;2;20;;6;Enkel;PAR;PAR;Licht (standaard);;OK
+620 PPR;Beugel;2;20;;6;Enkel;PPR;PPR;Licht (standaard);;OK
+621,3 PPR;Beugel;2;21,3;;6;Enkel;PPR;PPR;Licht (standaard);;OK
+622 PAR;Beugel;2;22;;6;Enkel;PAR;PAR;Licht (standaard);;OK
+622 PPR;Beugel;2;22;;6;Enkel;PPR;PPR;Licht (standaard);;OK
+625 PPR;Beugel;2;25;;6;Enkel;PPR;PPR;Licht (standaard);;OK
+628 PPR;Beugel;2;28;;6;Enkel;PPR;PPR;Licht (standaard);;OK
+630 PPR;Beugel;2;30;;6;Enkel;PPR;PPR;Licht (standaard);;OK
+632 PPR;Beugel;2;32;;6;Enkel;PPR;PPR;Licht (standaard);;OK
+643 PP;Beugel;2;43;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+644,5 PA;Beugel;2;44,5;;6;Enkel;Polyamide;PA;Licht (standaard);;OK
+644,5 PAH;Beugel;2;44,5;;6;Enkel;Polyamide;PAH;Licht (standaard);;OK
+644,5 PP;Beugel;2;44,5;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+644,5 PPH;Beugel;2;44,5;;6;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+644.5 SA87;Beugel;2;44.5;;6;Enkel;SA / elastomeer;SA87;Licht (standaard);;OK
+645 PA;Beugel;2;45;;6;Enkel;Polyamide;PA;Licht (standaard);;OK
+645 PP;Beugel;2;45;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+647 PP;Beugel;2;47;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+648,3 AL;Beugel;2;48,3;;6;Enkel;Aluminium;AL;Licht (standaard);;OK
+648,3 PA;Beugel;2;48,3;;6;Enkel;Polyamide;PA;Licht (standaard);;OK
+648,3 PP;Beugel;2;48,3;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+648,3 PPH;Beugel;2;48,3;;6;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+648,3 SA;Beugel;2;48,3;;6;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+650 PA;Beugel;2;50;;6;Enkel;Polyamide;PA;Licht (standaard);;OK
+650 PP;Beugel;2;50;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+650,8 PA;Beugel;2;50,8;;6;Enkel;Polyamide;PA;Licht (standaard);;OK
+650,8 PAH;Beugel;2;50,8;;6;Enkel;Polyamide;PAH;Licht (standaard);;OK
+650,8 PP;Beugel;2;50,8;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+650,8 PPH;Beugel;2;50,8;;6;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+650,8 SA;Beugel;2;50,8;;6;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+652 PP;Beugel;2;52;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+654 PA;Beugel;2;54;;6;Enkel;Polyamide;PA;Licht (standaard);;OK
+654 PP;Beugel;2;54;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+654 PPH;Beugel;2;54;;6;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+654 SA;Beugel;2;54;;6;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+655 PP;Beugel;2;55;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+656 PP;Beugel;2;56;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+657 PP;Beugel;2;57;;6;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+657 SA;Beugel;2;57;;6;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+7 S PAR;Beugel;2;;;7;Enkel;Controle;S;Licht (standaard);PAR;Controle
+7 S PPR;Beugel;2;;;7;Enkel;Controle;S;Licht (standaard);PPR;Controle
+7048,3 PP;Beugel;2;48,3;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7057 PPR;Beugel;2;57;;7;Enkel;PPR;PPR;Zwaar;;OK
+7060 PP;Beugel;2;60;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7060 PPR;Beugel;2;60;;7;Enkel;PPR;PPR;Zwaar;;OK
+7060,3 PA;Beugel;2;60,3;;7;Enkel;Polyamide;PA;Zwaar;;OK
+7060,3 PP;Beugel;2;60,3;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7060,3 PPH;Beugel;2;60,3;;7;Enkel;Polypropyleen;PPH;Zwaar;;OK
+7063,5 PPR;Beugel;2;63,5;;7;Enkel;PPR;PPR;Zwaar;;OK
+7065 PP;Beugel;2;65;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7065 PPR;Beugel;2;65;;7;Enkel;PPR;PPR;Zwaar;;OK
+7070 AL;Beugel;2;70;;7;Enkel;Aluminium;AL;Zwaar;;OK
+7070 PA;Beugel;2;70;;7;Enkel;Polyamide;PA;Zwaar;;OK
+7070 PP;Beugel;2;70;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7070 PPH;Beugel;2;70;;7;Enkel;Polypropyleen;PPH;Zwaar;;OK
+7070 PPR;Beugel;2;70;;7;Enkel;PPR;PPR;Zwaar;;OK
+7072 PAR;Beugel;2;72;;7;Enkel;PAR;PAR;Zwaar;;OK
+7072 PP;Beugel;2;72;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7072 PPH;Beugel;2;72;;7;Enkel;Polypropyleen;PPH;Zwaar;;OK
+7072 PPR;Beugel;2;72;;7;Enkel;PPR;PPR;Zwaar;;OK
+7073 AL;Beugel;2;73;;7;Enkel;Aluminium;AL;Zwaar;;OK
+7073 PA;Beugel;2;73;;7;Enkel;Polyamide;PA;Zwaar;;OK
+7073 PP;Beugel;2;73;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7075 PA;Beugel;2;75;;7;Enkel;Polyamide;PA;Zwaar;;OK
+7075 PP;Beugel;2;75;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7076 PPR;Beugel;2;76;;7;Enkel;PPR;PPR;Zwaar;;OK
+7076,1 AL;Beugel;2;76,1;;7;Enkel;Aluminium;AL;Zwaar;;OK
+7076,1 PA;Beugel;2;76,1;;7;Enkel;Polyamide;PA;Zwaar;;OK
+7076,1 PP;Beugel;2;76,1;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7076,1 PPH;Beugel;2;76,1;;7;Enkel;Polypropyleen;PPH;Zwaar;;OK
+7080 PA;Beugel;2;80;;7;Enkel;Polyamide;PA;Zwaar;;OK
+7080 PP;Beugel;2;80;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7080 PPH;Beugel;2;80;;7;Enkel;Polypropyleen;PPH;Zwaar;;OK
+7082,5 PA;Beugel;2;82,5;;7;Enkel;Polyamide;PA;Zwaar;;OK
+7082,5 PP;Beugel;2;82,5;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7085 PP;Beugel;2;85;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7088,9 AL;Beugel;2;88,9;;7;Enkel;Aluminium;AL;Zwaar;;OK
+7088,9 PA;Beugel;2;88,9;;7;Enkel;Polyamide;PA;Zwaar;;OK
+7088,9 PP;Beugel;2;88,9;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7088,9 PPH;Beugel;2;88,9;;7;Enkel;Polypropyleen;PPH;Zwaar;;OK
+7090 PP;Beugel;2;90;;7;Enkel;Polypropyleen;PP;Zwaar;;OK
+7090 PPH;Beugel;2;90;;7;Enkel;Polypropyleen;PPH;Zwaar;;OK
+757,2 PA;Beugel;2;57,2;;7;Enkel;Polyamide;PA;Licht (standaard);;OK
+757,2 PP;Beugel;2;57,2;;7;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+757,2 PPH;Beugel;2;57,2;;7;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+758 PP;Beugel;2;58;;7;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+760,3 PA;Beugel;2;60,3;;7;Enkel;Polyamide;PA;Licht (standaard);;OK
+760,3 PAH;Beugel;2;60,3;;7;Enkel;Polyamide;PAH;Licht (standaard);;OK
+760,3 PP;Beugel;2;60,3;;7;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+760,3 PPH;Beugel;2;60,3;;7;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+760,3 SA;Beugel;2;60,3;;7;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+760,3 SAH;Beugel;2;60,3;;7;Enkel;SA / elastomeer;SAH;Licht (standaard);;OK
+763,5 PA;Beugel;2;63,5;;7;Enkel;Polyamide;PA;Licht (standaard);;OK
+763,5 PP;Beugel;2;63,5;;7;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+763,5 PPH;Beugel;2;63,5;;7;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+766 PP;Beugel;2;66;;7;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+768 PP;Beugel;2;68;;7;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+770 PA;Beugel;2;70;;7;Enkel;Polyamide;PA;Licht (standaard);;OK
+770 PP;Beugel;2;70;;7;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+770 PPH;Beugel;2;70;;7;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+773 PA;Beugel;2;73;;7;Enkel;Polyamide;PA;Licht (standaard);;OK
+773 PP;Beugel;2;73;;7;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+775 PA;Beugel;2;75;;7;Enkel;Polyamide;PA;Licht (standaard);;OK
+776,1 PA;Beugel;2;76,1;;7;Enkel;Polyamide;PA;Licht (standaard);;OK
+776,1 PP;Beugel;2;76,1;;7;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+776,1 PP BK;Beugel;2;76,1;;7;Enkel;Polypropyleen;PP;Licht (standaard);BK;OK
+776,1 SA;Beugel;2;76,1;;7;Enkel;SA / elastomeer;SA;Licht (standaard);;OK
+8080 PPR;Beugel;2;80;;8;Enkel;PPR;PPR;Zwaar;;OK
+8085 PPR;Beugel;2;85;;8;Enkel;PPR;PPR;Zwaar;;OK
+8088,9 AL;Beugel;2;88,9;;8;Enkel;Aluminium;AL;Zwaar;;OK
+8088,9 PA;Beugel;2;88,9;;8;Enkel;Polyamide;PA;Zwaar;;OK
+8088,9 PAR;Beugel;2;88,9;;8;Enkel;PAR;PAR;Zwaar;;OK
+8088,9 PP;Beugel;2;88,9;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8088,9 PPR;Beugel;2;88,9;;8;Enkel;PPR;PPR;Zwaar;;OK
+8095 PP;Beugel;2;95;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8097 PP;Beugel;2;97;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8100 PP;Beugel;2;100;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8101,6 PP;Beugel;2;101,6;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8102 AL;Beugel;2;102;;8;Enkel;Aluminium;AL;Zwaar;;OK
+8102 PP;Beugel;2;102;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8102 PPH;Beugel;2;102;;8;Enkel;Polypropyleen;PPH;Zwaar;;OK
+8102 PPR;Beugel;2;102;;8;Enkel;PPR;PPR;Zwaar;;OK
+8105 PP;Beugel;2;105;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8108 PP;Beugel;2;108;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8110 PP;Beugel;2;110;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8114 AL;Beugel;2;114;;8;Enkel;Aluminium;AL;Zwaar;;OK
+8114 PA;Beugel;2;114;;8;Enkel;Polyamide;PA;Zwaar;;OK
+8114 PP;Beugel;2;114;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8114,3 AL;Beugel;2;114,3;;8;Enkel;Aluminium;AL;Zwaar;;OK
+8114,3 PA;Beugel;2;114,3;;8;Enkel;Polyamide;PA;Zwaar;;OK
+8114,3 PPH;Beugel;2;114,3;;8;Enkel;Polypropyleen;PPH;Zwaar;;OK
+8115 PP;Beugel;2;115;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8115 PPH;Beugel;2;115;;8;Enkel;Polypropyleen;PPH;Zwaar;;OK
+8115,5 PP;Beugel;2;115,5;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8127 PP;Beugel;2;127;;8;Enkel;Polypropyleen;PP;Zwaar;;OK
+8130 SA;Beugel;2;130;;8;Enkel;SA / elastomeer;SA;Zwaar;;OK
+880 PP;Beugel;2;80;;8;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+883 PP;Beugel;2;83;;8;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+888,9 AL HV MECH;Beugel;2;88,9;;8;Enkel;Aluminium;AL;Licht (standaard);HV MECH;OK
+888,9 PA;Beugel;2;88,9;;8;Enkel;Polyamide;PA;Licht (standaard);;OK
+888,9 PAH;Beugel;2;88,9;;8;Enkel;Polyamide;PAH;Licht (standaard);;OK
+888,9 PP;Beugel;2;88,9;;8;Enkel;Polypropyleen;PP;Licht (standaard);;OK
+888,9 PPH;Beugel;2;88,9;;8;Enkel;Polypropyleen;PPH;Licht (standaard);;OK
+9114 PP;Beugel;2;114;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+9130 PP;Beugel;2;130;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+9133 PP;Beugel;2;133;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+9139,7 PP;Beugel;2;139,7;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+9140 AL;Beugel;2;140;;9;Enkel;Aluminium;AL;Zwaar;;OK
+9140 PA;Beugel;2;140;;9;Enkel;Polyamide;PA;Zwaar;;OK
+9140 PP;Beugel;2;140;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+9140 SA;Beugel;2;140;;9;Enkel;SA / elastomeer;SA;Zwaar;;OK
+9141,3 PP;Beugel;2;141,3;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+9150 PP;Beugel;2;150;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+9152 PP;Beugel;2;152;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+9159 PP;Beugel;2;159;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+9165 PP;Beugel;2;165;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+9168 PA;Beugel;2;168;;9;Enkel;Polyamide;PA;Zwaar;;OK
+9168 PP;Beugel;2;168;;9;Enkel;Polypropyleen;PP;Zwaar;;OK
+AF 1/1A/1 D M W3;Stapelbout;5;;;1/1A/1;;W3;W3;Licht (standaard);;OK
+AF 1/1A/1 D M W4;Stapelbout;5;;;1/1A/1;;W4;W4;Licht (standaard);;OK
+AF 1/1A/1 D M W5;Stapelbout;5;;;1/1A/1;;W5;W5;Licht (standaard);;OK
+AF 1/1A/1D M W55;Stapelbout;5;;;1/1A/1D;;W55;W55;Licht (standaard);;OK
+AF 10 S M W2;Stapelbout;5;;;10;;W2;W2;Zwaar;;OK
+AF 2 D M W3;Stapelbout;5;;;2;;W3;W3;Licht (standaard);;OK
+AF 2 D M W5;Stapelbout;5;;;2;;W5;W5;Licht (standaard);;OK
+AF 2 M W3;Stapelbout;5;;;2;;W3;W3;Licht (standaard);;OK
+AF 2 M W5;Stapelbout;5;;;2;;W5;W5;Licht (standaard);;OK
+AF 3 D M W3;Stapelbout;5;;;3;;W3;W3;Licht (standaard);;OK
+AF 3 D M W5;Stapelbout;5;;;3;;W5;W5;Licht (standaard);;OK
+AF 3 M W3;Stapelbout;5;;;3;;W3;W3;Licht (standaard);;OK
+AF 3 M W5;Stapelbout;5;;;3;;W5;W5;Licht (standaard);;OK
+AF 3 M W55;Stapelbout;5;;;3;;W55;W55;Licht (standaard);;OK
+AF 3 S M W3;Stapelbout;5;;;3;;W3;W3;Zwaar;;OK
+AF 3 S M W4;Stapelbout;5;;;3;;W4;W4;Zwaar;;OK
+AF 3 S M W5;Stapelbout;5;;;3;;W5;W5;Zwaar;;OK
+AF 4 D M W3;Stapelbout;5;;;4;;W3;W3;Licht (standaard);;OK
+AF 4 D M W5;Stapelbout;5;;;4;;W5;W5;Licht (standaard);;OK
+AF 4 M W3;Stapelbout;5;;;4;;W3;W3;Licht (standaard);;OK
+AF 4 M W5;Stapelbout;5;;;4;;W5;W5;Licht (standaard);;OK
+AF 4 S M W2;Stapelbout;5;;;4;;W2;W2;Zwaar;;OK
+AF 4 S M W3;Stapelbout;5;;;4;;W3;W3;Zwaar;;OK
+AF 4 S M W4;Stapelbout;5;;;4;;W4;W4;Zwaar;;OK
+AF 4 S M W5;Stapelbout;5;;;4;;W5;W5;Zwaar;;OK
+AF 5 D M W3;Stapelbout;5;;;5;;W3;W3;Licht (standaard);;OK
+AF 5 D M W5;Stapelbout;5;;;5;;W5;W5;Licht (standaard);;OK
+AF 5 M W3;Stapelbout;5;;;5;;W3;W3;Licht (standaard);;OK
+AF 5 M W5;Stapelbout;5;;;5;;W5;W5;Licht (standaard);;OK
+AF 5 S M W2;Stapelbout;5;;;5;;W2;W2;Zwaar;;OK
+AF 5 S M W3;Stapelbout;5;;;5;;W3;W3;Zwaar;;OK
+AF 5 S M W4;Stapelbout;5;;;5;;W4;W4;Zwaar;;OK
+AF 5 S M W5;Stapelbout;5;;;5;;W5;W5;Zwaar;;OK
+AF 6 M W3;Stapelbout;5;;;6;;W3;W3;Licht (standaard);;OK
+AF 6 M W5;Stapelbout;5;;;6;;W5;W5;Licht (standaard);;OK
+AF 6 S M W3;Stapelbout;5;;;6;;W3;W3;Zwaar;;OK
+AF 6 S M W5;Stapelbout;5;;;6;;W5;W5;Zwaar;;OK
+AF 7 M W3;Stapelbout;5;;;7;;W3;W3;Licht (standaard);;OK
+AF 7 S M W3;Stapelbout;5;;;7;;W3;W3;Zwaar;;OK
+AF 7 S M W5;Stapelbout;5;;;7;;W5;W5;Zwaar;;OK
+AF 8 M W3;Stapelbout;5;;;8;;W3;W3;Licht (standaard);;OK
+AF 8 S M W3;Stapelbout;5;;;8;;W3;W3;Zwaar;;OK
+AF 9 S M W3;Stapelbout;5;;;9;;W3;W3;Zwaar;;OK
+DP 1 W3;Dekplaat;4;;;1;Enkel;W3;W3;Licht (standaard);;OK
+DP 1 W4;Dekplaat;4;;;1;Enkel;W4;W4;Licht (standaard);;OK
+DP 1 W5;Dekplaat;4;;;1;Enkel;W5;W5;Licht (standaard);;OK
+DP 1A W3;Dekplaat;4;;;1A;Enkel;W3;W3;Licht (standaard);;OK
+DP 1A W4;Dekplaat;4;;;1A;Enkel;W4;W4;Licht (standaard);;OK
+DP 1A W5;Dekplaat;4;;;1A;Enkel;W5;W5;Licht (standaard);;OK
+DP 1A W55;Dekplaat;4;;;1A;Enkel;W55;W55;Licht (standaard);;OK
+DP 1A W85;Dekplaat;4;;;1A;Enkel;W85;W85;Licht (standaard);;OK
+DP 2 W3;Dekplaat;4;;;2;Enkel;W3;W3;Licht (standaard);;OK
+DP 2 W4;Dekplaat;4;;;2;Enkel;W4;W4;Licht (standaard);;OK
+DP 2 W5;Dekplaat;4;;;2;Enkel;W5;W5;Licht (standaard);;OK
+DP 2 W55;Dekplaat;4;;;2;Enkel;W55;W55;Licht (standaard);;OK
+DP 3 W3;Dekplaat;4;;;3;Enkel;W3;W3;Licht (standaard);;OK
+DP 3 W4;Dekplaat;4;;;3;Enkel;W4;W4;Licht (standaard);;OK
+DP 3 W5;Dekplaat;4;;;3;Enkel;W5;W5;Licht (standaard);;OK
+DP 3 W55;Dekplaat;4;;;3;Enkel;W55;W55;Licht (standaard);;OK
+DP 4 W3;Dekplaat;4;;;4;Enkel;W3;W3;Licht (standaard);;OK
+DP 4 W4;Dekplaat;4;;;4;Enkel;W4;W4;Licht (standaard);;OK
+DP 4 W5;Dekplaat;4;;;4;Enkel;W5;W5;Licht (standaard);;OK
+DP 4 W55;Dekplaat;4;;;4;Enkel;W55;W55;Licht (standaard);;OK
+DP 5 W3;Dekplaat;4;;;5;Enkel;W3;W3;Licht (standaard);;OK
+DP 5 W4;Dekplaat;4;;;5;Enkel;W4;W4;Licht (standaard);;OK
+DP 5 W5;Dekplaat;4;;;5;Enkel;W5;W5;Licht (standaard);;OK
+DP 5 W55;Dekplaat;4;;;5;Enkel;W55;W55;Licht (standaard);;OK
+DP 6 W3;Dekplaat;4;;;6;Enkel;W3;W3;Licht (standaard);;OK
+DP 6 W4;Dekplaat;4;;;6;Enkel;W4;W4;Licht (standaard);;OK
+DP 6 W5;Dekplaat;4;;;6;Enkel;W5;W5;Licht (standaard);;OK
+DP 7 W3;Dekplaat;4;;;7;Enkel;W3;W3;Licht (standaard);;OK
+DP 7 W4;Dekplaat;4;;;7;Enkel;W4;W4;Licht (standaard);;OK
+DP 7 W5;Dekplaat;4;;;7;Enkel;W5;W5;Licht (standaard);;OK
+DP 8 W3;Dekplaat;4;;;8;Enkel;W3;W3;Licht (standaard);;OK
+DP 8 W5;Dekplaat;4;;;8;Enkel;W5;W5;Licht (standaard);;OK
+DPAL 10 S W1;Dekplaat;4;;;10;Enkel;W1;W1;Zwaar;;OK
+DPAL 10 S W3;Dekplaat;4;;;10;Enkel;W3;W3;Zwaar;;OK
+DPAL 10 S W5;Dekplaat;4;;;10;Enkel;W5;W5;Zwaar;;OK
+DPAL 11 S W1;Dekplaat;4;;;11;Enkel;W1;W1;Zwaar;;OK
+DPAL 11 S W3;Dekplaat;4;;;11;Enkel;W3;W3;Zwaar;;OK
+DPAL 12 S W1;Dekplaat;4;;;12;Enkel;W1;W1;Zwaar;;OK
+DPAL 3 S W2;Dekplaat;4;;;3;Enkel;W2;W2;Zwaar;;OK
+DPAL 3 S W3;Dekplaat;4;;;3;Enkel;W3;W3;Zwaar;;OK
+DPAL 3 S W4;Dekplaat;4;;;3;Enkel;W4;W4;Zwaar;;OK
+DPAL 3 S W5;Dekplaat;4;;;3;Enkel;W5;W5;Zwaar;;OK
+DPAL 4 S W2;Dekplaat;4;;;4;Enkel;W2;W2;Zwaar;;OK
+DPAL 4 S W3;Dekplaat;4;;;4;Enkel;W3;W3;Zwaar;;OK
+DPAL 4 S W4;Dekplaat;4;;;4;Enkel;W4;W4;Zwaar;;OK
+DPAL 4 S W5;Dekplaat;4;;;4;Enkel;W5;W5;Zwaar;;OK
+DPAL 5 S W2;Dekplaat;4;;;5;Enkel;W2;W2;Zwaar;;OK
+DPAL 5 S W3;Dekplaat;4;;;5;Enkel;W3;W3;Zwaar;;OK
+DPAL 5 S W4;Dekplaat;4;;;5;Enkel;W4;W4;Zwaar;;OK
+DPAL 5 S W5;Dekplaat;4;;;5;Enkel;W5;W5;Zwaar;;OK
+DPAL 6 S W2;Dekplaat;4;;;6;Enkel;W2;W2;Zwaar;;OK
+DPAL 6 S W3;Dekplaat;4;;;6;Enkel;W3;W3;Zwaar;;OK
+DPAL 6 S W4;Dekplaat;4;;;6;Enkel;W4;W4;Zwaar;;OK
+DPAL 6 S W5;Dekplaat;4;;;6;Enkel;W5;W5;Zwaar;;OK
+DPAL 7 S W2;Dekplaat;4;;;7;Enkel;W2;W2;Zwaar;;OK
+DPAL 7 S W3;Dekplaat;4;;;7;Enkel;W3;W3;Zwaar;;OK
+DPAL 7 S W5;Dekplaat;4;;;7;Enkel;W5;W5;Zwaar;;OK
+DPAL 8 S W1;Dekplaat;4;;;8;Enkel;W1;W1;Zwaar;;OK
+DPAL 8 S W2;Dekplaat;4;;;8;Enkel;W2;W2;Zwaar;;OK
+DPAL 8 S W3;Dekplaat;4;;;8;Enkel;W3;W3;Zwaar;;OK
+DPAL 8 S W4;Dekplaat;4;;;8;Enkel;W4;W4;Zwaar;;OK
+DPAL 8 S W5;Dekplaat;4;;;8;Enkel;W5;W5;Zwaar;;OK
+DPAL 9 S W1;Dekplaat;4;;;9;Enkel;W1;W1;Zwaar;;OK
+DPAL 9 S W3;Dekplaat;4;;;9;Enkel;W3;W3;Zwaar;;OK
+DPAL 9 S W5;Dekplaat;4;;;9;Enkel;W5;W5;Zwaar;;OK
+GD 1 D W3;Dekplaat;4;;;1;Dubbel;W3;W3;Licht (standaard);;OK
+GD 1 D W4;Dekplaat;4;;;1;Dubbel;W4;W4;Licht (standaard);;OK
+GD 1 D W5;Dekplaat;4;;;1;Dubbel;W5;W5;Licht (standaard);;OK
+GD 1 D W55;Dekplaat;4;;;1;Dubbel;W55;W55;Licht (standaard);;OK
+GD 2 D W3;Dekplaat;4;;;2;Dubbel;W3;W3;Licht (standaard);;OK
+GD 2 D W4/2;Dekplaat;4;;;2;Dubbel;W4/2;W4/2;Licht (standaard);;OK
+GD 2 D W5;Dekplaat;4;;;2;Dubbel;W5;W5;Licht (standaard);;OK
+GD 2 D W55;Dekplaat;4;;;2;Dubbel;W55;W55;Licht (standaard);;OK
+GD 3 D W3;Dekplaat;4;;;3;Dubbel;W3;W3;Licht (standaard);;OK
+GD 3 D W4;Dekplaat;4;;;3;Dubbel;W4;W4;Licht (standaard);;OK
+GD 3 D W5;Dekplaat;4;;;3;Dubbel;W5;W5;Licht (standaard);;OK
+GD 3 D W55;Dekplaat;4;;;3;Dubbel;W55;W55;Licht (standaard);;OK
+GD 4 D W3;Dekplaat;4;;;4;Dubbel;W3;W3;Licht (standaard);;OK
+GD 4 D W5;Dekplaat;4;;;4;Dubbel;W5;W5;Licht (standaard);;OK
+GD 5 D W3;Dekplaat;4;;;5;Dubbel;W3;W3;Licht (standaard);;OK
+GD 5 D W5;Dekplaat;4;;;5;Dubbel;W5;W5;Licht (standaard);;OK
+IS 1/1A M W3;Inbusbout;5;;;1/1A;;W3;W3;Licht (standaard);;OK
+IS 1/1A M W5;Inbusbout;5;;;1/1A;;W5;W5;Licht (standaard);;OK
+IS 2 M W3;Inbusbout;5;;;2;;W3;W3;Licht (standaard);;OK
+IS 2 M W4;Inbusbout;5;;;2;;W4;W4;Licht (standaard);;OK
+IS 2 M W5;Inbusbout;5;;;2;;W5;W5;Licht (standaard);;OK
+IS 3 M W3;Inbusbout;5;;;3;;W3;W3;Licht (standaard);;OK
+IS 3 M W4;Inbusbout;5;;;3;;W4;W4;Licht (standaard);;OK
+IS 3 M W5;Inbusbout;5;;;3;;W5;W5;Licht (standaard);;OK
+IS 3 S M W3;Inbusbout;5;;;3;;W3;W3;Zwaar;;OK
+IS 4 M W3;Inbusbout;5;;;4;;W3;W3;Licht (standaard);;OK
+IS 4 M W4;Inbusbout;5;;;4;;W4;W4;Licht (standaard);;OK
+IS 4 M W5;Inbusbout;5;;;4;;W5;W5;Licht (standaard);;OK
+IS 4 S M W3;Inbusbout;5;;;4;;W3;W3;Zwaar;;OK
+IS 5 M W3;Inbusbout;5;;;5;;W3;W3;Licht (standaard);;OK
+IS 5 M W4;Inbusbout;5;;;5;;W4;W4;Licht (standaard);;OK
+IS 5 M W5;Inbusbout;5;;;5;;W5;W5;Licht (standaard);;OK
+IS 5 S M W3;Inbusbout;5;;;5;;W3;W3;Zwaar;;OK
+IS 6 M W3;Inbusbout;5;;;6;;W3;W3;Licht (standaard);;OK
+IS 6 M W4;Inbusbout;5;;;6;;W4;W4;Licht (standaard);;OK
+IS 6 M W5;Inbusbout;5;;;6;;W5;W5;Licht (standaard);;OK
+IS 6 S M W5;Inbusbout;5;;;6;;W5;W5;Zwaar;;OK
+IS 7 M W3;Inbusbout;5;;;7;;W3;W3;Licht (standaard);;OK
+IS 7 M W5;Inbusbout;5;;;7;;W5;W5;Licht (standaard);;OK
+IS 7 S M W1;Inbusbout;5;;;7;;W1;W1;Zwaar;;OK
+IS 8 M W3;Inbusbout;5;;;8;;W3;W3;Licht (standaard);;OK
+SI 10,5 DIN 93 W3;Borgplaat;3;;;10,5;Enkel;W3;W3;Licht (standaard);;OK
+SI 10,5 DIN 93 W5;Borgplaat;3;;;10,5;Enkel;W5;W5;Licht (standaard);;OK
+SI 10,5-DIN 463 W3;Borgplaat;3;;;10,5;Enkel;W3;W3;Licht (standaard);;OK
+SI 10,5-DIN 463 W5;Borgplaat;3;;;10,5;Enkel;W5;W5;Licht (standaard);;OK
+SI 13 DIN 93 W3;Borgplaat;3;;;13;Enkel;W3;W3;Licht (standaard);;OK
+SI 13 DIN 93 W5;Borgplaat;3;;;13;Enkel;W5;W5;Licht (standaard);;OK
+SI 13-DIN 463 W5;Borgplaat;3;;;13;Enkel;W5;W5;Licht (standaard);;OK
+SI 17 DIN 93 W5;Borgplaat;3;;;17;Enkel;W5;W5;Licht (standaard);;OK
+SI 17-DIN 463 W5;Borgplaat;3;;;17;Enkel;W5;W5;Licht (standaard);;OK
+SI 21 DIN 93 W5;Borgplaat;3;;;21;Enkel;W5;W5;Licht (standaard);;OK
+SI 2-5 D W3;Borgplaat;3;;;2-5;Enkel;W3;W3;Licht (standaard);;OK
+SI 2-5 D W5;Borgplaat;3;;;2-5;Enkel;W5;W5;Licht (standaard);;OK
+SI 25 DIN 93 W5;Borgplaat;3;;;25;Enkel;W5;W5;Licht (standaard);;OK
+SI 25-DIN 463 W5;Borgplaat;3;;;25;Enkel;W5;W5;Licht (standaard);;OK
+SI 31 DIN 93 W5;Borgplaat;3;;;31;Enkel;W5;W5;Licht (standaard);;OK
+SI 6,4 DIN 93 W3;Borgplaat;3;;;6,4;Enkel;W3;W3;Licht (standaard);;OK
+SI 6,4 DIN 93 W5;Borgplaat;3;;;6,4;Enkel;W5;W5;Licht (standaard);;OK
+SI 6,4-DIN 463 W5;Borgplaat;3;;;6,4;Enkel;W5;W5;Licht (standaard);;OK
+SIG 1 W3;Borgplaat;3;;;1;Enkel;W3;W3;Licht (standaard);;OK
+SIG 1 W5;Borgplaat;3;;;1;Enkel;W5;W5;Licht (standaard);;OK
+SIG 1A ACT W55;Borgplaat;3;;;1A;Enkel;W55;W55;Licht (standaard);;OK
+SIG 1A W3;Borgplaat;3;;;1A;Enkel;W3;W3;Licht (standaard);;OK
+SIG 1A W4;Borgplaat;3;;;1A;Enkel;W4;W4;Licht (standaard);;OK
+SIG 1A W5;Borgplaat;3;;;1A;Enkel;W5;W5;Licht (standaard);;OK
+SIG 2 W3;Borgplaat;3;;;2;Enkel;W3;W3;Licht (standaard);;OK
+SIG 2 W5;Borgplaat;3;;;2;Enkel;W5;W5;Licht (standaard);;OK
+SIG 3 W3;Borgplaat;3;;;3;Enkel;W3;W3;Licht (standaard);;OK
+SIG 3 W5;Borgplaat;3;;;3;Enkel;W5;W5;Licht (standaard);;OK
+SIG 4 W3;Borgplaat;3;;;4;Enkel;W3;W3;Licht (standaard);;OK
+SIG 4 W5;Borgplaat;3;;;4;Enkel;W5;W5;Licht (standaard);;OK
+SIG 5 W3;Borgplaat;3;;;5;Enkel;W3;W3;Licht (standaard);;OK
+SIG 5 W5;Borgplaat;3;;;5;Enkel;W5;W5;Licht (standaard);;OK
+SIG 6 W3;Borgplaat;3;;;6;Enkel;W3;W3;Licht (standaard);;OK
+SIG 6 W5;Borgplaat;3;;;6;Enkel;W5;W5;Licht (standaard);;OK
+SIP 3 S W3;Borgplaat;3;;;3;Enkel;W3;W3;Zwaar;;OK
+SIP 3 S W4;Borgplaat;3;;;3;Enkel;W4;W4;Zwaar;;OK
+SIP 3 S W5;Borgplaat;3;;;3;Enkel;W5;W5;Zwaar;;OK
+SIP 4 S W2;Borgplaat;3;;;4;Enkel;W2;W2;Zwaar;;OK
+SIP 4 S W3;Borgplaat;3;;;4;Enkel;W3;W3;Zwaar;;OK
+SIP 4 S W4;Borgplaat;3;;;4;Enkel;W4;W4;Zwaar;;OK
+SIP 4 S W5;Borgplaat;3;;;4;Enkel;W5;W5;Zwaar;;OK
+SIP 5 S W2;Borgplaat;3;;;5;Enkel;W2;W2;Zwaar;;OK
+SIP 5 S W3;Borgplaat;3;;;5;Enkel;W3;W3;Zwaar;;OK
+SIP 5 S W5;Borgplaat;3;;;5;Enkel;W5;W5;Zwaar;;OK
+SIP 6 S W2;Borgplaat;3;;;6;Enkel;W2;W2;Zwaar;;OK
+SIP 6 S W3;Borgplaat;3;;;6;Enkel;W3;W3;Zwaar;;OK
+SIP 6 S W5;Borgplaat;3;;;6;Enkel;W5;W5;Zwaar;;OK
+SIP 7 S W3;Borgplaat;3;;;7;Enkel;W3;W3;Zwaar;;OK
+SIP 7 S W5;Borgplaat;3;;;7;Enkel;W5;W5;Zwaar;;OK
+SIP 8 S W3;Borgplaat;3;;;8;Enkel;W3;W3;Zwaar;;OK
+SIP 9 S W3;Borgplaat;3;;;9;Enkel;W3;W3;Zwaar;;OK
+SP 1 D M W2;Lasplaat;1;;;1;Enkel;W2;W2;Licht (standaard);;OK
+SP 1 D M W3;Lasplaat;1;;;1;Enkel;W3;W3;Licht (standaard);;OK
+SP 1 D M W4;Lasplaat;1;;;1;Enkel;W4;W4;Licht (standaard);;OK
+SP 1 D M W5;Lasplaat;1;;;1;Enkel;W5;W5;Licht (standaard);;OK
+SP 1 D M W55;Lasplaat;1;;;1;Enkel;W55;W55;Licht (standaard);;OK
+SP 1 M W1;Lasplaat;1;;;1;Enkel;W1;W1;Licht (standaard);;OK
+SP 1 M W2;Lasplaat;1;;;1;Enkel;W2;W2;Licht (standaard);;OK
+SP 1 M W3;Lasplaat;1;;;1;Enkel;W3;W3;Licht (standaard);;OK
+SP 1 M W5;Lasplaat;1;;;1;Enkel;W5;W5;Licht (standaard);;OK
+SP 1A M W2;Lasplaat;1;;;1A;Enkel;W2;W2;Licht (standaard);;OK
+SP 1A M W3;Lasplaat;1;;;1A;Enkel;W3;W3;Licht (standaard);;OK
+SP 1A M W4;Lasplaat;1;;;1A;Enkel;W4;W4;Licht (standaard);;OK
+SP 1A M W5;Lasplaat;1;;;1A;Enkel;W5;W5;Licht (standaard);;OK
+SP 1A M W55;Lasplaat;1;;;1A;Enkel;W55;W55;Licht (standaard);;OK
+SP 2 D M W1;Lasplaat;1;;;2;Enkel;W1;W1;Licht (standaard);;OK
+SP 2 D M W2;Lasplaat;1;;;2;Enkel;W2;W2;Licht (standaard);;OK
+SP 2 D M W3;Lasplaat;1;;;2;Enkel;W3;W3;Licht (standaard);;OK
+SP 2 D M W4;Lasplaat;1;;;2;Enkel;W4;W4;Licht (standaard);;OK
+SP 2 D M W5;Lasplaat;1;;;2;Enkel;W5;W5;Licht (standaard);;OK
+SP 2 D M W55;Lasplaat;1;;;2;Enkel;W55;W55;Licht (standaard);;OK
+SP 2 M W2;Lasplaat;1;;;2;Enkel;W2;W2;Licht (standaard);;OK
+SP 2 M W3;Lasplaat;1;;;2;Enkel;W3;W3;Licht (standaard);;OK
+SP 2 M W4;Lasplaat;1;;;2;Enkel;W4;W4;Licht (standaard);;OK
+SP 2 M W5;Lasplaat;1;;;2;Enkel;W5;W5;Licht (standaard);;OK
+SP 2 M W55;Lasplaat;1;;;2;Enkel;W55;W55;Licht (standaard);;OK
+SP 3 D M W2;Lasplaat;1;;;3;Enkel;W2;W2;Licht (standaard);;OK
+SP 3 D M W3;Lasplaat;1;;;3;Enkel;W3;W3;Licht (standaard);;OK
+SP 3 D M W4;Lasplaat;1;;;3;Enkel;W4;W4;Licht (standaard);;OK
+SP 3 D M W5;Lasplaat;1;;;3;Enkel;W5;W5;Licht (standaard);;OK
+SP 3 M W2;Lasplaat;1;;;3;Enkel;W2;W2;Licht (standaard);;OK
+SP 3 M W3;Lasplaat;1;;;3;Enkel;W3;W3;Licht (standaard);;OK
+SP 3 M W4;Lasplaat;1;;;3;Enkel;W4;W4;Licht (standaard);;OK
+SP 3 M W5;Lasplaat;1;;;3;Enkel;W5;W5;Licht (standaard);;OK
+SP 3 M W55;Lasplaat;1;;;3;Enkel;W55;W55;Licht (standaard);;OK
+SP 4 D M W2;Lasplaat;1;;;4;Enkel;W2;W2;Licht (standaard);;OK
+SP 4 D M W3;Lasplaat;1;;;4;Enkel;W3;W3;Licht (standaard);;OK
+SP 4 D M W4;Lasplaat;1;;;4;Enkel;W4;W4;Licht (standaard);;OK
+SP 4 D M W5;Lasplaat;1;;;4;Enkel;W5;W5;Licht (standaard);;OK
+SP 4 M W2;Lasplaat;1;;;4;Enkel;W2;W2;Licht (standaard);;OK
+SP 4 M W3;Lasplaat;1;;;4;Enkel;W3;W3;Licht (standaard);;OK
+SP 4 M W4;Lasplaat;1;;;4;Enkel;W4;W4;Licht (standaard);;OK
+SP 4 M W5;Lasplaat;1;;;4;Enkel;W5;W5;Licht (standaard);;OK
+SP 5 D M W2;Lasplaat;1;;;5;Enkel;W2;W2;Licht (standaard);;OK
+SP 5 D M W5;Lasplaat;1;;;5;Enkel;W5;W5;Licht (standaard);;OK
+SP 5 M W2;Lasplaat;1;;;5;Enkel;W2;W2;Licht (standaard);;OK
+SP 5 M W3;Lasplaat;1;;;5;Enkel;W3;W3;Licht (standaard);;OK
+SP 5 M W4;Lasplaat;1;;;5;Enkel;W4;W4;Licht (standaard);;OK
+SP 5 M W5;Lasplaat;1;;;5;Enkel;W5;W5;Licht (standaard);;OK
+SP 6 M W2;Lasplaat;1;;;6;Enkel;W2;W2;Licht (standaard);;OK
+SP 6 M W4;Lasplaat;1;;;6;Enkel;W4;W4;Licht (standaard);;OK
+SP 6 M W5;Lasplaat;1;;;6;Enkel;W5;W5;Licht (standaard);;OK
+SP 7 M W2;Lasplaat;1;;;7;Enkel;W2;W2;Licht (standaard);;OK
+SP 7 M W3;Lasplaat;1;;;7;Enkel;W3;W3;Licht (standaard);;OK
+SP 7 M W4;Lasplaat;1;;;7;Enkel;W4;W4;Licht (standaard);;OK
+SP 7 M W5;Lasplaat;1;;;7;Enkel;W5;W5;Licht (standaard);;OK
+SP 7 M W85;Lasplaat;1;;;7;Enkel;W85;W85;Licht (standaard);;OK
+SP 8 M W2;Lasplaat;1;;;8;Enkel;W2;W2;Licht (standaard);;OK
+SP 8 M W5;Lasplaat;1;;;8;Enkel;W5;W5;Licht (standaard);;OK
+SPAL 10 S M W1;Lasplaat;1;;;10;Enkel;W1;W1;Zwaar;;OK
+SPAL 10 S M W2;Lasplaat;1;;;10;Enkel;W2;W2;Zwaar;;OK
+SPAL 10 S M W5;Lasplaat;1;;;10;Enkel;W5;W5;Zwaar;;OK
+SPAL 11 S M W1;Lasplaat;1;;;11;Enkel;W1;W1;Zwaar;;OK
+SPAL 12 S M W1;Lasplaat;1;;;12;Enkel;W1;W1;Zwaar;;OK
+SPAL 3 S M W2;Lasplaat;1;;;3;Enkel;W2;W2;Zwaar;;OK
+SPAL 3 S M W3;Lasplaat;1;;;3;Enkel;W3;W3;Zwaar;;OK
+SPAL 3 S M W4;Lasplaat;1;;;3;Enkel;W4;W4;Zwaar;;OK
+SPAL 3 S M W5;Lasplaat;1;;;3;Enkel;W5;W5;Zwaar;;OK
+SPAL 3 S U W2;Lasplaat;1;;;3;Enkel;W2;W2;Zwaar;;OK
+SPAL 4 S M W1;Lasplaat;1;;;4;Enkel;W1;W1;Zwaar;;OK
+SPAL 4 S M W2;Lasplaat;1;;;4;Enkel;W2;W2;Zwaar;;OK
+SPAL 4 S M W3;Lasplaat;1;;;4;Enkel;W3;W3;Zwaar;;OK
+SPAL 4 S M W4;Lasplaat;1;;;4;Enkel;W4;W4;Zwaar;;OK
+SPAL 4 S M W5;Lasplaat;1;;;4;Enkel;W5;W5;Zwaar;;OK
+SPAL 4 S U W2;Lasplaat;1;;;4;Enkel;W2;W2;Zwaar;;OK
+SPAL 5 S M W2;Lasplaat;1;;;5;Enkel;W2;W2;Zwaar;;OK
+SPAL 5 S M W3;Lasplaat;1;;;5;Enkel;W3;W3;Zwaar;;OK
+SPAL 5 S M W5;Lasplaat;1;;;5;Enkel;W5;W5;Zwaar;;OK
+SPAL 6 S M W2;Lasplaat;1;;;6;Enkel;W2;W2;Zwaar;;OK
+SPAL 6 S M W4;Lasplaat;1;;;6;Enkel;W4;W4;Zwaar;;OK
+SPAL 6 S M W5;Lasplaat;1;;;6;Enkel;W5;W5;Zwaar;;OK
+SPAL 7 S M W2;Lasplaat;1;;;7;Enkel;W2;W2;Zwaar;;OK
+SPAL 7 S M W5;Lasplaat;1;;;7;Enkel;W5;W5;Zwaar;;OK
+SPAL 8 S M W1;Lasplaat;1;;;8;Enkel;W1;W1;Zwaar;;OK
+SPAL 8 S M W2;Lasplaat;1;;;8;Enkel;W2;W2;Zwaar;;OK
+SPAL 8 S M W4;Lasplaat;1;;;8;Enkel;W4;W4;Zwaar;;OK
+SPAL 8 S M W5;Lasplaat;1;;;8;Enkel;W5;W5;Zwaar;;OK
+SPAL 9 S M W2;Lasplaat;1;;;9;Enkel;W2;W2;Zwaar;;OK
+SPAL 9 S M W5;Lasplaat;1;;;9;Enkel;W5;W5;Zwaar;;OK
+SPV 1 M W3;Lasplaat;1;;;1;Enkel;W3;W3;Licht (standaard);;OK
+SPV 1 M W5;Lasplaat;1;;;1;Enkel;W5;W5;Licht (standaard);;OK
+SPV 1A M W2;Lasplaat;1;;;1A;Enkel;W2;W2;Licht (standaard);;OK
+SPV 1A M W3;Lasplaat;1;;;1A;Enkel;W3;W3;Licht (standaard);;OK
+SPV 1A M W5;Lasplaat;1;;;1A;Enkel;W5;W5;Licht (standaard);;OK
+SPV 1D M W5 OV;Lasplaat;1;;;1D;Enkel;W5;W5;Licht (standaard);;OK
+SPV 2 M W2;Lasplaat;1;;;2;Enkel;W2;W2;Licht (standaard);;OK
+SPV 2 M W3;Lasplaat;1;;;2;Enkel;W3;W3;Licht (standaard);;OK
+SPV 2 M W5;Lasplaat;1;;;2;Enkel;W5;W5;Licht (standaard);;OK
+SPV 3 M W2;Lasplaat;1;;;3;Enkel;W2;W2;Licht (standaard);;OK
+SPV 3 M W3;Lasplaat;1;;;3;Enkel;W3;W3;Licht (standaard);;OK
+SPV 3 M W4;Lasplaat;1;;;3;Enkel;W4;W4;Licht (standaard);;OK
+SPV 3 M W5;Lasplaat;1;;;3;Enkel;W5;W5;Licht (standaard);;OK
+SPV 4 M W2;Lasplaat;1;;;4;Enkel;W2;W2;Licht (standaard);;OK
+SPV 4 M W3;Lasplaat;1;;;4;Enkel;W3;W3;Licht (standaard);;OK
+SPV 4 M W5;Lasplaat;1;;;4;Enkel;W5;W5;Licht (standaard);;OK
+SPV 5 M W2;Lasplaat;1;;;5;Enkel;W2;W2;Licht (standaard);;OK
+SPV 5 M W3;Lasplaat;1;;;5;Enkel;W3;W3;Licht (standaard);;OK
+SPV 5 M W4;Lasplaat;1;;;5;Enkel;W4;W4;Licht (standaard);;OK
+SPV 5 M W5;Lasplaat;1;;;5;Enkel;W5;W5;Licht (standaard);;OK
+SPV 5 M W55;Lasplaat;1;;;5;Enkel;W55;W55;Licht (standaard);;OK
+SPV 6 M W2;Lasplaat;1;;;6;Enkel;W2;W2;Licht (standaard);;OK
+SPV 6 M W3;Lasplaat;1;;;6;Enkel;W3;W3;Licht (standaard);;OK
+SPV 6 M W5;Lasplaat;1;;;6;Enkel;W5;W5;Licht (standaard);;OK
+SPV 7 M W2;Lasplaat;1;;;7;Enkel;W2;W2;Licht (standaard);;OK
+SPV 7 M W3;Lasplaat;1;;;7;Enkel;W3;W3;Licht (standaard);;OK
+SPV 7 M W5;Lasplaat;1;;;7;Enkel;W5;W5;Licht (standaard);;OK
+AS 1/1A M W3;Zeskantbout;5;;;1/1A;Enkel;W3;W3;Licht (standaard);;OK
+AS 1/1A M W4;Zeskantbout;5;;;1/1A;Enkel;W4;W4;Licht (standaard);;OK
+AS 1/1A M W5;Zeskantbout;5;;;1/1A;Enkel;W5;W5;Licht (standaard);;OK
+AS 1/1A M W55;Zeskantbout;5;;;1/1A;Enkel;W55;W55;Licht (standaard);;OK
+AS 10 S M W3;Zeskantbout;5;;;10;Enkel;W3;W3;Zwaar;;OK
+AS 10 S M W5;Zeskantbout;5;;;10;Enkel;W5;W5;Zwaar;;OK
+AS 11 S M W3;Zeskantbout;5;;;11;Enkel;W3;W3;Zwaar;;OK
+AS 12 S M W1;Zeskantbout;5;;;12;Enkel;W1;W1;Zwaar;;OK
+AS 1D/2 M W3;Zeskantbout;5;;;1/2;Dubbel;W3;W3;Licht (standaard);;OK
+AS 1D/2 M W5;Zeskantbout;5;;;1/2;Dubbel;W5;W5;Licht (standaard);;OK
+AS 1D/2 M W55;Zeskantbout;5;;;1/2;Dubbel;W55;W55;Licht (standaard);;OK
+AS 2 D M W3;Zeskantbout;5;;;2;Dubbel;W3;W3;Licht (standaard);;OK
+AS 2 D M W5;Zeskantbout;5;;;2;Dubbel;W5;W5;Licht (standaard);;OK
+AS 2 D M W55;Zeskantbout;5;;;2;Dubbel;W55;W55;Licht (standaard);;OK
+AS 3 D M W3;Zeskantbout;5;;;3;Dubbel;W3;W3;Licht (standaard);;OK
+AS 3 D M W4;Zeskantbout;5;;;3;Dubbel;W4;W4;Licht (standaard);;OK
+AS 3 D M W5;Zeskantbout;5;;;3;Dubbel;W5;W5;Licht (standaard);;OK
+AS 3 M W3;Zeskantbout;5;;;3;Enkel;W3;W3;Licht (standaard);;OK
+AS 3 M W4;Zeskantbout;5;;;3;Enkel;W4;W4;Licht (standaard);;OK
+AS 3 M W5;Zeskantbout;5;;;3;Enkel;W5;W5;Licht (standaard);;OK
+AS 3 M W55;Zeskantbout;5;;;3;Enkel;W55;W55;Licht (standaard);;OK
+AS 3 S M W1;Zeskantbout;5;;;3;Enkel;W1;W1;Zwaar;;OK
+AS 3 S M W3;Zeskantbout;5;;;3;Enkel;W3;W3;Zwaar;;OK
+AS 3 S M W4;Zeskantbout;5;;;3;Enkel;W4;W4;Zwaar;;OK
+AS 3 S M W5;Zeskantbout;5;;;3;Enkel;W5;W5;Zwaar;;OK
+AS 3 S U W3;Zeskantbout;5;;;3;Enkel;W3;W3;Zwaar;;OK
+AS 3 S U W5;Zeskantbout;5;;;3;Enkel;W5;W5;Zwaar;;OK
+AS 4 D M W3;Zeskantbout;5;;;4;Dubbel;W3;W3;Licht (standaard);;OK
+AS 4 D M W5;Zeskantbout;5;;;4;Dubbel;W5;W5;Licht (standaard);;OK
+AS 4 M W3;Zeskantbout;5;;;4;Enkel;W3;W3;Licht (standaard);;OK
+AS 4 M W4;Zeskantbout;5;;;4;Enkel;W4;W4;Licht (standaard);;OK
+AS 4 M W5;Zeskantbout;5;;;4;Enkel;W5;W5;Licht (standaard);;OK
+AS 4 M W55;Zeskantbout;5;;;4;Enkel;W55;W55;Licht (standaard);;OK
+AS 4 S M W1;Zeskantbout;5;;;4;Enkel;W1;W1;Zwaar;;OK
+AS 4 S M W3;Zeskantbout;5;;;4;Enkel;W3;W3;Zwaar;;OK
+AS 4 S M W4;Zeskantbout;5;;;4;Enkel;W4;W4;Zwaar;;OK
+AS 4 S M W5;Zeskantbout;5;;;4;Enkel;W5;W5;Zwaar;;OK
+AS 4 S U W3;Zeskantbout;5;;;4;Enkel;W3;W3;Zwaar;;OK
+AS 4 S U W5;Zeskantbout;5;;;4;Enkel;W5;W5;Zwaar;;OK
+AS 5 D M W3;Zeskantbout;5;;;5;Dubbel;W3;W3;Licht (standaard);;OK
+AS 5 D M W5;Zeskantbout;5;;;5;Dubbel;W5;W5;Licht (standaard);;OK
+AS 5 M W3;Zeskantbout;5;;;5;Enkel;W3;W3;Licht (standaard);;OK
+AS 5 M W4;Zeskantbout;5;;;5;Enkel;W4;W4;Licht (standaard);;OK
+AS 5 M W5;Zeskantbout;5;;;5;Enkel;W5;W5;Licht (standaard);;OK
+AS 5 M W55;Zeskantbout;5;;;5;Enkel;W55;W55;Licht (standaard);;OK
+AS 5 S M W1;Zeskantbout;5;;;5;Enkel;W1;W1;Zwaar;;OK
+AS 5 S M W3;Zeskantbout;5;;;5;Enkel;W3;W3;Zwaar;;OK
+AS 5 S M W4;Zeskantbout;5;;;5;Enkel;W4;W4;Zwaar;;OK
+AS 5 S M W5;Zeskantbout;5;;;5;Enkel;W5;W5;Zwaar;;OK
+AS 5 S U W3;Zeskantbout;5;;;5;Enkel;W3;W3;Zwaar;;OK
+AS 5 S U W5;Zeskantbout;5;;;5;Enkel;W5;W5;Zwaar;;OK
+AS 6 M W3;Zeskantbout;5;;;6;Enkel;W3;W3;Licht (standaard);;OK
+AS 6 M W4;Zeskantbout;5;;;6;Enkel;W4;W4;Licht (standaard);;OK
+AS 6 M W5;Zeskantbout;5;;;6;Enkel;W5;W5;Licht (standaard);;OK
+AS 6 S M W1;Zeskantbout;5;;;6;Enkel;W1;W1;Zwaar;;OK
+AS 6 S M W2;Zeskantbout;5;;;6;Enkel;W2;W2;Zwaar;;OK
+AS 6 S M W3;Zeskantbout;5;;;6;Enkel;W3;W3;Zwaar;;OK
+AS 6 S M W4;Zeskantbout;5;;;6;Enkel;W4;W4;Zwaar;;OK
+AS 6 S M W5;Zeskantbout;5;;;6;Enkel;W5;W5;Zwaar;;OK
+AS 6 S U W3;Zeskantbout;5;;;6;Enkel;W3;W3;Zwaar;;OK
+AS 6 S U W5;Zeskantbout;5;;;6;Enkel;W5;W5;Zwaar;;OK
+AS 7 M W3;Zeskantbout;5;;;7;Enkel;W3;W3;Licht (standaard);;OK
+AS 7 M W5;Zeskantbout;5;;;7;Enkel;W5;W5;Licht (standaard);;OK
+AS 7 S M W3;Zeskantbout;5;;;7;Enkel;W3;W3;Zwaar;;OK
+AS 7 S M W5;Zeskantbout;5;;;7;Enkel;W5;W5;Zwaar;;OK
+AS 8 M W3;Zeskantbout;5;;;8;Enkel;W3;W3;Licht (standaard);;OK
+AS 8 M W5;Zeskantbout;5;;;8;Enkel;W5;W5;Licht (standaard);;OK
+AS 8 S M W1;Zeskantbout;5;;;8;Enkel;W1;W1;Zwaar;;OK
+AS 8 S M W3;Zeskantbout;5;;;8;Enkel;W3;W3;Zwaar;;OK
+AS 8 S M W4;Zeskantbout;5;;;8;Enkel;W4;W4;Zwaar;;OK
+AS 8 S M W5;Zeskantbout;5;;;8;Enkel;W5;W5;Zwaar;;OK
+AS 9 S M W3;Zeskantbout;5;;;9;Enkel;W3;W3;Zwaar;;OK
+AS 9 S M W5;Zeskantbout;5;;;9;Enkel;W5;W5;Zwaar;;OK
+AS M8X28-W3;Zeskantbout;5;;;M8X28-W3;Enkel;;;Licht (standaard);;Controle
+DPAD 4 S W1;Dekplaat;4;;;4;Dubbel;W1;W1;Zwaar;;OK
+DPAD 4 S W3;Dekplaat;4;;;4;Dubbel;W3;W3;Zwaar;;OK
+DPAD 4 S W5;Dekplaat;4;;;4;Dubbel;W5;W5;Zwaar;;OK
+DPAD 5 S W3;Dekplaat;4;;;5;Dubbel;W3;W3;Zwaar;;OK
+DPAS 3 S W2;Dekplaat;4;;;3;Enkel;W2;W2;Zwaar;;OK
+DPAS 5 S W3;Dekplaat;4;;;5;Enkel;W3;W3;Zwaar;;OK
+DPAS 6 S W3;Dekplaat;4;;;6;Enkel;W3;W3;Zwaar;;OK
+DPAS 7 S W3;Dekplaat;4;;;7;Enkel;W3;W3;Zwaar;;OK
+DPAS 8 S W3;Dekplaat;4;;;8;Enkel;W3;W3;Zwaar;;OK
+DPAS 8 S W5;Dekplaat;4;;;8;Enkel;W5;W5;Zwaar;;OK
+DPAS 9 S W3;Dekplaat;4;;;9;Enkel;W3;W3;Zwaar;;OK
+GMV 3-5 S /2 M W3;Glijmoer;1;;;3-5;Enkel;W3;W3;Zwaar;;OK
+GMV 3-5 S /2 M W4;Glijmoer;1;;;3-5;Enkel;W4;W4;Zwaar;;OK
+GMV 3-5 S /2 M W5;Glijmoer;1;;;3-5;Enkel;W5;W5;Zwaar;;OK
+GMV 6 S /2 M W3;Glijmoer;1;;;6;Enkel;W3;W3;Zwaar;;OK
+GMV 6 S /2 M W5;Glijmoer;1;;;6;Enkel;W5;W5;Zwaar;;OK
+WSP 1A M W1;Lasplaat (hoek);1;;;1A;Enkel;W1;W1;Licht (standaard);;OK
+WSP 1A M W5;Lasplaat (hoek);1;;;1A;Enkel;W5;W5;Licht (standaard);;OK
+WSP 2 M W3;Lasplaat (hoek);1;;;2;Enkel;W3;W3;Licht (standaard);;OK
+WSP 2 M W4;Lasplaat (hoek);1;;;2;Enkel;W4;W4;Licht (standaard);;OK
+WSP 2 M W5;Lasplaat (hoek);1;;;2;Enkel;W5;W5;Licht (standaard);;OK
+WSP 3 M W5;Lasplaat (hoek);1;;;3;Enkel;W5;W5;Licht (standaard);;OK
+WSP 4 M W1;Lasplaat (hoek);1;;;4;Enkel;W1;W1;Licht (standaard);;OK
+WSP 4 M W5;Lasplaat (hoek);1;;;4;Enkel;W5;W5;Licht (standaard);;OK
+WSP 5 M W1;Lasplaat (hoek);1;;;5;Enkel;W1;W1;Licht (standaard);;OK
+WSP 6 M W1;Lasplaat (hoek);1;;;6;Enkel;W1;W1;Licht (standaard);;OK

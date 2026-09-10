@@ -59,7 +59,7 @@ h1 {
 
 .intro { margin: 22px 4px 26px; color: var(--muted); font-size: 15px; line-height: 1.5; max-width: 640px; }
 
-.tile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
 
 .tile {
     display: flex;
