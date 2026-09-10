@@ -186,22 +186,25 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
                     <div id="connectie1" class="connectie-icon-group" role="group" aria-label="Connectie type aansluiting 1">
                         <button type="button" class="connectie-icon" data-connectie="buiten" aria-pressed="false" title="Buiten">
                             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M4 9h8l6 3-6 3H4z"></path>
+                                <line x1="12" y1="4" x2="12" y2="20"></line>
+                                <line x1="8" y1="8" x2="16" y2="8"></line>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                                <line x1="8" y1="16" x2="16" y2="16"></line>
                             </svg>
                             <span>Buiten</span>
                         </button>
                         <button type="button" class="connectie-icon" data-connectie="binnen" aria-pressed="false" title="Binnen">
                             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M20 9h-8l-6 3 6 3h8"></path>
+                                <path d="M12 4l6 3.5v9l-6 3.5-6-3.5v-9z"></path>
+                                <circle cx="12" cy="12" r="2.4"></circle>
                             </svg>
                             <span>Binnen</span>
                         </button>
                         <button type="button" class="connectie-icon" data-connectie="wartelend" aria-pressed="false" title="Wartelend">
                             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M4 12a8 8 0 0 1 13.66-5.66"></path>
-                                <path d="M18 3v5h-5"></path>
-                                <path d="M20 12a8 8 0 0 1-13.66 5.66"></path>
-                                <path d="M6 21v-5h5"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 3a9 9 0 1 1 -6.36 2.64"></path>
+                                <path d="M3 3v5h5"></path>
                             </svg>
                             <span>Wartelend</span>
                         </button>
@@ -224,22 +227,25 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
                     <div id="connectie2" class="connectie-icon-group" role="group" aria-label="Connectie type aansluiting 2">
                         <button type="button" class="connectie-icon" data-connectie="buiten" aria-pressed="false" title="Buiten">
                             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M4 9h8l6 3-6 3H4z"></path>
+                                <line x1="12" y1="4" x2="12" y2="20"></line>
+                                <line x1="8" y1="8" x2="16" y2="8"></line>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                                <line x1="8" y1="16" x2="16" y2="16"></line>
                             </svg>
                             <span>Buiten</span>
                         </button>
                         <button type="button" class="connectie-icon" data-connectie="binnen" aria-pressed="false" title="Binnen">
                             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M20 9h-8l-6 3 6 3h8"></path>
+                                <path d="M12 4l6 3.5v9l-6 3.5-6-3.5v-9z"></path>
+                                <circle cx="12" cy="12" r="2.4"></circle>
                             </svg>
                             <span>Binnen</span>
                         </button>
                         <button type="button" class="connectie-icon" data-connectie="wartelend" aria-pressed="false" title="Wartelend">
                             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M4 12a8 8 0 0 1 13.66-5.66"></path>
-                                <path d="M18 3v5h-5"></path>
-                                <path d="M20 12a8 8 0 0 1-13.66 5.66"></path>
-                                <path d="M6 21v-5h5"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 3a9 9 0 1 1 -6.36 2.64"></path>
+                                <path d="M3 3v5h5"></path>
                             </svg>
                             <span>Wartelend</span>
                         </button>
