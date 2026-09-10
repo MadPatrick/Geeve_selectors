@@ -234,6 +234,29 @@ input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px r
 .hoek-icon:hover { border-color: var(--accent); color: var(--ink); }
 .hoek-icon.active { background: #fdeaee; border-color: var(--accent-dark); color: var(--accent-dark); }
 
+.connectie-icon-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.connectie-icon {
+    appearance: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex: 1 1 0;
+    min-width: 60px;
+    padding: 10px 8px 8px;
+    border: 1px solid #cbd6df;
+    border-radius: 12px;
+    background: #fff;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+}
+.connectie-icon svg { display: block; }
+.connectie-icon span { font-size: 11px; font-weight: 750; white-space: nowrap; }
+.connectie-icon:hover { border-color: var(--accent); color: var(--ink); }
+.connectie-icon.active { background: #fdeaee; border-color: var(--accent-dark); color: var(--accent-dark); }
+
 .result-panel[hidden] { display: none; }
 .result-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
 .result-table-wrap[hidden] { display: none; }

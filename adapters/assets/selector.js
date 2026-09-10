@@ -14,6 +14,10 @@
     };
     const hoekButtons = [...document.querySelectorAll('.hoek-icon')];
     const selectedHoek = new Set();
+    const connectie1Buttons = [...document.querySelectorAll('#connectie1 .connectie-icon')];
+    const connectie2Buttons = [...document.querySelectorAll('#connectie2 .connectie-icon')];
+    let selectedConnectie1 = '';
+    let selectedConnectie2 = '';
     const resetButton = document.getElementById('resetButton');
     const resultCount = document.getElementById('resultCount');
     const resultTableBody = document.getElementById('resultTableBody');
@@ -87,12 +91,6 @@
         (a, b) => sizeSortKey(a) - sizeSortKey(b) || a.localeCompare(b)
     );
 
-    const connectieOrder = ['buiten', 'binnen', 'wartelend'];
-    const connectieValues = uniqueSorted(
-        articles.flatMap((a) => [a.connectieType1, a.connectieType2]),
-        (a, b) => connectieOrder.indexOf(a) - connectieOrder.indexOf(b)
-    );
-
     // --- populate dropdowns --------------------------------------------
 
     function populateDraadmaat(select, soortSelect) {
@@ -105,8 +103,6 @@
     fillSelect(els.draadsoort2, draadsoortValues, 'Alle');
     populateDraadmaat(els.draadmaat1, els.draadsoort1);
     populateDraadmaat(els.draadmaat2, els.draadsoort2);
-    fillSelect(els.connectie1, connectieValues, 'Alle');
-    fillSelect(els.connectie2, connectieValues, 'Alle');
 
     // --- matching --------------------------------------------------------
 
@@ -121,10 +117,10 @@
         return {
             ds1: els.draadsoort1.value,
             dm1: els.draadmaat1.value,
-            ct1: els.connectie1.value,
+            ct1: selectedConnectie1,
             ds2: els.draadsoort2.value,
             dm2: els.draadmaat2.value,
-            ct2: els.connectie2.value,
+            ct2: selectedConnectie2,
             hoek: selectedHoek,
         };
     }
@@ -227,7 +223,7 @@
         populateDraadmaat(els.draadmaat2, els.draadsoort2);
         render();
     });
-    [els.draadmaat1, els.connectie1, els.draadmaat2, els.connectie2].forEach((el) => {
+    [els.draadmaat1, els.draadmaat2].forEach((el) => {
         el.addEventListener('change', render);
     });
 
@@ -243,13 +239,44 @@
         });
     });
 
+    // Connectie type: één keuze per aansluiting (klikken op de actieve knop
+    // zet 'm weer uit, terug naar "alle").
+    function wireConnectieGroup(buttons, setValue) {
+        buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const value = button.dataset.connectie;
+                const wasActive = button.classList.contains('active');
+                buttons.forEach((b) => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+                if (wasActive) {
+                    setValue('');
+                } else {
+                    button.classList.add('active');
+                    button.setAttribute('aria-pressed', 'true');
+                    setValue(value);
+                }
+                render();
+            });
+        });
+    }
+    wireConnectieGroup(connectie1Buttons, (value) => { selectedConnectie1 = value; });
+    wireConnectieGroup(connectie2Buttons, (value) => { selectedConnectie2 = value; });
+
     resetButton.addEventListener('click', () => {
         Object.entries(els).forEach(([key, el]) => {
-            if (key === 'hoek') return;
+            if (key === 'hoek' || key === 'connectie1' || key === 'connectie2') return;
             el.value = ALL;
         });
         selectedHoek.clear();
         hoekButtons.forEach((button) => {
+            button.classList.remove('active');
+            button.setAttribute('aria-pressed', 'false');
+        });
+        selectedConnectie1 = '';
+        selectedConnectie2 = '';
+        [...connectie1Buttons, ...connectie2Buttons].forEach((button) => {
             button.classList.remove('active');
             button.setAttribute('aria-pressed', 'false');
         });

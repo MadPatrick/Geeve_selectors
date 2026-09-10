@@ -181,10 +181,32 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
                     <span>Draadmaat</span>
                     <select id="draadmaat1"></select>
                 </label>
-                <label class="field" for="connectie1">
+                <div class="field">
                     <span>Connectie type</span>
-                    <select id="connectie1"></select>
-                </label>
+                    <div id="connectie1" class="connectie-icon-group" role="group" aria-label="Connectie type aansluiting 1">
+                        <button type="button" class="connectie-icon" data-connectie="buiten" aria-pressed="false" title="Buiten">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 9h8l6 3-6 3H4z"></path>
+                            </svg>
+                            <span>Buiten</span>
+                        </button>
+                        <button type="button" class="connectie-icon" data-connectie="binnen" aria-pressed="false" title="Binnen">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M20 9h-8l-6 3 6 3h8"></path>
+                            </svg>
+                            <span>Binnen</span>
+                        </button>
+                        <button type="button" class="connectie-icon" data-connectie="wartelend" aria-pressed="false" title="Wartelend">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 12a8 8 0 0 1 13.66-5.66"></path>
+                                <path d="M18 3v5h-5"></path>
+                                <path d="M20 12a8 8 0 0 1-13.66 5.66"></path>
+                                <path d="M6 21v-5h5"></path>
+                            </svg>
+                            <span>Wartelend</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="filter-port">
@@ -197,10 +219,32 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
                     <span>Draadmaat</span>
                     <select id="draadmaat2"></select>
                 </label>
-                <label class="field" for="connectie2">
+                <div class="field">
                     <span>Connectie type</span>
-                    <select id="connectie2"></select>
-                </label>
+                    <div id="connectie2" class="connectie-icon-group" role="group" aria-label="Connectie type aansluiting 2">
+                        <button type="button" class="connectie-icon" data-connectie="buiten" aria-pressed="false" title="Buiten">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 9h8l6 3-6 3H4z"></path>
+                            </svg>
+                            <span>Buiten</span>
+                        </button>
+                        <button type="button" class="connectie-icon" data-connectie="binnen" aria-pressed="false" title="Binnen">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M20 9h-8l-6 3 6 3h8"></path>
+                            </svg>
+                            <span>Binnen</span>
+                        </button>
+                        <button type="button" class="connectie-icon" data-connectie="wartelend" aria-pressed="false" title="Wartelend">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 12a8 8 0 0 1 13.66-5.66"></path>
+                                <path d="M18 3v5h-5"></path>
+                                <path d="M20 12a8 8 0 0 1-13.66 5.66"></path>
+                                <path d="M6 21v-5h5"></path>
+                            </svg>
+                            <span>Wartelend</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="filter-port filter-port-hoek">
