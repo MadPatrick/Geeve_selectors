@@ -205,10 +205,42 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
 
             <div class="filter-port filter-port-hoek">
                 <div class="filter-port-heading">Vorm</div>
-                <label class="field" for="hoek">
+                <div class="field">
                     <span>Hoek</span>
-                    <select id="hoek"></select>
-                </label>
+                    <div id="hoek" class="hoek-icon-group" role="group" aria-label="Hoek">
+                        <button type="button" class="hoek-icon" data-hoek="recht" aria-pressed="false" title="Recht">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="4" y1="12" x2="20" y2="12"></line>
+                            </svg>
+                            <span>Recht</span>
+                        </button>
+                        <button type="button" class="hoek-icon" data-hoek="haaks" aria-pressed="false" title="Haaks">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M6 4v8a6 6 0 0 0 6 6h6"></path>
+                            </svg>
+                            <span>Haaks</span>
+                        </button>
+                        <button type="button" class="hoek-icon" data-hoek="45°" aria-pressed="false" title="45°">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M5 19 13 11 20 11"></path>
+                            </svg>
+                            <span>45°</span>
+                        </button>
+                        <button type="button" class="hoek-icon" data-hoek="T-stuk" aria-pressed="false" title="T-stuk">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 7h16M12 7v13"></path>
+                            </svg>
+                            <span>T-stuk</span>
+                        </button>
+                        <button type="button" class="hoek-icon" data-hoek="kruis" aria-pressed="false" title="Kruis">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 3v18M3 12h18"></path>
+                            </svg>
+                            <span>Kruis</span>
+                        </button>
+                    </div>
+                    <small>Meerdere vormen tegelijk mogelijk &mdash; niets geselecteerd toont alle vormen.</small>
+                </div>
             </div>
         </div>
         <small>Aansluiting 1 en 2 zijn verwisselbaar &mdash; de volgorde waarin je ze invult maakt niet uit. Laat een veld op "Alle" staan om niet op dat kenmerk te filteren.</small>

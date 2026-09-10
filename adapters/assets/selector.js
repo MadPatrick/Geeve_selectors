@@ -12,6 +12,8 @@
         connectie2: document.getElementById('connectie2'),
         hoek: document.getElementById('hoek'),
     };
+    const hoekButtons = [...document.querySelectorAll('.hoek-icon')];
+    const selectedHoek = new Set();
     const resetButton = document.getElementById('resetButton');
     const resultCount = document.getElementById('resultCount');
     const resultTableBody = document.getElementById('resultTableBody');
@@ -91,16 +93,6 @@
         (a, b) => connectieOrder.indexOf(a) - connectieOrder.indexOf(b)
     );
 
-    // "n.v.t." betekent dat er geen hoek van toepassing is (bv. rechte
-    // koppelstukken zonder echte vorm) - dat is al precies wat "Alle" (geen
-    // filter) toont, dus die waarde wordt niet als apart keuzevakje
-    // aangeboden.
-    const hoekOrder = ['recht', 'haaks', '45°', 'T-stuk', 'kruis'];
-    const hoekValues = uniqueSorted(
-        articles.map((a) => a.hoek).filter((hoek) => hoek !== 'n.v.t.'),
-        (a, b) => hoekOrder.indexOf(a) - hoekOrder.indexOf(b)
-    );
-
     // --- populate dropdowns --------------------------------------------
 
     function populateDraadmaat(select, soortSelect) {
@@ -115,7 +107,6 @@
     populateDraadmaat(els.draadmaat2, els.draadsoort2);
     fillSelect(els.connectie1, connectieValues, 'Alle');
     fillSelect(els.connectie2, connectieValues, 'Alle');
-    fillSelect(els.hoek, hoekValues, 'Alle');
 
     // --- matching --------------------------------------------------------
 
@@ -134,7 +125,7 @@
             ds2: els.draadsoort2.value,
             dm2: els.draadmaat2.value,
             ct2: els.connectie2.value,
-            hoek: els.hoek.value,
+            hoek: selectedHoek,
         };
     }
 
@@ -145,7 +136,7 @@
     // matched ('direct': article position 1 -> Aansluiting 1, or 'swapped': article
     // position 2 -> Aansluiting 1), not just whether it matched.
     function matchOrientation(article, sel) {
-        if (sel.hoek && article.hoek !== sel.hoek) return null;
+        if (sel.hoek.size > 0 && !sel.hoek.has(article.hoek)) return null;
 
         const direct = sideMatches(article.draadsoort1, article.draadmaat1, article.connectieType1, sel.ds1, sel.dm1, sel.ct1)
             && sideMatches(article.draadsoort2, article.draadmaat2, article.connectieType2, sel.ds2, sel.dm2, sel.ct2);
@@ -236,12 +227,32 @@
         populateDraadmaat(els.draadmaat2, els.draadsoort2);
         render();
     });
-    [els.draadmaat1, els.connectie1, els.draadmaat2, els.connectie2, els.hoek].forEach((el) => {
+    [els.draadmaat1, els.connectie1, els.draadmaat2, els.connectie2].forEach((el) => {
         el.addEventListener('change', render);
     });
 
+    hoekButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            const value = button.dataset.hoek;
+            const active = !button.classList.contains('active');
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
+            if (active) selectedHoek.add(value);
+            else selectedHoek.delete(value);
+            render();
+        });
+    });
+
     resetButton.addEventListener('click', () => {
-        Object.values(els).forEach((el) => { el.value = ALL; });
+        Object.entries(els).forEach(([key, el]) => {
+            if (key === 'hoek') return;
+            el.value = ALL;
+        });
+        selectedHoek.clear();
+        hoekButtons.forEach((button) => {
+            button.classList.remove('active');
+            button.setAttribute('aria-pressed', 'false');
+        });
         populateDraadmaat(els.draadmaat1, els.draadsoort1);
         populateDraadmaat(els.draadmaat2, els.draadsoort2);
         render();
