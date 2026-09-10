@@ -221,6 +221,14 @@ function h(string $value): string
             </div>
         </div>
 
+        <div class="image-slot is-empty" data-location="3">
+            <span class="image-slot-label">3 &middot; Borgplaat</span>
+            <div class="image-slot-frame">
+                <img id="shapeImg3" alt="" hidden>
+                <span class="image-slot-placeholder">&mdash;</span>
+            </div>
+        </div>
+
         <div class="image-slot is-empty" data-location="4">
             <span class="image-slot-label">4 &middot; Dekplaat</span>
             <div class="image-slot-frame">

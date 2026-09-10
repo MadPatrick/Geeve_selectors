@@ -39,6 +39,7 @@
         clampFacts: el('clampFacts'),
         shapeImg1: el('shapeImg1'),
         shapeImg2: el('shapeImg2'),
+        shapeImg3: el('shapeImg3'),
         shapeImg4: el('shapeImg4'),
         shapeImg5: el('shapeImg5'),
     };
@@ -151,6 +152,8 @@
             case 'Dekplaat':
                 if (isDubbelClamp() || prefix === 'GD') return 'gd1';
                 return bouwgroep === '1' ? 'dp1' : 'dp1a';
+            case 'Borgplaat':
+                return prefix === 'SIG' ? 'sig' : null;
             case 'Stapelbout':
                 return 'af';
             case 'Inbusbout':
@@ -158,7 +161,7 @@
             case 'Zeskantbout':
                 return 'as';
             default:
-                // Lasplaat (hoek) en Borgplaat: geen plaatje beschikbaar.
+                // Lasplaat (hoek): geen plaatje beschikbaar.
                 return null;
         }
     }
@@ -182,6 +185,7 @@
     function updateShapeImages() {
         setShapeImage(ui.shapeImg1, selectedRow(ui.loc1));
         setShapeImage(ui.shapeImg2, state.selectedClamp);
+        setShapeImage(ui.shapeImg3, selectedRow(ui.loc3));
         setShapeImage(ui.shapeImg4, selectedRow(ui.loc4));
         setShapeImage(ui.shapeImg5, selectedRow(ui.loc5));
     }
