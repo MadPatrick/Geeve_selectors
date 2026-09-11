@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-// This app reuses the existing hoses article list instead of keeping its own
-// copy, so there is a single source of truth - updates to
-// /hoses/data/*.csv are picked up here automatically.
+// This app keeps its own copy of the hose article list (copied from
+// /hoses/data), separate from the /hoses selector's data - edits made here
+// (e.g. via a future upload feature) don't affect /hoses, and vice versa.
 
 $csvFileCandidates = [
     'staal' => [
-        __DIR__ . '/../../hoses/data/artikelnummers_staal.csv',
-        __DIR__ . '/../../hoses/artikelnummers_staal.csv',
+        __DIR__ . '/../data/artikelnummers_staal.csv',
+        __DIR__ . '/../artikelnummers_staal.csv',
     ],
     'rvs' => [
-        __DIR__ . '/../../hoses/data/artikelnummers_rvs.csv',
-        __DIR__ . '/../../hoses/artikelnummers_rvs.csv',
+        __DIR__ . '/../data/artikelnummers_rvs.csv',
+        __DIR__ . '/../artikelnummers_rvs.csv',
     ],
 ];
 
