@@ -122,7 +122,6 @@ function loadAccessoryRows(?string $csvFile, array &$errors): array
 
         $rows[articleKey($articleNumber)] = [
             'outside'         => getColumn($row, 'Buitenmaat slang (mm)'),
-            'rvsOmvlechting'  => getColumn($row, 'RVS Omvlechting'),
             'polyGuard'       => getColumn($row, 'PolyGuard'),
             'parKoil'         => getColumn($row, 'ParKoil'),
             'springGuard'     => getColumn($row, 'Spring Guard'),
@@ -131,6 +130,66 @@ function loadAccessoryRows(?string $csvFile, array &$errors): array
             'texsleeve'       => getColumn($row, 'Texsleeve'),
             'hulsTexStaal'    => getColumn($row, 'Huls tex staal'),
             'hulsTexRvs'      => getColumn($row, 'Huls tex RVS'),
+        ];
+    }
+
+    fclose($handle);
+    return $rows;
+}
+
+// RVS omvlechting is geen kant-en-klare kolom per slangartikel, maar een
+// aparte reeks van 11 artikelen (één per maat). Bij het tonen van de
+// accessoires wordt de juiste rij hieruit gekozen op basis van de maat
+// van het gekozen slangartikel (het getal na de eerste "-", zie
+// articleMaat() in selector.js) - dat gebeurt client-side in JS, dit
+// levert alleen de brondata.
+function loadRvsOmvlechtingRows(?string $csvFile, array &$errors): array
+{
+    if ($csvFile === null) {
+        return [];
+    }
+
+    $handle = fopen($csvFile, 'r');
+    if ($handle === false) {
+        $errors[] = 'CSV-bestand artikelnummers_rvs_omvlechting.csv kan niet worden geopend.';
+        return [];
+    }
+
+    $headers = fgetcsv($handle, 0, ';');
+    if ($headers === false) {
+        fclose($handle);
+        $errors[] = 'CSV-bestand artikelnummers_rvs_omvlechting.csv bevat geen geldige kopregel.';
+        return [];
+    }
+
+    $headers = array_map('cleanValue', $headers);
+    $rows = [];
+
+    while (($data = fgetcsv($handle, 0, ';')) !== false) {
+        if (count($data) !== count($headers)) {
+            continue;
+        }
+
+        $row = array_combine($headers, $data);
+        if ($row === false) {
+            continue;
+        }
+
+        $articleNumber = getColumn($row, 'artnr');
+        if ($articleNumber === '') {
+            continue;
+        }
+
+        // Maat = het getal tussen de streepjes, bv. "04" uit "9122-04-316L".
+        $maat = '';
+        if (preg_match('/-(\d+)-/', $articleNumber, $matches)) {
+            $maat = $matches[1];
+        }
+
+        $rows[] = [
+            'maat'         => $maat,
+            'artnr'        => $articleNumber,
+            'omschrijving' => getColumn($row, 'omschrijving'),
         ];
     }
 
@@ -229,6 +288,9 @@ $materialRows = [
 
 $accessoryCsvFile = findFirstReadableFile($accessoryCsvCandidates);
 $accessoryRows = loadAccessoryRows($accessoryCsvFile, $loadErrors);
+
+$rvsOmvlechtingCsvFile = findFirstReadableFile($rvsOmvlechtingCsvCandidates);
+$rvsOmvlechtingRows = loadRvsOmvlechtingRows($rvsOmvlechtingCsvFile, $loadErrors);
 
 $merged = [];
 $order = [];
@@ -456,6 +518,15 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
 window.APP_VERSION = <?= json_encode(APP_VERSION, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 window.ARTICLES = <?= json_encode(
     $articles,
+    JSON_UNESCAPED_UNICODE |
+    JSON_UNESCAPED_SLASHES |
+    JSON_HEX_TAG |
+    JSON_HEX_AMP |
+    JSON_HEX_APOS |
+    JSON_HEX_QUOT
+) ?>;
+window.RVS_OMVLECHTING = <?= json_encode(
+    $rvsOmvlechtingRows,
     JSON_UNESCAPED_UNICODE |
     JSON_UNESCAPED_SLASHES |
     JSON_HEX_TAG |

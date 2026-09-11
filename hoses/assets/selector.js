@@ -2,6 +2,11 @@
     'use strict';
 
     const articles = Array.isArray(window.ARTICLES) ? window.ARTICLES : [];
+    const rvsOmvlechtingByMaat = new Map(
+        (Array.isArray(window.RVS_OMVLECHTING) ? window.RVS_OMVLECHTING : [])
+            .filter((row) => row.maat !== '')
+            .map((row) => [parseInt(row.maat, 10), row])
+    );
     const searchInput = document.getElementById('search');
     const werkdrukInput = document.getElementById('searchWerkdruk');
     const maatInput = document.getElementById('searchMaat');
@@ -215,7 +220,7 @@
         return row;
     }
 
-    function createAccessoryFact(label, value, imageKey) {
+    function createAccessoryFact(label, value, imageKey, valueTitle) {
         const text = String(value ?? '').trim() || '-';
         const item = document.createElement('div');
         item.className = 'accessory-fact';
@@ -230,6 +235,9 @@
         valueEl.textContent = text;
         if (text === '-') {
             valueEl.classList.add('is-empty');
+        }
+        if (valueTitle) {
+            valueEl.title = valueTitle;
         }
 
         textWrap.append(labelEl, valueEl);
@@ -258,6 +266,17 @@
         return values.map((v) => String(v ?? '').trim()).filter(Boolean).join(', ');
     }
 
+    // RVS omvlechting hoort niet bij een specifiek slangartikel in de
+    // accessoires-CSV, maar wordt gekozen uit een lijst van 11 artikelen
+    // (één per maat). De maat van het gekozen slangartikel (dezelfde
+    // "getal na de eerste -"-regel als articleMaat() hierboven) bepaalt
+    // welke rij van toepassing is.
+    function rvsOmvlechtingFor(article) {
+        const maat = parseInt(articleMaat(article ? article.artnr : ''), 10);
+        if (Number.isNaN(maat)) return null;
+        return rvsOmvlechtingByMaat.get(maat) || null;
+    }
+
     function renderAccessories(article) {
         if (!accessorySection || !accessoryGrid) {
             return false;
@@ -267,17 +286,18 @@
         const accessories = article && article.accessories && typeof article.accessories === 'object'
             ? article.accessories
             : {};
+        const rvsOmvlechting = rvsOmvlechtingFor(article);
 
         const fields = [
-            ['Buitenmaat slang', formatMillimetres(accessories.outside), 'buitenmaat'],
-            ['RVS Omvlechting', accessories.rvsOmvlechting, 'rvs_omvlechting'],
-            ['ParKoil', accessories.parKoil, 'parkoil'],
-            ['Spring Guard', accessories.springGuard, 'springguard'],
-            ['Firesleeve', accessories.firesleeve, 'firesleeve'],
-            ['PolyGuard, SpiralGuard', joinValues(accessories.polyGuard, accessories.spiralGuard), 'spiralguard'],
-            ['Texsleeve', accessories.texsleeve, 'texsleeve'],
-            ['Huls Texsleeve (Staal)', accessories.hulsTexStaal, '19001'],
-            ['Huls Texsleeve (RVS)', accessories.hulsTexRvs, '19001'],
+            ['Buitenmaat slang', formatMillimetres(accessories.outside), 'buitenmaat', null],
+            ['RVS Omvlechting', rvsOmvlechting ? rvsOmvlechting.artnr : '', 'rvs_omvlechting', rvsOmvlechting ? rvsOmvlechting.omschrijving : null],
+            ['ParKoil', accessories.parKoil, 'parkoil', null],
+            ['Spring Guard', accessories.springGuard, 'springguard', null],
+            ['Firesleeve', accessories.firesleeve, 'firesleeve', null],
+            ['PolyGuard, SpiralGuard', joinValues(accessories.polyGuard, accessories.spiralGuard), 'spiralguard', null],
+            ['Texsleeve', accessories.texsleeve, 'texsleeve', null],
+            ['Huls Texsleeve (Staal)', accessories.hulsTexStaal, '19001', null],
+            ['Huls Texsleeve (RVS)', accessories.hulsTexRvs, '19001', null],
         ];
 
         const hasAccessoryData = fields.some(([, value]) => String(value ?? '').trim() !== '');
@@ -286,7 +306,7 @@
             return false;
         }
 
-        fields.forEach(([label, value, imageKey]) => accessoryGrid.appendChild(createAccessoryFact(label, value, imageKey)));
+        fields.forEach(([label, value, imageKey, valueTitle]) => accessoryGrid.appendChild(createAccessoryFact(label, value, imageKey, valueTitle)));
         accessorySection.hidden = false;
         return true;
     }
