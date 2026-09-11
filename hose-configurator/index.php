@@ -70,19 +70,25 @@ function couplingHoseMaat(string $itemCode): ?int
     return (int) $matches[1];
 }
 
-// De CSV heeft geen eigen kolom voor de bouwvorm van de koppeling - die
-// wordt afgeleid uit de omschrijving (banjo staat al wel als eigen
-// draadsoort-waarde in de brondata, de rest herkennen we aan een vast woord
-// in de omschrijving). Volgorde is belangrijk: bijv. "FLANGE" en "SWIVEL"
-// komen nooit samen voor, maar toets ze toch in een vaste volgorde zodat een
-// eventuele nieuwe combinatie voorspelbaar naar één categorie valt.
-function couplingType(string $draadsoort, string $omschrijving): string
+// De bouwvorm van de koppeling komt uit de eigen "type"-kolom in
+// slangkoppelingen.csv (buiten/flange/standpijp/wartel). Banjo-koppelingen
+// staan daar bewust leeg in - die herken je al aan draadsoort "banjo".
+// Alleen als een rij ooit zonder "type" én zonder banjo-draadsoort
+// voorkomt, valt dit terug op de omschrijvingstekst als vangnet.
+function couplingType(string $draadsoort, string $omschrijving, string $typeColumn): string
 {
-    if ($draadsoort === 'banjo' || stripos($omschrijving, 'banjo') !== false) {
+    if ($draadsoort === 'banjo') {
+        return 'banjo';
+    }
+    if ($typeColumn !== '') {
+        return $typeColumn;
+    }
+
+    if (stripos($omschrijving, 'banjo') !== false) {
         return 'banjo';
     }
     if (stripos($omschrijving, 'flange') !== false) {
-        return 'flens';
+        return 'flange';
     }
     if (stripos($omschrijving, 'standpipe') !== false) {
         return 'standpijp';
@@ -192,7 +198,7 @@ function loadCouplingRows(?string $csvFile, array &$errors): array
             'draadsoort'   => $draadsoort,
             'maat'         => $maat,
             'stand'        => getColumn($row, 'stand'),
-            'type'         => couplingType($draadsoort, $omschrijving),
+            'type'         => couplingType($draadsoort, $omschrijving, getColumn($row, 'type')),
             'hoseMaat'     => couplingHoseMaat($itemCode),
         ];
     }
@@ -240,7 +246,7 @@ function typeButtonsHtml(): string
         ['buiten', 'Buiten', '<line x1="12" y1="4" x2="12" y2="20"></line><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="16" y2="16"></line>'],
         ['standpijp', 'Standpijp', '<path d="M12 3v13"></path><path d="M7 20h10"></path><path d="M9 16l-2 4"></path><path d="M15 16l2 4"></path>'],
         ['banjo', 'Banjo', '<circle cx="12" cy="12" r="7"></circle><line x1="12" y1="2" x2="12" y2="22"></line>'],
-        ['flens', 'Flens', '<circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="2.5"></circle><circle cx="12" cy="5" r="1" fill="currentColor"></circle><circle cx="19" cy="12" r="1" fill="currentColor"></circle><circle cx="12" cy="19" r="1" fill="currentColor"></circle><circle cx="5" cy="12" r="1" fill="currentColor"></circle>'],
+        ['flange', 'Flens', '<circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="2.5"></circle><circle cx="12" cy="5" r="1" fill="currentColor"></circle><circle cx="19" cy="12" r="1" fill="currentColor"></circle><circle cx="12" cy="19" r="1" fill="currentColor"></circle><circle cx="5" cy="12" r="1" fill="currentColor"></circle>'],
     ];
 
     $html = '';

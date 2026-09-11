@@ -31,7 +31,7 @@
     const MIN_LENGTE = 50;
     const MAX_LENGTE = 6000;
     const STAND_LABEL = { '0': 'Recht', '45': '45°', '90': 'Haaks' };
-    const TYPE_LABEL = { wartel: 'Wartel', buiten: 'Buiten', standpijp: 'Standpijp', banjo: 'Banjo', flens: 'Flens' };
+    const TYPE_LABEL = { wartel: 'Wartel', buiten: 'Buiten', standpijp: 'Standpijp', banjo: 'Banjo', flange: 'Flens' };
 
     // --- helpers -----------------------------------------------------
 
