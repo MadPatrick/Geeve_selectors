@@ -222,10 +222,22 @@
         };
     }
 
+    // Huls (pershuls) hoort bij de slang zelf, niet bij een specifieke
+    // koppelingkeuze - de brondata koppelt een huls niet aan een specifieke
+    // draadsoort/maat. Een slang heeft 0, 1 of 2 hulsopties; toon ze allemaal
+    // zodat er niet geraden hoeft te worden welke van de twee van toepassing is.
+    function hulsText(hose) {
+        if (!hose || !Array.isArray(hose.huls) || hose.huls.length === 0) return '—';
+        return hose.huls
+            .map((h) => (h.persmaat ? `${h.code} (persmaat ${h.persmaat} mm)` : h.code))
+            .join('; ');
+    }
+
     function renderSummary(sel, hose, art1, art2, lengte, textsleeve) {
         const rows = [
             ['Slangtype', hose ? hose.artnr : '—'],
             ['Omschrijving', hose && hose.artnm ? hose.artnm : '—'],
+            ['Huls', hulsText(hose)],
             ['Draadsoort 1', sel.draadsoort1 ? capitalize(sel.draadsoort1) : '—'],
             ['Stand 1', sel.stand1 ? STAND_LABEL[sel.stand1] : '—'],
             ['Type 1', sel.type1 ? TYPE_LABEL[sel.type1] : '—'],

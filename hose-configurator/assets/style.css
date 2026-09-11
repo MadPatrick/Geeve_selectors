@@ -150,7 +150,13 @@ input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px r
 select:disabled { background: var(--soft); color: var(--muted); cursor: not-allowed; }
 
 .config-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
-.config-middle, .config-column { display: flex; flex-direction: column; gap: 14px; }
+.gc-1 { grid-column: 1; }
+.gc-2 { grid-column: 2; }
+.gc-3 { grid-column: 3; }
+.gr-1 { grid-row: 1; }
+.gr-2 { grid-row: 2; }
+.gr-3 { grid-row: 3; }
+.gr-4 { grid-row: 4; }
 
 .stand-icon-group { display: flex; flex-wrap: wrap; gap: 8px; }
 .stand-icon {
@@ -243,6 +249,8 @@ select:disabled { background: var(--soft); color: var(--muted); cursor: not-allo
     }
     .header-home-button svg { width: 18px; height: 18px; }
     .config-grid { grid-template-columns: 1fr; }
+    .gc-1, .gc-2, .gc-3 { grid-column: 1; }
+    .gr-1, .gr-2, .gr-3, .gr-4 { grid-row: auto; }
 }
 
 @media (max-width: 620px) {

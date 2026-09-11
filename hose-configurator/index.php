@@ -138,11 +138,23 @@ function loadHoseRows(?string $csvFile, array &$errors): array
             continue;
         }
 
+        $huls = [];
+        foreach ([1, 2] as $number) {
+            $hulsCode = getColumn($row, '2delig_' . $number . ' - Huls');
+            if ($hulsCode !== '') {
+                $huls[] = [
+                    'code'     => $hulsCode,
+                    'persmaat' => getColumn($row, '2delig_' . $number . ' - Persmaat (mm)'),
+                ];
+            }
+        }
+
         $rows[] = [
             'artnr'    => $articleNumber,
             'artnm'    => getColumn($row, 'artnm'),
             'werkdruk' => getColumn($row, 'Werkdruk (bar)'),
             'maat'     => hoseMaat($articleNumber),
+            'huls'     => $huls,
         ];
     }
 
@@ -318,64 +330,59 @@ $dataLabel = $loadErrors === []
         </div>
 
         <div class="config-grid">
-            <div class="config-column">
-                <div class="field">
-                    <span>Type 1</span>
-                    <div id="type1" class="stand-icon-group" role="group" aria-label="Type koppeling 1">
-                        <?= typeButtonsHtml() ?>
-                    </div>
+            <div class="field gc-1 gr-1">
+                <span>Type 1</span>
+                <div id="type1" class="stand-icon-group" role="group" aria-label="Type koppeling 1">
+                    <?= typeButtonsHtml() ?>
                 </div>
-                <label class="field" for="draadsoort1">
-                    <span>Draadsoort 1</span>
-                    <select id="draadsoort1"></select>
-                </label>
-                <label class="field" for="koppeling1">
-                    <span>Koppeling 1 (maat)</span>
-                    <select id="koppeling1" disabled></select>
-                </label>
-                <div class="field">
-                    <span>Stand 1</span>
-                    <div id="stand1" class="stand-icon-group" role="group" aria-label="Stand koppeling 1">
-                        <?= standButtonsHtml() ?>
-                    </div>
+            </div>
+            <label class="field gc-1 gr-2" for="draadsoort1">
+                <span>Draadsoort 1</span>
+                <select id="draadsoort1"></select>
+            </label>
+            <label class="field gc-1 gr-3" for="koppeling1">
+                <span>Koppeling 1 (maat)</span>
+                <select id="koppeling1" disabled></select>
+            </label>
+            <div class="field gc-1 gr-4">
+                <span>Stand 1</span>
+                <div id="stand1" class="stand-icon-group" role="group" aria-label="Stand koppeling 1">
+                    <?= standButtonsHtml() ?>
                 </div>
             </div>
 
-            <div class="config-middle">
-                <label class="field" for="lengte">
-                    <span>Lengte slang</span>
-                    <div class="lengte-input">
-                        <input id="lengte" type="number" inputmode="numeric" min="1" step="1" value="1000">
-                        <span class="lengte-unit">mm</span>
-                    </div>
-                </label>
-                <label class="field" for="slangtype">
-                    <span>Type slang</span>
-                    <select id="slangtype">
-                        <option value="">Kies een artikelnummer&hellip;</option>
-                    </select>
-                </label>
-            </div>
-
-            <div class="config-column">
-                <div class="field">
-                    <span>Type 2</span>
-                    <div id="type2" class="stand-icon-group" role="group" aria-label="Type koppeling 2">
-                        <?= typeButtonsHtml() ?>
-                    </div>
+            <label class="field gc-2 gr-2" for="lengte">
+                <span>Lengte slang</span>
+                <div class="lengte-input">
+                    <input id="lengte" type="number" inputmode="numeric" min="1" step="1" value="1000">
+                    <span class="lengte-unit">mm</span>
                 </div>
-                <label class="field" for="draadsoort2">
-                    <span>Draadsoort 2</span>
-                    <select id="draadsoort2"></select>
-                </label>
-                <label class="field" for="koppeling2">
-                    <span>Koppeling 2 (maat)</span>
-                    <select id="koppeling2" disabled></select>
-                </label>
-                <div class="field">
-                    <span>Stand 2</span>
-                    <div id="stand2" class="stand-icon-group" role="group" aria-label="Stand koppeling 2">
-                        <?= standButtonsHtml() ?>
+            </label>
+            <label class="field gc-2 gr-3" for="slangtype">
+                <span>Type slang</span>
+                <select id="slangtype">
+                    <option value="">Kies een artikelnummer&hellip;</option>
+                </select>
+            </label>
+
+            <div class="field gc-3 gr-1">
+                <span>Type 2</span>
+                <div id="type2" class="stand-icon-group" role="group" aria-label="Type koppeling 2">
+                    <?= typeButtonsHtml() ?>
+                </div>
+            </div>
+            <label class="field gc-3 gr-2" for="draadsoort2">
+                <span>Draadsoort 2</span>
+                <select id="draadsoort2"></select>
+            </label>
+            <label class="field gc-3 gr-3" for="koppeling2">
+                <span>Koppeling 2 (maat)</span>
+                <select id="koppeling2" disabled></select>
+            </label>
+            <div class="field gc-3 gr-4">
+                <span>Stand 2</span>
+                <div id="stand2" class="stand-icon-group" role="group" aria-label="Stand koppeling 2">
+                    <?= standButtonsHtml() ?>
                     </div>
                 </div>
             </div>
