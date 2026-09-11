@@ -2,11 +2,6 @@
     'use strict';
 
     const articles = Array.isArray(window.ARTICLES) ? window.ARTICLES : [];
-    const rvsOmvlechtingByMaat = new Map(
-        (Array.isArray(window.RVS_OMVLECHTING) ? window.RVS_OMVLECHTING : [])
-            .filter((row) => row.maat !== '')
-            .map((row) => [parseInt(row.maat, 10), row])
-    );
     const searchInput = document.getElementById('search');
     const werkdrukInput = document.getElementById('searchWerkdruk');
     const maatInput = document.getElementById('searchMaat');
@@ -266,17 +261,6 @@
         return values.map((v) => String(v ?? '').trim()).filter(Boolean).join(', ');
     }
 
-    // RVS omvlechting hoort niet bij een specifiek slangartikel in de
-    // accessoires-CSV, maar wordt gekozen uit een lijst van 11 artikelen
-    // (één per maat). De maat van het gekozen slangartikel (dezelfde
-    // "getal na de eerste -"-regel als articleMaat() hierboven) bepaalt
-    // welke rij van toepassing is.
-    function rvsOmvlechtingFor(article) {
-        const maat = parseInt(articleMaat(article ? article.artnr : ''), 10);
-        if (Number.isNaN(maat)) return null;
-        return rvsOmvlechtingByMaat.get(maat) || null;
-    }
-
     function renderAccessories(article) {
         if (!accessorySection || !accessoryGrid) {
             return false;
@@ -286,11 +270,10 @@
         const accessories = article && article.accessories && typeof article.accessories === 'object'
             ? article.accessories
             : {};
-        const rvsOmvlechting = rvsOmvlechtingFor(article);
 
         const fields = [
             ['Buitenmaat slang', formatMillimetres(accessories.outside), 'buitenmaat', null],
-            ['RVS Omvlechting', rvsOmvlechting ? rvsOmvlechting.artnr : '', 'rvs_omvlechting', rvsOmvlechting ? rvsOmvlechting.omschrijving : null],
+            ['RVS Omvlechting', accessories.rvsOmvlechting, 'rvs_omvlechting', null],
             ['ParKoil', accessories.parKoil, 'parkoil', null],
             ['Spring Guard', accessories.springGuard, 'springguard', null],
             ['Firesleeve', accessories.firesleeve, 'firesleeve', null],

@@ -21,11 +21,6 @@ $accessoryCsvCandidates = [
     __DIR__ . '/../artikelnummers_accessoires.csv',
 ];
 
-$rvsOmvlechtingCsvCandidates = [
-    __DIR__ . '/../data/artikelnummers_rvs_omvlechting.csv',
-    __DIR__ . '/../artikelnummers_rvs_omvlechting.csv',
-];
-
 function findFirstReadableFile(array $candidates): ?string
 {
     foreach ($candidates as $candidate) {
