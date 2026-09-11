@@ -61,6 +61,19 @@ function h(string $value): string
             <span class="tile-cta">Open selector &rarr;</span>
         </a>
 
+        <a class="tile" href="hose-configurator/index.php">
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="10" width="4" height="4" rx="1"></rect>
+                    <rect x="17" y="10" width="4" height="4" rx="1"></rect>
+                    <path d="M7 12h10"></path>
+                </svg>
+            </div>
+            <h2>Slang configurator</h2>
+            <p>Stel zelf een slang samen: koppeling 1, slangtype, koppeling 2, lengte en optioneel textsleeve.</p>
+            <span class="tile-cta">Open configurator &rarr;</span>
+        </a>
+
         <a class="tile" href="stauff/index.php">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
