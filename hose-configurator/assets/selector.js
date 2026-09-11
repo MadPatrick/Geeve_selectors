@@ -70,31 +70,37 @@
         select.value = values.includes(previous) ? previous : ALL;
     }
 
-    // --- koppeling-data: filteren op draadsoort/stand/type/maat ---------
+    // --- koppeling-data: filteren op draadsoort/stand/type/maat/slangmaat ---
+    // `allowedHoseMaten` (Set|null) is de kruisfilter met de andere
+    // aansluiting: de laatste cijfers van diens koppeling-artikelcode
+    // (dezelfde dash-maat als het eigen slangartikelnummer) moeten
+    // overeenkomen. null = geen kruisfilter (die kant heeft nog geen
+    // volledige keuze gemaakt).
 
-    function matchingCouplings(draadsoort, stand, type) {
+    function matchingCouplings(draadsoort, stand, type, allowedHoseMaten) {
         return couplings.filter((c) =>
             (!draadsoort || c.draadsoort === draadsoort) &&
             (!stand || String(c.stand) === stand) &&
-            (!type || c.type === type)
+            (!type || c.type === type) &&
+            (!allowedHoseMaten || allowedHoseMaten.has(c.hoseMaat))
         );
     }
 
-    function maatOptionsFor(draadsoort, stand, type) {
+    function maatOptionsFor(draadsoort, stand, type, allowedHoseMaten) {
         if (!draadsoort) return [];
-        return uniqueSorted(matchingCouplings(draadsoort, stand, type).map((c) => c.maat));
+        return uniqueSorted(matchingCouplings(draadsoort, stand, type, allowedHoseMaten).map((c) => c.maat));
     }
 
     function compatibleHoseMaten(draadsoort, maat, stand, type) {
         const set = new Set();
-        matchingCouplings(draadsoort, stand, type)
+        matchingCouplings(draadsoort, stand, type, null)
             .filter((c) => c.maat === maat)
             .forEach((c) => { if (c.hoseMaat !== null && c.hoseMaat !== undefined) set.add(c.hoseMaat); });
         return set;
     }
 
     function resolveArticles(draadsoort, maat, stand, type, hoseMaat) {
-        return matchingCouplings(draadsoort, stand, type).filter(
+        return matchingCouplings(draadsoort, stand, type, null).filter(
             (c) => c.maat === maat && c.hoseMaat === hoseMaat
         );
     }
@@ -102,28 +108,49 @@
     // --- type -> draadsoort -> koppeling(maat) -> stand, in die volgorde ---
     // Type is het 1e filter: het bepaalt welke draadsoorten er nog zijn,
     // draadsoort bepaalt welke maten er nog zijn, stand filtert daarbinnen.
+    // Zodra de andere aansluiting al een volledige koppeling (draadsoort +
+    // maat) heeft, filtert diens slangmaat ook mee.
 
-    function draadsoortOptionsFor(type) {
+    function draadsoortOptionsFor(type, allowedHoseMaten) {
         return uniqueSorted(
-            couplings.filter((c) => !type || c.type === type).map((c) => c.draadsoort)
+            couplings
+                .filter((c) => (!type || c.type === type) && (!allowedHoseMaten || allowedHoseMaten.has(c.hoseMaat)))
+                .map((c) => c.draadsoort)
         );
     }
 
-    function populateDraadsoort(select, type) {
-        fillSelect(select, draadsoortOptionsFor(type), 'Alle');
+    function populateDraadsoort(select, type, allowedHoseMaten) {
+        fillSelect(select, draadsoortOptionsFor(type, allowedHoseMaten), 'Alle');
     }
 
-    function populateKoppeling(select, draadsoort, stand, type) {
-        fillSelect(select, maatOptionsFor(draadsoort, stand, type), 'Kies een maat…');
+    function populateKoppeling(select, draadsoort, stand, type, allowedHoseMaten) {
+        fillSelect(select, maatOptionsFor(draadsoort, stand, type, allowedHoseMaten), 'Kies een maat…');
         select.disabled = select.options.length <= 1;
     }
 
-    populateDraadsoort(els.draadsoort1, selectedType1);
-    populateDraadsoort(els.draadsoort2, selectedType2);
-    populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1);
-    populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2);
-    activateStandButton(stand1Buttons, selectedStand1);
-    activateStandButton(stand2Buttons, selectedStand2);
+    // Wat aansluiting 1 momenteel vastlegt aan slangmaten (voor het filteren
+    // van aansluiting 2), en omgekeerd - alleen als die kant al een volledige
+    // draadsoort+maat heeft, anders geen kruisfilter (null).
+    function sideHoseMaten(draadsoort, maat, stand, type) {
+        return draadsoort && maat ? compatibleHoseMaten(draadsoort, maat, stand, type) : null;
+    }
+
+    // Centrale herberekening: leest de HUIDIGE waarden (vóór het
+    // herbouwen van de dropdowns), berekent per kant welke slangmaten dat
+    // oplegt aan de andere kant, en herbouwt dan draadsoort/koppeling voor
+    // beide kanten plus de slangtype-lijst in één keer.
+    function refreshFilters() {
+        const side1Set = sideHoseMaten(els.draadsoort1.value, els.koppeling1.value, selectedStand1, selectedType1);
+        const side2Set = sideHoseMaten(els.draadsoort2.value, els.koppeling2.value, selectedStand2, selectedType2);
+
+        populateDraadsoort(els.draadsoort1, selectedType1, side2Set);
+        populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1, side2Set);
+
+        populateDraadsoort(els.draadsoort2, selectedType2, side1Set);
+        populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2, side1Set);
+
+        refreshSlangtypeOptions();
+    }
 
     // --- slangtype-lijst filteren op de gekozen koppeling(en) ------------
 
@@ -140,7 +167,7 @@
         };
     }
 
-    function allowedHoseMaten(sel) {
+    function allowedHoseMatenForHose(sel) {
         const sets = [];
         if (sel.draadsoort1 && sel.maat1) sets.push(compatibleHoseMaten(sel.draadsoort1, sel.maat1, sel.stand1, sel.type1));
         if (sel.draadsoort2 && sel.maat2) sets.push(compatibleHoseMaten(sel.draadsoort2, sel.maat2, sel.stand2, sel.type2));
@@ -148,8 +175,8 @@
         return sets.reduce((acc, set) => new Set([...acc].filter((v) => set.has(v))));
     }
 
-    function refreshSlangtypeOptions(sel) {
-        const allowed = allowedHoseMaten(sel);
+    function refreshSlangtypeOptions() {
+        const allowed = allowedHoseMatenForHose(currentSelection());
         const filtered = allowed === null
             ? hoses
             : hoses.filter((h) => h.maat !== null && allowed.has(h.maat));
@@ -270,7 +297,6 @@
 
     function render() {
         const sel = currentSelection();
-        refreshSlangtypeOptions(sel);
 
         const hose = hosesByArtnr.get(els.slangtype.value) || null;
         const lengte = parseInt(els.lengte.value, 10) || 0;
@@ -285,22 +311,20 @@
 
     // --- event wiring --------------------------------------------------
 
-    els.draadsoort1.addEventListener('change', () => {
-        populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1);
-        render();
+    [els.draadsoort1, els.koppeling1, els.draadsoort2, els.koppeling2].forEach((el) => {
+        el.addEventListener('change', () => {
+            refreshFilters();
+            render();
+        });
     });
-    els.draadsoort2.addEventListener('change', () => {
-        populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2);
-        render();
-    });
-    [els.koppeling1, els.koppeling2, els.slangtype, els.textsleeve].forEach((el) => {
+    [els.slangtype, els.textsleeve].forEach((el) => {
         el.addEventListener('change', render);
     });
     els.lengte.addEventListener('input', render);
 
     // Stand/type-knoppen: één keuze per groep (klikken op de actieve knop
     // zet 'm weer uit, terug naar "alle").
-    function wireIconGroup(buttons, setValue, onChange) {
+    function wireIconGroup(buttons, setValue) {
         buttons.forEach((button) => {
             button.addEventListener('click', () => {
                 const value = button.dataset.stand || button.dataset.type;
@@ -315,25 +339,15 @@
                     button.setAttribute('aria-pressed', 'true');
                 }
                 setValue(newValue);
-                onChange();
+                refreshFilters();
                 render();
             });
         });
     }
-    wireIconGroup(stand1Buttons, (value) => { selectedStand1 = value; }, () => {
-        populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1);
-    });
-    wireIconGroup(stand2Buttons, (value) => { selectedStand2 = value; }, () => {
-        populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2);
-    });
-    wireIconGroup(type1Buttons, (value) => { selectedType1 = value; }, () => {
-        populateDraadsoort(els.draadsoort1, selectedType1);
-        populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1);
-    });
-    wireIconGroup(type2Buttons, (value) => { selectedType2 = value; }, () => {
-        populateDraadsoort(els.draadsoort2, selectedType2);
-        populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2);
-    });
+    wireIconGroup(stand1Buttons, (value) => { selectedStand1 = value; });
+    wireIconGroup(stand2Buttons, (value) => { selectedStand2 = value; });
+    wireIconGroup(type1Buttons, (value) => { selectedType1 = value; });
+    wireIconGroup(type2Buttons, (value) => { selectedType2 = value; });
 
     resetButton.addEventListener('click', () => {
         selectedStand1 = DEFAULT_STAND;
@@ -346,16 +360,16 @@
         });
         activateStandButton(stand1Buttons, selectedStand1);
         activateStandButton(stand2Buttons, selectedStand2);
-        populateDraadsoort(els.draadsoort1, '');
-        populateDraadsoort(els.draadsoort2, '');
         els.draadsoort1.value = ALL;
         els.draadsoort2.value = ALL;
-        populateKoppeling(els.koppeling1, ALL, selectedStand1, '');
-        populateKoppeling(els.koppeling2, ALL, selectedStand2, '');
+        els.koppeling1.value = ALL;
+        els.koppeling2.value = ALL;
+        refreshFilters();
         els.lengte.value = '1000';
         els.textsleeve.checked = false;
         render();
     });
 
+    refreshFilters();
     render();
 })();
