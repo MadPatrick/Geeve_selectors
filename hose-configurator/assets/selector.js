@@ -18,10 +18,19 @@
     const stand2Buttons = [...document.querySelectorAll('#stand2 .stand-icon')];
     const type1Buttons = [...document.querySelectorAll('#type1 .stand-icon')];
     const type2Buttons = [...document.querySelectorAll('#type2 .stand-icon')];
-    let selectedStand1 = '';
-    let selectedStand2 = '';
+    const DEFAULT_STAND = '0'; // "Recht" staat standaard aan
+    let selectedStand1 = DEFAULT_STAND;
+    let selectedStand2 = DEFAULT_STAND;
     let selectedType1 = '';
     let selectedType2 = '';
+
+    function activateStandButton(buttons, value) {
+        buttons.forEach((button) => {
+            const isMatch = button.dataset.stand === value;
+            button.classList.toggle('active', isMatch);
+            button.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+        });
+    }
 
     const resetButton = document.getElementById('resetButton');
     const hoseVisual = document.getElementById('hoseVisual');
@@ -113,6 +122,8 @@
     populateDraadsoort(els.draadsoort2, selectedType2);
     populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1);
     populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2);
+    activateStandButton(stand1Buttons, selectedStand1);
+    activateStandButton(stand2Buttons, selectedStand2);
 
     // --- slangtype-lijst filteren op de gekozen koppeling(en) ------------
 
@@ -222,30 +233,27 @@
         };
     }
 
-    // Huls (pershuls) hoort bij de slang zelf, niet bij een specifieke
-    // koppelingkeuze - de brondata koppelt een huls niet aan een specifieke
-    // draadsoort/maat. Een slang heeft 0, 1 of 2 hulsopties; toon ze allemaal
-    // zodat er niet geraden hoeft te worden welke van de twee van toepassing is.
-    function hulsText(hose) {
-        if (!hose || !Array.isArray(hose.huls) || hose.huls.length === 0) return '—';
-        return hose.huls
-            .map((h) => (h.persmaat ? `${h.code} (persmaat ${h.persmaat} mm)` : h.code))
-            .join('; ');
+    // Een slang heeft twee uiteinden - 2delig_1 (huls1) hoort bij koppeling 1,
+    // 2delig_2 (huls2) bij koppeling 2.
+    function hulsText(huls) {
+        if (!huls) return '—';
+        return huls.persmaat ? `${huls.code} (persmaat ${huls.persmaat} mm)` : huls.code;
     }
 
     function renderSummary(sel, hose, art1, art2, lengte, textsleeve) {
         const rows = [
             ['Slangtype', hose ? hose.artnr : '—'],
             ['Omschrijving', hose && hose.artnm ? hose.artnm : '—'],
-            ['Huls', hulsText(hose)],
             ['Draadsoort 1', sel.draadsoort1 ? capitalize(sel.draadsoort1) : '—'],
             ['Stand 1', sel.stand1 ? STAND_LABEL[sel.stand1] : '—'],
             ['Type 1', sel.type1 ? TYPE_LABEL[sel.type1] : '—'],
             ['Artikelnummer koppeling 1', art1.full],
+            ['Huls koppeling 1', hulsText(hose && hose.huls1)],
             ['Draadsoort 2', sel.draadsoort2 ? capitalize(sel.draadsoort2) : '—'],
             ['Stand 2', sel.stand2 ? STAND_LABEL[sel.stand2] : '—'],
             ['Type 2', sel.type2 ? TYPE_LABEL[sel.type2] : '—'],
             ['Artikelnummer koppeling 2', art2.full],
+            ['Huls koppeling 2', hulsText(hose && hose.huls2)],
             ['Lengte', lengte ? `${lengte} mm` : '—'],
             ['Textsleeve', textsleeve ? 'Ja' : 'Nee'],
         ];
@@ -328,20 +336,22 @@
     });
 
     resetButton.addEventListener('click', () => {
-        selectedStand1 = '';
-        selectedStand2 = '';
+        selectedStand1 = DEFAULT_STAND;
+        selectedStand2 = DEFAULT_STAND;
         selectedType1 = '';
         selectedType2 = '';
-        [...stand1Buttons, ...stand2Buttons, ...type1Buttons, ...type2Buttons].forEach((button) => {
+        [...type1Buttons, ...type2Buttons].forEach((button) => {
             button.classList.remove('active');
             button.setAttribute('aria-pressed', 'false');
         });
+        activateStandButton(stand1Buttons, selectedStand1);
+        activateStandButton(stand2Buttons, selectedStand2);
         populateDraadsoort(els.draadsoort1, '');
         populateDraadsoort(els.draadsoort2, '');
         els.draadsoort1.value = ALL;
         els.draadsoort2.value = ALL;
-        populateKoppeling(els.koppeling1, ALL, '', '');
-        populateKoppeling(els.koppeling2, ALL, '', '');
+        populateKoppeling(els.koppeling1, ALL, selectedStand1, '');
+        populateKoppeling(els.koppeling2, ALL, selectedStand2, '');
         els.lengte.value = '1000';
         els.textsleeve.checked = false;
         render();

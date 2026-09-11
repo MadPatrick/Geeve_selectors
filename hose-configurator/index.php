@@ -138,15 +138,17 @@ function loadHoseRows(?string $csvFile, array &$errors): array
             continue;
         }
 
+        // Een slang heeft twee uiteinden - 2delig_1 hoort bij koppeling 1,
+        // 2delig_2 bij koppeling 2. Uitdrukkelijk los houden (i.p.v. één
+        // samengevoegde lijst) zodat de juiste huls bij de juiste kant getoond
+        // wordt in plaats van bij elkaar geveegd.
         $huls = [];
         foreach ([1, 2] as $number) {
             $hulsCode = getColumn($row, '2delig_' . $number . ' - Huls');
-            if ($hulsCode !== '') {
-                $huls[] = [
-                    'code'     => $hulsCode,
-                    'persmaat' => getColumn($row, '2delig_' . $number . ' - Persmaat (mm)'),
-                ];
-            }
+            $huls[$number] = $hulsCode !== '' ? [
+                'code'     => $hulsCode,
+                'persmaat' => getColumn($row, '2delig_' . $number . ' - Persmaat (mm)'),
+            ] : null;
         }
 
         $rows[] = [
@@ -154,7 +156,8 @@ function loadHoseRows(?string $csvFile, array &$errors): array
             'artnm'    => getColumn($row, 'artnm'),
             'werkdruk' => getColumn($row, 'Werkdruk (bar)'),
             'maat'     => hoseMaat($articleNumber),
-            'huls'     => $huls,
+            'huls1'    => $huls[1],
+            'huls2'    => $huls[2],
         ];
     }
 
@@ -239,9 +242,13 @@ function standButtonsHtml(): string
         ['90', 'Haaks', '<path d="M6 4v8a6 6 0 0 0 6 6h6"></path>'],
     ];
 
+    // "Recht" staat standaard aan (zelfde default als selector.js), zodat de
+    // eerste render (vóór het JS-init-script draait) al klopt.
     $html = '';
     foreach ($buttons as [$value, $label, $path]) {
-        $html .= '<button type="button" class="stand-icon" data-stand="' . h($value) . '" aria-pressed="false" title="' . h($label) . '">'
+        $isDefault = $value === '0';
+        $class = $isDefault ? 'stand-icon active' : 'stand-icon';
+        $html .= '<button type="button" class="' . $class . '" data-stand="' . h($value) . '" aria-pressed="' . ($isDefault ? 'true' : 'false') . '" title="' . h($label) . '">'
             . '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $path . '</svg>'
             . '<span>' . h($label) . '</span>'
             . '</button>';
