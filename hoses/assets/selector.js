@@ -270,7 +270,7 @@
 
         const fields = [
             ['Buitenmaat slang', formatMillimetres(accessories.outside), 'buitenmaat'],
-            ['RVS Omvlechting', accessories.rvsOmvlechting, null],
+            ['RVS Omvlechting', accessories.rvsOmvlechting, 'rvs_omvlechting'],
             ['ParKoil', accessories.parKoil, 'parkoil'],
             ['Spring Guard', accessories.springGuard, 'springguard'],
             ['Firesleeve', accessories.firesleeve, 'firesleeve'],
