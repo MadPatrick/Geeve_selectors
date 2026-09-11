@@ -183,23 +183,23 @@ function loadCouplingRows(?string $csvFile, array &$errors): array
             continue;
         }
 
-        $itemCode = getColumn($row, 'Items.ItemCode');
+        $artikelnummer = getColumn($row, 'artikelnummer');
         $draadsoort = getColumn($row, 'draadsoort');
         $maat = getColumn($row, 'maat');
-        if ($itemCode === '' || $draadsoort === '' || $maat === '') {
+        if ($artikelnummer === '' || $draadsoort === '' || $maat === '') {
             continue;
         }
 
         $omschrijving = getColumn($row, '[Items.Description]');
 
         $rows[] = [
-            'artikelcode'  => $itemCode,
-            'omschrijving' => $omschrijving,
-            'draadsoort'   => $draadsoort,
-            'maat'         => $maat,
-            'stand'        => getColumn($row, 'stand'),
-            'type'         => couplingType($draadsoort, $omschrijving, getColumn($row, 'type')),
-            'hoseMaat'     => couplingHoseMaat($itemCode),
+            'artikelnummer' => $artikelnummer,
+            'omschrijving'  => $omschrijving,
+            'draadsoort'    => $draadsoort,
+            'maat'          => $maat,
+            'stand'         => getColumn($row, 'stand'),
+            'type'          => couplingType($draadsoort, $omschrijving, getColumn($row, 'type')),
+            'hoseMaat'      => couplingHoseMaat($artikelnummer),
         ];
     }
 

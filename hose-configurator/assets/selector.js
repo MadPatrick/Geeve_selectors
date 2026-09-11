@@ -202,7 +202,7 @@
         `;
     }
 
-    // --- artikelcode per koppeling opzoeken ------------------------------
+    // --- artikelnummer per koppeling opzoeken ----------------------------
 
     function articleCodeText(draadsoort, maat, stand, type, hose) {
         if (!draadsoort || !maat) return { short: '—', full: '—' };
@@ -214,11 +214,11 @@
             return { short: `${maat} (geen match)`, full: `${draadsoort} ${maat} — geen passend artikel gevonden voor deze slang` };
         }
         if (matches.length === 1) {
-            return { short: matches[0].artikelcode, full: `${matches[0].artikelcode} — ${matches[0].omschrijving}` };
+            return { short: matches[0].artikelnummer, full: `${matches[0].artikelnummer} — ${matches[0].omschrijving}` };
         }
         return {
-            short: matches.map((m) => m.artikelcode).join(', '),
-            full: matches.map((m) => `${m.artikelcode} — ${m.omschrijving}`).join('; '),
+            short: matches.map((m) => m.artikelnummer).join(', '),
+            full: matches.map((m) => `${m.artikelnummer} — ${m.omschrijving}`).join('; '),
         };
     }
 
@@ -229,11 +229,11 @@
             ['Draadsoort 1', sel.draadsoort1 ? capitalize(sel.draadsoort1) : '—'],
             ['Stand 1', sel.stand1 ? STAND_LABEL[sel.stand1] : '—'],
             ['Type 1', sel.type1 ? TYPE_LABEL[sel.type1] : '—'],
-            ['Artikelcode koppeling 1', art1.full],
+            ['Artikelnummer koppeling 1', art1.full],
             ['Draadsoort 2', sel.draadsoort2 ? capitalize(sel.draadsoort2) : '—'],
             ['Stand 2', sel.stand2 ? STAND_LABEL[sel.stand2] : '—'],
             ['Type 2', sel.type2 ? TYPE_LABEL[sel.type2] : '—'],
-            ['Artikelcode koppeling 2', art2.full],
+            ['Artikelnummer koppeling 2', art2.full],
             ['Lengte', lengte ? `${lengte} mm` : '—'],
             ['Textsleeve', textsleeve ? 'Ja' : 'Nee'],
         ];
