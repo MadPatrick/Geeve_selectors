@@ -70,6 +70,30 @@ function couplingHoseMaat(string $itemCode): ?int
     return (int) $matches[1];
 }
 
+// De CSV heeft geen eigen kolom voor de bouwvorm van de koppeling - die
+// wordt afgeleid uit de omschrijving (banjo staat al wel als eigen
+// draadsoort-waarde in de brondata, de rest herkennen we aan een vast woord
+// in de omschrijving). Volgorde is belangrijk: bijv. "FLANGE" en "SWIVEL"
+// komen nooit samen voor, maar toets ze toch in een vaste volgorde zodat een
+// eventuele nieuwe combinatie voorspelbaar naar één categorie valt.
+function couplingType(string $draadsoort, string $omschrijving): string
+{
+    if ($draadsoort === 'banjo' || stripos($omschrijving, 'banjo') !== false) {
+        return 'banjo';
+    }
+    if (stripos($omschrijving, 'flange') !== false) {
+        return 'flens';
+    }
+    if (stripos($omschrijving, 'standpipe') !== false) {
+        return 'standpijp';
+    }
+    if (stripos($omschrijving, 'swivel') !== false) {
+        return 'wartel';
+    }
+
+    return 'buiten';
+}
+
 function loadHoseRows(?string $csvFile, array &$errors): array
 {
     if ($csvFile === null) {
@@ -160,12 +184,15 @@ function loadCouplingRows(?string $csvFile, array &$errors): array
             continue;
         }
 
+        $omschrijving = getColumn($row, '[Items.Description]');
+
         $rows[] = [
             'artikelcode'  => $itemCode,
-            'omschrijving' => getColumn($row, '[Items.Description]'),
+            'omschrijving' => $omschrijving,
             'draadsoort'   => $draadsoort,
             'maat'         => $maat,
             'stand'        => getColumn($row, 'stand'),
+            'type'         => couplingType($draadsoort, $omschrijving),
             'hoseMaat'     => couplingHoseMaat($itemCode),
         ];
     }
@@ -197,6 +224,28 @@ function standButtonsHtml(): string
     $html = '';
     foreach ($buttons as [$value, $label, $path]) {
         $html .= '<button type="button" class="stand-icon" data-stand="' . h($value) . '" aria-pressed="false" title="' . h($label) . '">'
+            . '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $path . '</svg>'
+            . '<span>' . h($label) . '</span>'
+            . '</button>';
+    }
+
+    return $html;
+}
+
+// Bouwvorm van de koppeling (zie couplingType()).
+function typeButtonsHtml(): string
+{
+    $buttons = [
+        ['wartel', 'Wartel', '<circle cx="12" cy="12" r="3"></circle><path d="M12 3a9 9 0 1 1 -6.36 2.64"></path><path d="M3 3v5h5"></path>'],
+        ['buiten', 'Buiten', '<line x1="12" y1="4" x2="12" y2="20"></line><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="16" y2="16"></line>'],
+        ['standpijp', 'Standpijp', '<path d="M12 3v13"></path><path d="M7 20h10"></path><path d="M9 16l-2 4"></path><path d="M15 16l2 4"></path>'],
+        ['banjo', 'Banjo', '<circle cx="12" cy="12" r="7"></circle><line x1="12" y1="2" x2="12" y2="22"></line>'],
+        ['flens', 'Flens', '<circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="2.5"></circle><circle cx="12" cy="5" r="1" fill="currentColor"></circle><circle cx="19" cy="12" r="1" fill="currentColor"></circle><circle cx="12" cy="19" r="1" fill="currentColor"></circle><circle cx="5" cy="12" r="1" fill="currentColor"></circle>'],
+    ];
+
+    $html = '';
+    foreach ($buttons as [$value, $label, $path]) {
+        $html .= '<button type="button" class="stand-icon" data-type="' . h($value) . '" aria-pressed="false" title="' . h($label) . '">'
             . '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $path . '</svg>'
             . '<span>' . h($label) . '</span>'
             . '</button>';
@@ -268,16 +317,22 @@ $dataLabel = $loadErrors === []
                     <span>Draadsoort 1</span>
                     <select id="draadsoort1"></select>
                 </label>
+                <label class="field" for="koppeling1">
+                    <span>Koppeling 1 (maat)</span>
+                    <select id="koppeling1" disabled></select>
+                </label>
                 <div class="field">
                     <span>Stand 1</span>
                     <div id="stand1" class="stand-icon-group" role="group" aria-label="Stand koppeling 1">
                         <?= standButtonsHtml() ?>
                     </div>
                 </div>
-                <label class="field" for="koppeling1">
-                    <span>Koppeling 1 (maat)</span>
-                    <select id="koppeling1" disabled></select>
-                </label>
+                <div class="field">
+                    <span>Type 1</span>
+                    <div id="type1" class="stand-icon-group" role="group" aria-label="Type koppeling 1">
+                        <?= typeButtonsHtml() ?>
+                    </div>
+                </div>
             </div>
 
             <div class="config-middle">
@@ -301,16 +356,22 @@ $dataLabel = $loadErrors === []
                     <span>Draadsoort 2</span>
                     <select id="draadsoort2"></select>
                 </label>
+                <label class="field" for="koppeling2">
+                    <span>Koppeling 2 (maat)</span>
+                    <select id="koppeling2" disabled></select>
+                </label>
                 <div class="field">
                     <span>Stand 2</span>
                     <div id="stand2" class="stand-icon-group" role="group" aria-label="Stand koppeling 2">
                         <?= standButtonsHtml() ?>
                     </div>
                 </div>
-                <label class="field" for="koppeling2">
-                    <span>Koppeling 2 (maat)</span>
-                    <select id="koppeling2" disabled></select>
-                </label>
+                <div class="field">
+                    <span>Type 2</span>
+                    <div id="type2" class="stand-icon-group" role="group" aria-label="Type koppeling 2">
+                        <?= typeButtonsHtml() ?>
+                    </div>
+                </div>
             </div>
         </div>
 

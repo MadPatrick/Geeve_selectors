@@ -16,8 +16,12 @@
     };
     const stand1Buttons = [...document.querySelectorAll('#stand1 .stand-icon')];
     const stand2Buttons = [...document.querySelectorAll('#stand2 .stand-icon')];
+    const type1Buttons = [...document.querySelectorAll('#type1 .stand-icon')];
+    const type2Buttons = [...document.querySelectorAll('#type2 .stand-icon')];
     let selectedStand1 = '';
     let selectedStand2 = '';
+    let selectedType1 = '';
+    let selectedType2 = '';
 
     const resetButton = document.getElementById('resetButton');
     const hoseVisual = document.getElementById('hoseVisual');
@@ -27,6 +31,7 @@
     const MIN_LENGTE = 50;
     const MAX_LENGTE = 6000;
     const STAND_LABEL = { '0': 'Recht', '45': '45°', '90': 'Haaks' };
+    const TYPE_LABEL = { wartel: 'Wartel', buiten: 'Buiten', standpijp: 'Standpijp', banjo: 'Banjo', flens: 'Flens' };
 
     // --- helpers -----------------------------------------------------
 
@@ -56,47 +61,48 @@
         select.value = values.includes(previous) ? previous : ALL;
     }
 
-    // --- koppeling-data: filteren op draadsoort/stand/maat --------------
+    // --- koppeling-data: filteren op draadsoort/stand/type/maat ---------
 
-    function matchingCouplings(draadsoort, stand) {
+    function matchingCouplings(draadsoort, stand, type) {
         return couplings.filter((c) =>
             (!draadsoort || c.draadsoort === draadsoort) &&
-            (!stand || String(c.stand) === stand)
+            (!stand || String(c.stand) === stand) &&
+            (!type || c.type === type)
         );
     }
 
-    function maatOptionsFor(draadsoort, stand) {
+    function maatOptionsFor(draadsoort, stand, type) {
         if (!draadsoort) return [];
-        return uniqueSorted(matchingCouplings(draadsoort, stand).map((c) => c.maat));
+        return uniqueSorted(matchingCouplings(draadsoort, stand, type).map((c) => c.maat));
     }
 
-    function compatibleHoseMaten(draadsoort, maat, stand) {
+    function compatibleHoseMaten(draadsoort, maat, stand, type) {
         const set = new Set();
-        matchingCouplings(draadsoort, stand)
+        matchingCouplings(draadsoort, stand, type)
             .filter((c) => c.maat === maat)
             .forEach((c) => { if (c.hoseMaat !== null && c.hoseMaat !== undefined) set.add(c.hoseMaat); });
         return set;
     }
 
-    function resolveArticles(draadsoort, maat, stand, hoseMaat) {
-        return matchingCouplings(draadsoort, stand).filter(
+    function resolveArticles(draadsoort, maat, stand, type, hoseMaat) {
+        return matchingCouplings(draadsoort, stand, type).filter(
             (c) => c.maat === maat && c.hoseMaat === hoseMaat
         );
     }
 
-    // --- draadsoort/stand/koppeling dropdowns --------------------------
+    // --- draadsoort/stand/type/koppeling dropdowns -----------------------
 
     const draadsoortValues = uniqueSorted(couplings.map((c) => c.draadsoort));
 
-    function populateKoppeling(select, draadsoort, stand) {
-        fillSelect(select, maatOptionsFor(draadsoort, stand), 'Kies een maat…');
+    function populateKoppeling(select, draadsoort, stand, type) {
+        fillSelect(select, maatOptionsFor(draadsoort, stand, type), 'Kies een maat…');
         select.disabled = select.options.length <= 1;
     }
 
     fillSelect(els.draadsoort1, draadsoortValues, 'Alle');
     fillSelect(els.draadsoort2, draadsoortValues, 'Alle');
-    populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1);
-    populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2);
+    populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1);
+    populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2);
 
     // --- slangtype-lijst filteren op de gekozen koppeling(en) ------------
 
@@ -104,17 +110,19 @@
         return {
             draadsoort1: els.draadsoort1.value,
             stand1: selectedStand1,
+            type1: selectedType1,
             maat1: els.koppeling1.value,
             draadsoort2: els.draadsoort2.value,
             stand2: selectedStand2,
+            type2: selectedType2,
             maat2: els.koppeling2.value,
         };
     }
 
     function allowedHoseMaten(sel) {
         const sets = [];
-        if (sel.draadsoort1 && sel.maat1) sets.push(compatibleHoseMaten(sel.draadsoort1, sel.maat1, sel.stand1));
-        if (sel.draadsoort2 && sel.maat2) sets.push(compatibleHoseMaten(sel.draadsoort2, sel.maat2, sel.stand2));
+        if (sel.draadsoort1 && sel.maat1) sets.push(compatibleHoseMaten(sel.draadsoort1, sel.maat1, sel.stand1, sel.type1));
+        if (sel.draadsoort2 && sel.maat2) sets.push(compatibleHoseMaten(sel.draadsoort2, sel.maat2, sel.stand2, sel.type2));
         if (sets.length === 0) return null;
         return sets.reduce((acc, set) => new Set([...acc].filter((v) => set.has(v))));
     }
@@ -186,12 +194,12 @@
 
     // --- artikelcode per koppeling opzoeken ------------------------------
 
-    function articleCodeText(draadsoort, maat, stand, hose) {
+    function articleCodeText(draadsoort, maat, stand, type, hose) {
         if (!draadsoort || !maat) return { short: '—', full: '—' };
         if (!hose || hose.maat === null || hose.maat === undefined) {
             return { short: `${maat} (kies slangtype)`, full: `${draadsoort} ${maat} — kies eerst een slangtype` };
         }
-        const matches = resolveArticles(draadsoort, maat, stand, hose.maat);
+        const matches = resolveArticles(draadsoort, maat, stand, type, hose.maat);
         if (matches.length === 0) {
             return { short: `${maat} (geen match)`, full: `${draadsoort} ${maat} — geen passend artikel gevonden voor deze slang` };
         }
@@ -210,9 +218,11 @@
             ['Omschrijving', hose && hose.artnm ? hose.artnm : '—'],
             ['Draadsoort 1', sel.draadsoort1 ? capitalize(sel.draadsoort1) : '—'],
             ['Stand 1', sel.stand1 ? STAND_LABEL[sel.stand1] : '—'],
+            ['Type 1', sel.type1 ? TYPE_LABEL[sel.type1] : '—'],
             ['Artikelcode koppeling 1', art1.full],
             ['Draadsoort 2', sel.draadsoort2 ? capitalize(sel.draadsoort2) : '—'],
             ['Stand 2', sel.stand2 ? STAND_LABEL[sel.stand2] : '—'],
+            ['Type 2', sel.type2 ? TYPE_LABEL[sel.type2] : '—'],
             ['Artikelcode koppeling 2', art2.full],
             ['Lengte', lengte ? `${lengte} mm` : '—'],
             ['Textsleeve', textsleeve ? 'Ja' : 'Nee'],
@@ -236,8 +246,8 @@
         const lengte = parseInt(els.lengte.value, 10) || 0;
         const textsleeve = els.textsleeve.checked;
 
-        const art1 = articleCodeText(sel.draadsoort1, sel.maat1, sel.stand1, hose);
-        const art2 = articleCodeText(sel.draadsoort2, sel.maat2, sel.stand2, hose);
+        const art1 = articleCodeText(sel.draadsoort1, sel.maat1, sel.stand1, sel.type1, hose);
+        const art2 = articleCodeText(sel.draadsoort2, sel.maat2, sel.stand2, sel.type2, hose);
 
         renderVisual(lengte, art1.short, art2.short);
         renderSummary(sel, hose, art1, art2, lengte, textsleeve);
@@ -246,11 +256,11 @@
     // --- event wiring --------------------------------------------------
 
     els.draadsoort1.addEventListener('change', () => {
-        populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1);
+        populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1);
         render();
     });
     els.draadsoort2.addEventListener('change', () => {
-        populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2);
+        populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2);
         render();
     });
     [els.koppeling1, els.koppeling2, els.slangtype, els.textsleeve].forEach((el) => {
@@ -258,41 +268,47 @@
     });
     els.lengte.addEventListener('input', render);
 
-    function wireStandGroup(buttons, select, draadsoortEl, setValue) {
+    // Stand/type-knoppen: één keuze per groep (klikken op de actieve knop
+    // zet 'm weer uit, terug naar "alle").
+    function wireIconGroup(buttons, dataAttr, select, draadsoortEl, getOther, setValue) {
         buttons.forEach((button) => {
             button.addEventListener('click', () => {
-                const value = button.dataset.stand;
+                const value = button.dataset[dataAttr];
                 const wasActive = button.classList.contains('active');
                 buttons.forEach((b) => {
                     b.classList.remove('active');
                     b.setAttribute('aria-pressed', 'false');
                 });
-                if (wasActive) {
-                    setValue('');
-                } else {
+                const newValue = wasActive ? '' : value;
+                if (!wasActive) {
                     button.classList.add('active');
                     button.setAttribute('aria-pressed', 'true');
-                    setValue(value);
                 }
-                populateKoppeling(select, draadsoortEl.value, wasActive ? '' : value);
+                setValue(newValue);
+                const [stand, type] = dataAttr === 'stand' ? [newValue, getOther()] : [getOther(), newValue];
+                populateKoppeling(select, draadsoortEl.value, stand, type);
                 render();
             });
         });
     }
-    wireStandGroup(stand1Buttons, els.koppeling1, els.draadsoort1, (value) => { selectedStand1 = value; });
-    wireStandGroup(stand2Buttons, els.koppeling2, els.draadsoort2, (value) => { selectedStand2 = value; });
+    wireIconGroup(stand1Buttons, 'stand', els.koppeling1, els.draadsoort1, () => selectedType1, (value) => { selectedStand1 = value; });
+    wireIconGroup(stand2Buttons, 'stand', els.koppeling2, els.draadsoort2, () => selectedType2, (value) => { selectedStand2 = value; });
+    wireIconGroup(type1Buttons, 'type', els.koppeling1, els.draadsoort1, () => selectedStand1, (value) => { selectedType1 = value; });
+    wireIconGroup(type2Buttons, 'type', els.koppeling2, els.draadsoort2, () => selectedStand2, (value) => { selectedType2 = value; });
 
     resetButton.addEventListener('click', () => {
         els.draadsoort1.value = ALL;
         els.draadsoort2.value = ALL;
         selectedStand1 = '';
         selectedStand2 = '';
-        [...stand1Buttons, ...stand2Buttons].forEach((button) => {
+        selectedType1 = '';
+        selectedType2 = '';
+        [...stand1Buttons, ...stand2Buttons, ...type1Buttons, ...type2Buttons].forEach((button) => {
             button.classList.remove('active');
             button.setAttribute('aria-pressed', 'false');
         });
-        populateKoppeling(els.koppeling1, ALL, '');
-        populateKoppeling(els.koppeling2, ALL, '');
+        populateKoppeling(els.koppeling1, ALL, '', '');
+        populateKoppeling(els.koppeling2, ALL, '', '');
         els.lengte.value = '1000';
         els.textsleeve.checked = false;
         render();
