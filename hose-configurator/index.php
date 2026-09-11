@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-const APP_VERSION = '0.2.0';
+const APP_VERSION = '0.3.0';
 
 require_once __DIR__ . '/inc/csv-paths.php';
 
@@ -39,28 +39,35 @@ function getColumn(array $row, string $columnName): string
     return '';
 }
 
-// Elke slang heeft tot 2 "2-delige" (Huls/Pilaar) koppelingsslots. Deze
-// dataset bevat alleen nog de Huls-kolommen (Pilaar en de 1-delige
-// koppelingen zijn uit dit bestand verwijderd) - Huls is al een kant-en-klaar,
-// bruikbaar artikelnummer (bijv. "100V4-20"), dezelfde lijst geldt voor beide
-// uiteinden (de brondata kent geen kant-specifieke koppeling, alleen welke
-// hulzen bij deze slang passen).
-function collectCouplingCodes(array $row): array
+// Zelfde conventie als in /hoses: de "maat" van een slang is de laatste
+// cijferreeks in het eigen artikelnummer (bijv. "04" in "0201-04"). Dat is
+// de dash-maat waarop de slang en een koppeling-artikelcode uit
+// slangkoppelingen.csv straks tegen elkaar gematcht worden.
+function hoseMaat(string $artnr): ?int
 {
-    // Niet $codes[$code] = true / array_keys(): een puur-numerieke code zou
-    // als array-key tot een integer worden omgezet, en json_encode zou die
-    // dan als JSON-getal i.p.v. string wegschrijven - dat breekt de JS-kant,
-    // die overal een string verwacht.
-    $codes = [];
-
-    for ($number = 1; $number <= 2; $number++) {
-        $huls = getColumn($row, '2delig_' . $number . ' - Huls');
-        if ($huls !== '') {
-            $codes[] = $huls;
-        }
+    if (!preg_match_all('/\d+/', $artnr, $matches)) {
+        return null;
     }
 
-    return array_values(array_unique($codes));
+    return (int) end($matches[0]);
+}
+
+// Een koppeling-artikelcode in slangkoppelingen.csv is opgebouwd als
+// <familie>-<draadmaatcode>-<slangmaatcode>[variant-achtervoegsel], bijv.
+// "10213-04-04VL". Het laatste dash-deel begint met de slangmaat (dezelfde
+// dash-schaal als hierboven) en kan daarna een lettercode dragen
+// (MS/NIS/OR/SWIVEL/VL/ZK/...) voor een productvariant - alleen de leidende
+// cijfers tellen mee voor het matchen met een slang.
+function couplingHoseMaat(string $itemCode): ?int
+{
+    $parts = explode('-', $itemCode);
+    $last = end($parts);
+
+    if (!preg_match('/^(\d+)/', $last, $matches)) {
+        return null;
+    }
+
+    return (int) $matches[1];
 }
 
 function loadHoseRows(?string $csvFile, array &$errors): array
@@ -102,10 +109,10 @@ function loadHoseRows(?string $csvFile, array &$errors): array
         }
 
         $rows[] = [
-            'artnr'     => $articleNumber,
-            'artnm'     => getColumn($row, 'artnm'),
-            'werkdruk'  => getColumn($row, 'Werkdruk (bar)'),
-            'couplings' => collectCouplingCodes($row),
+            'artnr'    => $articleNumber,
+            'artnm'    => getColumn($row, 'artnm'),
+            'werkdruk' => getColumn($row, 'Werkdruk (bar)'),
+            'maat'     => hoseMaat($articleNumber),
         ];
     }
 
@@ -113,8 +120,62 @@ function loadHoseRows(?string $csvFile, array &$errors): array
     return $rows;
 }
 
-$csvFile = findFirstReadableFile($csvFileCandidates['artikelnummers']);
-$hoses = loadHoseRows($csvFile, $loadErrors);
+function loadCouplingRows(?string $csvFile, array &$errors): array
+{
+    if ($csvFile === null) {
+        $errors[] = 'Bestand slangkoppelingen.csv is niet gevonden.';
+        return [];
+    }
+
+    $handle = fopen($csvFile, 'r');
+    if ($handle === false) {
+        $errors[] = 'CSV-bestand slangkoppelingen.csv kan niet worden geopend.';
+        return [];
+    }
+
+    $headers = fgetcsv($handle, 0, ';');
+    if ($headers === false) {
+        fclose($handle);
+        $errors[] = 'CSV-bestand slangkoppelingen.csv bevat geen geldige kopregel.';
+        return [];
+    }
+
+    $headers = array_map('cleanValue', $headers);
+    $rows = [];
+
+    while (($data = fgetcsv($handle, 0, ';')) !== false) {
+        if (count($data) !== count($headers)) {
+            continue;
+        }
+
+        $row = array_combine($headers, $data);
+        if ($row === false) {
+            continue;
+        }
+
+        $itemCode = getColumn($row, 'Items.ItemCode');
+        $draadsoort = getColumn($row, 'draadsoort');
+        $maat = getColumn($row, 'maat');
+        if ($itemCode === '' || $draadsoort === '' || $maat === '') {
+            continue;
+        }
+
+        $rows[] = [
+            'artikelcode'  => $itemCode,
+            'omschrijving' => getColumn($row, '[Items.Description]'),
+            'draadsoort'   => $draadsoort,
+            'maat'         => $maat,
+            'stand'        => getColumn($row, 'stand'),
+            'hoseMaat'     => couplingHoseMaat($itemCode),
+        ];
+    }
+
+    fclose($handle);
+    return $rows;
+}
+
+$hoses = loadHoseRows(findFirstReadableFile($csvFileCandidates['artikelnummers']), $loadErrors);
+$couplings = loadCouplingRows(findFirstReadableFile($csvFileCandidates['slangkoppelingen']), $loadErrors);
 
 usort($hoses, static fn(array $a, array $b): int => strnatcasecmp($a['artnr'], $b['artnr']));
 
@@ -123,9 +184,33 @@ function h(string $value): string
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+// De "stand"-kolom in slangkoppelingen.csv is de hoek van de koppeling: 0
+// (recht), 45 of 90 graden.
+function standButtonsHtml(): string
+{
+    $buttons = [
+        ['0', 'Recht', '<line x1="4" y1="12" x2="20" y2="12"></line>'],
+        ['45', '45°', '<path d="M5 19 13 11 20 11"></path>'],
+        ['90', 'Haaks', '<path d="M6 4v8a6 6 0 0 0 6 6h6"></path>'],
+    ];
+
+    $html = '';
+    foreach ($buttons as [$value, $label, $path]) {
+        $html .= '<button type="button" class="stand-icon" data-stand="' . h($value) . '" aria-pressed="false" title="' . h($label) . '">'
+            . '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $path . '</svg>'
+            . '<span>' . h($label) . '</span>'
+            . '</button>';
+    }
+
+    return $html;
+}
+
 $hoseCount = count($hoses);
+$couplingCount = count($couplings);
 $dataState = $loadErrors === [] ? 'ready' : 'error';
-$dataLabel = $loadErrors === [] ? $hoseCount . ' slangtypes geladen' : 'Controleer databestand';
+$dataLabel = $loadErrors === []
+    ? $hoseCount . ' slangtypes, ' . $couplingCount . ' koppelingen geladen'
+    : 'Controleer databestanden';
 ?>
 <!doctype html>
 <html lang="nl">
@@ -178,10 +263,22 @@ $dataLabel = $loadErrors === [] ? $hoseCount . ' slangtypes geladen' : 'Controle
         </div>
 
         <div class="config-grid">
-            <label class="field" for="koppeling1">
-                <span>Koppeling 1</span>
-                <select id="koppeling1" disabled></select>
-            </label>
+            <div class="config-column">
+                <label class="field" for="draadsoort1">
+                    <span>Draadsoort 1</span>
+                    <select id="draadsoort1"></select>
+                </label>
+                <div class="field">
+                    <span>Stand 1</span>
+                    <div id="stand1" class="stand-icon-group" role="group" aria-label="Stand koppeling 1">
+                        <?= standButtonsHtml() ?>
+                    </div>
+                </div>
+                <label class="field" for="koppeling1">
+                    <span>Koppeling 1 (maat)</span>
+                    <select id="koppeling1" disabled></select>
+                </label>
+            </div>
 
             <div class="config-middle">
                 <label class="field" for="lengte">
@@ -195,24 +292,34 @@ $dataLabel = $loadErrors === [] ? $hoseCount . ' slangtypes geladen' : 'Controle
                     <span>Type slang</span>
                     <select id="slangtype">
                         <option value="">Kies een artikelnummer&hellip;</option>
-                        <?php foreach ($hoses as $hose): ?>
-                            <option value="<?= h($hose['artnr']) ?>"><?= h($hose['artnr']) ?></option>
-                        <?php endforeach; ?>
                     </select>
                 </label>
             </div>
 
-            <label class="field" for="koppeling2">
-                <span>Koppeling 2</span>
-                <select id="koppeling2" disabled></select>
-            </label>
+            <div class="config-column">
+                <label class="field" for="draadsoort2">
+                    <span>Draadsoort 2</span>
+                    <select id="draadsoort2"></select>
+                </label>
+                <div class="field">
+                    <span>Stand 2</span>
+                    <div id="stand2" class="stand-icon-group" role="group" aria-label="Stand koppeling 2">
+                        <?= standButtonsHtml() ?>
+                    </div>
+                </div>
+                <label class="field" for="koppeling2">
+                    <span>Koppeling 2 (maat)</span>
+                    <select id="koppeling2" disabled></select>
+                </label>
+            </div>
         </div>
 
         <label class="checkbox-field">
             <input type="checkbox" id="textsleeve">
             <span>Met textsleeve</span>
         </label>
-        <small>Koppeling 1 en 2 tonen de koppelingen die bij het gekozen artikelnummer passen &mdash; kies eerst een slangtype.</small>
+        <small>Kies eerst een draadsoort; koppeling 1/2 tonen dan de beschikbare maten. Het slangtype-overzicht
+            toont vervolgens alleen nog de slangen waarvan de eigen maat bij de gekozen koppeling(en) past.</small>
     </section>
 
     <section class="panel visual-panel">
@@ -225,6 +332,15 @@ $dataLabel = $loadErrors === [] ? $hoseCount . ' slangtypes geladen' : 'Controle
 window.APP_VERSION = <?= json_encode(APP_VERSION, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 window.HOSES = <?= json_encode(
     $hoses,
+    JSON_UNESCAPED_UNICODE |
+    JSON_UNESCAPED_SLASHES |
+    JSON_HEX_TAG |
+    JSON_HEX_AMP |
+    JSON_HEX_APOS |
+    JSON_HEX_QUOT
+) ?>;
+window.COUPLINGS = <?= json_encode(
+    $couplings,
     JSON_UNESCAPED_UNICODE |
     JSON_UNESCAPED_SLASHES |
     JSON_HEX_TAG |

@@ -12,6 +12,10 @@ $csvFileCandidates = [
         __DIR__ . '/../data/artikelnummers.csv',
         __DIR__ . '/../artikelnummers.csv',
     ],
+    'slangkoppelingen' => [
+        __DIR__ . '/../data/slangkoppelingen.csv',
+        __DIR__ . '/../slangkoppelingen.csv',
+    ],
 ];
 
 function findFirstReadableFile(array $candidates): ?string

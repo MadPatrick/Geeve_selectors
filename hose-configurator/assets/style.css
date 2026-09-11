@@ -149,8 +149,31 @@ input, select {
 input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(238, 48, 93, .14); }
 select:disabled { background: var(--soft); color: var(--muted); cursor: not-allowed; }
 
-.config-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: end; }
-.config-middle { display: flex; flex-direction: column; gap: 14px; }
+.config-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.config-middle, .config-column { display: flex; flex-direction: column; gap: 14px; }
+
+.stand-icon-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.stand-icon {
+    appearance: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex: 1 1 0;
+    min-width: 60px;
+    padding: 10px 8px 8px;
+    border: 1px solid #cbd6df;
+    border-radius: 12px;
+    background: #fff;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+}
+.stand-icon svg { display: block; }
+.stand-icon span { font-size: 11px; font-weight: 750; white-space: nowrap; }
+.stand-icon:hover { border-color: var(--accent); color: var(--ink); }
+.stand-icon.active { background: #fdeaee; border-color: var(--accent-dark); color: var(--accent-dark); }
 
 .lengte-input { display: flex; align-items: stretch; gap: 8px; }
 .lengte-input input { flex: 1 1 auto; }
