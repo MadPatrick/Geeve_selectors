@@ -88,7 +88,7 @@
         });
     }
 
-    function fillSelect(select, values, placeholder) {
+    function fillSelect(select, values, placeholder, transform = capitalize) {
         const previous = select.value;
         select.innerHTML = '';
         const placeholderOption = document.createElement('option');
@@ -98,7 +98,7 @@
         values.forEach((value) => {
             const option = document.createElement('option');
             option.value = value;
-            option.textContent = capitalize(value);
+            option.textContent = transform(value);
             select.appendChild(option);
         });
         select.value = values.includes(previous) ? previous : ALL;
@@ -154,7 +154,7 @@
     }
 
     function populateDraadsoort(select, type, allowedHoseMaten) {
-        fillSelect(select, draadsoortOptionsFor(type, allowedHoseMaten), 'Alle');
+        fillSelect(select, draadsoortOptionsFor(type, allowedHoseMaten), 'Alle', (v) => v.toUpperCase());
     }
 
     function populateKoppeling(select, draadsoort, stand, type, allowedHoseMaten) {
@@ -310,11 +310,11 @@
     function articleCodeText(draadsoort, maat, stand, type, hose) {
         if (!draadsoort || !maat) return { short: '—', full: '—' };
         if (!hose || hose.maat === null || hose.maat === undefined) {
-            return { short: `${maat} (kies slangtype)`, full: `${draadsoort} ${maat} — kies eerst een slangtype` };
+            return { short: `${maat} (kies slangtype)`, full: `${draadsoort.toUpperCase()} ${maat} — kies eerst een slangtype` };
         }
         const matches = resolveArticles(draadsoort, maat, stand, type, hose.maat);
         if (matches.length === 0) {
-            return { short: `${maat} (geen match)`, full: `${draadsoort} ${maat} — geen passend artikel gevonden voor deze slang` };
+            return { short: `${maat} (geen match)`, full: `${draadsoort.toUpperCase()} ${maat} — geen passend artikel gevonden voor deze slang` };
         }
         if (matches.length === 1) {
             return { short: matches[0].artikelnummer, full: `${matches[0].artikelnummer} — ${matches[0].omschrijving}` };
@@ -347,12 +347,12 @@
         const rows = [
             ['Slangtype', hose ? hose.artnr : '—'],
             ['Omschrijving', hose && hose.artnm ? hose.artnm : '—'],
-            ['Draadsoort 1', sel.draadsoort1 ? capitalize(sel.draadsoort1) : '—'],
+            ['Draadsoort 1', sel.draadsoort1 ? sel.draadsoort1.toUpperCase() : '—'],
             ['Stand 1', sel.stand1 ? STAND_LABEL[sel.stand1] : '—'],
             ['Type 1', sel.type1 ? TYPE_LABEL[sel.type1] : '—'],
             ['Artikelnummer koppeling 1', art1.full],
             ['Huls koppeling 1', hulsText(hulsForSide(hose, 'huls1', 'huls2'))],
-            ['Draadsoort 2', sel.draadsoort2 ? capitalize(sel.draadsoort2) : '—'],
+            ['Draadsoort 2', sel.draadsoort2 ? sel.draadsoort2.toUpperCase() : '—'],
             ['Stand 2', sel.stand2 ? STAND_LABEL[sel.stand2] : '—'],
             ['Type 2', sel.type2 ? TYPE_LABEL[sel.type2] : '—'],
             ['Artikelnummer koppeling 2', art2.full],
