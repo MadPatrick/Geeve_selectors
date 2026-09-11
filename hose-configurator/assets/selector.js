@@ -108,7 +108,7 @@
 
     function renderSummary(sel, hose) {
         const rows = [
-            ['Slangtype', hose ? (hose.artnm || hose.artnr) : '—'],
+            ['Slangtype', hose ? hose.artnr : '—'],
             ['Koppeling 1', sel.koppeling1 || '—'],
             ['Koppeling 2', sel.koppeling2 || '—'],
             ['Lengte', sel.lengte ? `${sel.lengte} mm` : '—'],

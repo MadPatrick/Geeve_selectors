@@ -60,9 +60,13 @@ function collectCouplingCodes(array $row): array
     }
 
     for ($number = 1; $number <= 2; $number++) {
-        $huls = getColumn($row, '2delig_' . $number . ' - Huls');
-        if ($huls !== '') {
-            $codes[] = $huls;
+        // De Pilaar-kolom is de koppelingscode (dezelfde korte serie-codes als
+        // 1delig_N, bijv. "10"/"30"/"V6"); de Huls-kolom is voor V4/V6 al
+        // herschreven naar een kant-en-klaar, maat-specifiek artikelnummer
+        // (bijv. "100V4-20") en is dus geen bruikbare "koppeling"-keuze.
+        $pilaar = getColumn($row, '2delig_' . $number . ' - Pilaar');
+        if ($pilaar !== '') {
+            $codes[] = $pilaar;
         }
     }
 
@@ -246,7 +250,7 @@ $dataLabel = $loadErrors === [] ? $hoseCount . ' slangtypes geladen' : 'Controle
                         <option value="">Kies een slangtype&hellip;</option>
                         <?php foreach ($hoses as $hose): ?>
                             <option value="<?= h($hose['artnr']) ?>">
-                                <?= h($hose['artnm'] !== '' ? $hose['artnm'] . ' (' . $hose['artnr'] . ')' : $hose['artnr']) ?>
+                                <?= h($hose['artnm'] !== '' ? $hose['artnr'] . ' — ' . $hose['artnm'] : $hose['artnr']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
