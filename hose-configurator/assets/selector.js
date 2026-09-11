@@ -54,6 +54,40 @@
         );
     }
 
+    // Maten komen als breuk voor in twee notaties: "1-1/16" (met streepje,
+    // bijv. bij JIC) en zonder streepje, waarbij een verkorte gemengde
+    // breuk zoals "1 1/2 inch" als "11/2" geschreven is (bijv. bij BSP/
+    // Metrisch). Een gewone tekst/numerieke sort ziet "11/2" als het getal
+    // 11, niet als 1,5 - daardoor belandden 11/2, 11/4, 13/4 en 21/2 achter
+    // 3, 5/8 enz. in plaats van op hun echte grootte. Reken elke maat om
+    // naar een decimale waarde en sorteer daarop.
+    function maatValue(text) {
+        let m = text.match(/^(\d+)-(\d+)\/(\d+)$/);
+        if (m) return parseInt(m[1], 10) + parseInt(m[2], 10) / parseInt(m[3], 10);
+
+        m = text.match(/^(\d+)\/(\d+)$/);
+        if (m) {
+            const numStr = m[1];
+            const denom = parseInt(m[2], 10);
+            const num = parseInt(numStr, 10);
+            if (num < denom) return num / denom; // echte breuk zoals "9/16", "11/16"
+            // "11/2" style: laatste cijfer is de teller, de rest het hele getal
+            const lastDigit = parseInt(numStr.slice(-1), 10);
+            const whole = numStr.length > 1 ? parseInt(numStr.slice(0, -1), 10) : 0;
+            return whole + lastDigit / denom;
+        }
+
+        m = text.match(/(\d+(?:[.,]\d+)?)/);
+        return m ? parseFloat(m[1].replace(',', '.')) : Number.POSITIVE_INFINITY;
+    }
+
+    function maatSort(values) {
+        return Array.from(new Set(values.filter((v) => v))).sort((a, b) => {
+            const diff = maatValue(a) - maatValue(b);
+            return diff !== 0 ? diff : a.localeCompare(b, undefined, { numeric: true });
+        });
+    }
+
     function fillSelect(select, values, placeholder) {
         const previous = select.value;
         select.innerHTML = '';
@@ -88,7 +122,7 @@
 
     function maatOptionsFor(draadsoort, stand, type, allowedHoseMaten) {
         if (!draadsoort) return [];
-        return uniqueSorted(matchingCouplings(draadsoort, stand, type, allowedHoseMaten).map((c) => c.maat));
+        return maatSort(matchingCouplings(draadsoort, stand, type, allowedHoseMaten).map((c) => c.maat));
     }
 
     function compatibleHoseMaten(draadsoort, maat, stand, type) {
