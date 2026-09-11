@@ -90,17 +90,27 @@
         );
     }
 
-    // --- draadsoort/stand/type/koppeling dropdowns -----------------------
+    // --- type -> draadsoort -> koppeling(maat) -> stand, in die volgorde ---
+    // Type is het 1e filter: het bepaalt welke draadsoorten er nog zijn,
+    // draadsoort bepaalt welke maten er nog zijn, stand filtert daarbinnen.
 
-    const draadsoortValues = uniqueSorted(couplings.map((c) => c.draadsoort));
+    function draadsoortOptionsFor(type) {
+        return uniqueSorted(
+            couplings.filter((c) => !type || c.type === type).map((c) => c.draadsoort)
+        );
+    }
+
+    function populateDraadsoort(select, type) {
+        fillSelect(select, draadsoortOptionsFor(type), 'Alle');
+    }
 
     function populateKoppeling(select, draadsoort, stand, type) {
         fillSelect(select, maatOptionsFor(draadsoort, stand, type), 'Kies een maat…');
         select.disabled = select.options.length <= 1;
     }
 
-    fillSelect(els.draadsoort1, draadsoortValues, 'Alle');
-    fillSelect(els.draadsoort2, draadsoortValues, 'Alle');
+    populateDraadsoort(els.draadsoort1, selectedType1);
+    populateDraadsoort(els.draadsoort2, selectedType2);
     populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1);
     populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2);
 
@@ -270,10 +280,10 @@
 
     // Stand/type-knoppen: één keuze per groep (klikken op de actieve knop
     // zet 'm weer uit, terug naar "alle").
-    function wireIconGroup(buttons, dataAttr, select, draadsoortEl, getOther, setValue) {
+    function wireIconGroup(buttons, setValue, onChange) {
         buttons.forEach((button) => {
             button.addEventListener('click', () => {
-                const value = button.dataset[dataAttr];
+                const value = button.dataset.stand || button.dataset.type;
                 const wasActive = button.classList.contains('active');
                 buttons.forEach((b) => {
                     b.classList.remove('active');
@@ -285,20 +295,27 @@
                     button.setAttribute('aria-pressed', 'true');
                 }
                 setValue(newValue);
-                const [stand, type] = dataAttr === 'stand' ? [newValue, getOther()] : [getOther(), newValue];
-                populateKoppeling(select, draadsoortEl.value, stand, type);
+                onChange();
                 render();
             });
         });
     }
-    wireIconGroup(stand1Buttons, 'stand', els.koppeling1, els.draadsoort1, () => selectedType1, (value) => { selectedStand1 = value; });
-    wireIconGroup(stand2Buttons, 'stand', els.koppeling2, els.draadsoort2, () => selectedType2, (value) => { selectedStand2 = value; });
-    wireIconGroup(type1Buttons, 'type', els.koppeling1, els.draadsoort1, () => selectedStand1, (value) => { selectedType1 = value; });
-    wireIconGroup(type2Buttons, 'type', els.koppeling2, els.draadsoort2, () => selectedStand2, (value) => { selectedType2 = value; });
+    wireIconGroup(stand1Buttons, (value) => { selectedStand1 = value; }, () => {
+        populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1);
+    });
+    wireIconGroup(stand2Buttons, (value) => { selectedStand2 = value; }, () => {
+        populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2);
+    });
+    wireIconGroup(type1Buttons, (value) => { selectedType1 = value; }, () => {
+        populateDraadsoort(els.draadsoort1, selectedType1);
+        populateKoppeling(els.koppeling1, els.draadsoort1.value, selectedStand1, selectedType1);
+    });
+    wireIconGroup(type2Buttons, (value) => { selectedType2 = value; }, () => {
+        populateDraadsoort(els.draadsoort2, selectedType2);
+        populateKoppeling(els.koppeling2, els.draadsoort2.value, selectedStand2, selectedType2);
+    });
 
     resetButton.addEventListener('click', () => {
-        els.draadsoort1.value = ALL;
-        els.draadsoort2.value = ALL;
         selectedStand1 = '';
         selectedStand2 = '';
         selectedType1 = '';
@@ -307,6 +324,10 @@
             button.classList.remove('active');
             button.setAttribute('aria-pressed', 'false');
         });
+        populateDraadsoort(els.draadsoort1, '');
+        populateDraadsoort(els.draadsoort2, '');
+        els.draadsoort1.value = ALL;
+        els.draadsoort2.value = ALL;
         populateKoppeling(els.koppeling1, ALL, '', '');
         populateKoppeling(els.koppeling2, ALL, '', '');
         els.lengte.value = '1000';

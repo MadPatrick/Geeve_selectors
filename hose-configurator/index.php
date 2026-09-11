@@ -319,6 +319,12 @@ $dataLabel = $loadErrors === []
 
         <div class="config-grid">
             <div class="config-column">
+                <div class="field">
+                    <span>Type 1</span>
+                    <div id="type1" class="stand-icon-group" role="group" aria-label="Type koppeling 1">
+                        <?= typeButtonsHtml() ?>
+                    </div>
+                </div>
                 <label class="field" for="draadsoort1">
                     <span>Draadsoort 1</span>
                     <select id="draadsoort1"></select>
@@ -331,12 +337,6 @@ $dataLabel = $loadErrors === []
                     <span>Stand 1</span>
                     <div id="stand1" class="stand-icon-group" role="group" aria-label="Stand koppeling 1">
                         <?= standButtonsHtml() ?>
-                    </div>
-                </div>
-                <div class="field">
-                    <span>Type 1</span>
-                    <div id="type1" class="stand-icon-group" role="group" aria-label="Type koppeling 1">
-                        <?= typeButtonsHtml() ?>
                     </div>
                 </div>
             </div>
@@ -358,6 +358,12 @@ $dataLabel = $loadErrors === []
             </div>
 
             <div class="config-column">
+                <div class="field">
+                    <span>Type 2</span>
+                    <div id="type2" class="stand-icon-group" role="group" aria-label="Type koppeling 2">
+                        <?= typeButtonsHtml() ?>
+                    </div>
+                </div>
                 <label class="field" for="draadsoort2">
                     <span>Draadsoort 2</span>
                     <select id="draadsoort2"></select>
@@ -372,12 +378,6 @@ $dataLabel = $loadErrors === []
                         <?= standButtonsHtml() ?>
                     </div>
                 </div>
-                <div class="field">
-                    <span>Type 2</span>
-                    <div id="type2" class="stand-icon-group" role="group" aria-label="Type koppeling 2">
-                        <?= typeButtonsHtml() ?>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -385,8 +385,9 @@ $dataLabel = $loadErrors === []
             <input type="checkbox" id="textsleeve">
             <span>Met textsleeve</span>
         </label>
-        <small>Kies eerst een draadsoort; koppeling 1/2 tonen dan de beschikbare maten. Het slangtype-overzicht
-            toont vervolgens alleen nog de slangen waarvan de eigen maat bij de gekozen koppeling(en) past.</small>
+        <small>Kies eerst een type (wartel/buiten/standpijp/banjo/flens); draadsoort en koppeling 1/2 tonen dan
+            de bijpassende opties. Het slangtype-overzicht toont vervolgens alleen nog de slangen waarvan de eigen
+            maat bij de gekozen koppeling(en) past.</small>
     </section>
 
     <section class="panel visual-panel">
