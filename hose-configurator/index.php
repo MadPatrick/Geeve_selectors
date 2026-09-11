@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-const APP_VERSION = '0.1.0';
+const APP_VERSION = '0.2.0';
 
 require_once __DIR__ . '/inc/csv-paths.php';
 
@@ -39,63 +39,47 @@ function getColumn(array $row, string $columnName): string
     return '';
 }
 
-// Elke slang heeft tot 3 "1-delige" koppelingsslots en tot 2 "2-delige"
-// (Huls/Pilaar) slots. Voor de configurator maakt dat onderscheid niet uit -
-// het is per slang gewoon een lijst van bruikbare koppelingscodes, dezelfde
-// lijst voor beide uiteinden (de brondata kent geen kant-specifieke
-// koppeling, alleen welke series bij deze slang passen).
+// Elke slang heeft tot 2 "2-delige" (Huls/Pilaar) koppelingsslots. Deze
+// dataset bevat alleen nog de Huls-kolommen (Pilaar en de 1-delige
+// koppelingen zijn uit dit bestand verwijderd) - Huls is al een kant-en-klaar,
+// bruikbaar artikelnummer (bijv. "100V4-20"), dezelfde lijst geldt voor beide
+// uiteinden (de brondata kent geen kant-specifieke koppeling, alleen welke
+// hulzen bij deze slang passen).
 function collectCouplingCodes(array $row): array
 {
-    // Not $codes[$code] = true / array_keys(): a purely-numeric code like
-    // "48" would become an integer array key, and json_encode would then
-    // emit it as a JSON number instead of a string - breaking the JS side,
-    // which expects every coupling code to be a string.
+    // Niet $codes[$code] = true / array_keys(): een puur-numerieke code zou
+    // als array-key tot een integer worden omgezet, en json_encode zou die
+    // dan als JSON-getal i.p.v. string wegschrijven - dat breekt de JS-kant,
+    // die overal een string verwacht.
     $codes = [];
 
-    for ($number = 1; $number <= 3; $number++) {
-        $code = getColumn($row, '1delig_' . $number);
-        if ($code !== '') {
-            $codes[] = $code;
-        }
-    }
-
     for ($number = 1; $number <= 2; $number++) {
-        // De Pilaar-kolom is de koppelingscode (dezelfde korte serie-codes als
-        // 1delig_N, bijv. "10"/"30"/"V6"); de Huls-kolom is voor V4/V6 al
-        // herschreven naar een kant-en-klaar, maat-specifiek artikelnummer
-        // (bijv. "100V4-20") en is dus geen bruikbare "koppeling"-keuze.
-        $pilaar = getColumn($row, '2delig_' . $number . ' - Pilaar');
-        if ($pilaar !== '') {
-            $codes[] = $pilaar;
+        $huls = getColumn($row, '2delig_' . $number . ' - Huls');
+        if ($huls !== '') {
+            $codes[] = $huls;
         }
     }
 
     return array_values(array_unique($codes));
 }
 
-function articleKey(string $articleNumber): string
+function loadHoseRows(?string $csvFile, array &$errors): array
 {
-    return '@' . strtolower(trim($articleNumber));
-}
-
-function loadMaterialRows(?string $csvFile, string $label, array &$errors): array
-{
-    $expectedName = $label === 'Staal' ? 'artikelnummers_staal.csv' : 'artikelnummers_rvs.csv';
     if ($csvFile === null) {
-        $errors[] = "Bestand {$expectedName} voor {$label} is niet gevonden.";
+        $errors[] = 'Bestand artikelnummers.csv is niet gevonden.';
         return [];
     }
 
     $handle = fopen($csvFile, 'r');
     if ($handle === false) {
-        $errors[] = "CSV-bestand {$expectedName} voor {$label} kan niet worden geopend.";
+        $errors[] = 'CSV-bestand artikelnummers.csv kan niet worden geopend.';
         return [];
     }
 
     $headers = fgetcsv($handle, 0, ';');
     if ($headers === false) {
         fclose($handle);
-        $errors[] = "CSV-bestand {$expectedName} voor {$label} bevat geen geldige kopregel.";
+        $errors[] = 'CSV-bestand artikelnummers.csv bevat geen geldige kopregel.';
         return [];
     }
 
@@ -129,45 +113,8 @@ function loadMaterialRows(?string $csvFile, string $label, array &$errors): arra
     return $rows;
 }
 
-$csvFiles = [
-    'staal' => findFirstReadableFile($csvFileCandidates['staal']),
-    'rvs'   => findFirstReadableFile($csvFileCandidates['rvs']),
-];
-
-$materialRows = [
-    'staal' => loadMaterialRows($csvFiles['staal'], 'Staal', $loadErrors),
-    'rvs'   => loadMaterialRows($csvFiles['rvs'], 'RVS', $loadErrors),
-];
-
-$merged = [];
-$order = [];
-
-foreach (['staal', 'rvs'] as $material) {
-    foreach ($materialRows[$material] as $row) {
-        $key = articleKey($row['artnr']);
-
-        if (!isset($merged[$key])) {
-            $merged[$key] = [
-                'artnr'     => $row['artnr'],
-                'artnm'     => $row['artnm'],
-                'werkdruk'  => $row['werkdruk'],
-                'couplings' => [],
-            ];
-            $order[] = $key;
-        } elseif ($merged[$key]['artnm'] === '' && $row['artnm'] !== '') {
-            $merged[$key]['artnm'] = $row['artnm'];
-        }
-
-        $merged[$key]['couplings'] = array_values(array_unique(
-            array_merge($merged[$key]['couplings'], $row['couplings'])
-        ));
-    }
-}
-
-$hoses = [];
-foreach ($order as $key) {
-    $hoses[] = $merged[$key];
-}
+$csvFile = findFirstReadableFile($csvFileCandidates['artikelnummers']);
+$hoses = loadHoseRows($csvFile, $loadErrors);
 
 usort($hoses, static fn(array $a, array $b): int => strnatcasecmp($a['artnr'], $b['artnr']));
 
@@ -178,7 +125,7 @@ function h(string $value): string
 
 $hoseCount = count($hoses);
 $dataState = $loadErrors === [] ? 'ready' : 'error';
-$dataLabel = $loadErrors === [] ? $hoseCount . ' slangtypes geladen' : 'Controleer databestanden';
+$dataLabel = $loadErrors === [] ? $hoseCount . ' slangtypes geladen' : 'Controleer databestand';
 ?>
 <!doctype html>
 <html lang="nl">
@@ -247,11 +194,9 @@ $dataLabel = $loadErrors === [] ? $hoseCount . ' slangtypes geladen' : 'Controle
                 <label class="field" for="slangtype">
                     <span>Type slang</span>
                     <select id="slangtype">
-                        <option value="">Kies een slangtype&hellip;</option>
+                        <option value="">Kies een artikelnummer&hellip;</option>
                         <?php foreach ($hoses as $hose): ?>
-                            <option value="<?= h($hose['artnr']) ?>">
-                                <?= h($hose['artnm'] !== '' ? $hose['artnr'] . ' — ' . $hose['artnm'] : $hose['artnr']) ?>
-                            </option>
+                            <option value="<?= h($hose['artnr']) ?>"><?= h($hose['artnr']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </label>
@@ -267,7 +212,7 @@ $dataLabel = $loadErrors === [] ? $hoseCount . ' slangtypes geladen' : 'Controle
             <input type="checkbox" id="textsleeve">
             <span>Met textsleeve</span>
         </label>
-        <small>Koppeling 1 en 2 tonen de koppelingsseries die bij het gekozen slangtype passen &mdash; kies eerst een slangtype.</small>
+        <small>Koppeling 1 en 2 tonen de koppelingen die bij het gekozen artikelnummer passen &mdash; kies eerst een slangtype.</small>
     </section>
 
     <section class="panel visual-panel">

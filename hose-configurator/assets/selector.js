@@ -52,7 +52,7 @@
 
     function onSlangtypeChange() {
         const hose = hosesByArtnr.get(els.slangtype.value);
-        const codes = hose ? hose.couplings.slice().sort((a, b) => a.localeCompare(b)) : [];
+        const codes = hose ? hose.couplings.slice().sort((a, b) => a.localeCompare(b, undefined, { numeric: true })) : [];
         fillKoppelingSelect(els.koppeling1, codes);
         fillKoppelingSelect(els.koppeling2, codes);
         render();
@@ -109,6 +109,7 @@
     function renderSummary(sel, hose) {
         const rows = [
             ['Slangtype', hose ? hose.artnr : '—'],
+            ['Omschrijving', hose && hose.artnm ? hose.artnm : '—'],
             ['Koppeling 1', sel.koppeling1 || '—'],
             ['Koppeling 2', sel.koppeling2 || '—'],
             ['Lengte', sel.lengte ? `${sel.lengte} mm` : '—'],
