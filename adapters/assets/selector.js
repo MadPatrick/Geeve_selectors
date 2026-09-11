@@ -20,6 +20,7 @@
     let selectedConnectie2 = '';
     const resetButton = document.getElementById('resetButton');
     const resultCount = document.getElementById('resultCount');
+    const resultTableHead = document.getElementById('resultTableHead');
     const resultTableBody = document.getElementById('resultTableBody');
     const resultTableWrap = document.getElementById('resultTableWrap');
     const resultMoreNote = document.getElementById('resultMoreNote');
@@ -27,6 +28,30 @@
 
     const MAX_ROWS = 300;
     const ALL = '';
+
+    // Zolang er nog geen draadmaat gekozen is (op geen van beide
+    // aansluitingen) kan een selectie honderden losse artikelen opleveren -
+    // te veel om als platte lijst te tonen. Groepeer dan per productfamilie
+    // (bijv. "2244 - Union"); zodra een maat gekozen is, is de lijst vanzelf
+    // klein genoeg voor de normale platte weergave per artikel.
+    const FLAT_HEAD_HTML = `
+        <tr>
+            <th class="result-table-image-col">Afbeelding</th>
+            <th>Artikelcode</th>
+            <th>Kruisverwijzing</th>
+            <th>Familie</th>
+            <th>Hoek</th>
+            <th>Aansluiting 1</th>
+            <th>Aansluiting 2</th>
+        </tr>`;
+    const GROUPED_HEAD_HTML = `
+        <tr>
+            <th class="result-table-image-col">Afbeelding</th>
+            <th>Familie</th>
+            <th>Aantal artikelen</th>
+            <th>Hoek(en)</th>
+            <th>Aansluitingen (voorbeelden)</th>
+        </tr>`;
 
     // --- helpers -----------------------------------------------------
 
@@ -151,13 +176,104 @@
         return connectie ? `${parts} (${capitalize(connectie)})` : parts;
     }
 
-    function render() {
-        const sel = readSelection();
-        const matches = [];
-        articles.forEach((a) => {
-            const orientation = matchOrientation(a, sel);
-            if (orientation) matches.push({ article: a, orientation });
+    function sideTexts(a, orientation) {
+        const side1 = orientation === 'swapped'
+            ? formatSide(a.draadsoort2, a.draadmaat2, a.connectieType2)
+            : formatSide(a.draadsoort1, a.draadmaat1, a.connectieType1);
+        const side2 = orientation === 'swapped'
+            ? formatSide(a.draadsoort1, a.draadmaat1, a.connectieType1)
+            : formatSide(a.draadsoort2, a.draadmaat2, a.connectieType2);
+        return [side1, side2];
+    }
+
+    function buildImageCell(familieCode, familieNaam) {
+        const imgTd = document.createElement('td');
+        imgTd.className = 'result-table-image-col';
+        if (familieCode) {
+            const img = document.createElement('img');
+            img.src = `images/${familieCode}.png`;
+            img.alt = familieNaam || familieCode;
+            img.loading = 'lazy';
+            img.addEventListener('error', () => { imgTd.replaceChildren(); }, { once: true });
+            imgTd.appendChild(img);
+        }
+        return imgTd;
+    }
+
+    function addCells(tr, texts) {
+        texts.forEach((text) => {
+            const td = document.createElement('td');
+            td.textContent = text;
+            tr.appendChild(td);
         });
+    }
+
+    // Nog geen draadmaat gekozen (op geen van beide aansluitingen) -> de
+    // selectie kan nog honderden losse artikelen bevatten.
+    function isGrouped(sel) {
+        return !sel.dm1 && !sel.dm2;
+    }
+
+    function buildFamilyGroups(matches) {
+        const groups = new Map();
+        matches.forEach(({ article: a, orientation }) => {
+            const key = a.familieCode || a.familieNaam || '—';
+            if (!groups.has(key)) {
+                groups.set(key, {
+                    familieCode: a.familieCode,
+                    familieNaam: a.familieNaam,
+                    count: 0,
+                    hoeken: new Set(),
+                    combos: new Set(),
+                });
+            }
+            const g = groups.get(key);
+            g.count += 1;
+            if (a.hoek) g.hoeken.add(capitalize(a.hoek));
+            const [side1, side2] = sideTexts(a, orientation);
+            g.combos.add(`${side1} ↔ ${side2}`);
+        });
+        return Array.from(groups.values()).sort((x, y) =>
+            (x.familieCode || '').localeCompare(y.familieCode || '', undefined, { numeric: true })
+        );
+    }
+
+    function renderGrouped(matches) {
+        resultTableHead.innerHTML = GROUPED_HEAD_HTML;
+        resultTableWrap.classList.add('grouped');
+
+        const groups = buildFamilyGroups(matches);
+        resultCount.textContent = `${groups.length} ${groups.length === 1 ? 'groep' : 'groepen'} (${matches.length} adapters) — kies ook een draadmaat voor de artikellijst`;
+
+        resultTableBody.innerHTML = '';
+        groups.forEach((g) => {
+            const tr = document.createElement('tr');
+            tr.appendChild(buildImageCell(g.familieCode, g.familieNaam));
+
+            const comboPreview = Array.from(g.combos);
+            const COMBO_LIMIT = 3;
+            const comboText = comboPreview.length > COMBO_LIMIT
+                ? `${comboPreview.slice(0, COMBO_LIMIT).join('; ')}; +${comboPreview.length - COMBO_LIMIT} meer`
+                : comboPreview.join('; ');
+
+            addCells(tr, [
+                [g.familieCode, g.familieNaam].filter(Boolean).join(' – '),
+                String(g.count),
+                Array.from(g.hoeken).join(', ') || '—',
+                comboText || '—',
+            ]);
+            resultTableBody.appendChild(tr);
+        });
+
+        resultMoreNote.hidden = true;
+        const isEmpty = groups.length === 0;
+        emptyResult.hidden = !isEmpty;
+        resultTableWrap.hidden = isEmpty;
+    }
+
+    function renderFlat(matches) {
+        resultTableHead.innerHTML = FLAT_HEAD_HTML;
+        resultTableWrap.classList.remove('grouped');
 
         resultCount.textContent = matches.length + (matches.length === 1 ? ' adapter' : ' adapters');
 
@@ -165,39 +281,17 @@
         const shown = matches.slice(0, MAX_ROWS);
         shown.forEach(({ article: a, orientation }) => {
             const tr = document.createElement('tr');
+            tr.appendChild(buildImageCell(a.familieCode, a.familieNaam));
 
-            const imgTd = document.createElement('td');
-            imgTd.className = 'result-table-image-col';
-            if (a.familieCode) {
-                const img = document.createElement('img');
-                img.src = `images/${a.familieCode}.png`;
-                img.alt = a.familieNaam || a.familieCode;
-                img.loading = 'lazy';
-                img.addEventListener('error', () => { imgTd.replaceChildren(); }, { once: true });
-                imgTd.appendChild(img);
-            }
-            tr.appendChild(imgTd);
-
-            const side1 = orientation === 'swapped'
-                ? formatSide(a.draadsoort2, a.draadmaat2, a.connectieType2)
-                : formatSide(a.draadsoort1, a.draadmaat1, a.connectieType1);
-            const side2 = orientation === 'swapped'
-                ? formatSide(a.draadsoort1, a.draadmaat1, a.connectieType1)
-                : formatSide(a.draadsoort2, a.draadmaat2, a.connectieType2);
-
-            const cells = [
+            const [side1, side2] = sideTexts(a, orientation);
+            addCells(tr, [
                 a.artnr,
                 a.crossRef || '—',
                 [a.familieCode, a.familieNaam].filter(Boolean).join(' – '),
                 capitalize(a.hoek) || '—',
                 side1,
                 side2,
-            ];
-            cells.forEach((text) => {
-                const td = document.createElement('td');
-                td.textContent = text;
-                tr.appendChild(td);
-            });
+            ]);
             resultTableBody.appendChild(tr);
         });
 
@@ -210,6 +304,21 @@
             resultMoreNote.textContent = `Eerste ${MAX_ROWS} van ${matches.length} resultaten getoond. Verfijn de selectie voor een volledig overzicht.`;
         } else {
             resultMoreNote.hidden = true;
+        }
+    }
+
+    function render() {
+        const sel = readSelection();
+        const matches = [];
+        articles.forEach((a) => {
+            const orientation = matchOrientation(a, sel);
+            if (orientation) matches.push({ article: a, orientation });
+        });
+
+        if (isGrouped(sel)) {
+            renderGrouped(matches);
+        } else {
+            renderFlat(matches);
         }
     }
 

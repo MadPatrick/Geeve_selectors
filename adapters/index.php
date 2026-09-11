@@ -307,7 +307,7 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
 
         <div id="resultTableWrap" class="result-table-wrap">
             <table class="result-table">
-                <thead>
+                <thead id="resultTableHead">
                     <tr>
                         <th class="result-table-image-col">Afbeelding</th>
                         <th>Artikelcode</th>
