@@ -208,11 +208,45 @@
         return String(text).replace(/[&<>]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
     }
 
-    function renderVisual(lengte, label1, label2) {
+    // Tekent de koppeling aan één uiteinde: bij stand 0 (recht) de moer in
+    // het verlengde van de slang (zoals voorheen); bij 45/90 draait de moer
+    // om het punt waar hij de slang raakt, zodat hij schuin resp. haaks
+    // omhoog wijst - een scharnier-effect via SVG rotate() op de moer zelf,
+    // met een dun verbindingsstukje en een label dat rechtop boven de
+    // (verplaatste) moer blijft staan i.p.v. mee te draaien.
+    function endFittingSvg(hingeX, hoseY, hoseHeight, nutWidth, dir, stand, label) {
+        // dir: -1 = linker uiteinde (rust-stand wijst naar links), +1 =
+        // rechter uiteinde (rust-stand wijst naar rechts). Extra rotatie
+        // (deltaDeg) t.o.v. die ruststand, richting "omhoog": voor links met
+        // de klok mee (+stand), voor rechts tegen de klok in (-stand).
+        const standDeg = parseInt(stand || '0', 10);
+        const deltaDeg = dir === -1 ? standDeg : -standDeg;
+        const rad = (deltaDeg * Math.PI) / 180;
+
+        const nutX = dir === -1 ? hingeX - nutWidth : hingeX;
+        const nutY = hoseY - hoseHeight / 2 - 4;
+        const nutH = hoseHeight + 8;
+
+        // Middelpunt van de moer, ongeroteerd, t.o.v. het scharnierpunt.
+        const localCx = dir === -1 ? -nutWidth / 2 : nutWidth / 2;
+        const centerX = hingeX + localCx * Math.cos(rad);
+        const centerY = hoseY + localCx * Math.sin(rad);
+        const labelY = centerY - (nutH / 2 + 10);
+
+        return `
+            <line x1="${hingeX}" y1="${hoseY}" x2="${centerX}" y2="${centerY}" class="hose-stub"></line>
+            <g transform="rotate(${deltaDeg} ${hingeX} ${hoseY})">
+                <rect x="${nutX}" y="${nutY}" width="${nutWidth}" height="${nutH}" rx="4" class="hose-nut"></rect>
+            </g>
+            <text x="${centerX}" y="${labelY}" text-anchor="middle" class="koppeling-label">${escapeXml(label)}</text>
+        `;
+    }
+
+    function renderVisual(lengte, label1, label2, stand1, stand2) {
         const barWidth = lengthToBarWidth(lengte || MIN_LENGTE);
         const svgWidth = Math.round(barWidth + 160);
-        const height = 190;
-        const hoseY = 120;
+        const height = 230;
+        const hoseY = 150;
         const hoseHeight = 34;
         const nutWidth = 34;
         const hoseStartX = 80;
@@ -227,12 +261,9 @@
                 <line x1="${hoseEndX}" y1="${rulerY - 10}" x2="${hoseEndX}" y2="${rulerY + 10}" class="ruler-tick"></line>
                 <text x="${(hoseStartX + hoseEndX) / 2}" y="${rulerY - 14}" text-anchor="middle" class="ruler-label">${escapeXml(lengteText)}</text>
 
-                <text x="${hoseStartX}" y="${hoseY - hoseHeight / 2 - 10}" text-anchor="middle" class="koppeling-label">${escapeXml(label1)}</text>
-                <text x="${hoseEndX}" y="${hoseY - hoseHeight / 2 - 10}" text-anchor="middle" class="koppeling-label">${escapeXml(label2)}</text>
-
-                <rect x="${hoseStartX - nutWidth}" y="${hoseY - hoseHeight / 2 - 4}" width="${nutWidth}" height="${hoseHeight + 8}" rx="4" class="hose-nut"></rect>
                 <rect x="${hoseStartX}" y="${hoseY - hoseHeight / 2}" width="${barWidth}" height="${hoseHeight}" class="hose-barrel"></rect>
-                <rect x="${hoseEndX}" y="${hoseY - hoseHeight / 2 - 4}" width="${nutWidth}" height="${hoseHeight + 8}" rx="4" class="hose-nut"></rect>
+                ${endFittingSvg(hoseStartX, hoseY, hoseHeight, nutWidth, -1, stand1, label1)}
+                ${endFittingSvg(hoseEndX, hoseY, hoseHeight, nutWidth, 1, stand2, label2)}
 
                 <text x="${hoseStartX + barWidth * 0.28}" y="${hoseY + 5}" text-anchor="middle" class="hose-brand">GEEVE</text>
                 <text x="${hoseStartX + barWidth * 0.72}" y="${hoseY + 5}" text-anchor="middle" class="hose-brand">GEEVE</text>
@@ -316,7 +347,7 @@
         const art1 = articleCodeText(sel.draadsoort1, sel.maat1, sel.stand1, sel.type1, hose);
         const art2 = articleCodeText(sel.draadsoort2, sel.maat2, sel.stand2, sel.type2, hose);
 
-        renderVisual(lengte, art1.short, art2.short);
+        renderVisual(lengte, art1.short, art2.short, sel.stand1, sel.stand2);
         renderSummary(sel, hose, art1, art2, lengte, textsleeve);
     }
 
