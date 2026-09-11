@@ -267,6 +267,17 @@
         return huls.persmaat ? `${huls.code} (persmaat ${huls.persmaat} mm)` : huls.code;
     }
 
+    // De huls hangt vooral af van de perssdiameter van de slang zelf, niet
+    // per se van welk uiteinde - veel rijen in de brondata hebben daarom maar
+    // één van de twee 2delig-hulskolommen ingevuld, ook als de slang aan
+    // weerskanten dezelfde koppeling heeft. Is er voor deze kant geen eigen
+    // huls bekend, val dan terug op de andere kant i.p.v. "—" te tonen
+    // terwijl de slang wel degelijk een huls heeft.
+    function hulsForSide(hose, own, other) {
+        if (!hose) return null;
+        return hose[own] || hose[other];
+    }
+
     function renderSummary(sel, hose, art1, art2, lengte, textsleeve) {
         const rows = [
             ['Slangtype', hose ? hose.artnr : '—'],
@@ -275,12 +286,12 @@
             ['Stand 1', sel.stand1 ? STAND_LABEL[sel.stand1] : '—'],
             ['Type 1', sel.type1 ? TYPE_LABEL[sel.type1] : '—'],
             ['Artikelnummer koppeling 1', art1.full],
-            ['Huls koppeling 1', hulsText(hose && hose.huls1)],
+            ['Huls koppeling 1', hulsText(hulsForSide(hose, 'huls1', 'huls2'))],
             ['Draadsoort 2', sel.draadsoort2 ? capitalize(sel.draadsoort2) : '—'],
             ['Stand 2', sel.stand2 ? STAND_LABEL[sel.stand2] : '—'],
             ['Type 2', sel.type2 ? TYPE_LABEL[sel.type2] : '—'],
             ['Artikelnummer koppeling 2', art2.full],
-            ['Huls koppeling 2', hulsText(hose && hose.huls2)],
+            ['Huls koppeling 2', hulsText(hulsForSide(hose, 'huls2', 'huls1'))],
             ['Lengte', lengte ? `${lengte} mm` : '—'],
             ['Textsleeve', textsleeve ? 'Ja' : 'Nee'],
         ];
