@@ -186,6 +186,24 @@
         return [side1, side2];
     }
 
+    function formatSideSoortOnly(soort, connectie) {
+        if (!soort) return '—';
+        return connectie ? `${soort} (${capitalize(connectie)})` : soort;
+    }
+
+    // Voor de familie-preview (nog geen maat gekozen): zonder draadmaat, zodat
+    // meerdere maten van dezelfde soort/connectie niet als losse regels
+    // verschijnen - de Set in buildFamilyGroups dedupliceert ze dan vanzelf.
+    function sideTextsSoortOnly(a, orientation) {
+        const side1 = orientation === 'swapped'
+            ? formatSideSoortOnly(a.draadsoort2, a.connectieType2)
+            : formatSideSoortOnly(a.draadsoort1, a.connectieType1);
+        const side2 = orientation === 'swapped'
+            ? formatSideSoortOnly(a.draadsoort1, a.connectieType1)
+            : formatSideSoortOnly(a.draadsoort2, a.connectieType2);
+        return [side1, side2];
+    }
+
     function buildImageCell(familieCode, familieNaam) {
         const imgTd = document.createElement('td');
         imgTd.className = 'result-table-image-col';
@@ -234,7 +252,7 @@
             const g = groups.get(key);
             g.count += 1;
             if (a.hoek) g.hoeken.add(capitalize(a.hoek));
-            const [side1, side2] = sideTexts(a, orientation);
+            const [side1, side2] = sideTextsSoortOnly(a, orientation);
             g.combos.add(`${side1} ↔ ${side2}`);
         });
         return Array.from(groups.values()).sort((x, y) =>
