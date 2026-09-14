@@ -217,11 +217,15 @@
     function buildFamilyGroups(matches) {
         const groups = new Map();
         matches.forEach(({ article: a, orientation }) => {
-            const key = a.familieCode || a.familieNaam || '—';
+            // Artikelen zonder familie_code/familie_naam (nog niet in een
+            // familie ondergebracht) mogen niet allemaal in één groep vallen
+            // - elk zo'n artikel krijgt zijn eigen groep, op artnr.
+            const key = a.familieCode || a.familieNaam || `artnr:${a.artnr}`;
             if (!groups.has(key)) {
                 groups.set(key, {
                     familieCode: a.familieCode,
                     familieNaam: a.familieNaam,
+                    label: a.familieCode || a.familieNaam || a.artnr,
                     count: 0,
                     hoeken: new Set(),
                     combos: new Set(),
@@ -257,7 +261,7 @@
                 : comboPreview.join('; ');
 
             addCells(tr, [
-                [g.familieCode, g.familieNaam].filter(Boolean).join(' – '),
+                [g.familieCode, g.familieNaam].filter(Boolean).join(' – ') || g.label,
                 String(g.count),
                 Array.from(g.hoeken).join(', ') || '—',
                 comboText || '—',
