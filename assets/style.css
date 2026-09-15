@@ -131,21 +131,21 @@ h1 {
     opacity: .92;
     white-space: nowrap;
 }
-.update-button {
+.header-icon-button {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 auto;
     border-radius: 999px;
     border: 1px solid rgba(255, 255, 255, .35);
-    background: rgba(255, 255, 255, .08);
     color: #fff;
-    font-size: 12px;
-    font-weight: 700;
-    text-decoration: none;
+    background: rgba(255, 255, 255, .08);
     transition: background .15s, border-color .15s;
 }
-.update-button:hover { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .55); }
+.header-icon-button:hover { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .55); }
+.header-icon-button svg { display: block; }
 .update-button svg { display: block; }
 
 .back-link {
