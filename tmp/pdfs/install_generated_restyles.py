@@ -23,6 +23,20 @@ SOURCES = {
     "8243": "exec-ac95e6fe-2822-4a62-947f-fc31d613b3a8.png",
     "8245": "exec-1192970d-60f0-4f76-8d7f-627317ae05e0.png",
     "8246": "exec-b507d43a-33c8-4f0c-ba1e-d78ca9c968ef.png",
+    "K6PP4MX": "exec-5dbd626e-5acc-4e69-b3a2-6056b72e6768.png",
+    "V3MXS": "exec-ce743cb5-782f-4bf1-9c6f-34862c824255.png",
+}
+
+EXISTING_SOURCES = {
+    "F5OG5": ROOT / "adapters/F5OG5.png",
+    "F5OHG4": IMAGES / "F5OHG4.jpg",
+    "F8OHG": IMAGES / "F8OHG.jpg",
+    "FHG4": IMAGES / "F8OHG.jpg",
+    "G4MK4": IMAGES / "G4MK4.webp",
+    "HP5ON": IMAGES / "HP5ON.jpg",
+    "P5ON": IMAGES / "P5ON.jpg",
+    "RI": IMAGES / "F5OHG4.jpg",
+    "WNLML": IMAGES / "WLNML.png",
 }
 
 
@@ -59,6 +73,12 @@ for code, filename in SOURCES.items():
     destination = IMAGES / f"{code}.png"
     result.save(destination, optimize=True)
     print(f"{destination.name}\t{result.width}x{result.height}")
+
+for code, source in EXISTING_SOURCES.items():
+    result = normalize(source)
+    destination = IMAGES / f"{code}.png"
+    result.save(destination, optimize=True)
+    print(f"{destination.name}\t{result.width}x{result.height}\t(from {source.name})")
 
 # These catalog families use the same drawing and should remain pixel-identical.
 for target, source in {"7228": "2228", "8228": "8225"}.items():
