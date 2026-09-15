@@ -77,7 +77,28 @@
         return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
     }
 
-    function fillSelect(select, values, allLabel) {
+    // Roepmaat (dash-nummer) per draadmaat, voor JIC en ORFS - bron:
+    // hoses/docs/"BSP, NPT, JIC & ORFS PDF.pdf". Alleen waarden die
+    // letterlijk in die tabel staan (of, voor JIC, elders deze sessie al
+    // bevestigd) krijgen een toevoeging; onbekende waarden blijven kaal.
+    const JIC_ROEPMAAT = {
+        '5/16-24': '2', '3/8-24': '3', '7/16-20': '4', '1/2-20': '5',
+        '9/16-18': '6', '3/4-16': '8', '7/8-14': '10', '1 1/16-12': '12',
+        '1 3/16-12': '14', '1 5/16-12': '16', '1 5/8-12': '20',
+        '1 7/8-12': '24', '2 1/4-12': '28', '2 1/2-12': '32',
+    };
+    const ORFS_ROEPMAAT = {
+        '9/16-18': '4', '11/16-16': '6', '13/16-16': '8', '1-14': '10',
+        '1 3/16-12': '12', '1 7/16-12': '16', '1 11/16-12': '20', '2-12': '24',
+    };
+    function draadmaatLabel(soort, maat) {
+        const label = capitalize(maat);
+        const table = soort === 'JIC' ? JIC_ROEPMAAT : soort === 'ORFS' ? ORFS_ROEPMAAT : null;
+        const roepmaat = table ? table[maat] : null;
+        return roepmaat ? `${label} (${soort} ${roepmaat})` : label;
+    }
+
+    function fillSelect(select, values, allLabel, labelFn) {
         const previous = select.value;
         select.innerHTML = '';
         const allOption = document.createElement('option');
@@ -87,7 +108,7 @@
         values.forEach((value) => {
             const option = document.createElement('option');
             option.value = value;
-            option.textContent = capitalize(value);
+            option.textContent = labelFn ? labelFn(value) : capitalize(value);
             select.appendChild(option);
         });
         select.value = values.includes(previous) ? previous : ALL;
@@ -121,7 +142,7 @@
     function populateDraadmaat(select, soortSelect) {
         const soort = soortSelect.value;
         const values = soort ? (draadmaatBySoort.get(soort) || []) : allDraadmaatValues;
-        fillSelect(select, values, 'Alle');
+        fillSelect(select, values, 'Alle', (value) => draadmaatLabel(soort, value));
     }
 
     fillSelect(els.draadsoort1, draadsoortValues, 'Alle');
