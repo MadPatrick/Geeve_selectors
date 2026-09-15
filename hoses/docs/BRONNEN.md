@@ -2,8 +2,9 @@
 
 Deze links zijn vanuit de sessie-omgeving niet rechtstreeks te downloaden (netwerk-egress
 blokkeert `parker.com` en `interpumpfluidsolutions.com`). Bewaard voor later gebruik:
-handmatig downloaden en in `docs/` plaatsen, of ophalen vanuit een omgeving zonder deze
-beperking.
+handmatig downloaden en in de root `docs/hoses/` plaatsen (niet hier in `hoses/docs/` - de
+PDF's zelf zijn verplaatst naar de root `docs/`-map, alleen deze bronnenlijst staat nog hier),
+of ophalen vanuit een omgeving zonder deze beperking.
 
 - **Parker Thermoplastic Hoses for Hydraulic and Industry — Catalog 4460 (UK)**
   Bredere thermoplastische slangcatalogus (o.a. 2020N, 2040N/H, 2245N, 2370N, 2390N e.d.),

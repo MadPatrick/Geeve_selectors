@@ -25,8 +25,13 @@ index.php              Startpagina met tegels
 assets/style.css        Styling van alleen de startpagina
 images/                 Gedeeld Geeve/Rubix-merklogo (geeve.jpg, rubix.jpg) - door alle
                         subapps gebruikt via ../images/..., één plek om bij te werken
-hoses/                  Volledige Slangen fitting Selector-app (eigen assets/data/docs/etc.)
-adapters/               Volledige Adapters Selector-app (eigen assets/data/docs + eigen
+docs/                   Bron-PDF's (catalogi, persmaatlijsten) - alleen referentiemateriaal,
+                        wordt niet door de apps zelf ingelezen of gelinkt
+  hoses/                Algemene hoses-referentiecatalogi (voorheen hoses/docs/*.pdf)
+  perslijst/            Persmaatbladen per koppeling (voorheen hoses/perslijst/*.pdf)
+  adapters/             Adapters-referentiecatalogi (voorheen adapters/docs/*.pdf)
+hoses/                  Volledige Slangen fitting Selector-app (eigen assets/data/etc.)
+adapters/               Volledige Adapters Selector-app (eigen assets/data + eigen
                         images/ met alleen de productfoto's per adapterfamilie)
 stauff/                 Volledige Stauff Selector-app (eigen assets/data/api/etc.)
 ```
