@@ -290,15 +290,15 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
                         </button>
                         <button type="button" class="hoek-icon" data-hoek="Plug" aria-pressed="false" title="Plug">
                             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <line x1="3" y1="12" x2="13" y2="12"></line>
-                                <path d="M13 7h4a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3h-4z"></path>
+                                <line x1="3" y1="12" x2="9" y2="12"></line>
+                                <polygon points="9 6.5 15.2 6.5 18.3 12 15.2 17.5 9 17.5 5.9 12"></polygon>
                             </svg>
                             <span>Plug</span>
                         </button>
                         <button type="button" class="hoek-icon" data-hoek="Cap" aria-pressed="false" title="Cap">
                             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <line x1="3" y1="12" x2="12" y2="12"></line>
-                                <path d="M12 6h3a6 6 0 0 1 0 12h-3z"></path>
+                                <line x1="3" y1="12" x2="9" y2="12"></line>
+                                <circle cx="15" cy="12" r="6"></circle>
                             </svg>
                             <span>Cap</span>
                         </button>
