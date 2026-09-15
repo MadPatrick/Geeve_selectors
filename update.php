@@ -41,7 +41,17 @@ function runGitPull(): array
         2 => ['pipe', 'w'],
     ];
 
-    $process = @proc_open(['git', 'pull'], $descriptorSpec, $pipes, $repoRoot);
+    // De webserver-gebruiker is vaak niet de eigenaar van de bestanden op de
+    // server (bijv. root bij het uitrollen, www-data die PHP draait). Git
+    // weigert dan met "detected dubious ownership" - dit vertrouwt expliciet
+    // en alleen voor dit ene commando de map waarin dit script zelf staat,
+    // zodat er geen handmatige "git config --global" op de server nodig is.
+    $process = @proc_open(
+        ['git', '-c', 'safe.directory=' . $repoRoot, 'pull'],
+        $descriptorSpec,
+        $pipes,
+        $repoRoot
+    );
 
     if (!is_resource($process)) {
         return ['ok' => false, 'output' => 'Kon het git-commando niet starten op de server.'];
