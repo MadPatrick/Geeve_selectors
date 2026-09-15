@@ -302,6 +302,14 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
                             </svg>
                             <span>Cap</span>
                         </button>
+                        <button type="button" class="hoek-icon" data-hoek="Overige" aria-pressed="false" title="Overige">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="6" cy="12" r="1.4" fill="currentColor" stroke="none"></circle>
+                                <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"></circle>
+                                <circle cx="18" cy="12" r="1.4" fill="currentColor" stroke="none"></circle>
+                            </svg>
+                            <span>Overige</span>
+                        </button>
                     </div>
                     <small>Meerdere vormen tegelijk mogelijk &mdash; niets geselecteerd toont alle vormen.</small>
                 </div>

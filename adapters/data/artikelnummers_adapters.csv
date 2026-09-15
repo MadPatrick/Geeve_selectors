@@ -1387,34 +1387,34 @@
 7120-20;20 PNLO-S;7120;Plug;O-Lok® ORFS blanking plug;Plug;ORFS;1 11/16-12;buiten;;;;28, 30, 32;1 1/4;111
 7120-24;24 PNLO-S;7120;Plug;O-Lok® ORFS blanking plug;Plug;ORFS;2-12;buiten;;;;35, 38;1 1/2;111
 7120-32;32 PNLO-S;7120;Plug;O-Lok® ORFS blanking plug;Plug;ORFS;2 1/2-12;buiten;;;;50;2;111
-10 BL-S;10 BL-S;7140;Nut;O-Lok NUT;n.v.t.;ORFS;1-14;wartelend;;;;;5/8;
-12 BL-S;12 BL-S;7140;Nut;O-Lok NUT;n.v.t.;ORFS;1 3/16-12;wartelend;;;;;3/4;
-16 BL S;16 BL S;7140;Nut;O-Lok NUT;n.v.t.;ORFS;1 7/16-12;wartelend;;;;;1;
-16 BL-S;16 BL-S;7140;Nut;O-Lok NUT;n.v.t.;ORFS;1 7/16-12;wartelend;;;;;1;
-20 BL-S;20 BL-S;7140;Nut;O-Lok NUT;n.v.t.;ORFS;1 11/16-12;wartelend;;;;;1 1/4;
-24 BL-S;24 BL-S;7140;Nut;O-Lok NUT;n.v.t.;ORFS;2-12;wartelend;;;;;1 1/2;
-32 BL-S;32 BL-S;7140;Nut;O-Lok NUT;n.v.t.;ORFS;2 1/2-12;wartelend;;;;;2;
-6 BL-S;6 BL-S;7140;Nut;O-Lok NUT;n.v.t.;ORFS;11/16-16;wartelend;;;;;3/8;
-7140-04;4BMLS;7140;Nut;O-Lok NUT;n.v.t.;ORFS;9/16-18;wartelend;;;;;;85
-7140-06;6BMLS;7140;Nut;O-Lok NUT;n.v.t.;ORFS;11/16-16;wartelend;;;;;;85
-7140-08;8BMLS;7140;Nut;O-Lok NUT;n.v.t.;ORFS;13/16-16;wartelend;;;;;;85
-7140-10;10BMLS;7140;Nut;O-Lok NUT;n.v.t.;ORFS;1-14;wartelend;;;;;;85
-7140-12;12BMLS;7140;Nut;O-Lok NUT;n.v.t.;ORFS;1 3/16-12;wartelend;;;;;;85
-7140-16;16BMLS;7140;Nut;O-Lok NUT;n.v.t.;ORFS;1 7/16-12;wartelend;;;;;;85
-7140-20;20BMLS;7140;Nut;O-Lok NUT;n.v.t.;ORFS;1 11/16-12;wartelend;;;;;;85
-7140-24;24BMLS;7140;Nut;O-Lok NUT;n.v.t.;ORFS;2-12;wartelend;;;;;;85
-8 BL-S;8 BL-S;7140;Nut;O-Lok NUT;n.v.t.;ORFS;13/16-16;wartelend;;;;;1/2;
-7180-08;TPLS8;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;8;;
-7180-35;TPLS35;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;35;;
-TPLS10;TPLS10;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;10;;
-TPLS12;TPLS12;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;12;;
-TPLS16;TPLS16;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;16;;
-TPLS20;TPLS20;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;20;;
-TPLS25;TPLS25;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;25;;
-TPLS30;TPLS30;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;30;;
-TPLS32;TPLS32;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;32;;
-TPLS38;TPLS38;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;38;;
-TPLS6;TPLS6;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;6;;
+10 BL-S;10 BL-S;7140;Nut;O-Lok NUT;Overige;ORFS;1-14;wartelend;;;;;5/8;
+12 BL-S;12 BL-S;7140;Nut;O-Lok NUT;Overige;ORFS;1 3/16-12;wartelend;;;;;3/4;
+16 BL S;16 BL S;7140;Nut;O-Lok NUT;Overige;ORFS;1 7/16-12;wartelend;;;;;1;
+16 BL-S;16 BL-S;7140;Nut;O-Lok NUT;Overige;ORFS;1 7/16-12;wartelend;;;;;1;
+20 BL-S;20 BL-S;7140;Nut;O-Lok NUT;Overige;ORFS;1 11/16-12;wartelend;;;;;1 1/4;
+24 BL-S;24 BL-S;7140;Nut;O-Lok NUT;Overige;ORFS;2-12;wartelend;;;;;1 1/2;
+32 BL-S;32 BL-S;7140;Nut;O-Lok NUT;Overige;ORFS;2 1/2-12;wartelend;;;;;2;
+6 BL-S;6 BL-S;7140;Nut;O-Lok NUT;Overige;ORFS;11/16-16;wartelend;;;;;3/8;
+7140-04;4BMLS;7140;Nut;O-Lok NUT;Overige;ORFS;9/16-18;wartelend;;;;;;85
+7140-06;6BMLS;7140;Nut;O-Lok NUT;Overige;ORFS;11/16-16;wartelend;;;;;;85
+7140-08;8BMLS;7140;Nut;O-Lok NUT;Overige;ORFS;13/16-16;wartelend;;;;;;85
+7140-10;10BMLS;7140;Nut;O-Lok NUT;Overige;ORFS;1-14;wartelend;;;;;;85
+7140-12;12BMLS;7140;Nut;O-Lok NUT;Overige;ORFS;1 3/16-12;wartelend;;;;;;85
+7140-16;16BMLS;7140;Nut;O-Lok NUT;Overige;ORFS;1 7/16-12;wartelend;;;;;;85
+7140-20;20BMLS;7140;Nut;O-Lok NUT;Overige;ORFS;1 11/16-12;wartelend;;;;;;85
+7140-24;24BMLS;7140;Nut;O-Lok NUT;Overige;ORFS;2-12;wartelend;;;;;;85
+8 BL-S;8 BL-S;7140;Nut;O-Lok NUT;Overige;ORFS;13/16-16;wartelend;;;;;1/2;
+7180-08;TPLS8;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;8;;
+7180-35;TPLS35;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;35;;
+TPLS10;TPLS10;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;10;;
+TPLS12;TPLS12;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;12;;
+TPLS16;TPLS16;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;16;;
+TPLS20;TPLS20;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;20;;
+TPLS25;TPLS25;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;25;;
+TPLS30;TPLS30;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;30;;
+TPLS32;TPLS32;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;32;;
+TPLS38;TPLS38;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;38;;
+TPLS6;TPLS6;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;Overige;;;;;;;6;;
 10 LOHX6-S;10 LOHX6-S;7215;Swivel male stud;VERL NIPPEL ORFS MALE / ORFS FEMALE SWIVEL;recht;UN/UNF;1-14;buiten;UN/UNF;1-14;wartelend;;5/8;
 7215-04-04;4 LOHX6-S;7215;Swivel male stud;VERL NIPPEL ORFS MALE / ORFS FEMALE SWIVEL;recht;JIC;7/16-20;wartelend;UN/UNF;9/16-18;buiten;;1/4;
 7215-06-06;6 LOHX6-S;7215;Swivel male stud;VERL NIPPEL ORFS MALE / ORFS FEMALE SWIVEL;recht;JIC;9/16-18;wartelend;UN/UNF;11/16-16;buiten;;3/8;
@@ -1860,34 +1860,34 @@ TPLS6;TPLS6;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;6;;
 7922-20-20;20 ELO-S;7922;Union elbow;O-Lok® ORFS tube ends;haaks;ORFS;1 11/16-12;buiten;ORFS;1 11/16-12;buiten;28, 30, 32;1 1/4;87
 7922-24-24;24 ELO-S;7922;Union elbow;O-Lok® ORFS tube ends;haaks;ORFS;2-12;buiten;ORFS;2-12;buiten;35, 38;1 1/2;87
 7922-32-32;32 ELO-S;7922;Union elbow;O-Lok® ORFS tube ends;haaks;ORFS;2 1/2-12;buiten;ORFS;2 1/2-12;buiten;50;2;87
-8120-02;2 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;1/8;44
-8120-03;3 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;3/16;44
-8120-04;4 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;1/4;44
-8120-05;;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;5/16;44
-8120-06;6 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;3/8;44
-8120-08;8 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;1/2;44
-8120-10;10 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;5/8;44
-8120-12;12 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;3/4;44
-8120-14;14 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;7/8;44
-8120-16;16 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;1;44
-8120-20;20 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;1 1/4;44
-8120-24;24 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;1 1/2;44
-8120-32;;8120;Support sleeve;SUPPORT SLEEVE INCH;n.v.t.;;;;;;;;2;44
-10BTXS;10-BTX-S;8140;Nut;NUT JIC;n.v.t.;JIC;7/8-14;wartelend;;;;;5/8;
-8140-02;2 BTX-S;8140;Nut;NUT JIC;n.v.t.;JIC;5/16-24;wartelend;;;;;;46
-8140-03;3 BTX-S;8140;Nut;NUT JIC;n.v.t.;JIC;3/8-24;wartelend;;;;;;46
-8140-04;4BMTXS;8140;Nut;NUT JIC;n.v.t.;JIC;7/16-20;wartelend;;;;;;46
-8140-05;5BMTXS;8140;Nut;NUT JIC;n.v.t.;JIC;1/2-20;wartelend;;;;;;46
-8140-06;6BMTXS;8140;Nut;NUT JIC;n.v.t.;JIC;9/16-18;wartelend;;;;;;46
-8140-08;8BMTXS;8140;Nut;NUT JIC;n.v.t.;JIC;3/4-16;wartelend;;;;;;46
-8140-10;10BMTXS;8140;Nut;NUT JIC;n.v.t.;JIC;7/8-14;wartelend;;;;;;46
-8140-12;12BMTXS;8140;Nut;NUT JIC;n.v.t.;JIC;1 1/16-12;wartelend;;;;;;46
-8140-14;14 BTX-S;8140;Nut;NUT JIC;n.v.t.;JIC;1 3/16-12;wartelend;;;;;;46
-8140-16;16 BTX-S;8140;Nut;NUT JIC;n.v.t.;JIC;1 5/16-12;wartelend;;;;;;46
-8140-20;20BMTXS;8140;Nut;NUT JIC;n.v.t.;JIC;1 5/8-12;wartelend;;;;;;46
-8140-24;24BMTXS;8140;Nut;NUT JIC;n.v.t.;JIC;1 7/8-12;wartelend;;;;;;46
-8140-28;28BMTXS;8140;Nut;NUT JIC;n.v.t.;JIC;2 1/4-12;wartelend;;;;;;46
-8140-32;32 BTX-S;8140;Nut;NUT JIC;n.v.t.;JIC;2 1/2-12;wartelend;;;;;;46
+8120-02;2 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;1/8;44
+8120-03;3 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;3/16;44
+8120-04;4 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;1/4;44
+8120-05;;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;5/16;44
+8120-06;6 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;3/8;44
+8120-08;8 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;1/2;44
+8120-10;10 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;5/8;44
+8120-12;12 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;3/4;44
+8120-14;14 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;7/8;44
+8120-16;16 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;1;44
+8120-20;20 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;1 1/4;44
+8120-24;24 TX-S;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;1 1/2;44
+8120-32;;8120;Support sleeve;SUPPORT SLEEVE INCH;Overige;;;;;;;;2;44
+10BTXS;10-BTX-S;8140;Nut;NUT JIC;Overige;JIC;7/8-14;wartelend;;;;;5/8;
+8140-02;2 BTX-S;8140;Nut;NUT JIC;Overige;JIC;5/16-24;wartelend;;;;;;46
+8140-03;3 BTX-S;8140;Nut;NUT JIC;Overige;JIC;3/8-24;wartelend;;;;;;46
+8140-04;4BMTXS;8140;Nut;NUT JIC;Overige;JIC;7/16-20;wartelend;;;;;;46
+8140-05;5BMTXS;8140;Nut;NUT JIC;Overige;JIC;1/2-20;wartelend;;;;;;46
+8140-06;6BMTXS;8140;Nut;NUT JIC;Overige;JIC;9/16-18;wartelend;;;;;;46
+8140-08;8BMTXS;8140;Nut;NUT JIC;Overige;JIC;3/4-16;wartelend;;;;;;46
+8140-10;10BMTXS;8140;Nut;NUT JIC;Overige;JIC;7/8-14;wartelend;;;;;;46
+8140-12;12BMTXS;8140;Nut;NUT JIC;Overige;JIC;1 1/16-12;wartelend;;;;;;46
+8140-14;14 BTX-S;8140;Nut;NUT JIC;Overige;JIC;1 3/16-12;wartelend;;;;;;46
+8140-16;16 BTX-S;8140;Nut;NUT JIC;Overige;JIC;1 5/16-12;wartelend;;;;;;46
+8140-20;20BMTXS;8140;Nut;NUT JIC;Overige;JIC;1 5/8-12;wartelend;;;;;;46
+8140-24;24BMTXS;8140;Nut;NUT JIC;Overige;JIC;1 7/8-12;wartelend;;;;;;46
+8140-28;28BMTXS;8140;Nut;NUT JIC;Overige;JIC;2 1/4-12;wartelend;;;;;;46
+8140-32;32 BTX-S;8140;Nut;NUT JIC;Overige;JIC;2 1/2-12;wartelend;;;;;;46
 8141-04;;8141;Cap;HEXAGON CAP BSP;Cap;BSPP;1/4-19;binnen;;;;;;
 8141-08;;8141;Cap;HEXAGON CAP BSP;Cap;BSPP;1/2-14;binnen;;;;;;
 8141-12;;8141;Cap;HEXAGON CAP BSP;Cap;BSPP;3/4-14;binnen;;;;;;
@@ -1929,31 +1929,31 @@ TPLS6;TPLS6;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;6;;
 8170-32;-;8170;Cap;Female NPTF thread;Cap;NPT/NPTF;2-11.5;binnen;;;;;;25
 8170-40;;8170;Cap;BLANKING CAP NPT;Cap;NPT/NPTF;2 1/2-8;binnen;;;;;;25
 8170-48;;8170;Cap;BLANKING CAP NPT;Cap;NPT/NPTF;3-8;binnen;;;;;;25
-8180-06;TXS6;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;6;;45
-8180-08;TXS8;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;8;;45
-8180-10;TXS10;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;10;;45
-8180-12;TXS12;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;12;;45
-8180-14;TXS14;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;14;;45
-8180-15;TXS15;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;15;;45
-8180-16;TXS16;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;16;;45
-8180-18;TXS18;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;18;;45
-8180-20;TXS20;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;20;;45
-8180-25;TXS25;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;25;;45
-8180-28;TXS28;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;28;;45
-8180-30;TXS30;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;30;;45
-8180-32;TXS32;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;32;;45
-8180-35;TXS35;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;35;;45
-8180-38;TXS38;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;38;;45
-8180-42;TXS42;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;42;;45
-8180-50;;8180;Support sleeve;SUPPORT SLEEVE METRIC;n.v.t.;;;;;;;50;;45
-8207-1;;8207;Retaining ring;RETAINER RING ;n.v.t.;;;;;;;;;
-8207-1/2;2-1-8207;8207;Retaining ring;RETAINER RING ;n.v.t.;;;;;;;;;
-8207-1/4;4-1-8207;8207;Retaining ring;RETAINER RING ;n.v.t.;;;;;;;;;
-8207-1/8;8-1-8207;8207;Retaining ring;RETAINER RING ;n.v.t.;;;;;;;;;
-8207-1-1/2;8207-1-1/2;8207;Retaining ring;RETAINER RING ;n.v.t.;;;;;;;;;
-8207-1-1/4;8207-1-1/4;8207;Retaining ring;RETAINER RING ;n.v.t.;;;;;;;;;
-8207-3/4;4-3-8207;8207;Retaining ring;RETAINER RING ;n.v.t.;;;;;;;;;
-8207-3/8;8-3-8207;8207;Retaining ring;RETAINER RING ;n.v.t.;;;;;;;;;
+8180-06;TXS6;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;6;;45
+8180-08;TXS8;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;8;;45
+8180-10;TXS10;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;10;;45
+8180-12;TXS12;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;12;;45
+8180-14;TXS14;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;14;;45
+8180-15;TXS15;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;15;;45
+8180-16;TXS16;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;16;;45
+8180-18;TXS18;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;18;;45
+8180-20;TXS20;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;20;;45
+8180-25;TXS25;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;25;;45
+8180-28;TXS28;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;28;;45
+8180-30;TXS30;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;30;;45
+8180-32;TXS32;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;32;;45
+8180-35;TXS35;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;35;;45
+8180-38;TXS38;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;38;;45
+8180-42;TXS42;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;42;;45
+8180-50;;8180;Support sleeve;SUPPORT SLEEVE METRIC;Overige;;;;;;;50;;45
+8207-1;;8207;Retaining ring;RETAINER RING ;Overige;;;;;;;;;
+8207-1/2;2-1-8207;8207;Retaining ring;RETAINER RING ;Overige;;;;;;;;;
+8207-1/4;4-1-8207;8207;Retaining ring;RETAINER RING ;Overige;;;;;;;;;
+8207-1/8;8-1-8207;8207;Retaining ring;RETAINER RING ;Overige;;;;;;;;;
+8207-1-1/2;8207-1-1/2;8207;Retaining ring;RETAINER RING ;Overige;;;;;;;;;
+8207-1-1/4;8207-1-1/4;8207;Retaining ring;RETAINER RING ;Overige;;;;;;;;;
+8207-3/4;4-3-8207;8207;Retaining ring;RETAINER RING ;Overige;;;;;;;;;
+8207-3/8;8-3-8207;8207;Retaining ring;RETAINER RING ;Overige;;;;;;;;;
 8219-04-04;;8219;Adapter;ADAPTER JIS FEMALE KOMATSU SWIVEL X BSPP MALE;recht;JIS;1/4-19;wartelend;BSPT;1/4-19;buiten;;;
 8219-M30-12;;8219;Adapter;ADAPTER JIS FEMALE KOMATSU SWIVEL X BSPP MALE;recht;JIS;;wartelend;BSPP;3/4-14;buiten;;;
 8221-04-02;4 WGTX-WLN-S;8221;Bulkhead female connector;BULKHEAD UNION JIC X NPT FEMALE FIXED;recht;JIC;7/16-20;binnen;NPT/NPTF;1/8-27;binnen;;1/4;
@@ -2378,34 +2378,34 @@ TPLS6;TPLS6;7180;Support sleeve;O-LOK SLEEVE METRIC TUBING;n.v.t.;;;;;;;6;;
 8277-20-24;1 1/4 X 1 1/2 GG-S;8277;Female thread coupling;Female NPTF thread;recht;NPT/NPTF;1 1/2-11.5;binnen;NPT/NPTF;1 1/4-11.5;binnen;;;26
 8277-24-24;1 1/2 GG-S;8277;Female thread coupling;Female NPTF thread;recht;NPT/NPTF;1 1/2-11.5;binnen;NPT/NPTF;1 1/2-11.5;binnen;;;26
 8277-32-32;2 GG-S;8277;Female thread coupling;Female NPTF thread;recht;NPT/NPTF;2-11.5;binnen;NPT/NPTF;2-11.5;binnen;;;26
-8278-02-02;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;1/8-27;binnen;;;;;;
-8278-04-04;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;1/4-18;binnen;;;;;;
-8278-06-06;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;3/8-18;binnen;;;;;;
-8278-08-08;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;1/2-14;binnen;;;;;;
-8278-12-12;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;3/4-14;binnen;;;;;;
-8278-12-16;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;3/4-14;binnen;;;;;;
-8278-16-16;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;1-11.5;binnen;;;;;;
-8278-16-24;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;1-11.5;binnen;;;;;;
-8278-20-20;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;1 1/4-11.5;binnen;;;;;;
-8278-24-24;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;1 1/2-11.5;binnen;;;;;;
-8278-32-32;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;n.v.t.;NPT/NPTF;2-11.5;binnen;;;;;;
-8279-04-04;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;n.v.t.;NPT/NPTF;1/4-18;binnen;;;;;;
-8279-06-06;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;n.v.t.;NPT/NPTF;3/8-18;binnen;;;;;;
-8279-08-08;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;n.v.t.;NPT/NPTF;1/2-14;binnen;;;;;;
-8279-12-12;;8279;Heavy welding socket;WELDING SOCKET NPT 3/4 6000 PSI;n.v.t.;NPT/NPTF;3/4-14;binnen;;;;;;
-8279-16-16;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;n.v.t.;NPT/NPTF;1-11.5;binnen;;;;;;
-8279-20-20;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;n.v.t.;NPT/NPTF;1 1/4-11.5;binnen;;;;;;
-8279-24-24;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;n.v.t.;NPT/NPTF;1 1/2-11.5;binnen;;;;;;
-8284-02-02;;8284;Heavy welding socket;Female BSPP thread / H / D;n.v.t.;BSPP;1/8-28;binnen;;;;;;7
-8284-04-04;;8284;Heavy welding socket;Female BSPP thread / H / D;n.v.t.;BSPP;1/4-19;binnen;;;;;;7
-8284-06-06;;8284;Heavy welding socket;Female BSPP thread / H / D;n.v.t.;BSPP;3/8-19;binnen;;;;;;7
-8284-08-08;;8284;Heavy welding socket;Female BSPP thread / H / D;n.v.t.;BSPP;1/2-14;binnen;;;;;;7
-8284-10-10;;8284;Heavy welding socket;Female BSPP thread / H / D;n.v.t.;BSPP;5/8-14;binnen;;;;;;7
-8284-12-12;;8284;Heavy welding socket;Female BSPP thread / H / D;n.v.t.;BSPP;3/4-14;binnen;;;;;;7
-8284-16-16;;8284;Heavy welding socket;Female BSPP thread / H / D;n.v.t.;BSPP;1-11;binnen;;;;;;7
-8284-20-20;;8284;Heavy welding socket;Female BSPP thread / H / D;n.v.t.;BSPP;1 1/4-11;binnen;;;;;;7
-8284-24-24;;8284;Heavy welding socket;Female BSPP thread / H / D;n.v.t.;BSPP;1 1/2-11;binnen;;;;;;7
-8284-32-32;;8284;Heavy welding socket;Female BSPP thread / H / D;n.v.t.;BSPP;2-11;binnen;;;;;;7
+8278-02-02;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;1/8-27;binnen;;;;;;
+8278-04-04;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;1/4-18;binnen;;;;;;
+8278-06-06;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;3/8-18;binnen;;;;;;
+8278-08-08;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;1/2-14;binnen;;;;;;
+8278-12-12;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;3/4-14;binnen;;;;;;
+8278-12-16;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;3/4-14;binnen;;;;;;
+8278-16-16;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;1-11.5;binnen;;;;;;
+8278-16-24;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;1-11.5;binnen;;;;;;
+8278-20-20;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;1 1/4-11.5;binnen;;;;;;
+8278-24-24;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;1 1/2-11.5;binnen;;;;;;
+8278-32-32;;8278;Heavy welding socket;WELDING SOCKET NPT 3000 PSI;Overige;NPT/NPTF;2-11.5;binnen;;;;;;
+8279-04-04;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;Overige;NPT/NPTF;1/4-18;binnen;;;;;;
+8279-06-06;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;Overige;NPT/NPTF;3/8-18;binnen;;;;;;
+8279-08-08;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;Overige;NPT/NPTF;1/2-14;binnen;;;;;;
+8279-12-12;;8279;Heavy welding socket;WELDING SOCKET NPT 3/4 6000 PSI;Overige;NPT/NPTF;3/4-14;binnen;;;;;;
+8279-16-16;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;Overige;NPT/NPTF;1-11.5;binnen;;;;;;
+8279-20-20;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;Overige;NPT/NPTF;1 1/4-11.5;binnen;;;;;;
+8279-24-24;;8279;Heavy welding socket;WELDING SOCKET NPT 6000 PSI;Overige;NPT/NPTF;1 1/2-11.5;binnen;;;;;;
+8284-02-02;;8284;Heavy welding socket;Female BSPP thread / H / D;Overige;BSPP;1/8-28;binnen;;;;;;7
+8284-04-04;;8284;Heavy welding socket;Female BSPP thread / H / D;Overige;BSPP;1/4-19;binnen;;;;;;7
+8284-06-06;;8284;Heavy welding socket;Female BSPP thread / H / D;Overige;BSPP;3/8-19;binnen;;;;;;7
+8284-08-08;;8284;Heavy welding socket;Female BSPP thread / H / D;Overige;BSPP;1/2-14;binnen;;;;;;7
+8284-10-10;;8284;Heavy welding socket;Female BSPP thread / H / D;Overige;BSPP;5/8-14;binnen;;;;;;7
+8284-12-12;;8284;Heavy welding socket;Female BSPP thread / H / D;Overige;BSPP;3/4-14;binnen;;;;;;7
+8284-16-16;;8284;Heavy welding socket;Female BSPP thread / H / D;Overige;BSPP;1-11;binnen;;;;;;7
+8284-20-20;;8284;Heavy welding socket;Female BSPP thread / H / D;Overige;BSPP;1 1/4-11;binnen;;;;;;7
+8284-24-24;;8284;Heavy welding socket;Female BSPP thread / H / D;Overige;BSPP;1 1/2-11;binnen;;;;;;7
+8284-32-32;;8284;Heavy welding socket;Female BSPP thread / H / D;Overige;BSPP;2-11;binnen;;;;;;7
 8344-04-04;;8344;Cross;EQUAL CROSS BSP FEMALE;kruis;BSPP;1/4-19;binnen;BSPP;1/4-19;binnen;;;
 8344-06-06;;8344;Cross;EQUAL CROSS BSP FEMALE;kruis;BSPP;3/8-19;binnen;BSPP;3/8-19;binnen;;;
 8344-08-08;;8344;Cross;EQUAL CROSS BSP FEMALE;kruis;BSPP;1/2-14;binnen;BSPP;1/2-14;binnen;;;
@@ -2989,22 +2989,22 @@ RIM18X1.5X3/8NPT;;RI;Thread reducer;VERLOOPRING METR / NPT;recht;Metric;M 18×1.
 RIM27X1/2NPT;;RI;Thread reducer;VERLOOPRING METR / NPT;recht;Metric;M 27×2.0;buiten;NPT/NPTF;1/2-14;binnen;;;
 RIM6X1X1/2NPT;;RI;Thread reducer;VERLOOPRING METR / NPT;recht;Metric;M 6×1.0;buiten;NPT/NPTF;1/2-14;binnen;;;
 RIM6X1X1/8NPT;;RI;Thread reducer;VERLOOPRING METR / NPT;recht;Metric;M 6×1.0;buiten;NPT/NPTF;1/8-27;binnen;;;
-10 TL-S;10 TL-S;TL;Braze sleeve;WELDING SLEEVE ORFS INCH ;n.v.t.;;;;;;;;5/8;
-16-12 TL-S;16-12 TL-S;TL;Braze sleeve;WELDING SLEEVE ORFS INCH ;n.v.t.;;;;;;;;3/4;
-4 TL-S;4 TL-S;TL;Braze sleeve;WELDING SLEEVE ORFS INCH ;n.v.t.;;;;;;;;1/4;
-6 TL-S;6 TL-S;TL;Braze sleeve;WELDING SLEEVE ORFS INCH ;n.v.t.;;;;;;;;3/8;
-8 TL-S;8 TL-S;TL;Braze sleeve;WELDING SLEEVE ORFS INCH ;n.v.t.;;;;;;;;1/2;
+10 TL-S;10 TL-S;TL;Braze sleeve;WELDING SLEEVE ORFS INCH ;Overige;;;;;;;;5/8;
+16-12 TL-S;16-12 TL-S;TL;Braze sleeve;WELDING SLEEVE ORFS INCH ;Overige;;;;;;;;3/4;
+4 TL-S;4 TL-S;TL;Braze sleeve;WELDING SLEEVE ORFS INCH ;Overige;;;;;;;;1/4;
+6 TL-S;6 TL-S;TL;Braze sleeve;WELDING SLEEVE ORFS INCH ;Overige;;;;;;;;3/8;
+8 TL-S;8 TL-S;TL;Braze sleeve;WELDING SLEEVE ORFS INCH ;Overige;;;;;;;;1/2;
 16V3MXS;16V3MXS;V3MXS;Male stud elbow 45°;KNIESTUK 45 GR JIC / BSPT;45°;JIC;1 5/16-12;buiten;BSPT;1-11;buiten;;1;
 4-4V3MXS;4-4V3MXS;V3MXS;Male stud elbow 45°;KNIESTUK 45 GR JIC / BSPT;45°;JIC;7/16-20;buiten;BSPT;1/4-19;buiten;;1/4;
 4V3MXS;4V3MXS;V3MXS;Male stud elbow 45°;KNIESTUK 45 GR JIC / BSPT;45°;JIC;7/16-20;buiten;BSPT;1/8-28;buiten;;1/4;
 5-4V3MXS;5-4V3MXS;V3MXS;Male stud elbow 45°;KNIESTUK 45 GR JIC / BSPT;45°;JIC;1/2-20;buiten;BSPT;1/4-19;buiten;;5/16;
 5V3MXS;5V3MXS;V3MXS;Male stud elbow 45°;KNIESTUK 45 GR JIC / BSPT;45°;JIC;1/2-20;buiten;BSPT;1/8-28;buiten;;5/16;
-10WLNMLS;10WLNMLS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X14;n.v.t.;ORFS;1-14;binnen;;;;;5/8;
-12WLNMLS;12WLNMLS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X15;n.v.t.;ORFS;1 3/16-12;binnen;;;;;3/4;
-16WLNMLS;16WLNMLS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X16;n.v.t.;ORFS;1 7/16-12;binnen;;;;;1;
-6WLNMLS;6WLNMLS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X17;n.v.t.;ORFS;11/16-16;binnen;;;;;3/8;
-8WLNMLS;8WLNMLS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X18;n.v.t.;ORFS;13/16-16;binnen;;;;;1/2;
-8WLNMS;8WLNMS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X19;n.v.t.;JIC;3/4-16;binnen;;;;;1/2;
+10WLNMLS;10WLNMLS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X14;Overige;ORFS;1-14;binnen;;;;;5/8;
+12WLNMLS;12WLNMLS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X15;Overige;ORFS;1 3/16-12;binnen;;;;;3/4;
+16WLNMLS;16WLNMLS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X16;Overige;ORFS;1 7/16-12;binnen;;;;;1;
+6WLNMLS;6WLNMLS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X17;Overige;ORFS;11/16-16;binnen;;;;;3/8;
+8WLNMLS;8WLNMLS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X18;Overige;ORFS;13/16-16;binnen;;;;;1/2;
+8WLNMS;8WLNMS;WNLML;Bulkhead locknut;BULKHEAD LOCKNUT ORFS 1X19;Overige;JIC;3/4-16;binnen;;;;;1/2;
 12 X6EF-S;12 X6EF-S;X6EF;Swivel male elbow;ELBOW MALE NPT X FEMALE JIC SWIVEL;haaks;NPT/NPTF;3/4-14;buiten;JIC;1 1/16-12;wartelend;;3/4;
 16 X6EF-S;16 X6EF-S;X6EF;Swivel male elbow;ELBOW MALE NPT X FEMALE JIC SWIVEL;haaks;NPT/NPTF;1-11.5;buiten;JIC;1 5/16-12;wartelend;;1;
 4 X6EF-S;4 X6EF-S;X6EF;Swivel male elbow;ELBOW MALE NPT X FEMALE JIC SWIVEL;haaks;NPT/NPTF;1/4-18;buiten;JIC;7/16-20;wartelend;;1/4;
