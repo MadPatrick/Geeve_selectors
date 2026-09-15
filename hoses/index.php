@@ -286,6 +286,16 @@ function h(string $value): string
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+// Cache-busting op basis van de laatste wijzigingsdatum van het bestand
+// zelf, zodat elke aanpassing aan style.css/selector.js automatisch een
+// nieuwe URL krijgt - geen handmatige versie-ophoging meer nodig.
+function assetVersion(string $relativePath): string
+{
+    $full = __DIR__ . '/' . $relativePath;
+    $mtime = @filemtime($full);
+    return $mtime !== false ? (string) $mtime : APP_VERSION;
+}
+
 $articleCount = count($articles);
 $dataState = $loadErrors === [] ? 'ready' : 'error';
 $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Controleer databestanden';
@@ -297,7 +307,7 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Hose and fitting Selector | Geeve Hydraulics</title>
-    <link rel="stylesheet" href="assets/style.css?v=<?= h(APP_VERSION) ?>">
+    <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
 </head>
 <body>
 <main class="page-shell">
@@ -465,6 +475,6 @@ window.ARTICLES = <?= json_encode(
     JSON_HEX_QUOT
 ) ?>;
 </script>
-<script src="assets/selector.js?v=<?= h(APP_VERSION) ?>"></script>
+<script src="assets/selector.js?v=<?= h(assetVersion('assets/selector.js')) ?>"></script>
 </body>
 </html>
