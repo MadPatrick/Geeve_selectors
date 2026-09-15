@@ -327,7 +327,6 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
             </a>
             <div class="header-content">
                 <div class="header-topline">
-                    <span class="version-inline">Versie <?= h(APP_VERSION) ?></span>
                     <a href="data.php" class="header-icon-button" title="Data downloaden / uploaden" aria-label="Data downloaden / uploaden">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <ellipse cx="12" cy="5" rx="8" ry="3"></ellipse>

@@ -35,9 +35,6 @@ function h(string $value): string
                 </svg>
             </a>
             <div class="header-content">
-                <div class="header-topline">
-                    <span class="version-inline">Versie <?= h(APP_VERSION) ?></span>
-                </div>
                 <h1>Stauff Selector</h1>
             </div>
         </div>
