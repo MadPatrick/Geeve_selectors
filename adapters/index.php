@@ -52,7 +52,7 @@ function loadAdapterRows(?string $csvFile, array &$errors): array
         return [];
     }
 
-    $headers = fgetcsv($handle, 0, ';');
+    $headers = fgetcsv($handle, 0, ',');
     if ($headers === false) {
         fclose($handle);
         $errors[] = 'CSV-bestand artikelnummers_adapters.csv bevat geen geldige kopregel.';
@@ -62,7 +62,7 @@ function loadAdapterRows(?string $csvFile, array &$errors): array
     $headers = array_map('cleanValue', $headers);
     $rows = [];
 
-    while (($data = fgetcsv($handle, 0, ';')) !== false) {
+    while (($data = fgetcsv($handle, 0, ',')) !== false) {
         if (count($data) !== count($headers)) {
             continue;
         }
