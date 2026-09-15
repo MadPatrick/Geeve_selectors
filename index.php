@@ -114,20 +114,19 @@ function assetVersion(string $relativePath): string
 <div id="configOverlay" class="modal-overlay" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="configModalTitle">
         <div class="modal-header">
-            <h2 id="configModalTitle">Applicatie bijwerken</h2>
+            <h2 id="configModalTitle">Config</h2>
             <button type="button" id="configModalClose" class="modal-close" aria-label="Sluiten">&times;</button>
         </div>
-        <p>Haalt de laatste wijzigingen op en werkt alle selectors op de server in &eacute;&eacute;n keer bij. Voer de 4-cijferige code in om te bevestigen.</p>
+        <p>Voer de 4-cijferige code in om naar de update-pagina te gaan.</p>
 
         <div id="configMessage" class="update-message" hidden></div>
-        <pre id="configOutput" class="update-output" hidden></pre>
 
         <form id="configForm" class="update-form">
             <label class="update-code-field" for="configCode">
                 <span>Code</span>
                 <input id="configCode" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" name="code" placeholder="&bull;&bull;&bull;&bull;" autocomplete="off" required>
             </label>
-            <button type="submit" id="configSubmit" class="update-submit">Update uitvoeren</button>
+            <button type="submit" id="configSubmit" class="update-submit">Doorgaan</button>
         </form>
     </div>
 </div>
@@ -141,17 +140,12 @@ function assetVersion(string $relativePath): string
     var codeInput = document.getElementById('configCode');
     var submitButton = document.getElementById('configSubmit');
     var messageBox = document.getElementById('configMessage');
-    var outputBox = document.getElementById('configOutput');
 
     function resetModal() {
-        form.hidden = false;
         codeInput.value = '';
         messageBox.hidden = true;
-        messageBox.className = 'update-message';
-        outputBox.hidden = true;
-        outputBox.textContent = '';
         submitButton.disabled = false;
-        submitButton.textContent = 'Update uitvoeren';
+        submitButton.textContent = 'Doorgaan';
     }
 
     function openModal(event) {
@@ -183,42 +177,30 @@ function assetVersion(string $relativePath): string
         submitButton.disabled = true;
         submitButton.textContent = 'Bezig...';
         messageBox.hidden = true;
-        outputBox.hidden = true;
 
         var body = new URLSearchParams();
+        body.set('action', 'check-code');
         body.set('code', codeInput.value);
 
-        fetch('update.php', {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'fetch' },
-            body: body,
-        })
+        fetch('update.php', { method: 'POST', body: body })
             .then(function (response) { return response.json(); })
             .then(function (data) {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Update uitvoeren';
-
-                if (data.codeError) {
-                    messageBox.className = 'update-message error';
-                    messageBox.textContent = 'Onjuiste code. Update is niet uitgevoerd.';
-                    messageBox.hidden = false;
+                if (data.ok) {
+                    window.location.href = 'update.php';
                     return;
                 }
 
-                if (data.result) {
-                    messageBox.className = 'update-message ' + (data.result.ok ? 'ok' : 'error');
-                    messageBox.textContent = data.result.ok ? 'Update voltooid.' : 'Update mislukt.';
-                    messageBox.hidden = false;
-                    outputBox.textContent = data.result.output;
-                    outputBox.hidden = false;
-                    form.hidden = true;
-                }
+                submitButton.disabled = false;
+                submitButton.textContent = 'Doorgaan';
+                messageBox.className = 'update-message error';
+                messageBox.textContent = 'Onjuiste code.';
+                messageBox.hidden = false;
             })
             .catch(function () {
                 submitButton.disabled = false;
-                submitButton.textContent = 'Update uitvoeren';
+                submitButton.textContent = 'Doorgaan';
                 messageBox.className = 'update-message error';
-                messageBox.textContent = 'Er ging iets mis bij het uitvoeren van de update. Probeer het opnieuw.';
+                messageBox.textContent = 'Er ging iets mis. Probeer het opnieuw.';
                 messageBox.hidden = false;
             });
     });

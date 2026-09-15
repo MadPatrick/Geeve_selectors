@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+session_start();
+
 const APP_VERSION = '0.1.1';
 const UPDATE_CODE = '1308';
 
@@ -239,30 +241,44 @@ function removeDirectoryRecursive(string $dir): void
     @rmdir($dir);
 }
 
+// De config-popup in het hoofdmenu roept deze pagina aan via fetch() om
+// alleen de code te controleren - dit voert de update zelf niet uit. Bij
+// een juiste code wordt dat in de sessie onthouden en stuurt de popup de
+// browser hierna naar deze pagina, waar de daadwerkelijke
+// "Update uitvoeren"-knop staat (zonder dat de code opnieuw nodig is).
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check-code') {
+    $ok = hash_equals(UPDATE_CODE, (string) ($_POST['code'] ?? ''));
+    if ($ok) {
+        $_SESSION['config_unlocked'] = true;
+    }
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => $ok], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+$unlocked = !empty($_SESSION['config_unlocked']);
 $result = null;
 $codeError = false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-update') {
+    // De echte update-knop op deze pagina - vereist dat de code al via de
+    // popup (of het codeveld hieronder) is bevestigd.
+    if ($unlocked) {
+        $result = runUpdate();
+    } else {
+        $codeError = true;
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Fallback: rechtstreeks op deze pagina de code invoeren, voor wie hier
+    // buiten de config-popup om komt (bijv. zonder JavaScript).
     $submittedCode = (string) ($_POST['code'] ?? '');
 
     if (!hash_equals(UPDATE_CODE, $submittedCode)) {
         $codeError = true;
     } else {
-        $result = runUpdate();
+        $unlocked = true;
+        $_SESSION['config_unlocked'] = true;
     }
-}
-
-// De config-popup in het hoofdmenu roept deze pagina aan via fetch() in
-// plaats van een gewone paginanavigatie - stuur dan alleen JSON terug in
-// plaats van de volledige HTML-pagina. Een gewone (niet-JS) form-post naar
-// deze pagina blijft gewoon de volledige pagina hieronder tonen.
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch') {
-    header('Content-Type: application/json');
-    echo json_encode([
-        'codeError' => $codeError,
-        'result'    => $result,
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
 }
 ?>
 <!doctype html>
@@ -294,24 +310,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_SERVER['HTTP_X_REQUESTED_WITH'] 
 
     <section class="update-panel">
         <h2>Update ophalen</h2>
-        <p>Haalt de laatste wijzigingen op (via <code>git pull</code> als de server een git-checkout is, anders rechtstreeks als download van GitHub) en werkt alle selectors op de server in &eacute;&eacute;n keer bij. Voer de 4-cijferige code in om te bevestigen. Dit kan bij een download-update even duren.</p>
+        <p>Haalt de laatste wijzigingen op (via <code>git pull</code> als de server een git-checkout is, anders rechtstreeks als download van GitHub) en werkt alle selectors op de server in &eacute;&eacute;n keer bij. Dit kan bij een download-update even duren.</p>
 
         <?php if ($result !== null): ?>
             <div class="update-message <?= $result['ok'] ? 'ok' : 'error' ?>">
                 <?= $result['ok'] ? 'Update voltooid.' : 'Update mislukt.' ?>
             </div>
             <pre class="update-output"><?= h($result['output']) ?></pre>
-        <?php elseif ($codeError): ?>
-            <div class="update-message error">Onjuiste code. Update is niet uitgevoerd.</div>
         <?php endif; ?>
 
-        <form method="post" class="update-form">
-            <label class="update-code-field" for="updateCode">
-                <span>Code</span>
-                <input id="updateCode" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" name="code" placeholder="&bull;&bull;&bull;&bull;" autocomplete="off" required>
-            </label>
-            <button type="submit" class="update-submit">Update uitvoeren</button>
-        </form>
+        <?php if ($unlocked): ?>
+            <form method="post" class="update-form">
+                <input type="hidden" name="action" value="run-update">
+                <button type="submit" class="update-submit">Update uitvoeren</button>
+            </form>
+        <?php else: ?>
+            <?php if ($codeError): ?>
+                <div class="update-message error">Onjuiste code. Update is niet uitgevoerd.</div>
+            <?php endif; ?>
+            <form method="post" class="update-form">
+                <label class="update-code-field" for="updateCode">
+                    <span>Code</span>
+                    <input id="updateCode" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" name="code" placeholder="&bull;&bull;&bull;&bull;" autocomplete="off" required>
+                </label>
+                <button type="submit" class="update-submit">Doorgaan</button>
+            </form>
+        <?php endif; ?>
     </section>
 
     <p class="page-footer">Geeve Hydraulics</p>
