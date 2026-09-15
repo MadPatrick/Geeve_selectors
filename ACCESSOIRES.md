@@ -54,6 +54,36 @@ Kolommen in het accessoires-bestand:
    automatisch "gekozen" tussen meerdere mogelijke opties — elk veld toont gewoon zijn eigen
    waarde als die is ingevuld.
 
+## Op basis waarvan bepaal je *welk* artikel je invult?
+
+De koppeling zelf (§ hierboven) kijkt alleen naar het artikelnummer. Maar de vraag "welk
+RVS-omvlechtingsartikel hoort bij déze slang" moet je één keer, vooraf, zelf beantwoorden bij het
+invullen van de rij — de app rekent dit niet live uit. Voor 6 van de 9 accessoirevelden staat die
+keuzetabel in de al aanwezige leverancierscatalogi in `hoses/docs/`, en die tabellen zijn stuk voor
+stuk gebaseerd op de **buitendiameter van de slang** (exact de aanpak die eerder als losse,
+dynamische referentielijst voor RVS Omvlechting is gebouwd en weer teruggedraaid — de brontabellen
+bestaan dus nog wél, alleen wordt er nu vooraf één keer in opgezocht i.p.v. live per weergave):
+
+| Accessoire | Selectiecriterium | Bron |
+|---|---|---|
+| `RVS Omvlechting` (9122-xx-316L) | Binnendiameter van de omvlechting ≥ buitendiameter slang | Was `data/artikelnummers_rvs_omvlechting.csv` (11 regels, één per maat) — inmiddels verwijderd, waarden nu direct in de accessoires-CSV |
+| `Firesleeve` (9125-xx) | Binnendiameter sleeve t.o.v. buitendiameter slang | `hoses/docs/9125 Firesleeve.pdf` |
+| `SpiralGuard` (9121-xxx) | Binnendiameter/wrap-range t.o.v. buitendiameter slang | `hoses/docs/9121-.._-_spiralguard_protection_guard.pdf` |
+| `PolyGuard` (HG-xxx) | Binnendiameter t.o.v. buitendiameter slang | `hoses/docs/Parker HPD_4400_Catalog_hoses.pdf`, p. 301-307 ("Protective Coils, Sleeves & Guards Selection Guide", direct per Parker-hosenummer) en `Parker-Hydraulic-Hoses-CAT_4400_UK.pdf`, p. 241 |
+| `ParKoil` (PG-xxx) | Binnendiameter t.o.v. buitendiameter slang | Zelfde bronnen als PolyGuard, plus p. 242 |
+| `Spring Guard` (SG-xxx) | Binnendiameter t.o.v. buitendiameter slang | Zelfde bronnen als PolyGuard, plus `Parker-Hydraulic-Hoses-CAT_4400_UK.pdf` p. 236 (tabel per hoses-familie + maat) |
+
+`Parker HPD_4400_Catalog_hoses.pdf` p. 301-307 is de meest directe bron: die tabel geeft per
+specifiek Parker-hosenummer (bijv. `201-10`) meteen de juiste PolyGuard/ParKoil/Spring
+Guard/Firesleeve-code, met de eigen voetnoot *"Sizes indicated are suggestions only and based on
+hose O.D."* — dus ook Parker zelf bevestigt dat buitendiameter het onderliggende criterium is,
+al is het per hose-artikel voorverpakt in een tabel.
+
+**Niet gevonden:** voor `Texsleeve`, `Huls tex staal` en `Huls tex RVS` is er geen maat-/
+diametertabel aangetroffen in de huidige `hoses/docs/`-catalogi. Hoe de bestaande waarden voor die
+drie velden precies bepaald zijn, is op dit moment niet te herleiden uit de beschikbare
+documentatie — heb je daar zelf een bron/tabel voor, dan kan die er alsnog bij.
+
 ## Kort samengevat
 
 De hele koppeling draait om precies één ding: **hetzelfde artikelnummer in beide bestanden**. Zet
