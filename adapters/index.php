@@ -297,8 +297,7 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
                         </button>
                         <button type="button" class="hoek-icon" data-hoek="Cap" aria-pressed="false" title="Cap">
                             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <line x1="3" y1="12" x2="12" y2="12"></line>
-                                <path d="M13 6.5a6 5.5 0 0 1 0 11"></path>
+                                <path d="M6 7h9a5 5 0 0 1 0 10h-9"></path>
                             </svg>
                             <span>Cap</span>
                         </button>
