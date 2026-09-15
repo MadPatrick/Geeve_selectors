@@ -61,7 +61,7 @@ function h(string $value): string
             <span class="tile-cta">Open selector &rarr;</span>
         </a>
 
-        <a class="tile" href="hose-configurator/index.php">
+        <div class="tile tile-disabled" aria-disabled="true">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="3" y="10" width="4" height="4" rx="1"></rect>
@@ -71,10 +71,10 @@ function h(string $value): string
             </div>
             <h2>Slang configurator</h2>
             <p>Stel zelf een slang samen: koppeling 1, slangtype, koppeling 2, lengte en optioneel textsleeve.</p>
-            <span class="tile-cta">Open configurator &rarr;</span>
-        </a>
+            <span class="tile-cta">Binnenkort beschikbaar</span>
+        </div>
 
-        <a class="tile" href="stauff/index.php">
+        <div class="tile tile-disabled" aria-disabled="true">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="10" width="16" height="7" rx="2"></rect>
@@ -85,8 +85,8 @@ function h(string $value): string
             </div>
             <h2>Stauff Selector</h2>
             <p>Stel de juiste beugelsamenstelling samen op basis van diameter, serie, uitvoering en materiaal.</p>
-            <span class="tile-cta">Open selector &rarr;</span>
-        </a>
+            <span class="tile-cta">Binnenkort beschikbaar</span>
+        </div>
     </div>
 
     <p class="page-footer">Geeve Hydraulics</p>
