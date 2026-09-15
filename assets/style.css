@@ -175,6 +175,7 @@ h1 {
 .update-panel p { margin: 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 
 .update-form { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.update-form[hidden] { display: none; }
 .update-code-field { display: flex; flex-direction: column; gap: 7px; }
 .update-code-field span { font-weight: 750; font-size: 14px; }
 .update-code-field input {
@@ -221,6 +222,44 @@ h1 {
     white-space: pre-wrap;
     word-break: break-word;
 }
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 33, .55);
+}
+.modal-overlay[hidden] { display: none; }
+.modal {
+    width: min(480px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: var(--panel);
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .3);
+    padding: 24px 26px;
+}
+.modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 6px; }
+.modal-header h2 { margin: 0; font-size: 19px; }
+.modal-close {
+    appearance: none;
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+.modal-close:hover { background: var(--soft, #f4f7fa); color: var(--ink); }
+.modal p { margin: 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 
 @media (max-width: 720px) {
     .brand-panel { grid-template-columns: 1fr; }

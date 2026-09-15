@@ -251,6 +251,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = runUpdate();
     }
 }
+
+// De config-popup in het hoofdmenu roept deze pagina aan via fetch() in
+// plaats van een gewone paginanavigatie - stuur dan alleen JSON terug in
+// plaats van de volledige HTML-pagina. Een gewone (niet-JS) form-post naar
+// deze pagina blijft gewoon de volledige pagina hieronder tonen.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch') {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'codeError' => $codeError,
+        'result'    => $result,
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
 ?>
 <!doctype html>
 <html lang="nl">

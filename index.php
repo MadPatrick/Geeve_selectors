@@ -40,7 +40,7 @@ function assetVersion(string $relativePath): string
             </div>
             <div class="header-content">
                 <div class="header-topline">
-                    <a href="update.php" class="header-icon-button" title="Config" aria-label="Config">
+                    <a href="update.php" id="configButton" class="header-icon-button" title="Config" aria-label="Config">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="12" r="3"></circle>
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -110,5 +110,119 @@ function assetVersion(string $relativePath): string
 
     <p class="page-footer">Geeve Hydraulics</p>
 </main>
+
+<div id="configOverlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="configModalTitle">
+        <div class="modal-header">
+            <h2 id="configModalTitle">Applicatie bijwerken</h2>
+            <button type="button" id="configModalClose" class="modal-close" aria-label="Sluiten">&times;</button>
+        </div>
+        <p>Haalt de laatste wijzigingen op en werkt alle selectors op de server in &eacute;&eacute;n keer bij. Voer de 4-cijferige code in om te bevestigen.</p>
+
+        <div id="configMessage" class="update-message" hidden></div>
+        <pre id="configOutput" class="update-output" hidden></pre>
+
+        <form id="configForm" class="update-form">
+            <label class="update-code-field" for="configCode">
+                <span>Code</span>
+                <input id="configCode" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" name="code" placeholder="&bull;&bull;&bull;&bull;" autocomplete="off" required>
+            </label>
+            <button type="submit" id="configSubmit" class="update-submit">Update uitvoeren</button>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    var openButton = document.getElementById('configButton');
+    var overlay = document.getElementById('configOverlay');
+    var closeButton = document.getElementById('configModalClose');
+    var form = document.getElementById('configForm');
+    var codeInput = document.getElementById('configCode');
+    var submitButton = document.getElementById('configSubmit');
+    var messageBox = document.getElementById('configMessage');
+    var outputBox = document.getElementById('configOutput');
+
+    function resetModal() {
+        form.hidden = false;
+        codeInput.value = '';
+        messageBox.hidden = true;
+        messageBox.className = 'update-message';
+        outputBox.hidden = true;
+        outputBox.textContent = '';
+        submitButton.disabled = false;
+        submitButton.textContent = 'Update uitvoeren';
+    }
+
+    function openModal(event) {
+        event.preventDefault();
+        resetModal();
+        overlay.hidden = false;
+        codeInput.focus();
+    }
+
+    function closeModal() {
+        overlay.hidden = true;
+    }
+
+    openButton.addEventListener('click', openModal);
+    closeButton.addEventListener('click', closeModal);
+    overlay.addEventListener('click', function (event) {
+        if (event.target === overlay) {
+            closeModal();
+        }
+    });
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !overlay.hidden) {
+            closeModal();
+        }
+    });
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        submitButton.disabled = true;
+        submitButton.textContent = 'Bezig...';
+        messageBox.hidden = true;
+        outputBox.hidden = true;
+
+        var body = new URLSearchParams();
+        body.set('code', codeInput.value);
+
+        fetch('update.php', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'fetch' },
+            body: body,
+        })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Update uitvoeren';
+
+                if (data.codeError) {
+                    messageBox.className = 'update-message error';
+                    messageBox.textContent = 'Onjuiste code. Update is niet uitgevoerd.';
+                    messageBox.hidden = false;
+                    return;
+                }
+
+                if (data.result) {
+                    messageBox.className = 'update-message ' + (data.result.ok ? 'ok' : 'error');
+                    messageBox.textContent = data.result.ok ? 'Update voltooid.' : 'Update mislukt.';
+                    messageBox.hidden = false;
+                    outputBox.textContent = data.result.output;
+                    outputBox.hidden = false;
+                    form.hidden = true;
+                }
+            })
+            .catch(function () {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Update uitvoeren';
+                messageBox.className = 'update-message error';
+                messageBox.textContent = 'Er ging iets mis bij het uitvoeren van de update. Probeer het opnieuw.';
+                messageBox.hidden = false;
+            });
+    });
+})();
+</script>
 </body>
 </html>
