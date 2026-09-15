@@ -5,6 +5,11 @@ declare(strict_types=1);
 const APP_VERSION = '0.1.1';
 const UPDATE_CODE = '1308';
 
+// Fallback-bron als de map op de server geen git-repository is (bijv. de
+// map is via FTP gekopieerd zonder de verborgen .git-map mee te nemen).
+// Haalt in dat geval de laatste stand rechtstreeks van GitHub op als zip.
+const UPDATE_REPO_ZIP_URL = 'https://codeload.github.com/MadPatrick/Geeve_selectors/zip/refs/heads/main';
+
 function h(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -23,14 +28,26 @@ function assetVersion(string $relativePath): string
 /**
  * @return array{ok: bool, output: string}
  */
-function runGitPull(): array
+function runUpdate(): array
 {
     $repoRoot = __DIR__;
 
-    if (!is_dir($repoRoot . '/.git')) {
-        return ['ok' => false, 'output' => 'Geen git-repository gevonden op de server (map .git ontbreekt).'];
+    // Een echte git-checkout (bijv. via SSH gekloond) wordt bijgewerkt met
+    // git pull. Is er geen .git-map (bijv. de map is via FTP gekopieerd
+    // zonder verborgen bestanden), dan is er geen SSH/git nodig - dan wordt
+    // de laatste versie gewoon als zip van GitHub gedownload en uitgepakt.
+    if (is_dir($repoRoot . '/.git')) {
+        return runGitPull($repoRoot);
     }
 
+    return runHttpUpdate($repoRoot);
+}
+
+/**
+ * @return array{ok: bool, output: string}
+ */
+function runGitPull(string $repoRoot): array
+{
     if (!function_exists('proc_open')) {
         return ['ok' => false, 'output' => 'De functie proc_open is uitgeschakeld op deze server. Vraag de hostingbeheerder dit in te schakelen, of voer "git pull" handmatig uit via SSH.'];
     }
@@ -72,6 +89,156 @@ function runGitPull(): array
     ];
 }
 
+/**
+ * @return array{ok: bool, output: string}
+ */
+function runHttpUpdate(string $repoRoot): array
+{
+    if (!function_exists('curl_init')) {
+        return ['ok' => false, 'output' => 'De PHP curl-extensie ontbreekt op deze server. Nodig om de update zonder git te downloaden.'];
+    }
+
+    if (!class_exists('ZipArchive')) {
+        return ['ok' => false, 'output' => 'De PHP zip-extensie ontbreekt op deze server. Nodig om de gedownloade update uit te pakken.'];
+    }
+
+    if (!is_writable($repoRoot)) {
+        return ['ok' => false, 'output' => "De map {$repoRoot} is niet schrijfbaar voor de webserver. Vraag de hostingbeheerder om schrijfrechten te geven."];
+    }
+
+    @set_time_limit(180);
+
+    $tmpZip = tempnam(sys_get_temp_dir(), 'geeve_update_');
+    if ($tmpZip === false) {
+        return ['ok' => false, 'output' => 'Kon geen tijdelijk bestand aanmaken op de server.'];
+    }
+
+    $download = downloadFile(UPDATE_REPO_ZIP_URL, $tmpZip);
+    if (!$download['ok']) {
+        @unlink($tmpZip);
+        return $download;
+    }
+
+    $zip = new ZipArchive();
+    if ($zip->open($tmpZip) !== true) {
+        @unlink($tmpZip);
+        return ['ok' => false, 'output' => 'Het gedownloade bestand kon niet als zip-archief worden geopend.'];
+    }
+
+    $tmpExtractDir = $tmpZip . '_uitgepakt';
+    if (!@mkdir($tmpExtractDir, 0775, true)) {
+        $zip->close();
+        @unlink($tmpZip);
+        return ['ok' => false, 'output' => 'Kon geen tijdelijke map aanmaken op de server om de update uit te pakken.'];
+    }
+
+    $zip->extractTo($tmpExtractDir);
+    $zip->close();
+    @unlink($tmpZip);
+
+    // GitHub-zips bevatten altijd precies één map op het hoogste niveau,
+    // bijv. "Geeve_selectors-main" - de daadwerkelijke inhoud staat daarin.
+    $entries = array_values(array_diff((array) @scandir($tmpExtractDir), ['.', '..']));
+    if (count($entries) !== 1 || !is_dir($tmpExtractDir . '/' . $entries[0])) {
+        removeDirectoryRecursive($tmpExtractDir);
+        return ['ok' => false, 'output' => 'Onverwachte inhoud in het gedownloade archief.'];
+    }
+
+    $sourceDir = $tmpExtractDir . '/' . $entries[0];
+    $copiedCount = copyDirectoryOverwrite($sourceDir, $repoRoot);
+
+    removeDirectoryRecursive($tmpExtractDir);
+
+    return [
+        'ok'     => true,
+        'output' => "Geen git gevonden op de server - update rechtstreeks van GitHub gedownload en uitgepakt.\n{$copiedCount} bestand(en) bijgewerkt.\n\nLet op: bestanden die op GitHub zijn verwijderd, worden op deze manier niet automatisch van de server verwijderd.",
+    ];
+}
+
+/**
+ * @return array{ok: bool, output: string}
+ */
+function downloadFile(string $url, string $destination): array
+{
+    $fp = fopen($destination, 'wb');
+    if ($fp === false) {
+        return ['ok' => false, 'output' => 'Kon het tijdelijke downloadbestand niet openen voor schrijven.'];
+    }
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_FILE           => $fp,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS      => 5,
+        CURLOPT_CONNECTTIMEOUT => 20,
+        CURLOPT_TIMEOUT        => 150,
+        CURLOPT_USERAGENT      => 'Geeve-Hydraulics-Update',
+        CURLOPT_FAILONERROR    => true,
+    ]);
+
+    $success = curl_exec($ch);
+    $error = curl_error($ch);
+    $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    fclose($fp);
+
+    if ($success !== true) {
+        @unlink($destination);
+        return ['ok' => false, 'output' => "Download van de update is mislukt: {$error} (HTTP {$httpCode})."];
+    }
+
+    return ['ok' => true, 'output' => ''];
+}
+
+function copyDirectoryOverwrite(string $source, string $destination): int
+{
+    $count = 0;
+    $items = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($source, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    foreach ($items as $item) {
+        $relative = substr((string) $item->getPathname(), strlen($source) + 1);
+        $target = $destination . '/' . $relative;
+
+        if ($item->isDir()) {
+            if (!is_dir($target)) {
+                @mkdir($target, 0775, true);
+            }
+            continue;
+        }
+
+        if (@copy((string) $item->getPathname(), $target)) {
+            $count++;
+        }
+    }
+
+    return $count;
+}
+
+function removeDirectoryRecursive(string $dir): void
+{
+    if (!is_dir($dir)) {
+        return;
+    }
+
+    $items = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+
+    foreach ($items as $item) {
+        if ($item->isDir()) {
+            @rmdir((string) $item->getPathname());
+        } else {
+            @unlink((string) $item->getPathname());
+        }
+    }
+
+    @rmdir($dir);
+}
+
 $result = null;
 $codeError = false;
 
@@ -81,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals(UPDATE_CODE, $submittedCode)) {
         $codeError = true;
     } else {
-        $result = runGitPull();
+        $result = runUpdate();
     }
 }
 ?>
@@ -114,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <section class="update-panel">
         <h2>Update ophalen</h2>
-        <p>Haalt de laatste wijzigingen op uit git (<code>git pull</code>) en werkt alle selectors op de server in &eacute;&eacute;n keer bij. Voer de 4-cijferige code in om te bevestigen.</p>
+        <p>Haalt de laatste wijzigingen op (via <code>git pull</code> als de server een git-checkout is, anders rechtstreeks als download van GitHub) en werkt alle selectors op de server in &eacute;&eacute;n keer bij. Voer de 4-cijferige code in om te bevestigen. Dit kan bij een download-update even duren.</p>
 
         <?php if ($result !== null): ?>
             <div class="update-message <?= $result['ok'] ? 'ok' : 'error' ?>">
