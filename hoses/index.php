@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-const APP_VERSION = '0.0.17';
+const APP_VERSION = '0.0.18';
 
 require_once __DIR__ . '/inc/csv-paths.php';
 
@@ -343,6 +343,7 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
             </div>
             <div class="section-actions">
                 <div class="status-pill <?= h($dataState) ?>"><?= h($dataLabel) ?></div>
+                <button type="button" id="clearFilterButton" class="clear-filter-button">Wis filter</button>
                 <div class="pdf-dropdown">
                     <button type="button" id="pdfButton" class="pdf-button" aria-haspopup="true" aria-expanded="false">Download catalogus (PDF)</button>
                     <div class="pdf-menu" id="pdfMenu" hidden>

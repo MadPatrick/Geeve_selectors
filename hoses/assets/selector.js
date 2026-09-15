@@ -17,6 +17,7 @@
     const accessoryGrid = document.getElementById('accessoryGrid');
     const pdfButton = document.getElementById('pdfButton');
     const pdfMenu = document.getElementById('pdfMenu');
+    const clearFilterButton = document.getElementById('clearFilterButton');
     const printSheet = document.getElementById('printSheet');
 
     if (!searchInput || !suggestions || !result) {
@@ -855,6 +856,16 @@
             if (maatInput.value.trim() || (werkdrukInput && werkdrukInput.value.trim())) {
                 searchArticles();
             }
+        });
+    }
+
+    if (clearFilterButton) {
+        clearFilterButton.addEventListener('click', () => {
+            searchInput.value = '';
+            if (maatInput) maatInput.value = '';
+            if (werkdrukInput) werkdrukInput.value = '';
+            searchArticles();
+            searchInput.focus();
         });
     }
 
