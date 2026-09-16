@@ -1,0 +1,19 @@
+# Beperkt toegang tot de hele site (alle subapps: /hoses, /adapters, /stauff,
+# /hose-configurator, plus de update/config-pagina) tot specifieke IP-adressen.
+# Werkt zowel op Apache 2.4+ (mod_authz_core) als oudere Apache 2.2-servers
+# (mod_access_compat), zodat dit op vrijwel elke gangbare hosting werkt.
+#
+# Extra IP toevoegen: voeg een regel toe onder de bestaande "Require ip" /
+# "Allow from" regel met het nieuwe adres. Een reeks IP's mag ook, bijv.
+# "Require ip 31.151.192.0/24" voor het hele blok 31.151.192.0-31.151.192.255.
+
+<IfModule mod_authz_core.c>
+    # Apache 2.4 en nieuwer
+    Require ip 31.151.192.22
+</IfModule>
+<IfModule !mod_authz_core.c>
+    # Apache 2.2 en ouder
+    Order Deny,Allow
+    Deny from all
+    Allow from 31.151.192.22
+</IfModule>
