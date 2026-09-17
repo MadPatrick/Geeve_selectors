@@ -16,10 +16,10 @@ Voor versienummer-afspraken: zie `CLAUDE.md`. Voor de chronologische geschiedeni
   Bevatten dezelfde soort slangartikelen in twee materiaaluitvoeringen. **Elk artikel dat in de ene lijst
   voorkomt, hoort ook in de andere te staan** (zelfde `artnr`, 1-op-1) — ontbreekt een `artnr` in één van de twee,
   dan is dat een fout die hersteld moet worden (zie §6).
-- `data/artikelnummers_accessoires.csv`: 13 kolommen, UTF-8 met BOM, **CRLF**-regeleinden (let op: afwijkend
+- `data/artikelnummers_accessoires.csv`: 14 kolommen, UTF-8 met BOM, **CRLF**-regeleinden (let op: afwijkend
   van staal/rvs). Gekoppeld aan staal/rvs op exacte `artnr`-match; niet elk artikel hoeft hier een rij te hebben.
 - Na **elke** wijziging aan een van deze bestanden: verifiëren dat BOM, regeleinde-stijl en kolomaantal
-  (30 resp. 13) intact zijn gebleven, en dat er geen dubbele `artnr`'s zijn ontstaan. Nooit met een tool opslaan
+  (30 resp. 14) intact zijn gebleven, en dat er geen dubbele `artnr`'s zijn ontstaan. Nooit met een tool opslaan
   die deze eigenschappen stilzwijgend verandert (bijv. `csv.writer` zonder expliciete `lineterminator`).
 
 ### Kolomschema staal/rvs (30 kolommen)
@@ -122,10 +122,12 @@ tegen de brontekst, niet enkel tegen de tabelkolommen.
 
 - Deze PDF's geven **geen** Insteekdiepte, maar wel Persmaat plus een aparte "External/Internal Skive"-tabel
   onderaan (= Schilmaat extern/intern).
-- **Huls en Pilaar krijgen dezelfde koppelingscode**, met één harde uitzondering: **bij serie `V4` is Pilaar
-  altijd `30`** (Huls blijft `V4`). VS, V5 en V6 houden dezelfde code in beide velden. Dit is een expliciete
-  instructie van de gebruiker, niet af te leiden uit de PDF's zelf — wijk hier niet vanaf zonder nieuwe
-  bevestiging.
+- **Huls en Pilaar krijgen in beginsel dezelfde koppelingscode.** Voor Parker-slangen `R13` en `R15` volgt de
+  Pilaar expliciet de `100V4`/`100V6`-huls: bij `100V4-<maat>` is Pilaar `V4`, bij `100V6-<maat>` is Pilaar `V6`.
+  Een tweede Interlock-combinatie gebruikt Huls `Z37000-<maat>` (in RVS met suffix `RVS`) en Pilaar `30`.
+  Buiten R13/R15 blijft de bestaande uitzondering gelden dat bij serie `V4` de Pilaar `30` is. Dit zijn
+  expliciete instructies van de gebruiker, niet af te leiden uit de PDF's zelf — wijk hier niet vanaf zonder
+  nieuwe bevestiging.
 - **Huls-codering voor `V4` en `V6` (in zowel Staal als RVS)**: de kale koppelingscode `V4`/`V6` wordt in de
   Huls-kolom herschreven naar `100<code>-<maat>` (bijv. koppeling `V4`, maat `20` → `100V4-20`). In **RVS** komt
   er bovendien een `C` achter (`100V4-20C`); in **Staal** niet. Dit geldt specifiek voor `V4` en `V6` — `VS`, `V5`
@@ -222,7 +224,7 @@ Controleer hier altijd op vóórdat je een matching-resultaat toepast:
 
 Vóór het committen, altijd controleren:
 1. BOM + regeleinde-stijl (LF voor staal/rvs, CRLF voor accessoires) intact.
-2. Elke rij nog exact het verwachte aantal kolommen (30 resp. 13).
+2. Elke rij nog exact het verwachte aantal kolommen (30 resp. 14).
 3. Geen dubbele `artnr`'s ontstaan.
 4. Rijaantal Staal == rijaantal RVS (1-op-1-pariteit, zie §1).
 5. Steekproef: minstens een paar aanvullingen/correcties handmatig terugcontroleren tegen de brontekst van de PDF

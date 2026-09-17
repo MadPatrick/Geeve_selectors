@@ -326,6 +326,44 @@ moet worden (zonder de `C` die alleen in RVS gebruikt wordt): `100<code>-<maat>`
 toegepast op de 57 Huls-velden met `V4` of `V6` in `artikelnummers_staal.csv`. `VS`, `V5` en `WB` blijven in
 zowel Staal als RVS ongemoeid (geen `100..`-voorvoegsel). Deze regel staat nu vastgelegd in `AGENTS.md` §5.
 
+## Buitenmaten en 2-delige koppelingen uit de actuele documentatiemap
+
+Op basis van de PDF's in `docs/hoses/` zijn de drie CSV's opnieuw brongericht bijgewerkt. Voor Buitenmaat zijn
+alleen exacte product-/maatregels uit de catalogustabellen gebruikt; er is niet vanuit de binnendiameter of een
+naastgelegen maat geëxtrapoleerd.
+
+- **Buitenmaat slang**: 37 lege velden in `artikelnummers_accessoires.csv` zijn aangevuld. Het gaat om de
+  Interpump-reeksen `0441`/`0442`, `0446`, `0447` en `0449-16` uit `IMM Hydraulic-hose.pdf`, Parker `2580N` uit
+  catalogus 4462, `424` en `F42` uit catalogus 4400 US en de elf `PLK...TC`-maten uit catalogus 4400 UK. Er zijn
+  geen bestaande buitenmaten overschreven.
+- **Huls/Pilaar Parker**: `Perslijst_Geeve_2018.pdf` (documentdatum 9 maart 2021) is als directe bron gebruikt
+  voor de 2-delige combinaties. De tabellen voor Staal en RVS zijn afzonderlijk verwerkt. Staal kreeg waar de
+  bron twee hulzen noemt beide combinaties; bij RVS zijn oudere `1300P...RVS`-alternatieven vervangen door de
+  actuele `13001-..RVS`/`13002-..RVS`/`23000-..RVS`-codes uit de RVS-tabellen.
+- Voor `H29`, `H31`, `R35` en `R42` is de al aanwezige Parlock/VS-combinatie behouden en de expliciet genoemde
+  Interlock-combinatie als tweede mogelijkheid toegevoegd. Dit geldt ook voor ST/TC-dekvarianten; twin-slangen
+  met een tweede dash-maat zijn bewust niet afgeleid van de enkele-slangtabellen.
+- Resultaat fittingvelden: **Staal 91 gewijzigde rijen** (352 lege velden aangevuld, 36 bestaande waarden
+  gecorrigeerd en 6 verouderde waarden verwijderd; daarbinnen 112 Huls- en 92 Pilaar-veldwijzigingen) en
+  **RVS 189 gewijzigde rijen** (230 aanvullingen, 289 correcties en 276 verwijderingen; daarbinnen 300 Huls- en
+  119 Pilaar-veldwijzigingen). Verwijderingen betreffen oude tweede RVS-combinaties die niet in de nieuwe
+  materiaal-specifieke tabel voorkomen.
+- De recent toegevoegde regels `0441-20` en `H31-20`, waarin accessoirevelden per ongeluk in de fittingkolommen
+  terechtgekomen waren, zijn hersteld naar 30 kolommen. `H31-20` gebruikt nu de expliciete H31/4SP-regel uit de
+  perslijst; bij `0441-20` zijn de foutief geplakte fittingwaarden verwijderd.
+
+### Correctie Parker R13/R15: pilaar conform huls
+
+Op expliciete instructie van de gebruiker zijn de 2-delige koppelingen van Parker R13- en R15-slangen
+gecorrigeerd: bij een `100V4-<maat>`-huls staat voortaan Pilaar `V4`, en bij `100V6-<maat>` blijft Pilaar `V6`.
+De reeds ingevulde tweede combinaties zijn daarnaast gewijzigd van `Z34000-<maat>` naar `Z37000-<maat>`
+(in RVS met suffix `RVS`), steeds met Pilaar `30`. Lege tweede combinaties zijn niet zonder maat-/persgegevens
+ingevuld. Dit corrigeerde per bestand 11 rijen: 11 Pilaar-velden en 6 tweede Huls-velden, dus 22 unieke rijen en
+34 veldwijzigingen over Staal en RVS samen.
+
+Na de update bevatten Staal en RVS elk 967 unieke artikelen met volledige 1-op-1-pariteit. BOM en regeleinden
+zijn behouden (LF voor Staal/RVS, CRLF voor Accessoires); elke rij heeft respectievelijk 30 of 14 kolommen.
+
 ## Print-catalogus: hoofdstukken, scheidingspagina's en gescopede download
 Op verzoek van de gebruiker toont de af te drukken/te downloaden catalogus (`assets/selector.js`,
 `renderCatalogPrintSheet()`) nu een duidelijke hoofdstukindeling:
