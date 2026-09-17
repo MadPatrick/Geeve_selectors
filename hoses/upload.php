@@ -81,7 +81,7 @@ $handle = fopen($tmpPath, 'r');
 if ($handle === false) {
     redirectWithMessage('error', 'Geüpload bestand kan niet worden gelezen.');
 }
-$headerLine = fgetcsv($handle, 0, ';');
+$headerLine = fgetcsv($handle, 0, ',');
 fclose($handle);
 
 if ($headerLine === false) {
