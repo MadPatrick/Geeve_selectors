@@ -122,6 +122,7 @@ tegen de brontekst, niet enkel tegen de tabelkolommen.
 
 - Deze PDF's geven **geen** Insteekdiepte, maar wel Persmaat plus een aparte "External/Internal Skive"-tabel
   onderaan (= Schilmaat extern/intern).
+- **Huls type 13002 krijgt voorrang op type 13001** wanneer beide typen voor dezelfde toepassing beschikbaar zijn. Dit geldt zowel voor **Staal als RVS**.
 - **Huls en Pilaar krijgen in beginsel dezelfde koppelingscode.** Voor Parker-slangen `R13` en `R15` volgt de
   Pilaar expliciet de `100V4`/`100V6`-huls: bij `100V4-<maat>` is Pilaar `V4`, bij `100V6-<maat>` is Pilaar `V6`.
   Een tweede Interlock-combinatie gebruikt Huls `Z37000-<maat>` (in RVS met suffix `RVS`) en Pilaar `30`.
