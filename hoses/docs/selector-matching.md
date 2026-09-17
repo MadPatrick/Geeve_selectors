@@ -11,7 +11,7 @@ There is no database and no build step. On every page load, `index.php` reads th
 Re-implementing it elsewhere means reproducing two things faithfully: the **merge** (turning 3 CSVs into 1 record per hose) and the **match conditions** (how a typed query narrows that array down).
 
 ```
-01 Read   -> 3 CSVs parsed by header name, semicolon-delimited
+01 Read   -> 3 CSVs parsed by header name, comma-delimited
 02 Merge  -> staal + rvs joined on artnr; accessoires joined in
 03 Emit   -> window.ARTICLES, one JSON array, sorted by artnr
 04 Match  -> JS filters the in-memory array on every keystroke
@@ -19,7 +19,9 @@ Re-implementing it elsewhere means reproducing two things faithfully: the **merg
 
 ## 2. The three CSV files
 
-All three share the same low-level format: `;`-delimited, UTF-8 with a BOM, one header row. Columns are looked up **by name**, not position — column order in the file doesn't matter, and a missing column just resolves to an empty string rather than erroring.
+All three share the same low-level format: `,`-delimited (RFC4180, quoted where a field contains a comma or a literal `"`), UTF-8 with a BOM, one header row. Columns are looked up **by name**, not position — column order in the file doesn't matter, and a missing column just resolves to an empty string rather than erroring.
+
+> **Was `;`-delimited until September 2026.** GitHub's web preview always assumes a `.csv` file is comma-delimited, regardless of the file's actual delimiter — for a `;`-delimited file, any field containing a literal comma or `"` character reliably produced a false-positive "should have N columns" or "illegal quoting" warning in GitHub's UI (the PHP loader parsed the file correctly either way; this only ever affected GitHub's own preview rendering, not the app). Converting to genuinely comma-delimited, properly RFC4180-quoted CSV eliminates that false positive permanently, matching the same fix already applied earlier to the adapters CSV.
 
 | File | Contents |
 |---|---|
@@ -168,7 +170,7 @@ This logic doesn't affect search or selection — it only feeds the printable PD
 
 ## 10. Conventions worth copying exactly
 
-1. Delimiter is `;`, not `,` — every one of the three files, no exceptions.
+1. Delimiter is `,`, not `;` — every one of the three files, no exceptions. Quote a field (RFC4180, `"..."` with `""` for a literal embedded quote) whenever it contains a comma, a `"`, or a newline; nothing else needs quoting.
 2. Files are read with a UTF-8 BOM; the loader strips a leading BOM off the *header row* specifically before comparing column names.
 3. Column matching is by **name**, case-insensitively, never by position — reordering columns in the CSV changes nothing.
 4. The join/lookup key is always `"@" + artnr.trim().toLowerCase()` — reuse this exact prefix-and-case convention so hand-typed queries and CSV values compare the same way.

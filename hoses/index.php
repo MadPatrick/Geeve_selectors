@@ -95,7 +95,7 @@ function loadAccessoryRows(?string $csvFile, array &$errors): array
         return [];
     }
 
-    $headers = fgetcsv($handle, 0, ';');
+    $headers = fgetcsv($handle, 0, ',');
     if ($headers === false) {
         fclose($handle);
         $errors[] = 'CSV-bestand artikelnummers_accessoires.csv bevat geen geldige kopregel.';
@@ -105,7 +105,7 @@ function loadAccessoryRows(?string $csvFile, array &$errors): array
     $headers = array_map('cleanValue', $headers);
     $rows = [];
 
-    while (($data = fgetcsv($handle, 0, ';')) !== false) {
+    while (($data = fgetcsv($handle, 0, ',')) !== false) {
         if (count($data) !== count($headers)) {
             continue;
         }
@@ -159,7 +159,7 @@ function loadMaterialRows(?string $csvFile, string $label, array &$errors): arra
         return [];
     }
 
-    $headers = fgetcsv($handle, 0, ';');
+    $headers = fgetcsv($handle, 0, ',');
     if ($headers === false) {
         fclose($handle);
         $errors[] = "CSV-bestand {$basename} voor {$label} bevat geen geldige kopregel.";
@@ -169,7 +169,7 @@ function loadMaterialRows(?string $csvFile, string $label, array &$errors): arra
     $headers = array_map('cleanValue', $headers);
     $rows = [];
 
-    while (($data = fgetcsv($handle, 0, ';')) !== false) {
+    while (($data = fgetcsv($handle, 0, ',')) !== false) {
         if (count($data) !== count($headers)) {
             continue;
         }
