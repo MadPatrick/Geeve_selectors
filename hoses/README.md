@@ -576,4 +576,22 @@ serie "066 - R7 Antiabrasion") en `Perslijst_Geeve_2018.pdf` (tabellen "(0347) S
 - **Buitenmaat slang**: aangevuld voor `-02/-03/-03D/-04D/-04Q/-05D/-06D/-08D/-10` uit het Transferoil-datasheet.
   De al aanwezige waarden voor `-04/-05/-06/-08` kwamen exact overeen - zelfde bevestiging als bij 0328.
 
+## SX35LT/SX42LT: persgegevens overgenomen van SX35/SX42 (R13/R15-Interlock)
+Op verzoek van de gebruiker de ontbrekende 1-delige koppelingdata voor `SX35LT-12/-16/-20` en `SX42LT-12/-16/-20`
+aangevuld uit `Perslijst_Geeve_2018.pdf` (tabellen "R13 (SX35) Serie 73" en "R15 (SX42) Serie 77 / **Serie 73"):
+de LT-uitvoering (Low Temperature) is qua koppeling/persmaat identiek aan de gewone SX35/SX42, alleen het
+rubbercompound verschilt. Ingevuld in zowel `artikelnummers_staal.csv` als `artikelnummers_rvs.csv` (deze
+koppeling-serietabel maakt geen materiaalonderscheid, net als bij de eerder al aanwezige 0387-familie met
+hetzelfde tabeltype):
+
+- `SX35LT-12/-16/-20`: koppelingserie `73`, persmaat 36,3/44,2/54,6 mm, insteekdiepte 48/51/64 mm.
+- `SX42LT-12`: koppelingserie `73` (uitzondering, gemarkeerd `**` in de Perslijst), persmaat 36,3 mm, insteekdiepte
+  48 mm - gelijk aan `SX35LT-12`. `SX42LT-16/-20`: koppelingserie `77`, persmaat 39,4/50,8 mm, insteekdiepte
+  54,1/63,8 mm.
+
+## Slangtype 550H verwijderd
+Op verzoek van de gebruiker volledig verwijderd uit alle 3 CSV's: `550H-3`, `550H-3-3`, `550H-4`, `550H-4-4`,
+`550H-6`, `550H-6-6`, `550H-8`, `550H-12` (8 artikelen). Staal en RVS gaan hiermee van 958 naar 950 rijen
+(pariteit behouden), Accessoires van 961 naar 953.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
