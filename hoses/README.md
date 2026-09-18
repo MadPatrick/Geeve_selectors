@@ -474,4 +474,33 @@ bij hetzelfde artikelnummer in de datasheet; bij een afwijkende werkdruk is de r
 - Resterend: circa 200 rijen over ~20 andere leveranciers (o.a. Peters, Trelleborg, Flowtech, Manuli, JB
   Hydraulics) hebben nog geen Buitenmaat, in afwachting van door de gebruiker aan te leveren datasheets.
 
+## 0503-familie (3TE), Parker-vendorcorrecties en opschoning verouderde artikelen
+Op verzoek van de gebruiker aangevuld/gecorrigeerd in `artikelnummers_accessoires.csv` (en waar van toepassing
+ook `Leverancier`/`Artikelnr leverancier` in `_staal.csv`/`_rvs.csv`):
+
+- **3TE-familie (genormeerd)**: `0503-05`/`-20`/`-24`/`-32` zijn EN 854/3TE-hulzen, een DIN-genormeerd hosetype
+  waarvan de buitenmaat ongeacht merk/leverancier gelijk is. De bestaande vendors (Landefeld/Dietzel/Eriks)
+  hebben geen eigen datasheet in `docs/hoses/`; op aangeven van de gebruiker is daarom de volledige EN 854/3TE-
+  maattabel uit `GH Pressmassliste.pdf` (Rubrik 20, enige bron met alle vier maten in één consistente tabel)
+  gebruikt: 16,6 / 42,5 / 49,4 / 62,2 mm.
+- **Parker-vendorcorrectie**: `221FR-8`/`221FR-12`/`2245D-03V32` (voorheen ten onrechte op leverancier
+  Hydrasun) en `0563TJ-4`/`-6`/`-8` (voorheen ten onrechte op leverancier "Coliflower") zijn eigenlijk
+  Parker-artikelen. Leverancier aangepast naar `Parker`.
+  - `221FR-8`/`221FR-12`: Buitenmaat 20/27 mm uit `Parker HPD_4400_Catalog_hoses.pdf` en
+    `Parker-Hydraulic-Hoses-CAT_4400_UK.pdf` (beide catalogi identiek), bevestigd doordat de exacte inch-maat
+    in de tabel (13/32 resp. 5/8) letterlijk overeenkomt met de bestaande omschrijving.
+  - `0563TJ-4`/`-6`/`-8`: Buitenmaat 11,9/16,3/19,5 mm uit `CATALOG_4660-Thermoplastic_Hose.pdf` (Parker
+    TOUGHJACKET 563TJ-serie), bevestigd via een exacte werkdrukmatch (210 bar = 3.045 psi/21,0 MPa). Ook
+    `Artikelnr leverancier` gecorrigeerd van `0563TJ-x` naar het echte Parker-partnummer `563TJ-x`.
+  - `2245D-03V32`: alleen de leverancier is gecorrigeerd. Er is geen exacte match gevonden — de dichtstbijzijnde
+    Parker-reeks in `CATALOG_4660-Thermoplastic_Hose.pdf` is `2245N` (andere lettercode én geen dash-maat
+    `-03V32` in die tabel), dus dit is bewust **niet** als bevestigde match behandeld en de Buitenmaat is leeg
+    gelaten.
+  - Bijvangst: `527BA-4` (al langer leverancier Parker) had al een `CG`-persfitting die exact overeenkomt met
+    de fitting-serie in `CATALOG_4660-Thermoplastic_Hose.pdf`; Buitenmaat aangevuld met 13,2 mm.
+- **Verwijderd** (verouderd, op verzoek van de gebruiker) uit alle drie de CSV's: `0347-06D/LIN`, `0328-12`,
+  `0427-04`, `0511-56`, `0628-04PP`, `550H-6-6-6`, `AIR63MM`, `AIR19MMBLAUW`, `AIR25MMGEEL` (9 artikelen; Staal
+  en RVS gaan hiermee van 967 naar 958 rijen, Accessoires van 970 naar 961, met behoud van 1-op-1-pariteit
+  tussen Staal en RVS).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
