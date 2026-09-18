@@ -567,11 +567,12 @@ serie "066 - R7 Antiabrasion") en `Perslijst_Geeve_2018.pdf` (tabellen "(0347) S
   (de Perslijst RVS R7-tabel begint pas bij `-04`) en is zo gelaten. De bestaande, niet-lege `16001-xx`-hulzen
   (tweede combinatie, en de enige combinatie bij `-10`) komen in geen van de brondocumenten voor en zijn
   ongewijzigd gelaten.
-  **Let op - niet zelf gecorrigeerd, alleen gemeld:** een aantal al ingevulde RVS-persmaten wijkt af van de
-  Perslijst-RVS-tabel voor `0347` (`-05`: CSV 15,7 mm vs Perslijst 16,5 mm; `-06`: CSV 18,7 mm vs Perslijst 18,6 mm;
-  `-08`: CSV 21,7 mm vs Perslijst 23,0 mm; `-10`: CSV 26,7 mm vs Perslijst 26,0 mm). Dit is bestaande data van vóór
-  deze ronde; om niet buiten opdracht om bestaande waarden te overschrijven op basis van een enkele bron is dit
-  niet aangepast - graag laten weten welke waarde leidend moet zijn.
+  **Update, op verzoek van de gebruiker**: de RVS-persmaten die afweken van de Geeve Perslijst (`-05/-06/-08/-10`)
+  zijn alsnog aangepast, nu naar de Transferoil-fabrikantswaarde uit de crimping-datasheet (A316L-ferrule
+  "crimping diameter") in plaats van de generieke Perslijst-waarde: `-05` 15,7 → 17,1 mm, `-06` 18,7 → 18,6 mm,
+  `-08` 21,7 → 22,9 mm, `-10` 26,7 → 26,5 mm. Meegenomen: de TWIN-varianten die dezelfde waarde als hun
+  single-hose zusterrij overnemen (`-05D`, `-06D`, `-08D`) en de secundaire `1300PF-R7-xxRVS`-combinatie bij
+  `-06` en `-10`, die steeds gelijk aan de primaire combinatie werd gehouden.
 - **Buitenmaat slang**: aangevuld voor `-02/-03/-03D/-04D/-04Q/-05D/-06D/-08D/-10` uit het Transferoil-datasheet.
   De al aanwezige waarden voor `-04/-05/-06/-08` kwamen exact overeen - zelfde bevestiging als bij 0328.
 
