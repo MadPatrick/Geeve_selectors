@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-const APP_VERSION = '0.0.17';
+const APP_VERSION = '0.0.19';
 
 function h(string $value): string
 {

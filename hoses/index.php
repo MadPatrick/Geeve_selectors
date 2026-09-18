@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-const APP_VERSION = '0.0.18';
+const APP_VERSION = '0.0.19';
 
 require_once __DIR__ . '/inc/csv-paths.php';
 
@@ -193,6 +193,20 @@ function loadMaterialRows(?string $csvFile, string $label, array &$errors): arra
                 $combos[] = $variant;
             }
         }
+
+        usort($combos, static function (array $a, array $b): int {
+            $hulsRank = static function (array $variant): int {
+                if (str_contains($variant['huls'], '13002')) {
+                    return 0;
+                }
+                if (str_contains($variant['huls'], '13001')) {
+                    return 1;
+                }
+                return 2;
+            };
+
+            return $hulsRank($a) <=> $hulsRank($b);
+        });
 
         for ($number = 1; $number <= 3; $number++) {
             $variant = readVariant($row, 'coupling', $number);

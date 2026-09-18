@@ -503,4 +503,15 @@ ook `Leverancier`/`Artikelnr leverancier` in `_staal.csv`/`_rvs.csv`):
   en RVS gaan hiermee van 967 naar 958 rijen, Accessoires van 970 naar 961, met behoud van 1-op-1-pariteit
   tussen Staal en RVS).
 
+## Vaste sorteervolgorde 2-delige koppelingen: 13002-huls altijd boven 13001-huls
+Op verzoek van de gebruiker toont de selector een `13002-<maat>`-huls voortaan altijd vóór een
+`13001-<maat>`-huls binnen dezelfde materiaalkolom (Staal/RVS), ongeacht of die combinatie in de CSV toevallig
+in `2delig_1` of `2delig_2` staat. Dit is opgelost in `index.php` (`buildArticles()`) met een `usort()` op de
+`$combos`-array direct na het inlezen: huls bevat `13002` → rang 0, bevat `13001` → rang 1, overige hulzen →
+rang 2 (behouden relatieve volgorde). Er is bewust niet gekozen voor het handmatig omwisselen van `2delig_1`/
+`2delig_2` in de ~86 betrokken CSV-rijen (o.a. `0311-*`, `0426-*`, `0436-*`, `0462-*`, `0462ST-*`, `0462TC-*`,
+`0477-*`, `0477TC-*`, `421SN-*`, `441RH-*`): een code-regel geldt automatisch ook voor toekomstige rijen en kan
+niet per ongeluk weer omgedraaid worden bij een volgende CSV-bewerking. Geverifieerd in de browser bij `0311-04`
+en `0426-04`: 2-delige koppelingen Staal toont nu `13002-04MM` boven `13001-04MM`.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
