@@ -452,4 +452,26 @@ leeggemaakt). Voor `0441-24` is geen MM-huls bekend, dus die rij heeft in Staal 
 `372`/`372TC` gebruikt `23000-..`-hulzen, en die had het al goed (uitsluitend de MM-variant, geen duplicatie).
 Regel vastgelegd in `AGENTS.md` §5 zodat dit niet opnieuw gebeurt bij een volgende materiaalspecifieke huls-reeks.
 
+## Buitenmaat slang aangevuld uit leveranciersdatasheets (Calseyde/Dicsa/Xtraflex/Hansaflex)
+Op verzoek van de gebruiker zijn ontbrekende `Buitenmaat slang (mm)`-velden in `artikelnummers_accessoires.csv`
+opgezocht op basis van leverancier + artikelnummer leverancier, uitsluitend met door de gebruiker aangeleverde
+PDF-datasheets in `docs/hoses/` als bron (geen ongeverifieerde webresultaten — "nooit gokken", zie `AGENTS.md`
+§6). Elke match is bevestigd door de werkdruk (W.P.) in de bestaande omschrijving te vergelijken met de werkdruk
+bij hetzelfde artikelnummer in de datasheet; bij een afwijkende werkdruk is de rij overgeslagen i.p.v. gegokt.
+
+- **23 rijen ingevuld** uit `Calseyde R7.pdf`/`Calseyde vhp 046.pdf` (5 rijen), `Dicsa R14.pdf`/`Dicsa
+  Thermoplastic.pdf` (5 rijen) en `XtraflexCatalog.pdf` (13 rijen; bij min/max-bereiken zonder één vaste waarde is
+  het midden van het bereik gebruikt, afgerond op 1 decimaal).
+- Bijvangst: een typefout in `Artikelnr leverancier` bij `0811-12` (`TB1020` → `T1B020`) ontdekt en gecorrigeerd,
+  bevestigd via een exacte match van de werkdruk (103 bar).
+- Bewust overgeslagen: de Dicsa `0811-05`/`0811-10`/`0811-16`-rijen (datasheet betreft een ander productvariant,
+  "R14 FHL light") en Xtraflex `0815-05` (eigen omschrijving in de CSV wijst met zijn werkdruk op een ander
+  artikelnummer dan het ingevulde `Artikelnr leverancier` — interne tegenstrijdigheid, niet zelf opgelost).
+- **3 rijen ingevuld** uit `Hansaflex NY800NC.pdf`: `0328-04`/`0328-06`/`0328-08` (NY806/NY810/NY813-reeks). De
+  overige ~14 Hansaflex-rijen in dit bestand gebruiken andere Hansaflex-productreeksen (`NY1xx`, `NYZ7xx`) die
+  niet in dit specifieke datasheet voorkomen, plus de TWIN-variant `0328-08D` die niet in de enkele-slangtabel
+  staat — die zijn bewust leeg gelaten in afwachting van aanvullende documentatie.
+- Resterend: circa 200 rijen over ~20 andere leveranciers (o.a. Peters, Trelleborg, Flowtech, Manuli, JB
+  Hydraulics) hebben nog geen Buitenmaat, in afwachting van door de gebruiker aan te leveren datasheets.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
