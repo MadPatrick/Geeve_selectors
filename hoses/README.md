@@ -594,4 +594,26 @@ Op verzoek van de gebruiker volledig verwijderd uit alle 3 CSV's: `550H-3`, `550
 `550H-6`, `550H-6-6`, `550H-8`, `550H-12` (8 artikelen). Staal en RVS gaan hiermee van 958 naar 950 rijen
 (pariteit behouden), Accessoires van 961 naar 953.
 
+## 811S: Huls (Staal) aangevuld uit Parker CAT_4400/UK
+De door de gebruiker eerst aangeleverde `Parker 811S.pdf` (export van Parkers online crimp-tool) bleek leeg - alle
+kolommen (Crimper Die, Crimp Diameter, Crimp Length, Approx Setting, Hose Insertion) waren onbeschreven. Op
+aanwijzing van de gebruiker is in plaats daarvan `Parker-Hydraulic-Hoses-CAT_4400_UK.pdf` gebruikt (pagina Ce-1,
+"100IF No-Skive shell, 2piece - Series IF"), waar Parker zelf ook naar verwijst voor de crimpmaten
+("Crimp Diameters please find on www.parker.com/crimpsource-euro" - dus ook deze catalogus geeft geen
+persmaat/Schilmaat, alleen het schaalnummer):
+
+- **2delig_1 - Huls** in `artikelnummers_staal.csv` gevuld met het bevestigde Parker-schaalnummer voor `811S-40/
+  -48/-56/-64/-80/-96` (`100IF-40/-48/-56/-64/-80/-96`), bevestigd doordat de DN/inch/mm-maten in de fittingtabel
+  exact overeenkomen met de bestaande hose-omschrijvingen.
+- **`811S-32` bewust overgeslagen**: in dezelfde tabel bestaat alleen `100IF-32-TUBE`, en die variant vermeldt in
+  de "Hose Type"-kolom expliciet alleen `EZ-Form; Carburite 10` - niet `811S`. Er is dus geen bevestigde
+  100IF-schaal voor deze maat.
+- **Pilaar/Persmaat/Schilmaat blijven leeg** voor alle zes ingevulde maten: dit is een 2-delig systeem (schaal +
+  los te bepalen pilaar/stam), maar geen van de twee documenten geeft de bijbehorende pilaarcode of crimpmaat.
+- **RVS niet aangevuld**: er is geen aparte RVS/A316L-uitvoering van de `100IF`-schaal gevonden in de catalogus,
+  dus is `artikelnummers_rvs.csv` ongewijzigd gelaten.
+- **Buitenmaat slang** in `artikelnummers_accessoires.csv` bleek al voor alle 7 maten correct ingevuld (64/75/90/
+  106/116/142/172 mm) - dit kwam exact overeen met de O.D.-kolom uit dezelfde CAT_4400/UK-tabel (pagina Cab-37),
+  dus geen wijziging nodig.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
