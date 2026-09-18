@@ -428,4 +428,28 @@ php fix_csv_quotes.php
 
 Het script corrigeert dezelfde quoting-problemen in alle drie de CSV-bestanden en controleert het aantal kolommen.
 
+(Inmiddels vervangen door een structurele fix: alle drie de CSV's zijn omgezet naar echt komma-gescheiden,
+correct gequote volgens RFC4180 — zie het "Illegal quoting"-punt hieronder.)
+
+## Illegal quoting (structurele fix)
+Zelfde klasse fout als hierboven, opnieuw opgetreden na latere aanvullingen: GitHub's webpreview neemt voor elk
+`.csv`-bestand altijd komma als scheidingsteken aan, ongeacht het werkelijke scheidingsteken. Doordat
+`artikelnummers_staal.csv`, `_rvs.csv` en `_accessoires.csv` `;`-gescheiden waren, gaf elk veld met een losse
+komma of aanhalingsteken een foutieve "Illegal quoting" of kolomaantal-waarschuwing in GitHub's eigen preview (de
+PHP-loader las het bestand zelf altijd al correct). Permanent opgelost door alle drie de bestanden echt
+komma-gescheiden te maken (RFC4180, `"..."` met `""` voor een letterlijk aanhalingsteken). `hoses/index.php` en
+`hoses/upload.php` lezen nu `,` i.p.v. `;`. Dezelfde fix was al eerder op de adapters-CSV toegepast.
+
+## RVS-huls en MM-huls dubbel gevuld bij de 0441-familie (TFDM4SP)
+Bij het aanvullen van de koppelingdata voor de 0441-familie (Interpump TFDM4SP, zie hierboven) waren zowel de
+RVS-huls (`23000-<maat>RVS`) als de Staal/MM-huls (`23000-<maat>MM`) in **beide** bestanden gezet —
+`artikelnummers_staal.csv` en `artikelnummers_rvs.csv` toonden dus allebei zowel de RVS- als de MM-uitvoering.
+Dat is onjuist: een materiaalspecifieke huls hoort alleen in het bestand van dat materiaal te staan. Gecorrigeerd
+voor 0441-04/06/08/10/12/16/24: `artikelnummers_staal.csv` toont nu alleen de MM-huls (verplaatst naar
+`2delig_1`, `2delig_2` leeggemaakt); `artikelnummers_rvs.csv` toont nu alleen de RVS-huls (`2delig_2`
+leeggemaakt). Voor `0441-24` is geen MM-huls bekend, dus die rij heeft in Staal nu geen 2-delige koppeling meer
+(was voorheen ten onrechte de RVS-huls). Overige artikelfamilies met dezelfde hulzenreeks gecontroleerd: alleen
+`372`/`372TC` gebruikt `23000-..`-hulzen, en die had het al goed (uitsluitend de MM-variant, geen duplicatie).
+Regel vastgelegd in `AGENTS.md` §5 zodat dit niet opnieuw gebeurt bij een volgende materiaalspecifieke huls-reeks.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.

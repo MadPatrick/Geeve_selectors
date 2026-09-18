@@ -136,6 +136,15 @@ tegen de brontekst, niet enkel tegen de tabelkolommen.
   `100..`-voorvoegsel. De Pilaar-waarde en alle 1-delige coderingen blijven in RVS **ongewijzigd** gelijk aan
   Staal — alleen de 2-delige Huls-kolom krijgt deze materiaalspecifieke vorm. `<maat>` is de eigen dash-maat van
   de rij, zonder padding (zoals die al in de rest van de dataset wordt gebruikt).
+- **Een materiaalspecifieke Huls-variant hoort maar in één van de twee bestanden thuis.** Wanneer een huls
+  expliciet als RVS-uitvoering gecodeerd is (bijv. een `-RVS`-suffix, zoals de `23000-<maat>RVS`-reeks bij de
+  TFDM4SP/0441-familie), dan hoort die code alléén in `artikelnummers_rvs.csv` te staan; de bijbehorende
+  Staal-uitvoering van diezelfde huls (bijv. `23000-<maat>MM`) hoort alléén in `artikelnummers_staal.csv` — nooit
+  allebei de varianten in beide bestanden dupliceren "voor de zekerheid". Kwam zo fout voor bij de 0441-familie
+  (opgemerkt en gecorrigeerd september 2026): beide hulzen stonden identiek in zowel Staal als RVS. Bij het
+  aanvullen van een nieuwe materiaalspecifieke huls-reeks: controleer of er een niet-materiaalspecifieke
+  tegenhanger bestaat en zet die in het andere bestand, in plaats van dezelfde (materiaalgebonden) code te
+  kopiëren.
 - Bij maten met alleen externe skiving (de "VS"-maten in een gecombineerde VS/V4-PDF) blijft Schilmaat intern
   leeg — niet invullen met "0" of een gok.
 
