@@ -514,4 +514,31 @@ rang 2 (behouden relatieve volgorde). Er is bewust niet gekozen voor het handmat
 niet per ongeluk weer omgedraaid worden bij een volgende CSV-bewerking. Geverifieerd in de browser bij `0311-04`
 en `0426-04`: 2-delige koppelingen Staal toont nu `13002-04MM` boven `13001-04MM`.
 
+## 0328 (SAE 100R8): R8 in omschrijving, Transoil als leverancier, perslijst- en Buitenmaat-data compleet
+Op verzoek van de gebruiker, met `docs/hoses/0328-r8_antiabrasion.pdf` (Transfer Oil S.p.A., serie "075 - R8
+Antiabrasion") als brondocument voor leverancier/OD en `Perslijst_Geeve_2018.pdf` (tabellen "(0328) SAE 100R8"
+Staal en "0328 - R8" RVS) voor de persgegevens:
+
+- **Omschrijving**: `R8` toegevoegd aan `artnm` in alle 3 CSV's voor de 8 rijen waar dit nog ontbrak
+  (`0328-04/-04D/-05/-05D/-06/-06D/-08/-08D`; `0328-03` had het al).
+- **Leverancier**: voor de 5 enkele-slang-maten (`0328-03/-04/-05/-06/-08`) is de werkdruk van elke rij exact
+  gematcht met een Transoil-partnummer uit het datasheet (0751/0752/0753/0754/0755 → 350/350/300/280/245 bar) -
+  Leverancier gewijzigd naar `Transoil` en `Artikelnr leverancier` naar het bijbehorende Transoil-partnummer. De
+  4 TWIN-varianten (`-04D/-05D/-06D/-08D`) zijn **bewust ongemoeid gelaten** qua leverancier: het Transoil-blad
+  bevat geen aparte twin-partnummers, dus is de bestaande leverancier (Dicsa/Calseyde/Hansaflex) niet vervangen
+  door een gegokt Transoil-nummer.
+- **Persgegevens Staal**: `0328-03` en `0328-08` bevatten een foutieve `2delig_1`-huls (`17001-03`/`17001-08`) -
+  dat is de hulscode van de `(0347) SAE 100R7`-tabel, niet van de `(0328) SAE 100R8`-tabel. Gecorrigeerd naar de
+  juiste R8-huls (`17003-03`/`17003-08`) met de bijbehorende persmaat. Voor `-04D/-05D/-06D` (correcte huls,
+  ontbrekende persmaat) is de persmaat aangevuld; voor `-08D` was zowel de huls fout als de persmaat leeg, beide
+  gecorrigeerd/aangevuld.
+- **Persgegevens RVS**: voor `-04/-05/-06/-08` (en hun D-varianten) was de RVS-huls (`17001-xxRVS`) al correct
+  maar de persmaat leeg - aangevuld uit de RVS R8-tabel. Voor `0328-03` bestaat in de Perslijst geen `-03`-maat
+  in zowel de R7- als de R8 RVS-tabel; de bestaande RVS-koppelingdata voor deze rij (`17001-03RVS` /
+  `1300PF-R7-03RVS`) kwam nergens in het brondocument voor en is daarom verwijderd in plaats van gegokt.
+- **Buitenmaat slang**: aangevuld uit het Transoil-datasheet voor `-03` (8,9 mm) en de vier TWIN-varianten (zelfde
+  OD als hun single-hose tegenhanger: 11,5/13,4/15,5/19,9 mm). De al aanwezige waarden voor `-04/-06/-08` (uit
+  een eerdere Hansaflex-match) kwamen exact overeen met het Transoil-datasheet - extra bevestiging dat het om
+  dezelfde slang gaat.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
