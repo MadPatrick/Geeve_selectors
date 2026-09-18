@@ -514,19 +514,20 @@ rang 2 (behouden relatieve volgorde). Er is bewust niet gekozen voor het handmat
 niet per ongeluk weer omgedraaid worden bij een volgende CSV-bewerking. Geverifieerd in de browser bij `0311-04`
 en `0426-04`: 2-delige koppelingen Staal toont nu `13002-04MM` boven `13001-04MM`.
 
-## 0328 (SAE 100R8): R8 in omschrijving, Transoil als leverancier, perslijst- en Buitenmaat-data compleet
+## 0328 (SAE 100R8): R8 in omschrijving, Transferoil als leverancier, perslijst- en Buitenmaat-data compleet
 Op verzoek van de gebruiker, met `docs/hoses/0328-r8_antiabrasion.pdf` (Transfer Oil S.p.A., serie "075 - R8
 Antiabrasion") als brondocument voor leverancier/OD en `Perslijst_Geeve_2018.pdf` (tabellen "(0328) SAE 100R8"
-Staal en "0328 - R8" RVS) voor de persgegevens:
+Staal en "0328 - R8" RVS) voor de persgegevens. Leverancier is aanvankelijk als `Transoil` vastgelegd en later
+gecorrigeerd naar de juiste bedrijfsnaam `Transferoil` (zie verderop in dit document):
 
 - **Omschrijving**: `R8` toegevoegd aan `artnm` in alle 3 CSV's voor de 8 rijen waar dit nog ontbrak
   (`0328-04/-04D/-05/-05D/-06/-06D/-08/-08D`; `0328-03` had het al).
 - **Leverancier**: voor de 5 enkele-slang-maten (`0328-03/-04/-05/-06/-08`) is de werkdruk van elke rij exact
-  gematcht met een Transoil-partnummer uit het datasheet (0751/0752/0753/0754/0755 → 350/350/300/280/245 bar) -
-  Leverancier gewijzigd naar `Transoil` en `Artikelnr leverancier` naar het bijbehorende Transoil-partnummer. De
-  4 TWIN-varianten (`-04D/-05D/-06D/-08D`) zijn **bewust ongemoeid gelaten** qua leverancier: het Transoil-blad
+  gematcht met een Transferoil-partnummer uit het datasheet (0751/0752/0753/0754/0755 → 350/350/300/280/245 bar) -
+  Leverancier gewijzigd naar `Transferoil` en `Artikelnr leverancier` naar het bijbehorende Transferoil-partnummer.
+  De 4 TWIN-varianten (`-04D/-05D/-06D/-08D`) zijn **bewust ongemoeid gelaten** qua leverancier: het datasheet
   bevat geen aparte twin-partnummers, dus is de bestaande leverancier (Dicsa/Calseyde/Hansaflex) niet vervangen
-  door een gegokt Transoil-nummer.
+  door een gegokt Transferoil-nummer.
 - **Persgegevens Staal**: `0328-03` en `0328-08` bevatten een foutieve `2delig_1`-huls (`17001-03`/`17001-08`) -
   dat is de hulscode van de `(0347) SAE 100R7`-tabel, niet van de `(0328) SAE 100R8`-tabel. Gecorrigeerd naar de
   juiste R8-huls (`17003-03`/`17003-08`) met de bijbehorende persmaat. Voor `-04D/-05D/-06D` (correcte huls,
@@ -536,9 +537,42 @@ Staal en "0328 - R8" RVS) voor de persgegevens:
   maar de persmaat leeg - aangevuld uit de RVS R8-tabel. Voor `0328-03` bestaat in de Perslijst geen `-03`-maat
   in zowel de R7- als de R8 RVS-tabel; de bestaande RVS-koppelingdata voor deze rij (`17001-03RVS` /
   `1300PF-R7-03RVS`) kwam nergens in het brondocument voor en is daarom verwijderd in plaats van gegokt.
-- **Buitenmaat slang**: aangevuld uit het Transoil-datasheet voor `-03` (8,9 mm) en de vier TWIN-varianten (zelfde
-  OD als hun single-hose tegenhanger: 11,5/13,4/15,5/19,9 mm). De al aanwezige waarden voor `-04/-06/-08` (uit
-  een eerdere Hansaflex-match) kwamen exact overeen met het Transoil-datasheet - extra bevestiging dat het om
-  dezelfde slang gaat.
+- **Buitenmaat slang**: aangevuld uit het Transferoil-datasheet voor `-03` (8,9 mm) en de vier TWIN-varianten
+  (zelfde OD als hun single-hose tegenhanger: 11,5/13,4/15,5/19,9 mm). De al aanwezige waarden voor `-04/-06/-08`
+  (uit een eerdere Hansaflex-match) kwamen exact overeen met het Transferoil-datasheet - extra bevestiging dat het
+  om dezelfde slang gaat.
+
+## Leverancier Transoil hernoemd naar Transferoil
+De juiste bedrijfsnaam is `Transferoil`, niet `Transoil`. Gecorrigeerd voor de 5 `0328`-rijen (`-03/-04/-05/-06/-08`)
+die in de vorige ronde op `Transoil` waren gezet, in alle 3 CSV's.
+
+## 0347 (SAE 100R7): zelfde aanpak als 0328, met Transferoil crimping-datasheets
+Op verzoek van de gebruiker, dezelfde werkwijze als bij `0328` toegepast op de `0347`-familie (14 rijen), nu met
+zowel het productdatasheet als de crimping-datasheet van Transferoil (`docs/hoses/0347-R7_ANTIABRASION*.pdf`,
+serie "066 - R7 Antiabrasion") en `Perslijst_Geeve_2018.pdf` (tabellen "(0347) SAE 100R7" Staal/RVS):
+
+- **Omschrijving**: `R7` toegevoegd aan `artnm` in alle 3 CSV's voor de 9 rijen waar dit nog ontbrak (`-02/-03/
+  -03D/-04D/-04Q/-05/-05D/-06D/-08D`; `-04/-06/-08/-10` hadden het al). `0347-025` (5/32", 240 bar) valt buiten de
+  Transferoil-reeks (geen match op maat of werkdruk) en is bewust **niet** als R7 gelabeld.
+- **Leverancier**: voor de 7 basismaten (`-02/-03/-04/-05/-06/-08/-10`) is Transferoil bevestigd via exacte
+  werkdruk-/maatmatch met het datasheet (0660-0666), voor `-04` bovendien via het reeds aanwezige, met de
+  Transferoil-code samengestelde leveranciersartikelnummer (`R7-DN06-0662`). Leverancier gewijzigd naar
+  `Transferoil`, Artikelnr leverancier naar het bijbehorende partnummer. De TWIN/QUAT-varianten (`-03D/-04D/-04Q/
+  -05D/-06D/-08D`) zijn net als bij 0328 bewust ongemoeid gelaten qua leverancier (geen apart Transferoil-nummer
+  in het datasheet).
+- **Persgegevens**: in tegenstelling tot 0328 was hier vrijwel alle Staal-persmaat al correct ingevuld (matcht de
+  Perslijst). Alleen de ontbrekende persmaat van de TWIN/QUAT-varianten (Staal én RVS) is aangevuld - niet uit de
+  Perslijst, maar overgenomen van de reeds aanwezige waarde bij de bijbehorende single-hose rij in hetzelfde
+  bestand, om geen nieuw, extern getal naast de bestaande data te zetten. `0347-02` heeft geen RVS-koppelingdata
+  (de Perslijst RVS R7-tabel begint pas bij `-04`) en is zo gelaten. De bestaande, niet-lege `16001-xx`-hulzen
+  (tweede combinatie, en de enige combinatie bij `-10`) komen in geen van de brondocumenten voor en zijn
+  ongewijzigd gelaten.
+  **Let op - niet zelf gecorrigeerd, alleen gemeld:** een aantal al ingevulde RVS-persmaten wijkt af van de
+  Perslijst-RVS-tabel voor `0347` (`-05`: CSV 15,7 mm vs Perslijst 16,5 mm; `-06`: CSV 18,7 mm vs Perslijst 18,6 mm;
+  `-08`: CSV 21,7 mm vs Perslijst 23,0 mm; `-10`: CSV 26,7 mm vs Perslijst 26,0 mm). Dit is bestaande data van vóór
+  deze ronde; om niet buiten opdracht om bestaande waarden te overschrijven op basis van een enkele bron is dit
+  niet aangepast - graag laten weten welke waarde leidend moet zijn.
+- **Buitenmaat slang**: aangevuld voor `-02/-03/-03D/-04D/-04Q/-05D/-06D/-08D/-10` uit het Transferoil-datasheet.
+  De al aanwezige waarden voor `-04/-05/-06/-08` kwamen exact overeen - zelfde bevestiging als bij 0328.
 
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
