@@ -686,4 +686,10 @@ in alle 3 CSV's) herschreven naar hetzelfde patroon - `R12`, Jackmaster, Blastop
 - **`0480-32`** (R15): mm/fractie/DN/`IN-/OUT. SKIVE` naar hetzelfde patroon; de merkspecifieke toevoeging
   "MANULI DIAMONDSPIR" is vervallen (staat al in de Leverancier-kolom als `Manuli`).
 
+### Vervolg: Werkdruk 350 bar alsnog ingevuld voor 0449-06/-08/-40/-48
+Op bevestiging van de gebruiker alsnog toegepast: `Werkdruk (bar)` = `350` voor `0449-06`, `0449-08`, `0449-40`
+en `0449-48`, op basis van de hierboven genoemde precedent (`0449-20/-24/-32` en `R35TC-40/-48` zijn allemaal 350
+bar). De omschrijving is in alle 3 CSV's meteen aangevuld met de bijbehorende `W.P. 350 BAR`-clausule, zodat
+tekst en Werkdruk-kolom weer overeenkomen.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
