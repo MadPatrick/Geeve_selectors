@@ -650,4 +650,19 @@ Op verzoek van de gebruiker, per geval een expliciet aangewezen zusterreeks:
   Toegepast in zowel Staal als RVS (het document maakt geen materiaalonderscheid). Pilaar blijft leeg: de tabel
   noemt alleen "Inter-lock" als bevestigingstype, geen kort Geeve-achtig serienummer.
 
+## 0442 (TFD04SP): rest van de familie en Werkdruk aangevuld vanuit 0441 (TFDM4SP)
+Vervolg op de eerdere `0442-06`-aanvulling: op verzoek van de gebruiker ("werkdrukken kan ook bijwerken") is
+dezelfde 0441→0442-overname doorgetrokken naar de rest van de familie én naar het `Werkdruk (bar)`-veld, dat in
+de eerste ronde bewust was overgeslagen (scope was toen alleen "crimping gegevens").
+
+- **`0442-08/-10/-12/-16`**: Werkdruk + volledige 2-delige koppeling (Huls, Pilaar, Persmaat, Schilmaat extern)
+  gekopieerd van de gelijknamige maat in `0441`, in zowel Staal als RVS.
+- **`0442-24`**: Werkdruk (185 bar) gekopieerd; koppelingdata alleen in RVS (`1300P3-24RVS`) - `0441-24` heeft
+  zelf geen Staal-koppelingdata om van te kopiëren (een bestaand gat in de bronrij, niet in deze ronde ontstaan).
+- **`0442-20`**: niets aangevuld - `0441-20` (`TFDM4SPN20`) heeft zelf geen Werkdruk of koppelingdata.
+- **`0442-06`**: alsnog Werkdruk (445 bar) toegevoegd naast de koppelingdata uit de vorige ronde.
+
+Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde (152 → 148), conform de vaste stap in
+`AGENTS.md` §9.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
