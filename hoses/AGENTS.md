@@ -240,3 +240,12 @@ Vóór het committen, altijd controleren:
 5. Steekproef: minstens een paar aanvullingen/correcties handmatig terugcontroleren tegen de brontekst van de PDF
    (niet enkel vertrouwen op het parse-resultaat) — zeker bij afwijkende/onverwachte waarden (zie §7).
 6. Aantallen aanvullingen/correcties per bestand rapporteren aan de gebruiker en vastleggen in `README.md`.
+7. **`Ontbrekende_persgegevens.xlsx`** (in de repo-root) opnieuw genereren en meecommitten wanneer een wijziging
+   de set artikelen zonder persgegevens verandert (aanvulling, correctie of verwijdering in `2delig_*`/`1delig_*`)
+   — dus na zo goed als elke ronde uit dit document. Regenereren op basis van de actuele staal/rvs-CSV's (zelfde
+   selectiecriterium als het "missen persgegevens"-overzicht: geen enkele `2delig_1/2 - Huls/Pilaar` of
+   `1delig_1/2/3` ingevuld), **nooit handmatig bewerken**. Twee tabbladen: `Samenvatting` (telling per categorie
+   Staal+RVS/Alleen Staal/Alleen RVS, plus per slangfamilie) en `Detail` (alle rijen met artnr, omschrijving,
+   familie, categorie, leverancier, leveranciersartikelnummer, werkdruk — met autofilter). Bij géén wijziging in de
+   missende-set (bijv. een ronde die alleen Buitenmaat of leveranciersnamen aanpast) hoeft het bestand niet
+   opnieuw te worden weggeschreven.
