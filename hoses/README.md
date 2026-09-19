@@ -715,4 +715,35 @@ Ferrule/Swaging Ø/Schilmaat):
 Ontbrekende_persgegevens.xlsx opnieuw gegenereerd (blijft 148 - beide rijen verschuiven van categorie
 "Staal + RVS" naar "Alleen RVS", geen netto afname).
 
+## Persgegevens aangevuld vanuit "de PH perslijst" (GH Pressmassliste.pdf) voor 4SP/R13/R15
+Op verzoek van de gebruiker: voor de resterende Interpump 4SP/4SH/R13/R15-slangen zonder persgegevens is
+`docs/hoses/GH Pressmassliste.pdf` (distributeurstabel, paginakoppen `www.ph-hydraulik.de`) als bron gebruikt,
+uitsluitend waar nog niets was ingevuld. Voor 4SH (0446) was al alles aangevuld in een eerdere ronde (IMM
+Crimping-chart), dus daar is niets veranderd.
+
+- **0441-24/0442-24 (Staal)**: Huls `23000-24MM`, Pilaar `10`, Persmaat `58.0` mm, Schilmaat extern `56` mm - uit
+  de "P3 - schälen"-tabel (Rubrik 26, `P3-DN 38`/1-1/2"/dash-24: Pressdurchmesser 58,0 / Schällänge-La 56,0). RVS
+  had voor deze maat al bestaande data (Persmaat 61,4/Schilmaat ext 55,0) en is ongemoeid gelaten.
+- **0441-32 (Staal, RVS bewust niet aangevuld)**: Huls `23000-32MM`, Pilaar `10`, Persmaat `71.0` mm, Schilmaat
+  extern `66` mm - uit dezelfde P3-tabel (`P3-4SP-DN 51`/2"/dash-32: 71,0/66,0). RVS blijft leeg: de PH-tabel
+  maakt geen materiaalonderscheid en de bestaande 0441-familie laat op andere maten meetbare Staal/RVS-verschillen
+  zien (bv. -16: Staal 42,3 vs RVS 40,7), dus zonder een RVS-specifieke bron is een RVS-waarde hier gokken.
+- **0447-12/-16/-20/-24 (R15, Staal + RVS identiek)**: Huls `P7-I-DN19`/`P7-I-DN25`/`P7-I-DN31`/`P7-I-DN38`,
+  Persmaat `34,5`/`41,5`/`54,0`/`64,0` mm, Schilmaat intern `16`/`20`/`20`/`27` mm, extern `42`/`60`/`62`/`82` mm
+  - uit de Interlock P7-I-tabel (Rubrik 29, kolommen Li/La/Pressdurchmesser). Zelfde waarde in Staal en RVS,
+  net als bij de eerder aangevulde 0446-familie: de Interlock-fassung is niet materiaalspecifiek gecodeerd.
+  **0447-10 en 0447-32 blijven leeg**: de PH-tabel voor P7-I dekt alleen DN19 t/m DN38 (dash -12 t/m -24), er is
+  geen DN16 (dash -10) of DN51 (dash -32) rij voor deze reeks - niet extrapoleren, dus bewust opengelaten.
+- **0449-16 (R13, Staal + RVS identiek)**: Huls `P6-I-DN25`, Persmaat `42,0` mm, Schilmaat intern `20` mm,
+  extern `60` mm - uit de Interlock P6-I-tabel (Rubrik 28).
+
+**Kanttekening bij de PH-tabel als bron voor de 4SP-familie (0441/0442)**: de eerder (via IMM) vastgelegde
+Persmaat-waarden voor dash-04 t/m -20 komen niet exact overeen met de PH-tabel (bv. dash-16: vastgelegd 42,3 vs
+PH 42,0; dash-20: vastgelegd 51,2 vs PH 52,6) - dit geldt voor bijna de hele familie, niet specifiek voor -20,
+en is dus normale spreiding tussen verschillende fabrikanten/tabellen voor dezelfde DIN/SAE-norm, geen aanwijzing
+dat de eerder vastgelegde -20 waarde fout is. De reeds gecommitte `0441-20`/`0442-20`-waarden zijn daarom
+ongewijzigd gelaten.
+
+Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde (zie onderaan repo-root).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
