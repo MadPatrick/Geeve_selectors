@@ -635,4 +635,19 @@ Buitenmaat (Cover OD) van die slang bevat:
   `IF` in een `1delig`-veld vastlegt. Dit is een bestaande inconsistentie tussen de twee slangfamilies, niet iets
   wat in deze ronde is geïntroduceerd of opgelost.
 
+## 0442 (TFD04SP) en 0446 (TFDR4SH): persgegevens overgenomen van een zusterreeks
+Op verzoek van de gebruiker, per geval een expliciet aangewezen zusterreeks:
+
+- **`0442-06`** (`TFD04SP-06`, geen eigen persgegevens): koppelingdata 1-op-1 overgenomen van `0441-06`
+  (`TFDM4SP-06`) - dezelfde Interpump 4SP-slang, alleen een andere leverancierscode-variant (`TFD04SP` i.p.v.
+  `TFDM4SP`). Huls, Pilaar, Persmaat en Schilmaat extern gekopieerd naar zowel Staal (`23000-06MM`) als RVS
+  (`1300P3-06RVS`).
+- **`0446` (TFDR4SH), hele reeks (-12/-16/-20/-24/-32)**: op verzoek van de gebruiker de crimpgegevens van de
+  bijbehorende `TFDR015`-maat overgenomen uit `docs/hoses/IMM Crimping-chart-R12.10.pdf` (tabel "HyGreen R15
+  (TFDG015-TFDR015)"), in plaats van TFDR4SH's eigen tabel in hetzelfde document ("HyGreen 4SH"). Huls = het
+  Interpump-ferrulenummer uit die tabel (`004N-12` voor -12, `0013-16/-20/-24/-32` voor de overige maten),
+  Persmaat = de opgegeven "Ø Pressatura"/swaging-diameter, Schilmaat intern/extern = de "Int."/"Est."-kolommen.
+  Toegepast in zowel Staal als RVS (het document maakt geen materiaalonderscheid). Pilaar blijft leeg: de tabel
+  noemt alleen "Inter-lock" als bevestigingstype, geen kort Geeve-achtig serienummer.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
