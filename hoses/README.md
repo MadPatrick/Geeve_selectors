@@ -692,4 +692,27 @@ en `0449-48`, op basis van de hierboven genoemde precedent (`0449-20/-24/-32` en
 bar). De omschrijving is in alle 3 CSV's meteen aangevuld met de bijbehorende `W.P. 350 BAR`-clausule, zodat
 tekst en Werkdruk-kolom weer overeenkomen.
 
+## 0441-20/0442-20 uitgezocht en gecorrigeerd (Werkdruk was fout, niet alleen leeg)
+Op verzoek van de gebruiker uitgezocht via `docs/hoses/IMM Hydraulic-hose.pdf` (volledige "Hypress 4SP
+(TFDM4SP)"-tabel, met alle maten t/m -32) en `docs/hoses/IMM Crimping-chart-R12.10.pdf` (dezelfde tabel met
+Ferrule/Swaging Ø/Schilmaat):
+
+- **Werkdruk was niet leeg maar fout** bij `0441-20`: de omschrijving zei "W.P. 280 BAR" (en zelfs de maat klopte
+  niet: "25.4MM (1) DN32" - een mismatch tussen 1"-maat en DN32). De catalogus geeft voor dash -20 echter
+  **210 bar** (niet 280 - dat hoort bij dash -16). Gecorrigeerd naar `Werkdruk (bar)` = `210` en omschrijving
+  `4SP 31.8MM (1-1/4) DN32 OUT.SKIVE W.P. 210 BAR`, in alle 3 CSV's. `0442-20` kreeg dezelfde correctie (was nog
+  leeg, geen bestaande foutieve waarde).
+- **2-delige koppeling (Staal) aangevuld** voor beide rijen: Huls `23000-20MM`, Pilaar `10`, Persmaat `51,2` mm,
+  Schilmaat extern `54` mm - Persmaat/Schilmaat rechtstreeks uit de crimping-chart (ferrule `0009-20`); de
+  Huls-code `23000-20MM` volgt het al gevestigde, uitzonderingsloze patroon `23000-<maat>MM` dat voor alle andere
+  0441/0442-maten al gebruikt wordt (04/06/08/10/12/16/24), dus niet los geverifieerd tegen een eigen Geeve-bron
+  maar wel een zeer sterke, consistente extrapolatie van een bestaand patroon.
+- **RVS bewust niet aangevuld**: de crimping-chart maakt geen materiaalonderscheid en de bestaande RVS-Persmaten
+  van dit type wijken meetbaar af van de Staal-waarden bij dezelfde maat (bijv. -12: Staal 33,8 vs RVS 34,9) - er
+  is dus geen betrouwbare manier om een RVS-specifieke Persmaat af te leiden uit deze bron. Werkdruk (210 bar) is
+  wel materiaalonafhankelijk en is wel aangevuld in RVS.
+
+Ontbrekende_persgegevens.xlsx opnieuw gegenereerd (blijft 148 - beide rijen verschuiven van categorie
+"Staal + RVS" naar "Alleen RVS", geen netto afname).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
