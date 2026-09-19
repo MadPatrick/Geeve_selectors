@@ -665,4 +665,25 @@ de eerste ronde bewust was overgeslagen (scope was toen alleen "crimping gegeven
 Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde (152 → 148), conform de vaste stap in
 `AGENTS.md` §9.
 
+## Omschrijvingen "MTR SLANG ..." uniform gecorrigeerd naar het `<TYPE> <mm>MM (<fractie>) DN<nn> ... W.P. <bar> BAR`-patroon
+Op verzoek van de gebruiker, met als voorbeeld een al bestaande, correcte rij (`4SP 50.8MM (2) DN50 OUT.SKIVE
+W.P. 172 BAR`). Alle nog resterende placeholder-omschrijvingen van het type "MTR SLANG (4SP/R13/R15)" (13 rijen,
+in alle 3 CSV's) herschreven naar hetzelfde patroon - `R12`, Jackmaster, Blastopak en soortgelijke andere
+"MTR SLANG ..."-rijen zijn bewust **niet** aangepast, die vallen buiten de door de gebruiker genoemde typen.
+
+- **`0442-06/-08/-10/-12/-16/-20/-24`** (4SP): mm/fractie/DN per maat overgenomen uit het al gevestigde patroon
+  van de identieke `0441`-familie (bijv. `-12` → `19.1MM (3/4) DN20`), stijl `OUT.SKIVE` (geen spatie, zoals
+  overal in de 4SP-familie). W.P. toegevoegd waar de Werkdruk-kolom een waarde heeft (`-06/-08/-10/-12/-16/-24`);
+  bij `-20` (geen bekende Werkdruk) is de W.P.-clausule weggelaten in plaats van gegokt.
+- **`0449-04/-06/-08/-40/-48`** (R13): mm/fractie/DN en de `IN-/OUT. SKIVE`-stijl overgenomen van de al correcte
+  `0449-20/-24/-32`-rijen in dezelfde familie. Voor `-40`/`-48` (geen sibling in `0449` zelf) is de exacte
+  precedent gebruikt van `R35TC-40`/`R35TC-48` - dezelfde R13/R35-reeks, elders in dit bestand - die letterlijk
+  `63.5MM (21/2) DN63` resp. `76MM (3) DN76` gebruiken (dus `76MM`, niet de theoretische `76.2MM`). W.P.
+  toegevoegd bij `-04` (al aanwezige Werkdruk 690 bar); bij `-06/-08/-40/-48` (geen bekende Werkdruk) weggelaten.
+  *Zijdelings gevonden, niet zelf toegepast*: `R35TC-40`/`R35TC-48` tonen beide W.P. 350 BAR, en `0449`'s eigen
+  `-20/-24/-32` ook allemaal 350 bar - een sterke aanwijzing dat ook `0449-06/-08/-40/-48` 350 bar zijn, maar dit
+  raakt de `Werkdruk (bar)`-kolom (een apart datagat) en viel buiten de scope van deze ronde (omschrijvingen).
+- **`0480-32`** (R15): mm/fractie/DN/`IN-/OUT. SKIVE` naar hetzelfde patroon; de merkspecifieke toevoeging
+  "MANULI DIAMONDSPIR" is vervallen (staat al in de Leverancier-kolom als `Manuli`).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
