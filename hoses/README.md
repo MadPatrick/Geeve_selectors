@@ -616,4 +616,23 @@ persmaat/Schilmaat, alleen het schaalnummer):
   106/116/142/172 mm) - dit kwam exact overeen met de O.D.-kolom uit dezelfde CAT_4400/UK-tabel (pagina Cab-37),
   dus geen wijziging nodig.
 
+## 811 / 811S: Persmaat aangevuld uit "CRIMP DIMENSIONS"-tabel (docs/perslijst/811S-IF.pdf, 811-IF.jpg)
+De gebruiker leverde alsnog een werkende crimptabel aan ("CRIMP DIMENSIONS; for variable crimper only" - per
+Cover OD-bereik een Crimp ø A). Voor elke maat is de rij gekozen waarvan het Cover OD-bereik de al aanwezige
+Buitenmaat (Cover OD) van die slang bevat:
+
+- **`artikelnummers_staal.csv`**: `2delig_1 - Persmaat (mm)` aangevuld voor `811S-40/-48/-56/-64/-80/-96`
+  (81,0 / 93,6 / 112,0 / 121,0 / 146,0 / 174,3 mm) bij de al aanwezige `100IF-xx`-huls uit de vorige ronde. RVS
+  niet aangevuld (geen materiaalonderscheid in dit document, en zoals eerder gemeld geen bevestigde RVS-variant
+  van de `100IF`-schaal gevonden).
+- **`811-40`/`811-48`** (de gewone, niet-S-uitvoering) delen dezelfde crimpmaten (81,0 / 93,6 mm) - dit staat ook
+  los bevestigd in `811-IF.jpg`. Deze twee maten hadden al een `1delig_1 = 48`-optie (andere koppelingserie,
+  zonder persmaat); als tweede, aanvullende optie is nu `1delig_2 = IF` met de bijbehorende persmaat toegevoegd,
+  in zowel Staal als RVS - dezelfde structuur die al bestond bij `811-16` (`1delig_1 = 48` + `1delig_2 = IF`).
+  Insteekdiepte blijft bij deze nieuwe `IF`-optie leeg: geen van beide documenten geeft die maat.
+- **Let op, niet zelf aangepast:** `811S` gebruikt voor de `IF`-huls een volledig partnummer (`100IF-40`) in
+  `2delig_1 - Huls`, terwijl `811` (in de al bestaande data, bijv. `811-16`) hetzelfde fittingtype als kale code
+  `IF` in een `1delig`-veld vastlegt. Dit is een bestaande inconsistentie tussen de twee slangfamilies, niet iets
+  wat in deze ronde is geïntroduceerd of opgelost.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
