@@ -9,6 +9,16 @@ function h(string $value): string
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+// Cache-busting op basis van de laatste wijzigingsdatum van het bestand
+// zelf, zodat elke aanpassing aan style.css automatisch een nieuwe URL
+// krijgt - geen handmatige versie-ophoging meer nodig.
+function assetVersion(string $relativePath): string
+{
+    $full = __DIR__ . '/' . $relativePath;
+    $mtime = @filemtime($full);
+    return $mtime !== false ? (string) $mtime : APP_VERSION;
+}
+
 $uploadStatus = $_GET['upload'] ?? '';
 $uploadMessage = $_GET['msg'] ?? '';
 ?>
@@ -19,8 +29,8 @@ $uploadMessage = $_GET['msg'] ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Data beheer | Geeve Hydraulics</title>
-    <link rel="icon" href="../favicon.ico?v=<?= h(APP_VERSION) ?>" type="image/x-icon">
-    <link rel="stylesheet" href="assets/style.css?v=<?= h(APP_VERSION) ?>">
+    <link rel="icon" href="../favicon.ico?v=<?= h(assetVersion('../favicon.ico')) ?>" type="image/x-icon">
+    <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
 </head>
 <body>
 <main class="page-shell">
