@@ -951,4 +951,30 @@ Dit is een forse herziening t.o.v. de eerder aanwezige Huls Texsleeve-waarden, d
 exacte regel waren bepaald (bv. `FA35-20` had `19001-52`, wat met crimpmaat 50,2mm niet aan de "+4mm"-marge
 voldeed - nu `19001-55`).
 
+## Parker 2-delig huls: IMM-poging teruggedraaid, RVS correct opgelost met Geeve PH_hulzen RVS.xlsx
+De vorige ronde ("Parker 2-delig huls vervangen door IMM-equivalent") was **fout** en volledig teruggedraaid
+(`git revert`): Staal had helemaal niet aangepast mogen worden, en de bestaande RVS-codes (`1300P1-xxRVS`,
+`1300P5-xxRVS`, etc.) waren al correct - dit was geen IMM-codering maar een eigen Geeve/PH-notatie die niet had
+mogen worden vervangen door IMM's `001C-xx`/`0022-xx`.
+
+De gebruiker heeft `docs/hoses/Geeve PH_hulzen RVS.xlsx` toegevoegd: een tabel die per Geeve-huls-artikelnummer
+(`1300P1-xxRVS` t/m `1300P9-xxRVS`) aangeeft voor welke slangstandaarden (`1SN`, `2SN`, `1SC`, `2SC`, `2TE`, `1ST`,
+`2ST`, `3TE`, `R1AT`, `R2AT`, `4SP`) die huls geschikt is, met het bijbehorende PH-leveranciersnummer
+(`P1-DN xx` etc.). De Persmaat zelf staat niet in dit bestand maar in `docs/hoses/GH Pressmassliste.pdf`
+(Rubrik 18-25, tabellen P1/P2/P5/P8/P9 - "nicht schälen"/non-skive Pressdurchmesser per DN).
+
+**Voor RVS** (Staal blijft dit keer volledig ongemoeid) is voor Parker-artikelen met `1SN`/`2SN`/`1SC`/`2SC` in de
+omschrijving `2delig_1`/`2delig_2` opnieuw bepaald aan de hand van deze twee bronnen, Pilaar steeds `10`:
+- **1SN**: P1 (DN05-51) + P5 (DN06-25, overlapt met P1 op DN06-25) - **bij overlap beide gebruiken** (2delig_1 =
+  P1, 2delig_2 = P5), op verzoek van de gebruiker.
+- **2SN**: P2 (DN05-25) + P5 (DN06-25, overlapt) + P8 (DN31-76, geen overlap, alleen P8).
+- **1SC**: P9 (DN06-12 en DN31-51) + **PF-R7** (DN06-25) - een derde fassung-serie die alleen bij 1SC voorkomt en
+  precies de maten dekt die P9 mist (DN16/19/25, dash -10/-12/-16). Overlapt met P9 op DN06-12.
+- **2SC**: P1 (DN06-25) + P5 (DN06-25, overlapt) + P8 (DN31-76, geen overlap).
+
+92 RVS-rijen bijgewerkt. Dankzij de PF-R7-ontdekking is er nu **geen enkele** rij meer zonder PH-dekking (eerder
+leken `0492-10/-12/-16` e.d. buiten bereik te vallen, maar die zitten wel degelijk in de PF-R7-tabel). 3 rijen
+(`0463-05/-06/-08`) hadden een foutieve `-SKIVE`-toevoeging aan hun Huls-naam terwijl de omschrijving zelf
+"NO-SKIVE" zegt - dat is meteen mee gecorrigeerd (nu gewoon `1300P1-0xRVS`, zonder `-SKIVE`-suffix).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
