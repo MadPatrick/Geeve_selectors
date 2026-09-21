@@ -801,4 +801,39 @@ gebruiker toegepast: crimp-/schilgegevens zijn gelijk voor Staal en RVS (identie
 
 Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde.
 
+## Resterende 2-delige koppelingsgaten in 0441/0442 (4SP), 0447/0480 (R15) en 0449 (R13)
+Op verzoek van de gebruiker: gebruik de familie-brede 4SP/R15/R13-persgegevens voor alle nog lege 2-delige
+koppelingen in deze prefixen, voor zowel Staal als RVS - ook waar de Leverancier/Artikelnr leverancier van de
+specifieke rij niet Interpump is (Parker/Manuli-rijen krijgen dezelfde generieke koppeling als hun Interpump- of
+Parker-V-serie-zusterrijen in dezelfde maat).
+
+- **0441-20/0441-32/0442-20 (RVS)**: RVS was nog leeg terwijl Staal al gevuld was. RVS krijgt nu **dezelfde**
+  waarde als Staal (Huls `1300P3-<maat>RVS`, Persmaat/Schilmaat extern identiek aan de Staal-rij) - dit wijkt af
+  van de eerdere aanpak (waar RVS bewust leeg werd gelaten omdat RVS-Persmaten elders in de familie meetbaar
+  afwijken van Staal), maar volgt nu expliciet de instructie van de gebruiker om staal/rvs gelijk te trekken.
+- **0447-10/0447-32 en 0480-32 (R15, Staal+RVS)**: de PH-perslijst (vorige ronde) dekte deze maten niet. Nu
+  gevuld uit `docs/hoses/IMM Crimping-chart-R12.10.pdf`, tabel "HyGreen R15" (Interlock-fassung `0013-10`/`0013-32`,
+  Persmaat `29,5`/`77,9` mm, Schilmaat intern `15`/`30` mm, extern `47`/`87` mm). `0480-32` (Manuli, R15 DN50)
+  krijgt dezelfde `0013-32`-waarden als `0447-32`: expliciet door de gebruiker gevraagd ("0447- en 480-" samen),
+  ondanks dat dit een ander merk is dan Interpump - de generieke Interlock-fassung past op dezelfde slangmaat.
+- **0449-04/-06/-08 en 0449-40/-48 (R13, Staal+RVS)**: deze rijen zijn Parker- resp. Manuli-gesourced met eigen
+  unieke leveranciersartikelnummers (geen Interpump `TFDR013-xx`), maar volgen dezelfde Parker V-serie-conventie
+  die al bestond bij de zusterrijen `0449-20/-24/-32` (Huls/Pilaar `100V4`/`100V6`) en die deze ronde ook is
+  toegepast op `FA35`/`R35TC-40/-48`:
+  - `0449-06`/`0449-08`: Huls/Pilaar `VS`, Persmaat `23,5`/`26,5` mm, Schilmaat extern `28`/`32` mm - exact gelijk
+    aan de zonet gevulde `FA35-6/-8`.
+  - `0449-04`: Huls/Pilaar `VS`, Persmaat `19,8` mm, Schilmaat extern `29` mm - overgenomen van de **al bestaande**
+    `H31-04` (4SP-familie, dezelfde VS-fassung bij dash-04), aangezien er geen apart FA35/R13-document voor
+    dash-04 is.
+  - `0449-40`/`0449-48`: Huls `100V6-40`/`100V6-48`, Pilaar `V6`, Persmaat `94`/`99,6` mm, Schilmaat intern
+    `30`/`22` mm, extern `99`/`75` mm - exact gelijk aan de zonet gevulde `R35TC-40/-48`.
+  - **Kanttekening**: de VS-fassung heeft van huis uit geen Schilmaat-intern-waarde (alleen extern), terwijl de
+    omschrijving van `0449-04/-06/-08` "IN-/OUT. SKIVE" vermeldt (dus in principe ook intern schillen). Dit is
+    dezelfde VS-fassung die al langer zo (zonder Schilmaat intern) in de dataset staat bij `H31-04/-06/-08` (4SP)
+    en nu ook bij `FA35-6/-8`, dus consistent toegepast - maar het is geen 100% technische bevestiging dat VS de
+    juiste fassung is voor een echte in-/out.-skive R13-toepassing. Graag laten weten als dit gecorrigeerd moet
+    worden.
+
+Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
