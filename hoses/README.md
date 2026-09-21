@@ -871,4 +871,45 @@ gebruikt:
 Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde (geen wijziging in het aantal - deze ronde was
 uitsluitend correctie/aanvulling van al aanwezige koppelingen, geen nieuwe gaten gevuld of ontstaan).
 
+## IMM-coderingen vervangen door Geeve Perslijst; RVS 4SP-fix vorige ronde teruggedraaid
+Op verzoek van de gebruiker uitgezocht welke 2-delige Huls-waarden nog een IMM-coderingen waren (`004N-xx`,
+`0013-xx`, uit `docs/hoses/IMM Crimping-chart-R12.10.pdf`). Dit bleek uitsluitend te gaan om `0446-12/-16/-20/-24/-32`
+(4SH) en `0447-10/-32`, `0480-32` (R15), in zowel Staal als RVS.
+
+**Belangrijke correctie eerst**: bij het uitzoeken bleek `docs/perslijst/Geeve/Geeve Perslijst_2018.pdf` (Geeve's
+**eigen** perslijst, niet eerder als los document doorzocht) de oorspronkelijke bron te zijn van de RVS
+4SP-Persmaten (0441/0442-04 t/m -24) die twee rondes geleden per abuis met PH-perslijst-waarden zijn overschreven.
+Dat was dus een verkeerde "correctie" - teruggedraaid naar de Geeve Perslijst-waarden (welke, op dash-20 na,
+identiek zijn aan wat er vóór die ronde al stond):
+- RVS Persmaat 04-24: `19.4/22.0/25.9/29.2/34.9/40.7/-/61.4` (dash-20 uitgezonderd).
+- **dash-20 is wel degelijk gecorrigeerd** naar een nieuwe, andere waarde dan zowel de oorspronkelijke placeholder
+  (51,2) als de foutieve PH-fix (52,6): Geeve Perslijst geeft `54,3` mm voor `1300P3-20RVS` - dit is de nu
+  correcte waarde.
+- dash-32 heeft geen RVS-regel in dit document; ongewijzigd gelaten (blijft `71.0`, wat toevallig al met PH
+  overeenkwam).
+
+**IMM-coderingen vervangen** door de Geeve Perslijst-eigen "Interlock"-tabellen (Koppeling Serie `30`, Huls-serie
+`Z34000`/`34000`), Staal en RVS apart uit de betreffende Staal-/RVS-secties van het document:
+- **4SH (0446-12/-16/-20/-24/-32)**: Huls `34000-12/-16/-20/-24/-32` (Staal) / `Z34000-12RVS`...`-32RVS` (RVS),
+  Pilaar `30`. Persmaat/Schilmaat ook licht bijgesteld t.o.v. de IMM-waarden (bv. -12: Persmaat 33,2 -> 33,9).
+- **R15 (0447-32, 0480-32)**: Huls `Z37000-32` (Staal) / `Z37000-32RVS` (RVS), Pilaar `30`. Let op: dit is een
+  *andere* Persmaat dan de gelijknamige `Z37000-32` bij R13 (`0449-32`: 77,3 mm) - de R15-tabel geeft 77,9 mm
+  (Staal) / 78,3 mm (RVS). Niet zomaar hetzelfde cijfer tussen R13 en R15 aannemen, ook al is de Huls-naam gelijk.
+- **R15 (0447-10)**: **geen Geeve-Perslijst-dekking voor dash-10/DN16** - de IMM-waarde is verwijderd zonder
+  vervanging, dus deze rij is weer leeg. Dit is een bewuste keuze (geen bron = geen data, in lijn met "alle IMM
+  weg"), maar betekent wel een nieuwe/hernieuwde lege plek in de dataset. Graag een bron aandragen als die er is.
+- `0447-12/-16/-20/-24` (Huls `P7-I-DN..`, uit de PH-perslijst) zijn **niet** aangepast: dat zijn geen
+  IMM-coderingen en vielen buiten de vraag.
+
+Ontbrekende_persgegevens.xlsx opnieuw gegenereerd (104, was 113 v/e vorige combinatie van deze en de
+verwijderronde hieronder).
+
+## 10 artikelen verwijderd (AIR-luchtslangen en 7200-serie)
+Op verzoek van de gebruiker verwijderd uit alle 3 CSV's: `AIR10MMGEEL 15 BAR`, `AIR13MMGEEL 15 BAR`,
+`AIR13MMGEEL 20 BAR`, `AIR19MMGEEL 15 BAR`, `AIR19MMGEEL 20 BAR`, `AIR19MMGRIJS`, `AIR25MMGEEL 20 BAR`,
+`7200-06LGR`, `7200-06ORA`, `7200-04TWIN`. 939 artikelen resterend (was 949).
+
+Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde (zie boven, 104 - alle 10 verwijderde artikelen
+stonden zonder koppelingdata in de lijst).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
