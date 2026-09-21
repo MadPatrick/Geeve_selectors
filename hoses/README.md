@@ -977,4 +977,22 @@ leken `0492-10/-12/-16` e.d. buiten bereik te vallen, maar die zitten wel degeli
 (`0463-05/-06/-08`) hadden een foutieve `-SKIVE`-toevoeging aan hun Huls-naam terwijl de omschrijving zelf
 "NO-SKIVE" zegt - dat is meteen mee gecorrigeerd (nu gewoon `1300P1-0xRVS`, zonder `-SKIVE`-suffix).
 
+## Accessoires: ParKoil/Spring Guard/Firesleeve overgenomen van Parker naar Interpump
+Op verzoek van de gebruiker: voor Interpump-artikelen in `artikelnummers_accessoires.csv` (104 rijen, allemaal
+zonder ParKoil en Spring Guard) is per rij de norm (`1SN`/`2SN`/`1SC`/`2SC`/`3SC`/`4SP`/`4SH`/`R13`/`R15`/...) en
+maat uit de omschrijving gehaald, en vergeleken met Parker-rijen met **dezelfde norm + dezelfde maat**. Waar
+meerdere Parker-referenties bestaan (bv. meerdere H31/H31ST/H31TC-varianten bij 4SP) is de meest voorkomende
+waarde gebruikt (5 van de 70 norm+maat-groepen hadden een enkele afwijkende Parker-rij, telkens een S.T./T.C.-
+achtige uitzondering).
+
+- **ParKoil** en **Spring Guard**: overgenomen waar leeg (was bij alle 104 Interpump-rijen leeg).
+- **Firesleeve**: Interpump had hier al bijna overal het generieke `9125-xx`-deel staan; de Parker-specifieke
+  `FS-F-xx`-toevoeging (waar aanwezig bij de norm+maat-referentie) is ervoor geplakt, dus bv. `9125-06` wordt
+  `FS-F-10,9125-06`.
+
+55 rijen bijgewerkt. 34 rijen zijn bewust **niet** aangepast: voor de normen `2SN`, `1TE`, `2TE` en `3SC`/`3SK`
+bestaat helemaal geen Parker-referentie in de dataset (deze lijken exclusief Interpump-gebrande slangtypen), en
+een paar losse maten (`0323-24/-32` bij 1SC, `0441/0442-24` en dash-32 bij 4SP, `0447-10` bij R15) hebben geen
+Parker-rij met dezelfde norm+maat en gevulde ParKoil/Spring Guard om van over te nemen.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
