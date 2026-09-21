@@ -926,4 +926,29 @@ de vorige ronde) is en blijft correct.
 
 Ontbrekende_persgegevens.xlsx opnieuw gegenereerd (103, was 104).
 
+## Huls Texsleeve (Staal/RVS) herberekend voor de hele dataset
+De gebruiker heeft twee bronbestanden toegevoegd in `docs/hoses/`: `Huls 19001.xlsx` (Staal, "HULS TEXSLEEVE
+STEEL <binnenmaat>X<wanddikte>X<lengte>") en `Huls 9223.xlsx` (RVS, "MARKING FERRULE <binnenmaat> MM I.D."). Bij
+de eerste upload bleek `Huls 19001.xlsx` per ongeluk dezelfde inhoud als `Huls 9223.xlsx` te bevatten (geen enkele
+19001-code) - na navraag opnieuw geüpload met de juiste 19001-data.
+
+**Selectieregel** (van de gebruiker, toegepast op alle 942 rijen in `artikelnummers_accessoires.csv`):
+1. Crimpmaat = Persmaat van de koppeling. Bij meerdere ingevulde Persmaten voor hetzelfde artikel (2delig_1/2,
+   1delig_1/2/3) wordt het gemiddelde genomen.
+2. Gezochte huls = de kleinste huls in de tabel waarvan de binnenmaat groter is dan crimpmaat + 4mm.
+3. Bij een "overlap" (twee hulzen met dezelfde binnenmaat, bv. 9223-019/9223-020 of 9223-023/9223-027) wordt de
+   huls met het hoogste artikelnummer (grotere/zwaardere uitvoering) gekozen.
+4. Huls Texsleeve (Staal) wordt berekend uit de **Staal**-Persmaat, Huls Texsleeve (RVS) uit de **RVS**-Persmaat -
+   elk apart, uit de bijbehorende rij in `artikelnummers_staal.csv`/`artikelnummers_rvs.csv` (zelfde artnr).
+
+**Toegepast**: 1264 veldwijzigingen (van de 2x942 mogelijke Staal/RVS-velden). Rijen zonder enige Persmaat
+(271 velden) zijn **niet aangeraakt** - voor die artikelen is er geen crimpmaat om de regel op toe te passen, dus
+blijft de bestaande waarde staan. 4 velden zijn leeggemaakt omdat de crimpmaat te groot is voor de Staal-tabel
+(die stopt bij 85mm binnenmaat): `0424-40`, `0462TC-40`, `811-40`, `811S-40` (allemaal ca. 81-82mm crimpmaat,
+drempel 85-86mm, geen passende 19001-huls beschikbaar). De RVS-tabel (tot 127mm) had geen out-of-range-gevallen.
+
+Dit is een forse herziening t.o.v. de eerder aanwezige Huls Texsleeve-waarden, die kennelijk niet volgens deze
+exacte regel waren bepaald (bv. `FA35-20` had `19001-52`, wat met crimpmaat 50,2mm niet aan de "+4mm"-marge
+voldeed - nu `19001-55`).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
