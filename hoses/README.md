@@ -1021,4 +1021,18 @@ ingevuld met `690`, voor beide artikelen in zowel `artikelnummers_staal.csv` als
 De bestaande Huls-gegevens (Staal `M03400-04`/`M03400-06`, RVS leeg) zijn expliciet ongewijzigd gelaten - de
 gebruiker gaf aan hier geen actie op te willen.
 
+## Huls Texsleeve Staal (19001-xx): max. 10mm marge boven de crimpmaat
+De `19001-xx`-tabel (`docs/hoses/Huls 19001.xlsx`) heeft een sprong van 55 naar 70mm binnenmaat. Bij een
+crimpmaat van ca. 51-59mm koos het bestaande selectie-algoritme (kleinste binnenmaat > crimpmaat+4mm) daardoor
+`19001-70`, met een marge tot ~19mm boven de crimpmaat - veel te ruim. Op verzoek van de gebruiker is hier een
+harde grens aan toegevoegd: de binnenmaat van de gekozen huls mag **niet meer dan 10mm groter zijn dan de
+crimpmaat zelf**. Past geen enkele tabelwaarde binnen zowel de bestaande ondergrens (> crimpmaat+4mm) als deze
+nieuwe bovengrens (<= crimpmaat+10mm), dan wordt `Huls tex staal` leeggelaten (zelfde behandeling als
+"crimpmaat buiten bereik van de tabel").
+
+119 rijen aangepast (allemaal leeggemaakt, geen enkele kreeg een andere `19001-xx`-waarde) - vooral rond de
+55/70-sprong, maar ook bij enkele kleine crimpmaten (8-14mm) waarvoor de kleinste tabelwaarde (`19001-24`) al
+meer dan 10mm te groot was. `Huls tex RVS` (`9223-xx`) is niet aangepast; deze instructie gold alleen voor de
+19001-serie.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
