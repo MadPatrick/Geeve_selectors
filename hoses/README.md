@@ -836,4 +836,39 @@ Parker-V-serie-zusterrijen in dezelfde maat).
 
 Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde.
 
+## RVS 4SP-Persmaat herzien naar PH-perslijst; R13 Staal Z-serie huls toegevoegd
+Op verzoek van de gebruiker herzien: voor RVS moet bij 4SP/R13/R15 de Persmaat uit de PH-perslijst komen, met
+behoud van de bestaande Geeve-huisstijl voor de Huls-naam (dus niet PH's eigen `P3-DN..`/`P6-I-DN..`-notatie
+overnemen als Huls-waarde).
+
+- **4SP (0441/0442), RVS Persmaat volledig herzien naar de PH `P3`-tabel** (Rubrik 26), Huls-naam ongewijzigd
+  (`1300P3-<maat>RVS`): dash-04 `19.4`->`19.5`, -06 `22.0`->`23.2`, -08 `25.9`->`26.5`, -10 `29.2`->`29.5`, -12
+  `34.9`->`34.0`, -16 `40.7`->`42.0`, -20 `51,2`->`52.6` (dit lost meteen ook de eerder gesignaleerde
+  komma/punt-inconsistentie op -20 op), -24 `61.4`->`58.0`, -32 ongewijzigd (was al `71.0`, matcht PH exact). Dit
+  vervangt de oudere, niet met PH overeenkomende RVS-bron die al vóór deze sessie in de dataset stond.
+- **R13 (0449) en R15 (0447/0480): geen wijziging mogelijk/nodig.** Uitgezocht welke rijen daadwerkelijk PH-data
+  gebruiken: `0449-16` (Interlock `P6-I-DN25`) en `0447-12/-16/-20/-24` (Interlock `P7-I-DN..`) zijn al rechtstreeks
+  uit PH gehaald in een eerdere ronde en kwamen dus al overeen. De overige R13/R15-rijen (`0449-04/-06/-08` met
+  `VS`, `0449-20/-24/-32/-40/-48` met `100V4`/`100V6`, `0447-10/-32`+`0480-32` met `0013-..`) gebruiken een
+  **andere fassung-serie** dan PH's Interlock-tabel (`P3`/`P6-I`/`P7-I`) - de PH-perslijst heeft geen tabel voor de
+  V4/V6/VS-serie. Zonder de Huls-naam te wijzigen (zoals afgesproken) zou een PH-Persmaat hier een technisch
+  inconsistente combinatie opleveren (Huls van fassung X met een Persmaat van fassung Y), dus deze zijn bewust
+  ongewijzigd gelaten.
+
+**R13 (0449) Staal: tweede 2-delige koppeling (Z-serie + 30-serie pilaar) toegevoegd**, analoog aan de al
+bestaande `0449-32` (`Z37000-32`/Pilaar `30`) en de zusterfamilie R15/`R42TC` die hetzelfde Z-seriepatroon
+gebruikt:
+- `0449-20`: `2delig_2` = Huls `Z37000-20`, Pilaar `30`, Persmaat `54,2` mm, Schilmaat intern `22` mm, extern `74`
+  mm (waarden overgenomen van `R42TC-20`, dezelfde Z37000-20-fassung).
+- `0449-24`: `2delig_2` = Huls `Z37000-24`, Pilaar `30`, Persmaat `60,5` mm, Schilmaat intern `22,5` mm, extern
+  `81` mm (van `R42TC-24`).
+- **Niet toegevoegd** (geen betrouwbare precedent/bron voor een Z-serie-alternatief op deze maten): `0449-04/-06/-08`
+  (VS-fassung, geen Z-serie-variant elders in de dataset gevonden), `0449-16` (huidige Huls is de Interlock
+  `P6-I-DN25`, een structureel andere primaire fassung dan de V4/Z34000-opzet van de rest van de familie - een
+  Z-serie hier toevoegen zou een niet-eerder-bevestigde combinatie zijn), `0449-40/-48` (de Z-serie in het
+  R15-precedent (`R42(TC)`) gaat niet verder dan dash-32).
+
+Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde (geen wijziging in het aantal - deze ronde was
+uitsluitend correctie/aanvulling van al aanwezige koppelingen, geen nieuwe gaten gevuld of ontstaan).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
