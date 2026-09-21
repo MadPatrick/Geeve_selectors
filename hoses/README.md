@@ -951,4 +951,24 @@ Dit is een forse herziening t.o.v. de eerder aanwezige Huls Texsleeve-waarden, d
 exacte regel waren bepaald (bv. `FA35-20` had `19001-52`, wat met crimpmaat 50,2mm niet aan de "+4mm"-marge
 voldeed - nu `19001-55`).
 
+## Parker 2-delig: huls vervangen door IMM-equivalent (1SN/2SN/1SC/2SC)
+Op verzoek van de gebruiker: voor Parker-artikelen met een `2delig_1`-koppeling waarvan de omschrijving `1SC`,
+`2SC`, `1SN` of `2SN` bevat (`R1AT`/`R2AT` komen in deze dataset altijd samen met resp. `1SN`/`2SN` voor in
+dezelfde omschrijving, dus apart geen extra treffers), is de Huls-code + Persmaat vervangen door de IMM-waarde uit
+`docs/hoses/IMM Crimping-chart-R12.10.pdf` (tabellen "Hypress ONE 1SN", "Hypress TWO 2SN", "Hypress 1SC",
+"Hypress 2SC" - de enige tabellen per standaard die de volle maatreeks dekken; de overige IMM-subvarianten
+Easy K/Jet-JetPlus/Marathon geven op de maten die ze delen identieke cijfers, dus geen aparte bron nodig).
+
+- **1SN** (`001C-<maat>`, Staal) / `001C-<maat>RVS` (RVS): `0311-04..32`, `421SN-4..32`, `421TC-24/-32`.
+- **2SN** (`0022-<maat>`): `0421-08`.
+- **1SC** (`001C-<maat>`): `0492(-ST/-TC)-04..16`, `0692(PU)-04..10`.
+- **2SC** (`001C-<maat>`): `0462(PU/ST/TC)-04..48`, `0463-05/-06/-08`.
+
+In totaal 86 Staal- en 102 RVS-rijen aangepast (RVS trof een paar extra bestaande 2-delig-rijen die in Staal geen
+2-delig hadden, bv. `0461LT-*`, `0187TC-24/-40`, `422-6/-8/-12/-16/-24`). Alleen `2delig_1` is vervangen; een
+eventuele `2delig_2` (een apart, ouder alternatief zoals `0311-04`'s `13002-04MM`) is **niet** aangeraakt, want de
+vraag was specifiek over "de huls" (enkelvoud) en het zou de twee combinaties identiek maken. 3 rijen (`0463-05/
+-06/-08`) hadden een overgebleven Schilmaat-extern-waarde bij hun oude huls die niet bij de nieuwe NO-SKIVE
+IMM-code hoort - die zijn leeggemaakt.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
