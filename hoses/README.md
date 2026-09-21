@@ -794,9 +794,10 @@ gebruiker toegepast: crimp-/schilgegevens zijn gelijk voor Staal en RVS (identie
   Crimp-maten. Volgens de nieuwe instructie moet steeds de eerste rij worden gebruikt, maar de al eerder
   vastgelegde waarden blijken een **wisselend** mengsel van rij 1 en rij 2 te zijn (-40/-48 komen overeen met rij
   2, -56/-64/-80/-96 met rij 1). De ontbrekende maat `811S-32` staat niet eens in deze tabel (die begint pas bij
-  -40), dus hier viel sowieso niets nieuws mee aan te vullen. De bestaande -40/-48/-96 zijn **niet** aangepast aan
-  "altijd eerste rij" - dat zou al gecommitte productdata wijzigen zonder duidelijke aanwijzing dat de huidige
-  waarden fout zijn. Graag bevestigen of dit gecorrigeerd moet worden.
+  -40), dus hier viel sowieso niets nieuws mee aan te vullen. Aan de gebruiker voorgelegd of de bestaande
+  -40/-48/-96 gecorrigeerd moesten worden naar "altijd eerste rij" - **antwoord: laten zoals het is**, dus geen
+  wijziging. De "eerste rij"-regel geldt wel voor eventuele toekomstige 811S-aanvullingen (bv. als er ooit een
+  -32-tabel opduikt).
 
 Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde.
 
