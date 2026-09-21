@@ -19,6 +19,7 @@ $uploadMessage = $_GET['msg'] ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Data beheer | Geeve Hydraulics</title>
+    <link rel="icon" href="../favicon.ico?v=<?= h(APP_VERSION) ?>" type="image/x-icon">
     <link rel="stylesheet" href="assets/style.css?v=<?= h(APP_VERSION) ?>">
 </head>
 <body>
