@@ -1014,4 +1014,11 @@ deze drie artikelen **helemaal geen** 2-delig-gegeven aanwezig (geen Huls, geen 
 dash 04 t/m 16, die wel Staal-Huls `15001-xx` hebben. Dit is niet aangepast omdat hiervoor geen brondata is
 aangeleverd; graag laten weten of en met welke Persmaat-waarden dit aangevuld moet worden.
 
+## 0427: Werkdruk aangevuld
+`0427-04M` en `0427-06` (Manuli Jackmaster) hadden een lege `Werkdruk (bar)` (de omschrijving bevat geen
+"W.P. ... BAR"-patroon om dit automatisch uit te halen). Op opgave van de gebruiker (max. werkdruk 690 bar)
+ingevuld met `690`, voor beide artikelen in zowel `artikelnummers_staal.csv` als `artikelnummers_rvs.csv`.
+De bestaande Huls-gegevens (Staal `M03400-04`/`M03400-06`, RVS leeg) zijn expliciet ongewijzigd gelaten - de
+gebruiker gaf aan hier geen actie op te willen.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
