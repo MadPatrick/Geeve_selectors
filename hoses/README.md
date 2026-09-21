@@ -912,4 +912,18 @@ Op verzoek van de gebruiker verwijderd uit alle 3 CSV's: `AIR10MMGEEL 15 BAR`, `
 Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde (zie boven, 104 - alle 10 verwijderde artikelen
 stonden zonder koppelingdata in de lijst).
 
+## 0447-10 hersteld
+Vorige ronde is `0447-10` (R15, dash-10) leeggemaakt omdat er geen Geeve-Perslijst-dekking voor deze maat was en
+de IMM-huls-code weg moest. De gebruiker gaf aan dat de eerder gebruikte meetwaarden (29,5mm Persmaat, Schilmaat
+intern 15,0 / extern 47,0 - oorspronkelijk uit `docs/hoses/IMM Crimping-chart-R12.10.pdf`) wel bruikbaar zijn en
+enkel de Huls-naam hoefde te veranderen, niet de cijfers. Hersteld met de Geeve-conventie die ook voor de rest van
+de R15/4SH-familie gebruikt is: Huls `Z34000-10` (Staal) / `Z34000-10RVS` (RVS), Pilaar `30`, dezelfde
+Persmaat/Schilmaat als voorheen.
+
+Ook nagevraagd of de RVS-Huls van de rest van de familie (0446, 0447-32, 0480-32) naar PH-perslijst-notatie
+(`P4-I-DN..`/`P7-I-DN..`) moest - **nee**: de Geeve-eigen notatie (`Z34000-xxRVS`/`Z37000-xxRVS`, al toegepast in
+de vorige ronde) is en blijft correct.
+
+Ontbrekende_persgegevens.xlsx opnieuw gegenereerd (103, was 104).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
