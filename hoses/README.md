@@ -995,4 +995,23 @@ bestaat helemaal geen Parker-referentie in de dataset (deze lijken exclusief Int
 een paar losse maten (`0323-24/-32` bij 1SC, `0441/0442-24` en dash-32 bij 4SP, `0447-10` bij R15) hebben geen
 Parker-rij met dezelfde norm+maat en gevulde ParKoil/Spring Guard om van over te nemen.
 
+## 0503/0815: RVS Huls-naamgeving gecorrigeerd en Persmaat aangevuld
+Op verzoek van de gebruiker: "slang type 0815-xx is huls 87000-xx voor staal en 87000-xxRVS voor RVS" en
+"slang type 0503-xx is huls 15001-xx voor staal en 15001-xxRVS voor RVS".
+
+- **0503-serie (RVS)**: de Huls-naam stond bij 10 rijen (dash 04/05/06/08/10/12/16/20/24/32) nog op de
+  PH-afgeleide naamgeving `1300P2-xxRVS`, terwijl Staal al overal `15001-xx` gebruikte. Hernoemd naar
+  `15001-xxRVS`; de bestaande Persmaat-waarden zijn ongewijzigd gelaten.
+- **0815-serie (RVS)**: de Huls-naam was hier al correct (`87000-xxRVS`), maar bij alle 8 rijen (dash
+  06/08/10/12/16/20/24/32) ontbrak de Persmaat. Aangevuld door de bestaande Staal-waarden (Persmaat, Pilaar,
+  Schilmaat extern waar aanwezig) te spiegelen naar RVS.
+
+18 rijen bijgewerkt (10x 0503-rename, 8x 0815-Persmaat-aanvulling).
+
+**Let op - gevonden asymmetrie, nog niet opgelost:** `0503-20`, `0503-24` en `0503-32` hebben nu wel volledige
+RVS-gegevens (`15001-20RVS`/`15001-24RVS`/`15001-32RVS`, Persmaat 49,5/54/70 mm), maar aan de Staal-kant is voor
+deze drie artikelen **helemaal geen** 2-delig-gegeven aanwezig (geen Huls, geen Persmaat) - in tegenstelling tot
+dash 04 t/m 16, die wel Staal-Huls `15001-xx` hebben. Dit is niet aangepast omdat hiervoor geen brondata is
+aangeleverd; graag laten weten of en met welke Persmaat-waarden dit aangevuld moet worden.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
