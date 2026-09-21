@@ -761,4 +761,43 @@ nog niet verwerkt, wachten op upload.
 
 Ontbrekende_persgegevens.xlsx opnieuw gegenereerd (141, was 142 - FA35-12-DL verdwijnt uit de lijst).
 
+## Resterende Parker-perslijsten verwerkt (FA35, 221FR, 431, R35TC-40/-48, 563TJ)
+De eerder ontbrekende bestanden zijn geupload (`docs/perslijst/`, root-niveau) en verwerkt. Regel van de
+gebruiker toegepast: crimp-/schilgegevens zijn gelijk voor Staal en RVS (identieke waarde in beide CSV's), `V4`,
+`V6`, `VS` zijn 2-delig (Huls = Pilaar = de code zelf), de rest is 1-delig.
+
+- **FA35-6/-8 (Staal+RVS)**: Huls/Pilaar `VS`, Persmaat `23,5`/`26,5` mm, Schilmaat extern `28`/`32` mm (geen
+  Schilmaat intern - uit `FA35-VS.pdf`). **FA35-12/-16/-20**: Huls/Pilaar `V4`, Persmaat `33,9`/`42,5`/`50,2` mm,
+  Schilmaat intern `15`/`17`/`21,5` mm, extern `52`/`65`/`74` mm - uit `FA35-V4.pdf`. Deze waarden matchen exact de
+  al bestaande `100V4-16/-20`-koppelingen bij `R35TC`/`0449`, wat de bron bevestigt. `FA35-V6.pdf` (dash-24/-32)
+  is gecontroleerd maar niet toegepast: er bestaat geen `FA35-24`/`FA35-32`-artikel in de dataset.
+- **221FR-8/-12 (Staal+RVS)**: Huls `26`, Persmaat `18,30`/`24,50` mm, Insteekdiepte `21`/`22` mm - uit
+  `221FR-26.pdf`, zelfde "26 Series"-stijl als de al bestaande `221FR-5/-6/-16`. Werkdruk `35` bar aangevuld
+  (extrapolatie: alle 3 bekende maten in deze familie zijn uniform 35 bar).
+- **431-4/-6/-8/-12/-16 (Staal+RVS)**: Huls `43`, Persmaat en Insteekdiepte uit `431-43.pdf` - **dit document is
+  in inches** (koptekst "All units in inches"), omgerekend naar mm (×25,4): Persmaat `16,64`/`21,21`/`24,26`/
+  `31,88`/`40,64` mm, Insteekdiepte `21`/`29`/`33`/`38`/`44` mm (afgerond op hele mm). Werkdruk niet aangevuld:
+  niet in dit document vermeld en geen bestaande familiewaarde om van te extrapoleren.
+- **R35TC-40/-48 (Staal+RVS)**: Huls `100V6-40`/`100V6-48`, Pilaar `V6`, Persmaat `94`/`99,6` mm, Schilmaat
+  intern `30`/`22` mm, extern `99`/`75` mm - uit `R35TC.pdf` (dash-48 bevestigd door `RS35TC-48.pdf`), zelfde
+  `100V6-<maat>`/`V6`-conventie als de al bestaande `R35TC-24/-32`-siblings. Dit vult de laatste 2 gaten in de
+  R35TC-familie.
+- **0563TJ-4/-6/-8 (Staal+RVS)**: Huls `55`, Persmaat `13,46`/`17,15`/`20,45` mm, Insteekdiepte `30`/`33`/`40`
+  mm - uit `563TJ-55_US.pdf` (US-eenheden, inches, omgerekend ×25,4). Van de 3 geuploade 563TJ-documenten (43/55/56
+  series) is bewust voor de **55-serie** gekozen: dit is dezelfde stijl als de al bestaande `0590TJ-06/-08`
+  (ook een "Tough Jacket"-slang), en de omgerekende waarden komen na afronding exact overeen met die twee
+  bestaande rijen (bv. dash-8: 20,447mm -> 20,45, identiek aan `0590TJ-08`s Persmaat) - sterke bevestiging dat dit
+  de juiste serie is.
+
+**Niet verwerkt / open punten voor de gebruiker:**
+- **811S.pdf**: dekt de maten -40/-48/-56/-64/-80/-96, elk met **twee** Cover-OD-rijen en dus twee mogelijke
+  Crimp-maten. Volgens de nieuwe instructie moet steeds de eerste rij worden gebruikt, maar de al eerder
+  vastgelegde waarden blijken een **wisselend** mengsel van rij 1 en rij 2 te zijn (-40/-48 komen overeen met rij
+  2, -56/-64/-80/-96 met rij 1). De ontbrekende maat `811S-32` staat niet eens in deze tabel (die begint pas bij
+  -40), dus hier viel sowieso niets nieuws mee aan te vullen. De bestaande -40/-48/-96 zijn **niet** aangepast aan
+  "altijd eerste rij" - dat zou al gecommitte productdata wijzigen zonder duidelijke aanwijzing dat de huidige
+  waarden fout zijn. Graag bevestigen of dit gecorrigeerd moet worden.
+
+Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
