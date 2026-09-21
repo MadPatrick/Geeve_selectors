@@ -746,4 +746,19 @@ ongewijzigd gelaten.
 
 Ontbrekende_persgegevens.xlsx opnieuw gegenereerd na deze ronde (zie onderaan repo-root).
 
+## FA35-12-DL verwijderd; 580N/588N-56/-58 gecontroleerd (geen nieuwe data)
+Op verzoek van de gebruiker is `FA35-12-DL` volledig verwijderd uit alle 3 CSV's (stond zonder koppelingdata in
+Staal/RVS en met accessoire-data in de accessoires-lijst); 949 artikelen resterend.
+
+De gebruiker gaf aan een reeks nieuwe Parker-perslijsten te hebben toegevoegd. Van de genoemde bestanden bleken
+alleen `580N-56.pdf`, `580N-58.pdf`, `588N-56.pdf` en `588N-58.pdf` daadwerkelijk aanwezig in
+`docs/perslijst/Parker/`. Gecontroleerd: deze vier tabellen dekken uitsluitend de maten -8/-10/-12/-16, die al
+identiek in de CSV's stonden (bevestigt dat dit de oorspronkelijke bron was). De echte gaten in deze families
+(`580N-04`, `580N-06`, `588N-4`, `588N-06`) hebben geen -04/-06-rij in deze specifieke tabellen, dus daar kon niets
+mee aangevuld worden. De overige door de gebruiker genoemde bestanden (`FA35-V4/V6/VS.pdf`, `R35TC.pdf`,
+`RS35TC-48.pdf`, `811S.pdf`, `221FR-26.pdf`, `431-43.pdf`) en een bron voor `563TJ` staan nog niet in de repo -
+nog niet verwerkt, wachten op upload.
+
+Ontbrekende_persgegevens.xlsx opnieuw gegenereerd (141, was 142 - FA35-12-DL verdwijnt uit de lijst).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
