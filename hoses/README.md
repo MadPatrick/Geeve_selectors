@@ -1047,4 +1047,11 @@ omschrijving.
 
 18 rijen aangepast (6 artikelen x 3 bestanden: staal, rvs, accessoires).
 
+## 0323-serie RVS: Pilaar aangevuld bij 2delig_2
+Bij alle 12 `0323-xx`-artikelen in `artikelnummers_rvs.csv` had `2delig_1` al Pilaar `10`, maar `2delig_2`
+(die wel een Huls en Persmaat heeft - de P9/PF-R7/17001-overlap-combinatie) had geen Pilaar-waarde. Op verzoek
+van de gebruiker aangevuld met `10` (10-serie), zodat beide combinaties nu consistent 10-serie tonen. Staal is
+niet aangepast: daar heeft `2delig_2` helemaal geen gegevens (geen Huls), dus was er niets om een Pilaar aan te
+koppelen.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
