@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-const APP_VERSION = '0.2.0';
+const APP_VERSION = '0.2.1';
 
 require_once __DIR__ . '/inc/csv-paths.php';
 require_once __DIR__ . '/inc/data-loader.php';
