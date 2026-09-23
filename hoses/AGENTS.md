@@ -73,6 +73,22 @@ Voor versienummer-afspraken: zie `CLAUDE.md`. Voor de chronologische geschiedeni
   koppelingsdata die aan deze combinatie-regel voldoet, hoeft er dus **niets** extra's gedaan te worden om de
   samenvoeging te laten werken — die volgt automatisch uit de bestaande sloten-structuur, mits elk slot z'n
   eigen Koppeling-waarde heeft en de overige velden voor die maat identiek zijn.
+- **Huls 1/Huls 2-kolomuitlijning in de 2-delige Perslijst-tabel** (`buildComboTable()` /
+  `alignComboEntries()` in `assets/selector.js`): het CSV-slotnummer (`2delig_1` vs. `2delig_2`) van een
+  variant weerspiegelt alleen de invoervolgorde van die ene rij — **niet** een vaste "kant" van de koppeling.
+  Zonder correctie kan dezelfde hulsfamilie bij de ene maat in slot 1 staan en bij een andere maat (vaak een
+  grotere maat zonder de andere variant, dus met maar 1 gevulde slot) toevallig in slot 2, of omgekeerd
+  (voorbeeld: familie `0811` — `1300PF-PTFE-xxRVS` staat in de brondata voor `-10`/`-12`/`-16` in `2delig_1`
+  terwijl diezelfde familie bij `-03` t/m `-08A` in `2delig_2` staat). `alignComboEntries()` herkent de
+  "hulsfamilie" door de eigen dash-maat van de rij (zie `dashMaat()`) uit de hulscode te strippen
+  (`81000-03RVS` + maat `03` → `81000-RVS`), leert per slangtype (dezelfde TYPE-groepering als de
+  `Type`-scheidingsrij) van rijen met **beide** varianten aanwezig welke familie bij welke kolom hoort, en
+  wisselt v1/v2 alleen om bij een ondubbelzinnige match — **nooit** bij een familie die nooit samen met een
+  andere in 1 rij voorkomt (dan is er geen basis om te kiezen, en blijft de volgorde zoals ingevoerd). Dit is
+  puur presentatielogica; de onderliggende `2delig_1`/`2delig_2`-CSV-sloten blijven ongewijzigd — pas dus
+  **nooit** de CSV-sloten zelf aan om dit "recht te zetten", dat gebeurt al automatisch bij het printen. Bij
+  het toevoegen van een nieuwe maat aan een bestaand slangtype: zolang de hulscode dezelfde niet-maat-tekst
+  bevat als de al aanwezige varianten van diezelfde familie, wordt die automatisch in de juiste kolom getoond.
 
 ## 3. Matching-algoritme: artikel ↔ brondocument (crimp-specs, hosecatalogi)
 

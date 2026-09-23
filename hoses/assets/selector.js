@@ -1063,6 +1063,76 @@
         return table;
     }
 
+    // De eigen dash-maat van een artnr ("0811-03" -> "03"), voor het
+    // herkennen van de hulsfamilie hieronder.
+    function dashMaat(artnr) {
+        const match = /^[^-]*-(\d+)/.exec(String(artnr ?? ''));
+        return match ? match[1] : null;
+    }
+
+    // Haalt de maat uit een hulscode ("81000-03RVS" + maat "03" ->
+    // "81000-RVS") zodat dezelfde familie over verschillende maten heen
+    // herkend wordt, ongeacht welke kant (2delig_1/2delig_2) hij in de CSV
+    // toevallig in staat.
+    function hulsFamily(huls, maat) {
+        if (!huls || maat === null) {
+            return huls || '';
+        }
+        return huls.replace(new RegExp(`(?<!\\d)${maat}(?!\\d)`), '');
+    }
+
+    // Zorgt dat dezelfde hulsfamilie binnen 1 slangtype (TYPE-groep) altijd
+    // in dezelfde kolom (Huls 1 of Huls 2) van de 2-delige Perslijst-tabel
+    // terechtkomt - het CSV-slotnummer (2delig_1/2delig_2) weerspiegelt
+    // alleen de invoervolgorde van die specifieke rij, niet een vaste
+    // "kant" van de koppeling. Zonder deze correctie belandt een maat die
+    // maar 1 variant heeft soms toevallig in slot 1 terwijl diezelfde
+    // hulsfamilie bij de andere maten in slot 2 staat (en omgekeerd), wat
+    // de kolommen bij het scannen van de tabel door elkaar laat lopen. Op
+    // verzoek van de gebruiker: welke familie kolom 1 vs. kolom 2 krijgt
+    // maakt niet uit, zolang het binnen 1 type consistent is.
+    function alignComboEntries(entries) {
+        const pairs = entries.map(({ article, variants, displayArtnr }) => {
+            const v1 = variants.find((variant) => variant.number === 1) || {};
+            const v2 = variants.find((variant) => variant.number === 2) || {};
+            const maat = dashMaat(article.artnr);
+            return {
+                article, displayArtnr, v1, v2,
+                fam1: v1.huls ? hulsFamily(v1.huls, maat) : null,
+                fam2: v2.huls ? hulsFamily(v2.huls, maat) : null,
+            };
+        });
+
+        // Alleen rijen met 2 verschillende, samen voorkomende families leren
+        // ons welke familie bij welke kolom hoort - rijen met maar 1
+        // variant zijn daarvoor te dubbelzinnig (dat ene slot kan toeval
+        // zijn) en worden hier overgeslagen.
+        const familySlot = new Map();
+        pairs.forEach(({ fam1, fam2 }) => {
+            if (!fam1 || !fam2 || fam1 === fam2) {
+                return;
+            }
+            if (!familySlot.has(fam1) && !familySlot.has(fam2)) {
+                familySlot.set(fam1, 1);
+                familySlot.set(fam2, 2);
+            } else if (familySlot.has(fam1) && !familySlot.has(fam2)) {
+                familySlot.set(fam2, familySlot.get(fam1) === 1 ? 2 : 1);
+            } else if (!familySlot.has(fam1) && familySlot.has(fam2)) {
+                familySlot.set(fam1, familySlot.get(fam2) === 1 ? 2 : 1);
+            }
+        });
+
+        return pairs.map(({ article, displayArtnr, v1, v2, fam1, fam2 }) => {
+            const slot1 = fam1 ? familySlot.get(fam1) : undefined;
+            const slot2 = fam2 ? familySlot.get(fam2) : undefined;
+            // Alleen wisselen bij een ondubbelzinnige reden: de bekende
+            // familie van v1 hoort in kolom 2, of die van v2 hoort in
+            // kolom 1 - nooit bij een onbekende of tegenstrijdige match.
+            const shouldSwap = (slot1 === 2 && slot2 !== 2) || (slot2 === 1 && slot1 !== 1);
+            return { article, displayArtnr, v1: shouldSwap ? v2 : v1, v2: shouldSwap ? v1 : v2 };
+        });
+    }
+
     function buildComboTable(groups) {
         const fieldLabels = ['Pilaar', 'Huls', 'Persmaat', 'Schilmaat intern', 'Schilmaat extern'];
         // Kleiner dan de breedtes in buildCouplingTable (zie print-table-combo
@@ -1091,9 +1161,7 @@
         const tbody = document.createElement('tbody');
         groups.forEach(({ rawPrefixes, entries }) => {
             const rows = [];
-            entries.forEach(({ article, variants, displayArtnr }) => {
-                const v1 = variants.find((variant) => variant.number === 1) || {};
-                const v2 = variants.find((variant) => variant.number === 2) || {};
+            alignComboEntries(entries).forEach(({ article, v1, v2, displayArtnr }) => {
                 rows.push([
                     fieldValue(displayArtnr),
                     fieldValue(article.artnm),

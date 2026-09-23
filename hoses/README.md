@@ -1166,4 +1166,20 @@ lopende koptekst (`STAAL`/`RVS`) en de scheidingspagina's van de onderliggende h
 `titleLines`-array voor een titel over meerdere regels; zonder die parameter (de bestaande aanroepen voor
 1-delig/2-delig/Accessoires) blijft het gedrag hetzelfde (1 regel = de hoofdstuknaam).
 
+## Perslijst (PDF): Huls 1/Huls 2 consistent per slangtype uitgelijnd
+De gebruiker meldde (met screenshots van TYPE 0811 en TYPE 0692) dat dezelfde hulsfamilie soms in kolom "Huls 1"
+en soms in "Huls 2" stond binnen 1 slangtype - bijv. bij 0811 stond `1300PF-PTFE-xxRVS` voor de meeste maten in
+Huls 2, maar voor de grotere maten (-10/-12/-16, waar geen `81000-xxRVS`-tegenhanger meer bestaat) juist in
+Huls 1, puur omdat die rij dan nog maar 1 variant heeft en die toevallig in het eerste CSV-slot (`2delig_1`)
+staat. Op verzoek van de gebruiker ("welke pilaar/huls 1 of 2 is niet belangrijk qua volgorde als dezelfde
+types maar onder elkaar staan") is dit voor **alle** slangtypen gecontroleerd en gecorrigeerd: `Type 0317`,
+`0347`, `H31` (Staal) en `Type 0317`, `0323`, `0331`, `0492`, `0692`, `0692PU`, `0811`, `H31` (RVS) bleken
+hetzelfde probleem te hebben (0 van 57 Staal- resp. 1 van 63 RVS-typegroepen restte na de fix nog een
+afwijking - zie hieronder). Dit is puur presentatielogica in `buildComboTable()`: `alignComboEntries()` herkent
+de "hulsfamilie" door de eigen dash-maat van de rij uit de hulscode te strippen (`81000-03RVS` + maat `03` ->
+`81000-RVS`), leert per slangtype welke familie bij welke kolom hoort van rijen waar beide varianten aanwezig
+zijn, en wisselt v1/v2 om waar nodig - zonder de onderliggende CSV-sloten (`2delig_1`/`2delig_2`) aan te
+passen. 1 rij (RVS `0331-05`) had daadwerkelijk dezelfde hulscode in beide CSV-sloten (een bestaande
+datadubbeling, geen kolomvolgorde-probleem) - dat is een apart, klein datapunt en niet aangepast.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
