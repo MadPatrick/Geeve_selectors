@@ -350,7 +350,6 @@
 
         const pilaarInput = editInput(material, 'combo', number, 'pilaar', v.pilaar, '10 of 30');
         pilaarInput.classList.add('fact-edit-pilaar');
-        pilaarInput.setAttribute('list', 'pilaarOptions');
 
         card.appendChild(removeButton(onRemove));
         card.appendChild(createFactsRow([

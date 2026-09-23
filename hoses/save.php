@@ -146,10 +146,26 @@ function buildAccessoryColumnUpdates(array $accessoryPayload): array
 // van de lock nog de oude inode inlezen).
 function updateCsvRow(string $path, string $eol, string $artnr, array $columnUpdates, array $contextColumns): void
 {
+    $dir = dirname($path);
+    if (!is_writable($dir)) {
+        error_log('save.php: map niet schrijfbaar: ' . $dir . ' (rechten: ' . decoct(fileperms($dir) & 0777) . ')');
+        throw new RuntimeException(
+            'De map "' . basename($dir) . '/" is niet schrijfbaar voor de webserver, dus wijzigingen kunnen niet '
+            . 'worden opgeslagen. Vraag de hostingbeheerder om schrijfrechten te geven aan de webserver-gebruiker '
+            . '(bijv. chmod 775 data/, of chown naar de juiste gebruiker) - zelfde vereiste als voor de '
+            . 'upload-knop op de data-pagina.'
+        );
+    }
+
     $lockPath = $path . '.lock';
     $lockHandle = fopen($lockPath, 'c');
     if ($lockHandle === false) {
-        throw new RuntimeException('Kan lock-bestand niet aanmaken voor ' . basename($path) . '.');
+        $lastError = error_get_last();
+        error_log('save.php: kan lock-bestand niet aanmaken: ' . $lockPath . ': ' . ($lastError['message'] ?? 'onbekende fout'));
+        throw new RuntimeException(
+            'Kan lock-bestand niet aanmaken voor ' . basename($path) . '. Controleer de schrijfrechten op de map '
+            . '"' . basename($dir) . '/" voor de webserver-gebruiker.'
+        );
     }
 
     if (!flock($lockHandle, LOCK_EX)) {

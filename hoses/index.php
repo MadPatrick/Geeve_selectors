@@ -155,11 +155,6 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
         <small>Zoek op artikelnummer, omschrijving, leverancier of leveranciersartikelnummer, of laat "Artikel zoeken" leeg en combineer de maat (de laatste cijfers van het artikelnummer) met de werkdruk (bar).</small>
     </section>
 
-    <datalist id="pilaarOptions">
-        <option value="10">
-        <option value="30">
-    </datalist>
-
     <section id="result" class="panel result-panel" aria-live="polite" hidden>
         <div class="section-heading">
             <div>
