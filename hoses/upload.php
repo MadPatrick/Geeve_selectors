@@ -17,7 +17,7 @@ $datasets = [
     ],
     'accessoires' => [
         'candidates' => $accessoryCsvCandidates,
-        'columns'    => 13,
+        'columns'    => 14,
         'label'      => 'Accessoires',
     ],
 ];

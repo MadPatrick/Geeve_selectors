@@ -19,6 +19,10 @@
     const pdfMenu = document.getElementById('pdfMenu');
     const clearFilterButton = document.getElementById('clearFilterButton');
     const printSheet = document.getElementById('printSheet');
+    const editToggleButton = document.getElementById('editToggleButton');
+    const saveEditButton = document.getElementById('saveEditButton');
+    const cancelEditButton = document.getElementById('cancelEditButton');
+    const editStatus = document.getElementById('editStatus');
 
     if (!searchInput || !suggestions || !result) {
         return;
@@ -27,6 +31,9 @@
     const baseTitle = document.title;
     let currentMatches = [];
     let selectedIndex = -1;
+    let currentArticle = null;
+    let editMode = false;
+    let saveInFlight = false;
 
     const normalize = (value) => String(value ?? '').trim().toLowerCase();
 
@@ -293,6 +300,312 @@
         fields.forEach(([label, value, imageKey, valueTitle]) => accessoryGrid.appendChild(createAccessoryFact(label, value, imageKey, valueTitle)));
         accessorySection.hidden = false;
         return true;
+    }
+
+    // --- Wijzigen-modus: dezelfde kaarten, maar met invoervelden i.p.v.
+    // statische tekst. Elk invoerveld draagt data-material/data-type/
+    // data-number/data-field, zodat collectEditPayload() de waarden zonder
+    // per-veld code kan terugvertalen naar de payload voor save.php.
+
+    function editInput(material, type, number, field, value, placeholder) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'fact-edit-input';
+        input.value = String(value ?? '').trim();
+        input.autocomplete = 'off';
+        if (material) input.dataset.material = material;
+        if (type) input.dataset.type = type;
+        if (number !== undefined && number !== null) input.dataset.number = String(number);
+        input.dataset.field = field;
+        if (placeholder) input.placeholder = placeholder;
+        return input;
+    }
+
+    function editFact(label, inputEl, primary = false) {
+        const fact = document.createElement('div');
+        fact.className = `fitting-fact fact-edit${primary ? ' primary' : ''}`;
+        const labelEl = document.createElement('span');
+        labelEl.textContent = label;
+        fact.append(labelEl, inputEl);
+        return fact;
+    }
+
+    function createComboCardEdit(material, number, variant) {
+        const v = variant || {};
+        const card = document.createElement('article');
+        card.className = 'fitting-card combo-card is-editing';
+
+        const pilaarInput = editInput(material, 'combo', number, 'pilaar', v.pilaar, '10 of 30');
+        pilaarInput.classList.add('fact-edit-pilaar');
+        pilaarInput.setAttribute('list', 'pilaarOptions');
+
+        card.appendChild(createFactsRow([
+            editFact('Huls', editInput(material, 'combo', number, 'huls', v.huls), true),
+            editFact('Persmaat', editInput(material, 'combo', number, 'persmaat', v.persmaat)),
+            editFact('Schilmaat intern', editInput(material, 'combo', number, 'schilIntern', v.schilIntern)),
+            editFact('Schilmaat extern', editInput(material, 'combo', number, 'schilExtern', v.schilExtern)),
+        ], editFact('Pilaar', pilaarInput)));
+
+        return card;
+    }
+
+    function createCouplingCardEdit(material, number, variant) {
+        const v = variant || {};
+        const card = document.createElement('article');
+        card.className = 'fitting-card coupling-card is-editing';
+
+        card.appendChild(createFactsRow([
+            editFact('Persmaat', editInput(material, 'coupling', number, 'persmaat', v.persmaat)),
+            editFact('Insteekdiepte', editInput(material, 'coupling', number, 'insteekdiepte', v.insteekdiepte)),
+            editFact('Schilmaat intern', editInput(material, 'coupling', number, 'schilIntern', v.schilIntern)),
+            editFact('Schilmaat extern', editInput(material, 'coupling', number, 'schilExtern', v.schilExtern)),
+        ], editFact('Type koppeling', editInput(material, 'coupling', number, 'koppeling', v.koppeling))));
+
+        return card;
+    }
+
+    function variantByNumber(list, number) {
+        return (Array.isArray(list) ? list : []).find((item) => item.number === number) || null;
+    }
+
+    function renderTwoPieceEdit(article) {
+        twoPieceGrid.innerHTML = '';
+        [['STAAL', 'staal', article.comboStaal], ['RVS', 'rvs', article.comboRvs]].forEach(([label, material, variants]) => {
+            const block = document.createElement('section');
+            block.className = 'material-block';
+            const heading = document.createElement('div');
+            heading.className = 'material-block-heading';
+            heading.appendChild(materialBadge(label));
+            const grid = document.createElement('div');
+            grid.className = 'variant-grid';
+            for (let number = 1; number <= 2; number += 1) {
+                grid.appendChild(createComboCardEdit(material, number, variantByNumber(variants, number)));
+            }
+            block.append(heading, grid);
+            twoPieceGrid.appendChild(block);
+        });
+        twoPieceSection.hidden = false;
+    }
+
+    function renderOnePieceEdit(article) {
+        onePieceGrid.innerHTML = '';
+        [['STAAL', 'staal', article.koppelingStaal], ['RVS', 'rvs', article.koppelingRvs]].forEach(([label, material, variants]) => {
+            const block = document.createElement('section');
+            block.className = 'material-block';
+            const heading = document.createElement('div');
+            heading.className = 'material-block-heading';
+            heading.appendChild(materialBadge(label));
+            const grid = document.createElement('div');
+            grid.className = 'variant-grid';
+            for (let number = 1; number <= 3; number += 1) {
+                grid.appendChild(createCouplingCardEdit(material, number, variantByNumber(variants, number)));
+            }
+            block.append(heading, grid);
+            onePieceGrid.appendChild(block);
+        });
+        onePieceCount.textContent = '';
+        onePieceSection.hidden = false;
+    }
+
+    function accessoryEditFact(label, field, value, imageKey) {
+        const item = document.createElement('div');
+        item.className = 'accessory-fact accessory-fact-edit';
+
+        const textWrap = document.createElement('div');
+        textWrap.className = 'accessory-fact-text';
+        const labelEl = document.createElement('span');
+        labelEl.textContent = label;
+        const input = editInput('accessoires', null, null, field, value);
+        textWrap.append(labelEl, input);
+        item.appendChild(textWrap);
+
+        if (imageKey) {
+            const imgWrap = document.createElement('div');
+            imgWrap.className = 'accessory-fact-image';
+            const img = document.createElement('img');
+            img.src = `images/${imageKey}.png`;
+            img.alt = label;
+            img.loading = 'lazy';
+            img.addEventListener('error', () => { img.remove(); }, { once: true });
+            imgWrap.appendChild(img);
+            item.appendChild(imgWrap);
+            item.classList.add('has-image');
+        }
+
+        return item;
+    }
+
+    function renderAccessoriesEdit(article) {
+        accessoryGrid.innerHTML = '';
+        const accessories = article && article.accessories && typeof article.accessories === 'object'
+            ? article.accessories
+            : {};
+
+        const fields = [
+            ['Buitenmaat slang (mm)', 'outside', accessories.outside, 'buitenmaat'],
+            ['RVS Omvlechting', 'rvsOmvlechting', accessories.rvsOmvlechting, 'rvs_omvlechting'],
+            ['ParKoil', 'parKoil', accessories.parKoil, 'parkoil'],
+            ['Spring Guard', 'springGuard', accessories.springGuard, 'springguard'],
+            ['Firesleeve', 'firesleeve', accessories.firesleeve, 'firesleeve'],
+            ['PolyGuard', 'polyGuard', accessories.polyGuard, 'spiralguard'],
+            ['SpiralGuard', 'spiralGuard', accessories.spiralGuard, null],
+            ['Texsleeve', 'texsleeve', accessories.texsleeve, 'texsleeve'],
+            ['Huls Texsleeve (Staal)', 'hulsTexStaal', accessories.hulsTexStaal, '19001'],
+            ['Huls Texsleeve (RVS)', 'hulsTexRvs', accessories.hulsTexRvs, '19001'],
+        ];
+
+        fields.forEach(([label, field, value, imageKey]) => accessoryGrid.appendChild(accessoryEditFact(label, field, value, imageKey)));
+        accessorySection.hidden = false;
+    }
+
+    function renderResultSections(article) {
+        if (editMode) {
+            renderAccessoriesEdit(article);
+            renderOnePieceEdit(article);
+            renderTwoPieceEdit(article);
+            emptyResult.hidden = true;
+            return;
+        }
+
+        renderAccessories(article);
+        const hasOnePiece = renderOnePiece(article);
+        const hasTwoPiece = renderTwoPiece(article);
+        emptyResult.hidden = hasTwoPiece || hasOnePiece;
+    }
+
+    function collectEditPayload() {
+        const payload = {
+            artnr: currentArticle.artnr || '',
+            context: {
+                artnm: currentArticle.artnm || '',
+                vendor: currentArticle.vendor || '',
+                supplier: currentArticle.supplier || '',
+                werkdruk: currentArticle.werkdruk || '',
+            },
+            staal: { combo: {}, couplings: {} },
+            rvs: { combo: {}, couplings: {} },
+            accessoires: {},
+        };
+
+        result.querySelectorAll('.fact-edit-input').forEach((input) => {
+            const { material, type, number, field } = input.dataset;
+            const value = input.value;
+
+            if (material === 'accessoires') {
+                payload.accessoires[field] = value;
+                return;
+            }
+
+            const target = payload[material];
+            if (!target) {
+                return;
+            }
+            const bucket = type === 'combo' ? target.combo : target.couplings;
+            if (!bucket[number]) {
+                bucket[number] = {};
+            }
+            bucket[number][field] = value;
+        });
+
+        return payload;
+    }
+
+    function setEditStatus(message, isError) {
+        if (!editStatus) {
+            return;
+        }
+        if (!message) {
+            editStatus.hidden = true;
+            editStatus.textContent = '';
+            return;
+        }
+        editStatus.hidden = false;
+        editStatus.textContent = message;
+        editStatus.classList.toggle('is-error', Boolean(isError));
+    }
+
+    function setEditButtonsVisibility() {
+        if (editToggleButton) editToggleButton.hidden = editMode;
+        if (saveEditButton) saveEditButton.hidden = !editMode;
+        if (cancelEditButton) cancelEditButton.hidden = !editMode;
+    }
+
+    function enterEditMode() {
+        if (!currentArticle || editMode) {
+            return;
+        }
+        editMode = true;
+        setEditStatus('');
+        setEditButtonsVisibility();
+        renderResultSections(currentArticle);
+    }
+
+    function exitEditMode() {
+        editMode = false;
+        setEditStatus('');
+        setEditButtonsVisibility();
+        if (currentArticle) {
+            renderResultSections(currentArticle);
+        }
+    }
+
+    function applyUpdatedArticle(updated) {
+        if (!updated || !updated.artnr) {
+            return;
+        }
+        const index = articles.findIndex((item) => normalize(item.artnr) === normalize(updated.artnr));
+        if (index !== -1) {
+            articles[index] = Object.assign({}, articles[index], updated);
+            currentArticle = articles[index];
+        } else {
+            currentArticle = updated;
+        }
+    }
+
+    function saveEdits() {
+        if (!currentArticle || saveInFlight) {
+            return;
+        }
+        saveInFlight = true;
+        if (saveEditButton) saveEditButton.disabled = true;
+        setEditStatus('Bezig met opslaan…');
+
+        const payload = collectEditPayload();
+
+        fetch('save.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        })
+            .then((response) => response.json().catch(() => ({ ok: false, error: `Onverwachte serverfout (${response.status}).` })))
+            .then((data) => {
+                if (!data || data.ok !== true) {
+                    throw new Error((data && data.error) || 'Opslaan is mislukt.');
+                }
+                applyUpdatedArticle(data.article);
+                editMode = false;
+                setEditButtonsVisibility();
+                setEditStatus('Wijzigingen opgeslagen.');
+                renderResultSections(currentArticle);
+                window.setTimeout(() => setEditStatus(''), 4000);
+            })
+            .catch((error) => {
+                setEditStatus(error.message || 'Opslaan is mislukt.', true);
+            })
+            .finally(() => {
+                saveInFlight = false;
+                if (saveEditButton) saveEditButton.disabled = false;
+            });
+    }
+
+    if (editToggleButton) {
+        editToggleButton.addEventListener('click', enterEditMode);
+    }
+    if (cancelEditButton) {
+        cancelEditButton.addEventListener('click', exitEditMode);
+    }
+    if (saveEditButton) {
+        saveEditButton.addEventListener('click', saveEdits);
     }
 
     function materialBadge(material) {
@@ -806,6 +1119,14 @@
         updateWerkdrukOptions();
         closeSuggestions();
 
+        currentArticle = article;
+        editMode = false;
+        setEditButtonsVisibility();
+        setEditStatus('');
+        if (editToggleButton) {
+            editToggleButton.disabled = false;
+        }
+
         document.getElementById('resultArtnr').textContent = article.artnr || '-';
         document.getElementById('resultArtnm').textContent = article.artnm || '-';
         document.getElementById('resultVendor').textContent = article.vendor || '-';
@@ -814,11 +1135,8 @@
             ? `${article.werkdruk} bar`
             : '-';
 
-        renderAccessories(article);
-        const hasOnePiece = renderOnePiece(article);
-        const hasTwoPiece = renderTwoPiece(article);
+        renderResultSections(article);
 
-        emptyResult.hidden = hasTwoPiece || hasOnePiece;
         result.hidden = false;
         result.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }

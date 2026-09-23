@@ -1,3 +1,7 @@
 # Automatische backups van geüploade CSV-bestanden (upload.php) - alleen
 # lokaal op de server, niet meenemen in git.
 /data/backups/
+
+# Lock-bestanden voor save.php (wijzigen-modus) - alleen lokaal op de
+# server, niet meenemen in git.
+/data/*.lock

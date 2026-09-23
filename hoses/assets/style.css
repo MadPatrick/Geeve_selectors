@@ -352,6 +352,27 @@ input::placeholder { color: #929fac; }
 
 .empty-result { padding: 18px; border: 1px dashed #c8d4de; border-radius: 12px; background: #fafcfd; color: var(--muted); font-style: italic; }
 .empty-result[hidden] { display: none; }
+
+/* Wijzigen-modus */
+.header-icon-button-save { color: #baf0cf; border-color: rgba(186, 240, 207, .5); }
+.header-icon-button-save:hover { background: rgba(186, 240, 207, .22); border-color: rgba(186, 240, 207, .7); }
+.header-icon-button-save:disabled { opacity: .5; cursor: default; }
+.header-icon-button-cancel:hover { background: rgba(255, 141, 169, .22); border-color: rgba(255, 141, 169, .7); }
+.header-icon-button[disabled] { opacity: .35; cursor: default; pointer-events: none; }
+
+.edit-status { margin: -10px 0 20px; padding: 10px 14px; border-radius: 10px; background: #eafaf1; border: 1px solid #bfe9d2; color: var(--ok); font-size: 13px; font-weight: 650; }
+.edit-status[hidden] { display: none; }
+.edit-status.is-error { background: #fbecec; border-color: #eec4c4; color: var(--danger); }
+
+.fitting-card.is-editing { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(238, 48, 93, .12); }
+.fact-edit { flex: 1 1 120px; min-width: 110px; }
+.fact-edit.primary { flex-basis: 160px; }
+.fact-edit input.fact-edit-input { min-height: 34px; padding: 6px 9px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink); }
+.fact-edit-pilaar { max-width: 90px; text-align: center; }
+
+.accessory-fact-edit { align-items: flex-start; }
+.accessory-fact-edit .accessory-fact-text { width: 100%; }
+.accessory-fact-edit input.fact-edit-input { min-height: 36px; padding: 7px 10px; border-radius: 8px; font-size: 13px; margin-top: 1px; }
 .warning-box { margin-top: 18px; padding: 15px 18px; border-radius: 12px; border: 1px solid #e8b1b1; background: #fff1f1; color: #7d2f2f; }
 
 .print-sheet { display: none; }

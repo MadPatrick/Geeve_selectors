@@ -1035,4 +1035,42 @@ nieuwe bovengrens (<= crimpmaat+10mm), dan wordt `Huls tex staal` leeggelaten (z
 meer dan 10mm te groot was. `Huls tex RVS` (`9223-xx`) is niet aangepast; deze instructie gold alleen voor de
 19001-serie.
 
+## Wijzigen-modus: koppeling- en accessoiregegevens rechtstreeks in het scherm bewerken
+Op verzoek van de gebruiker: een potlood-knop in de topbalk (naast de bestaande data-knop) schakelt een
+"wijzigen"-modus in voor het geselecteerde artikel. Alle koppelingvelden (type koppeling/huls/pilaar/persmaat/
+schilmaat intern/extern, voor zowel 1-delig als 2-delig, Staal én RVS) en alle accessoirevelden (Buitenmaat
+slang, RVS Omvlechting, ParKoil, Spring Guard, Firesleeve, PolyGuard, SpiralGuard, Texsleeve, Huls Texsleeve
+Staal/RVS) worden dan invoervelden. In wijzigen-modus worden ook lege/nog niet aanwezige combo- en
+koppelingslots getoond (steeds alle 2 combo- en 3 koppelingslots per materiaal), zodat ontbrekende gegevens
+(zoals de bekende `0503-20/-24/-32` Staal-leegte) meteen zelf aangevuld kunnen worden, niet alleen bestaande
+waarden gecorrigeerd. Een save-knop (vinkje) stuurt de ingevoerde waarden naar het nieuwe `save.php`, een
+annuleer-knop (kruisje) verlaat de modus zonder op te slaan.
+
+`save.php`:
+- Accepteert alleen POST met JSON-body, valideert per veld (geen waarde die met `=`/`+`/`@` begint - i.e.
+  eenvoudige bescherming tegen formule-injectie als het bestand later in Excel/Sheets wordt geopend).
+- Werkt de rij bij op exact artikelnummer in `artikelnummers_staal.csv`/`_rvs.csv`/`_accessoires.csv`; bestaat
+  de rij nog niet in een van die bestanden (bijv. een artikel dat nog geen accessoire-regel had), dan wordt er
+  een nieuwe rij aangemaakt met het artikelnummer en de reeds bekende artnm/Leverancier/Artikelnr
+  leverancier/Werkdruk als context.
+- Schrijft terug met exact dezelfde conventie als de rest van dit project (UTF-8 BOM, LF voor staal/rvs, CRLF
+  voor accessoires, minimale CSV-quoting zoals Python's `csv.QUOTE_MINIMAL` - PHP's eigen `fputcsv()` bleek
+  ongevraagd ook velden met een spatie te quoten, wat bij elke opslag een diff over de hele, verder ongewijzigde
+  rest van het bestand zou geven; daarom een eigen minimal-quoting schrijffunctie i.p.v. `fputcsv()`).
+- Gebruikt een los `.lock`-bestand (niet het CSV-bestand zelf) plus atomic rename, zodat gelijktijdige
+  opslag-verzoeken elkaar niet kunnen overschrijven of corrumperen.
+- Maakt vóór elke wijziging een tijdgestempelde back-up in `data/backups/`, zelfde patroon als `upload.php`
+  al gebruikte voor volledige bestandsvervangingen.
+- Geeft na opslaan de vers ingelezen, samengevoegde artikelgegevens terug, zodat de pagina exact toont wat er
+  nu daadwerkelijk op schijf staat (zonder herladen van de hele pagina).
+
+De gedeelde CSV-inlees-/samenvoeglogica (voorheen alleen in `index.php`) staat nu in `hoses/inc/data-loader.php`,
+gebruikt door zowel `index.php` als `save.php`, zodat beide gegarandeerd dezelfde gegevens tonen.
+
+Terzijde gevonden en gecorrigeerd: `upload.php` controleerde nog op 13 kolommen voor een geüploade
+accessoires-CSV, terwijl het bestand sinds de toevoeging van de kolom "RVS Omvlechting" 14 kolommen heeft - een
+geldige 14-koloms upload zou daardoor altijd geweigerd zijn. Aangepast naar 14.
+
+Ontwikkeld op de `editor`-branch (nog niet samengevoegd met `main`).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
