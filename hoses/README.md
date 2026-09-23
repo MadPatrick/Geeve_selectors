@@ -1182,4 +1182,19 @@ zijn, en wisselt v1/v2 om waar nodig - zonder de onderliggende CSV-sloten (`2del
 passen. 1 rij (RVS `0331-05`) had daadwerkelijk dezelfde hulscode in beide CSV-sloten (een bestaande
 datadubbeling, geen kolomvolgorde-probleem) - dat is een apart, klein datapunt en niet aangepast.
 
+## RVS: huls `1300PF-R7-xx` hernoemd naar `17001-xx` bij R7/R8/1SC-slangtypes
+Op verzoek van de gebruiker in `artikelnummers_rvs.csv` alle 80 voorkomens van huls `1300PF-R7-<maat>RVS`
+hernoemd naar `17001-<maat>RVS`, voor de slangtypes `0323`, `0347`, `0492`/`0492ST`/`0492TC`, `0692`/`0692PU`,
+`510D`, `518C`, `520N`, `528N`, `540N` en `588N` (allemaal R7-, R8- of 1SC-slangen volgens de omschrijving).
+`17001-<maat>RVS` was voor bijna al deze slangtypes al de bestaande code op andere rijen/sloten binnen
+dezelfde familie (bijv. `0323-10` t/m `-32` gebruikten al `17001-xx`, terwijl `0323-04` t/m `-08` nog
+`1300PF-R7-xx` gebruikten voor exact dezelfde fysieke huls) - de 2 namen bleken voor dezelfde maat steeds
+identieke Pilaar/Persmaat-waarden te hebben, wat bevestigt dat het om dezelfde huls ging met een inconsistente
+naamgeving. Staal was hier niet geraakt: die gebruikte voor deze families al uitsluitend `17001-<maat>` (geen
+`1300PF-R7`-variant, geen `RVS`-suffix). Bijkomend effect: bij 3 rijen (`0347-04`/`-06`/`-10`) stond de
+hernoemde waarde toevallig al in de andere Huls-kolom van diezelfde rij (met identieke Pilaar/Persmaat) - dat
+was al zo vóór de hernoeming (2 verschillende namen voor dezelfde fysieke huls) en toont nu gewoon dezelfde
+code in beide kolommen; niet aangepast, want dat is een presentatie-detail, geen datafout. Vastgelegd als
+conventie in `AGENTS.md` §5 zodat dit niet opnieuw als `1300PF-R7` wordt ingevoerd.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.

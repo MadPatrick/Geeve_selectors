@@ -176,6 +176,14 @@ tegen de brontekst, niet enkel tegen de tabelkolommen.
   kopiëren.
 - Bij maten met alleen externe skiving (de "VS"-maten in een gecombineerde VS/V4-PDF) blijft Schilmaat intern
   leeg — niet invullen met "0" of een gok.
+- **R7/R8/1SC-slangtypes gebruiken huls `17001-<maat>RVS`, nooit `1300PF-R7-<maat>RVS`.** Die laatste code
+  bleek een historisch inconsistente naamgeving voor exact dezelfde huls (zelfde Pilaar/Persmaat/Schilmaat per
+  maat) — op verzoek van de gebruiker gecorrigeerd (september 2026, 80 rijen in `artikelnummers_rvs.csv`:
+  `0323`, `0347`, `0492`/`0492ST`/`0492TC`, `0692`/`0692PU`, `510D`, `518C`, `520N`, `528N`, `540N`, `588N`).
+  `17001-<maat>RVS` was voor de meeste van deze slangtypes al de bestaande, correcte code op andere rijen/sloten
+  binnen dezelfde familie — bij twijfel over welke van de twee te gebruiken voor een nieuwe R7/R8/1SC-rij: altijd
+  `17001-<maat>RVS`, nooit `1300PF-R7-<maat>RVS`. Alleen relevant voor RVS; Staal gebruikte voor deze
+  slangfamilies al uitsluitend `17001-<maat>` (geen `RVS`-suffix, geen `1300PF-R7`-variant).
 
 ## 6. Aanvullen vs. corrigeren — welke bron is leidend
 
