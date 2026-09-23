@@ -1194,14 +1194,24 @@
 
     // A full divider page with the chapter name shown large - always
     // immediately followed by that chapter's own content page(s).
-    function buildDividerPage(groupName) {
+    // `titleLines`, when given, replaces the single `groupName` line with
+    // multiple stacked lines (used for the Staal/RVS material dividers,
+    // which show "Perslijst" + "Slangkoppelingen Staal/RVS" instead of just
+    // the bare material name) - `groupName` itself keeps going to
+    // buildPrintHeader() for the running header in the top-right corner.
+    function buildDividerPage(groupName, titleLines) {
         const divider = document.createElement('div');
         divider.className = 'print-divider';
         divider.appendChild(buildPrintHeader(groupName));
 
         const title = document.createElement('div');
         title.className = 'print-divider-title';
-        title.textContent = groupName;
+        (titleLines || [groupName]).forEach((line, index) => {
+            if (index > 0) {
+                title.appendChild(document.createElement('br'));
+            }
+            title.appendChild(document.createTextNode(line));
+        });
         divider.appendChild(title);
 
         return divider;
@@ -1232,7 +1242,8 @@
             return false;
         }
 
-        printSheet.appendChild(buildDividerPage(material));
+        const materialLabel = material === 'STAAL' ? 'Staal' : material;
+        printSheet.appendChild(buildDividerPage(material, ['Perslijst', `Slangkoppelingen ${materialLabel}`]));
 
         if (couplingGroups.size > 0) {
             printSheet.appendChild(buildChapterPages('1-delig', '1-delige koppelingen', buildCouplingTable(couplingGroups)));

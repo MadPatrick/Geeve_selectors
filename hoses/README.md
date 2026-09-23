@@ -1157,4 +1157,13 @@ de vrijgekomen ruimte (2x 27px) toegevoegd aan Omschrijving (298px → 352px). D
 uitschieters - geen dataverlies, alleen de Huls-cel zelf wordt iets hoger; geverifieerd dat dit nergens de
 naastgelegen kolommen raakt en dat Staal (waar de langste hulscode ruim binnen 95px past) nooit wrapt.
 
+## Perslijst (PDF): titel van de Staal/RVS-scheidingspagina aangepast
+Op verzoek van de gebruiker toont de grote titel op de Staal- en RVS-scheidingspagina (vóór de 1-delige/
+2-delige hoofdstukken van dat materiaal) niet langer alleen het materiaal ("STAAL"/"RVS"), maar 2 regels:
+"Perslijst" en "Slangkoppelingen Staal" resp. "Slangkoppelingen RVS". De kleine hoofdstuknaam rechtsboven in de
+lopende koptekst (`STAAL`/`RVS`) en de scheidingspagina's van de onderliggende hoofdstukken ("1-delig",
+"2-delig") zijn ongewijzigd. `buildDividerPage()` in `assets/selector.js` accepteert nu een optionele
+`titleLines`-array voor een titel over meerdere regels; zonder die parameter (de bestaande aanroepen voor
+1-delig/2-delig/Accessoires) blijft het gedrag hetzelfde (1 regel = de hoofdstuknaam).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
