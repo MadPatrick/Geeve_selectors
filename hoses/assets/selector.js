@@ -1064,14 +1064,19 @@
     }
 
     function buildComboTable(groups) {
-        const fieldLabels = ['Huls', 'Pilaar', 'Persmaat', 'Schilmaat intern', 'Schilmaat extern'];
+        const fieldLabels = ['Pilaar', 'Huls', 'Persmaat', 'Schilmaat intern', 'Schilmaat extern'];
         // Kleiner dan de breedtes in buildCouplingTable (zie print-table-combo
         // in style.css, die deze tabel op een kleiner lettertype zet) - anders
-        // blijft er bij 12 kolommen vrijwel niets over voor Omschrijving.
-        const fieldWidths = [122, 41, 56, 54, 54];
+        // blijft er bij 12 kolommen vrijwel niets over voor Omschrijving. Huls
+        // is smal genoeg gehouden dat de meeste waarden op 1 regel passen
+        // (p95 over Staal+RVS) - de zeldzame langere RVS-hulscode mag daardoor
+        // op 2 regels wrappen (zie .print-table-combo td:nth-child in
+        // style.css) i.p.v. dat de hele kolom breder wordt voor een paar
+        // uitschieters, ten koste van Omschrijving.
+        const fieldWidths = [41, 95, 56, 54, 54];
         const table = document.createElement('table');
         table.className = 'print-table print-table-fixed print-table-combo';
-        table.appendChild(buildColGroup([81, 298, ...fieldWidths, ...fieldWidths]));
+        table.appendChild(buildColGroup([81, 352, ...fieldWidths, ...fieldWidths]));
         table.appendChild(buildTableHead([
             [
                 { text: 'Artikelnummer', rowSpan: 2 },
@@ -1092,13 +1097,13 @@
                 rows.push([
                     fieldValue(displayArtnr),
                     fieldValue(article.artnm),
-                    fieldValue(v1.huls),
                     fieldValue(v1.pilaar),
+                    fieldValue(v1.huls),
                     fieldValue(formatMeasurement(v1.persmaat)),
                     fieldValue(formatMeasurement(v1.schilIntern)),
                     fieldValue(formatMeasurement(v1.schilExtern)),
-                    fieldValue(v2.huls),
                     fieldValue(v2.pilaar),
+                    fieldValue(v2.huls),
                     fieldValue(formatMeasurement(v2.persmaat)),
                     fieldValue(formatMeasurement(v2.schilIntern)),
                     fieldValue(formatMeasurement(v2.schilExtern)),

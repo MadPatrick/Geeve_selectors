@@ -534,6 +534,13 @@ input::placeholder { color: #929fac; }
        deze tabel geeft die kolom weer voldoende breedte om de meeste
        omschrijvingen zonder af te kappen te tonen. */
     .print-table.print-table-combo { font-size: 9px; }
+    /* Huls (kolomvolgorde: Artikelnummer, Omschrijving, Pilaar, Huls, ... -
+       dus positie 4 en 9) is smaller dan de langste RVS-huls-code, om
+       "loze" ruimte in de meeste rijen (waar de code korter is) niet te
+       verspillen ten koste van Omschrijving. De zeldzame lange code mag
+       daarom op 2 regels wrappen i.p.v. dat de hele kolom breder wordt. */
+    .print-table.print-table-combo td:nth-child(4),
+    .print-table.print-table-combo td:nth-child(9) { white-space: normal; }
     .print-table tr.print-type-row { break-after: avoid; }
     .print-table tr.print-type-row td {
         background: #f2f2f2;

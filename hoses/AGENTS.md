@@ -60,6 +60,19 @@ Voor versienummer-afspraken: zie `CLAUDE.md`. Voor de chronologische geschiedeni
   door de inhoudspagina's van dat hoofdstuk teruggeeft. Elke pagina krijgt via `buildPrintHeader(chapterLabel)`
   een vetgedrukte hoofdstuknaam rechtsboven. De downloadknop biedt 4 scopes: `all` (compleet), `accessoires`,
   `staal`, `rvs` — `scope` bepaalt welke hoofdstukken worden opgebouwd.
+- **Koppeling-consolidatie in de 1-delige Perslijst-tabel** (`buildCouplingTable()` /
+  `mergeKoppelingRows()` in `assets/selector.js`): een maat kan legitiem **meerdere** `1delig_N`-sloten hebben
+  met exact dezelfde Persmaat/Insteekdiepte/Schilmaat maar een andere Koppeling-code — dat is precies de
+  combinatie-situatie uit §4.1 hieronder (bijv. familie `0304`, maat `-20`/`-24`/`-32`: sloten 1 en 2 zijn
+  identiek op de maten na, koppeling 48 resp. 43). Dat is **geen** dubbele/foutieve rij die opgeschoond moet
+  worden in de CSV (zie §6 — leeg vs. gevuld veld, niet "identieke rij verwijderen"); de Perslijst-PDF combineert
+  zulke rijen automatisch tot 1 regel met de Koppeling-waarden kommagescheiden in volgorde van voorkomen (bijv.
+  "48, 43"), puur als presentatielogica — de onderliggende CSV-sloten blijven ongewijzigd. Groepeersleutel is
+  `Artikelnummer + Persmaat + Insteekdiepte + Schilmaat intern + Schilmaat extern` (Omschrijving telt niet mee,
+  zelfde reden als `dedupeKey()` iets verderop in hetzelfde bestand). Bij het toevoegen of wijzigen van
+  koppelingsdata die aan deze combinatie-regel voldoet, hoeft er dus **niets** extra's gedaan te worden om de
+  samenvoeging te laten werken — die volgt automatisch uit de bestaande sloten-structuur, mits elk slot z'n
+  eigen Koppeling-waarde heeft en de overige velden voor die maat identiek zijn.
 
 ## 3. Matching-algoritme: artikel ↔ brondocument (crimp-specs, hosecatalogi)
 

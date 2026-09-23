@@ -1147,4 +1147,14 @@ Persmaat/Insteekdiepte/Schilmaat intern/Schilmaat extern maar een andere Koppeli
 regel met de Koppeling-waarden kommagescheiden (bijv. `0304-20` had koppeling 48 en 43 met identieke maten →
 1 regel met Koppeling "48, 43").
 
+## Perslijst (PDF): Pilaar/Huls omgewisseld en Huls smaller bij 2-delig
+Op verzoek van de gebruiker in de 2-delige tabel (zowel Staal als RVS) de kolomvolgorde Huls/Pilaar omgewisseld
+naar Pilaar/Huls, en de Huls-kolom smaller gemaakt: die was vast op de langste RVS-hulscode (`1300PF-W-PTFE-
+04RVS`, 136px bij het huidige lettertype) terwijl de meeste waarden veel korter zijn, wat in de praktijk
+zichtbaar "losse" ruimte gaf. Huls-breedte teruggebracht naar 95px (dekt het 95e percentiel over Staal+RVS) en
+de vrijgekomen ruimte (2x 27px) toegevoegd aan Omschrijving (298px → 352px). De zeldzame langere hulscode
+(ca. 12% van de RVS-rijen) wrapt daardoor naar 2 regels i.p.v. dat de hele kolom breder blijft voor een paar
+uitschieters - geen dataverlies, alleen de Huls-cel zelf wordt iets hoger; geverifieerd dat dit nergens de
+naastgelegen kolommen raakt en dat Staal (waar de langste hulscode ruim binnen 95px past) nooit wrapt.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
