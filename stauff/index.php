@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-const APP_VERSION = '0.1.0';
+// Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
+// rootniveau) - valt terug op deze waarde als dat bestand ontbreekt (bv.
+// deze map los buiten de portal gedeployed).
+define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.3.0');
 
 function h(string $value): string
 {
