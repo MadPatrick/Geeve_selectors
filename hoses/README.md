@@ -1035,4 +1035,16 @@ nieuwe bovengrens (<= crimpmaat+10mm), dan wordt `Huls tex staal` leeggelaten (z
 meer dan 10mm te groot was. `Huls tex RVS` (`9223-xx`) is niet aangepast; deze instructie gold alleen voor de
 19001-serie.
 
+## 055LT-serie: omschrijving aangevuld met leveranciersnummer
+De 6 `055LT-xx`-artikelen (`055LT-04`, `055LT-04-04`, `055LT-05`, `055LT-06`, `055LT-06-06`, `055LT-08`) hadden
+allemaal de generieke omschrijving `MTR POLYFLEX SLANG`, zonder maat- of typeaanduiding. Op verzoek van de
+gebruiker aangevuld met het Parker-leveranciersnummer (`Artikelnr leverancier`, al aanwezig in de data) plus het
+woord "SLANG", zonder voorloopnul: bijv. `POLYFLEX SLANG 1202LT-4` (niet `1202LT-04`) en `POLYFLEX SLANG
+1202LT-4-4` voor de dubbele maat. Voor `055LT-08` stond het leveranciersnummer als `55LT-8` in de data (missende
+"12"-prefix t.o.v. de andere 5 rijen); de omschrijving is naar analogie van de rest als `POLYFLEX SLANG
+1202LT-8` gezet - het leveranciersnummer zelf (`Artikelnr leverancier`-kolom) is niet aangepast, alleen de
+omschrijving.
+
+18 rijen aangepast (6 artikelen x 3 bestanden: staal, rvs, accessoires).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
