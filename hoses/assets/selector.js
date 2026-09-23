@@ -943,24 +943,24 @@
         return thead;
     }
 
-    // "Schilmaat intern"/"Schilmaat extern" zijn de langste koptekst-labels
-    // maar de celwaarden eronder zijn altijd kort (mm-getallen of "-") - een
-    // vaste, krappe breedte dwingt de koptekst op 2 regels i.p.v. dat de
-    // auto-tabellayout de hele kolom net zo breed maakt als de ongewikkelde
-    // koptekst, wat ten koste zou gaan van de Omschrijving-kolom.
-    function headCell(text) {
-        return /^Schilmaat (intern|extern)$/.test(text) ? { text, className: 'print-th-narrow' } : { text };
-    }
-
-    // Alleen voor de sub-koppen van de 2-delige (Huls 1/Huls 2) tabel: die
-    // heeft twee sets Huls/Pilaar/Persmaat-kolommen naast elkaar, dus zonder
-    // vaste breedte gaat de auto-tabellayout daar dubbel zoveel ruimte aan
-    // geven als nodig - ten koste van Omschrijving. Los van headCell()
-    // gehouden omdat "Persmaat" ook in de 1-delige tabel voorkomt en die
-    // daar wel zijn eigen (bredere) breedte moet houden.
-    function comboFieldHeadCell(text) {
-        const comboClassNames = { Huls: 'print-th-combo-huls', Pilaar: 'print-th-combo-pilaar', Persmaat: 'print-th-combo-persmaat' };
-        return comboClassNames[text] ? { text, className: comboClassNames[text] } : headCell(text);
+    // Vaste kolombreedtes (px) i.p.v. de auto-tabellayout laten gokken -
+    // nodig omdat de pagina maar een vaste breedte heeft (A4 liggend, ca.
+    // 1033px binnen de marges) en de 2-delige tabel met 12 kolommen (2x
+    // Huls/Pilaar/Persmaat/Schilmaat naast elkaar voor Huls 1 en Huls 2)
+    // anders simpelweg over de paginarand heen loopt. Elke breedte hieronder
+    // is gemeten op de daadwerkelijke langste celinhoud (over zowel Staal
+    // als RVS) plus een kleine marge, zodat die kolommen nooit hoeven te
+    // wrappen; Omschrijving krijgt wat overblijft en kapt af met "..." als
+    // een tekst daar nog steeds niet in past (zie buildColGroup-aanroepen
+    // hieronder en de ellipsis-CSS op td:nth-child(2)).
+    function buildColGroup(widths) {
+        const colgroup = document.createElement('colgroup');
+        widths.forEach((width) => {
+            const col = document.createElement('col');
+            col.style.width = `${width}px`;
+            colgroup.appendChild(col);
+        });
+        return colgroup;
     }
 
     function buildTypeRow(rawPrefixes, columnCount) {
@@ -990,6 +990,36 @@
         return cells.filter((_, index) => index !== 1).join('');
     }
 
+    // Combineert 1-delige koppeling-regels die dezelfde persgegevens hebben
+    // (Persmaat, Insteekdiepte, Schilmaat intern/extern) maar een andere
+    // Koppeling-code - bijv. 0304-20 heeft zowel koppeling 48 als 43 met
+    // identieke maten (2 losse 1delig_N-slots in de data). Op verzoek van
+    // de gebruiker tot 1 regel samengevoegd met Koppeling "48, 43". De
+    // Omschrijving telt niet mee in de groepeersleutel (zelfde reden als
+    // dedupeKey hierboven) - bij een verschil wint de eerst gevonden tekst.
+    function mergeKoppelingRows(rows) {
+        const order = [];
+        const groups = new Map();
+        rows.forEach((cells) => {
+            const [artnr, , koppeling, persmaat, insteekdiepte, schilIntern, schilExtern] = cells;
+            const key = [artnr, persmaat, insteekdiepte, schilIntern, schilExtern].join('\u0001');
+            if (!groups.has(key)) {
+                groups.set(key, { cells: cells.slice(), koppelingen: [] });
+                order.push(key);
+            }
+            const group = groups.get(key);
+            if (koppeling && !group.koppelingen.includes(koppeling)) {
+                group.koppelingen.push(koppeling);
+            }
+        });
+        return order.map((key) => {
+            const group = groups.get(key);
+            const merged = group.cells.slice();
+            merged[2] = group.koppelingen.join(', ');
+            return merged;
+        });
+    }
+
     function appendUniqueRows(tbody, rows) {
         const seen = new Set();
         rows.forEach((cells) => {
@@ -1005,8 +1035,9 @@
     function buildCouplingTable(groups) {
         const headers = ['Artikelnummer', 'Omschrijving', 'Koppeling', 'Persmaat', 'Insteekdiepte', 'Schilmaat intern', 'Schilmaat extern'];
         const table = document.createElement('table');
-        table.className = 'print-table';
-        table.appendChild(buildTableHead([headers.map(headCell)]));
+        table.className = 'print-table print-table-fixed';
+        table.appendChild(buildColGroup([170, 515, 70, 66, 86, 63, 63]));
+        table.appendChild(buildTableHead([headers.map((text) => ({ text }))]));
 
         const tbody = document.createElement('tbody');
         groups.forEach(({ rawPrefixes, entries }) => {
@@ -1026,7 +1057,7 @@
             });
 
             tbody.appendChild(buildTypeRow(rawPrefixes, headers.length));
-            appendUniqueRows(tbody, rows);
+            appendUniqueRows(tbody, mergeKoppelingRows(rows));
         });
         table.appendChild(tbody);
         return table;
@@ -1034,16 +1065,21 @@
 
     function buildComboTable(groups) {
         const fieldLabels = ['Huls', 'Pilaar', 'Persmaat', 'Schilmaat intern', 'Schilmaat extern'];
+        // Kleiner dan de breedtes in buildCouplingTable (zie print-table-combo
+        // in style.css, die deze tabel op een kleiner lettertype zet) - anders
+        // blijft er bij 12 kolommen vrijwel niets over voor Omschrijving.
+        const fieldWidths = [122, 41, 56, 54, 54];
         const table = document.createElement('table');
-        table.className = 'print-table';
+        table.className = 'print-table print-table-fixed print-table-combo';
+        table.appendChild(buildColGroup([81, 298, ...fieldWidths, ...fieldWidths]));
         table.appendChild(buildTableHead([
             [
-                { text: 'Artikelnummer', rowSpan: 2, className: 'print-th-combo-artnr' },
+                { text: 'Artikelnummer', rowSpan: 2 },
                 { text: 'Omschrijving', rowSpan: 2 },
                 { text: 'Huls 1', colSpan: fieldLabels.length },
                 { text: 'Huls 2', colSpan: fieldLabels.length },
             ],
-            [...fieldLabels, ...fieldLabels].map(comboFieldHeadCell),
+            [...fieldLabels, ...fieldLabels].map((text) => ({ text })),
         ]));
 
         const columnCount = 2 + fieldLabels.length * 2;

@@ -1119,4 +1119,32 @@ daarmee in de Staal-lijst van 478px naar 561px (van 37% naar 44% van de tabelbre
 1280px) zonder dat er ergens een celwaarde over meerdere regels gaat wrappen (over de volledige dataset van
 437 rijen geverifieerd).
 
+## Perslijst (PDF): vaste kolombreedtes, afkappen i.p.v. wrappen, koppelingen samenvoegen
+De vorige aanpassing (zie hierboven) ging uit van de paginabreedte die Playwright's on-screen
+print-media-emulatie toevallig gebruikte (1280px, Playwright's default viewport) - de daadwerkelijke
+inhoudsbreedte van een afgedrukte pagina (A4 liggend, marges 14mm/12mm uit de `@page`-regel) is echter maar
+ca. 1033px. Op die echte breedte bleek de 2-delige tabel (12 kolommen: Artikelnummer, Omschrijving, dan 2x
+Huls/Pilaar/Persmaat/Schilmaat naast elkaar) nog steeds regelmatig te wrappen, en zelfs licht over de
+paginarand heen te lopen, wat de gebruiker terecht terugmeldde ("ik zie bij sommige omschrijvingen nog
+steeds regels"). Op verzoek van de gebruiker ("anders mag je de regel afkappen tot kolombreedte") de tabellen
+herbouwd met `table-layout: fixed` plus een expliciete `<colgroup>` (i.p.v. de auto-tabellayout-hints van
+eerder, die bij deze complexe 2-rijige koppen niet betrouwbaar bleken): elke kolom krijgt nu een vaste,
+op de daadwerkelijke langste celinhoud afgestemde breedte (gemeten over zowel Staal als RVS), zodat
+Artikelnummer/Koppeling/Persmaat/Insteekdiepte/Huls/Pilaar/Schilmaat nooit meer wrappen of overlopen; alleen
+Omschrijving (de resterende breedte) kapt af met "..." als een tekst er nog steeds niet in past
+(`overflow: hidden; text-overflow: ellipsis;` op die kolom). Voor de 1-delige tabel gebeurt dat vrijwel nooit
+(Omschrijving ca. 515px, ruim boven de langste omschrijving van 398px). De 2-delige tabel heeft door de 12
+kolommen structureel minder ruimte; om het aandeel afgekapte rijen daar te beperken kreeg die tabel een iets
+kleiner lettertype (9px i.p.v. 10.5px, alleen in die tabel), waarmee Omschrijving ca. 298px krijgt en nog
+maar 11-14% van de rijen wordt afgekapt (was zonder lettertypeverkleining vrijwel elke rij). De
+accessoiretabel (Buitenmaat slang/PolyGuard/etc.) bleef bewust op de oude auto-tabellayout - buiten de scope
+van dit verzoek - maar bleek bij het testen zelf ook de paginabreedte te overschrijden (1129px vs. 1033px);
+dat is een pre-existing probleem, niet door deze wijziging veroorzaakt, en nog niet opgelost.
+
+Daarnaast, op verzoek van de gebruiker ("waarbij de persgegevens hetzelfde zijn, maar de koppeling
+verschilt... dan kan je die regel combineren"): in de 1-delige tabel worden rijen met dezelfde Artikelnummer/
+Persmaat/Insteekdiepte/Schilmaat intern/Schilmaat extern maar een andere Koppeling-code nu samengevoegd tot 1
+regel met de Koppeling-waarden kommagescheiden (bijv. `0304-20` had koppeling 48 en 43 met identieke maten →
+1 regel met Koppeling "48, 43").
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.

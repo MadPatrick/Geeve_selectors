@@ -511,26 +511,29 @@ input::placeholder { color: #929fac; }
     .print-table thead { display: table-header-group; }
     .print-table tr { page-break-inside: avoid; break-inside: avoid; }
     .print-table th, .print-table td { border: 1px solid #ccc; padding: 4px 6px; text-align: left; vertical-align: top; white-space: nowrap; }
-    .print-table td:nth-child(2) { white-space: normal; }
-    /* Koptekst mag wel afbreken (bv. "Schilmaat extern" op 2 regels) - de
-       kolombreedte volgt dan de (korte, nowrap) celwaarden eronder i.p.v.
-       de brede koptekst, wat ruimte vrijmaakt voor de Omschrijving-kolom. */
+    /* Onder table-layout: fixed (zie print-table-fixed hieronder) volgt de
+       kolombreedte strikt de <col>-breedtes die buildColGroup() in
+       selector.js meegeeft, dus Omschrijving groeit niet vanzelf mee zoals
+       bij de auto-tabellayout. Past de tekst er dan nog niet in, dan wordt
+       die afgekapt met "..." i.p.v. dat de hele rij op 2 regels springt (op
+       verzoek van de gebruiker: "anders mag je de regel afkappen tot
+       kolombreedte"). */
+    .print-table td:nth-child(2) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .print-table th { background: #e4e4e4; font-weight: 700; text-align: center; white-space: normal; }
-    /* Zonder een expliciete breedte geeft de auto-tabellayout deze kolom
-       toch de volle (ongewikkelde) headerbreedte zodra er elders in de
-       tabel ruimte over is - deze vaste, krappe breedte forceert het
-       woord "Schilmaat" op de eerste regel en "intern"/"extern" op de
-       tweede. */
-    .print-table th.print-th-narrow { width: 52px; }
-    /* Zelfde reden als hierboven, maar dan voor de 2-delige (Huls 1/Huls 2)
-       tabel: Artikelnummer/Huls/Pilaar/Persmaat krijgen anders ook meer
-       breedte dan hun celwaarden nodig hebben, en dat gaat dubbel zo hard
-       ten koste van Omschrijving omdat deze tabel twee sets van die
-       kolommen heeft (Huls 1 en Huls 2). */
-    .print-table th.print-th-combo-artnr { width: 84px; }
-    .print-table th.print-th-combo-huls { width: 80px; }
-    .print-table th.print-th-combo-pilaar { width: 46px; }
-    .print-table th.print-th-combo-persmaat { width: 64px; }
+    /* Alleen de 1-delige en 2-delige koppelingtabellen gebruiken vaste,
+       via <colgroup> opgegeven kolombreedtes (nodig omdat de pagina een
+       vaste breedte heeft, ca. 1033px binnen de marges, en de 2-delige
+       tabel met 12 kolommen anders over de paginarand heen loopt) - de
+       accessoiretabel heeft geen colgroup en blijft op de auto-tabellayout
+       die daar al goed werkte. */
+    .print-table.print-table-fixed { table-layout: fixed; }
+    /* De 2-delige tabel heeft, anders dan de 1-delige, 12 kolommen (2x
+       Huls/Pilaar/Persmaat/Schilmaat naast elkaar) binnen dezelfde
+       paginabreedte - bij het normale lettertype (10.5px) laat dat vrijwel
+       geen ruimte over voor Omschrijving. Een iets kleiner lettertype voor
+       deze tabel geeft die kolom weer voldoende breedte om de meeste
+       omschrijvingen zonder af te kappen te tonen. */
+    .print-table.print-table-combo { font-size: 9px; }
     .print-table tr.print-type-row { break-after: avoid; }
     .print-table tr.print-type-row td {
         background: #f2f2f2;
