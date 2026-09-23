@@ -1197,4 +1197,32 @@ was al zo vóór de hernoeming (2 verschillende namen voor dezelfde fysieke huls
 code in beide kolommen; niet aangepast, want dat is een presentatie-detail, geen datafout. Vastgelegd als
 conventie in `AGENTS.md` §5 zodat dit niet opnieuw als `1300PF-R7` wordt ingevoerd.
 
+## RVS: 3 ontbrekende Huls/Pilaar-gaten aangevuld voor R7/R8-slangtypes
+Op verzoek van de gebruiker ("ik zie bij 0347-02 geen pilaren of hulzen... de 17001-xxRVS is voor R7 en R8...
+Pilaar is dan ook 10-serie") de hele RVS-dataset doorzocht op R7/R8/1SC-slangen zonder enige 2-delige
+koppelingdata. 3 rijen aangevuld met Huls `17001-<maat>RVS` en Pilaar `10` in `2delig_1`:
+- **`0347-02`** (R7) - Staal had dit al (`17001-02`, Pilaar `10`), RVS ontbrak volledig.
+- **`0328-03`** (R8) - Staal heeft hier zijn eigen, andere code (`17003-03`, materiaalspecifiek), maar de
+  overige RVS-maten van deze familie (`0328-04/-05/-06/-08`) gebruiken allemaal al `17001-xxRVS` - dezelfde
+  familie doorgetrokken naar `-03`.
+- **`528N-8`** - de RVS-maten `528N-3/-4/-5/-6` hebben allemaal al `17001-xxRVS`, alleen `-8` ontbrak; dit
+  artikel had al wel 1-delige koppelingdata (`55`/`56`) en stond daarom niet in de "ontbrekend"-telling.
+
+Persmaat is bewust **niet** ingevuld bij deze 3 rijen - er is geen RVS-specifieke brondata voor die exacte
+maat/familie-combinatie beschikbaar (Staal's persmaat is materiaalspecifiek anders en dus geen betrouwbare
+bron), en de gebruiker vroeg specifiek om Huls en Pilaar. Een vierde kandidaat, **`540N-2`**, is bewust
+**niet** aangevuld: noch Staal noch RVS heeft ook maar enig gegeven voor deze maat (in tegenstelling tot de
+andere 3, waar minstens één bestand al bevestigde dat de maat een echt artikel is) - zonder brondata is dit
+gokken, niet corrigeren. Eén kandidaat, `2245N-08V30`, bleek bij nader onderzoek deel van een familie die
+uitsluitend 1-delige koppelingen gebruikt (geen enkele `2245N-*`-maat heeft 2-delige data) en is dus terecht
+leeg.
+
+`Ontbrekende_persgegevens.xlsx` opnieuw gegenereerd (de "ontbrekend"-set is gewijzigd door deze aanvulling):
+Alleen RVS 25 → 22, Totaal 103 → 100. Daarvan komen 2 van de 3 minder door deze fix (`0347-02`, `0328-03` -
+`528N-8` stond hier nooit in, want had al 1-delige koppelingdata). De derde, `0315-08`, is een losse,
+niet-gerelateerde observatie: die bleek al een tijd een Pilaar (`10`) zonder bijbehorende Huls te hebben
+(onvolledige 2-delige rij) - dat viel buiten de "ontbrekend"-telling (er staat immers al íets), maar is zelf
+mogelijk ook een gat. Dit stond al zo in de data sinds de eerste commit van deze portal-repo (dus niet door
+recent werk veroorzaakt) - gemeld voor het geval de gebruiker dit ook wil aanvullen, niet zelf gegokt.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
