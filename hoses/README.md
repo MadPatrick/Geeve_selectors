@@ -1054,4 +1054,18 @@ van de gebruiker aangevuld met `10` (10-serie), zodat beide combinaties nu consi
 niet aangepast: daar heeft `2delig_2` helemaal geen gegevens (geen Huls), dus was er niets om een Pilaar aan te
 koppelen.
 
+## Pilaar aangevuld bij 2-delig waar Huls al bekend was (hele dataset)
+Op vraag van de gebruiker ("zijn er nog lege velden bij pilaar bij 2-delig waar wel een huls is ingevuld?") de
+hele dataset doorzocht: 159 rijen (26 Staal, 133 RVS) hadden een ingevulde Huls bij `2delig_1`/`2delig_2` maar
+geen Pilaar. Onderverdeeld op hulscode-familie:
+
+- **135 rijen aangevuld met `10`**: Staal `13002-xx` (7) en RVS `1300P1-xx`/`1300P2-xx`/`1300P3-xx`/`1300P4-I-xx`/
+  `1300P5-xx`/`1300P8-xx`/`1300PF-R7-xx`/`1300PF-PTFE-xx`/`1300PF-W-PTFE-xx` (128) - dezelfde Geeve/PH-hulsfamilie
+  die overal elders in deze dataset al consequent Pilaar 10 heeft.
+- **24 rijen bewust ongewijzigd gelaten** (op verzoek van de gebruiker, niet gokken zonder bron): Staal
+  `0022-xx` (6), `100IF-xx` (6), `M03400-xx` (2), `P7-I-DNxx` (4), `P6-I-DN25` (1); RVS `P7-I-DNxx` (4),
+  `P6-I-DN25` (1). Deze hulscodes zijn niet eerder in dit project als 10-serie bevestigd - `P7-I-DNxx`/
+  `P6-I-DNxx` (de R15/R13-familie bij bijv. `0447-12/-16/-20/-24`) stonden zelfs al eerder in de sessie bewust
+  met een lege Pilaar.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
