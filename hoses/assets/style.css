@@ -198,10 +198,10 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 .clear-filter-button {
     appearance: none;
     flex: 0 0 auto;
-    border: 1px solid var(--line);
+    border: 1px solid #bfe9d2;
     border-radius: 999px;
-    background: var(--soft);
-    color: var(--muted);
+    background: #e8f4ed;
+    color: var(--ok);
     font-weight: 700;
     font-size: 13px;
     padding: 10px 18px;
@@ -209,7 +209,7 @@ h3 { margin: 4px 0 0; font-size: 19px; }
     white-space: nowrap;
     transition: background .15s, color .15s, border-color .15s;
 }
-.clear-filter-button:hover { background: #e9edf1; color: var(--ink); border-color: #c7d0d9; }
+.clear-filter-button:hover { background: #d7ecdf; border-color: #a9ddc0; }
 
 .pdf-dropdown { position: relative; flex: 0 0 auto; }
 .pdf-menu {
