@@ -330,15 +330,29 @@
         return fact;
     }
 
-    function createComboCardEdit(material, number, variant) {
+    function removeButton(onRemove) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'card-remove-button';
+        btn.title = 'Deze serie verwijderen';
+        btn.setAttribute('aria-label', 'Deze serie verwijderen');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>';
+        btn.addEventListener('click', onRemove);
+        return btn;
+    }
+
+    function createComboCardEdit(material, number, variant, onRemove) {
         const v = variant || {};
         const card = document.createElement('article');
         card.className = 'fitting-card combo-card is-editing';
+        card.dataset.material = material;
+        card.dataset.number = String(number);
 
         const pilaarInput = editInput(material, 'combo', number, 'pilaar', v.pilaar, '10 of 30');
         pilaarInput.classList.add('fact-edit-pilaar');
         pilaarInput.setAttribute('list', 'pilaarOptions');
 
+        card.appendChild(removeButton(onRemove));
         card.appendChild(createFactsRow([
             editFact('Huls', editInput(material, 'combo', number, 'huls', v.huls), true),
             editFact('Persmaat', editInput(material, 'combo', number, 'persmaat', v.persmaat)),
@@ -349,11 +363,14 @@
         return card;
     }
 
-    function createCouplingCardEdit(material, number, variant) {
+    function createCouplingCardEdit(material, number, variant, onRemove) {
         const v = variant || {};
         const card = document.createElement('article');
         card.className = 'fitting-card coupling-card is-editing';
+        card.dataset.material = material;
+        card.dataset.number = String(number);
 
+        card.appendChild(removeButton(onRemove));
         card.appendChild(createFactsRow([
             editFact('Persmaat', editInput(material, 'coupling', number, 'persmaat', v.persmaat)),
             editFact('Insteekdiepte', editInput(material, 'coupling', number, 'insteekdiepte', v.insteekdiepte)),
@@ -368,41 +385,92 @@
         return (Array.isArray(list) ? list : []).find((item) => item.number === number) || null;
     }
 
+    function usedNumbers(grid, material) {
+        return new Set(
+            Array.from(grid.querySelectorAll(`.fitting-card[data-material="${material}"]`))
+                .map((card) => Number(card.dataset.number)),
+        );
+    }
+
+    function nextAvailableNumber(grid, material, max) {
+        const used = usedNumbers(grid, material);
+        for (let number = 1; number <= max; number += 1) {
+            if (!used.has(number)) {
+                return number;
+            }
+        }
+        return null;
+    }
+
+    function addSlotButton(label) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'add-slot-button';
+        btn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg><span>${label}</span>`;
+        return btn;
+    }
+
+    // Bouwt één materiaalvak (Staal of RVS) met kaarten voor de al aanwezige
+    // series, plus een "+ serie toevoegen"-knop (tot het maximum aantal
+    // slots dat de CSV-structuur toestaat: 2 voor 2-delig, 3 voor 1-delig).
+    // Een "-" op een kaart verwijdert 'm meteen uit het formulier; bij
+    // opslaan wordt dat slot expliciet leeggemaakt (zie collectEditPayload).
+    function buildEditableMaterialBlock(materialLabel, material, variants, max, createCard) {
+        const block = document.createElement('section');
+        block.className = 'material-block';
+        const heading = document.createElement('div');
+        heading.className = 'material-block-heading';
+        heading.appendChild(materialBadge(materialLabel));
+        const grid = document.createElement('div');
+        grid.className = 'variant-grid';
+
+        const addBtn = addSlotButton('Serie toevoegen');
+        function refreshAddButton() {
+            const next = nextAvailableNumber(grid, material, max);
+            addBtn.hidden = next === null;
+        }
+        addBtn.addEventListener('click', () => {
+            const next = nextAvailableNumber(grid, material, max);
+            if (next === null) {
+                return;
+            }
+            const card = createCard(material, next, null, () => {
+                card.remove();
+                refreshAddButton();
+            });
+            grid.insertBefore(card, addBtn);
+            refreshAddButton();
+            const firstInput = card.querySelector('.fact-edit-input');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+
+        (Array.isArray(variants) ? variants : []).forEach((variant) => {
+            const card = createCard(material, variant.number, variant, () => {
+                card.remove();
+                refreshAddButton();
+            });
+            grid.appendChild(card);
+        });
+        grid.appendChild(addBtn);
+        refreshAddButton();
+
+        block.append(heading, grid);
+        return block;
+    }
+
     function renderTwoPieceEdit(article) {
         twoPieceGrid.innerHTML = '';
-        [['STAAL', 'staal', article.comboStaal], ['RVS', 'rvs', article.comboRvs]].forEach(([label, material, variants]) => {
-            const block = document.createElement('section');
-            block.className = 'material-block';
-            const heading = document.createElement('div');
-            heading.className = 'material-block-heading';
-            heading.appendChild(materialBadge(label));
-            const grid = document.createElement('div');
-            grid.className = 'variant-grid';
-            for (let number = 1; number <= 2; number += 1) {
-                grid.appendChild(createComboCardEdit(material, number, variantByNumber(variants, number)));
-            }
-            block.append(heading, grid);
-            twoPieceGrid.appendChild(block);
-        });
+        twoPieceGrid.appendChild(buildEditableMaterialBlock('STAAL', 'staal', article.comboStaal, 2, createComboCardEdit));
+        twoPieceGrid.appendChild(buildEditableMaterialBlock('RVS', 'rvs', article.comboRvs, 2, createComboCardEdit));
         twoPieceSection.hidden = false;
     }
 
     function renderOnePieceEdit(article) {
         onePieceGrid.innerHTML = '';
-        [['STAAL', 'staal', article.koppelingStaal], ['RVS', 'rvs', article.koppelingRvs]].forEach(([label, material, variants]) => {
-            const block = document.createElement('section');
-            block.className = 'material-block';
-            const heading = document.createElement('div');
-            heading.className = 'material-block-heading';
-            heading.appendChild(materialBadge(label));
-            const grid = document.createElement('div');
-            grid.className = 'variant-grid';
-            for (let number = 1; number <= 3; number += 1) {
-                grid.appendChild(createCouplingCardEdit(material, number, variantByNumber(variants, number)));
-            }
-            block.append(heading, grid);
-            onePieceGrid.appendChild(block);
-        });
+        onePieceGrid.appendChild(buildEditableMaterialBlock('STAAL', 'staal', article.koppelingStaal, 3, createCouplingCardEdit));
+        onePieceGrid.appendChild(buildEditableMaterialBlock('RVS', 'rvs', article.koppelingRvs, 3, createCouplingCardEdit));
         onePieceCount.textContent = '';
         onePieceSection.hidden = false;
     }
@@ -473,8 +541,35 @@
         emptyResult.hidden = hasTwoPiece || hasOnePiece;
     }
 
+    const COMBO_FIELDS = ['huls', 'pilaar', 'persmaat', 'schilIntern', 'schilExtern'];
+    const COUPLING_FIELDS = ['koppeling', 'persmaat', 'insteekdiepte', 'schilIntern', 'schilExtern'];
+
+    // Loopt altijd het volledige bereik (1-2 voor 2-delig, 1-3 voor 1-delig)
+    // af, niet alleen de kaarten die nu in het scherm staan - anders zou een
+    // verwijderde serie (kaart weg uit de DOM) stilzwijgend NIET leeggemaakt
+    // worden op de server, omdat save.php een ontbrekend slot in de payload
+    // gewoon overslaat i.p.v. leegmaakt.
+    function materialEntries(grid, material, max, fieldKeys) {
+        const entries = {};
+        for (let number = 1; number <= max; number += 1) {
+            const card = grid.querySelector(`.fitting-card[data-material="${material}"][data-number="${number}"]`);
+            const entry = {};
+            fieldKeys.forEach((field) => {
+                const input = card ? card.querySelector(`.fact-edit-input[data-field="${field}"]`) : null;
+                entry[field] = input ? input.value : '';
+            });
+            entries[number] = entry;
+        }
+        return entries;
+    }
+
     function collectEditPayload() {
-        const payload = {
+        const accessoires = {};
+        accessoryGrid.querySelectorAll('.fact-edit-input[data-material="accessoires"]').forEach((input) => {
+            accessoires[input.dataset.field] = input.value;
+        });
+
+        return {
             artnr: currentArticle.artnr || '',
             context: {
                 artnm: currentArticle.artnm || '',
@@ -482,32 +577,16 @@
                 supplier: currentArticle.supplier || '',
                 werkdruk: currentArticle.werkdruk || '',
             },
-            staal: { combo: {}, couplings: {} },
-            rvs: { combo: {}, couplings: {} },
-            accessoires: {},
+            staal: {
+                combo: materialEntries(twoPieceGrid, 'staal', 2, COMBO_FIELDS),
+                couplings: materialEntries(onePieceGrid, 'staal', 3, COUPLING_FIELDS),
+            },
+            rvs: {
+                combo: materialEntries(twoPieceGrid, 'rvs', 2, COMBO_FIELDS),
+                couplings: materialEntries(onePieceGrid, 'rvs', 3, COUPLING_FIELDS),
+            },
+            accessoires,
         };
-
-        result.querySelectorAll('.fact-edit-input').forEach((input) => {
-            const { material, type, number, field } = input.dataset;
-            const value = input.value;
-
-            if (material === 'accessoires') {
-                payload.accessoires[field] = value;
-                return;
-            }
-
-            const target = payload[material];
-            if (!target) {
-                return;
-            }
-            const bucket = type === 'combo' ? target.combo : target.couplings;
-            if (!bucket[number]) {
-                bucket[number] = {};
-            }
-            bucket[number][field] = value;
-        });
-
-        return payload;
     }
 
     function setEditStatus(message, isError) {
@@ -562,10 +641,46 @@
         }
     }
 
+    // Velden die een getal moeten bevatten (Nederlandse of Engelse
+    // decimaalnotatie, bv. "54", "54,3" of "54.3"); leeg is altijd geldig
+    // (dan wordt het veld gewoon leeggemaakt). Huls/Type koppeling en de
+    // accessoirecodes blijven vrije tekst.
+    const NUMERIC_FIELDS = new Set(['pilaar', 'persmaat', 'schilIntern', 'schilExtern', 'insteekdiepte']);
+    const NUMERIC_PATTERN = /^\d+([.,]\d+)?$/;
+
+    function isNumericInput(input) {
+        return NUMERIC_FIELDS.has(input.dataset.field)
+            || (input.dataset.material === 'accessoires' && input.dataset.field === 'outside');
+    }
+
+    function validateEditInputs() {
+        const invalid = [];
+        result.querySelectorAll('.fact-edit-input').forEach((input) => {
+            input.classList.remove('is-invalid');
+            const value = input.value.trim();
+            if (!value || !isNumericInput(input)) {
+                return;
+            }
+            if (!NUMERIC_PATTERN.test(value)) {
+                input.classList.add('is-invalid');
+                invalid.push(input);
+            }
+        });
+        return invalid;
+    }
+
     function saveEdits() {
         if (!currentArticle || saveInFlight) {
             return;
         }
+
+        const invalidInputs = validateEditInputs();
+        if (invalidInputs.length > 0) {
+            setEditStatus('Een of meer velden hebben een ongeldig formaat (verwacht een getal, bv. 54 of 54,3). Niets opgeslagen - rood gemarkeerde velden corrigeren en opnieuw proberen.', true);
+            invalidInputs[0].focus();
+            return;
+        }
+
         saveInFlight = true;
         if (saveEditButton) saveEditButton.disabled = true;
         setEditStatus('Bezig met opslaan…');
@@ -607,6 +722,11 @@
     if (saveEditButton) {
         saveEditButton.addEventListener('click', saveEdits);
     }
+    result.addEventListener('input', (event) => {
+        if (event.target.classList && event.target.classList.contains('fact-edit-input')) {
+            event.target.classList.remove('is-invalid');
+        }
+    });
 
     function materialBadge(material) {
         const badge = document.createElement('span');

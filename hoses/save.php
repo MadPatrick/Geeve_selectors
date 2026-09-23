@@ -46,13 +46,28 @@ $contextVendor = cleanValue($context['vendor'] ?? '');
 $contextSupplier = cleanValue($context['supplier'] ?? '');
 $contextWerkdruk = cleanValue($context['werkdruk'] ?? '');
 
+// Veldsleutels (zie comboColumns()/couplingColumns()/accessoryColumnMap())
+// die een getal moeten bevatten. Zelfde definitie als NUMERIC_FIELDS in
+// assets/selector.js - hier nogmaals gecontroleerd, want de client-check is
+// alleen voor directe feedback en mag nooit de enige verdediging zijn op
+// een endpoint dat naar schijf schrijft.
+const NUMERIC_FIELD_KEYS = ['pilaar', 'persmaat', 'schilIntern', 'schilExtern', 'insteekdiepte', 'outside'];
+
 // Waarden mogen niet met een formuleteken beginnen (voorkomt CSV/formule-
-// injectie mocht het bestand later in Excel/Sheets geopend worden).
-function sanitizeFieldValue($value): string
+// injectie mocht het bestand later in Excel/Sheets geopend worden), en
+// numerieke velden moeten daadwerkelijk een getal zijn (komma of punt als
+// decimaalteken) - leeg blijft altijd toegestaan (veld leegmaken).
+function sanitizeFieldValue($value, string $fieldKey = ''): string
 {
     $text = cleanValue($value);
-    if ($text !== '' && in_array($text[0], ['=', '+', '@'], true)) {
+    if ($text === '') {
+        return '';
+    }
+    if (in_array($text[0], ['=', '+', '@'], true)) {
         throw new InvalidArgumentException("Een waarde mag niet beginnen met '{$text[0]}': \"{$text}\".");
+    }
+    if (in_array($fieldKey, NUMERIC_FIELD_KEYS, true) && preg_match('/^\d+([.,]\d+)?$/', $text) !== 1) {
+        throw new InvalidArgumentException("Ongeldig getal voor '{$fieldKey}': \"{$text}\" (verwacht bijvoorbeeld 54 of 54,3).");
     }
     return $text;
 }
@@ -91,7 +106,7 @@ function buildMaterialColumnUpdates(array $materialPayload): array
         }
         foreach (comboColumns($number) as $fieldKey => $columnName) {
             if (array_key_exists($fieldKey, $fields)) {
-                $updates[$columnName] = sanitizeFieldValue($fields[$fieldKey]);
+                $updates[$columnName] = sanitizeFieldValue($fields[$fieldKey], $fieldKey);
             }
         }
     }
@@ -104,7 +119,7 @@ function buildMaterialColumnUpdates(array $materialPayload): array
         }
         foreach (couplingColumns($number) as $fieldKey => $columnName) {
             if (array_key_exists($fieldKey, $fields)) {
-                $updates[$columnName] = sanitizeFieldValue($fields[$fieldKey]);
+                $updates[$columnName] = sanitizeFieldValue($fields[$fieldKey], $fieldKey);
             }
         }
     }
@@ -117,7 +132,7 @@ function buildAccessoryColumnUpdates(array $accessoryPayload): array
     $updates = [];
     foreach (accessoryColumnMap() as $fieldKey => $columnName) {
         if (array_key_exists($fieldKey, $accessoryPayload)) {
-            $updates[$columnName] = sanitizeFieldValue($accessoryPayload[$fieldKey]);
+            $updates[$columnName] = sanitizeFieldValue($accessoryPayload[$fieldKey], $fieldKey);
         }
     }
     return $updates;

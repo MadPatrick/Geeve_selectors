@@ -85,6 +85,7 @@ button, input { font: inherit; }
 }
 .header-icon-button:hover { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .55); }
 .header-icon-button svg { display: block; }
+.header-icon-button[hidden] { display: none; }
 
 .header-home-button {
     position: absolute;
@@ -364,11 +365,33 @@ input::placeholder { color: #929fac; }
 .edit-status[hidden] { display: none; }
 .edit-status.is-error { background: #fbecec; border-color: #eec4c4; color: var(--danger); }
 
-.fitting-card.is-editing { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(238, 48, 93, .12); }
-.fact-edit { flex: 1 1 120px; min-width: 110px; }
-.fact-edit.primary { flex-basis: 160px; }
-.fact-edit input.fact-edit-input { min-height: 34px; padding: 6px 9px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink); }
-.fact-edit-pilaar { max-width: 90px; text-align: center; }
+.fitting-card.is-editing { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(238, 48, 93, .12); padding-right: 34px; }
+/* In wijzigen-modus staan er altijd exact 5 velden in een rij (badge-slot +
+   4 facts) - een grid met gelijke kolommen i.p.v. flex-wrap voorkomt dat
+   een los wikkelend veld (bv. Schilmaat extern) de hele rijbreedte opvult. */
+.fitting-facts:has(.fact-edit) { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end; gap: 10px 12px; }
+.fact-edit { min-width: 0; }
+.fact-edit input.fact-edit-input { width: 100%; min-height: 34px; padding: 6px 9px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink); }
+.fact-edit-pilaar { width: 100%; text-align: center; }
+.fact-edit input.fact-edit-input.is-invalid { border-color: var(--danger); background: #fdf2f2; box-shadow: 0 0 0 3px rgba(160, 54, 54, .12); }
+
+.card-remove-button {
+    position: absolute; top: 10px; right: 10px; z-index: 3;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; padding: 0; border-radius: 999px;
+    border: 1px solid var(--line); background: #fff; color: var(--danger);
+    cursor: pointer; transition: background .15s, border-color .15s;
+}
+.card-remove-button:hover { background: #fbecec; border-color: #eec4c4; }
+
+.add-slot-button {
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    min-height: 56px; padding: 12px; border-radius: 18px; border: 1.5px dashed #c8d4de;
+    background: transparent; color: var(--muted); font-weight: 700; font-size: 13px;
+    cursor: pointer; transition: background .15s, border-color .15s, color .15s;
+}
+.add-slot-button:hover { background: #fff3f6; border-color: var(--accent); color: var(--accent-dark); }
+.add-slot-button[hidden] { display: none; }
 
 .accessory-fact-edit { align-items: flex-start; }
 .accessory-fact-edit .accessory-fact-text { width: 100%; }
@@ -490,10 +513,15 @@ input::placeholder { color: #929fac; }
     .accessory-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .coupling-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .data-panel-grid { grid-template-columns: 1fr; }
+    .fitting-facts:has(.fact-edit) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 820px) {
     .material-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .fitting-facts:has(.fact-edit) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 620px) {
