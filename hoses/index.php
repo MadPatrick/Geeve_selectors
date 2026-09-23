@@ -65,6 +65,16 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
             </a>
             <div class="header-content">
                 <div class="header-topline">
+                    <div class="topbar-status-pill <?= h($dataState) ?>"><?= h($dataLabel) ?></div>
+                    <div class="pdf-dropdown">
+                        <button type="button" id="pdfButton" class="topbar-pdf-button" aria-haspopup="true" aria-expanded="false">Perslijst (PDF)</button>
+                        <div class="pdf-menu" id="pdfMenu" hidden>
+                            <button type="button" class="pdf-menu-item" data-scope="all">Complete catalogus</button>
+                            <button type="button" class="pdf-menu-item" data-scope="accessoires">Accessoires</button>
+                            <button type="button" class="pdf-menu-item" data-scope="staal">Staal</button>
+                            <button type="button" class="pdf-menu-item" data-scope="rvs">RVS</button>
+                        </div>
+                    </div>
                     <button type="button" id="editToggleButton" class="header-icon-button" title="Gegevens wijzigen" aria-label="Gegevens wijzigen" disabled>
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M12 20h9"></path>
@@ -93,29 +103,9 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
     <?php endforeach; ?>
 
     <section class="panel search-panel">
-        <div class="section-heading">
-            <div>
-                <span class="step">Selectie</span>
-                <h2>Slangtype zoeken</h2>
-            </div>
-            <div class="section-actions">
-                <div class="status-pill <?= h($dataState) ?>"><?= h($dataLabel) ?></div>
-                <button type="button" id="clearFilterButton" class="clear-filter-button">Wis filter</button>
-                <div class="pdf-dropdown">
-                    <button type="button" id="pdfButton" class="pdf-button" aria-haspopup="true" aria-expanded="false">Download catalogus (PDF)</button>
-                    <div class="pdf-menu" id="pdfMenu" hidden>
-                        <button type="button" class="pdf-menu-item" data-scope="all">Complete catalogus</button>
-                        <button type="button" class="pdf-menu-item" data-scope="accessoires">Accessoires</button>
-                        <button type="button" class="pdf-menu-item" data-scope="staal">Staal</button>
-                        <button type="button" class="pdf-menu-item" data-scope="rvs">RVS</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="search-row">
             <label class="field search-field" for="search">
-                <span>Artikel zoeken</span>
+                <span>Slangtype zoeken</span>
                 <div class="autocomplete">
                     <input
                         id="search"
@@ -151,8 +141,9 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
                 >
                 <datalist id="werkdrukOptions"></datalist>
             </label>
+            <button type="button" id="clearFilterButton" class="clear-filter-button">Wis filter</button>
         </div>
-        <small>Zoek op artikelnummer, omschrijving, leverancier of leveranciersartikelnummer, of laat "Artikel zoeken" leeg en combineer de maat (de laatste cijfers van het artikelnummer) met de werkdruk (bar).</small>
+        <small>Zoek op artikelnummer, omschrijving, leverancier of leveranciersartikelnummer, of laat "Slangtype zoeken" leeg en combineer de maat (de laatste cijfers van het artikelnummer) met de werkdruk (bar).</small>
     </section>
 
     <section id="result" class="panel result-panel" aria-live="polite" hidden>

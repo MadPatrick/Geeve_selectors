@@ -53,6 +53,7 @@ button, input { font: inherit; }
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    flex-wrap: wrap;
     gap: 16px;
     min-height: 16px;
     margin-bottom: 4px;
@@ -86,6 +87,35 @@ button, input { font: inherit; }
 .header-icon-button:hover { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .55); }
 .header-icon-button svg { display: block; }
 .header-icon-button[hidden] { display: none; }
+
+.topbar-status-pill {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, .3);
+    background: rgba(255, 255, 255, .08);
+    color: #f1f1f1;
+}
+.topbar-status-pill.ready { color: #baf0cf; border-color: rgba(186, 240, 207, .4); background: rgba(186, 240, 207, .12); }
+.topbar-status-pill.error { color: #ffb3b3; border-color: rgba(255, 179, 179, .4); background: rgba(255, 179, 179, .12); }
+
+.topbar-pdf-button {
+    appearance: none;
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 7px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s, border-color .15s;
+}
+.topbar-pdf-button:hover { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .55); }
 
 .header-home-button {
     position: absolute;
@@ -262,6 +292,7 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 .search-row .search-field { flex: 2 1 0; }
 .search-row .search-field-werkdruk,
 .search-row .search-field-maat { flex: 1 1 0; }
+.search-row .clear-filter-button { flex: 0 0 auto; align-self: flex-end; }
 .panel > small { display: block; color: var(--muted); font-size: 12px; line-height: 1.4; }
 .autocomplete { position: relative; }
 input { width: 100%; border: 1px solid #cbd6df; background: #fff; color: var(--ink); border-radius: 10px; min-height: 48px; padding: 11px 13px; outline: none; transition: border-color .16s, box-shadow .16s, background .16s; }
@@ -543,4 +574,5 @@ input::placeholder { color: #929fac; }
     .search-row .search-field,
     .search-row .search-field-werkdruk,
     .search-row .search-field-maat { flex: 1 1 auto; width: 100%; }
+    .search-row .clear-filter-button { align-self: stretch; width: 100%; }
 }
