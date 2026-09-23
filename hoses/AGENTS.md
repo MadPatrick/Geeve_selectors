@@ -152,12 +152,22 @@ tegen de brontekst, niet enkel tegen de tabelkolommen.
 - Deze PDF's geven **geen** Insteekdiepte, maar wel Persmaat plus een aparte "External/Internal Skive"-tabel
   onderaan (= Schilmaat extern/intern).
 - **Huls type 13002 krijgt voorrang op type 13001** wanneer beide typen voor dezelfde toepassing beschikbaar zijn. Dit geldt zowel voor **Staal als RVS**.
-- **Huls en Pilaar krijgen in beginsel dezelfde koppelingscode.** Voor Parker-slangen `R13` en `R15` volgt de
-  Pilaar expliciet de `100V4`/`100V6`-huls: bij `100V4-<maat>` is Pilaar `V4`, bij `100V6-<maat>` is Pilaar `V6`.
-  Een tweede Interlock-combinatie gebruikt Huls `Z37000-<maat>` (in RVS met suffix `RVS`) en Pilaar `30`.
-  Buiten R13/R15 blijft de bestaande uitzondering gelden dat bij serie `V4` de Pilaar `30` is. Dit zijn
-  expliciete instructies van de gebruiker, niet af te leiden uit de PDF's zelf — wijk hier niet vanaf zonder
-  nieuwe bevestiging.
+- **Huls en Pilaar krijgen in beginsel dezelfde koppelingscode — ook buiten R13/R15.** Bij `100V4-<maat>`
+  (of `100V4-<maat>C` in RVS) is Pilaar `V4`, bij `100V6-<maat>`/`100V6-<maat>C` is Pilaar `V6`. Dit geldt
+  voor Parker-slangen `R13`/`R15` (`0449`, `R35`, `R35TC`, `R42`, `R42ST`, `R42TC`, `R50TC`) én voor de
+  `4SH`/`4SP`-hoses `H29`/`H31` (en de vergelijkbaar-genummerde `PLK*TC`-varianten die dezelfde 4SH/4SP-huls
+  gebruiken) — bevestigd via de eigen Parker Crimp Specification-PDF's (`docs/perslijst/Parker/H29-V4.pdf`,
+  `H31-VSV4.pdf`): de "Coupling Style"-kop zegt daar letterlijk `V4` resp. `VS/V4`, nooit `30`. Er stond hier
+  eerder een "uitzondering" gedocumenteerd (Pilaar `30` buiten R13/R15 bij serie V4) - die bleek **fout** (geen
+  brondocument ondersteunde die claim) en is in september 2026 gecorrigeerd voor `H29` (alle maten) en `H31`
+  (maten `-10`/`-12`/`-16`, de maten met VS-fitting zoals `-04`/`-06`/`-08` blijven vanzelfsprekend Pilaar `VS`)
+  in beide bestanden (44 rijen). **Pilaar `30` komt in deze dataset alleen nog voor bij de aparte Interlock-huls
+  (zie hieronder), niet meer bij een `V4`-huls** — kom je een `100V4-<maat>`-huls tegen met Pilaar `30` (of iets
+  anders dan `V4`): dat is een fout, niet een geldige variant, tenzij een nieuw brondocument het tegendeel
+  bewijst.
+- **Een aparte Interlock-huls (`34000-<maat>`/`Z34000-<maat>RVS`, bij `H29`) gebruikt wél Pilaar `30`** - dat is
+  een tweede, onafhankelijke koppelingsoptie naast de `100V4-<maat>`-optie hierboven (2delig_2 t.o.v.
+  2delig_1), niet dezelfde huls onder een andere naam. Verwar deze twee niet met elkaar.
 - **Huls-codering voor `V4` en `V6` (in zowel Staal als RVS)**: de kale koppelingscode `V4`/`V6` wordt in de
   Huls-kolom herschreven naar `100<code>-<maat>` (bijv. koppeling `V4`, maat `20` → `100V4-20`). In **RVS** komt
   er bovendien een `C` achter (`100V4-20C`); in **Staal** niet. Dit geldt specifiek voor `V4` en `V6` — `VS`, `V5`

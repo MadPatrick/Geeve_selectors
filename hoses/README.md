@@ -1225,4 +1225,16 @@ niet-gerelateerde observatie: die bleek al een tijd een Pilaar (`10`) zonder bij
 mogelijk ook een gat. Dit stond al zo in de data sinds de eerste commit van deze portal-repo (dus niet door
 recent werk veroorzaakt) - gemeld voor het geval de gebruiker dit ook wil aanvullen, niet zelf gegokt.
 
+## H29/H31: Pilaar 30 gecorrigeerd naar V4 (fout in eerder vastgelegde "uitzondering")
+De gebruiker gaf aan dat Pilaar bij `H29`/`H31` "30-serie" liet zien terwijl dat "VS of V4" zou moeten zijn.
+Gecontroleerd tegen de eigen Parker Crimp Specification-PDF's (`docs/perslijst/Parker/H29-V4.pdf`,
+`H31-VSV4.pdf`): de "Coupling Style"-kop zegt daar letterlijk `V4` (H29) resp. `VS/V4` (H31, met "Size -4 up
+to -8 Fitting VS" / "Size -10 up to -16 Fitting V4" expliciet in de opmerkingen) - nergens wordt "30" genoemd.
+De gebruiker had gelijk: `AGENTS.md` §5 documenteerde hier een eerder vastgelegde "uitzondering" (Pilaar `30`
+buiten R13/R15 bij serie V4) die niet door een brondocument werd ondersteund en dus fout bleek. Gecorrigeerd
+in beide bestanden (44 rijen, 22 Staal + 22 RVS): `H29`/`H29ST`/`H29TC` alle maten, `H31`/`H31ST`/`H31TC` de
+maten `-10`/`-12`/`-16` (de VS-maten `-04`/`-06`/`-08` hadden Pilaar al correct op `VS` staan). De aparte
+Interlock-huls bij H29 (`34000-<maat>`/`Z34000-<maat>RVS`) behoudt terecht Pilaar `30` - dat is een andere,
+onafhankelijke koppelingsoptie, niet dezelfde huls. `AGENTS.md` bijgewerkt zodat deze fout niet terugkomt.
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
