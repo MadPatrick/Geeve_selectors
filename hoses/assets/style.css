@@ -512,7 +512,16 @@ input::placeholder { color: #929fac; }
     .print-table tr { page-break-inside: avoid; break-inside: avoid; }
     .print-table th, .print-table td { border: 1px solid #ccc; padding: 4px 6px; text-align: left; vertical-align: top; white-space: nowrap; }
     .print-table td:nth-child(2) { white-space: normal; }
-    .print-table th { background: #e4e4e4; font-weight: 700; text-align: center; }
+    /* Koptekst mag wel afbreken (bv. "Schilmaat extern" op 2 regels) - de
+       kolombreedte volgt dan de (korte, nowrap) celwaarden eronder i.p.v.
+       de brede koptekst, wat ruimte vrijmaakt voor de Omschrijving-kolom. */
+    .print-table th { background: #e4e4e4; font-weight: 700; text-align: center; white-space: normal; }
+    /* Zonder een expliciete breedte geeft de auto-tabellayout deze kolom
+       toch de volle (ongewikkelde) headerbreedte zodra er elders in de
+       tabel ruimte over is - deze vaste, krappe breedte forceert het
+       woord "Schilmaat" op de eerste regel en "intern"/"extern" op de
+       tweede. */
+    .print-table th.print-th-narrow { width: 52px; }
     .print-table tr.print-type-row { break-after: avoid; }
     .print-table tr.print-type-row td {
         background: #f2f2f2;

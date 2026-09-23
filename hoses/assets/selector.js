@@ -924,7 +924,7 @@
         const thead = document.createElement('thead');
         headerRows.forEach((cells) => {
             const tr = document.createElement('tr');
-            cells.forEach(({ text, colSpan, rowSpan }) => {
+            cells.forEach(({ text, colSpan, rowSpan, className }) => {
                 const th = document.createElement('th');
                 th.textContent = text;
                 if (colSpan) {
@@ -933,11 +933,23 @@
                 if (rowSpan) {
                     th.rowSpan = rowSpan;
                 }
+                if (className) {
+                    th.className = className;
+                }
                 tr.appendChild(th);
             });
             thead.appendChild(tr);
         });
         return thead;
+    }
+
+    // "Schilmaat intern"/"Schilmaat extern" zijn de langste koptekst-labels
+    // maar de celwaarden eronder zijn altijd kort (mm-getallen of "-") - een
+    // vaste, krappe breedte dwingt de koptekst op 2 regels i.p.v. dat de
+    // auto-tabellayout de hele kolom net zo breed maakt als de ongewikkelde
+    // koptekst, wat ten koste zou gaan van de Omschrijving-kolom.
+    function headCell(text) {
+        return /^Schilmaat (intern|extern)$/.test(text) ? { text, className: 'print-th-narrow' } : { text };
     }
 
     function buildTypeRow(rawPrefixes, columnCount) {
@@ -983,7 +995,7 @@
         const headers = ['Artikelnummer', 'Omschrijving', 'Koppeling', 'Persmaat', 'Insteekdiepte', 'Schilmaat intern', 'Schilmaat extern'];
         const table = document.createElement('table');
         table.className = 'print-table';
-        table.appendChild(buildTableHead([headers.map((text) => ({ text }))]));
+        table.appendChild(buildTableHead([headers.map(headCell)]));
 
         const tbody = document.createElement('tbody');
         groups.forEach(({ rawPrefixes, entries }) => {
@@ -1020,7 +1032,7 @@
                 { text: 'Huls 1', colSpan: fieldLabels.length },
                 { text: 'Huls 2', colSpan: fieldLabels.length },
             ],
-            [...fieldLabels, ...fieldLabels].map((text) => ({ text })),
+            [...fieldLabels, ...fieldLabels].map(headCell),
         ]));
 
         const columnCount = 2 + fieldLabels.length * 2;
