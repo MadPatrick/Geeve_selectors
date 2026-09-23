@@ -10,4 +10,4 @@ declare(strict_types=1);
 // pagina terug op een eigen hardcoded waarde - zie de APP_VERSION-regel
 // verderop in dat bestand.
 
-return '0.3.0';
+return '0.2.1';
