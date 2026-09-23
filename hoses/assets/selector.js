@@ -952,6 +952,17 @@
         return /^Schilmaat (intern|extern)$/.test(text) ? { text, className: 'print-th-narrow' } : { text };
     }
 
+    // Alleen voor de sub-koppen van de 2-delige (Huls 1/Huls 2) tabel: die
+    // heeft twee sets Huls/Pilaar/Persmaat-kolommen naast elkaar, dus zonder
+    // vaste breedte gaat de auto-tabellayout daar dubbel zoveel ruimte aan
+    // geven als nodig - ten koste van Omschrijving. Los van headCell()
+    // gehouden omdat "Persmaat" ook in de 1-delige tabel voorkomt en die
+    // daar wel zijn eigen (bredere) breedte moet houden.
+    function comboFieldHeadCell(text) {
+        const comboClassNames = { Huls: 'print-th-combo-huls', Pilaar: 'print-th-combo-pilaar', Persmaat: 'print-th-combo-persmaat' };
+        return comboClassNames[text] ? { text, className: comboClassNames[text] } : headCell(text);
+    }
+
     function buildTypeRow(rawPrefixes, columnCount) {
         const tr = document.createElement('tr');
         tr.className = 'print-type-row';
@@ -1027,12 +1038,12 @@
         table.className = 'print-table';
         table.appendChild(buildTableHead([
             [
-                { text: 'Artikelnummer', rowSpan: 2 },
+                { text: 'Artikelnummer', rowSpan: 2, className: 'print-th-combo-artnr' },
                 { text: 'Omschrijving', rowSpan: 2 },
                 { text: 'Huls 1', colSpan: fieldLabels.length },
                 { text: 'Huls 2', colSpan: fieldLabels.length },
             ],
-            [...fieldLabels, ...fieldLabels].map(headCell),
+            [...fieldLabels, ...fieldLabels].map(comboFieldHeadCell),
         ]));
 
         const columnCount = 2 + fieldLabels.length * 2;

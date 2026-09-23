@@ -522,6 +522,15 @@ input::placeholder { color: #929fac; }
        woord "Schilmaat" op de eerste regel en "intern"/"extern" op de
        tweede. */
     .print-table th.print-th-narrow { width: 52px; }
+    /* Zelfde reden als hierboven, maar dan voor de 2-delige (Huls 1/Huls 2)
+       tabel: Artikelnummer/Huls/Pilaar/Persmaat krijgen anders ook meer
+       breedte dan hun celwaarden nodig hebben, en dat gaat dubbel zo hard
+       ten koste van Omschrijving omdat deze tabel twee sets van die
+       kolommen heeft (Huls 1 en Huls 2). */
+    .print-table th.print-th-combo-artnr { width: 84px; }
+    .print-table th.print-th-combo-huls { width: 80px; }
+    .print-table th.print-th-combo-pilaar { width: 46px; }
+    .print-table th.print-th-combo-persmaat { width: 64px; }
     .print-table tr.print-type-row { break-after: avoid; }
     .print-table tr.print-type-row td {
         background: #f2f2f2;

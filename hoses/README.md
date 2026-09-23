@@ -1106,4 +1106,17 @@ geen Pilaar. Onderverdeeld op hulscode-familie:
   `P6-I-DNxx` (de R15/R13-familie bij bijv. `0447-12/-16/-20/-24`) stonden zelfs al eerder in de sessie bewust
   met een lege Pilaar.
 
+## Perslijst (PDF): Omschrijving ook breder bij 2-delige koppelingen
+De eerdere aanpassing (koptekst "Schilmaat intern"/"Schilmaat extern" op 2 regels, zodat die kolommen smaller
+kunnen en Omschrijving breder wordt) stond al in zowel de 1-delige als de 2-delige tabel, maar bij de 2-delige
+tabel (Huls 1 + Huls 2, dus 2x zoveel Artikelnummer/Huls/Pilaar/Persmaat-kolommen naast elkaar) pakte de
+auto-tabellayout van de browser nog steeds meer breedte voor die kolommen dan de celwaarden nodig hebben - ten
+koste van Omschrijving. Op verzoek van de gebruiker ("ook de 2-delige layout zo maken", verduidelijkt als de
+Perslijst PDF) daarom ook voor Artikelnummer en de Huls/Pilaar/Persmaat-subkoppen van de 2-delige tabel een
+vaste, op de daadwerkelijke celinhoud afgestemde breedte ingesteld (alleen in die tabel - de 1-delige tabel
+gebruikt dezelfde koptekst-namen maar behoudt zijn eigen, al eerder afgestemde breedtes). Omschrijving groeide
+daarmee in de Staal-lijst van 478px naar 561px (van 37% naar 44% van de tabelbreedte, op een totaal van
+1280px) zonder dat er ergens een celwaarde over meerdere regels gaat wrappen (over de volledige dataset van
+437 rijen geverifieerd).
+
 Plaats de complete map op een PHP-webserver. Er is geen database nodig.
