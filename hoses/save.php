@@ -50,8 +50,10 @@ $contextWerkdruk = cleanValue($context['werkdruk'] ?? '');
 // die een getal moeten bevatten. Zelfde definitie als NUMERIC_FIELDS in
 // assets/selector.js - hier nogmaals gecontroleerd, want de client-check is
 // alleen voor directe feedback en mag nooit de enige verdediging zijn op
-// een endpoint dat naar schijf schrijft.
-const NUMERIC_FIELD_KEYS = ['pilaar', 'persmaat', 'schilIntern', 'schilExtern', 'insteekdiepte', 'outside'];
+// een endpoint dat naar schijf schrijft. Let op: "pilaar" hoort hier
+// expliciet niet bij - dat veld bevat vaak een alfanumerieke koppelingscode
+// (VS, V4, V6, WB, 100V4-20C, ...) i.p.v. een getal, zie AGENTS.md §5.
+const NUMERIC_FIELD_KEYS = ['persmaat', 'schilIntern', 'schilExtern', 'insteekdiepte', 'outside'];
 
 // Waarden mogen niet met een formuleteken beginnen (voorkomt CSV/formule-
 // injectie mocht het bestand later in Excel/Sheets geopend worden), en

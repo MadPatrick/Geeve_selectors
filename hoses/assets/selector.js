@@ -348,7 +348,7 @@
         card.dataset.material = material;
         card.dataset.number = String(number);
 
-        const pilaarInput = editInput(material, 'combo', number, 'pilaar', v.pilaar, '10 of 30');
+        const pilaarInput = editInput(material, 'combo', number, 'pilaar', v.pilaar, 'bijv. 10, 30, VS of V4');
         pilaarInput.classList.add('fact-edit-pilaar');
 
         card.appendChild(removeButton(onRemove));
@@ -643,8 +643,10 @@
     // Velden die een getal moeten bevatten (Nederlandse of Engelse
     // decimaalnotatie, bv. "54", "54,3" of "54.3"); leeg is altijd geldig
     // (dan wordt het veld gewoon leeggemaakt). Huls/Type koppeling en de
-    // accessoirecodes blijven vrije tekst.
-    const NUMERIC_FIELDS = new Set(['pilaar', 'persmaat', 'schilIntern', 'schilExtern', 'insteekdiepte']);
+    // accessoirecodes blijven vrije tekst - "pilaar" hoort hier ook niet
+    // bij: dat veld bevat vaak een alfanumerieke koppelingscode (VS, V4,
+    // V6, WB, 100V4-20C, ...) i.p.v. een getal, zie AGENTS.md §5.
+    const NUMERIC_FIELDS = new Set(['persmaat', 'schilIntern', 'schilExtern', 'insteekdiepte']);
     const NUMERIC_PATTERN = /^\d+([.,]\d+)?$/;
 
     function isNumericInput(input) {
