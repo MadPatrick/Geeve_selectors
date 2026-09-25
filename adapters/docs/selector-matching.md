@@ -30,7 +30,7 @@ Location: `data/artikelnummers_adapters.csv`, falling back to `artikelnummers_ad
 | `omschrijving` | Free-text description (not used for filtering — display / print only) |
 | `hoek` | Shape: `recht`, `haaks`, `45°`, `T-stuk`, `kruis`, or `n.v.t.` for single-port items |
 | `draadsoort_1` | Port 1 thread standard: `BSPP`, `BSPT`, `NPT/NPTF`, `NPSM`, `JIC`, `JIS`, `UN/UNF`, `Metric` |
-| `draadmaat_1` | Port 1 thread size, e.g. `3/8-19`, `M 16×1.5` |
+| `draadmaat_1` | Port 1 thread size, e.g. `3/8-19`, `M16×1.5` |
 | `connectie_type_1` | Port 1 connection type: `buiten` (male) / `binnen` (female) / `wartelend` (swivel) |
 | `draadsoort_2` / `draadmaat_2` / `connectie_type_2` | Same three fields for port 2 — blank for a single-port item (plug, cap, blanking nut, …) |
 | `tube_od_mm` / `tube_od_inch` | Tube outer diameter, where relevant (not used for filtering) |

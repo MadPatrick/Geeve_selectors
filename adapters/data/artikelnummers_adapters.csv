@@ -50,13 +50,13 @@
 2119-08,,2119,Cap,JIS BSPP 60° blanking cap,Cap,JIS,1/2-14,binnen,,,,,,42
 2119-12,,2119,Cap,JIS BSPP 60° blanking cap,Cap,JIS,3/4-14,binnen,,,,,,42
 2119-16,,2119,Cap,JIS BSPP 60° blanking cap,Cap,JIS,1-11,binnen,,,,,,42
-2119-M14,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M 14×1.5,wartelend,,,,,,42
-2119-M16,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M 16×1.5,wartelend,,,,,,42
-2119-M18,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M 18×1.5,wartelend,,,,,,42
-2119-M22,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M 22×1.5,wartelend,,,,,,42
-2119-M24,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M 24×1.5,wartelend,,,,,,42
-2119-M30,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M 30×1.5,wartelend,,,,,,42
-2119-M33,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M 33×2.0,wartelend,,,,,,42
+2119-M14,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M14×1.5,wartelend,,,,,,42
+2119-M16,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M16×1.5,wartelend,,,,,,42
+2119-M18,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M18×1.5,wartelend,,,,,,42
+2119-M22,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M22×1.5,wartelend,,,,,,42
+2119-M24,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M24×1.5,wartelend,,,,,,42
+2119-M30,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M30×1.5,wartelend,,,,,,42
+2119-M33,,2119,Cap,SWIVEL BLANKING CAP JIS METRIC-komatsu,Cap,JIS,M33×2.0,wartelend,,,,,,42
 12 PNTX-B,12 PNTX-B,2120,Plug,Triple-Lok® 37° Flare end plug,Plug,JIC,1 1/16-12,buiten,,,,,3/4,
 16PNMTXS,16PNMTXS,2120,Plug,Triple-Lok® 37° Flare end plug,Plug,JIC,1 5/16-12,buiten,,,,,1,83
 2120-02,2 PNTX-S,2120,Plug,Triple-Lok® 37° Flare end plug,Plug,JIC,5/16-24,buiten,,,,,1/8,83
@@ -83,34 +83,34 @@
 2140-06BZK,6PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,3/8-19,buiten,,,,,,5
 2140-08,8PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,1/2-14,buiten,,,,,,5
 2140-08BZK,8PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,1/2-14,buiten,,,,,,5
-2140-08X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 8×1.5,buiten,,,,,,5
+2140-08X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M8×1.5,buiten,,,,,,5
 2140-10,10PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,5/8-14,buiten,,,,,,5
-2140-10X1.0BZK,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 10×1.0,buiten,,,,,,5
-2140-10X1BZK,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 10×1,buiten,,,,,,5
+2140-10X1.0BZK,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M10×1.0,buiten,,,,,,5
+2140-10X1BZK,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M10×1,buiten,,,,,,5
 2140-12,12PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,3/4-14,buiten,,,,,,5
 2140-12BZK,12PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,3/4-14,buiten,,,,,,5
-"2140-12X1,25",,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 12×1.25,buiten,,,,,,5
-2140-12X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 12×1.5,buiten,,,,,,5
-2140-14X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 14×1.5,buiten,,,,,,5
+"2140-12X1,25",,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M12×1.25,buiten,,,,,,5
+2140-12X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M12×1.5,buiten,,,,,,5
+2140-14X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M14×1.5,buiten,,,,,,5
 2140-16,16PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,1-11,buiten,,,,,,5
 2140-16BZK,16PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,1-11,buiten,,,,,,5
-2140-16X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 16×1.5,buiten,,,,,,5
-2140-16X1.5BZK,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 16×1.5,buiten,,,,,,5
-2140-18X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 18×1.5,buiten,,,,,,5
+2140-16X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M16×1.5,buiten,,,,,,5
+2140-16X1.5BZK,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M16×1.5,buiten,,,,,,5
+2140-18X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M18×1.5,buiten,,,,,,5
 2140-20,20PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,1 1/4-11,buiten,,,,,,5
 2140-20BZK,20PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,1 1/4-11,buiten,,,,,,5
-2140-20X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 20×1.5,buiten,,,,,,5
-2140-22X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 22×1.5,buiten,,,,,,5
-2140-22X1.5 14MM INW 10MM,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 22×1.5,buiten,,,,,,5
+2140-20X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M20×1.5,buiten,,,,,,5
+2140-22X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M22×1.5,buiten,,,,,,5
+2140-22X1.5 14MM INW 10MM,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M22×1.5,buiten,,,,,,5
 2140-24,24PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,1 1/2-11,buiten,,,,,,5
 2140-24BZK,24PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,1 1/2-11,buiten,,,,,,5
-2140-24X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 24×1.5,buiten,,,,,,5
-2140-25X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 25×1.5,buiten,,,,,,5
-2140-30X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 30×1.5,buiten,,,,,,5
+2140-24X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M24×1.5,buiten,,,,,,5
+2140-25X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M25×1.5,buiten,,,,,,5
+2140-30X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M30×1.5,buiten,,,,,,5
 2140-32,32PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,2-11,buiten,,,,,,5
 2140-32BZK,32PNMK4S,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,2-11,buiten,,,,,,5
-2140-36X1.5BZK,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 36×1.5,buiten,,,,,,5
-2140-38X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M 38×1.5,buiten,,,,,,5
+2140-36X1.5BZK,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M36×1.5,buiten,,,,,,5
+2140-38X1.5,,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,M38×1.5,buiten,,,,,,5
 2140-40,-,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,2 1/2-11,buiten,,,,,,5
 2140-48,-,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,3-11,buiten,,,,,,5
 2140-56,-,2140,Plug,BSPP 60° blanking plug,Plug,BSPP,3 1/2-11,buiten,,,,,,5
@@ -162,13 +162,13 @@
 2149-08,,2149,Plug,JIS BSPP 60° blanking plug,Plug,JIS,1/2-14,buiten,,,,,,42
 2149-12,,2149,Plug,JIS BSPP 60° blanking plug,Plug,JIS,3/4-14,buiten,,,,,,42
 2149-16,,2149,Plug,JIS BSPP 60° blanking plug,Plug,JIS,1-11,buiten,,,,,,42
-2149-M14,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M 14×1.5,buiten,,,,,,42
-2149-M16,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M 16×1.5,buiten,,,,,,42
-2149-M18,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M 18×1.5,buiten,,,,,,42
-2149-M22,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M 22×1.5,buiten,,,,,,42
-2149-M24,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M 24×1.5,buiten,,,,,,42
-2149-M30,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M 30×1.5,buiten,,,,,,42
-2149-M33,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M 33×2.0,buiten,,,,,,42
+2149-M14,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M14×1.5,buiten,,,,,,42
+2149-M16,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M16×1.5,buiten,,,,,,42
+2149-M18,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M18×1.5,buiten,,,,,,42
+2149-M22,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M22×1.5,buiten,,,,,,42
+2149-M24,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M24×1.5,buiten,,,,,,42
+2149-M30,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M30×1.5,buiten,,,,,,42
+2149-M33,,2149,Plug,SOLID PLUG JIS METRIC-komatsu,Plug,JIS,M33×2.0,buiten,,,,,,42
 2213-02-02,,2213,Swivel nut union,BSPP 60° Female swivel ends,recht,BSPP,1/8-28,wartelend,BSPP,1/8-28,wartelend,,,8
 2213-02-04,,2213,Swivel nut union,BSPP 60° Female swivel ends,recht,BSPP,1/8-28,wartelend,BSPP,1/4-19,wartelend,,,8
 2213-02-06,,2213,Swivel nut union,BSPP 60° Female swivel ends,recht,BSPP,1/8-28,wartelend,BSPP,3/8-19,wartelend,,,8
@@ -376,38 +376,38 @@
 2226-06-08,8FMTXS,2225,Male stud connector,Triple-Lok® 37° Flare end / Male NPTF thread,recht,NPT/NPTF,3/8-18,buiten,JIC,3/4-16,buiten,12,1/2,61
 6-6 FTX-S,6-6 FTX-S,2225,Male stud connector,Triple-Lok® 37° Flare end / Male NPTF thread,recht,NPT/NPTF,3/8-18,buiten,JIC,9/16-18,buiten,,3/8,
 8-8 FTX-S,8-8 FTX-S,2225,Male stud connector,Triple-Lok® 37° Flare end / Male NPTF thread,recht,NPT/NPTF,1/2-14,buiten,JIC,3/4-16,buiten,,1/2,
-2226-04-10,4M10F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/16-20,buiten,Metric,M 10×1.0,buiten,6,1/4,62
-2226-04-12,4M12F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/16-20,buiten,Metric,M 12×1.5,buiten,6,1/4,62
-2226-04-14,4M14F8OMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/16-20,buiten,Metric,M 14×1.5,buiten,6,1/4,62
-2226-05-10,5M10F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1/2-20,buiten,Metric,M 10×1.0,buiten,8,5/16,62
-2226-05-12,5M12F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1/2-20,buiten,Metric,M 12×1.5,buiten,8,5/16,62
-2226-05-14,5M14F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1/2-20,buiten,Metric,M 14×1.5,buiten,8,5/16,62
-2226-06-12,6M12F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,9/16-18,buiten,Metric,M 12×1.5,buiten,10,3/8,62
-2226-06-14,6M14F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,9/16-18,buiten,Metric,M 14×1.5,buiten,10,3/8,62
-2226-06-16,6M16F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,9/16-18,buiten,Metric,M 16×1.5,buiten,10,3/8,62
-2226-06-18,6M18F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,9/16-18,buiten,Metric,M 18×1.5,buiten,10,3/8,62
-2226-06-22,6M22F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,9/16-18,buiten,Metric,M 22×1.5,buiten,10,3/8,62
-2226-08-12,,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M 12×1.5,buiten,12,1/2,62
-2226-08-14,8M14F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M 14×1.5,buiten,12,1/2,62
-2226-08-16,8M16F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M 16×1.5,buiten,12,1/2,62
-2226-08-18,8M18F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M 18×1.5,buiten,12,1/2,62
-2226-08-22,8M22F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M 22×1.5,buiten,12,1/2,62
-2226-08-26,,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M 26×1.5,buiten,12,1/2,62
-2226-10-16,,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/8-14,buiten,Metric,M 16×1.5,buiten,,5/8,62
-2226-10-18,10M18F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/8-14,buiten,Metric,M 18×1.5,buiten,"14, 15, 16",5/8,62
-2226-10-22,10M22F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/8-14,buiten,Metric,M 22×1.5,buiten,"14, 15, 16",5/8,62
-2226-12-18,12M18F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 1/16-12,buiten,Metric,M 18×1.5,buiten,"18, 20",3/4,62
-2226-12-22,12M22F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 1/16-12,buiten,Metric,M 22×1.5,buiten,"18, 20",3/4,62
-2226-12-26,12M26F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 1/16-12,buiten,Metric,M 26×1.5,buiten,"18, 20",3/4,62
-2226-12-27,12M27F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 1/16-12,buiten,Metric,M 27×2.0,buiten,"18, 20",3/4,62
-2226-16-26,16M26F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/16-12,buiten,Metric,M 26×1.5,buiten,25,1,62
-2226-16-27,16M27F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/16-12,buiten,Metric,M 27×2.0,buiten,25,1,62
-2226-16-33,16M33F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/16-12,buiten,Metric,M 33×2.0,buiten,25,1,62
-2226-20-24,,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/8-12,buiten,Metric,M 24×1.5,buiten,"28, 30, 32",1 1/4,62
-2226-20-26,,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/8-12,buiten,Metric,M 26×1.5,buiten,"28, 30, 32",1 1/4,62
-2226-20-42,20M42F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/8-12,buiten,Metric,M 42×2.0,buiten,"28, 30, 32",1 1/4,62
-2226-24-48,24M48F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 7/8-12,buiten,Metric,M 48×2.0,buiten,"35, 38",1 1/2,62
-4M10F8OMXS,4M10F8OMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/16-20,buiten,Metric,M 10×1.0,buiten,,1/4,
+2226-04-10,4M10F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/16-20,buiten,Metric,M10×1.0,buiten,6,1/4,62
+2226-04-12,4M12F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/16-20,buiten,Metric,M12×1.5,buiten,6,1/4,62
+2226-04-14,4M14F8OMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/16-20,buiten,Metric,M14×1.5,buiten,6,1/4,62
+2226-05-10,5M10F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1/2-20,buiten,Metric,M10×1.0,buiten,8,5/16,62
+2226-05-12,5M12F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1/2-20,buiten,Metric,M12×1.5,buiten,8,5/16,62
+2226-05-14,5M14F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1/2-20,buiten,Metric,M14×1.5,buiten,8,5/16,62
+2226-06-12,6M12F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,9/16-18,buiten,Metric,M12×1.5,buiten,10,3/8,62
+2226-06-14,6M14F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,9/16-18,buiten,Metric,M14×1.5,buiten,10,3/8,62
+2226-06-16,6M16F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,9/16-18,buiten,Metric,M16×1.5,buiten,10,3/8,62
+2226-06-18,6M18F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,9/16-18,buiten,Metric,M18×1.5,buiten,10,3/8,62
+2226-06-22,6M22F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,9/16-18,buiten,Metric,M22×1.5,buiten,10,3/8,62
+2226-08-12,,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M12×1.5,buiten,12,1/2,62
+2226-08-14,8M14F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M14×1.5,buiten,12,1/2,62
+2226-08-16,8M16F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M16×1.5,buiten,12,1/2,62
+2226-08-18,8M18F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M18×1.5,buiten,12,1/2,62
+2226-08-22,8M22F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M22×1.5,buiten,12,1/2,62
+2226-08-26,,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,3/4-16,buiten,Metric,M26×1.5,buiten,12,1/2,62
+2226-10-16,,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/8-14,buiten,Metric,M16×1.5,buiten,,5/8,62
+2226-10-18,10M18F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/8-14,buiten,Metric,M18×1.5,buiten,"14, 15, 16",5/8,62
+2226-10-22,10M22F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/8-14,buiten,Metric,M22×1.5,buiten,"14, 15, 16",5/8,62
+2226-12-18,12M18F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 1/16-12,buiten,Metric,M18×1.5,buiten,"18, 20",3/4,62
+2226-12-22,12M22F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 1/16-12,buiten,Metric,M22×1.5,buiten,"18, 20",3/4,62
+2226-12-26,12M26F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 1/16-12,buiten,Metric,M26×1.5,buiten,"18, 20",3/4,62
+2226-12-27,12M27F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 1/16-12,buiten,Metric,M27×2.0,buiten,"18, 20",3/4,62
+2226-16-26,16M26F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/16-12,buiten,Metric,M26×1.5,buiten,25,1,62
+2226-16-27,16M27F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/16-12,buiten,Metric,M27×2.0,buiten,25,1,62
+2226-16-33,16M33F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/16-12,buiten,Metric,M33×2.0,buiten,25,1,62
+2226-20-24,,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/8-12,buiten,Metric,M24×1.5,buiten,"28, 30, 32",1 1/4,62
+2226-20-26,,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/8-12,buiten,Metric,M26×1.5,buiten,"28, 30, 32",1 1/4,62
+2226-20-42,20M42F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 5/8-12,buiten,Metric,M42×2.0,buiten,"28, 30, 32",1 1/4,62
+2226-24-48,24M48F82EDMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,1 7/8-12,buiten,Metric,M48×2.0,buiten,"35, 38",1 1/2,62
+4M10F8OMXS,4M10F8OMXS,2226,Male stud connector,Triple-Lok® 37° Flare end / Male metric thread – ED seal,recht,JIC,7/16-20,buiten,Metric,M10×1.0,buiten,,1/4,
 2227-04-04,4-4G4MXSMO,2227,Pressure gauge connector,Triple-Lok® 37° Flare end / Female BSPP gauge thread,recht,JIC,7/16-20,buiten,BSPP,1/4-19,binnen,6,1/4,82
 2227-04-08,4-8G4MXSMO,2227,Pressure gauge connector,Triple-Lok® 37° Flare end / Female BSPP gauge thread,recht,JIC,7/16-20,buiten,BSPP,1/2-14,binnen,6,1/4,82
 2227-05-04,5-4G4MXSMO,2227,Pressure gauge connector,Triple-Lok® 37° Flare end / Female BSPP gauge thread,recht,JIC,1/2-20,buiten,BSPP,1/4-19,binnen,8,5/16,82
@@ -693,104 +693,104 @@
 2277-20-20,0207-20-20,2277,Female connector,Female NPTF thread / NPSM Female swivel end,recht,NPT/NPTF,1 1/4-11.5,binnen,NPSM,1 1/4-11.5,wartelend,,,35
 2277-24-24,0207-24-24,2277,Female connector,Female NPTF thread / NPSM Female swivel end,recht,NPT/NPTF,1 1/2-11.5,binnen,NPSM,1 1/2-11.5,wartelend,,,35
 2277-32-32,0207-32-32,2277,Female connector,Female NPTF thread / NPSM Female swivel end,recht,NPT/NPTF,2-11.5,binnen,NPSM,2-11.5,wartelend,,,35
-2280-10-12,,2280,Banjo connector,ADAPTER BANJO X METRIC MALE 24º,haaks,,,,Metric,M 12×1.5,buiten,6,,
-2280-12-14,,2280,Banjo connector,ADAPTER BANJO X METRIC MALE 24º,haaks,,,,Metric,M 14×1.5,buiten,8,,
+2280-10-12,,2280,Banjo connector,ADAPTER BANJO X METRIC MALE 24º,haaks,,,,Metric,M12×1.5,buiten,6,,
+2280-12-14,,2280,Banjo connector,ADAPTER BANJO X METRIC MALE 24º,haaks,,,,Metric,M14×1.5,buiten,8,,
 2280-13-10,,2280,Banjo connector,ADAPTER BANJO X METRIC MALE 24º,haaks,,,,,,,10,,
-2280-14-14,,2280,Banjo connector,ADAPTER BANJO X METRIC MALE 24º,haaks,,,,Metric,M 14×1.5,buiten,8,,
+2280-14-14,,2280,Banjo connector,ADAPTER BANJO X METRIC MALE 24º,haaks,,,,Metric,M14×1.5,buiten,8,,
 2280-17-12,,2280,Banjo connector,ADAPTER BANJO X METRIC MALE 24º,haaks,,,,,,,12,,
 2280-21-12,,2280,Banjo connector,ADAPTER BANJO X METRIC MALE 24º,haaks,,,,,,,12,,
 2280-21-15,,2280,Banjo connector,ADAPTER BANJO X METRIC MALE 24º,haaks,,,,,,,15,,
-2281-10-12,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M 12×1.5,buiten,,,
+2281-10-12,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M12×1.5,buiten,,,
 2281-13-04,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,BSPP,1/4-19,buiten,,,
-2281-14-12,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M 12×1.5,buiten,,,
-2281-14-14,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M 14×1.5,buiten,,,
-2281-16-16,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M 16×1.5,buiten,,,
+2281-14-12,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M12×1.5,buiten,,,
+2281-14-14,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M14×1.5,buiten,,,
+2281-16-16,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M16×1.5,buiten,,,
 2281-17-06,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,BSPP,3/8-19,buiten,,,
 2281-21-08,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,BSPP,1/2-14,buiten,,,
-2281-22-18,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M 18×1.5,buiten,,,
-2281-22-22,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M 22×1.5,buiten,,,
+2281-22-18,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M18×1.5,buiten,,,
+2281-22-22,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,Metric,M22×1.5,buiten,,,
 2281-27-08,,2281,Banjo connector,ADAPTER BANJO X METRIC MALE 60º,haaks,,,,BSPP,1/2-14,buiten,,,
-2282-14-12,,2282,Banjo connector,ADAPTER BANJO X METRIC FEMALE,haaks,,,,Metric,M 12×1.5,binnen,,,
-2282-14-14,,2282,Banjo connector,ADAPTER BANJO X METRIC FEMALE,haaks,,,,Metric,M 14×1.5,binnen,,,
-2284-10-02,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 10×1.0,buiten,BSPP,1/8-28,buiten,,,
-2284-10-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 10×1.0,buiten,BSPP,1/4-19,buiten,,,
-2284-10-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 10×1.0,buiten,BSPP,3/8-19,buiten,,,
-2284-10X1.25-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 10×1.25,buiten,BSPP,3/8-19,buiten,,,
-2284-10X1.5-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 10×1.5,buiten,BSPP,3/8-19,buiten,,,
-2284-12-02,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 12×1.5,buiten,BSPP,1/8-28,buiten,,,
-2284-12-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 12×1.5,buiten,BSPP,1/4-19,buiten,,,
-2284-12-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 12×1.5,buiten,BSPP,3/8-19,buiten,,,
-2284-12-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 12×1.5,buiten,BSPP,1/2-14,buiten,,,
-2284-12X1-02,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 12×1.0,buiten,BSPP,1/8-28,buiten,,,
-2284-12X1-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 12×1.0,buiten,BSPP,1/4-19,buiten,,,
-2284-14-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 14×1.5,buiten,BSPP,1/4-19,buiten,,,
-2284-14-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 14×1.5,buiten,BSPP,3/8-19,buiten,,,
-2284-14-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 14×1.5,buiten,BSPP,1/2-14,buiten,,,
-2284-16-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 16×1.5,buiten,BSPP,1/4-19,buiten,,,
-2284-16-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 16×1.5,buiten,BSPP,3/8-19,buiten,,,
-2284-16-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 16×1.5,buiten,BSPP,1/2-14,buiten,,,
-2284-18-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 18×1.5,buiten,BSPP,1/4-19,buiten,,,
-2284-18-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 18×1.5,buiten,BSPP,3/8-19,buiten,,,
-2284-18-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 18×1.5,buiten,BSPP,1/2-14,buiten,,,
-2284-18-10,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 18×1.5,buiten,BSPP,5/8-14,buiten,,,
-2284-18-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 18×1.5,buiten,BSPP,3/4-14,buiten,,,
-2284-20-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 20×1.5,buiten,BSPP,3/8-19,buiten,,,
-2284-20-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 20×1.5,buiten,BSPP,1/2-14,buiten,,,
-2284-20-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 20×1.5,buiten,BSPP,3/4-14,buiten,,,
-2284-22-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 22×1.5,buiten,BSPP,1/4-19,buiten,,,
-2284-22-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 22×1.5,buiten,BSPP,3/8-19,buiten,,,
-2284-22-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 22×1.5,buiten,BSPP,1/2-14,buiten,,,
-2284-22-10,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 22×1.5,buiten,BSPP,5/8-14,buiten,,,
-2284-22-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 22×1.5,buiten,BSPP,3/4-14,buiten,,,
-2284-22-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 22×1.5,buiten,BSPP,1-11,buiten,,,
-2284-24-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 24×1.5,buiten,BSPP,3/8-19,buiten,,,
-2284-24-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 24×1.5,buiten,BSPP,1/2-14,buiten,,,
-2284-24-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 24×1.5,buiten,BSPP,3/4-14,buiten,,,
-2284-26-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 26×1.5,buiten,BSPP,1/2-14,buiten,,,
-2284-26-10,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 26×1.5,buiten,BSPP,5/8-14,buiten,,,
-2284-26-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 26×1.5,buiten,BSPP,3/4-14,buiten,,,
-2284-26-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 26×1.5,buiten,BSPP,1-11,buiten,,,
-2284-27-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 27×2.0,buiten,BSPP,1/2-14,buiten,,,
-2284-27-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 27×2.0,buiten,BSPP,3/4-14,buiten,,,
-2284-30-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 30×1.5,buiten,BSPP,3/4-14,buiten,,,
-2284-30-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 30×1.5,buiten,BSPP,1-11,buiten,,,
-2284-30X2-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 30×2.0,buiten,BSPP,1-11,buiten,,,
-2284-33-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 33×2.0,buiten,BSPP,1-11,buiten,,,
-2284-38-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 38×1.5,buiten,BSPP,1-11,buiten,,,
-2284-38-20,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 38×1.5,buiten,BSPP,1 1/4-11,buiten,,,
-2284-45-24,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 45×1.5,buiten,BSPP,1 1/2-11,buiten,,,
-2284-68-24,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 68×6.0,buiten,BSPP,1 1/2-11,buiten,,,
-2284-68-32,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M 68×6.0,buiten,BSPP,2-11,buiten,,,
+2282-14-12,,2282,Banjo connector,ADAPTER BANJO X METRIC FEMALE,haaks,,,,Metric,M12×1.5,binnen,,,
+2282-14-14,,2282,Banjo connector,ADAPTER BANJO X METRIC FEMALE,haaks,,,,Metric,M14×1.5,binnen,,,
+2284-10-02,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M10×1.0,buiten,BSPP,1/8-28,buiten,,,
+2284-10-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M10×1.0,buiten,BSPP,1/4-19,buiten,,,
+2284-10-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M10×1.0,buiten,BSPP,3/8-19,buiten,,,
+2284-10X1.25-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M10×1.25,buiten,BSPP,3/8-19,buiten,,,
+2284-10X1.5-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M10×1.5,buiten,BSPP,3/8-19,buiten,,,
+2284-12-02,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M12×1.5,buiten,BSPP,1/8-28,buiten,,,
+2284-12-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M12×1.5,buiten,BSPP,1/4-19,buiten,,,
+2284-12-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M12×1.5,buiten,BSPP,3/8-19,buiten,,,
+2284-12-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M12×1.5,buiten,BSPP,1/2-14,buiten,,,
+2284-12X1-02,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M12×1.0,buiten,BSPP,1/8-28,buiten,,,
+2284-12X1-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M12×1.0,buiten,BSPP,1/4-19,buiten,,,
+2284-14-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M14×1.5,buiten,BSPP,1/4-19,buiten,,,
+2284-14-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M14×1.5,buiten,BSPP,3/8-19,buiten,,,
+2284-14-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M14×1.5,buiten,BSPP,1/2-14,buiten,,,
+2284-16-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M16×1.5,buiten,BSPP,1/4-19,buiten,,,
+2284-16-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M16×1.5,buiten,BSPP,3/8-19,buiten,,,
+2284-16-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M16×1.5,buiten,BSPP,1/2-14,buiten,,,
+2284-18-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M18×1.5,buiten,BSPP,1/4-19,buiten,,,
+2284-18-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M18×1.5,buiten,BSPP,3/8-19,buiten,,,
+2284-18-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M18×1.5,buiten,BSPP,1/2-14,buiten,,,
+2284-18-10,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M18×1.5,buiten,BSPP,5/8-14,buiten,,,
+2284-18-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M18×1.5,buiten,BSPP,3/4-14,buiten,,,
+2284-20-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M20×1.5,buiten,BSPP,3/8-19,buiten,,,
+2284-20-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M20×1.5,buiten,BSPP,1/2-14,buiten,,,
+2284-20-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M20×1.5,buiten,BSPP,3/4-14,buiten,,,
+2284-22-04,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M22×1.5,buiten,BSPP,1/4-19,buiten,,,
+2284-22-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M22×1.5,buiten,BSPP,3/8-19,buiten,,,
+2284-22-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M22×1.5,buiten,BSPP,1/2-14,buiten,,,
+2284-22-10,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M22×1.5,buiten,BSPP,5/8-14,buiten,,,
+2284-22-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M22×1.5,buiten,BSPP,3/4-14,buiten,,,
+2284-22-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M22×1.5,buiten,BSPP,1-11,buiten,,,
+2284-24-06,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M24×1.5,buiten,BSPP,3/8-19,buiten,,,
+2284-24-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M24×1.5,buiten,BSPP,1/2-14,buiten,,,
+2284-24-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M24×1.5,buiten,BSPP,3/4-14,buiten,,,
+2284-26-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M26×1.5,buiten,BSPP,1/2-14,buiten,,,
+2284-26-10,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M26×1.5,buiten,BSPP,5/8-14,buiten,,,
+2284-26-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M26×1.5,buiten,BSPP,3/4-14,buiten,,,
+2284-26-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M26×1.5,buiten,BSPP,1-11,buiten,,,
+2284-27-08,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M27×2.0,buiten,BSPP,1/2-14,buiten,,,
+2284-27-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M27×2.0,buiten,BSPP,3/4-14,buiten,,,
+2284-30-12,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M30×1.5,buiten,BSPP,3/4-14,buiten,,,
+2284-30-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M30×1.5,buiten,BSPP,1-11,buiten,,,
+2284-30X2-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M30×2.0,buiten,BSPP,1-11,buiten,,,
+2284-33-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M33×2.0,buiten,BSPP,1-11,buiten,,,
+2284-38-16,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M38×1.5,buiten,BSPP,1-11,buiten,,,
+2284-38-20,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M38×1.5,buiten,BSPP,1 1/4-11,buiten,,,
+2284-45-24,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M45×1.5,buiten,BSPP,1 1/2-11,buiten,,,
+2284-68-24,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M68×6.0,buiten,BSPP,1 1/2-11,buiten,,,
+2284-68-32,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,M68×6.0,buiten,BSPP,2-11,buiten,,,
 2284-82-32,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,,buiten,Metric,,buiten,,,
-2284-82-48,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,,buiten,Metric,M 48×2.0,buiten,,,
-2288-10-10,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 10×1.0,buiten,Metric,M 10×1.0,buiten,,,
-2288-12-10,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 12×1.5,buiten,Metric,M 10×1.0,buiten,,,
-2288-12-12,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 12×1.5,buiten,Metric,M 12×1.5,buiten,,,
-2288-14-12,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 14×1.5,buiten,Metric,M 12×1.5,buiten,,,
-2288-14-14,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 14×1.5,buiten,Metric,M 14×1.5,buiten,,,
-2288-16-12,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 16×1.5,buiten,Metric,M 12×1.5,buiten,,,
-2288-16-14,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 16×1.5,buiten,Metric,M 14×1.5,buiten,,,
-2288-16-16,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 16×1.5,buiten,Metric,M 16×1.5,buiten,,,
-2288-18-14,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 18×1.5,buiten,Metric,M 14×1.5,buiten,,,
-2288-18-16,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 18×1.5,buiten,Metric,M 16×1.5,buiten,,,
-2288-18-18,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 18×1.5,buiten,Metric,M 18×1.5,buiten,,,
-2288-20-16,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 20×1.5,buiten,Metric,M 16×1.5,buiten,,,
-2288-20-18,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 20×1.5,buiten,Metric,M 18×1.5,buiten,,,
-2288-20-20,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 20×1.5,buiten,Metric,M 20×1.5,buiten,,,
-2288-22-16,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 22×1.5,buiten,Metric,M 16×1.5,buiten,,,
-2288-22-18,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 22×1.5,buiten,Metric,M 18×1.5,buiten,,,
-2288-22-20,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 22×1.5,buiten,Metric,M 20×1.5,buiten,,,
-2288-22-22,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 22×1.5,buiten,Metric,M 22×1.5,buiten,,,
-2288-24-24,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 24×1.5,buiten,Metric,M 24×1.5,buiten,,,
-2288-26-22,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 26×1.5,buiten,Metric,M 22×1.5,buiten,,,
-2288-26-26,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 26×1.5,buiten,Metric,M 26×1.5,buiten,,,
-2288-30-26,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 30×1.5,buiten,Metric,M 26×1.5,buiten,,,
-2288-30-30,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 30×1.5,buiten,Metric,M 30×1.5,buiten,,,
-2288-38-38,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 38×1.5,buiten,Metric,M 38×1.5,buiten,,,
-2288-45-45,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 45×1.5,buiten,Metric,M 45×1.5,buiten,,,
-2288-52-52,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 52×1.5,buiten,Metric,M 52×1.5,buiten,,,
-2288-65-65,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 65×6.0,buiten,Metric,M 65×6.0,buiten,,,
-2288-68-68,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M 68×6.0,buiten,Metric,M 68×6.0,buiten,,,
+2284-82-48,,2284,Adapter,ADAPTER METRIC MALE X BSP MALE,recht,Metric,,buiten,Metric,M48×2.0,buiten,,,
+2288-10-10,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M10×1.0,buiten,Metric,M10×1.0,buiten,,,
+2288-12-10,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M12×1.5,buiten,Metric,M10×1.0,buiten,,,
+2288-12-12,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M12×1.5,buiten,Metric,M12×1.5,buiten,,,
+2288-14-12,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M14×1.5,buiten,Metric,M12×1.5,buiten,,,
+2288-14-14,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M14×1.5,buiten,Metric,M14×1.5,buiten,,,
+2288-16-12,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M16×1.5,buiten,Metric,M12×1.5,buiten,,,
+2288-16-14,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M16×1.5,buiten,Metric,M14×1.5,buiten,,,
+2288-16-16,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M16×1.5,buiten,Metric,M16×1.5,buiten,,,
+2288-18-14,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M18×1.5,buiten,Metric,M14×1.5,buiten,,,
+2288-18-16,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M18×1.5,buiten,Metric,M16×1.5,buiten,,,
+2288-18-18,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M18×1.5,buiten,Metric,M18×1.5,buiten,,,
+2288-20-16,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M20×1.5,buiten,Metric,M16×1.5,buiten,,,
+2288-20-18,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M20×1.5,buiten,Metric,M18×1.5,buiten,,,
+2288-20-20,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M20×1.5,buiten,Metric,M20×1.5,buiten,,,
+2288-22-16,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M22×1.5,buiten,Metric,M16×1.5,buiten,,,
+2288-22-18,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M22×1.5,buiten,Metric,M18×1.5,buiten,,,
+2288-22-20,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M22×1.5,buiten,Metric,M20×1.5,buiten,,,
+2288-22-22,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M22×1.5,buiten,Metric,M22×1.5,buiten,,,
+2288-24-24,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M24×1.5,buiten,Metric,M24×1.5,buiten,,,
+2288-26-22,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M26×1.5,buiten,Metric,M22×1.5,buiten,,,
+2288-26-26,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M26×1.5,buiten,Metric,M26×1.5,buiten,,,
+2288-30-26,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M30×1.5,buiten,Metric,M26×1.5,buiten,,,
+2288-30-30,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M30×1.5,buiten,Metric,M30×1.5,buiten,,,
+2288-38-38,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M38×1.5,buiten,Metric,M38×1.5,buiten,,,
+2288-45-45,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M45×1.5,buiten,Metric,M45×1.5,buiten,,,
+2288-52-52,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M52×1.5,buiten,Metric,M52×1.5,buiten,,,
+2288-65-65,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M65×6.0,buiten,Metric,M65×6.0,buiten,,,
+2288-68-68,,2288,Adapter,ADAPTER METRIC MALE X METRIC MALE,recht,Metric,M68×6.0,buiten,Metric,M68×6.0,buiten,,,
 2293-21-04,,2293,Adapter,DIBO FEMALE SWIVEL X 1/4 BSP MALE,recht,,,wartelend,BSPP,1/4-19,buiten,,,
 2293-21-06,,2293,Adapter,DIBO FEMALE SWIVEL X 3/8 BSP MALE,recht,,,wartelend,BSPP,3/8-19,buiten,,,
 2293-21-08,,2293,Adapter,DIBO FEMALE SWIVEL X 1/2 BSP MALE,recht,,,wartelend,BSPP,1/2-14,buiten,,,
@@ -866,15 +866,15 @@
 2425-20-20,20 VTX-S,2425,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male NPTF thread,45°,NPT/NPTF,1 1/4-11.5,buiten,JIC,1 5/8-12,buiten,"28, 30, 32",1 1/4,73
 2425-24-24,24 VTX-S,2425,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male NPTF thread,45°,NPT/NPTF,1 1/2-11.5,buiten,JIC,1 7/8-12,buiten,"35, 38",1 1/2,73
 2425-32-32,32 VTX-S,2425,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male NPTF thread,45°,NPT/NPTF,2-11.5,buiten,JIC,2 1/2-12,buiten,,2,73
-2426-04-10,4M10V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,7/16-20,buiten,Metric,M 10×1.0,buiten,6,1/4,74
-2426-04-12,4M12V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,7/16-20,buiten,Metric,M 12×1.5,buiten,6,1/4,74
-2426-05-12,5M12V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,1/2-20,buiten,Metric,M 12×1.5,buiten,8,5/16,74
-2426-06-14,6M14V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,9/16-18,buiten,Metric,M 14×1.5,buiten,10,3/8,74
-2426-08-16,8M16V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,3/4-16,buiten,Metric,M 16×1.5,buiten,12,1/2,74
-2426-08-18,8M18V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,3/4-16,buiten,Metric,M 18×1.5,buiten,12,1/2,74
-2426-10-22,10M22V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,7/8-14,buiten,Metric,M 22×1.5,buiten,"14, 15,16",5/8,74
-2426-12-27,12M27V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,1 1/16-12,buiten,Metric,M 27×2.0,buiten,"18, 20",3/4,74
-2426-16-33,16M33V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,1 5/16-12,buiten,Metric,M 33×2.0,buiten,25,1,74
+2426-04-10,4M10V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,7/16-20,buiten,Metric,M10×1.0,buiten,6,1/4,74
+2426-04-12,4M12V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,7/16-20,buiten,Metric,M12×1.5,buiten,6,1/4,74
+2426-05-12,5M12V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,1/2-20,buiten,Metric,M12×1.5,buiten,8,5/16,74
+2426-06-14,6M14V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,9/16-18,buiten,Metric,M14×1.5,buiten,10,3/8,74
+2426-08-16,8M16V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,3/4-16,buiten,Metric,M16×1.5,buiten,12,1/2,74
+2426-08-18,8M18V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,3/4-16,buiten,Metric,M18×1.5,buiten,12,1/2,74
+2426-10-22,10M22V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,7/8-14,buiten,Metric,M22×1.5,buiten,"14, 15,16",5/8,74
+2426-12-27,12M27V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,1 1/16-12,buiten,Metric,M27×2.0,buiten,"18, 20",3/4,74
+2426-16-33,16M33V8OMXS,2426,Male stud elbow 45°,Triple-Lok® 37° Flare end / Male Metric thread – O-ring + retaining ring,45°,JIC,1 5/16-12,buiten,Metric,M33×2.0,buiten,25,1,74
 2441-06-06,,2441,Elbow 45°,ELBOW 45° BSP MALE X BSPT MALE,45°,BSPP,3/8-19,buiten,BSPT,3/8-19,buiten,,,
 2441-08-08,,2441,Elbow 45°,ELBOW 45° BSP MALE X BSPT MALE,45°,BSPP,1/2-14,buiten,BSPT,1/2-14,buiten,,,
 2443-02-02,,2443,Swivel nut elbow 45°,BSPP 60° cone end / BSPP 60° Female swivel end,45°,BSPP,1/8-28,buiten,BSPP,1/8-28,wartelend,,,13
@@ -1131,26 +1131,26 @@
 4-4 CCCTX-S,4-4 CCCTX-S,2625,Male stud elbow,Triple-Lok® 37° Flare end / Male NPTF thread,haaks,NPT/NPTF,1/4-18,buiten,JIC,7/16-20,buiten,,1/4,
 8 CCTX-S,8 CCTX-S,2625,Male stud elbow,Triple-Lok® 37° Flare end / Male NPTF thread,haaks,NPT/NPTF,1/2-14,buiten,JIC,3/4-16,buiten,,1/2,
 8 CTX-S,8 CTX-S,2625,Male stud elbow,Triple-Lok® 37° Flare end / Male NPTF thread,haaks,NPT/NPTF,1/2-14,buiten,JIC,3/4-16,buiten,,1/2,
-2626-04-10,4M10C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/16-20,buiten,Metric,M 10×1.0,buiten,6,1/4,69
-2626-04-12,4M12C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/16-20,buiten,Metric,M 12×1.5,buiten,6,1/4,69
-2626-05-10,5M10C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1/2-20,buiten,Metric,M 10×1.0,buiten,8,5/16,69
-2626-05-12,5M12C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1/2-20,buiten,Metric,M 12×1.5,buiten,8,5/16,69
-2626-06-12,6M12C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,9/16-18,buiten,Metric,M 12×1.5,buiten,8,5/16,69
-2626-06-14,6M14C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,9/16-18,buiten,Metric,M 14×1.5,buiten,10,3/8,69
-2626-06-16,6M16C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,9/16-18,buiten,Metric,M 16×1.5,buiten,10,3/8,69
-2626-06-18,6M18C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,9/16-18,buiten,Metric,M 18×1.5,buiten,10,3/8,69
-2626-08-16,8M16C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,3/4-16,buiten,Metric,M 16×1.5,buiten,12,1/2,69
-2626-08-18,8M18C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,3/4-16,buiten,Metric,M 18×1.5,buiten,12,1/2,69
-2626-08-22,8M22C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,3/4-16,buiten,Metric,M 22×1.5,buiten,12,1/2,69
-2626-10-18,10M18C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/8-14,buiten,Metric,M 18×1.5,buiten,"14, 15,16",5/8,69
-2626-10-20,10M20C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/8-14,buiten,Metric,M 20×1.5,buiten,"14, 15,16",5/8,69
-2626-10-22,10M22C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/8-14,buiten,Metric,M 22×1.5,buiten,"14, 15,16",5/8,69
-2626-10-26,10M26C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/8-14,buiten,Metric,M 26×1.5,buiten,"14, 15,16",5/8,69
-2626-12-22,12M22C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1 1/16-12,buiten,Metric,M 22×1.5,buiten,"18, 20",3/4,69
-2626-12-27,12M27C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1 1/16-12,buiten,Metric,M 27×2.0,buiten,"18, 20",3/4,69
-2626-16-33,16M33C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1 5/16-12,buiten,Metric,M 33×2.0,buiten,25,1,69
-2626-20-42,20M42C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1 5/8-12,buiten,Metric,M 42×2.0,buiten,"28, 30, 32",1 1/4,69
-2626-24-48,24M48C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1 7/8-12,buiten,Metric,M 48×2.0,buiten,"35, 38",1 1/2,69
+2626-04-10,4M10C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/16-20,buiten,Metric,M10×1.0,buiten,6,1/4,69
+2626-04-12,4M12C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/16-20,buiten,Metric,M12×1.5,buiten,6,1/4,69
+2626-05-10,5M10C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1/2-20,buiten,Metric,M10×1.0,buiten,8,5/16,69
+2626-05-12,5M12C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1/2-20,buiten,Metric,M12×1.5,buiten,8,5/16,69
+2626-06-12,6M12C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,9/16-18,buiten,Metric,M12×1.5,buiten,8,5/16,69
+2626-06-14,6M14C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,9/16-18,buiten,Metric,M14×1.5,buiten,10,3/8,69
+2626-06-16,6M16C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,9/16-18,buiten,Metric,M16×1.5,buiten,10,3/8,69
+2626-06-18,6M18C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,9/16-18,buiten,Metric,M18×1.5,buiten,10,3/8,69
+2626-08-16,8M16C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,3/4-16,buiten,Metric,M16×1.5,buiten,12,1/2,69
+2626-08-18,8M18C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,3/4-16,buiten,Metric,M18×1.5,buiten,12,1/2,69
+2626-08-22,8M22C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,3/4-16,buiten,Metric,M22×1.5,buiten,12,1/2,69
+2626-10-18,10M18C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/8-14,buiten,Metric,M18×1.5,buiten,"14, 15,16",5/8,69
+2626-10-20,10M20C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/8-14,buiten,Metric,M20×1.5,buiten,"14, 15,16",5/8,69
+2626-10-22,10M22C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/8-14,buiten,Metric,M22×1.5,buiten,"14, 15,16",5/8,69
+2626-10-26,10M26C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,7/8-14,buiten,Metric,M26×1.5,buiten,"14, 15,16",5/8,69
+2626-12-22,12M22C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1 1/16-12,buiten,Metric,M22×1.5,buiten,"18, 20",3/4,69
+2626-12-27,12M27C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1 1/16-12,buiten,Metric,M27×2.0,buiten,"18, 20",3/4,69
+2626-16-33,16M33C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1 5/16-12,buiten,Metric,M33×2.0,buiten,25,1,69
+2626-20-42,20M42C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1 5/8-12,buiten,Metric,M42×2.0,buiten,"28, 30, 32",1 1/4,69
+2626-24-48,24M48C8OMXS,2626,Male stud elbow,Triple-Lok® 37° Flare end / Male metric thread – O-ring + retaining ring,haaks,JIC,1 7/8-12,buiten,Metric,M48×2.0,buiten,"35, 38",1 1/2,69
 2641-02-02,,2641,Elbow 90°,ELBOW 90° BSP MALE X BSPT MALE,haaks,BSPP,1/8-28,buiten,BSPT,1/8-28,buiten,,,
 2641-04-02,,2641,Elbow 90°,ELBOW 90° BSP MALE X BSPT MALE,haaks,BSPP,1/4-19,buiten,BSPT,1/8-28,buiten,,,
 2641-04-04,,2641,Elbow 90°,ELBOW 90° BSP MALE X BSPT MALE,haaks,BSPP,1/4-19,buiten,BSPT,1/4-19,buiten,,,
@@ -1363,12 +1363,12 @@
 2943-20-20,,2943,Swivel nut swept elbow 90°,BSPP 60° cone end / BSPP 60° Female swivel end,haaks,BSPP,1 1/4-11,buiten,BSPP,1 1/4-11,wartelend,,,15
 2943-24-24,,2943,Swivel nut swept elbow 90°,BSPP 60° cone end / BSPP 60° Female swivel end,haaks,BSPP,1 1/2-11,buiten,BSPP,1 1/2-11,wartelend,,,15
 2943-32-32,,2943,Swivel nut swept elbow 90°,BSPP 60° cone end / BSPP 60° Female swivel end,haaks,BSPP,2-11,buiten,BSPP,2-11,wartelend,,,15
-2995-18-06,,2995,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,M 18×1.5,buiten,Metric,,wartelend,,,
-2995-22-08,,2995,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,M 22×1.5,buiten,Metric,,wartelend,,,
-2995-28-16,,2995,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,,buiten,Metric,M 16×1.5,wartelend,,,
-2996-30-10,,2996,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,,buiten,Metric,M 10×1.0,wartelend,,,
-2996-36-12,,2996,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,,buiten,Metric,M 12×1.5,wartelend,,,
-2996-42-16,,2996,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,M 42×2.0,buiten,Metric,M 16×1.5,wartelend,,,
+2995-18-06,,2995,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,M18×1.5,buiten,Metric,,wartelend,,,
+2995-22-08,,2995,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,M22×1.5,buiten,Metric,,wartelend,,,
+2995-28-16,,2995,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,,buiten,Metric,M16×1.5,wartelend,,,
+2996-30-10,,2996,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,,buiten,Metric,M10×1.0,wartelend,,,
+2996-36-12,,2996,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,,buiten,Metric,M12×1.5,wartelend,,,
+2996-42-16,,2996,Swivel nut swept elbow 90°,ELBOW 90° SWEPT METRIC MALE X METRIC FEMALE SWIVEL,haaks,Metric,M42×2.0,buiten,Metric,M16×1.5,wartelend,,,
 7115-04,4FNMLS,7115,Cap,O-Lok® ORFS blanking cap,Cap,ORFS,9/16-18,binnen,,,,,,111
 7115-06,6FNMLS,7115,Cap,O-Lok® ORFS blanking cap,Cap,ORFS,11/16-16,binnen,,,,,,111
 7115-08,8FNMLS,7115,Cap,O-Lok® ORFS blanking cap,Cap,ORFS,13/16-16,binnen,,,,,,111
@@ -1535,41 +1535,41 @@ TPLS6,TPLS6,7180,Support sleeve,O-LOK SLEEVE METRIC TUBING,Overige,,,,,,,6,,
 7225-16-16,16 FLO-S,7225,Male stud connector,O-Lok® ORFS tube end / Male NPTF thread,recht,NPT/NPTF,1-11.5,buiten,ORFS,1 7/16-12,buiten,"22, 25",1,97
 7225-20-20,20 FLO-S,7225,Male stud connector,O-Lok® ORFS tube end / Male NPTF thread,recht,NPT/NPTF,1 1/4-11.5,buiten,ORFS,1 11/16-12,buiten,"28, 30, 32",1 1/4,97
 7225-24-24,24 FLO-S,7225,Male stud connector,O-Lok® ORFS tube end / Male NPTF thread,recht,NPT/NPTF,1 1/2-11.5,buiten,ORFS,2-12,buiten,"35, 38",1 1/2,97
-10M18F87OMLOS,10M18F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,UN/UNF,1-14,buiten,Metric,M 18×1.5,buiten,,5/8,
-10M22F87OMLOS,10M22F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,UN/UNF,1-14,buiten,Metric,M 10×1.0,buiten,,5/8,
-16M33F87OMLOS,16M33F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,UN/UNF,1 7/16-12,buiten,Metric,M 16×1.5,buiten,,1,
-6M12F87OMLOS,6M12F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,JIC,,buiten,Metric,M 12×1.5,buiten,,3/8,
-6M14F87OMLOS,6M14F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,JIC,,buiten,Metric,M 14×1.5,buiten,,3/8,
-6M18F87OMLOS,6M18F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M 18×1.5,buiten,,3/8,
-7226-04-10,4M10F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,9/16-18,buiten,Metric,M 10×1.0,buiten,6,1/4,98
-7226-04-12,4M12F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,9/16-18,buiten,Metric,M 12×1.5,buiten,6,1/4,98
-7226-04-14,4M14F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,9/16-18,buiten,Metric,M 14×1.5,buiten,6,1/4,98
-7226-04-16,4M16F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,9/16-18,buiten,Metric,M 16×1.5,buiten,6,1/4,98
-7226-06-12,6M12F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M 12×1.5,buiten,"8, 10","5/16, 3/8",98
-7226-06-14,6M14F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M 14×1.5,buiten,"8, 10","5/16, 3/8",98
-7226-06-16,6M16F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M 16×1.5,buiten,"8, 10","5/16, 3/8",98
-7226-06-18,6M18F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M 18×1.5,buiten,"8, 10","5/16, 3/8",98
-7226-06-22,6M22F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M 22×1.5,buiten,"8, 10","5/16, 3/8",98
-7226-08-12,8M12F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M 12×1.5,buiten,12,1/2,98
-7226-08-14,8M14F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M 14×1.5,buiten,12,1/2,98
-7226-08-16,8M16F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M 16×1.5,buiten,12,1/2,98
-7226-08-18,8M18F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M 18×1.5,buiten,12,1/2,98
-7226-08-22,8M22F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M 22×1.5,buiten,12,1/2,98
-7226-08-26,8M26F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M 26×1.5,buiten,12,1/2,98
-7226-08-27,8M27F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M 27×2.0,buiten,12,1/2,98
-7226-10-16,10M16F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1-14,buiten,Metric,M 16×1.5,buiten,"14, 15, 16",5/8,98
-7226-10-18,10M18F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1-14,buiten,Metric,M 18×1.5,buiten,"14, 15, 16",5/8,98
-7226-10-22,10M22F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1-14,buiten,Metric,M 22×1.5,buiten,"14, 15, 16",5/8,98
-7226-10-26,10M26F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1-14,buiten,Metric,M 26×1.5,buiten,"14, 15, 16",5/8,98
-7226-12-18,12M18F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 3/16-12,buiten,Metric,M 18×1.5,buiten,"18, 20",3/4,98
-7226-12-22,12M22F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 3/16-12,buiten,Metric,M 22×1.5,buiten,"18, 20",3/4,98
-7226-12-27,12M27F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 3/16-12,buiten,Metric,M 27×2.0,buiten,"18, 20",3/4,98
-7226-12-33,12M33F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 3/16-12,buiten,Metric,M 33×2.0,buiten,"18, 20",3/4,98
-7226-16-33,16M33F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 7/16-12,buiten,Metric,M 33×2.0,buiten,"22, 25",1,98
-7226-20-33,20M33F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 11/16-12,buiten,Metric,M 33×2.0,buiten,"28, 30, 32",1 1/4,98
-7226-20-42,20M42F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 11/16-12,buiten,Metric,M 42×2.0,buiten,"28, 30, 32",1 1/4,98
-7226-24-48,24M48F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,2-12,buiten,Metric,M 48×2.0,buiten,"35, 38",1 1/2,98
-8M18F87OMLOS,8M18F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,UN/UNF,13/16-16,buiten,Metric,M 18×1.5,buiten,,1/2,
+10M18F87OMLOS,10M18F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,UN/UNF,1-14,buiten,Metric,M18×1.5,buiten,,5/8,
+10M22F87OMLOS,10M22F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,UN/UNF,1-14,buiten,Metric,M10×1.0,buiten,,5/8,
+16M33F87OMLOS,16M33F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,UN/UNF,1 7/16-12,buiten,Metric,M16×1.5,buiten,,1,
+6M12F87OMLOS,6M12F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,JIC,,buiten,Metric,M12×1.5,buiten,,3/8,
+6M14F87OMLOS,6M14F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,JIC,,buiten,Metric,M14×1.5,buiten,,3/8,
+6M18F87OMLOS,6M18F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M18×1.5,buiten,,3/8,
+7226-04-10,4M10F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,9/16-18,buiten,Metric,M10×1.0,buiten,6,1/4,98
+7226-04-12,4M12F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,9/16-18,buiten,Metric,M12×1.5,buiten,6,1/4,98
+7226-04-14,4M14F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,9/16-18,buiten,Metric,M14×1.5,buiten,6,1/4,98
+7226-04-16,4M16F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,9/16-18,buiten,Metric,M16×1.5,buiten,6,1/4,98
+7226-06-12,6M12F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M12×1.5,buiten,"8, 10","5/16, 3/8",98
+7226-06-14,6M14F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M14×1.5,buiten,"8, 10","5/16, 3/8",98
+7226-06-16,6M16F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M16×1.5,buiten,"8, 10","5/16, 3/8",98
+7226-06-18,6M18F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M18×1.5,buiten,"8, 10","5/16, 3/8",98
+7226-06-22,6M22F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,11/16-16,buiten,Metric,M22×1.5,buiten,"8, 10","5/16, 3/8",98
+7226-08-12,8M12F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M12×1.5,buiten,12,1/2,98
+7226-08-14,8M14F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M14×1.5,buiten,12,1/2,98
+7226-08-16,8M16F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M16×1.5,buiten,12,1/2,98
+7226-08-18,8M18F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M18×1.5,buiten,12,1/2,98
+7226-08-22,8M22F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M22×1.5,buiten,12,1/2,98
+7226-08-26,8M26F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M26×1.5,buiten,12,1/2,98
+7226-08-27,8M27F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,13/16-16,buiten,Metric,M27×2.0,buiten,12,1/2,98
+7226-10-16,10M16F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1-14,buiten,Metric,M16×1.5,buiten,"14, 15, 16",5/8,98
+7226-10-18,10M18F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1-14,buiten,Metric,M18×1.5,buiten,"14, 15, 16",5/8,98
+7226-10-22,10M22F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1-14,buiten,Metric,M22×1.5,buiten,"14, 15, 16",5/8,98
+7226-10-26,10M26F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1-14,buiten,Metric,M26×1.5,buiten,"14, 15, 16",5/8,98
+7226-12-18,12M18F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 3/16-12,buiten,Metric,M18×1.5,buiten,"18, 20",3/4,98
+7226-12-22,12M22F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 3/16-12,buiten,Metric,M22×1.5,buiten,"18, 20",3/4,98
+7226-12-27,12M27F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 3/16-12,buiten,Metric,M27×2.0,buiten,"18, 20",3/4,98
+7226-12-33,12M33F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 3/16-12,buiten,Metric,M33×2.0,buiten,"18, 20",3/4,98
+7226-16-33,16M33F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 7/16-12,buiten,Metric,M33×2.0,buiten,"22, 25",1,98
+7226-20-33,20M33F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 11/16-12,buiten,Metric,M33×2.0,buiten,"28, 30, 32",1 1/4,98
+7226-20-42,20M42F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,1 11/16-12,buiten,Metric,M42×2.0,buiten,"28, 30, 32",1 1/4,98
+7226-24-48,24M48F82EDMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,ORFS,2-12,buiten,Metric,M48×2.0,buiten,"35, 38",1 1/2,98
+8M18F87OMLOS,8M18F87OMLOS,7226,Male stud connector,O-Lok® ORFS tube end / Male metric thread – ED seal,recht,UN/UNF,13/16-16,buiten,Metric,M18×1.5,buiten,,1/2,
 7227-04-04,4 XHLO-S,7227,Union,ADAPTER ORFS MALE X JIC MALE ,recht,UN/UNF,9/16-18,buiten,JIC,7/16-20,buiten,,1/4,
 7227-06-06,6 XHLO-S,7227,Union,ADAPTER ORFS MALE X JIC MALE ,recht,UN/UNF,11/16-16,buiten,JIC,9/16-18,buiten,,3/8,
 7227-08-08,8 XHLO-S,7227,Union,ADAPTER ORFS MALE X JIC MALE ,recht,UN/UNF,13/16-16,buiten,JIC,3/4-16,buiten,,1/2,
@@ -1592,8 +1592,8 @@ TPLS6,TPLS6,7180,Support sleeve,O-LOK SLEEVE METRIC TUBING,Overige,,,,,,,6,,
 7248-16-16,16 WLO-WLNL-S,7248,Bulkhead union,O-Lok® ORFS tube ends,recht,ORFS,1 7/16-12,buiten,ORFS,1 7/16-12,buiten,"22, 25",1,89
 7248-20-20,20 WLO-WLNL-S,7248,Bulkhead union,O-Lok® ORFS tube ends,recht,ORFS,1 11/16-12,buiten,ORFS,1 11/16-12,buiten,"28, 30, 32",1 1/4,89
 7248-24-24,24 WLO-WLNL-S,7248,Bulkhead union,O-Lok® ORFS tube ends,recht,ORFS,2-12,buiten,ORFS,2-12,buiten,"35, 38",1 1/2,89
-10M22F682EDMLS,10M22F682EDMLS,7249,Swivel male stud,O-LOK SWIVEL MALE STUD,recht,ORFS,1-14,wartelend,Metric,M 22×1.5,buiten,,5/8,
-7249-16-33,16M33F682EDMLS,7249,Swivel male stud,O-LOK SWIVEL MALE STUD,recht,UN/UNF,1 7/16-12,wartelend,Metric,M 33×2.0,buiten,,1,
+10M22F682EDMLS,10M22F682EDMLS,7249,Swivel male stud,O-LOK SWIVEL MALE STUD,recht,ORFS,1-14,wartelend,Metric,M22×1.5,buiten,,5/8,
+7249-16-33,16M33F682EDMLS,7249,Swivel male stud,O-LOK SWIVEL MALE STUD,recht,UN/UNF,1 7/16-12,wartelend,Metric,M33×2.0,buiten,,1,
 7258-04-04,,7258,Bulkhead union,BULKHEAD UNION ORFS X BSP,recht,ORFS,9/16-18,buiten,BSPP,1/4-19,buiten,,,
 7258-06-06,,7258,Bulkhead union,BULKHEAD UNION ORFS X BSP,recht,ORFS,11/16-16,buiten,BSPP,3/8-19,buiten,,,
 7258-08-04,,7258,Bulkhead union,BULKHEAD UNION ORFS X BSP,recht,ORFS,13/16-16,buiten,BSPP,1/4-19,buiten,,,
@@ -1610,16 +1610,16 @@ TPLS6,TPLS6,7180,Support sleeve,O-LOK SLEEVE METRIC TUBING,Overige,,,,,,,6,,
 7273-12-12,12 F65OL-S,7273,Swivel male stud,O-Lok® ORFS female swivel end / Male UN/UNF thread – O-ring,recht,ORFS,1 3/16-12,wartelend,UN/UNF,1 1/16-12,buiten,"18, 20",3/4,99
 7273-16-16,16 F65OL-S,7273,Swivel male stud,O-Lok® ORFS female swivel end / Male UN/UNF thread – O-ring,recht,ORFS,1 7/16-12,wartelend,UN/UNF,1 5/16-12,buiten,"22, 25",1,99
 7273-20-20,20 F65OL-S,7273,Swivel male stud,O-Lok® ORFS female swivel end / Male UN/UNF thread – O-ring,recht,ORFS,1 11/16-12,wartelend,UN/UNF,1 5/8-12,buiten,"28, 30, 32",1 1/4,99
-7276-04-12,4M12F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,9/16-18,wartelend,Metric,M 12×1.5,buiten,6,1/4,99
-7276-06-12,6M14F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,11/16-16,wartelend,Metric,M 12×1.5,buiten,"8, 10","5/16, 3/8",99
-7276-06-14,6M16F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,11/16-16,wartelend,Metric,M 14×1.5,buiten,"8, 10","5/16, 3/8",99
-7276-06-16,8M16F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,11/16-16,wartelend,Metric,M 16×1.5,buiten,"8, 10","5/16, 3/8",99
-7276-08-16,10M22F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,13/16-16,wartelend,Metric,M 16×1.5,buiten,12,1/2,99
-7276-10-22,12M22F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,1-14,wartelend,Metric,M 22×1.5,buiten,"14, 15, 16",5/8,99
-7276-12-27,12M27F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,1 3/16-12,wartelend,Metric,M 27×2.0,buiten,"18, 20",3/4,99
-7276-16-33,16M33F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,1 7/16-12,wartelend,Metric,M 33×2.0,buiten,"22, 25",1,99
-7276-20-42,20M42F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,1 11/16-12,wartelend,Metric,M 42×2.0,buiten,"28, 30, 32",1 1/4,99
-7276-24-48,24M48F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,2-12,wartelend,Metric,M 48×2.0,buiten,"35, 38",1 1/2,99
+7276-04-12,4M12F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,9/16-18,wartelend,Metric,M12×1.5,buiten,6,1/4,99
+7276-06-12,6M14F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,11/16-16,wartelend,Metric,M12×1.5,buiten,"8, 10","5/16, 3/8",99
+7276-06-14,6M16F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,11/16-16,wartelend,Metric,M14×1.5,buiten,"8, 10","5/16, 3/8",99
+7276-06-16,8M16F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,11/16-16,wartelend,Metric,M16×1.5,buiten,"8, 10","5/16, 3/8",99
+7276-08-16,10M22F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,13/16-16,wartelend,Metric,M16×1.5,buiten,12,1/2,99
+7276-10-22,12M22F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,1-14,wartelend,Metric,M22×1.5,buiten,"14, 15, 16",5/8,99
+7276-12-27,12M27F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,1 3/16-12,wartelend,Metric,M27×2.0,buiten,"18, 20",3/4,99
+7276-16-33,16M33F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,1 7/16-12,wartelend,Metric,M33×2.0,buiten,"22, 25",1,99
+7276-20-42,20M42F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,1 11/16-12,wartelend,Metric,M42×2.0,buiten,"28, 30, 32",1 1/4,99
+7276-24-48,24M48F687OMLS,7276,Swivel male stud,O-Lok® ORFS Swivel female end / Male metric thread – ED seal,recht,ORFS,2-12,wartelend,Metric,M48×2.0,buiten,"35, 38",1 1/2,99
 7377-04-04,4 KLO-S,7377,Union cross,O-Lok® ORFS tube ends,kruis,ORFS,9/16-18,buiten,ORFS,9/16-18,buiten,6,1/4,88
 7377-06-06,6 KLO-S,7377,Union cross,O-Lok® ORFS tube ends,kruis,ORFS,11/16-16,buiten,ORFS,11/16-16,buiten,"8, 10","5/16, 3/8",88
 7377-08-08,8 KLO-S,7377,Union cross,O-Lok® ORFS tube ends,kruis,ORFS,13/16-16,buiten,ORFS,13/16-16,buiten,12,1/2,88
@@ -1670,14 +1670,14 @@ TPLS6,TPLS6,7180,Support sleeve,O-LOK SLEEVE METRIC TUBING,Overige,,,,,,,6,,
 7424-16-16,16V4OMLOS,7424,Male stud elbow 45°,O-Lok® ORFS tube end / Adjustable BSPP thread O-ring + retaining ring,45°,ORFS,1 7/16-12,buiten,BSPP,1-11,buiten,25,1,106
 7424-20-20,20V4OMLOS,7424,Male stud elbow 45°,O-Lok® ORFS tube end / Adjustable BSPP thread O-ring + retaining ring,45°,ORFS,1 11/16-12,buiten,BSPP,1 1/4-11,buiten,"28, 30, 32",1 1/4,106
 7424-24-24,24V4OMLOS,7424,Male stud elbow 45°,O-Lok® ORFS tube end / Adjustable BSPP thread O-ring + retaining ring,45°,ORFS,2-12,buiten,BSPP,1 1/2-11,buiten,"35, 38",1 1/2,106
-7426-04-12,4M12V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,9/16-18,buiten,Metric,M 12×1.5,buiten,6,1/4,107
-7426-06-16,6M16V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,11/16-16,buiten,Metric,M 16×1.5,buiten,"8, 10",3/8,107
-7426-08-18,8M18V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,13/16-16,buiten,Metric,M 18×1.5,buiten,12,1/2,107
-7426-10-22,10M22V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,1-14,buiten,Metric,M 22×1.5,buiten,"14, 15, 16",5/8,107
-7426-12-27,12M27V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,1 3/16-12,buiten,Metric,M 27×2.0,buiten,"18, 20",3/4,107
-7426-16-33,16M33V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,1 7/16-12,buiten,Metric,M 33×2.0,buiten,25,1,107
-7426-20-42,20M42V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,1 11/16-12,buiten,Metric,M 42×2.0,buiten,"28, 30, 32",1 1/4,107
-7426-24-48,24M48V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,2-12,buiten,Metric,M 48×2.0,buiten,"35, 38",1 1/2,107
+7426-04-12,4M12V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,9/16-18,buiten,Metric,M12×1.5,buiten,6,1/4,107
+7426-06-16,6M16V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,11/16-16,buiten,Metric,M16×1.5,buiten,"8, 10",3/8,107
+7426-08-18,8M18V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,13/16-16,buiten,Metric,M18×1.5,buiten,12,1/2,107
+7426-10-22,10M22V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,1-14,buiten,Metric,M22×1.5,buiten,"14, 15, 16",5/8,107
+7426-12-27,12M27V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,1 3/16-12,buiten,Metric,M27×2.0,buiten,"18, 20",3/4,107
+7426-16-33,16M33V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,1 7/16-12,buiten,Metric,M33×2.0,buiten,25,1,107
+7426-20-42,20M42V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,1 11/16-12,buiten,Metric,M42×2.0,buiten,"28, 30, 32",1 1/4,107
+7426-24-48,24M48V87OMLOS,7426,Male stud elbow 45°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,45°,ORFS,2-12,buiten,Metric,M48×2.0,buiten,"35, 38",1 1/2,107
 7448-04-04,4 WNLO-WLNL-S,7448,Bulkhead union elbow 45°,O-Lok® ORFS tube ends,45°,ORFS,9/16-18,buiten,ORFS,9/16-18,buiten,6,1/4,90
 7448-06-06,6 WNLO-WLNL-S,7448,Bulkhead union elbow 45°,O-Lok® ORFS tube ends,45°,ORFS,11/16-16,buiten,ORFS,11/16-16,buiten,"8, 10","5/16, 3/8",90
 7448-08-08,8 WNLO-WLNL-S,7448,Bulkhead union elbow 45°,O-Lok® ORFS tube ends,45°,ORFS,13/16-16,buiten,ORFS,13/16-16,buiten,12,1/2,90
@@ -1818,21 +1818,21 @@ TPLS6,TPLS6,7180,Support sleeve,O-LOK SLEEVE METRIC TUBING,Overige,,,,,,,6,,
 7625-16-16,16 CLO-S,7625,Male stud elbow 90°,O-Lok® ORFS tube end / Male NPTF thread,haaks,NPT/NPTF,1-11.5,buiten,ORFS,1 7/16-12,buiten,25,1,103
 7625-20-20,20 CLO-S,7625,Male stud elbow 90°,O-Lok® ORFS tube end / Male NPTF thread,haaks,NPT/NPTF,1 1/4-11.5,buiten,ORFS,1 11/16-12,buiten,"28, 30, 32",1 1/4,103
 7625-24-24,24 CLO-S,7625,Male stud elbow 90°,O-Lok® ORFS tube end / Male NPTF thread,haaks,NPT/NPTF,1 1/2-11.5,buiten,ORFS,2-12,buiten,"35, 38",1 1/2,103
-7626-04-12,4M12C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,9/16-18,buiten,Metric,M 12×1.5,buiten,6,1/4,104
-7626-04-14,4M14C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,9/16-18,buiten,Metric,M 14×1.5,buiten,6,1/4,104
-7626-06-12,6M12C87OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,11/16-16,buiten,Metric,M 12×1.5,buiten,"8, 10",,104
-7626-06-14,6M14C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,11/16-16,buiten,Metric,M 14×1.5,buiten,"8, 10",3/8,104
-7626-06-16,6M16C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,11/16-16,buiten,Metric,M 16×1.5,buiten,"8, 10",3/8,104
-7626-08-16,8M16C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,13/16-16,buiten,Metric,M 16×1.5,buiten,12,1/2,104
-7626-08-18,8M18C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,13/16-16,buiten,Metric,M 18×1.5,buiten,12,1/2,104
-7626-10-18,10M18C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1-14,buiten,Metric,M 18×1.5,buiten,"14, 15, 16",5/8,104
-7626-10-22,10M22C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1-14,buiten,Metric,M 22×1.5,buiten,"14, 15, 16",5/8,104
-7626-12-22,12M22C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1 3/16-12,buiten,Metric,M 22×1.5,buiten,"18, 20",3/4,104
-7626-12-24,,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1 3/16-12,buiten,Metric,M 24×1.5,buiten,"18, 20",3/4,104
-7626-12-27,12M27C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1 3/16-12,buiten,Metric,M 27×2.0,buiten,"18, 20",3/4,104
-7626-16-33,16M33C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1 7/16-12,buiten,Metric,M 33×2.0,buiten,25,1,104
-7626-20-42,20M42C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1 11/16-12,buiten,Metric,M 42×2.0,buiten,"28, 30, 32",1 1/4,104
-7626-24-48,24M48C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,2-12,buiten,Metric,M 48×2.0,buiten,"35, 38",1 1/2,104
+7626-04-12,4M12C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,9/16-18,buiten,Metric,M12×1.5,buiten,6,1/4,104
+7626-04-14,4M14C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,9/16-18,buiten,Metric,M14×1.5,buiten,6,1/4,104
+7626-06-12,6M12C87OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,11/16-16,buiten,Metric,M12×1.5,buiten,"8, 10",,104
+7626-06-14,6M14C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,11/16-16,buiten,Metric,M14×1.5,buiten,"8, 10",3/8,104
+7626-06-16,6M16C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,11/16-16,buiten,Metric,M16×1.5,buiten,"8, 10",3/8,104
+7626-08-16,8M16C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,13/16-16,buiten,Metric,M16×1.5,buiten,12,1/2,104
+7626-08-18,8M18C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,13/16-16,buiten,Metric,M18×1.5,buiten,12,1/2,104
+7626-10-18,10M18C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1-14,buiten,Metric,M18×1.5,buiten,"14, 15, 16",5/8,104
+7626-10-22,10M22C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1-14,buiten,Metric,M22×1.5,buiten,"14, 15, 16",5/8,104
+7626-12-22,12M22C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1 3/16-12,buiten,Metric,M22×1.5,buiten,"18, 20",3/4,104
+7626-12-24,,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1 3/16-12,buiten,Metric,M24×1.5,buiten,"18, 20",3/4,104
+7626-12-27,12M27C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1 3/16-12,buiten,Metric,M27×2.0,buiten,"18, 20",3/4,104
+7626-16-33,16M33C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1 7/16-12,buiten,Metric,M33×2.0,buiten,25,1,104
+7626-20-42,20M42C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,1 11/16-12,buiten,Metric,M42×2.0,buiten,"28, 30, 32",1 1/4,104
+7626-24-48,24M48C8OMLOS,7626,Male stud elbow 90°,O-Lok® ORFS tube end / Male metric thread – O-ring + retaining ring,haaks,ORFS,2-12,buiten,Metric,M48×2.0,buiten,"35, 38",1 1/2,104
 7648-04-04,4 WELO-WLNL-S,7648,Bulkhead union elbow 90°,O-Lok® ORFS tube end / O-Lok® ORFS tube ends,haaks,ORFS,9/16-18,buiten,ORFS,9/16-18,buiten,6,1/4,89
 7648-06-06,6WEMLOWLNMLS,7648,Bulkhead union elbow 90°,O-Lok® ORFS tube end / O-Lok® ORFS tube ends,haaks,ORFS,11/16-16,buiten,ORFS,11/16-16,buiten,"8, 10","5/16, 3/8",89
 7648-08-08,8WEMLOWLNMLS,7648,Bulkhead union elbow 90°,O-Lok® ORFS tube end / O-Lok® ORFS tube ends,haaks,ORFS,13/16-16,buiten,ORFS,13/16-16,buiten,12,1/2,89
@@ -2215,19 +2215,19 @@ TPLS6,TPLS6,7180,Support sleeve,O-LOK SLEEVE METRIC TUBING,Overige,,,,,,,6,,
 8244-48-48,,8244,Female thread coupling,Female BSPP thread,recht,BSPP,3-11,binnen,BSPP,3-11,binnen,,,6
 8245-05-04,,8245,Adapter,ADAPTER JIC FEMALE SWIVEL X BSP FEMALE FIXED,recht,JIC,1/2-20,wartelend,BSPP,1/4-19,binnen,,,
 8245-08-08,,8245,Adapter,ADAPTER JIC FEMALE SWIVEL X BSP FEMALE FIXED,recht,JIC,3/4-16,wartelend,BSPP,1/2-14,binnen,,,
-8246-04-14,,8246,Adapter,ADAPTER FEMALE BSP X MALE METRIC,recht,BSPP,1/4-19,binnen,Metric,M 14×1.5,buiten,,,
-8246-04-18,,8246,Adapter,ADAPTER FEMALE BSP X MALE METRIC,recht,BSPP,1/4-19,binnen,Metric,M 18×1.5,buiten,,,
-8246-06-18,,8246,Adapter,ADAPTER FEMALE BSP X MALE METRIC,recht,BSPP,3/8-19,binnen,Metric,M 18×1.5,buiten,,,
-8246-08-18,,8246,Adapter,ADAPTER FEMALE BSP X MALE METRIC,recht,BSPP,1/2-14,binnen,Metric,M 18×1.5,buiten,,,
-8246-10-08,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M 10×1.0,binnen,BSPP,1/2-14,buiten,,,
-8246-14-08,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M 14×1.5,binnen,BSPP,1/2-14,buiten,,,
-8246-16-06,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M 16×1.5,binnen,BSPP,3/8-19,buiten,,,
-8246-18-04,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M 18×1.5,binnen,BSPP,1/4-19,buiten,,,
-8246-18-06,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M 18×1.5,binnen,BSPP,3/8-19,buiten,,,
-8246-18-08,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M 18×1.5,binnen,BSPP,1/2-14,buiten,,,
-8246-18-18,,8246,Adapter,ADAPTER FEMALE METRIC X MALE METRIC,recht,Metric,M 18×1.5,binnen,Metric,M 18×1.5,buiten,,,
-8246-22-04,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M 22×1.5,binnen,BSPP,1/4-19,buiten,,,
-8246-22-08,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M 22×1.5,binnen,BSPP,1/2-14,buiten,,,
+8246-04-14,,8246,Adapter,ADAPTER FEMALE BSP X MALE METRIC,recht,BSPP,1/4-19,binnen,Metric,M14×1.5,buiten,,,
+8246-04-18,,8246,Adapter,ADAPTER FEMALE BSP X MALE METRIC,recht,BSPP,1/4-19,binnen,Metric,M18×1.5,buiten,,,
+8246-06-18,,8246,Adapter,ADAPTER FEMALE BSP X MALE METRIC,recht,BSPP,3/8-19,binnen,Metric,M18×1.5,buiten,,,
+8246-08-18,,8246,Adapter,ADAPTER FEMALE BSP X MALE METRIC,recht,BSPP,1/2-14,binnen,Metric,M18×1.5,buiten,,,
+8246-10-08,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M10×1.0,binnen,BSPP,1/2-14,buiten,,,
+8246-14-08,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M14×1.5,binnen,BSPP,1/2-14,buiten,,,
+8246-16-06,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M16×1.5,binnen,BSPP,3/8-19,buiten,,,
+8246-18-04,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M18×1.5,binnen,BSPP,1/4-19,buiten,,,
+8246-18-06,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M18×1.5,binnen,BSPP,3/8-19,buiten,,,
+8246-18-08,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M18×1.5,binnen,BSPP,1/2-14,buiten,,,
+8246-18-18,,8246,Adapter,ADAPTER FEMALE METRIC X MALE METRIC,recht,Metric,M18×1.5,binnen,Metric,M18×1.5,buiten,,,
+8246-22-04,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M22×1.5,binnen,BSPP,1/4-19,buiten,,,
+8246-22-08,,8246,Adapter,ADAPTER FEMALE METRIC X MALE BSP,recht,Metric,M22×1.5,binnen,BSPP,1/2-14,buiten,,,
 8248-02-02,,8248,Bulkhead union,BSPP 60° Cone end / Supplied with locknut,recht,BSPP,1/8-28,buiten,BSPP,1/8-28,buiten,,,4
 8248-04-04,4WMK4WL4NMS,8248,Bulkhead union,BSPP 60° Cone end / Supplied with locknut,recht,BSPP,1/4-19,buiten,BSPP,1/4-19,buiten,,,4
 8248-04-06,,8248,Bulkhead union,BSPP 60° Cone end / Supplied with locknut,recht,BSPP,1/4-19,buiten,BSPP,3/8-19,buiten,,,4
@@ -2241,17 +2241,17 @@ TPLS6,TPLS6,7180,Support sleeve,O-LOK SLEEVE METRIC TUBING,Overige,,,,,,,6,,
 8248-24-24,24WMK4WL4NMS,8248,Bulkhead union,BSPP 60° Cone end / Supplied with locknut,recht,BSPP,1 1/2-11,buiten,BSPP,1 1/2-11,buiten,,,4
 8248-32-32,-,8248,Bulkhead union,BSPP 60° Cone end / Supplied with locknut,recht,BSPP,2-11,buiten,BSPP,2-11,buiten,,,4
 8248-40-40,-,8248,Bulkhead union,BSPP 60° Cone end / Supplied with locknut,recht,BSPP,2 1/2-11,buiten,BSPP,2 1/2-11,buiten,,,4
-8249-04-10,4M10F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,7/16-20,wartelend,Metric,M 10×1.0,buiten,6,1/4,65
-8249-05-12,5M12F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,1/2-20,wartelend,Metric,M 12×1.5,buiten,8,5/16,65
-8249-06-14,6M14F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,9/16-18,wartelend,Metric,M 14×1.5,buiten,10,3/8,65
-8249-08-16,8M16F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,3/4-16,wartelend,Metric,M 16×1.5,buiten,12,1/2,65
-8249-08-18,8M18F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,3/4-16,wartelend,Metric,M 18×1.5,buiten,12,1/2,65
-8249-10-18,10M18F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,7/8-14,wartelend,Metric,M 18×1.5,buiten,"14, 15, 16",5/8,65
-8249-10-22,10M22F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,7/8-14,wartelend,Metric,M 22×1.5,buiten,"14, 15, 16",5/8,65
-8249-12-22,12M22F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,1 1/16-12,wartelend,Metric,M 22×1.5,buiten,"18, 20",3/4,65
-8249-12-27,12M27F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,1 1/16-12,wartelend,Metric,M 27×2.0,buiten,"18, 20",3/4,65
-8249-16-33,16M33F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,1 5/16-12,wartelend,Metric,M 33×2.0,buiten,25,1,65
-8249-20-42,20M42F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,1 5/8-12,wartelend,Metric,M 42×2.0,buiten,"28, 30, 32",1 1/4,65
+8249-04-10,4M10F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,7/16-20,wartelend,Metric,M10×1.0,buiten,6,1/4,65
+8249-05-12,5M12F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,1/2-20,wartelend,Metric,M12×1.5,buiten,8,5/16,65
+8249-06-14,6M14F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,9/16-18,wartelend,Metric,M14×1.5,buiten,10,3/8,65
+8249-08-16,8M16F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,3/4-16,wartelend,Metric,M16×1.5,buiten,12,1/2,65
+8249-08-18,8M18F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,3/4-16,wartelend,Metric,M18×1.5,buiten,12,1/2,65
+8249-10-18,10M18F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,7/8-14,wartelend,Metric,M18×1.5,buiten,"14, 15, 16",5/8,65
+8249-10-22,10M22F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,7/8-14,wartelend,Metric,M22×1.5,buiten,"14, 15, 16",5/8,65
+8249-12-22,12M22F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,1 1/16-12,wartelend,Metric,M22×1.5,buiten,"18, 20",3/4,65
+8249-12-27,12M27F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,1 1/16-12,wartelend,Metric,M27×2.0,buiten,"18, 20",3/4,65
+8249-16-33,16M33F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,1 5/16-12,wartelend,Metric,M33×2.0,buiten,25,1,65
+8249-20-42,20M42F682EDMXS,8249,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male metric thread – ED seal,recht,JIC,1 5/8-12,wartelend,Metric,M42×2.0,buiten,"28, 30, 32",1 1/4,65
 8254-02-04,4 F6X-S,8254,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male NPT thread,recht,NPT/NPTF,1/8-27,buiten,JIC,7/16-20,wartelend,6,1/4,66
 8254-02-05,5F6MXS,8254,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male NPT thread,recht,NPT/NPTF,1/8-27,buiten,JIC,1/2-20,wartelend,8,5/16,66
 8254-04-04,4-4 F6X-S,8254,Swivel male stud,Triple-Lok® 37° Flare female swivel end / Male NPT thread,recht,NPT/NPTF,1/4-18,buiten,JIC,7/16-20,wartelend,6,1/4,66
@@ -2885,12 +2885,12 @@ TPLS6,TPLS6,7180,Support sleeve,O-LOK SLEEVE METRIC TUBING,Overige,,,,,,,6,,
 6F64OMXS,6F64OMXS,F64OMX,Swivel male stud,T-LOK SWIVEL MALE STUD,recht,JIC,9/16-18,wartelend,BSPP,1/4-19,buiten,,3/8,
 8-8F64OMXS,8-8F64OMXS,F64OMX,Swivel male stud,T-LOK SWIVEL MALE STUD,recht,JIC,3/4-16,wartelend,BSPP,1/2-14,buiten,,1/2,
 8F64OMXS,8F64OMXS,F64OMX,Swivel male stud,T-LOK SWIVEL MALE STUD,recht,JIC,3/4-16,wartelend,BSPP,3/8-19,buiten,,1/2,
-8M16F87OMXS,8M16F87OMXS,F87OMX,Male stud connector,ADAPTER JIC MALE X METRIC MALE,recht,JIC,3/4-16,buiten,Metric,M 16×1.5,buiten,,1/2,
-8M18F87OMXS,8M18F87OMXS,F87OMX,Male stud connector,ADAPTER JIC MALE X METRIC MALE,recht,JIC,3/4-16,buiten,Metric,M 18×1.5,buiten,,1/2,
-M10-1/8F8OHGS,M10-1/8F8OHGS,F8OHG,Thread reducer,CONVERSION ADAPTER METRIC-ORR / NPTF,recht,Metric,M 10×1.0,buiten,NPT/NPTF,1/8-27,binnen,,,
-M12-1/4F8OHGS,M12-1/4F8OHGS,F8OHG,Thread reducer,CONVERSION ADAPTER METRIC-ORR / NPTF,recht,Metric,M 12×1.5,buiten,NPT/NPTF,1/4-18,binnen,,,
-M18-1/2F8OHGS,M18-1/2F8OHGS,F8OHG,Thread reducer,CONVERSION ADAPTER METRIC-ORR / NPTF,recht,Metric,M 18×1.5,buiten,NPT/NPTF,1/2-14,binnen,,,
-M22-1/2F8OHGS,M22-1/2F8OHGS,F8OHG,Thread reducer,CONVERSION ADAPTER METRIC-ORR / NPTF,recht,Metric,M 22×1.5,buiten,NPT/NPTF,1/2-14,binnen,,,
+8M16F87OMXS,8M16F87OMXS,F87OMX,Male stud connector,ADAPTER JIC MALE X METRIC MALE,recht,JIC,3/4-16,buiten,Metric,M16×1.5,buiten,,1/2,
+8M18F87OMXS,8M18F87OMXS,F87OMX,Male stud connector,ADAPTER JIC MALE X METRIC MALE,recht,JIC,3/4-16,buiten,Metric,M18×1.5,buiten,,1/2,
+M10-1/8F8OHGS,M10-1/8F8OHGS,F8OHG,Thread reducer,CONVERSION ADAPTER METRIC-ORR / NPTF,recht,Metric,M10×1.0,buiten,NPT/NPTF,1/8-27,binnen,,,
+M12-1/4F8OHGS,M12-1/4F8OHGS,F8OHG,Thread reducer,CONVERSION ADAPTER METRIC-ORR / NPTF,recht,Metric,M12×1.5,buiten,NPT/NPTF,1/4-18,binnen,,,
+M18-1/2F8OHGS,M18-1/2F8OHGS,F8OHG,Thread reducer,CONVERSION ADAPTER METRIC-ORR / NPTF,recht,Metric,M18×1.5,buiten,NPT/NPTF,1/2-14,binnen,,,
+M22-1/2F8OHGS,M22-1/2F8OHGS,F8OHG,Thread reducer,CONVERSION ADAPTER METRIC-ORR / NPTF,recht,Metric,M22×1.5,buiten,NPT/NPTF,1/2-14,binnen,,,
 3/4X3/4FHG4S,3/4X3/4FHG4S,FHG4,Male stud connector,MALE PIPE TO BSPP,recht,BSPP,,buiten,BSPP,3/4-14,binnen,,,
 3/8X3/8FHG4S,3/8X3/8FHG4S,FHG4,Male stud connector,MALE PIPE TO BSPP,recht,BSPP,,buiten,BSPP,3/8-19,binnen,,,
 12-6G4MK4S,12-6G4MK4S,G4MK4,Female connector,FEMALE CONNECTOR,recht,BSPP,3/4-14,buiten,BSPP,3/8-19,binnen,,,
@@ -2976,19 +2976,19 @@ RI3/8BSPX1/4NPT,,RI,Thread reducer,REDUCER BSP MALE X NPT FEMALE FIXED,recht,BSP
 RI3/8BSPX1/8NPT,,RI,Thread reducer,REDUCER BSP MALE X NPT FEMALE FIXED,recht,BSPP,3/8-19,buiten,NPT/NPTF,1/8-27,binnen,,,
 RI3/8BSPX3/8BSPT,,RI,Thread reducer,THREAD REDUCER / EXPANDER BSP / BSPT,recht,BSPP,3/8-19,buiten,BSPT,3/8-19,binnen,,,
 RI3/8BSPX3/8NPT,,RI,Thread reducer,REDUCER BSP MALE X NPT FEMALE FIXED,recht,BSPP,3/8-19,buiten,NPT/NPTF,3/8-18,binnen,,,
-RIM12X1.5X1/4NPT,,RI,Thread reducer,REDUCER M/F METR / NPT,recht,Metric,M 12×1.5,buiten,NPT/NPTF,1/4-18,binnen,,,
-RIM14X1.5X1/4NPT,,RI,Thread reducer,REDUCER M/F METR / NPT,recht,Metric,M 14×1.5,buiten,NPT/NPTF,1/4-18,binnen,,,
-RIM14X1.5X10X1,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M 14×1.5,buiten,Metric,M 10×1.0,binnen,,,
-RIM14X1.5X12X1.5,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M 14×1.5,buiten,Metric,M 12×1.5,binnen,,,
-RIM14X1.5X16X1.5,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M 14×1.5,buiten,Metric,M 16×1.5,binnen,,,
-RIM16X1.5X1/4NPT,,RI,Thread reducer,REDUCER M/F METR / NPT,recht,Metric,M 16×1.5,buiten,NPT/NPTF,1/4-18,binnen,,,
-RIM16X1.5X10X1,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M 16×1.5,buiten,Metric,M 10×1.0,binnen,,,
-RIM16X1.5X12X1.5,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M 16×1.5,buiten,Metric,M 12×1.5,binnen,,,
-RIM16X1.5X14X1.5,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M 16×1.5,buiten,Metric,M 14×1.5,binnen,,,
-RIM18X1.5X3/8NPT,,RI,Thread reducer,VERLOOPRING METR / NPT,recht,Metric,M 18×1.5,buiten,NPT/NPTF,3/8-18,binnen,,,
-RIM27X1/2NPT,,RI,Thread reducer,VERLOOPRING METR / NPT,recht,Metric,M 27×2.0,buiten,NPT/NPTF,1/2-14,binnen,,,
-RIM6X1X1/2NPT,,RI,Thread reducer,VERLOOPRING METR / NPT,recht,Metric,M 6×1.0,buiten,NPT/NPTF,1/2-14,binnen,,,
-RIM6X1X1/8NPT,,RI,Thread reducer,VERLOOPRING METR / NPT,recht,Metric,M 6×1.0,buiten,NPT/NPTF,1/8-27,binnen,,,
+RIM12X1.5X1/4NPT,,RI,Thread reducer,REDUCER M/F METR / NPT,recht,Metric,M12×1.5,buiten,NPT/NPTF,1/4-18,binnen,,,
+RIM14X1.5X1/4NPT,,RI,Thread reducer,REDUCER M/F METR / NPT,recht,Metric,M14×1.5,buiten,NPT/NPTF,1/4-18,binnen,,,
+RIM14X1.5X10X1,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M14×1.5,buiten,Metric,M10×1.0,binnen,,,
+RIM14X1.5X12X1.5,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M14×1.5,buiten,Metric,M12×1.5,binnen,,,
+RIM14X1.5X16X1.5,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M14×1.5,buiten,Metric,M16×1.5,binnen,,,
+RIM16X1.5X1/4NPT,,RI,Thread reducer,REDUCER M/F METR / NPT,recht,Metric,M16×1.5,buiten,NPT/NPTF,1/4-18,binnen,,,
+RIM16X1.5X10X1,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M16×1.5,buiten,Metric,M10×1.0,binnen,,,
+RIM16X1.5X12X1.5,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M16×1.5,buiten,Metric,M12×1.5,binnen,,,
+RIM16X1.5X14X1.5,,RI,Thread reducer,REDUCER M/F METR / METR,recht,Metric,M16×1.5,buiten,Metric,M14×1.5,binnen,,,
+RIM18X1.5X3/8NPT,,RI,Thread reducer,VERLOOPRING METR / NPT,recht,Metric,M18×1.5,buiten,NPT/NPTF,3/8-18,binnen,,,
+RIM27X1/2NPT,,RI,Thread reducer,VERLOOPRING METR / NPT,recht,Metric,M27×2.0,buiten,NPT/NPTF,1/2-14,binnen,,,
+RIM6X1X1/2NPT,,RI,Thread reducer,VERLOOPRING METR / NPT,recht,Metric,M6×1.0,buiten,NPT/NPTF,1/2-14,binnen,,,
+RIM6X1X1/8NPT,,RI,Thread reducer,VERLOOPRING METR / NPT,recht,Metric,M6×1.0,buiten,NPT/NPTF,1/8-27,binnen,,,
 10 TL-S,10 TL-S,TL,Braze sleeve,WELDING SLEEVE ORFS INCH ,Overige,,,,,,,,5/8,
 16-12 TL-S,16-12 TL-S,TL,Braze sleeve,WELDING SLEEVE ORFS INCH ,Overige,,,,,,,,3/4,
 4 TL-S,4 TL-S,TL,Braze sleeve,WELDING SLEEVE ORFS INCH ,Overige,,,,,,,,1/4,
@@ -3019,23 +3019,23 @@ RIM6X1X1/8NPT,,RI,Thread reducer,VERLOOPRING METR / NPT,recht,Metric,M 6×1.0,bu
 16XHMK46S,16XHMK46S,XHMK46,Swivel male stud,PARKER CONVERSION ADAPTER,recht,JIC,1 5/16-12,buiten,BSPP,1-11,wartelend,,1,
 6XHMK46S,6XHMK46S,XHMK46,Swivel male stud,PARKER CONVERSION ADAPTER,recht,JIC,9/16-18,buiten,BSPP,3/8-19,wartelend,,3/8,
 8XHMK46S,8XHMK46S,XHMK46,Swivel male stud,PARKER CONVERSION ADAPTER,recht,JIC,3/4-16,buiten,BSPP,1/2-14,wartelend,,1/2,
-8-8XHMKA6S,8-8XHMKA6S,XHMKA6,Adapter,PARKER CONVERSION ADAPTER,recht,JIC,3/4-16,buiten,Metric,M 22×1.5,wartelend,,1/2,
-10-15L XHU86-S,10-15L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,7/8-14,buiten,Metric,M 22×1.5,wartelend,15,5/8,
-10-16S XHU86-S,10-16S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,7/8-14,buiten,Metric,M 24×1.5,wartelend,16,5/8,
-12-18L XHU86-S,12-18L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,1 1/16-12,buiten,Metric,M 26×1.5,wartelend,18,3/4,
-12-20S XHU86-S,12-20S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,1 1/16-12,buiten,Metric,M 30×2.0,wartelend,20,3/4,
-16-22L XHU86-S,16-22L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,1 5/16-12,buiten,Metric,M 30×2.0,wartelend,22,1,
-16-25S XHU86-S,16-25S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,1 5/16-12,buiten,Metric,M 36×2.0,wartelend,25,1,
-16-28L XHU86-S,16-28L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,1 5/16-12,buiten,Metric,M 36×2.0,wartelend,28,1,
-4-6L XHU86-S,4-6L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,7/16-20,buiten,Metric,M 12×1.5,wartelend,6,1/4,
-4-6S XHU86-S,4-6S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,7/16-20,buiten,Metric,M 14×1.5,wartelend,6,1/4,
-6-10L XHU86-S,6-10L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,9/16-18,buiten,Metric,M 16×1.5,wartelend,10,3/8,
-6-10S XHU86-S,6-10S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,9/16-18,buiten,Metric,M 18×1.5,wartelend,10,3/8,
-6-8L XHU86-S,6-8L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,9/16-18,buiten,Metric,M 14×1.5,wartelend,8,3/8,
-6-8S XHU86-S,6-8S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,9/16-18,buiten,Metric,M 16×1.5,wartelend,8,3/8,
-8-12L XHU86-S,8-12L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,3/4-16,buiten,Metric,M 18×1.5,wartelend,12,1/2,
-8-12LLOHU86S,8-12LLOHU86S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,13/16-16,buiten,Metric,M 12×1.5,wartelend,12,1/2,
-8-12S XHU86-S,8-12S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,3/4-16,buiten,Metric,M 20×1.5,wartelend,12,1/2,
+8-8XHMKA6S,8-8XHMKA6S,XHMKA6,Adapter,PARKER CONVERSION ADAPTER,recht,JIC,3/4-16,buiten,Metric,M22×1.5,wartelend,,1/2,
+10-15L XHU86-S,10-15L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,7/8-14,buiten,Metric,M22×1.5,wartelend,15,5/8,
+10-16S XHU86-S,10-16S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,7/8-14,buiten,Metric,M24×1.5,wartelend,16,5/8,
+12-18L XHU86-S,12-18L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,1 1/16-12,buiten,Metric,M26×1.5,wartelend,18,3/4,
+12-20S XHU86-S,12-20S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,1 1/16-12,buiten,Metric,M30×2.0,wartelend,20,3/4,
+16-22L XHU86-S,16-22L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,1 5/16-12,buiten,Metric,M30×2.0,wartelend,22,1,
+16-25S XHU86-S,16-25S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,1 5/16-12,buiten,Metric,M36×2.0,wartelend,25,1,
+16-28L XHU86-S,16-28L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,1 5/16-12,buiten,Metric,M36×2.0,wartelend,28,1,
+4-6L XHU86-S,4-6L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,7/16-20,buiten,Metric,M12×1.5,wartelend,6,1/4,
+4-6S XHU86-S,4-6S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,7/16-20,buiten,Metric,M14×1.5,wartelend,6,1/4,
+6-10L XHU86-S,6-10L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,9/16-18,buiten,Metric,M16×1.5,wartelend,10,3/8,
+6-10S XHU86-S,6-10S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,9/16-18,buiten,Metric,M18×1.5,wartelend,10,3/8,
+6-8L XHU86-S,6-8L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,9/16-18,buiten,Metric,M14×1.5,wartelend,8,3/8,
+6-8S XHU86-S,6-8S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,9/16-18,buiten,Metric,M16×1.5,wartelend,8,3/8,
+8-12L XHU86-S,8-12L XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,3/4-16,buiten,Metric,M18×1.5,wartelend,12,1/2,
+8-12LLOHU86S,8-12LLOHU86S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,13/16-16,buiten,Metric,M12×1.5,wartelend,12,1/2,
+8-12S XHU86-S,8-12S XHU86-S,XHU86,Swivel male stud,CONVERSION 37° FLARE TO 24° FLARELESS,recht,JIC,3/4-16,buiten,Metric,M20×1.5,wartelend,12,1/2,
 10-4 XHX6G5TP-S,10-4 XHX6G5TP-S,XHX6G5TP,Test point connector,DIAGNOSTIC TEE,T-stuk,JIC,7/8-14,buiten,JIC,7/8-14,wartelend,,5/8,
 12-4 XHX6G5TP-S,12-4 XHX6G5TP-S,XHX6G5TP,Test point connector,DIAGNOSTIC TEE,T-stuk,JIC,1 1/16-12,buiten,JIC,1 1/16-12,wartelend,,3/4,
 16-4 XHX6G5TP-S,16-4 XHX6G5TP-S,XHX6G5TP,Test point connector,DIAGNOSTIC TEE,T-stuk,JIC,1 5/16-12,buiten,JIC,1 5/16-12,wartelend,,1,
