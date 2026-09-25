@@ -57,7 +57,7 @@
 
     function sizeSortKey(text) {
         if (!text) return 99999;
-        const metric = /^M(\d+)/.exec(text);
+        const metric = /^M\s*(\d+)/.exec(text);
         if (metric) return 10000 + parseFloat(metric[1]);
         const mixed = /^(\d+)?\s*(\d+)\/(\d+)/.exec(text);
         if (mixed) {
