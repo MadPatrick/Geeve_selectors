@@ -36,6 +36,9 @@
     let saveInFlight = false;
 
     const normalize = (value) => String(value ?? '').trim().toLowerCase();
+    // Voor het zoeken op artikelnummer mag het streepje weggelaten worden
+    // (bijv. "032304" moet ook "0323-04" vinden).
+    const normalizeArtnr = (value) => normalize(value).replace(/-/g, '');
 
     function formatMillimetres(value) {
         const text = String(value ?? '').trim();
@@ -114,9 +117,10 @@
         selectedIndex = -1;
 
         if (query) {
+            const queryNoDash = query.replace(/-/g, '');
             currentMatches = articles
                 .filter((article) => (
-                    normalize(article.artnr).includes(query) ||
+                    normalizeArtnr(article.artnr).includes(queryNoDash) ||
                     normalize(article.artnm).includes(query) ||
                     normalize(article.supplier).includes(query) ||
                     normalize(article.vendor).includes(query)
