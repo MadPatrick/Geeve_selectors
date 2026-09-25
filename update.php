@@ -19,24 +19,6 @@ function h(string $value): string
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-// Diagnose voor de geplande Exact Globe-koppeling (de Stauff-selector moet
-// artikelgegevens straks rechtstreeks uit de SQL Server-database van Exact
-// Globe kunnen ophalen). Dit controleert alleen of PHP op deze server de
-// benodigde database-driver heeft - er wordt geen verbinding gemaakt en er
-// zijn geen inloggegevens voor nodig.
-/**
- * @return array{label: string, ok: bool}[]
- */
-function checkSqlServerDrivers(): array
-{
-    return [
-        ['label' => 'PDO sqlsrv-driver (pdo_sqlsrv)', 'ok' => extension_loaded('pdo_sqlsrv')],
-        ['label' => 'sqlsrv-extensie (sqlsrv)', 'ok' => extension_loaded('sqlsrv')],
-        ['label' => 'PDO odbc-driver (pdo_odbc)', 'ok' => extension_loaded('pdo_odbc')],
-        ['label' => 'odbc-extensie (odbc)', 'ok' => extension_loaded('odbc')],
-    ];
-}
-
 // Cache-busting op basis van de laatste wijzigingsdatum van het bestand
 // zelf, zodat elke aanpassing aan style.css automatisch een nieuwe URL
 // krijgt - geen handmatige versie-ophoging meer nodig.
@@ -279,8 +261,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check
 $unlocked = !empty($_SESSION['config_unlocked']);
 $result = null;
 $codeError = false;
-$sqlServerDrivers = $unlocked ? checkSqlServerDrivers() : [];
-$sqlServerDriverAvailable = in_array(true, array_column($sqlServerDrivers, 'ok'), true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-update') {
     // De echte update-knop op deze pagina - vereist dat de code al via de
@@ -360,26 +340,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
             </form>
         <?php endif; ?>
     </section>
-
-    <?php if ($unlocked): ?>
-        <section class="update-panel">
-            <h2>Exact Globe database-koppeling (diagnose)</h2>
-            <p>De Stauff-selector moet artikelgegevens straks rechtstreeks uit de SQL Server-database van Exact Globe kunnen ophalen. Daarvoor moet PHP op deze server een SQL Server-driver hebben - dat kan hieronder alvast worden gecontroleerd, ook al zijn de verbindingsgegevens (server, database, inlog) nog niet bekend. Er wordt hier geen verbinding gemaakt.</p>
-            <ul class="update-output" style="list-style: none; margin: 0; padding: 0;">
-                <?php foreach ($sqlServerDrivers as $driver): ?>
-                    <li>
-                        <?= $driver['ok'] ? '&#x2705;' : '&#x274C;' ?>
-                        <?= h($driver['label']) ?>
-                        <?= $driver['ok'] ? '(beschikbaar)' : '(niet beschikbaar)' ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-            <p>PHP-versie: <?= h(PHP_VERSION) ?></p>
-            <?php if (!$sqlServerDriverAvailable): ?>
-                <p><strong>Geen enkele SQL Server-driver is beschikbaar.</strong> Vraag de hostingbeheerder om de <code>pdo_sqlsrv</code>-extensie (of als alternatief <code>pdo_odbc</code> met een ODBC-driver voor SQL Server) te installeren voordat de koppeling met Exact Globe gebouwd kan worden.</p>
-            <?php endif; ?>
-        </section>
-    <?php endif; ?>
 
     <p class="page-footer">Geeve Hydraulics</p>
 </main>
