@@ -455,6 +455,8 @@ function renderKrimpmatenTable(array $card, string $slangType): string
     foreach ($sideLabels as $side => $label) {
         $seen = [];
         $persmaten = [];
+        $schilInterns = [];
+        $schilExterns = [];
 
         foreach ($card[$side] as $componentRow) {
             $artikel = pick($componentRow, ARTIKELNUMMER_CANDIDATES);
@@ -464,18 +466,32 @@ function renderKrimpmatenTable(array $card, string $slangType): string
             $seen[$artikel] = true;
 
             $krimpmaat = findKrimpmaat($slangType, $artikel);
-            if ($krimpmaat !== null && $krimpmaat['persmaat'] !== '' && !in_array($krimpmaat['persmaat'], $persmaten, true)) {
+            if ($krimpmaat === null) {
+                continue;
+            }
+            if ($krimpmaat['persmaat'] !== '' && !in_array($krimpmaat['persmaat'], $persmaten, true)) {
                 $persmaten[] = $krimpmaat['persmaat'];
+            }
+            if ($krimpmaat['schilIntern'] !== '' && !in_array($krimpmaat['schilIntern'], $schilInterns, true)) {
+                $schilInterns[] = $krimpmaat['schilIntern'];
+            }
+            if ($krimpmaat['schilExtern'] !== '' && !in_array($krimpmaat['schilExtern'], $schilExterns, true)) {
+                $schilExterns[] = $krimpmaat['schilExtern'];
             }
         }
 
-        $rows[] = [$label, implode(', ', $persmaten)];
+        $rows[] = [$label, implode(', ', $persmaten), implode(', ', $schilInterns), implode(', ', $schilExterns)];
     }
 
     $html = '<div class="coupling-block krimpmaten-block"><h4>Krimpmaten</h4>';
-    $html .= '<table class="coupling-table"><thead><tr><th>Zijde</th><th>Krimpmaat (mm)</th></tr></thead><tbody>';
-    foreach ($rows as [$label, $persmaat]) {
-        $html .= '<tr><td>' . h($label) . '</td><td>' . ($persmaat !== '' ? h($persmaat) : '&mdash;') . '</td></tr>';
+    $html .= '<table class="coupling-table"><thead><tr>'
+        . '<th>Zijde</th><th>Krimpmaat (mm)</th><th>Schilmaat intern (mm)</th><th>Schilmaat extern (mm)</th>'
+        . '</tr></thead><tbody>';
+    foreach ($rows as [$label, $persmaat, $schilIntern, $schilExtern]) {
+        $html .= '<tr><td>' . h($label) . '</td>'
+            . '<td>' . ($persmaat !== '' ? h($persmaat) : '&mdash;') . '</td>'
+            . '<td>' . ($schilIntern !== '' ? h($schilIntern) : '&mdash;') . '</td>'
+            . '<td>' . ($schilExtern !== '' ? h($schilExtern) : '&mdash;') . '</td></tr>';
     }
     $html .= '</tbody></table>';
 
