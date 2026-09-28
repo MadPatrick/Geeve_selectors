@@ -5,13 +5,14 @@ Startpagina met tegels naar de Geeve-selectors:
 - **`/hoses`** — Slangen fitting Selector (kopie van `madpatrick/Geeve_hose`)
 - **`/adapters`** — Adapters Selector (kopie van `madpatrick/Geeve_adapters`)
 - **`/stauff`** — Stauff Selector / beugelconfigurator (kopie van `madpatrick/Geeve_stauff`, layout
-  omgezet naar dezelfde brand-panel/paneel-stijl als `/hoses` en `/adapters`)
+  omgezet naar dezelfde brand-panel/paneel-stijl als `/hoses` en `/adapters`). Heeft sinds kort ook
+  een eigen databaseverbinding naar de Exact-database "005" (artikelgroep 67) - nog in opbouw, zie
+  "Database-koppeling Stauff (Exact, database 005)" hieronder.
 - **`/configurator`** — Slang configurator, zelfde brand-panel/paneel-stijl. Bestanden staan er nog,
   maar er is momenteel geen tegel op de startpagina die hierheen linkt.
 - **`/slangkaarten`** — Slangkaarten bij order (kopie van `madpatrick/nicelabel`) - zoekt een order
-  of klant op en print slangkaarten/labels van de geselecteerde regels. **Enige subapp die een
-  database nodig heeft** (SQL Server, zie `slangkaarten/README.md`) - de andere tegels werken
-  zonder.
+  of klant op en print slangkaarten/labels van de geselecteerde regels. Heeft een eigen database
+  nodig (SQL Server, database "Slangkaarten", zie `slangkaarten/README.md`).
 - **`/stickers`** — nieuw, eigen scherm (geen kopie van een bronrepo) met 3 tegels: "Stickers op
   Artikelnummer", "Stickers op Artikelnummer (groot)" en "Stickers op Zakjes". Nog niet
   functioneel - alle 3 staan als "Binnenkort beschikbaar", dit is puur de navigatiestructuur.
@@ -19,7 +20,7 @@ Startpagina met tegels naar de Geeve-selectors:
 ## Gebruik
 
 Zet de hele map op een PHP-webserver (PHP 8+, voor de meeste tegels geen database nodig - zie
-hieronder voor de uitzondering) en open `index.php`. Elke subapp gebruikt verder alleen eigen
+hieronder voor de uitzonderingen) en open `index.php`. Elke subapp gebruikt verder alleen eigen
 relatieve paden (`assets/...`, `data/...`, eigen `images/...` voor productfoto's), met drie
 uitzonderingen die uitgaan van de vaste nesting één niveau onder de root: de "terug naar
 hoofdmenu"-knop (`../index.php`), het Geeve/Rubix-merklogo (`../images/geeve.jpg` en
@@ -31,10 +32,30 @@ die bestanden zelf mee te kopiëren — gebruik daarvoor de eigen bronrepo
 het versienummer valt in dat geval terug op een hardcoded waarde in de pagina zelf (zie "Eén
 gedeeld versienummer" hieronder), dus dat breekt niet.
 
-`/slangkaarten` heeft, in tegenstelling tot de andere tegels, een eigen `.env` nodig (SQL Server-
-inloggegevens) - zie `slangkaarten/README.md` voor de volledige configuratie- en
-toegangsinstructies. Zonder ingevulde `.env` toont die tegel een foutmelding i.p.v. te crashen;
-de rest van de portal blijft gewoon werken.
+`/slangkaarten` en `/stauff` hebben, in tegenstelling tot de andere tegels, een eigen `.env` nodig
+(SQL Server-inloggegevens) - zie `slangkaarten/README.md` resp. de sectie hieronder voor de
+configuratie-instructies. Zonder ingevulde `.env` toont die tegel/pagina een foutmelding i.p.v. te
+crashen; de rest van de portal blijft gewoon werken.
+
+## Database-koppeling Stauff (Exact, database 005)
+
+`/stauff` krijgt een live SQL Server-verbinding naar de Exact-database "005" (zelfde server als
+`/slangkaarten`, `GEEVE-SQL-2019`, andere database) om artikelgroep 67 uit te lezen. Dit staat nog
+in de opbouwfase:
+
+1. **Verbinding opgezet** (dit is af): `stauff/inc/config.php` + `stauff/inc/db.php` (zelfde
+   PDO/SQL Server-patroon als `/slangkaarten`), plus `stauff/.env.example`/`.gitignore`/`.htaccess`.
+   Kopieer `.env.example` naar `.env` in `stauff/` en vul `DB_USER`/`DB_PASSWORD` in van een
+   bestaand SQL-account dat database "005" mag lezen.
+2. **Tabel/kolom voor groep 67 nog niet bekend**: `stauff/db-test.php` is een tijdelijke
+   diagnosepagina (geen onderdeel van de uiteindelijke selector) die, na het invullen van `.env`,
+   tabellen met "groep"/"group" in de naam opzoekt, de kolommen van een gekozen tabel toont, en
+   automatisch filtert op een opgegeven groepswaarde (standaard 67) tegen elke kolom met
+   "groep"/"group" in de naam. Open `stauff/db-test.php` in de browser om de juiste tabel/kolom te
+   vinden.
+3. **Zoekfilter (later)**: zodra de tabel/kolom bekend zijn, wordt groep 67 verwerkt in de
+   Diameter-zoeklogica (`api/stauff.php`/`assets/selector.js`) - "bij intype van diameter gaan we
+   in groep zoeken". Dit is nog niet gebouwd; `db-test.php` kan dan weer verwijderd worden.
 
 ## Structuur
 

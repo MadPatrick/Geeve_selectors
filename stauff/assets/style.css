@@ -262,3 +262,32 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
     .segment { flex: 1; }
     .location-card { grid-template-columns: 40px 52px minmax(0,1fr); }
 }
+
+/* ---- db-test.php (tijdelijke diagnosepagina, geen onderdeel van de
+   uiteindelijke selector) ---- */
+
+.db-test-form { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+.db-test-form .field { flex: 0 0 auto; min-width: 160px; }
+
+.submit-button {
+    appearance: none;
+    border: 1px solid var(--accent-dark);
+    border-radius: 999px;
+    background: var(--accent-dark);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 11px 22px;
+    min-height: 44px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.submit-button:hover { opacity: .9; }
+
+.db-test-table-list { margin: 8px 0 0; padding: 0 0 0 20px; }
+.db-test-table-list li { margin-bottom: 4px; }
+
+.db-test-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.db-test-table { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+.db-test-table th, .db-test-table td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+.db-test-table thead th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; }
