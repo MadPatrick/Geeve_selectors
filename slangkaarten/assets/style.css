@@ -237,6 +237,12 @@ input::placeholder { color: #929fac; }
 .coupling-table th, .coupling-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
 .coupling-table th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; }
 .coupling-empty { color: var(--muted); font-size: 12px; font-style: italic; margin: 0; }
+
+/* Los kader voor "extra artikelen" op de order (géén koppelonderdeel van
+   zijde A/B, dus bewust niet in .card-couplings) - zelfde tabelstijl,
+   maar niet edge-to-edge zoals A/B. */
+.card-extra-artikelen { margin-top: 18px; max-width: 320px; }
+
 .angle-block { display: flex; align-items: center; justify-content: center; }
 .angle-diagram { width: 100px; height: auto; }
 
@@ -298,6 +304,7 @@ input::placeholder { color: #929fac; }
 
     #printSheet .card-top,
     #printSheet .card-body,
+    #printSheet .card-extra-artikelen,
     #printSheet .card-note,
     #printSheet .card-flags,
     #printSheet .card-footer {

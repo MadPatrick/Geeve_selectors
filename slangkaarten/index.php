@@ -126,6 +126,16 @@ const AANTAL_CANDIDATES = ['Aantal', 'Aantal slangen', 'AantalSlangen'];
 const NOTITIE_CANDIDATES = ['Notitie', 'Notite', 'Opmerking', 'Opmerkingen'];
 const HOEK_CANDIDATES = ['Hoek', 'Draaihoek'];
 
+// Losse "extra artikelen" op de order zelf (max. 2 slots) - géén
+// koppelonderdeel van zijde A/B, dus een eigen kader op de kaart. Let op
+// de kolomnaam-typo "AantaExtraArtikel" (zonder "l") voor slot 1 - staat
+// zo echt in de database (bevestigd via INFORMATION_SCHEMA), slot 2 heet
+// wel "AantalExtraArtikel2".
+const EXTRA_ARTIKEL_SLOTS = [
+    ['artikel' => ['ExtraArtikel'], 'aantal' => ['AantaExtraArtikel', 'AantalExtraArtikel']],
+    ['artikel' => ['ExtraArtikel2'], 'aantal' => ['AantalExtraArtikel2']],
+];
+
 // Ordercrediteur/Afleveradres zijn geen losse tekstvelden, maar worden
 // opgebouwd uit meerdere kolommen (bevestigd tegen het echte schema).
 const ORDERCREDITEUR_CODE_CANDIDATES = ['debnr'];
@@ -261,6 +271,37 @@ function renderCouplingTable(string $label, array $rows): string
 }
 
 /**
+ * Rendert het "Extra artikelen"-kader: losse extra artikelen op de order
+ * zelf (max. 2, zie EXTRA_ARTIKEL_SLOTS) - géén koppelonderdeel van zijde
+ * A/B, dus bewust een eigen kader i.p.v. bij die tabellen.
+ */
+function renderExtraArtikelenTable(array $row): string
+{
+    $rows = [];
+    foreach (EXTRA_ARTIKEL_SLOTS as $slot) {
+        $artikel = pick($row, $slot['artikel']);
+        if ($artikel === '') {
+            continue;
+        }
+        $rows[] = [$artikel, formatWholeNumber(pick($row, $slot['aantal']))];
+    }
+
+    $html = '<div class="coupling-block extra-artikelen-block"><h4>Extra artikelen</h4>';
+
+    if ($rows === []) {
+        $html .= '<p class="coupling-empty">Geen extra artikelen</p>';
+    } else {
+        $html .= '<table class="coupling-table"><thead><tr><th>Artikelnummer</th><th>Aantal</th></tr></thead><tbody>';
+        foreach ($rows as [$artikel, $aantal]) {
+            $html .= '<tr><td>' . h($artikel) . '</td><td>' . h($aantal) . '</td></tr>';
+        }
+        $html .= '</tbody></table>';
+    }
+
+    return $html . '</div>';
+}
+
+/**
  * Bouwt een adresblok van losse velden op (code+naam op de 1e regel,
  * straat op de 2e, postcode+plaats op de 3e), als newline-tekst - klaar
  * om met nl2br() te tonen. Lege regels worden overgeslagen.
@@ -365,6 +406,10 @@ function renderHoseCard(array $card): string
             <?= renderCouplingTable('A', $card['sideA']) ?>
             <?= renderCouplingTable('B', $card['sideB']) ?>
             <div class="angle-block"><?= renderAngleSvg($hoek) ?></div>
+        </div>
+
+        <div class="card-extra-artikelen">
+            <?= renderExtraArtikelenTable($row) ?>
         </div>
 
         <div class="card-note">
