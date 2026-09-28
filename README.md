@@ -2,20 +2,24 @@
 
 Startpagina met tegels naar de Geeve-selectors:
 
-- **`/hoses`** — Slangen fitting Selector (kopie van `madpatrick/Geeve_hose`)
-- **`/adapters`** — Adapters Selector (kopie van `madpatrick/Geeve_adapters`)
-- **`/stauff`** — Stauff Selector / beugelconfigurator (kopie van `madpatrick/Geeve_stauff`, layout
-  omgezet naar dezelfde brand-panel/paneel-stijl als `/hoses` en `/adapters`). Heeft sinds kort ook
-  een eigen databaseverbinding naar de Exact-database "005" (artikelgroep 67) - nog in opbouw, zie
-  "Database-koppeling Stauff (Exact, database 005)" hieronder.
+- **`/hoses`** — Slangen fitting Selector
+- **`/adapters`** — Adapters Selector
+- **`/stauff`** — Stauff Selector / beugelconfigurator, zelfde brand-panel/paneel-stijl als `/hoses`
+  en `/adapters`. Heeft sinds kort ook een eigen databaseverbinding naar de Exact-database "005"
+  (artikelgroep 67) - nog in opbouw, zie "Database-koppeling Stauff (Exact, database 005)"
+  hieronder.
 - **`/configurator`** — Slang configurator, zelfde brand-panel/paneel-stijl. Bestanden staan er nog,
   maar er is momenteel geen tegel op de startpagina die hierheen linkt.
-- **`/slangkaarten`** — Slangkaarten bij order (kopie van `madpatrick/nicelabel`) - zoekt een order
-  of klant op en print slangkaarten/labels van de geselecteerde regels. Heeft een eigen database
-  nodig (SQL Server, database "Slangkaarten", zie `slangkaarten/README.md`).
-- **`/stickers`** — nieuw, eigen scherm (geen kopie van een bronrepo) met 3 tegels: "Stickers op
-  Artikelnummer", "Stickers op Artikelnummer (groot)" en "Stickers op Zakjes". Nog niet
-  functioneel - alle 3 staan als "Binnenkort beschikbaar", dit is puur de navigatiestructuur.
+- **`/slangkaarten`** — Slangkaarten bij order - zoekt een order of klant op en print
+  slangkaarten/labels van de geselecteerde regels. Heeft een eigen database nodig (SQL Server,
+  database "Slangkaarten", zie `slangkaarten/README.md`).
+- **`/stickers`** — nieuw, eigen scherm met 3 tegels: "Stickers op Artikelnummer", "Stickers op
+  Artikelnummer (groot)" en "Stickers op Zakjes". Nog niet functioneel - alle 3 staan als
+  "Binnenkort beschikbaar", dit is puur de navigatiestructuur.
+
+`Geeve_selectors` is de enige/canonieke plek voor al deze subapps — er zijn geen losse bronrepo's
+meer waar wijzigingen vandaan gekopieerd worden of naartoe teruggezet moeten worden. Wijzigingen
+aan een subapp gebeuren rechtstreeks in de bijbehorende submap hier.
 
 ## Gebruik
 
@@ -26,11 +30,9 @@ uitzonderingen die uitgaan van de vaste nesting één niveau onder de root: de "
 hoofdmenu"-knop (`../index.php`), het Geeve/Rubix-merklogo (`../images/geeve.jpg` en
 `../images/rubix.jpg`, zie hieronder) en het gedeelde versienummer (`../version.php`, zie
 hieronder). Een subapp-map los deployen buiten `Geeve_selectors` werkt dus niet identiek zonder
-die bestanden zelf mee te kopiëren — gebruik daarvoor de eigen bronrepo
-(`madpatrick/Geeve_hose`, `madpatrick/Geeve_adapters`, `madpatrick/Geeve_stauff`,
-`madpatrick/nicelabel`), die elk nog wel hun eigen lokale `images/geeve.jpg`/`rubix.jpg` hebben;
-het versienummer valt in dat geval terug op een hardcoded waarde in de pagina zelf (zie "Eén
-gedeeld versienummer" hieronder), dus dat breekt niet.
+die drie dingen zelf te regelen (een eigen "terug"-link, eigen logo's, een hardcoded
+versienummer) - dat is dan ook geen ondersteunde manier van deployen; deze portal-map is de enige
+plek waar deze code leeft en gedraaid wordt.
 
 `/slangkaarten` en `/stauff` hebben, in tegenstelling tot de andere tegels, een eigen `.env` nodig
 (SQL Server-inloggegevens) - zie `slangkaarten/README.md` resp. de sectie hieronder voor de
@@ -80,31 +82,17 @@ slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc. + eige
                         want als enige subapp met een database-verbinding, zie
                         slangkaarten/README.md)
 stickers/               Nieuw, eigen scherm met 3 tegels (nog niet functioneel - "Binnenkort
-                        beschikbaar"), geen kopie van een bronrepo
+                        beschikbaar")
 ```
 
 ## Eén gedeeld versienummer
 
-Het hoofdscherm en alle subapps (`hoses`, `adapters`, `configurator`, `stauff`,
-`slangkaarten`, `stickers`) tonen/gebruiken
-sinds kort hetzelfde versienummer, uit `version.php` op rootniveau (`return '0.3.0';`). Elke pagina
+Het hoofdscherm en alle subapps (`hoses`, `adapters`, `configurator`, `stauff`, `slangkaarten`,
+`stickers`) tonen/gebruiken hetzelfde versienummer, uit `version.php` op rootniveau
+(`return '0.3.0';`). Elke pagina
 laadt dit via `is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '...'`
 (root-pagina's) resp. `__DIR__ . '/../version.php'` (subapp-pagina's) i.p.v. een eigen losse
 `APP_VERSION`-constante te declareren. Een versie-ophoging hoeft dus nog maar op één plek: pas het
-`return '...'` in `version.php` aan. Ontbreekt `version.php` (bijv. bij een los buiten deze
-portal-map gedeployde subapp-kopie), dan valt elke pagina terug op de hardcoded waarde na de `:` in
-diezelfde regel - die fallback wordt niet automatisch bijgewerkt en kan dus afwijken; dat is alleen
-relevant voor een standalone-deploy van een subapp, niet voor deze portal zelf.
-
-## Bijwerken van een subapp
-
-`/hoses`, `/adapters`, `/stauff` en `/slangkaarten` zijn kopieën van hun eigen bronrepo op het
-moment van aanmaken (`/stauff` is qua opmaak omgezet naar de gedeelde brand-panel/paneel-stijl; de
-selectielogica in `assets/selector.js` en `api/stauff.php` is ongewijzigd). Wijzigingen in
-`madpatrick/Geeve_hose`, `madpatrick/Geeve_adapters`, `madpatrick/Geeve_stauff` of
-`madpatrick/nicelabel` komen hier dus niet automatisch door — kopieer de bijgewerkte bestanden
-opnieuw naar de betreffende submap wanneer een van de apps los is bijgewerkt. Kopieer daarbij
-**niet** `images/geeve.jpg`/`images/rubix.jpg` uit de bronrepo terug in de submap — die verwijzing
-loopt hier bewust via het gedeelde `../images/` op rootniveau. Zie `slangkaarten/README.md`,
-sectie "Bijwerken", voor de extra aandachtspunten bij die specifieke subapp (o.a. `.env`/
-`.htaccess` niet overschrijven).
+`return '...'` in `version.php` aan. `/stauff` is qua opmaak omgezet naar deze gedeelde
+brand-panel/paneel-stijl; de selectielogica in `assets/selector.js` en `api/stauff.php` bleef
+daarbij ongewijzigd.

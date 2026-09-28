@@ -34,9 +34,9 @@ moet worden. Bij een order met meerdere verschillende slangtypen worden er dus m
 
 - PDO_SQLSRV-extensie (Microsoft ODBC Driver 17/18 for SQL Server) — de andere tegels in deze
   portal hebben geen database nodig, dus deze driver is mogelijk nog niet op de server aanwezig.
-  Zie "SQL Server driver installeren" in de bronrepo
-  ([`madpatrick/nicelabel`](https://github.com/MadPatrick/nicelabel)) voor de volledige
-  installatie-instructies (Debian, via `msodbcsql18` + PECL `sqlsrv`/`pdo_sqlsrv`).
+  Installatie (Debian): `msodbcsql18` (via Microsoft's `packages-microsoft-prod.deb`) + PECL
+  `sqlsrv`/`pdo_sqlsrv` (`pecl install sqlsrv pdo_sqlsrv`, extensies aanzetten via
+  `phpenmod`/`.ini`-bestanden).
 - Netwerktoegang vanaf de webserver naar `GEEVE-SQL-2019` (poort 1433).
 - Een SQL Server-account met leesrechten op de database `Slangkaarten` (zie "SQL-toegang"
   hieronder).
@@ -111,15 +111,6 @@ Edge:   HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge
 ```
 
 Waarde: DWORD `PrintPreviewDisabled` = `1`.
-
-## Bijwerken
-
-Deze map is een kopie van de bronrepo [`madpatrick/nicelabel`](https://github.com/MadPatrick/nicelabel)
-(zelfde conventie als `/hoses`, `/adapters`, `/stauff`). Wijzigingen daar komen hier niet
-automatisch door - kopieer de bijgewerkte `index.php`/`assets/style.css`/`inc/*.php` opnieuw naar
-deze map wanneer de bronapp los is bijgewerkt. Pas bij het overzetten van `index.php` de
-koptekst/`APP_VERSION`-aanpassingen niet terug (zie de portal-README, sectie "Eén gedeeld
-versienummer") en laat `.env`/`.env.example`/`.gitignore`/`.htaccess` in deze map ongemoeid.
 
 ## Projectstructuur
 

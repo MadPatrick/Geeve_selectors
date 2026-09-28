@@ -1,9 +1,9 @@
 # Adapters Selector — Geeve Hydraulics
 
 Webapplicatie om Geeve-adapters (hydrauliekkoppelingen) te selecteren op basis van draadsoort,
-draadmaat, hoek en connectietype. Zusterproject van de "Slangen fitting Selector"
-(`madpatrick/Geeve_hose`) — dezelfde pagina-layout en stijl, maar met een eigen datamodel en
-zoeklogica die passen bij adapters in plaats van slangen.
+draadmaat, hoek en connectietype. Zusterproject van de "Slangen fitting Selector" (`/hoses`
+hiernaast) — dezelfde pagina-layout en stijl, maar met een eigen datamodel en zoeklogica die
+passen bij adapters in plaats van slangen.
 
 ## Gebruik
 
