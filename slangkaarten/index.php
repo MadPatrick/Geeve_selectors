@@ -40,6 +40,24 @@ function formatWholeNumber(string $value): string
 }
 
 /**
+ * Toont een decimaal aantal in Nederlandse notatie, overbodige nullen
+ * weggelaten (bv. "1.300" -> "1,3", "2.000" -> "2") - in tegenstelling
+ * tot "Aantal slangen" is het aantal van een extra artikel niet per se
+ * een geheel getal. Niet-numerieke/lege waarden blijven ongewijzigd.
+ */
+function formatQuantity(string $value): string
+{
+    $normalized = str_replace(',', '.', trim($value));
+    if (!is_numeric($normalized)) {
+        return $value;
+    }
+
+    $formatted = rtrim(rtrim(number_format((float) $normalized, 3, '.', ''), '0'), '.');
+
+    return str_replace('.', ',', $formatted);
+}
+
+/**
  * Toont datum + tijd zonder milliseconden (bv. "2026-09-24 14:03:00"
  * i.p.v. "2026-09-24 14:03:00.000" - orddat/syscreated/sysmodified komen
  * met een millisecondencomponent uit de database die nooit relevant is).
@@ -283,7 +301,7 @@ function renderExtraArtikelenTable(array $row): string
         if ($artikel === '') {
             continue;
         }
-        $rows[] = [$artikel, formatWholeNumber(pick($row, $slot['aantal']))];
+        $rows[] = [$artikel, formatQuantity(pick($row, $slot['aantal']))];
     }
 
     $html = '<div class="coupling-block extra-artikelen-block"><h4>Extra artikelen</h4>';
