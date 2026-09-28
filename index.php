@@ -83,6 +83,18 @@ function assetVersion(string $relativePath): string
             <span class="tile-cta">Open selector &rarr;</span>
         </a>
 
+        <a class="tile" href="slangkaarten/index.php">
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
+                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
+            </div>
+            <h2>Slangkaarten</h2>
+            <p>Zoek een order of klant op en print de slangkaarten (labels) van de geselecteerde slangregels.</p>
+            <span class="tile-cta">Open selector &rarr;</span>
+        </a>
+
         <div class="tile tile-disabled" aria-disabled="true">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

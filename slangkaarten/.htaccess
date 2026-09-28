@@ -1,0 +1,7 @@
+# Voorkom dat gevoelige bestanden via de browser opgevraagd kunnen worden
+# (bijv. .env met DB-wachtwoorden) - de portal-root's .htaccess regelt
+# alleen IP-restrictie, geen dotfile-bescherming, en deze subapp is de
+# enige met een eigen geheim (.env).
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
