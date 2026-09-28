@@ -12,6 +12,9 @@ Startpagina met tegels naar de Geeve-selectors:
   of klant op en print slangkaarten/labels van de geselecteerde regels. **Enige subapp die een
   database nodig heeft** (SQL Server, zie `slangkaarten/README.md`) - de andere tegels werken
   zonder.
+- **`/stickers`** — nieuw, eigen scherm (geen kopie van een bronrepo) met 3 tegels: "Stickers op
+  Artikelnummer", "Stickers op Artikelnummer (groot)" en "Stickers op Zakjes". Nog niet
+  functioneel - alle 3 staan als "Binnenkort beschikbaar", dit is puur de navigatiestructuur.
 
 ## Gebruik
 
@@ -55,12 +58,14 @@ configurator/           Volledige Slang configurator-app (eigen assets/data/etc.
 slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc. + eigen .env/.htaccess,
                         want als enige subapp met een database-verbinding, zie
                         slangkaarten/README.md)
+stickers/               Nieuw, eigen scherm met 3 tegels (nog niet functioneel - "Binnenkort
+                        beschikbaar"), geen kopie van een bronrepo
 ```
 
 ## Eén gedeeld versienummer
 
 Het hoofdscherm en alle subapps (`hoses`, `adapters`, `configurator`, `stauff`,
-`slangkaarten`) tonen/gebruiken
+`slangkaarten`, `stickers`) tonen/gebruiken
 sinds kort hetzelfde versienummer, uit `version.php` op rootniveau (`return '0.3.0';`). Elke pagina
 laadt dit via `is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '...'`
 (root-pagina's) resp. `__DIR__ . '/../version.php'` (subapp-pagina's) i.p.v. een eigen losse

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 // Eén gedeeld versienummer voor het hoofdscherm en alle subapps (hoses,
-// adapters, configurator, stauff, slangkaarten). Elke pagina laadt dit bestand i.p.v.
+// adapters, configurator, stauff, slangkaarten, stickers). Elke pagina laadt dit bestand i.p.v.
 // een eigen losse APP_VERSION-constante te declareren, zodat een versie-
 // ophoging nog maar op één plek hoeft te gebeuren. Bestaat dit bestand niet
 // (bv. een subapp los buiten deze portal-map gedeployed), dan valt elke
