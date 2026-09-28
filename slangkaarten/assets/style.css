@@ -264,6 +264,14 @@ input::placeholder { color: #929fac; }
 .card-address-block div { font-size: 12.5px; line-height: 1.4; }
 .card-meta-block div { font-size: 10.5px; line-height: 1.4; }
 
+/* ---- Picklijst (1 eigen printpagina vóór de slangkaarten): alle losse
+   artikelen (koppelonderdelen + extra artikelen) van de hele order, met
+   de aantallen opgeteld - zie buildPicklist()/renderPicklist(). ---- */
+.picklist-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; border-bottom: 2px solid var(--accent-dark); padding-bottom: 12px; margin-bottom: 16px; }
+.picklist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.picklist-table th, .picklist-table td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+.picklist-table thead th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; }
+
 #printSheet { display: none; }
 
 @media print {
@@ -286,6 +294,15 @@ input::placeholder { color: #929fac; }
         background: #fff;
         color: #111;
         font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #printSheet .picklist-sheet {
+        min-height: 269mm;
+        border: none;
+        padding: 0;
+        margin: 0;
+        page-break-after: always;
+        break-after: page;
     }
 
     #printSheet .hose-card {

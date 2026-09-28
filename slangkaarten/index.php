@@ -499,6 +499,83 @@ function renderKrimpmatenTable(array $card, string $slangType): string
 }
 
 /**
+ * Bouwt de picklijst op: alle losse artikelen (koppelonderdelen zijde
+ * A/B + extra artikelen) van alle geprinte slangkaarten samen, gegroepeerd
+ * per artikelnummer met de aantallen opgeteld. "Locatie" moet nog uit de
+ * database opgehaald worden (nog niet bekend uit welke tabel/kolom - net
+ * als destijds bij Slangkaarten/Stauff verkennen we dat later samen) -
+ * toont voorlopig altijd een streepje.
+ */
+function buildPicklist(array $hoseCards): array
+{
+    $items = [];
+
+    $addItem = static function (array &$items, string $artikel, string $aantalRaw): void {
+        if ($artikel === '') {
+            return;
+        }
+
+        $normalized = str_replace(',', '.', trim($aantalRaw));
+        $aantal = is_numeric($normalized) ? (float) $normalized : 0.0;
+
+        if (!isset($items[$artikel])) {
+            $items[$artikel] = ['artikel' => $artikel, 'aantal' => 0.0, 'locatie' => ''];
+        }
+        $items[$artikel]['aantal'] += $aantal;
+    };
+
+    foreach ($hoseCards as $card) {
+        foreach (['sideA', 'sideB'] as $side) {
+            foreach ($card[$side] as $componentRow) {
+                $addItem($items, pick($componentRow, ARTIKELNUMMER_CANDIDATES), pick($componentRow, QTY_CANDIDATES));
+            }
+        }
+
+        foreach (EXTRA_ARTIKEL_SLOTS as $slot) {
+            $addItem($items, pick($card['row'], $slot['artikel']), pick($card['row'], $slot['aantal']));
+        }
+    }
+
+    $list = array_values($items);
+    usort($list, static fn(array $a, array $b): int => strnatcasecmp($a['artikel'], $b['artikel']));
+
+    return $list;
+}
+
+/** Rendert de picklijst (zie buildPicklist()) als een eigen printpagina. */
+function renderPicklist(array $items, string $orderNumber): string
+{
+    ob_start();
+    ?>
+    <div class="picklist-sheet">
+        <div class="picklist-header">
+            <div class="card-brand">GEEVE <span>HYDRAULICS</span><small class="card-subbrand">Picklijst</small></div>
+            <div class="card-order-meta">
+                <div><span>Ordernummer</span><strong><?= h($orderNumber) ?></strong></div>
+            </div>
+        </div>
+        <?php if ($items === []): ?>
+            <p class="coupling-empty">Geen losse artikelen gevonden.</p>
+        <?php else: ?>
+            <table class="picklist-table">
+                <thead><tr><th>Aantal</th><th>Artikelnummer</th><th>Locatie</th></tr></thead>
+                <tbody>
+                    <?php foreach ($items as $item): ?>
+                        <tr>
+                            <td><?= h(formatQuantity((string) $item['aantal'])) ?></td>
+                            <td><?= h($item['artikel']) ?></td>
+                            <td><?= $item['locatie'] !== '' ? h($item['locatie']) : '&mdash;' ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </div>
+    <?php
+    return (string) ob_get_clean();
+}
+
+/**
  * Bouwt een adresblok van losse velden op (code+naam op de 1e regel,
  * straat op de 2e, postcode+plaats op de 3e), als newline-tekst - klaar
  * om met nl2br() te tonen. Lege regels worden overgeslagen.
@@ -979,6 +1056,7 @@ if ($selectedKeys !== []) {
 
 <?php if ($hoseCards !== []): ?>
 <div id="printSheet" aria-hidden="true">
+    <?= renderPicklist(buildPicklist($hoseCards), $orderNumber) ?>
     <?php foreach ($hoseCards as $card): ?>
         <?= renderHoseCard($card) ?>
     <?php endforeach; ?>
