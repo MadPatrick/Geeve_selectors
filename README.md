@@ -6,7 +6,8 @@ Startpagina met tegels naar de Geeve-selectors:
 - **`/adapters`** — Adapters Selector (kopie van `madpatrick/Geeve_adapters`)
 - **`/stauff`** — Stauff Selector / beugelconfigurator (kopie van `madpatrick/Geeve_stauff`, layout
   omgezet naar dezelfde brand-panel/paneel-stijl als `/hoses` en `/adapters`)
-- **`/hose-configurator`** — Slang configurator, zelfde brand-panel/paneel-stijl
+- **`/configurator`** — Slang configurator, zelfde brand-panel/paneel-stijl. Bestanden staan er nog,
+  maar er is momenteel geen tegel op de startpagina die hierheen linkt.
 - **`/slangkaarten`** — Slangkaarten bij order (kopie van `madpatrick/nicelabel`) - zoekt een order
   of klant op en print slangkaarten/labels van de geselecteerde regels. **Enige subapp die een
   database nodig heeft** (SQL Server, zie `slangkaarten/README.md`) - de andere tegels werken
@@ -49,7 +50,8 @@ hoses/                  Volledige Slangen fitting Selector-app (eigen assets/dat
 adapters/               Volledige Adapters Selector-app (eigen assets/data + eigen
                         images/ met alleen de productfoto's per adapterfamilie)
 stauff/                 Volledige Stauff Selector-app (eigen assets/data/api/etc.)
-hose-configurator/      Volledige Slang configurator-app (eigen assets/data/etc.)
+configurator/           Volledige Slang configurator-app (eigen assets/data/etc.) - bestanden
+                        staan er nog, momenteel geen tegel op de startpagina
 slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc. + eigen .env/.htaccess,
                         want als enige subapp met een database-verbinding, zie
                         slangkaarten/README.md)
@@ -57,7 +59,7 @@ slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc. + eige
 
 ## Eén gedeeld versienummer
 
-Het hoofdscherm en alle subapps (`hoses`, `adapters`, `hose-configurator`, `stauff`,
+Het hoofdscherm en alle subapps (`hoses`, `adapters`, `configurator`, `stauff`,
 `slangkaarten`) tonen/gebruiken
 sinds kort hetzelfde versienummer, uit `version.php` op rootniveau (`return '0.3.0';`). Elke pagina
 laadt dit via `is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '...'`

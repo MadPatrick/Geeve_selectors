@@ -3,7 +3,7 @@
 Webbased vervanger voor het NiceLabel-scherm "Slangkaarten per order": een ordernummer óf
 klantnaam opzoeken, de gevonden slangregels selecteren, en van de aangevinkte regels een
 slangkaart/bon tonen en printen. In tegenstelling tot de andere tegels in deze portal (`/hoses`,
-`/adapters`, `/hose-configurator`) heeft deze subapp wél een database nodig — zie "SQL-toegang"
+`/adapters`, `/configurator`) heeft deze subapp wél een database nodig — zie "SQL-toegang"
 hieronder.
 
 ## Status

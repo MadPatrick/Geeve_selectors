@@ -98,19 +98,6 @@ function assetVersion(string $relativePath): string
         <div class="tile tile-disabled" aria-disabled="true">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="3" y="10" width="4" height="4" rx="1"></rect>
-                    <rect x="17" y="10" width="4" height="4" rx="1"></rect>
-                    <path d="M7 12h10"></path>
-                </svg>
-            </div>
-            <h2>Slang configurator</h2>
-            <p>Stel zelf een slang samen: koppeling 1, slangtype, koppeling 2, lengte en optioneel textsleeve.</p>
-            <span class="tile-cta">Binnenkort beschikbaar</span>
-        </div>
-
-        <div class="tile tile-disabled" aria-disabled="true">
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="10" width="16" height="7" rx="2"></rect>
                     <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
                     <path d="M9 17v2"></path>
