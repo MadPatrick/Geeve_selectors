@@ -40,13 +40,13 @@ function formatWholeNumber(string $value): string
 }
 
 /**
- * Toont alleen de datum, geen tijd (bv. "2026-09-24" i.p.v. "2026-09-24
- * 00:00:00.000" - orddat komt met een tijd-/millisecondencomponent uit de
- * database terwijl die voor Orderdatum nooit relevant is). Onherkenbare/
- * lege waarden blijven ongewijzigd (zie parseDutchDateTime() in
- * inc/queries.php).
+ * Toont datum + tijd zonder milliseconden (bv. "2026-09-24 14:03:00"
+ * i.p.v. "2026-09-24 14:03:00.000" - orddat/syscreated/sysmodified komen
+ * met een millisecondencomponent uit de database die nooit relevant is).
+ * Onherkenbare/lege waarden blijven ongewijzigd (zie parseDutchDateTime()
+ * in inc/queries.php).
  */
-function formatDateOnly(string $value): string
+function formatDateTime(string $value): string
 {
     if ($value === '') {
         return '';
@@ -54,7 +54,7 @@ function formatDateOnly(string $value): string
 
     $date = parseDutchDateTime($value);
 
-    return $date !== null ? $date->format('Y-m-d') : $value;
+    return $date !== null ? $date->format('Y-m-d H:i:s') : $value;
 }
 
 /** Vertaalt de ord_soort-code naar leesbare tekst. Onbekende codes blijven ongewijzigd. */
@@ -319,15 +319,15 @@ function renderHoseCard(array $card): string
         pick($row, AFLEVERADRES_PLAATS_CANDIDATES)
     );
 
-    $orderdatum = formatDateOnly(pick($row, ORDERDATUM_CANDIDATES));
+    $orderdatum = formatDateTime(pick($row, ORDERDATUM_CANDIDATES));
 
     $aangemaakt = composeDatumNaam(
-        pick($row, AANGEMAAKT_DATUM_CANDIDATES),
+        formatDateTime(pick($row, AANGEMAAKT_DATUM_CANDIDATES)),
         pick($row, AANGEMAAKT_NAAM_CANDIDATES)
     ) ?: pick($row, AANGEMAAKT_CANDIDATES);
 
     $gewijzigd = composeDatumNaam(
-        pick($row, GEWIJZIGD_DATUM_CANDIDATES),
+        formatDateTime(pick($row, GEWIJZIGD_DATUM_CANDIDATES)),
         pick($row, GEWIJZIGD_NAAM_CANDIDATES)
     ) ?: pick($row, GEWIJZIGD_CANDIDATES);
 
@@ -541,7 +541,7 @@ function renderCustomerOrdersForm(array $customerOrders): string
                         <td><?= h(formatOrderType(pick($row, ORDER_TYPE_CANDIDATES))) ?: '&mdash;' ?></td>
                         <td><?= h(pick($row, KLANT_CANDIDATES)) ?: '&mdash;' ?></td>
                         <td><?= h(pick($row, UW_REFERENTIE_CANDIDATES)) ?: '&mdash;' ?></td>
-                        <td><?= h(formatDateOnly(pick($row, ORDERDATUM_CANDIDATES))) ?: '&mdash;' ?></td>
+                        <td><?= h(formatDateTime(pick($row, ORDERDATUM_CANDIDATES))) ?: '&mdash;' ?></td>
                         <td><?= (int) $order['count'] ?></td>
                         <td>
                             <a class="link-button" href="index.php?ordernummer=<?= h(rawurlencode($orderNumberValue)) ?>">Kiezen</a>

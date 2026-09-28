@@ -352,7 +352,9 @@ function findOrdersByCustomer(PDO $pdo, string $customerName): array
 /**
  * Parseert een datum/tijd-tekst zoals die op de kaart staat ("26-9-2026
  * 00:00:00", dag-maand-jaar zonder voorloopnullen) naar een sorteerbare
- * DateTimeImmutable. Geeft null bij een onbekend/leeg formaat.
+ * DateTimeImmutable. Geeft null bij een onbekend/leeg formaat. Formaten
+ * zonder tijdcomponent (j-n-Y/Y-m-d) krijgen expliciet 00:00:00 - anders
+ * vult createFromFormat() de ontbrekende tijd met de huidige servertijd.
  */
 function parseDutchDateTime(string $value): ?DateTimeImmutable
 {
@@ -363,7 +365,7 @@ function parseDutchDateTime(string $value): ?DateTimeImmutable
     foreach (['j-n-Y H:i:s', 'j-n-Y', 'Y-m-d H:i:s.v', 'Y-m-d H:i:s', 'Y-m-d'] as $format) {
         $date = DateTimeImmutable::createFromFormat($format, $value);
         if ($date !== false) {
-            return $date;
+            return str_contains($format, 'H:i:s') ? $date : $date->setTime(0, 0, 0);
         }
     }
 
