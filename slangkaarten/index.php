@@ -361,17 +361,15 @@ function renderHoseCard(array $card): string
             </div>
         </div>
 
-        <?php if ($notitie !== ''): ?>
-            <div class="card-note">
-                <span>Notitie</span>
-                <div><?= nl2br(h($notitie)) ?></div>
-            </div>
-        <?php endif; ?>
-
         <div class="card-couplings">
             <?= renderCouplingTable('A', $card['sideA']) ?>
             <?= renderCouplingTable('B', $card['sideB']) ?>
             <div class="angle-block"><?= renderAngleSvg($hoek) ?></div>
+        </div>
+
+        <div class="card-note">
+            <span>Notitie</span>
+            <div><?= $notitie !== '' ? nl2br(h($notitie)) : '' ?></div>
         </div>
 
         <div class="card-flags">

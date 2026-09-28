@@ -219,8 +219,16 @@ input::placeholder { color: #929fac; }
 .card-qty-box span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
 .card-qty-box strong { display: block; font-size: 34px; font-weight: 900; color: var(--ink); }
 
-.card-note { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; }
+.card-note {
+    margin-top: 18px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 13px;
+}
 .card-note span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+/* Standaard 5 regels hoogte, ook leeg/ongebruikt - line-height 1.5em x 5. */
+.card-note div { min-height: 7.5em; line-height: 1.5; }
 
 .card-couplings { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: start; }
 .coupling-block h4 { margin: 0 0 8px; font-size: 13px; font-weight: 800; color: var(--accent-dark); }
