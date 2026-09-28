@@ -1056,10 +1056,10 @@ if ($selectedKeys !== []) {
 
 <?php if ($hoseCards !== []): ?>
 <div id="printSheet" aria-hidden="true">
-    <?= renderPicklist(buildPicklist($hoseCards), $orderNumber) ?>
     <?php foreach ($hoseCards as $card): ?>
         <?= renderHoseCard($card) ?>
     <?php endforeach; ?>
+    <?= renderPicklist(buildPicklist($hoseCards), $orderNumber) ?>
 </div>
 <?php endif; ?>
 </body>

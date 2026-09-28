@@ -296,13 +296,14 @@ input::placeholder { color: #929fac; }
         font-family: Arial, Helvetica, sans-serif;
     }
 
+    /* De picklijst staat nu als laatste pagina (na alle slangkaarten), dus
+       geen page-break-after meer nodig - dat zou een lege pagina erachter
+       toevoegen. */
     #printSheet .picklist-sheet {
         min-height: 269mm;
         border: none;
         padding: 0;
         margin: 0;
-        page-break-after: always;
-        break-after: page;
     }
 
     #printSheet .hose-card {
@@ -313,7 +314,9 @@ input::placeholder { color: #929fac; }
            details, aantal, notitie) en alles erna (vinkjes, footer) staat
            zo altijd op een vaste positie boven/onder in de pagina; de
            koppelingen-sectie is de enige die meegroeit en de ruimte
-           ertussen opvult (zie flex: 1 1 auto hieronder). */
+           ertussen opvult (zie flex: 1 1 auto hieronder). Elke slangkaart
+           krijgt altijd een break erna (ook de laatste), want de
+           picklijst volgt er nog op. */
         min-height: 269mm;
         border: none;
         border-radius: 0;
@@ -322,7 +325,6 @@ input::placeholder { color: #929fac; }
         page-break-after: always;
         break-after: page;
     }
-    #printSheet .hose-card:last-child { page-break-after: auto; break-after: auto; }
 
     #printSheet .card-top,
     #printSheet .card-body,
