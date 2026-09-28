@@ -723,10 +723,28 @@ if ($selectedKeys !== []) {
                     value="<?= h($customerName) ?>"
                 >
             </label>
-            <button type="submit" class="submit-button">Opzoeken</button>
+            <button type="submit" class="submit-button" id="searchSubmitButton">
+                <span class="button-fill" aria-hidden="true"></span>
+                <span class="button-label">Opzoeken</span>
+            </button>
         </form>
         <small>Vul een ordernummer óf (een deel van) de klantnaam in.</small>
     </section>
+
+    <script>
+        (function () {
+            var form = document.querySelector('.search-row');
+            var button = document.getElementById('searchSubmitButton');
+            var label = button ? button.querySelector('.button-label') : null;
+            if (!form || !button || !label) { return; }
+
+            form.addEventListener('submit', function () {
+                button.classList.add('loading');
+                button.disabled = true;
+                label.textContent = 'Bezig met zoeken…';
+            });
+        })();
+    </script>
 
     <?php if ($errorMessage !== null): ?>
         <section class="warning-box"><?= h($errorMessage) ?></section>
