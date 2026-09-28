@@ -717,7 +717,7 @@ if ($selectedKeys !== []) {
             <div class="section-heading">
                 <div>
                     <span class="step">Stap 3</span>
-                    <h2><?= count($hoseCards) ?> slangkaart<?= count($hoseCards) === 1 ? '' : 'en' ?> wordt<?= count($hoseCards) === 1 ? '' : 'en' ?> geprint&hellip;</h2>
+                    <h2><?= count($hoseCards) ?> slangkaart<?= count($hoseCards) === 1 ? '' : 'en' ?> wordt geprint&hellip;</h2>
                 </div>
                 <button type="button" class="print-button" onclick="window.print()">Opnieuw printen</button>
             </div>
