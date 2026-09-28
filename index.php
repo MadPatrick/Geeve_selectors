@@ -90,7 +90,7 @@ function assetVersion(string $relativePath): string
                     <line x1="7" y1="7" x2="7.01" y2="7"></line>
                 </svg>
             </div>
-            <h2>Slangkaarten</h2>
+            <h2>Slangkaarten Printen</h2>
             <p>Zoek een order of klant op en print de slangkaarten (labels) van de geselecteerde slangregels.</p>
             <span class="tile-cta">Open selector &rarr;</span>
         </a>
