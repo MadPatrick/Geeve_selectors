@@ -121,11 +121,13 @@ const UW_REFERENTIE_CANDIDATES = ['Uw_referentie', 'Uw Referentie', 'UwReferenti
 // "Offerte" of een code) is nog niet met echte data geverifieerd.
 const ORDER_TYPE_CANDIDATES = ['ord_soort', 'Ordersoort', 'Order soort', 'Soort'];
 
+const SLANGTYPE_CANDIDATES = ['SlangType', 'Slang type', 'Slangtype', 'Type'];
+
 const CARD_DETAIL_FIELDS = [
     ['label' => 'Referentie',      'candidates' => ['Referentie']],
     ['label' => 'Uw Referentie',   'candidates' => UW_REFERENTIE_CANDIDATES],
     ['label' => 'Omschrijving',    'candidates' => ['Omschrijving']],
-    ['label' => 'Slang type',      'candidates' => ['SlangType', 'Slang type', 'Slangtype', 'Type']],
+    ['label' => 'Slang type',      'candidates' => SLANGTYPE_CANDIDATES],
     ['label' => 'Lengte',          'candidates' => ['Lengte', 'Lengte / Prijs', 'Lengte/Prijs']],
     ['label' => 'Snijlengte',      'candidates' => ['SnijlengteJN', 'Snijlengte']],
 ];
@@ -199,7 +201,7 @@ const LINE_OVERVIEW_FIELDS = [
     ['label' => 'Aantal',        'candidates' => ['Aantal', 'Aantal slangen', 'AantalSlangen'], 'format' => 'whole'],
     ['label' => 'Slangnummer',   'candidates' => ['GHnr', 'Slangnummer', 'SlangNr', 'Slang nr']],
     ['label' => 'GHnm',          'candidates' => ['GHnm', 'Omschrijving slang']],
-    ['label' => 'Slang type',    'candidates' => ['SlangType', 'Slang type', 'Slangtype', 'Type']],
+    ['label' => 'Slang type',    'candidates' => SLANGTYPE_CANDIDATES],
     ['label' => 'Lengte',        'candidates' => ['Lengte']],
 ];
 
@@ -320,6 +322,167 @@ function renderExtraArtikelenTable(array $row): string
 }
 
 /**
+ * Krimpmaten (Persmaat) opzoeken voor een koppel-/hulsartikel, op basis
+ * van slangtype + het koppel-/hulsartikelnummer. Leest
+ * /hoses/data/artikelnummers_staal.csv en artikelnummers_rvs.csv -
+ * dezelfde CSV's als de Slangen fitting Selector (madpatrick/Geeve_hose,
+ * hier gekopieerd naar /hoses in de Geeve_selectors-portal). Deze
+ * bestanden bestaan alleen binnen die portal (buurmap van deze app) -
+ * bij een standalone-deploy van deze app op zich ontbreken ze gewoon en
+ * wordt het krimpmaten-kader leeg getoond, geen foutmelding.
+ *
+ * Structuur per CSV-rij (kolom "artnr" = slangtype): 2 "2delig_N"-varianten
+ * (apart huls + pilaar, elk met eigen Persmaat/Schilmaat) en 3
+ * "1delig_N"-varianten (1 geïntegreerd koppelartikel, eigen Persmaat/
+ * Schilmaat/Insteekdiepte). We doorzoeken beide soorten varianten op het
+ * gevraagde koppelartikelnummer.
+ */
+function csvCleanValue(?string $value): string
+{
+    if ($value === null) {
+        return '';
+    }
+
+    $value = preg_replace('/^\xEF\xBB\xBF/', '', $value) ?? $value;
+    $value = str_replace("\xC2\xA0", ' ', $value);
+    $value = preg_replace('/\s+/u', ' ', $value) ?? $value;
+
+    return trim($value);
+}
+
+function csvGetColumn(array $row, string $columnName): string
+{
+    $target = strtolower($columnName);
+    foreach ($row as $column => $value) {
+        if (strtolower(csvCleanValue((string) $column)) === $target) {
+            return csvCleanValue((string) $value);
+        }
+    }
+
+    return '';
+}
+
+/** Doorzoekt 1 CSV-bestand op slangtype + koppelartikel, zie findKrimpmaat(). */
+function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelingArtikel): ?array
+{
+    $handle = @fopen($csvFile, 'rb');
+    if ($handle === false) {
+        return null;
+    }
+
+    $headers = fgetcsv($handle, 0, ',');
+    if ($headers === false) {
+        fclose($handle);
+        return null;
+    }
+    $headers = array_map('csvCleanValue', $headers);
+
+    $result = null;
+    $needleSlang = strtoupper($slangType);
+    $needleKoppeling = strtoupper($koppelingArtikel);
+
+    while (($data = fgetcsv($handle, 0, ',')) !== false) {
+        if (count($data) !== count($headers)) {
+            continue;
+        }
+        $row = array_combine($headers, $data);
+        if ($row === false || strtoupper(csvGetColumn($row, 'artnr')) !== $needleSlang) {
+            continue;
+        }
+
+        foreach ([1, 2] as $number) {
+            $prefix = "2delig_{$number}";
+            $huls = csvGetColumn($row, "{$prefix} - Huls");
+            $pilaar = csvGetColumn($row, "{$prefix} - Pilaar");
+            if (strtoupper($huls) === $needleKoppeling || strtoupper($pilaar) === $needleKoppeling) {
+                $result = [
+                    'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
+                    'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
+                    'schilExtern' => csvGetColumn($row, "{$prefix} - Schilmaat extern (mm)"),
+                ];
+                break 2;
+            }
+        }
+
+        foreach ([1, 2, 3] as $number) {
+            $prefix = "1delig_{$number}";
+            if (strtoupper(csvGetColumn($row, $prefix)) === $needleKoppeling) {
+                $result = [
+                    'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
+                    'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
+                    'schilExtern' => csvGetColumn($row, "{$prefix} - Schilmaat extern (mm)"),
+                ];
+                break 2;
+            }
+        }
+
+        break;
+    }
+
+    fclose($handle);
+    return $result;
+}
+
+/** Zoekt de krimpmaat (Persmaat) op in beide materiaal-CSV's, zie boven. */
+function findKrimpmaat(string $slangType, string $koppelingArtikel): ?array
+{
+    if ($slangType === '' || $koppelingArtikel === '') {
+        return null;
+    }
+
+    foreach (['artikelnummers_staal.csv', 'artikelnummers_rvs.csv'] as $filename) {
+        $result = findKrimpmaatInCsv(__DIR__ . '/../hoses/data/' . $filename, $slangType, $koppelingArtikel);
+        if ($result !== null) {
+            return $result;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Rendert het "Krimpmaten"-kader: voor elk koppel-/hulsartikel op zijde
+ * A/B de bijbehorende Persmaat, opgezocht via findKrimpmaat(). Toont
+ * "Geen krimpmaten gevonden" als er geen CSV-data beschikbaar is (bv.
+ * standalone-deploy zonder /hoses-buurmap) of geen van de artikelen een
+ * match opleverde.
+ */
+function renderKrimpmatenTable(array $card, string $slangType): string
+{
+    $sideLabels = ['sideA' => 'A', 'sideB' => 'B'];
+    $rows = [];
+
+    foreach ($sideLabels as $side => $label) {
+        $seen = [];
+        $persmaten = [];
+
+        foreach ($card[$side] as $componentRow) {
+            $artikel = pick($componentRow, ARTIKELNUMMER_CANDIDATES);
+            if ($artikel === '' || isset($seen[$artikel])) {
+                continue;
+            }
+            $seen[$artikel] = true;
+
+            $krimpmaat = findKrimpmaat($slangType, $artikel);
+            if ($krimpmaat !== null && $krimpmaat['persmaat'] !== '' && !in_array($krimpmaat['persmaat'], $persmaten, true)) {
+                $persmaten[] = $krimpmaat['persmaat'];
+            }
+        }
+
+        $rows[] = [$label, implode(', ', $persmaten)];
+    }
+
+    $html = '<div class="coupling-block krimpmaten-block"><h4>Krimpmaten</h4>';
+    $html .= '<table class="coupling-table"><thead><tr><th>Zijde</th><th>Krimpmaat (mm)</th></tr></thead><tbody>';
+    foreach ($rows as [$label, $persmaat]) {
+        $html .= '<tr><td>' . h($label) . '</td><td>' . ($persmaat !== '' ? h($persmaat) : '&mdash;') . '</td></tr>';
+    }
+    $html .= '</tbody></table>';
+
+    return $html . '</div>';
+}
+
+/**
  * Bouwt een adresblok van losse velden op (code+naam op de 1e regel,
  * straat op de 2e, postcode+plaats op de 3e), als newline-tekst - klaar
  * om met nl2br() te tonen. Lege regels worden overgeslagen.
@@ -362,6 +525,7 @@ function renderHoseCard(array $card): string
     $notitie = pick($row, NOTITIE_CANDIDATES);
     $hoekRaw = pick($row, HOEK_CANDIDATES);
     $hoek = $hoekRaw !== '' ? (float) str_replace(',', '.', $hoekRaw) : null;
+    $slangType = pick($row, SLANGTYPE_CANDIDATES);
 
     $ordercrediteur = composeAddressBlock(
         $klant,
@@ -435,14 +599,19 @@ function renderHoseCard(array $card): string
             <div><?= $notitie !== '' ? nl2br(h($notitie)) : '' ?></div>
         </div>
 
-        <div class="card-flags">
-            <?php foreach (CARD_FLAG_SLOTS as $slot): ?>
-                <?php if ($slot === null): ?>
-                    <div class="card-flag card-flag-empty"></div>
-                <?php else: ?>
-                    <div class="card-flag"><span><?= h($slot[0]) ?></span><strong><?= h(formatFlag(pick($row, $slot[1]))) ?></strong></div>
-                <?php endif; ?>
-            <?php endforeach; ?>
+        <div class="card-flags-row">
+            <div class="card-flags">
+                <?php foreach (CARD_FLAG_SLOTS as $slot): ?>
+                    <?php if ($slot === null): ?>
+                        <div class="card-flag card-flag-empty"></div>
+                    <?php else: ?>
+                        <div class="card-flag"><span><?= h($slot[0]) ?></span><strong><?= h(formatFlag(pick($row, $slot[1]))) ?></strong></div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+            <div class="card-krimpmaten">
+                <?= renderKrimpmatenTable($card, $slangType) ?>
+            </div>
         </div>
 
         <div class="card-footer">
