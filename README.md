@@ -49,15 +49,17 @@ in de opbouwfase:
    PDO/SQL Server-patroon als `/slangkaarten`), plus `stauff/.env.example`/`.gitignore`/`.htaccess`.
    Kopieer `.env.example` naar `.env` in `stauff/` en vul `DB_USER`/`DB_PASSWORD` in van een
    bestaand SQL-account dat database "005" mag lezen.
-2. **Tabel/kolom voor groep 67 nog niet bekend**: `stauff/db-test.php` is een tijdelijke
-   diagnosepagina (geen onderdeel van de uiteindelijke selector) die, na het invullen van `.env`,
-   tabellen met "groep"/"group" in de naam opzoekt, de kolommen van een gekozen tabel toont, en
-   automatisch filtert op een opgegeven groepswaarde (standaard 67) tegen elke kolom met
-   "groep"/"group" in de naam. Open `stauff/db-test.php` in de browser om de juiste tabel/kolom te
-   vinden.
-3. **Zoekfilter (later)**: zodra de tabel/kolom bekend zijn, wordt groep 67 verwerkt in de
-   Diameter-zoeklogica (`api/stauff.php`/`assets/selector.js`) - "bij intype van diameter gaan we
-   in groep zoeken". Dit is nog niet gebouwd; `db-test.php` kan dan weer verwijderd worden.
+2. **Tabel/kolom voor groep 67 gevonden** (dit is af): `GRV_SalesItems` (kolommen `ItemCode`,
+   `Item Description`, `Item Unit`, `Item Group`) koppelt elk artikel aan zijn groepscode;
+   `Item Group = 67` geeft precies de Stauff-beugelartikelen. `GRV_ItemGroups` (`Item Group`,
+   `Item Group Description`) bevestigt dat groep 67 = "STAUFF BEUGELS". Deze artikelcodes komen
+   overeen met die in `stauff/data/stauff_selector.csv` (die CSV is dus in feite al de
+   groep-67-lijst, handmatig aangevuld met geparste diameter/bouwgroep/materiaal-kolommen voor de
+   selector). `stauff/db-test.php` blijft voorlopig staan (nog nodig voor stap 3 hieronder), maar
+   het zoeken naar de juiste tabel/kolom zelf is afgerond.
+3. **Zoekfilter (later)**: groep 67 verwerken in de Diameter-zoeklogica (`api/stauff.php`/
+   `assets/selector.js`) - "bij intype van diameter gaan we in groep zoeken". Dit is nog niet
+   gebouwd; `db-test.php` kan dan weer verwijderd worden.
 
 ## Structuur
 
