@@ -19,3 +19,10 @@
     Allow from 31.151.192.22
     Allow from 89.185.60.166
 </IfModule>
+
+# Blokkeert browsertoegang tot dotfiles in de portal-root, met name ".env"
+# (de gedeelde Exact-database-inloggegevens, zie .env.example) - de
+# IP-restrictie hierboven regelt geen dotfile-bescherming.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

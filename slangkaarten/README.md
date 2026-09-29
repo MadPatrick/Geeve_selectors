@@ -105,10 +105,11 @@ gebruikt voor artikelgroep 67), tabel `CSPickITItemLocations` (`ItemCode` → `L
 meerdere rijen per artikel wordt de eerste gebruikt, geen filtering op `Warehouse`).
 
 Dit is een **losse, optionele** tweede databaseverbinding (`getExactPdoConnection()` in
-`inc/db.php`), met eigen `EXACT_DB_*`-variabelen in `.env` (zie `.env.example`) zodat deze niet
-botst met `DB_USER`/`DB_PASSWORD` van de Slangkaarten-verbinding hierboven. Zonder ingevulde
-`EXACT_DB_USER`/`EXACT_DB_PASSWORD` (of bij een connectiefout) toont de Locatie-kolom gewoon een
-streepje - de rest van de app/picklijst blijft normaal werken.
+`inc/db.php`). De `EXACT_DB_*`-inloggegevens staan niet in de eigen `.env` van deze map, maar
+centraal in de portal-root `.env` (zie `../.env.example`, 1 map hoger) - hetzelfde SQL-account als `/stauff`
+gebruikt voor artikelgroep 67, dus 1x instellen voor beide subapps. Zonder ingevulde root-`.env`
+(of bij een connectiefout) toont de Locatie-kolom gewoon een streepje - de rest van de
+app/picklijst blijft normaal werken.
 
 ## Printvoorbeeld uitschakelen (client-instelling)
 

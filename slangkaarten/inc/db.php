@@ -80,7 +80,7 @@ function getExactPdoConnection(): PDO
     return $pdo = connectSqlServer(
         appConfig()['exactDb'],
         'Exact-database-inloggegevens ontbreken. Zet EXACT_DB_USER en ' .
-        'EXACT_DB_PASSWORD (zie .env.example) voor de read-only SQL-login ' .
-        'op database "005".'
+        'EXACT_DB_PASSWORD in de portal-root .env (zie .env.example daar) ' .
+        'voor de read-only SQL-login op database "005".'
     );
 }

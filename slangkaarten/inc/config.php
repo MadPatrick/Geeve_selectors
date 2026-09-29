@@ -41,6 +41,11 @@ function loadEnvFile(string $path): void
 }
 
 loadEnvFile(__DIR__ . '/../.env');
+// Gedeelde Exact-database "005"-inloggegevens (EXACT_DB_*) staan centraal
+// in de portal-root, niet los in deze .env - hetzelfde SQL-account wordt
+// ook door /stauff gebruikt (artikelgroep 67). Zie de portal-root
+// .env.example.
+loadEnvFile(__DIR__ . '/../../.env');
 
 function env(string $key, ?string $default = null): ?string
 {
@@ -68,10 +73,9 @@ function appConfig(): array
         ],
         // Tweede, aparte verbinding: de Exact-database "005" (zelfde server,
         // GEEVE-SQL-2019, ander doel) voor de artikellocatie op de picklijst
-        // (tabel CSPickITItemLocations) - los van de EXACT_DB_*-vars zodat
-        // dit niet botst met de DB_*-vars hierboven voor de Slangkaarten-DB.
-        // Zie ook /stauff, die met dezelfde Exact-database praat voor
-        // artikelgroep 67.
+        // (tabel CSPickITItemLocations). EXACT_DB_* komt uit de gedeelde
+        // portal-root .env hierboven, niet uit deze eigen .env - dezelfde
+        // inloggegevens als /stauff gebruikt voor artikelgroep 67.
         'exactDb' => [
             'host'     => env('EXACT_DB_HOST', 'GEEVE-SQL-2019'),
             'port'     => env('EXACT_DB_PORT'),

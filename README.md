@@ -5,15 +5,15 @@ Startpagina met tegels naar de Geeve-selectors:
 - **`/hoses`** — Slangen fitting Selector
 - **`/adapters`** — Adapters Selector
 - **`/stauff`** — Stauff Selector / beugelconfigurator, zelfde brand-panel/paneel-stijl als `/hoses`
-  en `/adapters`. Heeft sinds kort ook een eigen databaseverbinding naar de Exact-database "005"
-  (artikelgroep 67) - nog in opbouw, zie "Database-koppeling Stauff (Exact, database 005)"
-  hieronder.
+  en `/adapters`. Heeft ook een databaseverbinding naar de Exact-database "005" (artikelgroep 67) -
+  nog in opbouw, zie "Database-koppeling Exact (database 005)" hieronder.
 - **`/configurator`** — Slang configurator, zelfde brand-panel/paneel-stijl. Bestanden staan er nog,
   maar er is momenteel geen tegel op de startpagina die hierheen linkt.
 - **`/slangkaarten`** — Slangkaarten bij order - zoekt een order of klant op en print
   slangkaarten/labels van de geselecteerde regels. Heeft een eigen database nodig (SQL Server,
   database "Slangkaarten", zie `slangkaarten/README.md`). Voor de Locatie-kolom op de picklijst
-  gebruikt deze subapp ook, optioneel, dezelfde Exact-database "005" als `/stauff`.
+  gebruikt deze subapp ook dezelfde Exact-database "005" als `/stauff`, met dezelfde (centraal
+  opgeslagen) inloggegevens.
 - **`/stickers`** — nieuw, eigen scherm met 3 tegels: "Stickers op Artikelnummer", "Stickers op
   Artikelnummer (groot)" en "Stickers op Zakjes". Nog niet functioneel - alle 3 staan als
   "Binnenkort beschikbaar", dit is puur de navigatiestructuur.
@@ -35,21 +35,26 @@ die drie dingen zelf te regelen (een eigen "terug"-link, eigen logo's, een hardc
 versienummer) - dat is dan ook geen ondersteunde manier van deployen; deze portal-map is de enige
 plek waar deze code leeft en gedraaid wordt.
 
-`/slangkaarten` en `/stauff` hebben, in tegenstelling tot de andere tegels, een eigen `.env` nodig
-(SQL Server-inloggegevens) - zie `slangkaarten/README.md` resp. de sectie hieronder voor de
-configuratie-instructies. Zonder ingevulde `.env` toont die tegel/pagina een foutmelding i.p.v. te
-crashen; de rest van de portal blijft gewoon werken.
+`/slangkaarten` en `/stauff` hebben, in tegenstelling tot de andere tegels, database-inloggegevens
+nodig - deels eigen (`slangkaarten/.env`, voor de "Slangkaarten"-database), deels gedeeld (de
+root-`.env` hier, voor de Exact-database "005" - zie `slangkaarten/README.md` resp. "Database-
+koppeling Exact (database 005)" hieronder). Zonder ingevulde `.env` toont die tegel/pagina (of
+alleen de Locatie-kolom op de picklijst) een foutmelding/streepje i.p.v. te crashen; de rest van de
+portal blijft gewoon werken.
 
-## Database-koppeling Stauff (Exact, database 005)
+## Database-koppeling Exact (database 005) - gedeeld door /stauff en /slangkaarten
 
-`/stauff` krijgt een live SQL Server-verbinding naar de Exact-database "005" (zelfde server als
-`/slangkaarten`, `GEEVE-SQL-2019`, andere database) om artikelgroep 67 uit te lezen. Dit staat nog
-in de opbouwfase:
+`/stauff` (artikelgroep 67) en `/slangkaarten` (Locatie op de picklijst, zie
+`slangkaarten/README.md`) praten allebei met dezelfde Exact-database "005" (zelfde server als de
+"Slangkaarten"-database, `GEEVE-SQL-2019`), met **hetzelfde SQL-account**. Die inloggegevens staan
+daarom 1x centraal, niet los per subapp:
 
-1. **Verbinding opgezet** (dit is af): `stauff/inc/config.php` + `stauff/inc/db.php` (zelfde
-   PDO/SQL Server-patroon als `/slangkaarten`), plus `stauff/.env.example`/`.gitignore`/`.htaccess`.
-   Kopieer `.env.example` naar `.env` in `stauff/` en vul `DB_USER`/`DB_PASSWORD` in van een
-   bestaand SQL-account dat database "005" mag lezen.
+1. **Verbinding opgezet** (dit is af): kopieer `.env.example` (hier in de portal-root) naar `.env`
+   en vul `EXACT_DB_USER`/`EXACT_DB_PASSWORD` in van een bestaand SQL-account dat database "005"
+   mag lezen. Zowel `stauff/inc/config.php` als `slangkaarten/inc/config.php` laden deze
+   root-`.env` automatisch mee (naast hun eigen subapp-`.env` voor overige instellingen) - er is
+   dus maar 1 plek om deze inloggegevens te zetten of te wijzigen. De root-`.htaccess` blokkeert
+   browsertoegang tot dotfiles (dus ook deze `.env`).
 2. **Tabel/kolom voor groep 67 gevonden** (dit is af): `GRV_SalesItems` (kolommen `ItemCode`,
    `Item Description`, `Item Unit`, `Item Group`) koppelt elk artikel aan zijn groepscode;
    `Item Group = 67` geeft precies de Stauff-beugelartikelen. `GRV_ItemGroups` (`Item Group`,
@@ -67,6 +72,8 @@ in de opbouwfase:
 ```
 index.php              Startpagina met tegels
 version.php             Eén gedeeld versienummer voor hoofdscherm + alle subapps, zie hieronder
+.env.example            Gedeelde Exact-database "005"-inloggegevens (EXACT_DB_*), gebruikt door
+                        /stauff en /slangkaarten - zie "Database-koppeling Exact (database 005)"
 assets/style.css        Styling van alleen de startpagina
 images/                 Gedeeld Geeve/Rubix-merklogo (geeve.jpg, rubix.jpg) - door alle
                         subapps gebruikt via ../images/..., één plek om bij te werken
@@ -78,12 +85,13 @@ docs/                   Bron-PDF's (catalogi, persmaatlijsten) - alleen referent
 hoses/                  Volledige Slangen fitting Selector-app (eigen assets/data/etc.)
 adapters/               Volledige Adapters Selector-app (eigen assets/data + eigen
                         images/ met alleen de productfoto's per adapterfamilie)
-stauff/                 Volledige Stauff Selector-app (eigen assets/data/api/etc.)
+stauff/                 Volledige Stauff Selector-app (eigen assets/data/api/etc.) - db-verbinding
+                        naar Exact "005" leest EXACT_DB_* uit de root-.env hierboven
 configurator/           Volledige Slang configurator-app (eigen assets/data/etc.) - bestanden
                         staan er nog, momenteel geen tegel op de startpagina
-slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc. + eigen .env/.htaccess,
-                        want als enige subapp met een database-verbinding, zie
-                        slangkaarten/README.md)
+slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc. + eigen .env/.htaccess
+                        voor de "Slangkaarten"-database; de Locatie-lookup op de picklijst leest
+                        EXACT_DB_* uit de root-.env hierboven, zie slangkaarten/README.md)
 stickers/               Nieuw, eigen scherm met 3 tegels (nog niet functioneel - "Binnenkort
                         beschikbaar")
 ```

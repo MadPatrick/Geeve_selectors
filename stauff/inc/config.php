@@ -40,7 +40,11 @@ function loadEnvFile(string $path): void
     }
 }
 
-loadEnvFile(__DIR__ . '/../.env');
+// Gedeelde Exact-database "005"-inloggegevens staan centraal in de
+// portal-root (../../.env vanaf hier), niet los per subapp - hetzelfde
+// SQL-account wordt ook door /slangkaarten gebruikt (Locatie op de
+// picklijst). Zie de portal-root .env.example.
+loadEnvFile(__DIR__ . '/../../.env');
 
 function env(string $key, ?string $default = null): ?string
 {
@@ -52,22 +56,22 @@ function appConfig(): array
 {
     return [
         'db' => [
-            // Zie README.md - "SQL-toegang" voor het account voor deze
-            // Exact-database. In tegenstelling tot /slangkaarten (die met
-            // SQL Server database "Slangkaarten" praat) is dit de
-            // Exact-database "005" - zelfde server (GEEVE-SQL-2019),
-            // ander doel: het uitlezen van artikelgroep 67 (Stauff).
-            'host'     => env('DB_HOST', 'GEEVE-SQL-2019'),
-            'port'     => env('DB_PORT'),
-            'name'     => env('DB_NAME', '005'),
-            'user'     => env('DB_USER'),
-            'password' => env('DB_PASSWORD'),
+            // Zie de portal-root .env.example - "EXACT_DB_*" (gedeeld met
+            // /slangkaarten). In tegenstelling tot /slangkaarten's eigen
+            // "Slangkaarten"-database is dit de Exact-database "005" -
+            // zelfde server (GEEVE-SQL-2019), ander doel: het uitlezen
+            // van artikelgroep 67 (Stauff).
+            'host'     => env('EXACT_DB_HOST', 'GEEVE-SQL-2019'),
+            'port'     => env('EXACT_DB_PORT'),
+            'name'     => env('EXACT_DB_NAME', '005'),
+            'user'     => env('EXACT_DB_USER'),
+            'password' => env('EXACT_DB_PASSWORD'),
             // De meeste on-prem SQL Server-installaties gebruiken een
             // zelfondertekend certificaat. ODBC Driver 18 weigert dat
             // sinds kort standaard - "yes" vertrouwt het certificaat
-            // (prima binnen een intern netwerk); zet DB_TRUST_SERVER_CERT=no
+            // (prima binnen een intern netwerk); zet EXACT_DB_TRUST_SERVER_CERT=no
             // als de server een echt (CA-ondertekend) certificaat heeft.
-            'trustServerCertificate' => env('DB_TRUST_SERVER_CERT', 'yes'),
+            'trustServerCertificate' => env('EXACT_DB_TRUST_SERVER_CERT', 'yes'),
         ],
     ];
 }
