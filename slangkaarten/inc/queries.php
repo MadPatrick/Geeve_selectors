@@ -350,6 +350,33 @@ function findOrdersByCustomer(PDO $pdo, string $customerName): array
 }
 
 /**
+ * Zoekt slangregels op (een deel van) het slangnummer (GHnr, het
+ * hose-artikelnummer - zie HOSE_KEY_COLUMNS). Dit is GEEN order-unieke
+ * sleutel (zie findHoseCardsByKeys()), dus dit kan regels uit meerdere
+ * orders/klanten opleveren. Toont ze als een lijst, net als
+ * findOrdersByCustomer() bij zoeken op klantnaam; de gebruiker kiest
+ * daarna de order om verder te gaan naar het normale regel-overzicht
+ * (stap 2) - geen aparte printflow nodig.
+ */
+function findLinesByHoseNumber(PDO $pdo, string $hoseNumber): array
+{
+    $rows = tryColumnsLikeQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseNumber);
+
+    usort($rows, static function (array $a, array $b): int {
+        $orderNumberA = pick($a, ORDER_NUMBER_COLUMNS);
+        $orderNumberB = pick($b, ORDER_NUMBER_COLUMNS);
+
+        if (is_numeric($orderNumberA) && is_numeric($orderNumberB)) {
+            return $orderNumberB <=> $orderNumberA;
+        }
+
+        return strcmp($orderNumberB, $orderNumberA);
+    });
+
+    return $rows;
+}
+
+/**
  * Parseert een datum/tijd-tekst zoals die op de kaart staat ("26-9-2026
  * 00:00:00", dag-maand-jaar zonder voorloopnullen) naar een sorteerbare
  * DateTimeImmutable. Geeft null bij een onbekend/leeg formaat. Formaten

@@ -1066,8 +1066,53 @@ function renderCustomerOrdersForm(array $customerOrders): string
     return (string) ob_get_clean();
 }
 
+/**
+ * Rendert de gevonden regels bij zoeken op slangnummer (artikelnummer,
+ * zie findLinesByHoseNumber()) - géén order-unieke sleutel, dus dit kan
+ * regels uit meerdere orders/klanten tonen. Elke rij heeft een
+ * "Kiezen"-knop die verder gaat als een gewone ordernummer-zoekopdracht
+ * (naar stap 2 van die order).
+ */
+function renderHoseNumberResultsForm(array $hoseNumberResults): string
+{
+    ob_start();
+    ?>
+    <div class="lines-table-wrap">
+        <table class="lines-table">
+            <thead>
+                <tr>
+                    <th>Slangnummer</th>
+                    <th>Slang type</th>
+                    <th>Ordernummer</th>
+                    <th>Klant</th>
+                    <th>Orderdatum</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($hoseNumberResults as $row): ?>
+                    <?php $orderNumberValue = pick($row, ORDER_NUMBER_COLUMNS); ?>
+                    <tr>
+                        <td><?= h(pick($row, HOSE_KEY_COLUMNS)) ?: '&mdash;' ?></td>
+                        <td><?= h(pick($row, SLANGTYPE_CANDIDATES)) ?: '&mdash;' ?></td>
+                        <td><?= h($orderNumberValue) ?: '&mdash;' ?></td>
+                        <td><?= h(pick($row, KLANT_CANDIDATES)) ?: '&mdash;' ?></td>
+                        <td><?= h(formatDateTime(pick($row, ORDERDATUM_CANDIDATES))) ?: '&mdash;' ?></td>
+                        <td>
+                            <a class="link-button" href="index.php?ordernummer=<?= h(rawurlencode($orderNumberValue)) ?>">Kiezen</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
+    return (string) ob_get_clean();
+}
+
 $orderNumber = trim((string) ($_GET['ordernummer'] ?? $_POST['ordernummer'] ?? ''));
 $customerName = trim((string) ($_GET['klant'] ?? $_POST['klant'] ?? ''));
+$hoseNumberSearch = trim((string) ($_GET['slangnummer'] ?? $_POST['slangnummer'] ?? ''));
 $selectedKeys = array_values(array_filter(array_map(
     static fn($value): string => trim((string) $value),
     $_POST['slangnummers'] ?? []
@@ -1076,6 +1121,7 @@ $selectedKeys = array_values(array_filter(array_map(
 $hoseLines = [];
 $hoseCards = [];
 $customerOrders = [];
+$hoseNumberResults = [];
 $errorMessage = null;
 
 if ($selectedKeys !== []) {
@@ -1107,6 +1153,17 @@ if ($selectedKeys !== []) {
     try {
         $pdo = getPdoConnection();
         $customerOrders = findOrdersByCustomer($pdo, $customerName);
+    } catch (DatabaseConfigException $exception) {
+        $errorMessage = $exception->getMessage();
+    }
+} elseif ($hoseNumberSearch !== '') {
+    // Zoeken op slangnummer (artikelnummer) is geen order-unieke sleutel
+    // (zie findLinesByHoseNumber()) - toont daarom ook een tussenstap met
+    // de gevonden regels (mogelijk uit meerdere orders/klanten), waarna
+    // de gebruiker een order kiest om verder te gaan naar stap 2.
+    try {
+        $pdo = getPdoConnection();
+        $hoseNumberResults = findLinesByHoseNumber($pdo, $hoseNumberSearch);
     } catch (DatabaseConfigException $exception) {
         $errorMessage = $exception->getMessage();
     }
@@ -1151,7 +1208,7 @@ if ($selectedKeys !== []) {
         <div class="section-heading">
             <div>
                 <span class="step">Stap 1</span>
-                <h2>Order of klant opzoeken</h2>
+                <h2>Order, klant of slangnummer opzoeken</h2>
             </div>
             <a class="link-button" href="index.php">Wissen</a>
         </div>
@@ -1180,12 +1237,23 @@ if ($selectedKeys !== []) {
                     value="<?= h($customerName) ?>"
                 >
             </label>
+            <label class="field" for="slangnummer">
+                <span>Slangnummer</span>
+                <input
+                    id="slangnummer"
+                    name="slangnummer"
+                    type="text"
+                    placeholder="bijv. artikelnummer"
+                    autocomplete="off"
+                    value="<?= h($hoseNumberSearch) ?>"
+                >
+            </label>
             <button type="submit" class="submit-button" id="searchSubmitButton">
                 <span class="button-fill" aria-hidden="true"></span>
                 <span class="button-label">Opzoeken</span>
             </button>
         </form>
-        <small>Vul een ordernummer óf (een deel van) de klantnaam in.</small>
+        <small>Vul een ordernummer, (een deel van) de klantnaam, óf een slangnummer in.</small>
     </section>
 
     <script>
@@ -1245,7 +1313,17 @@ if ($selectedKeys !== []) {
             </div>
             <?= renderCustomerOrdersForm($customerOrders) ?>
         </section>
-    <?php elseif ($orderNumber !== '' || $customerName !== ''): ?>
+    <?php elseif ($hoseNumberResults !== []): ?>
+        <section class="panel result-panel">
+            <div class="section-heading">
+                <div>
+                    <span class="step">Stap 1b</span>
+                    <h2><?= count($hoseNumberResults) ?> slangregel<?= count($hoseNumberResults) === 1 ? '' : 'en' ?> gevonden voor dit slangnummer - kies een order</h2>
+                </div>
+            </div>
+            <?= renderHoseNumberResultsForm($hoseNumberResults) ?>
+        </section>
+    <?php elseif ($orderNumber !== '' || $customerName !== '' || $hoseNumberSearch !== ''): ?>
         <section class="empty-result">Geen slangregels gevonden voor deze zoekopdracht.</section>
     <?php endif; ?>
 </main>

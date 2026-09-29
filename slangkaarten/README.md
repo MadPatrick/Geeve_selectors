@@ -8,13 +8,15 @@ hieronder.
 
 ## Status
 
-De flow volgt het originele NiceLabel-scherm 1-op-1:
+De flow volgt het originele NiceLabel-scherm grotendeels 1-op-1, met 1 toevoeging (zoeken op
+slangnummer, zie hieronder):
 
-1. **Zoeken** - op ordernummer óf (een deel van) de klantnaam.
-2. **Order kiezen** (alleen bij zoeken op klantnaam) - een klant kan meerdere orders hebben, dus
-   eerst een lijst van die orders (op ordernummer aflopend, max. 2 jaar terug, met type
-   Order/Quote en aantal slangregels per order) om er 1 te kiezen. Bij zoeken op ordernummer
-   wordt deze stap overgeslagen.
+1. **Zoeken** - op ordernummer, (een deel van) de klantnaam, óf slangnummer (artikelnummer van de
+   slang - kolom `GHnr`, zie `HOSE_KEY_COLUMNS` in `inc/queries.php`).
+2. **Order kiezen** (bij zoeken op klantnaam of slangnummer) - een klant kan meerdere orders
+   hebben, en hetzelfde slangnummer kan in meerdere orders/klanten voorkomen (het is het
+   hose-artikelnummer, geen order-unieke sleutel) - dus eerst een lijst met resultaten (nieuwste
+   order eerst) om er 1 te kiezen. Bij zoeken op ordernummer wordt deze stap overgeslagen.
 3. **Regels selecteren** - een overzicht van de slangregels van de gekozen order (regel, aantal,
    slangnummer, GHnm, slang type, lengte, koppeling A/B - elk koppelonderdeel in een eigen
    kolom), elk met een aangevinkte checkbox. Ordernummer en klantnaam staan in de koptekst, niet
