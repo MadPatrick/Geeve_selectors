@@ -14,9 +14,10 @@ Startpagina met tegels naar de Geeve-selectors:
   database "Slangkaarten", zie `slangkaarten/README.md`). Voor de Locatie-kolom op de picklijst
   gebruikt deze subapp ook dezelfde Exact-database "005" als `/stauff`, met dezelfde (centraal
   opgeslagen) inloggegevens.
-- **`/stickers`** — nieuw, eigen scherm met 3 tegels: "Stickers op Artikelnummer", "Stickers op
-  Artikelnummer (groot)" en "Stickers op Zakjes". Nog niet functioneel - alle 3 staan als
-  "Binnenkort beschikbaar", dit is puur de navigatiestructuur.
+- **`/stickers`** — eigen scherm met 3 tegels: "Stickers op Artikelnummer", "Stickers op
+  Artikelnummer (groot)" en "Stickers op Zakjes". Nog niet functioneel (alle 3 staan als
+  "Binnenkort beschikbaar") - bestanden staan er nog, maar er is momenteel geen tegel op de
+  startpagina die hierheen linkt.
 
 `Geeve_selectors` is de enige/canonieke plek voor al deze subapps — er zijn geen losse bronrepo's
 meer waar wijzigingen vandaan gekopieerd worden of naartoe teruggezet moeten worden. Wijzigingen
@@ -92,8 +93,9 @@ configurator/           Volledige Slang configurator-app (eigen assets/data/etc.
 slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc. + eigen .env/.htaccess
                         voor de "Slangkaarten"-database; de Locatie-lookup op de picklijst leest
                         EXACT_DB_* uit de root-.env hierboven, zie slangkaarten/README.md)
-stickers/               Nieuw, eigen scherm met 3 tegels (nog niet functioneel - "Binnenkort
-                        beschikbaar")
+stickers/               Eigen scherm met 3 tegels (nog niet functioneel - "Binnenkort
+                        beschikbaar") - bestanden staan er nog, momenteel geen tegel op de
+                        startpagina
 ```
 
 ## Eén gedeeld versienummer
