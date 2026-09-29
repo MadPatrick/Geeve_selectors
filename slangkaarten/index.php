@@ -132,7 +132,6 @@ const CARD_DETAIL_FIELDS = [
     ['label' => 'Omschrijving',    'candidates' => ['Omschrijving']],
     ['label' => 'Slang type',      'candidates' => SLANGTYPE_CANDIDATES],
     ['label' => 'Lengte',          'candidates' => LENGTE_CANDIDATES],
-    ['label' => 'Snijlengte',      'candidates' => ['SnijlengteJN', 'Snijlengte']],
 ];
 
 // Bevestigd tegen INFORMATION_SCHEMA.COLUMNS van "2500 Slangkaarten bij
@@ -141,7 +140,7 @@ const CARD_DETAIL_FIELDS = [
 // staat vooraan, met het andere veld als fallback.
 const CARD_FLAG_SLOTS = [
     ['Labelen', ['Labelen']], ['Testen/spoelen', ['TestenSpoelen', 'Testen/spoelen', 'Testen spoelen']], ['DNV Certificaat', ['DNVCertificaat', 'DNV Certificaat']],
-    ['Graveren', ['Graveren']], ['Pin prikken', ['PinPrikken', 'Pin prikken']], null,
+    ['Graveren', ['Graveren']], ['Pin prikken', ['PinPrikken', 'Pin prikken']], ['Snijlengte', ['SnijlengteJN', 'Snijlengte']],
     ['Testen', ['Testen']], ['Proppen', ['ProppenJN', 'Proppen']], null,
 ];
 
