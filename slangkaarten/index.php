@@ -523,32 +523,36 @@ function renderKrimpmatenTable(array $card, string $slangType): string
 }
 
 /**
- * Zoekt de magazijnlocatie op voor een lijst artikelen in 1 databaseronde,
- * in de Exact-database "005", tabel GRV_StockpositionsPerDay (kolom
- * "Warehouse Location", gevonden via ItemCode) - zelfde Exact-database als
- * /stauff gebruikt voor artikelgroep 67, maar een eigen verbinding (zie
- * getExactPdoConnection()/EXACT_DB_* in .env). CSPickITItemLocations (de
- * oorspronkelijke kandidaat voor de locatie) bleek leeg te zijn;
- * GRV_StockpositionsPerDay is een dagelijkse voorraadmutatie-tabel (12+
- * miljoen rijen, geen 1-op-1 locatietabel). Eerst deed dit 1 losse
- * "TOP 1 ... WHERE ItemCode = ..."-query per artikel - bij een order met
- * veel verschillende artikelen tikte dat merkbaar aan tijdens het
- * printen. ROW_NUMBER() OVER (PARTITION BY ItemCode ...) pakt nu de meest
- * recente rij per artikel in 1 query voor alle artikelen samen. Geeft
- * voor elk artikel dat niet gevonden wordt (of bij een connectiefout/lege
- * .env) een lege string terug (streepje op de picklijst), nooit een
- * foutmelding op de kaart/pagina.
+ * Zoekt locatie + vrije voorraad op voor een lijst artikelen in 2
+ * databaserondes (1 voor locatie, 1 voor voorraad - niet 1 per artikel),
+ * in de Exact-database "005" - zelfde database als /stauff gebruikt voor
+ * artikelgroep 67, maar een eigen verbinding (zie
+ * getExactPdoConnection()/EXACT_DB_* in .env).
  *
- * Voorraad staat hier expres NIET (meer) bij: GRV_StockpositionsPerDay
- * ("Free Stock") bleek voor geen enkel artikel de juiste waarde te geven
- * - net als StockBalances bleken dit soort tabellen mutatielogs te zijn
- * (met GeneralLedger/bkstnr-achtige velden), geen actuele voorraadstand
- * per artikel. Tot we het juiste veld hiervoor gevonden hebben, toont de
- * picklijst voor Voorraad altijd een streepje (zie buildPicklist()) i.p.v.
- * een foutief getal.
+ * Locatie: tabel GRV_StockpositionsPerDay (kolom "Warehouse Location").
+ * CSPickITItemLocations (de oorspronkelijke kandidaat) bleek leeg te
+ * zijn. ROW_NUMBER() OVER (PARTITION BY ItemCode ...) pakt de meest
+ * recente rij per artikel.
+ *
+ * Voorraad: eerst geprobeerd met GRV_StockpositionsPerDay's "Free Stock"
+ * (bleek voor geen enkel artikel te kloppen) en StockBalances' laatste
+ * rij (zelfde probleem). De echte rekenlogica is achterhaald door de
+ * definitie van view "3000 vrd nu loc" te bekijken (dezelfde die Exact's
+ * eigen "huidige voorraad"-rapport gebruikt): StockBalances is een
+ * mutatielog, "huidige voorraad" is de SOM van Quantity/FreeStock over
+ * alle rijen t/m vandaag (niet de laatste rij!), en de vrije voorraad is
+ * daarna het laagste van FreeStock-som en Quantity-som, met een vloer op
+ * 0 (geen negatieve voorraad tonen) - exact die formule wordt hieronder
+ * hergebruikt, maar dan gericht op alleen de gevraagde artikelen i.p.v.
+ * de zware joins (Items/ItemAssortment/prijslijst) die dat volledige
+ * rapport erbij doet.
+ *
+ * Geeft voor elk artikel dat niet gevonden wordt (of bij een
+ * connectiefout/lege .env) lege strings terug (streepjes op de
+ * picklijst), nooit een foutmelding op de kaart/pagina.
  *
  * @param string[] $artikelen
- * @return array<string, array{locatie: string}>
+ * @return array<string, array{locatie: string, voorraad: string}>
  */
 function findArtikelExactDataBatch(array $artikelen): array
 {
@@ -572,25 +576,57 @@ function findArtikelExactDataBatch(array $artikelen): array
         $placeholders[] = ":code{$index}";
         $params["code{$index}"] = $artikel;
     }
+    $inClause = implode(', ', $placeholders);
 
     $result = [];
+    foreach ($artikelen as $artikel) {
+        $result[$artikel] = ['locatie' => '', 'voorraad' => ''];
+    }
+
     try {
         $stmt = $pdo->prepare(
             'WITH ranked AS (' .
             'SELECT ItemCode, [Warehouse Location], ' .
             'ROW_NUMBER() OVER (PARTITION BY ItemCode ORDER BY [Transaction Date] DESC) AS rn ' .
             'FROM GRV_StockpositionsPerDay ' .
-            'WHERE ItemCode IN (' . implode(', ', $placeholders) . ')' .
+            "WHERE ItemCode IN ({$inClause})" .
             ') SELECT ItemCode, [Warehouse Location] FROM ranked WHERE rn = 1'
         );
         $stmt->execute($params);
         while (($row = $stmt->fetch()) !== false) {
-            $result[(string) $row['ItemCode']] = [
-                'locatie' => trim((string) ($row['Warehouse Location'] ?? '')),
-            ];
+            $itemCode = (string) $row['ItemCode'];
+            if (isset($result[$itemCode])) {
+                $result[$itemCode]['locatie'] = trim((string) ($row['Warehouse Location'] ?? ''));
+            }
         }
     } catch (Throwable $exception) {
-        return [];
+        // Locatie blijft leeg voor deze batch.
+    }
+
+    try {
+        $stmt = $pdo->prepare(
+            'WITH agg AS (' .
+            'SELECT ItemCode, ' .
+            'SUM(CASE WHEN [Date] <= GETDATE() THEN Quantity END) AS CurrentQuantity, ' .
+            'SUM(CASE WHEN [Date] <= GETDATE() THEN FreeStock END) AS FreeQuantity ' .
+            'FROM StockBalances WITH (NOLOCK) ' .
+            "WHERE ItemCode IN ({$inClause}) " .
+            'GROUP BY ItemCode' .
+            ') SELECT ItemCode, ' .
+            'CASE WHEN FreeQuantity > CurrentQuantity ' .
+            'THEN (CASE WHEN CurrentQuantity < 0 THEN 0 ELSE CurrentQuantity END) ' .
+            'ELSE (CASE WHEN FreeQuantity < 0 THEN 0 ELSE FreeQuantity END) END AS VrijeVoorraad ' .
+            'FROM agg'
+        );
+        $stmt->execute($params);
+        while (($row = $stmt->fetch()) !== false) {
+            $itemCode = (string) $row['ItemCode'];
+            if (isset($result[$itemCode])) {
+                $result[$itemCode]['voorraad'] = $row['VrijeVoorraad'] !== null ? trim((string) $row['VrijeVoorraad']) : '';
+            }
+        }
+    } catch (Throwable $exception) {
+        // Voorraad blijft leeg voor deze batch.
     }
 
     return $result;
@@ -644,15 +680,13 @@ function buildPicklist(array $hoseCards): array
         }
     }
 
-    // Locatie voor alle artikelen in 1 keer opzoeken (zie
+    // Locatie + voorraad voor alle artikelen in 1 keer opzoeken (zie
     // findArtikelExactDataBatch()) i.p.v. tijdens het optellen hierboven
     // per artikel apart - dat laatste was de trage stap bij het printen.
-    // Voorraad staat expres altijd op '' (streepje) - zie de docblock
-    // van findArtikelExactDataBatch() voor waarom.
     $exactData = findArtikelExactDataBatch(array_keys($items));
     foreach ($items as $artikel => &$item) {
         $item['locatie'] = $exactData[$artikel]['locatie'] ?? '';
-        $item['voorraad'] = '';
+        $item['voorraad'] = $exactData[$artikel]['voorraad'] ?? '';
     }
     unset($item);
 
