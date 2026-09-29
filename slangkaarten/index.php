@@ -196,8 +196,10 @@ const QTY_CANDIDATES = ['Aantal_A', 'Aantal_B', 'Qty', 'Aantal'];
  * en krijgen elk artikel een eigen kolom (zie renderHoseLinesForm()),
  * omdat een zijde meerdere koppelonderdelen kan hebben.
  */
+const REGELNUMMER_CANDIDATES = ['rgl', 'Regel', 'RegelNr'];
+
 const LINE_OVERVIEW_FIELDS = [
-    ['label' => 'Regel',         'candidates' => ['rgl', 'Regel', 'RegelNr']],
+    ['label' => 'Regel',         'candidates' => REGELNUMMER_CANDIDATES],
     ['label' => 'Aantal',        'candidates' => ['Aantal', 'Aantal slangen', 'AantalSlangen'], 'format' => 'whole'],
     ['label' => 'Slangnummer',   'candidates' => ['GHnr', 'Slangnummer', 'SlangNr', 'Slang nr']],
     ['label' => 'GHnm',          'candidates' => ['GHnm', 'Omschrijving slang']],
@@ -982,6 +984,13 @@ if ($selectedKeys !== []) {
     try {
         $pdo = getPdoConnection();
         $hoseLines = enrichHoseLinesWithCouplings($pdo, findHoseLinesByOrder($pdo, $orderNumber));
+        // Stap 2 toont de regels op regelnummer i.p.v. de (ongesorteerde)
+        // volgorde die de database teruggeeft.
+        usort(
+            $hoseLines,
+            static fn(array $a, array $b): int =>
+                (int) pick($a, REGELNUMMER_CANDIDATES) <=> (int) pick($b, REGELNUMMER_CANDIDATES)
+        );
     } catch (DatabaseConfigException $exception) {
         $errorMessage = $exception->getMessage();
     }
