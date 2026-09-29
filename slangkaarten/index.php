@@ -531,7 +531,7 @@ function buildPicklist(array $hoseCards): array
 {
     $items = [];
 
-    $addItem = static function (array &$items, string $artikel, string $aantalRaw): void {
+    $addItem = static function (array &$items, string $artikel, string $aantalRaw, float $aantalSlangen): void {
         if ($artikel === '') {
             return;
         }
@@ -542,18 +542,24 @@ function buildPicklist(array $hoseCards): array
         if (!isset($items[$artikel])) {
             $items[$artikel] = ['artikel' => $artikel, 'aantal' => 0.0, 'locatie' => ''];
         }
-        $items[$artikel]['aantal'] += $aantal;
+        $items[$artikel]['aantal'] += $aantal * $aantalSlangen;
     };
 
     foreach ($hoseCards as $card) {
+        // Qty/Aantal per koppelonderdeel en extra artikel staat per 1 slang -
+        // voor de picklijst (totaal benodigd voor de hele orderregel) moet
+        // dit vermenigvuldigd worden met "Aantal slangen" van die kaart.
+        $aantalSlangenRaw = str_replace(',', '.', trim(pick($card['row'], AANTAL_CANDIDATES)));
+        $aantalSlangen = is_numeric($aantalSlangenRaw) ? (float) $aantalSlangenRaw : 1.0;
+
         foreach (['sideA', 'sideB'] as $side) {
             foreach ($card[$side] as $componentRow) {
-                $addItem($items, pick($componentRow, ARTIKELNUMMER_CANDIDATES), pick($componentRow, QTY_CANDIDATES));
+                $addItem($items, pick($componentRow, ARTIKELNUMMER_CANDIDATES), pick($componentRow, QTY_CANDIDATES), $aantalSlangen);
             }
         }
 
         foreach (EXTRA_ARTIKEL_SLOTS as $slot) {
-            $addItem($items, pick($card['row'], $slot['artikel']), pick($card['row'], $slot['aantal']));
+            $addItem($items, pick($card['row'], $slot['artikel']), pick($card['row'], $slot['aantal']), $aantalSlangen);
         }
     }
 
