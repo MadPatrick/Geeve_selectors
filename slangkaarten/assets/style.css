@@ -270,9 +270,14 @@ input::placeholder { color: #929fac; }
 
 .card-couplings { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: start; }
 .coupling-block h4 { margin: 0 0 8px; font-size: 13px; font-weight: 800; color: var(--accent-dark); }
+/* Zelfde afgeronde-hoeken-kader als .card-flags/.lines-table-wrap elders op
+   de kaart/pagina - border-radius + overflow:hidden op de wrapper, want
+   dat werkt niet direct op een border-collapse:collapse tabel. */
+.coupling-table-wrap { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 .coupling-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .coupling-table th, .coupling-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
 .coupling-table th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; }
+.coupling-table td.coupling-empty-cell { color: var(--muted); font-style: italic; text-align: center; }
 .coupling-empty { color: var(--muted); font-size: 12px; font-style: italic; margin: 0; }
 
 .angle-block { display: flex; align-items: center; justify-content: center; }

@@ -280,11 +280,11 @@ function renderCouplingTable(string $label, array $rows): string
     if ($rows === []) {
         $html .= '<p class="coupling-empty">Geen onderdelen</p>';
     } else {
-        $html .= '<table class="coupling-table"><thead><tr><th>Artikelnummer</th><th>Qty</th></tr></thead><tbody>';
+        $html .= '<div class="coupling-table-wrap"><table class="coupling-table"><thead><tr><th>Artikelnummer</th><th>Qty</th></tr></thead><tbody>';
         foreach ($rows as $row) {
             $html .= '<tr><td>' . h(pick($row, ARTIKELNUMMER_CANDIDATES)) . '</td><td>' . h(pick($row, QTY_CANDIDATES)) . '</td></tr>';
         }
-        $html .= '</tbody></table>';
+        $html .= '</tbody></table></div>';
     }
 
     return $html . '</div>';
@@ -307,16 +307,17 @@ function renderExtraArtikelenTable(array $row): string
     }
 
     $html = '<div class="coupling-block extra-artikelen-block"><h4>Extra artikelen</h4>';
+    $html .= '<div class="coupling-table-wrap"><table class="coupling-table"><thead><tr><th>Artikelnummer</th><th>Aantal</th></tr></thead><tbody>';
 
     if ($rows === []) {
-        $html .= '<p class="coupling-empty">Geen extra artikelen</p>';
+        $html .= '<tr><td class="coupling-empty-cell" colspan="2">Geen extra artikelen</td></tr>';
     } else {
-        $html .= '<table class="coupling-table"><thead><tr><th>Artikelnummer</th><th>Aantal</th></tr></thead><tbody>';
         foreach ($rows as [$artikel, $aantal]) {
             $html .= '<tr><td>' . h($artikel) . '</td><td>' . h($aantal) . '</td></tr>';
         }
-        $html .= '</tbody></table>';
     }
+
+    $html .= '</tbody></table></div>';
 
     return $html . '</div>';
 }
@@ -504,7 +505,7 @@ function renderKrimpmatenTable(array $card, string $slangType): string
     }
 
     $html = '<div class="coupling-block krimpmaten-block"><h4>Krimpmaten</h4>';
-    $html .= '<table class="coupling-table"><thead><tr>'
+    $html .= '<div class="coupling-table-wrap"><table class="coupling-table"><thead><tr>'
         . '<th>Zijde</th><th>Krimpmaat (mm)</th><th>Schilmaat intern (mm)</th><th>Schilmaat extern (mm)</th>'
         . '</tr></thead><tbody>';
     foreach ($rows as [$label, $persmaat, $schilIntern, $schilExtern]) {
@@ -513,7 +514,7 @@ function renderKrimpmatenTable(array $card, string $slangType): string
             . '<td>' . ($schilIntern !== '' ? h($schilIntern) : '&mdash;') . '</td>'
             . '<td>' . ($schilExtern !== '' ? h($schilExtern) : '&mdash;') . '</td></tr>';
     }
-    $html .= '</tbody></table>';
+    $html .= '</tbody></table></div>';
 
     return $html . '</div>';
 }
