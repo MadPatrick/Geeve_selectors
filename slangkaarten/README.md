@@ -101,8 +101,11 @@ bovenaan `inc/queries.php` ("Update 5"/"Update 6"). Geen enkele kolom heeft een 
 De picklijst (laatste printpagina, zie "Status" hierboven) toont naast Aantal/Artikelnummer ook
 een Locatie-kolom. Die wordt opgezocht via `findArtikelLocatie()` in `index.php`, in de
 Exact-database "005" (zelfde server, `GEEVE-SQL-2019`, andere database - dezelfde die `/stauff`
-gebruikt voor artikelgroep 67), tabel `CSPickITItemLocations` (`ItemCode` → `Location`; bij
-meerdere rijen per artikel wordt de eerste gebruikt, geen filtering op `Warehouse`).
+gebruikt voor artikelgroep 67), tabel `GRV_StockpositionsPerDay` (`ItemCode` → `Warehouse
+Location`). De voor de hand liggende kandidaat `CSPickITItemLocations` bleek bij het uitzoeken leeg
+te staan (0 rijen); `GRV_StockpositionsPerDay` is een dagelijkse voorraadmutatie-tabel (12+ miljoen
+rijen, geen 1-op-1 locatietabel), dus wordt de meest recente rij per artikel gebruikt (`ORDER BY
+[Transaction Date] DESC`), zonder filtering op `Warehouse`.
 
 Dit is een **losse, optionele** tweede databaseverbinding (`getExactPdoConnection()` in
 `inc/db.php`). De `EXACT_DB_*`-inloggegevens staan niet in de eigen `.env` van deze map, maar

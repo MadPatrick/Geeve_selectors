@@ -521,16 +521,18 @@ function renderKrimpmatenTable(array $card, string $slangType): string
 
 /**
  * Zoekt de magazijnlocatie van 1 artikel op in de Exact-database "005",
- * tabel CSPickITItemLocations (kolom Location, gevonden via ItemCode) -
- * zelfde Exact-database als /stauff gebruikt voor artikelgroep 67, maar
- * een eigen verbinding (zie getExactPdoConnection()/EXACT_DB_* in .env).
- * Aanname: 1 rij per ItemCode is voldoende (geen filtering op Warehouse);
- * bij meerdere rijen wordt gewoon de eerste gebruikt. Geeft '' terug
- * (dus een streepje op de picklijst) bij een ontbrekende .env, een
- * connectiefout, of geen match - nooit een foutmelding op de kaart/pagina.
- * Cachet zowel resultaten als een mislukte verbinding zodat er bij een
- * kapotte .env niet voor elk artikel opnieuw een trage connectiepoging
- * gedaan wordt.
+ * tabel GRV_StockpositionsPerDay (kolom "Warehouse Location", gevonden via
+ * ItemCode) - zelfde Exact-database als /stauff gebruikt voor artikelgroep
+ * 67, maar een eigen verbinding (zie getExactPdoConnection()/EXACT_DB_* in
+ * .env). CSPickITItemLocations (de oorspronkelijke kandidaat) bleek leeg te
+ * zijn; GRV_StockpositionsPerDay is een dagelijkse voorraadmutatie-tabel
+ * (12+ miljoen rijen, geen 1-op-1 locatietabel) - daarom TOP 1 op de meest
+ * recente "Transaction Date" i.p.v. zomaar de eerste rij, en geen filtering
+ * op Warehouse. Geeft '' terug (dus een streepje op de picklijst) bij een
+ * ontbrekende .env, een connectiefout, of geen match - nooit een
+ * foutmelding op de kaart/pagina. Cachet zowel resultaten als een mislukte
+ * verbinding zodat er bij een kapotte .env niet voor elk artikel opnieuw
+ * een trage connectiepoging gedaan wordt.
  */
 function findArtikelLocatie(string $artikel): string
 {
@@ -555,7 +557,10 @@ function findArtikelLocatie(string $artikel): string
     }
 
     try {
-        $stmt = $pdo->prepare('SELECT TOP 1 Location FROM CSPickITItemLocations WHERE ItemCode = :itemcode');
+        $stmt = $pdo->prepare(
+            'SELECT TOP 1 [Warehouse Location] FROM GRV_StockpositionsPerDay ' .
+            'WHERE ItemCode = :itemcode ORDER BY [Transaction Date] DESC'
+        );
         $stmt->execute(['itemcode' => $artikel]);
         $locatie = trim((string) ($stmt->fetchColumn() ?: ''));
     } catch (Throwable $exception) {
