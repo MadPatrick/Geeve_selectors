@@ -523,61 +523,74 @@ function renderKrimpmatenTable(array $card, string $slangType): string
 }
 
 /**
- * Zoekt de magazijnlocatie van 1 artikel op in de Exact-database "005",
- * tabel GRV_StockpositionsPerDay (kolom "Warehouse Location", gevonden via
- * ItemCode) - zelfde Exact-database als /stauff gebruikt voor artikelgroep
- * 67, maar een eigen verbinding (zie getExactPdoConnection()/EXACT_DB_* in
- * .env). CSPickITItemLocations (de oorspronkelijke kandidaat) bleek leeg te
- * zijn; GRV_StockpositionsPerDay is een dagelijkse voorraadmutatie-tabel
- * (12+ miljoen rijen, geen 1-op-1 locatietabel) - daarom TOP 1 op de meest
- * recente "Transaction Date" i.p.v. zomaar de eerste rij, en geen filtering
- * op Warehouse. Geeft '' terug (dus een streepje op de picklijst) bij een
- * ontbrekende .env, een connectiefout, of geen match - nooit een
- * foutmelding op de kaart/pagina. Cachet zowel resultaten als een mislukte
- * verbinding zodat er bij een kapotte .env niet voor elk artikel opnieuw
- * een trage connectiepoging gedaan wordt.
+ * Zoekt de magazijnlocatie + vrije voorraad van 1 artikel op in de
+ * Exact-database "005", tabel GRV_StockpositionsPerDay (kolommen
+ * "Warehouse Location" resp. "Free Stock", gevonden via ItemCode) -
+ * zelfde Exact-database als /stauff gebruikt voor artikelgroep 67, maar
+ * een eigen verbinding (zie getExactPdoConnection()/EXACT_DB_* in .env).
+ * CSPickITItemLocations (de oorspronkelijke kandidaat voor de locatie)
+ * bleek leeg te zijn; GRV_StockpositionsPerDay is een dagelijkse
+ * voorraadmutatie-tabel (12+ miljoen rijen, geen 1-op-1 locatie-/
+ * voorraadtabel) - daarom TOP 1 op de meest recente "Transaction Date"
+ * i.p.v. zomaar de eerste rij, en geen filtering op Warehouse. Geeft
+ * lege strings terug (dus streepjes op de picklijst) bij een ontbrekende
+ * .env, een connectiefout, of geen match - nooit een foutmelding op de
+ * kaart/pagina. Cachet zowel resultaten als een mislukte verbinding
+ * zodat er bij een kapotte .env niet voor elk artikel opnieuw een trage
+ * connectiepoging gedaan wordt.
+ *
+ * @return array{locatie: string, voorraad: string}
  */
-function findArtikelLocatie(string $artikel): string
+function findArtikelExactData(string $artikel): array
 {
     static $cache = [];
     static $connectionFailed = false;
 
+    $empty = ['locatie' => '', 'voorraad' => ''];
+
     if ($artikel === '') {
-        return '';
+        return $empty;
     }
     if (array_key_exists($artikel, $cache)) {
         return $cache[$artikel];
     }
     if ($connectionFailed) {
-        return '';
+        return $empty;
     }
 
     try {
         $pdo = getExactPdoConnection();
     } catch (Throwable $exception) {
         $connectionFailed = true;
-        return '';
+        return $empty;
     }
 
+    $result = $empty;
     try {
         $stmt = $pdo->prepare(
-            'SELECT TOP 1 [Warehouse Location] FROM GRV_StockpositionsPerDay ' .
+            'SELECT TOP 1 [Warehouse Location], [Free Stock] FROM GRV_StockpositionsPerDay ' .
             'WHERE ItemCode = :itemcode ORDER BY [Transaction Date] DESC'
         );
         $stmt->execute(['itemcode' => $artikel]);
-        $locatie = trim((string) ($stmt->fetchColumn() ?: ''));
+        $row = $stmt->fetch();
+        if ($row !== false) {
+            $result = [
+                'locatie'  => trim((string) ($row['Warehouse Location'] ?? '')),
+                'voorraad' => $row['Free Stock'] !== null ? trim((string) $row['Free Stock']) : '',
+            ];
+        }
     } catch (Throwable $exception) {
-        $locatie = '';
+        // $result blijft $empty.
     }
 
-    return $cache[$artikel] = $locatie;
+    return $cache[$artikel] = $result;
 }
 
 /**
  * Bouwt de picklijst op: alle losse artikelen (koppelonderdelen zijde
  * A/B + extra artikelen) van alle geprinte slangkaarten samen, gegroepeerd
- * per artikelnummer met de aantallen opgeteld en de locatie opgezocht via
- * findArtikelLocatie().
+ * per artikelnummer met de aantallen opgeteld en locatie/voorraad
+ * opgezocht via findArtikelExactData().
  */
 function buildPicklist(array $hoseCards): array
 {
@@ -592,7 +605,13 @@ function buildPicklist(array $hoseCards): array
         $aantal = is_numeric($normalized) ? (float) $normalized : 0.0;
 
         if (!isset($items[$artikel])) {
-            $items[$artikel] = ['artikel' => $artikel, 'aantal' => 0.0, 'locatie' => findArtikelLocatie($artikel)];
+            $exactData = findArtikelExactData($artikel);
+            $items[$artikel] = [
+                'artikel'  => $artikel,
+                'aantal'   => 0.0,
+                'locatie'  => $exactData['locatie'],
+                'voorraad' => $exactData['voorraad'],
+            ];
         }
         $items[$artikel]['aantal'] += $aantal * $aantalSlangen;
     };
@@ -642,13 +661,23 @@ function renderPicklist(array $items, string $orderNumber): string
             <p class="coupling-empty">Geen losse artikelen gevonden.</p>
         <?php else: ?>
             <table class="picklist-table">
-                <thead><tr><th>Aantal</th><th>Artikelnummer</th><th>Locatie</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Artikelnummer</th>
+                        <th>Locatie</th>
+                        <th>Aantal</th>
+                        <th>Voorraad</th>
+                        <th>Besteld</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <?php foreach ($items as $item): ?>
                         <tr>
-                            <td><?= h(formatQuantity((string) $item['aantal'])) ?></td>
                             <td><?= h($item['artikel']) ?></td>
                             <td><?= $item['locatie'] !== '' ? h($item['locatie']) : '&mdash;' ?></td>
+                            <td><?= h(formatQuantity((string) $item['aantal'])) ?></td>
+                            <td><?= $item['voorraad'] !== '' ? h(formatQuantity($item['voorraad'])) : '&mdash;' ?></td>
+                            <td></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

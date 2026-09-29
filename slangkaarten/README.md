@@ -96,16 +96,18 @@ Het echte schema van "2500 Slangkaarten bij order" (definitief bevestigd via
 bovenaan `inc/queries.php` ("Update 5"/"Update 6"). Geen enkele kolom heeft een prefix (bijv.
 `ordernr`, `GHnr`, `nm`, `Labelen`, `debnr`, `del_debnm`, ...).
 
-## Picklijst-locatie (Exact, database 005) - optioneel
+## Picklijst-locatie & voorraad (Exact, database 005) - optioneel
 
-De picklijst (laatste printpagina, zie "Status" hierboven) toont naast Aantal/Artikelnummer ook
-een Locatie-kolom. Die wordt opgezocht via `findArtikelLocatie()` in `index.php`, in de
-Exact-database "005" (zelfde server, `GEEVE-SQL-2019`, andere database - dezelfde die `/stauff`
-gebruikt voor artikelgroep 67), tabel `GRV_StockpositionsPerDay` (`ItemCode` → `Warehouse
-Location`). De voor de hand liggende kandidaat `CSPickITItemLocations` bleek bij het uitzoeken leeg
+De picklijst (laatste printpagina, zie "Status" hierboven) toont de kolommen Artikelnummer /
+Locatie / Aantal / Voorraad / Besteld. Locatie en Voorraad worden opgezocht via
+`findArtikelExactData()` in `index.php`, in de Exact-database "005" (zelfde server,
+`GEEVE-SQL-2019`, andere database - dezelfde die `/stauff` gebruikt voor artikelgroep 67), tabel
+`GRV_StockpositionsPerDay` (`ItemCode` → `Warehouse Location` resp. `Free Stock`, de huidige vrije
+voorraad). De voor de hand liggende kandidaat `CSPickITItemLocations` bleek bij het uitzoeken leeg
 te staan (0 rijen); `GRV_StockpositionsPerDay` is een dagelijkse voorraadmutatie-tabel (12+ miljoen
-rijen, geen 1-op-1 locatietabel), dus wordt de meest recente rij per artikel gebruikt (`ORDER BY
-[Transaction Date] DESC`), zonder filtering op `Warehouse`.
+rijen, geen 1-op-1 locatie-/voorraadtabel), dus wordt de meest recente rij per artikel gebruikt
+(`ORDER BY [Transaction Date] DESC`), zonder filtering op `Warehouse`. Besteld is met opzet altijd
+leeg - géén databasekolom, puur ruimte om met de hand op de uitgeprinte picklijst in te vullen.
 
 Dit is een **losse, optionele** tweede databaseverbinding (`getExactPdoConnection()` in
 `inc/db.php`). De `EXACT_DB_*`-inloggegevens staan niet in de eigen `.env` van deze map, maar
