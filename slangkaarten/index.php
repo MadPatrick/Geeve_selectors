@@ -683,24 +683,29 @@ function renderHoseCard(array $card): string
             <div class="angle-block"><?= renderAngleSvg($hoek) ?></div>
         </div>
 
-        <div class="card-extra-artikelen">
-            <?= renderExtraArtikelenTable($row) ?>
-        </div>
-
         <div class="card-note">
             <span>Notitie</span>
             <div><?= $notitie !== '' ? nl2br(h($notitie)) : '' ?></div>
         </div>
 
+        <div class="card-bewerkingen">
+            <div class="coupling-block">
+                <h4>Bewerkingen</h4>
+                <div class="card-flags">
+                    <?php foreach (CARD_FLAG_SLOTS as $slot): ?>
+                        <?php if ($slot === null): ?>
+                            <div class="card-flag card-flag-empty"></div>
+                        <?php else: ?>
+                            <div class="card-flag"><span><?= h($slot[0]) ?></span><strong><?= h(formatFlag(pick($row, $slot[1]))) ?></strong></div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+
         <div class="card-flags-row">
-            <div class="card-flags">
-                <?php foreach (CARD_FLAG_SLOTS as $slot): ?>
-                    <?php if ($slot === null): ?>
-                        <div class="card-flag card-flag-empty"></div>
-                    <?php else: ?>
-                        <div class="card-flag"><span><?= h($slot[0]) ?></span><strong><?= h(formatFlag(pick($row, $slot[1]))) ?></strong></div>
-                    <?php endif; ?>
-                <?php endforeach; ?>
+            <div class="card-extra-artikelen">
+                <?= renderExtraArtikelenTable($row) ?>
             </div>
             <div class="card-krimpmaten">
                 <?= renderKrimpmatenTable($card, $slangType) ?>
