@@ -520,12 +520,56 @@ function renderKrimpmatenTable(array $card, string $slangType): string
 }
 
 /**
+ * Zoekt de magazijnlocatie van 1 artikel op in de Exact-database "005",
+ * tabel CSPickITItemLocations (kolom Location, gevonden via ItemCode) -
+ * zelfde Exact-database als /stauff gebruikt voor artikelgroep 67, maar
+ * een eigen verbinding (zie getExactPdoConnection()/EXACT_DB_* in .env).
+ * Aanname: 1 rij per ItemCode is voldoende (geen filtering op Warehouse);
+ * bij meerdere rijen wordt gewoon de eerste gebruikt. Geeft '' terug
+ * (dus een streepje op de picklijst) bij een ontbrekende .env, een
+ * connectiefout, of geen match - nooit een foutmelding op de kaart/pagina.
+ * Cachet zowel resultaten als een mislukte verbinding zodat er bij een
+ * kapotte .env niet voor elk artikel opnieuw een trage connectiepoging
+ * gedaan wordt.
+ */
+function findArtikelLocatie(string $artikel): string
+{
+    static $cache = [];
+    static $connectionFailed = false;
+
+    if ($artikel === '') {
+        return '';
+    }
+    if (array_key_exists($artikel, $cache)) {
+        return $cache[$artikel];
+    }
+    if ($connectionFailed) {
+        return '';
+    }
+
+    try {
+        $pdo = getExactPdoConnection();
+    } catch (Throwable $exception) {
+        $connectionFailed = true;
+        return '';
+    }
+
+    try {
+        $stmt = $pdo->prepare('SELECT TOP 1 Location FROM CSPickITItemLocations WHERE ItemCode = :itemcode');
+        $stmt->execute(['itemcode' => $artikel]);
+        $locatie = trim((string) ($stmt->fetchColumn() ?: ''));
+    } catch (Throwable $exception) {
+        $locatie = '';
+    }
+
+    return $cache[$artikel] = $locatie;
+}
+
+/**
  * Bouwt de picklijst op: alle losse artikelen (koppelonderdelen zijde
  * A/B + extra artikelen) van alle geprinte slangkaarten samen, gegroepeerd
- * per artikelnummer met de aantallen opgeteld. "Locatie" moet nog uit de
- * database opgehaald worden (nog niet bekend uit welke tabel/kolom - net
- * als destijds bij Slangkaarten/Stauff verkennen we dat later samen) -
- * toont voorlopig altijd een streepje.
+ * per artikelnummer met de aantallen opgeteld en de locatie opgezocht via
+ * findArtikelLocatie().
  */
 function buildPicklist(array $hoseCards): array
 {
@@ -540,7 +584,7 @@ function buildPicklist(array $hoseCards): array
         $aantal = is_numeric($normalized) ? (float) $normalized : 0.0;
 
         if (!isset($items[$artikel])) {
-            $items[$artikel] = ['artikel' => $artikel, 'aantal' => 0.0, 'locatie' => ''];
+            $items[$artikel] = ['artikel' => $artikel, 'aantal' => 0.0, 'locatie' => findArtikelLocatie($artikel)];
         }
         $items[$artikel]['aantal'] += $aantal * $aantalSlangen;
     };

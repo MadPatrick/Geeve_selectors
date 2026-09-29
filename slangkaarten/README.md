@@ -96,6 +96,20 @@ Het echte schema van "2500 Slangkaarten bij order" (definitief bevestigd via
 bovenaan `inc/queries.php` ("Update 5"/"Update 6"). Geen enkele kolom heeft een prefix (bijv.
 `ordernr`, `GHnr`, `nm`, `Labelen`, `debnr`, `del_debnm`, ...).
 
+## Picklijst-locatie (Exact, database 005) - optioneel
+
+De picklijst (laatste printpagina, zie "Status" hierboven) toont naast Aantal/Artikelnummer ook
+een Locatie-kolom. Die wordt opgezocht via `findArtikelLocatie()` in `index.php`, in de
+Exact-database "005" (zelfde server, `GEEVE-SQL-2019`, andere database - dezelfde die `/stauff`
+gebruikt voor artikelgroep 67), tabel `CSPickITItemLocations` (`ItemCode` → `Location`; bij
+meerdere rijen per artikel wordt de eerste gebruikt, geen filtering op `Warehouse`).
+
+Dit is een **losse, optionele** tweede databaseverbinding (`getExactPdoConnection()` in
+`inc/db.php`), met eigen `EXACT_DB_*`-variabelen in `.env` (zie `.env.example`) zodat deze niet
+botst met `DB_USER`/`DB_PASSWORD` van de Slangkaarten-verbinding hierboven. Zonder ingevulde
+`EXACT_DB_USER`/`EXACT_DB_PASSWORD` (of bij een connectiefout) toont de Locatie-kolom gewoon een
+streepje - de rest van de app/picklijst blijft normaal werken.
+
 ## Printvoorbeeld uitschakelen (client-instelling)
 
 De print-actie roept automatisch `window.print()` aan - de app zelf toont geen eigen

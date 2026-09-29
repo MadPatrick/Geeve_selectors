@@ -9,18 +9,14 @@ final class DatabaseConfigException extends RuntimeException
 }
 
 /**
- * Maakt (en hergebruikt) een PDO-verbinding met SQL Server via de
- * Microsoft PDO_SQLSRV-driver (ODBC Driver 17/18 for SQL Server).
- * Zie README.md voor installatie-instructies per platform.
+ * Maakt een PDO-verbinding met SQL Server via de Microsoft PDO_SQLSRV-
+ * driver (ODBC Driver 17/18 for SQL Server), voor 1 databaseconfig-array
+ * (zie appConfig()). Gedeeld door getPdoConnection() en
+ * getExactPdoConnection() hieronder - alleen de databasenaam/inloggegevens
+ * verschillen.
  */
-function getPdoConnection(): PDO
+function connectSqlServer(array $db, string $missingCredentialsHint): PDO
 {
-    static $pdo = null;
-
-    if ($pdo instanceof PDO) {
-        return $pdo;
-    }
-
     if (!in_array('sqlsrv', PDO::getAvailableDrivers(), true)) {
         throw new DatabaseConfigException(
             'De PDO_SQLSRV driver is niet geinstalleerd op deze PHP-omgeving. ' .
@@ -28,14 +24,8 @@ function getPdoConnection(): PDO
         );
     }
 
-    $config = appConfig();
-    $db = $config['db'];
-
     if ($db['user'] === null || $db['password'] === null) {
-        throw new DatabaseConfigException(
-            'Database-inloggegevens ontbreken. Zet DB_USER en DB_PASSWORD ' .
-            '(zie .env.example) voor de read-only SQL-login van deze webapp.'
-        );
+        throw new DatabaseConfigException($missingCredentialsHint);
     }
 
     $server = $db['host'] . ($db['port'] !== null ? ',' . $db['port'] : '');
@@ -46,7 +36,7 @@ function getPdoConnection(): PDO
         ";Encrypt=yes;TrustServerCertificate={$db['trustServerCertificate']};LoginTimeout=15";
 
     try {
-        $pdo = new PDO($dsn, $db['user'], $db['password'], [
+        return new PDO($dsn, $db['user'], $db['password'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
@@ -57,6 +47,40 @@ function getPdoConnection(): PDO
             $exception
         );
     }
+}
 
-    return $pdo;
+/** Verbinding met de "Slangkaarten"-database (order-/slangkaartdata). */
+function getPdoConnection(): PDO
+{
+    static $pdo = null;
+
+    if ($pdo instanceof PDO) {
+        return $pdo;
+    }
+
+    return $pdo = connectSqlServer(
+        appConfig()['db'],
+        'Database-inloggegevens ontbreken. Zet DB_USER en DB_PASSWORD ' .
+        '(zie .env.example) voor de read-only SQL-login van deze webapp.'
+    );
+}
+
+/**
+ * Verbinding met de Exact-database "005" (zelfde server, ander doel: de
+ * artikellocatie opzoeken voor de picklijst, zie findArtikelLocatie()).
+ */
+function getExactPdoConnection(): PDO
+{
+    static $pdo = null;
+
+    if ($pdo instanceof PDO) {
+        return $pdo;
+    }
+
+    return $pdo = connectSqlServer(
+        appConfig()['exactDb'],
+        'Exact-database-inloggegevens ontbreken. Zet EXACT_DB_USER en ' .
+        'EXACT_DB_PASSWORD (zie .env.example) voor de read-only SQL-login ' .
+        'op database "005".'
+    );
 }

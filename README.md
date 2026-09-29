@@ -12,7 +12,8 @@ Startpagina met tegels naar de Geeve-selectors:
   maar er is momenteel geen tegel op de startpagina die hierheen linkt.
 - **`/slangkaarten`** — Slangkaarten bij order - zoekt een order of klant op en print
   slangkaarten/labels van de geselecteerde regels. Heeft een eigen database nodig (SQL Server,
-  database "Slangkaarten", zie `slangkaarten/README.md`).
+  database "Slangkaarten", zie `slangkaarten/README.md`). Voor de Locatie-kolom op de picklijst
+  gebruikt deze subapp ook, optioneel, dezelfde Exact-database "005" als `/stauff`.
 - **`/stickers`** — nieuw, eigen scherm met 3 tegels: "Stickers op Artikelnummer", "Stickers op
   Artikelnummer (groot)" en "Stickers op Zakjes". Nog niet functioneel - alle 3 staan als
   "Binnenkort beschikbaar", dit is puur de navigatiestructuur.

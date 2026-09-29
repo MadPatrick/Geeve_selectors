@@ -66,5 +66,19 @@ function appConfig(): array
             // als de server een echt (CA-ondertekend) certificaat heeft.
             'trustServerCertificate' => env('DB_TRUST_SERVER_CERT', 'yes'),
         ],
+        // Tweede, aparte verbinding: de Exact-database "005" (zelfde server,
+        // GEEVE-SQL-2019, ander doel) voor de artikellocatie op de picklijst
+        // (tabel CSPickITItemLocations) - los van de EXACT_DB_*-vars zodat
+        // dit niet botst met de DB_*-vars hierboven voor de Slangkaarten-DB.
+        // Zie ook /stauff, die met dezelfde Exact-database praat voor
+        // artikelgroep 67.
+        'exactDb' => [
+            'host'     => env('EXACT_DB_HOST', 'GEEVE-SQL-2019'),
+            'port'     => env('EXACT_DB_PORT'),
+            'name'     => env('EXACT_DB_NAME', '005'),
+            'user'     => env('EXACT_DB_USER'),
+            'password' => env('EXACT_DB_PASSWORD'),
+            'trustServerCertificate' => env('EXACT_DB_TRUST_SERVER_CERT', 'yes'),
+        ],
     ];
 }
