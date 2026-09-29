@@ -28,6 +28,20 @@ function assetVersion(string $relativePath): string
 }
 
 /**
+ * Zorgt dat een decimaal getal kleiner dan 1 altijd met een voorloop-0
+ * begint (bv. ",34" of ".34" -> "0,34"/"0.34") - SQL Server/ODBC laat de
+ * voorloop-0 soms weg bij het omzetten van een float/decimal naar tekst,
+ * en niet elk getal op de kaart loopt via formatQuantity() (bv. Lengte,
+ * Krimpmaten - die komen rechtstreeks uit de database/CSV). Laat
+ * niet-numerieke/lege waarden en getallen die al met een cijfer beginnen
+ * ongewijzigd.
+ */
+function ensureLeadingZero(string $value): string
+{
+    return preg_replace('/^(-?)([.,])/', '${1}0${2}', $value) ?? $value;
+}
+
+/**
  * "Aantal" (aantal slangen) staat als decimal(18,3) in de database
  * ("1.000", "4.000", ...), maar is altijd een geheel aantal - toont dit
  * zonder decimalen. Niet-numerieke/lege waarden blijven ongewijzigd.
@@ -56,7 +70,7 @@ function formatQuantity(string $value, int $decimals = 3): string
 
     $formatted = rtrim(rtrim(number_format((float) $normalized, $decimals, '.', ''), '0'), '.');
 
-    return str_replace('.', ',', $formatted);
+    return ensureLeadingZero(str_replace('.', ',', $formatted));
 }
 
 /**
@@ -131,7 +145,7 @@ const CARD_DETAIL_FIELDS = [
     ['label' => 'Uw Referentie',   'candidates' => UW_REFERENTIE_CANDIDATES],
     ['label' => 'Omschrijving',    'candidates' => ['Omschrijving']],
     ['label' => 'Slang type',      'candidates' => SLANGTYPE_CANDIDATES],
-    ['label' => 'Lengte',          'candidates' => LENGTE_CANDIDATES],
+    ['label' => 'Lengte',          'candidates' => LENGTE_CANDIDATES, 'format' => 'leadingzero'],
 ];
 
 // Bevestigd tegen INFORMATION_SCHEMA.COLUMNS van "2500 Slangkaarten bij
@@ -206,7 +220,7 @@ const LINE_OVERVIEW_FIELDS = [
     ['label' => 'Slangnummer',   'candidates' => ['GHnr', 'Slangnummer', 'SlangNr', 'Slang nr']],
     ['label' => 'GHnm',          'candidates' => ['GHnm', 'Omschrijving slang']],
     ['label' => 'Slang type',    'candidates' => SLANGTYPE_CANDIDATES],
-    ['label' => 'Lengte',        'candidates' => LENGTE_CANDIDATES],
+    ['label' => 'Lengte',        'candidates' => LENGTE_CANDIDATES, 'format' => 'leadingzero'],
 ];
 
 /** Simpele SVG-weergave van de draaihoek tussen de twee koppelzijden. */
@@ -495,13 +509,13 @@ function renderKrimpmatenTable(array $card, string $slangType): string
                 continue;
             }
             if ($krimpmaat['persmaat'] !== '' && !in_array($krimpmaat['persmaat'], $persmaten, true)) {
-                $persmaten[] = $krimpmaat['persmaat'];
+                $persmaten[] = ensureLeadingZero($krimpmaat['persmaat']);
             }
             if ($krimpmaat['schilIntern'] !== '' && !in_array($krimpmaat['schilIntern'], $schilInterns, true)) {
-                $schilInterns[] = $krimpmaat['schilIntern'];
+                $schilInterns[] = ensureLeadingZero($krimpmaat['schilIntern']);
             }
             if ($krimpmaat['schilExtern'] !== '' && !in_array($krimpmaat['schilExtern'], $schilExterns, true)) {
-                $schilExterns[] = $krimpmaat['schilExtern'];
+                $schilExterns[] = ensureLeadingZero($krimpmaat['schilExtern']);
             }
         }
 
@@ -831,9 +845,13 @@ function renderHoseCard(array $card): string
                     <strong><?= h($slangnummer) ?: '&mdash;' ?></strong>
                 </div>
                 <?php foreach (CARD_DETAIL_FIELDS as $field): ?>
+                    <?php $fieldValue = pick($row, $field['candidates']); ?>
+                    <?php if ($fieldValue !== '' && ($field['format'] ?? '') === 'leadingzero'): ?>
+                        <?php $fieldValue = ensureLeadingZero($fieldValue); ?>
+                    <?php endif; ?>
                     <div class="card-detail-row">
                         <span><?= h($field['label']) ?></span>
-                        <strong><?= h(pick($row, $field['candidates'])) ?: '&mdash;' ?></strong>
+                        <strong><?= $fieldValue !== '' ? h($fieldValue) : '&mdash;' ?></strong>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -971,6 +989,8 @@ function renderHoseLinesForm(array $hoseLines, string $orderNumber, string $cust
                                 <?php $fieldValue = pick($line, $field['candidates']); ?>
                                 <?php if ($fieldValue !== '' && ($field['format'] ?? '') === 'whole'): ?>
                                     <?php $fieldValue = formatWholeNumber($fieldValue); ?>
+                                <?php elseif ($fieldValue !== '' && ($field['format'] ?? '') === 'leadingzero'): ?>
+                                    <?php $fieldValue = ensureLeadingZero($fieldValue); ?>
                                 <?php endif; ?>
                                 <td><?= $fieldValue !== '' ? h($fieldValue) : '&mdash;' ?></td>
                             <?php endforeach; ?>
