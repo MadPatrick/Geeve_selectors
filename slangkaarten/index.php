@@ -44,15 +44,17 @@ function formatWholeNumber(string $value): string
  * weggelaten (bv. "1.300" -> "1,3", "2.000" -> "2") - in tegenstelling
  * tot "Aantal slangen" is het aantal van een extra artikel niet per se
  * een geheel getal. Niet-numerieke/lege waarden blijven ongewijzigd.
+ * $decimals bepaalt op hoeveel decimalen afgerond wordt (Voorraad op de
+ * picklijst gebruikt hiervoor 1 i.p.v. de standaard 3).
  */
-function formatQuantity(string $value): string
+function formatQuantity(string $value, int $decimals = 3): string
 {
     $normalized = str_replace(',', '.', trim($value));
     if (!is_numeric($normalized)) {
         return $value;
     }
 
-    $formatted = rtrim(rtrim(number_format((float) $normalized, 3, '.', ''), '0'), '.');
+    $formatted = rtrim(rtrim(number_format((float) $normalized, $decimals, '.', ''), '0'), '.');
 
     return str_replace('.', ',', $formatted);
 }
@@ -728,7 +730,7 @@ function renderPicklist(array $items, string $orderNumber, string $klant): strin
                             <td><?= h($item['artikel']) ?></td>
                             <td><?= $item['locatie'] !== '' ? h($item['locatie']) : '&mdash;' ?></td>
                             <td><?= h(formatQuantity((string) $item['aantal'])) ?></td>
-                            <td><?= $item['voorraad'] !== '' ? h(formatQuantity($item['voorraad'])) : '&mdash;' ?></td>
+                            <td><?= $item['voorraad'] !== '' ? h(formatQuantity($item['voorraad'], 1)) : '&mdash;' ?></td>
                             <td></td>
                         </tr>
                     <?php endforeach; ?>
