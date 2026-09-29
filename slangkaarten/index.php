@@ -362,6 +362,26 @@ function csvGetColumn(array $row, string $columnName): string
     return '';
 }
 
+/**
+ * Vergelijkt het volledige artikelnummer van de order (bv. "10171-12-12" of
+ * "48-12S-20S") met een kort koppelingtype uit de CSV (bv. "10", "48",
+ * "V4", "V6" - géén volledig artikelnummer maar een serie-aanduiding). Het
+ * type staat óf vooraan het artikelnummer, óf als los token midden in de
+ * code (zie "V4"/"V6").
+ */
+function matchesKoppelingType(string $artikelnummer, string $type): bool
+{
+    if ($type === '') {
+        return false;
+    }
+
+    if (stripos($artikelnummer, $type) === 0) {
+        return true;
+    }
+
+    return preg_match('/\b' . preg_quote($type, '/') . '\b/i', $artikelnummer) === 1;
+}
+
 /** Doorzoekt 1 CSV-bestand op slangtype + koppelartikel, zie findKrimpmaat(). */
 function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelingArtikel): ?array
 {
@@ -394,7 +414,7 @@ function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelin
             $prefix = "2delig_{$number}";
             $huls = csvGetColumn($row, "{$prefix} - Huls");
             $pilaar = csvGetColumn($row, "{$prefix} - Pilaar");
-            if (strtoupper($huls) === $needleKoppeling || strtoupper($pilaar) === $needleKoppeling) {
+            if (matchesKoppelingType($needleKoppeling, strtoupper($huls)) || matchesKoppelingType($needleKoppeling, strtoupper($pilaar))) {
                 $result = [
                     'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
                     'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
@@ -406,7 +426,7 @@ function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelin
 
         foreach ([1, 2, 3] as $number) {
             $prefix = "1delig_{$number}";
-            if (strtoupper(csvGetColumn($row, $prefix)) === $needleKoppeling) {
+            if (matchesKoppelingType($needleKoppeling, strtoupper(csvGetColumn($row, $prefix)))) {
                 $result = [
                     'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
                     'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
