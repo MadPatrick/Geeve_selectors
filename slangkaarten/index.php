@@ -122,13 +122,14 @@ const UW_REFERENTIE_CANDIDATES = ['Uw_referentie', 'Uw Referentie', 'UwReferenti
 const ORDER_TYPE_CANDIDATES = ['ord_soort', 'Ordersoort', 'Order soort', 'Soort'];
 
 const SLANGTYPE_CANDIDATES = ['SlangType', 'Slang type', 'Slangtype', 'Type'];
+const LENGTE_CANDIDATES = ['Lengte', 'Lengte / Prijs', 'Lengte/Prijs'];
 
 const CARD_DETAIL_FIELDS = [
     ['label' => 'Referentie',      'candidates' => ['Referentie']],
     ['label' => 'Uw Referentie',   'candidates' => UW_REFERENTIE_CANDIDATES],
     ['label' => 'Omschrijving',    'candidates' => ['Omschrijving']],
     ['label' => 'Slang type',      'candidates' => SLANGTYPE_CANDIDATES],
-    ['label' => 'Lengte',          'candidates' => ['Lengte', 'Lengte / Prijs', 'Lengte/Prijs']],
+    ['label' => 'Lengte',          'candidates' => LENGTE_CANDIDATES],
     ['label' => 'Snijlengte',      'candidates' => ['SnijlengteJN', 'Snijlengte']],
 ];
 
@@ -204,7 +205,7 @@ const LINE_OVERVIEW_FIELDS = [
     ['label' => 'Slangnummer',   'candidates' => ['GHnr', 'Slangnummer', 'SlangNr', 'Slang nr']],
     ['label' => 'GHnm',          'candidates' => ['GHnm', 'Omschrijving slang']],
     ['label' => 'Slang type',    'candidates' => SLANGTYPE_CANDIDATES],
-    ['label' => 'Lengte',        'candidates' => ['Lengte']],
+    ['label' => 'Lengte',        'candidates' => LENGTE_CANDIDATES],
 ];
 
 /** Simpele SVG-weergave van de draaihoek tussen de twee koppelzijden. */
@@ -602,6 +603,11 @@ function buildPicklist(array $hoseCards): array
         // dit vermenigvuldigd worden met "Aantal slangen" van die kaart.
         $aantalSlangenRaw = str_replace(',', '.', trim(pick($card['row'], AANTAL_CANDIDATES)));
         $aantalSlangen = is_numeric($aantalSlangenRaw) ? (float) $aantalSlangenRaw : 1.0;
+
+        // De slang zelf staat niet bij de koppelonderdelen (die komen uit
+        // sideA/sideB) - "aantal" hiervoor is Lengte (per 1 slang) x
+        // aantal slangen, net als de andere regels hieronder.
+        $addItem($items, pick($card['row'], SLANGTYPE_CANDIDATES), pick($card['row'], LENGTE_CANDIDATES), $aantalSlangen);
 
         foreach (['sideA', 'sideB'] as $side) {
             foreach ($card[$side] as $componentRow) {
