@@ -523,74 +523,79 @@ function renderKrimpmatenTable(array $card, string $slangType): string
 }
 
 /**
- * Zoekt de magazijnlocatie + vrije voorraad van 1 artikel op in de
- * Exact-database "005", tabel GRV_StockpositionsPerDay (kolommen
- * "Warehouse Location" resp. "Free Stock", gevonden via ItemCode) -
- * zelfde Exact-database als /stauff gebruikt voor artikelgroep 67, maar
- * een eigen verbinding (zie getExactPdoConnection()/EXACT_DB_* in .env).
- * CSPickITItemLocations (de oorspronkelijke kandidaat voor de locatie)
- * bleek leeg te zijn; GRV_StockpositionsPerDay is een dagelijkse
- * voorraadmutatie-tabel (12+ miljoen rijen, geen 1-op-1 locatie-/
- * voorraadtabel) - daarom TOP 1 op de meest recente "Transaction Date"
- * i.p.v. zomaar de eerste rij, en geen filtering op Warehouse. Geeft
- * lege strings terug (dus streepjes op de picklijst) bij een ontbrekende
- * .env, een connectiefout, of geen match - nooit een foutmelding op de
- * kaart/pagina. Cachet zowel resultaten als een mislukte verbinding
- * zodat er bij een kapotte .env niet voor elk artikel opnieuw een trage
- * connectiepoging gedaan wordt.
+ * Zoekt de magazijnlocatie + vrije voorraad op voor een lijst artikelen in
+ * 1 databaseronde, in de Exact-database "005", tabel
+ * GRV_StockpositionsPerDay (kolommen "Warehouse Location" resp.
+ * "Free Stock", gevonden via ItemCode) - zelfde Exact-database als
+ * /stauff gebruikt voor artikelgroep 67, maar een eigen verbinding (zie
+ * getExactPdoConnection()/EXACT_DB_* in .env). CSPickITItemLocations (de
+ * oorspronkelijke kandidaat voor de locatie) bleek leeg te zijn;
+ * GRV_StockpositionsPerDay is een dagelijkse voorraadmutatie-tabel (12+
+ * miljoen rijen, geen 1-op-1 locatie-/voorraadtabel). Eerst deed dit 1
+ * losse "TOP 1 ... WHERE ItemCode = ..."-query per artikel - bij een
+ * order met veel verschillende artikelen tikte dat merkbaar aan tijdens
+ * het printen. ROW_NUMBER() OVER (PARTITION BY ItemCode ...) pakt nu de
+ * meest recente rij per artikel in 1 query voor alle artikelen samen.
+ * Geeft voor elk artikel dat niet gevonden wordt (of bij een
+ * connectiefout/lege .env) lege strings terug (streepjes op de
+ * picklijst), nooit een foutmelding op de kaart/pagina.
  *
- * @return array{locatie: string, voorraad: string}
+ * @param string[] $artikelen
+ * @return array<string, array{locatie: string, voorraad: string}>
  */
-function findArtikelExactData(string $artikel): array
+function findArtikelExactDataBatch(array $artikelen): array
 {
-    static $cache = [];
-    static $connectionFailed = false;
-
-    $empty = ['locatie' => '', 'voorraad' => ''];
-
-    if ($artikel === '') {
-        return $empty;
-    }
-    if (array_key_exists($artikel, $cache)) {
-        return $cache[$artikel];
-    }
-    if ($connectionFailed) {
-        return $empty;
+    $artikelen = array_values(array_unique(array_filter(
+        $artikelen,
+        static fn(string $artikel): bool => $artikel !== ''
+    )));
+    if ($artikelen === []) {
+        return [];
     }
 
     try {
         $pdo = getExactPdoConnection();
     } catch (Throwable $exception) {
-        $connectionFailed = true;
-        return $empty;
+        return [];
     }
 
-    $result = $empty;
+    $placeholders = [];
+    $params = [];
+    foreach ($artikelen as $index => $artikel) {
+        $placeholders[] = ":code{$index}";
+        $params["code{$index}"] = $artikel;
+    }
+
+    $result = [];
     try {
         $stmt = $pdo->prepare(
-            'SELECT TOP 1 [Warehouse Location], [Free Stock] FROM GRV_StockpositionsPerDay ' .
-            'WHERE ItemCode = :itemcode ORDER BY [Transaction Date] DESC'
+            'WITH ranked AS (' .
+            'SELECT ItemCode, [Warehouse Location], [Free Stock], ' .
+            'ROW_NUMBER() OVER (PARTITION BY ItemCode ORDER BY [Transaction Date] DESC) AS rn ' .
+            'FROM GRV_StockpositionsPerDay ' .
+            'WHERE ItemCode IN (' . implode(', ', $placeholders) . ')' .
+            ') SELECT ItemCode, [Warehouse Location], [Free Stock] FROM ranked WHERE rn = 1'
         );
-        $stmt->execute(['itemcode' => $artikel]);
-        $row = $stmt->fetch();
-        if ($row !== false) {
-            $result = [
+        $stmt->execute($params);
+        while (($row = $stmt->fetch()) !== false) {
+            $result[(string) $row['ItemCode']] = [
                 'locatie'  => trim((string) ($row['Warehouse Location'] ?? '')),
                 'voorraad' => $row['Free Stock'] !== null ? trim((string) $row['Free Stock']) : '',
             ];
         }
     } catch (Throwable $exception) {
-        // $result blijft $empty.
+        return [];
     }
 
-    return $cache[$artikel] = $result;
+    return $result;
 }
 
 /**
  * Bouwt de picklijst op: alle losse artikelen (koppelonderdelen zijde
  * A/B + extra artikelen) van alle geprinte slangkaarten samen, gegroepeerd
  * per artikelnummer met de aantallen opgeteld en locatie/voorraad
- * opgezocht via findArtikelExactData().
+ * opgezocht via findArtikelExactDataBatch() (1 query voor alle artikelen
+ * samen, niet per artikel apart).
  */
 function buildPicklist(array $hoseCards): array
 {
@@ -605,13 +610,7 @@ function buildPicklist(array $hoseCards): array
         $aantal = is_numeric($normalized) ? (float) $normalized : 0.0;
 
         if (!isset($items[$artikel])) {
-            $exactData = findArtikelExactData($artikel);
-            $items[$artikel] = [
-                'artikel'  => $artikel,
-                'aantal'   => 0.0,
-                'locatie'  => $exactData['locatie'],
-                'voorraad' => $exactData['voorraad'],
-            ];
+            $items[$artikel] = ['artikel' => $artikel, 'aantal' => 0.0, 'locatie' => '', 'voorraad' => ''];
         }
         $items[$artikel]['aantal'] += $aantal * $aantalSlangen;
     };
@@ -639,6 +638,16 @@ function buildPicklist(array $hoseCards): array
         }
     }
 
+    // Locatie/voorraad voor alle artikelen in 1 keer opzoeken (zie
+    // findArtikelExactDataBatch()) i.p.v. tijdens het optellen hierboven
+    // per artikel apart - dat laatste was de trage stap bij het printen.
+    $exactData = findArtikelExactDataBatch(array_keys($items));
+    foreach ($items as $artikel => &$item) {
+        $item['locatie'] = $exactData[$artikel]['locatie'] ?? '';
+        $item['voorraad'] = $exactData[$artikel]['voorraad'] ?? '';
+    }
+    unset($item);
+
     $list = array_values($items);
     usort($list, static fn(array $a, array $b): int => strnatcasecmp($a['artikel'], $b['artikel']));
 
@@ -646,7 +655,7 @@ function buildPicklist(array $hoseCards): array
 }
 
 /** Rendert de picklijst (zie buildPicklist()) als een eigen printpagina. */
-function renderPicklist(array $items, string $orderNumber): string
+function renderPicklist(array $items, string $orderNumber, string $klant): string
 {
     ob_start();
     ?>
@@ -655,6 +664,7 @@ function renderPicklist(array $items, string $orderNumber): string
             <div class="card-brand">GEEVE <span>HYDRAULICS</span><small class="card-subbrand">Picklijst</small></div>
             <div class="card-order-meta">
                 <div><span>Ordernummer</span><strong><?= h($orderNumber) ?></strong></div>
+                <?php if ($klant !== ''): ?><div class="card-klant"><?= h($klant) ?></div><?php endif; ?>
             </div>
         </div>
         <?php if ($items === []): ?>
@@ -878,7 +888,7 @@ function renderHoseLinesForm(array $hoseLines, string $orderNumber, string $cust
 
     ob_start();
     ?>
-    <form method="post" action="index.php" class="lines-form">
+    <form method="post" action="index.php" class="lines-form" id="hoseLinesForm">
         <input type="hidden" name="ordernummer" value="<?= h($orderNumber) ?>">
         <input type="hidden" name="klant" value="<?= h($customerName) ?>">
         <div class="lines-table-wrap">
@@ -931,9 +941,6 @@ function renderHoseLinesForm(array $hoseLines, string $orderNumber, string $cust
                     <?php endforeach; ?>
                 </tbody>
             </table>
-        </div>
-        <div class="lines-actions">
-            <button type="submit" class="submit-button">Print geselecteerde slangkaarten</button>
         </div>
     </form>
     <script>
@@ -1157,10 +1164,11 @@ if ($selectedKeys !== []) {
                 <div>
                     <span class="step">Stap 2</span>
                     <h2>Order <?= h($hoseLinesOrderNumber) ?> &middot; <?= count($hoseLines) ?> slangregel<?= count($hoseLines) === 1 ? '' : 'en' ?> gevonden</h2>
+                    <?php if ($hoseLinesKlant !== ''): ?>
+                        <span class="klant-badge"><?= h($hoseLinesKlant) ?></span>
+                    <?php endif; ?>
                 </div>
-                <?php if ($hoseLinesKlant !== ''): ?>
-                    <span class="klant-badge"><?= h($hoseLinesKlant) ?></span>
-                <?php endif; ?>
+                <button type="submit" form="hoseLinesForm" class="submit-button">Print geselecteerde slangkaarten</button>
             </div>
             <?= renderHoseLinesForm($hoseLines, $orderNumber, $customerName) ?>
         </section>
@@ -1184,7 +1192,7 @@ if ($selectedKeys !== []) {
     <?php foreach ($hoseCards as $card): ?>
         <?= renderHoseCard($card) ?>
     <?php endforeach; ?>
-    <?= renderPicklist(buildPicklist($hoseCards), $orderNumber) ?>
+    <?= renderPicklist(buildPicklist($hoseCards), $orderNumber, pick($hoseCards[0]['row'], KLANT_CANDIDATES)) ?>
 </div>
 <?php endif; ?>
 </body>
