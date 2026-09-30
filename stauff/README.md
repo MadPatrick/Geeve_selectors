@@ -15,6 +15,12 @@ leest de CSV en stuurt JSON naar de JavaScript-configurator. Voor de live Exact-
 het diameterveld (zie hieronder) is wél een databaseverbinding nodig - zonder die verbinding
 toont dat zoekveld een foutmelding, de rest van de configurator blijft normaal werken.
 
+`data/stauff_selector.csv` is teruggebracht tot alleen de kolommen die de configurator nog
+daadwerkelijk gebruikt (`Artikelcode`, `Onderdeel`, `Positie`, `Diameter 1`, `Bouwgroep`,
+`Enkel / Dubbel`, `Materiaalcode`, `Serie`, `Status`) - `Diameter 2`, `Materiaal` (volledige
+omschrijving) en `Variant / specificatie` werden nergens meer gelezen. De ongebruikte, dubbele
+kopie van het bestand in de map-root (`stauff/stauff_selector.csv`, niet `data/`) is verwijderd.
+
 ## Migratie naar live Exact-data (in opbouw)
 
 Doel: de statische CSV volledig vervangen door live queries op de Exact-database "005"
@@ -87,11 +93,12 @@ SQL-fout data teruggeeft - welke kolom dat was staat in de JSON-response (`"colu
 te controleren is. Werkt geen van de kandidaten, dan blijft de prijs overal leeg (geen
 foutmelding) - meld dan de echte kolomnaam terug zodat de lijst aangepast kan worden.
 
-## Eigen zoekfilter per locatie (config-cog, Exact live)
+## Eigen zoekfilter per locatie (locatienummer als knop, Exact live)
 
 Locaties 1, 3, 4 en 5 (Lasplaat/Glijmoer, Borgplaat, Dekplaat, Bout - dus niet de vaste locaties 2
-en 6) hebben een config-tandwiel-knop (`.location-config-button`) die een modal opent
-(`locationFilterOverlay` in `index.php`). Daar kun je, ; -gescheiden, artikelnummer-voorvoegsels
+en 6) hebben géén apart config-tandwiel meer - het **locatienummer zelf** is de knop
+(`<button class="location-number" data-location="N">`, gewoon het cijfer, geen icoon) die de
+config-modal opent (`locationFilterOverlay` in `index.php`). Daar kun je, ; -gescheiden, artikelnummer-voorvoegsels
 opgeven (bijv. `SP;SPAL;SPV`) - dit vervangt voor die locatie de gewone CSV-lijst
 (`candidatesForPosition()`) door een live zoekopdracht in Exact (`api/exact_location_search.php`):
 artikelen (artikelgroep 67) die met 1 van de opgegeven voorvoegsels **beginnen**, gecombineerd met:
@@ -118,6 +125,35 @@ Serie/Materiaal), dus geen automatische standaardselectie en geen shape-afbeeldi
 CSV-lijst - de samenstellingscode en verkoopprijs werken wel gewoon, die gebruiken direct
 `select.value` (het artikelnummer), niet de CSV-rij.
 
+## Extra artikelen toevoegen (vrije regels)
+
+Naast het locatienummer staat op de rijen 1, 3, 4 en 5 een `+`-knop (`.location-add-button`,
+zelfde cirkelstijl als voorheen het config-tandwiel). Klikken op `+`
+(`addExtraItemRow()` in `assets/selector.js`) voegt onderaan de samenstelling een nieuwe, vrij te
+configureren regel toe:
+
+1. **Soort** (select): dezelfde 4 opties als de vaste locaties (Lasplaat/Glijmoer, Borgplaat,
+   Dekplaat, Bout) - Beugel is bewust géén optie, die heeft een fundamenteel andere (diameter-
+   fuzzy) zoek-UX.
+2. **Artikel** (select, disabled tot een soort gekozen is): gebruikt precies dezelfde bron als de
+   vaste locatie voor die soort - een live Exact-filter als daar 1 voor geconfigureerd is (zie
+   hierboven), anders de gewone CSV-kandidatenlijst (`candidatesForPosition()`).
+3. **Aantal** (getalveld, links van soort): staat standaard op **1**, behalve bij **Bout**, dan
+   standaard **2** - alleen gezet bij het wisselen van soort, zodat een handmatig aangepast aantal
+   daarna niet weer overschreven wordt.
+4. Een `×`-knop om de regel weer te verwijderen.
+
+Elke extra regel heeft zijn eigen "request key" (`extra-<id>`) voor de live Exact-zoekopdracht, zodat
+meerdere extra regels van dezelfde soort (of een extra regel en de vaste locatie van diezelfde
+soort) elkaars zoekopdracht niet annuleren (zelfde soort per-locatie-tracking als hierboven bij
+"Eigen zoekfilter per locatie"). Extra regels verversen automatisch mee zodra de beugel of
+materiaalcode wijzigt (`refreshExtraItems()`, aangeroepen vanuit `rebuildComponents()`), en hun
+verkoopprijs wordt meegenomen in de batch-lookup (`refreshLocationPrices()`) - niet vermenigvuldigd
+met het aantal.
+
+Extra regels worden **niet** meegenomen in de samenstellingscode-berekening (`updateAssemblyCode()`)
+- die blijft uitsluitend gebaseerd op de vaste locaties 1-6.
+
 ## Selectielogica
 
 - Locatie 1: Lasplaat / Lasplaat (hoek) / Glijmoer
@@ -143,12 +179,24 @@ selecteren, worden bouwgroep en serie van die beugel gebruikt om de overige posi
 ## Materiaal bevestigingsdelen
 
 De Staal/RVS-keuzeknop is verwijderd - de Materiaalcode-pulldown (locatie 6, nu bovenin in
-dezelfde kaderdoos-stijl (`.diameter-box`) als "Zoeken op beugel" en "Gekozen artikel") toont
-gewoon **alle** materiaalcodes die voorkomen bij de posities van de gekozen beugel, ongeacht
-familie. De familie (Staal/RVS) wordt intern nog wel afgeleid uit de gekozen code zelf
-(`metalFamily()` in `assets/selector.js`, o.b.v. het W-nummer: W1/W2/W3 = Staal, W4/W5/W55 = RVS)
-- alleen om locatie 1 (Lasplaat) te filteren op dezelfde familie als de gekozen code (zie de
-code-comments bij `candidatesForPosition()`), niet meer als aparte UI-keuze.
+dezelfde kaderdoos-stijl (`.diameter-box`) als "Zoeken op beugel" en "Gekozen artikel") toont een
+**vaste** lijst van 6 materiaalcodes (`MATERIAL_CODES` in `assets/selector.js`), niet meer
+afgeleid uit de CSV:
+
+| Code  | Omschrijving |
+|-------|--------------|
+| W1    | CS           |
+| W2    | CS Ph        |
+| W3    | ZN           |
+| W4    | V2A          |
+| W5    | V4A          |
+| W55   | V4A CR       |
+
+De select-**waarde** blijft de kale W-code (gebruikt in alle matching/prijs/samenstellingscode-
+logica); de optie-**tekst** toont de combinatie, bijv. "W2 - CS Ph". De familie (Staal/RVS) wordt
+intern nog wel afgeleid uit de gekozen code zelf (`metalFamily()`, o.b.v. het W-nummer: W1/W2/W3 =
+Staal, W4/W5/W55 = RVS) - alleen om locatie 1 (Lasplaat) te filteren op dezelfde familie als de
+gekozen code (zie de code-comments bij `candidatesForPosition()`), niet meer als aparte UI-keuze.
 
 **Automatische selectie bij 1 optie:** elke locatieselect (1, 3, 4, 5 en de materiaalcode)
 selecteert zichzelf meteen als er, na filtering, maar 1 echt artikel/code overblijft - de

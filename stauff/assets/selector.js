@@ -67,7 +67,9 @@
         priceLoc4: el('locationPrice4'),
         priceLoc5: el('locationPrice5'),
         priceLoc6: el('locationPrice6'),
-        locationConfigButtons: [...document.querySelectorAll('.location-config-button')],
+        locationConfigButtons: [...document.querySelectorAll('.location-number[data-location]')],
+        locationAddButtons: [...document.querySelectorAll('.location-add-button')],
+        assemblyList: document.querySelector('.assembly-list'),
         locationFilterOverlay: el('locationFilterOverlay'),
         locationFilterTitle: el('locationFilterTitle'),
         locationFilterInput: el('locationFilterInput'),
@@ -119,6 +121,18 @@
         if (/^W(?:4|5|55)(?:$|\/)/.test(c)) return 'RVS';
         return 'Overig';
     }
+
+    // Vaste lijst voor de materiaalcode-select (locatie 6) - niet meer
+    // afgeleid uit de CSV (die alleen de codes bevat die in de huidige
+    // rijen voorkomen); dit is de volledige, altijd-beschikbare set.
+    const MATERIAL_CODES = [
+        { code: 'W1', label: 'CS' },
+        { code: 'W2', label: 'CS Ph' },
+        { code: 'W3', label: 'ZN' },
+        { code: 'W4', label: 'V2A' },
+        { code: 'W5', label: 'V4A' },
+        { code: 'W55', label: 'V4A CR' },
+    ];
 
     function firstCodePart(article) {
         const s = norm(article);
@@ -447,15 +461,26 @@
             ui.materialCode.disabled = true;
             return;
         }
-        // Geen Staal/RVS-keuze meer - de pulldown toont alle materiaalcodes
-        // die voorkomen bij de posities van deze beugel, ongeacht familie.
-        const positions = [1, 3, 4, 5];
-        const all = positions.flatMap(pos => candidatesForPosition(pos));
-        const codes = unique(all.map(r => norm(r['Materiaalcode'])))
-            .sort((a, b) => a.localeCompare(b, 'nl', { numeric: true }));
-
-        const placeholder = codes.length ? '— Geen materiaalcode gekozen —' : 'Geen materiaalcode beschikbaar';
-        setSelectOptions(ui.materialCode, codes, placeholder, code => code, true);
+        // Vaste lijst (MATERIAL_CODES) i.p.v. afgeleid uit de CSV - de
+        // pulldown toont altijd deze 6 materiaalcodes. De select-waarde
+        // blijft de kale W-code (gebruikt in alle matching/prijs-logica);
+        // de omschrijving wordt enkel getoond in de optie-tekst.
+        const old = ui.materialCode.value;
+        ui.materialCode.innerHTML = '';
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '— Geen materiaalcode gekozen —';
+        ui.materialCode.appendChild(placeholder);
+        MATERIAL_CODES.forEach(({ code, label }) => {
+            const option = document.createElement('option');
+            option.value = code;
+            option.textContent = `${code} - ${label}`;
+            ui.materialCode.appendChild(option);
+        });
+        ui.materialCode.disabled = false;
+        if (old && [...ui.materialCode.options].some(o => o.value === old)) {
+            ui.materialCode.value = old;
+        }
         rebuildComponents();
     }
 
@@ -521,16 +546,21 @@
      * CSV. Vult de select met de kale artikelnummers (geen CSV-attributen
      * beschikbaar voor deze artikelen, dus geen automatische
      * standaardselectie of shape-afbeelding zoals bij de CSV-lijst).
+     *
+     * requestKey is standaard pos, maar extra (vrij toegevoegde)
+     * artikelregels voor dezelfde soort (zie addExtraItemRow()) geven
+     * een eigen unieke key mee - anders zouden ze elkaars zoekopdracht
+     * annuleren via dezelfde locationFilterRequests-sleutel.
      */
-    function applyLocationFilterSelect(pos, select, code) {
-        if (locationFilterRequests[pos]) {
-            clearTimeout(locationFilterRequests[pos].timeoutId);
-            locationFilterRequests[pos].controller.abort();
+    function applyLocationFilterSelect(pos, select, code, requestKey = pos) {
+        if (locationFilterRequests[requestKey]) {
+            clearTimeout(locationFilterRequests[requestKey].timeoutId);
+            locationFilterRequests[requestKey].controller.abort();
         }
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), LOCATION_FILTER_TIMEOUT_MS);
         const request = { controller, timeoutId };
-        locationFilterRequests[pos] = request;
+        locationFilterRequests[requestKey] = request;
 
         const previousValue = select.value;
         select.disabled = true;
@@ -580,7 +610,7 @@
                     // bewuste "overruled door een nieuwere aanroep"-abort,
                     // die niet zelf iets hoeft te tonen (de nieuwere aanroep
                     // doet dat al).
-                    if (locationFilterRequests[pos] === request) {
+                    if (locationFilterRequests[requestKey] === request) {
                         select.innerHTML = '<option value="">Zoeken duurt te lang - probeer het filter opnieuw.</option>';
                         select.disabled = false;
                     }
@@ -673,8 +703,139 @@
 
             if (code && candidates.length === 0) warnings.push(`Locatie ${pos}: geen passend artikel voor ${code}.`);
         });
+        refreshExtraItems();
         showWarnings(warnings);
         updateAssemblyCode();
+    }
+
+    /**
+     * Vult de artikel-select van een vrij toegevoegde extra regel (zie
+     * addExtraItemRow()) voor de gekozen soort (pos). Zelfde bron als de
+     * vaste locaties: live Exact-filter als er 1 geconfigureerd is voor
+     * deze soort, anders de gewone CSV-kandidatenlijst.
+     */
+    function populateExtraArticleSelect(pos, select, requestKey) {
+        const code = ui.materialCode.value;
+        if (code && state.locationFilters[pos]) {
+            applyLocationFilterSelect(pos, select, code, requestKey);
+            return;
+        }
+        const candidates = code ? candidatesForPosition(pos, code) : [];
+        const placeholder = code && candidates.length
+            ? '— Geen onderdeel gekozen —'
+            : (code ? `Geen passend artikel voor ${code}` : 'Kies eerst materiaalcode');
+        setSelectOptions(select, candidates, placeholder, componentLabel, true);
+    }
+
+    let extraItemCounter = 0;
+
+    /**
+     * Verversen van alle al toegevoegde extra-regels (zie
+     * addExtraItemRow()) - aangeroepen vanuit rebuildComponents(), dus bij
+     * elke wijziging van beugel/materiaalcode. Regels waarvoor nog geen
+     * soort gekozen is, worden overgeslagen (artikel-select blijft
+     * disabled tot een soort gekozen is).
+     */
+    function refreshExtraItems() {
+        if (!ui.assemblyList) return;
+        ui.assemblyList.querySelectorAll('.extra-item-card').forEach(card => {
+            const soortSelect = card.querySelector('.extra-item-soort');
+            const artikelSelect = card.querySelector('.extra-item-artikel');
+            const pos = soortSelect.value;
+            if (!pos) return;
+            populateExtraArticleSelect(pos, artikelSelect, `extra-${card.dataset.extraId}`);
+        });
+    }
+
+    /**
+     * Voegt een nieuwe, vrij te configureren artikelregel toe aan de
+     * samenstelling (klik op de "+"-knop bij locatie 1/3/4/5, zie
+     * bindEvents()). De gebruiker kiest eerst de soort (dezelfde 4 opties
+     * als de vaste locaties, met dezelfde per-locatie filters), dan het
+     * artikel binnen die soort, en het aantal (standaard 1, bij Bout 2).
+     */
+    function addExtraItemRow() {
+        const id = ++extraItemCounter;
+        const requestKey = `extra-${id}`;
+
+        const card = document.createElement('article');
+        card.className = 'location-card extra-item-card';
+        card.dataset.extraId = String(id);
+
+        const numberDiv = document.createElement('div');
+        numberDiv.className = 'location-number';
+        numberDiv.textContent = '+';
+
+        const imageDiv = document.createElement('div');
+        imageDiv.className = 'location-image is-empty';
+        const imagePlaceholder = document.createElement('span');
+        imagePlaceholder.className = 'location-image-placeholder';
+        imagePlaceholder.textContent = '—';
+        imageDiv.appendChild(imagePlaceholder);
+
+        const content = document.createElement('div');
+        content.className = 'location-content extra-item-content';
+
+        const aantalInput = document.createElement('input');
+        aantalInput.type = 'number';
+        aantalInput.className = 'extra-item-aantal';
+        aantalInput.min = '1';
+        aantalInput.value = '1';
+        aantalInput.setAttribute('aria-label', 'Aantal');
+
+        const soortSelect = document.createElement('select');
+        soortSelect.className = 'extra-item-soort';
+        const soortPlaceholder = document.createElement('option');
+        soortPlaceholder.value = '';
+        soortPlaceholder.textContent = 'Kies soort…';
+        soortSelect.appendChild(soortPlaceholder);
+        Object.entries(LOCATION_LABELS).forEach(([pos, label]) => {
+            const option = document.createElement('option');
+            option.value = pos;
+            option.textContent = label;
+            soortSelect.appendChild(option);
+        });
+
+        const artikelSelect = document.createElement('select');
+        artikelSelect.className = 'extra-item-artikel';
+        artikelSelect.disabled = true;
+        artikelSelect.innerHTML = '<option value="">Kies eerst een soort</option>';
+
+        const priceSpan = document.createElement('span');
+        priceSpan.className = 'extra-item-price location-price';
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'extra-item-remove';
+        removeButton.setAttribute('aria-label', 'Extra artikel verwijderen');
+        removeButton.textContent = '×';
+
+        content.append(aantalInput, soortSelect, artikelSelect, priceSpan, removeButton);
+        card.append(numberDiv, imageDiv, content);
+        ui.assemblyList.appendChild(card);
+
+        soortSelect.addEventListener('change', () => {
+            const pos = soortSelect.value;
+            // Standaard 1, behalve bij Bout (2). Alleen gezet bij het
+            // wisselen van soort, zodat een handmatig aangepast aantal
+            // daarna niet weer overschreven wordt.
+            aantalInput.value = pos === '5' ? '2' : '1';
+            if (!pos) {
+                delete locationFilterRequests[requestKey];
+                artikelSelect.disabled = true;
+                artikelSelect.innerHTML = '<option value="">Kies eerst een soort</option>';
+                refreshLocationPrices();
+                return;
+            }
+            populateExtraArticleSelect(pos, artikelSelect, requestKey);
+            refreshLocationPrices();
+        });
+        artikelSelect.addEventListener('change', refreshLocationPrices);
+        removeButton.addEventListener('click', () => {
+            delete locationFilterRequests[requestKey];
+            card.remove();
+            refreshLocationPrices();
+        });
     }
 
     function selectedRow(select) {
@@ -740,6 +901,16 @@
             [ui.priceLoc5, norm(ui.loc5.value)],
             [ui.priceLoc6, norm(ui.materialCode.value)],
         ];
+        // Extra, vrij toegevoegde regels (zie addExtraItemRow()) tellen op
+        // dezelfde manier mee in de prijs-batch-lookup - niet vermenigvuldigd
+        // met het aantal, consistent met de vaste locaties 1-6.
+        const extraEntries = ui.assemblyList
+            ? [...ui.assemblyList.querySelectorAll('.extra-item-card')].map(card => [
+                card.querySelector('.extra-item-price'),
+                norm(card.querySelector('.extra-item-artikel').value),
+            ])
+            : [];
+        entries.push(...extraEntries);
         entries.forEach(([el]) => { if (el) el.textContent = ''; });
 
         const codes = unique(entries.map(([, code]) => code));
@@ -804,6 +975,9 @@
 
         ui.locationConfigButtons.forEach(button => {
             button.addEventListener('click', () => openLocationFilterModal(button.dataset.location));
+        });
+        ui.locationAddButtons.forEach(button => {
+            button.addEventListener('click', addExtraItemRow);
         });
         ui.locationFilterApply.addEventListener('click', () => applyLocationFilter(ui.locationFilterInput.value));
         ui.locationFilterClear.addEventListener('click', () => applyLocationFilter(''));
