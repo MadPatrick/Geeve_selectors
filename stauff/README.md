@@ -2,18 +2,14 @@
 
 De STAUFF selector haalt al zijn kandidaat-artikelen (beugel én de bevestigingsdelen op
 locaties 1/3/4/5) live uit de Exact-database "005" (artikelgroep 67, zie portal-README
-"Database-koppeling Exact"). De statische `data/stauff_selector.csv` wordt door de
-configurator niet meer gebruikt - zie "Migratie naar live Exact-data" hieronder.
+"Database-koppeling Exact"). Er is geen CSV meer - zie "Migratie naar live Exact-data" hieronder.
 
 ## Installatie
 
 1. Kopieer de volledige map naar een PHP-webserver (Apache/Nginx + PHP).
 2. Open `index.php` in de browser.
-3. Voor de live Exact-zoekfuncties (diameterveld, locaties 1/3/4/5, verkoopprijs) is een
-   databaseverbinding nodig - zonder die verbinding tonen die onderdelen een foutmelding.
-
-`data/stauff_selector.csv` en `api/stauff.php` staan nog op schijf als inert referentie-/
-rollback-materiaal, maar worden door `assets/selector.js` niet meer aangeroepen (zie hieronder).
+3. Er is een databaseverbinding nodig - zonder die verbinding toont de configurator overal
+   foutmeldingen (geen CSV-fallback meer).
 
 ## Migratie naar live Exact-data
 

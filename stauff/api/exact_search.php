@@ -10,12 +10,10 @@ require_once dirname(__DIR__) . '/inc/db.php';
 /**
  * Live, fuzzy zoekfunctie op het artikelnummer (ItemCode) in de
  * Exact-database "005", beperkt tot artikelgroep 67 (Stauff-beugels en
- * -toebehoren, zie portal-README "Database-koppeling Exact"). Dit is de
- * eerste stap van het vervangen van de statische CSV
- * (data/stauff_selector.csv) door live Exact-data: begint bij het
- * diameterveld (zie assets/selector.js, ui.diameterInput) - de rest van de
- * wizard (serie/uitvoering/materiaal) draait voorlopig nog op de CSV,
- * omdat GRV_SalesItems geen Onderdeel/Bouwgroep/Serie-kolommen heeft.
+ * -toebehoren, zie portal-README "Database-koppeling Exact"). Kiest de
+ * beugel zelf (zie assets/selector.js, ui.diameterInput) - de rest van de
+ * wizard haalt zijn kandidaat-artikelen uit api/exact_location_search.php,
+ * eveneens rechtstreeks uit Exact (geen CSV meer, zie stauff/README.md).
  *
  * "Fuzzy": koppeltekens/spaties/punten/komma's/underscores worden zowel
  * uit de zoekterm als uit ItemCode verwijderd vóór het vergelijken -

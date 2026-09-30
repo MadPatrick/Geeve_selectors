@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Tijdelijke diagnosepagina om de nieuwe databaseverbinding naar de
- * Exact-database "005" te testen en de tabel/kolommen voor artikelgroep
- * 67 te vinden - geen onderdeel van de uiteindelijke Stauff-selector.
- * Zodra de juiste tabel/kolom bekend zijn, wordt die kennis verwerkt in
- * de echte zoeklogica (api/stauff.php) en kan dit bestand weer weg.
+ * Diagnosepagina om de databaseverbinding naar de Exact-database "005" te
+ * testen en tabellen/kolommen te browsen (bijv. de nog onbevestigde
+ * verkoopprijs-kolom op GRV_SalesItems, zie api/exact_prices.php) - geen
+ * onderdeel van de eigenlijke Stauff-selector, die zijn kandidaat-artikelen
+ * rechtstreeks via api/exact_search.php/api/exact_location_search.php haalt.
  */
 
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
