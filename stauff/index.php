@@ -60,10 +60,6 @@ function assetVersion(string $relativePath): string
                 <span class="step">Selectie</span>
                 <h2>Beugel bepalen</h2>
             </div>
-            <div class="section-actions">
-                <div id="dataStatus" class="status-pill">Data laden...</div>
-                <div id="resultCount" class="result-count">0 mogelijkheden</div>
-            </div>
         </div>
 
         <div class="filter-grid">

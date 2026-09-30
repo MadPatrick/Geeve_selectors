@@ -26,6 +26,10 @@ require_once dirname(__DIR__) . '/inc/db.php';
  * begint (bijv. lasplaat/dekplaat-codes als "SP...", "GD...", "DPAS...")
  * - een diameter-zoekopdracht mag alleen beugelachtige, numeriek beginnende
  * artikelcodes opleveren.
+ *
+ * [Item Description] wordt meegegeven zodat de frontend die kan tonen
+ * zodra de gebruiker een artikel uit de resultatenlijst kiest (de lijst
+ * zelf toont alleen het artikelnummer, zie assets/selector.js).
  */
 const STAUFF_ITEM_GROUP = '67';
 
@@ -53,7 +57,7 @@ $normalizedTerm = normalizeFuzzyTerm($searchTerm);
 
 try {
     $stmt = $pdo->prepare(
-        'SELECT TOP 50 ItemCode FROM GRV_SalesItems ' .
+        'SELECT TOP 50 ItemCode, [Item Description] FROM GRV_SalesItems ' .
         'WHERE [Item Group] = :groep ' .
         "AND ItemCode LIKE '[0-9]%' " .
         "AND REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(ItemCode, '-', ''), ' ', ''), '.', ''), ',', ''), '_', '') " .

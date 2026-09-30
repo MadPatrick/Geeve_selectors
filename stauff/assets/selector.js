@@ -11,8 +11,6 @@
 
     const el = id => document.getElementById(id);
     const ui = {
-        dataStatus: el('dataStatus'),
-        resultCount: el('resultCount'),
         diameterInput: el('diameterInput'),
         exactLiveResults: el('exactLiveResults'),
         exactLiveStatus: el('exactLiveStatus'),
@@ -38,6 +36,9 @@
     const norm = value => String(value ?? '').trim();
     const upper = value => norm(value).toUpperCase();
     const unique = arr => [...new Set(arr.filter(v => norm(v) !== ''))];
+    const escapeHtml = value => norm(value).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
 
 
     function setCompactWidth(element, text, minCh, extraCh, maxCh) {
@@ -298,15 +299,12 @@
                     ui.exactLiveStatus.textContent = `${payload.rows.length} artikel${payload.rows.length === 1 ? '' : 'en'}`;
                     payload.rows.forEach(row => {
                         const artikelnummer = norm(row.ItemCode);
+                        const omschrijving = norm(row['Item Description']);
                         const item = document.createElement('li');
                         const button = document.createElement('button');
                         button.type = 'button';
                         button.textContent = artikelnummer;
-                        button.addEventListener('click', () => {
-                            ui.diameterInput.value = artikelnummer;
-                            resizeDiameterField();
-                            ui.exactLiveResults.hidden = true;
-                        });
+                        button.addEventListener('click', () => selectExactArticle(artikelnummer, omschrijving));
                         item.appendChild(button);
                         ui.exactLiveList.appendChild(item);
                     });
@@ -317,6 +315,52 @@
                     ui.exactLiveStatus.classList.add('error');
                 });
         }, 300);
+    }
+
+    /**
+     * Kiest een artikel uit de live Exact-zoekresultaten (zie
+     * queryExactLive()): vult het diameterveld met het artikelnummer, en
+     * probeert het artikel te koppelen aan een beugelregel in de CSV
+     * (selectClamp()) - dat activeert Locaties/Materiaal
+     * bevestigingsdelen/Samenstellingscode zoals voorheen bij het kiezen
+     * van een beugel uit de (inmiddels verwijderde) Beugel-lijst. Staat
+     * het artikelnummer niet in de CSV, dan blijft dat deel leeg met een
+     * duidelijke waarschuwing i.p.v. stil te falen. Het infopaneel toont
+     * daarna het gekozen artikelnummer + de Exact-omschrijving, met een
+     * "Wijzig"-link om opnieuw te zoeken.
+     */
+    function selectExactArticle(artikelnummer, omschrijving) {
+        ui.diameterInput.value = artikelnummer;
+        resizeDiameterField();
+
+        selectClamp(artikelnummer);
+        if (!state.selectedClamp) {
+            showWarnings([`Artikelnummer "${escapeHtml(artikelnummer)}" is niet gevonden in de detailtabel - Locaties/Materiaal/Samenstellingscode blijven leeg.`]);
+        }
+
+        ui.exactLiveStatus.textContent = 'Gekozen artikel';
+        ui.exactLiveList.innerHTML = '';
+        const item = document.createElement('li');
+        const row = document.createElement('div');
+        row.className = 'exact-live-chosen';
+        const code = document.createElement('strong');
+        code.textContent = artikelnummer;
+        const description = document.createElement('span');
+        description.textContent = omschrijving || '—';
+        const change = document.createElement('button');
+        change.type = 'button';
+        change.className = 'exact-live-change';
+        change.textContent = 'Wijzig';
+        change.addEventListener('click', () => {
+            ui.diameterInput.value = '';
+            ui.diameterInput.focus();
+            queryExactLive('');
+        });
+        row.appendChild(code);
+        row.appendChild(description);
+        row.appendChild(change);
+        item.appendChild(row);
+        ui.exactLiveList.appendChild(item);
     }
 
     function clampCodePart(clamp) {
@@ -546,12 +590,8 @@
             state.rows = payload.rows;
             state.validRows = state.rows.filter(r => upper(r['Status']) === 'OK');
             state.clamps = state.validRows.filter(r => r['Onderdeel'] === 'Beugel' && Number(r['Positie']) === 2 && norm(r['Diameter 1']));
-            ui.dataStatus.textContent = `${payload.count} regels geladen`;
-            ui.dataStatus.classList.add('ready');
             ui.diameterInput.disabled = false;
         } catch (error) {
-            ui.dataStatus.textContent = 'Datafout';
-            ui.dataStatus.classList.add('error');
             ui.warningBox.hidden = false;
             ui.warningBox.innerHTML = `<strong>Fout:</strong> ${error.message}`;
         }

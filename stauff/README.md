@@ -33,24 +33,35 @@ diameters uit de CSV) is verwijderd. Typ je een getal, dan zoekt dit endpoint in
   kanten van de vergelijking (zelfde patroon als `tryColumnsFuzzyLikeQuery()` in
   `slangkaarten/inc/queries.php`), dus "1680" vindt ook "10168-0".
 
-De live resultaten tonen **uitsluitend het artikelnummer** (geen omschrijving) als klikbare knop
-in een eigen paneel ("Live resultaten uit Exact"), op de plek waar voorheen de "Bouwgroep/
-Diameter/Serie/Uitvoering"-infobox stond. Klikken vult het diameterveld met dat artikelnummer;
-er is nog geen koppeling naar de rest van de wizard (zie "Stap 2" hieronder).
+De live resultatenlijst toont **uitsluitend het artikelnummer** (geen omschrijving) als klikbare
+knop, in een eigen paneel ("Live resultaten uit Exact") op de plek waar voorheen de "Bouwgroep/
+Diameter/Serie/Uitvoering"-infobox stond. `api/exact_search.php` geeft per rij wél de Exact-
+omschrijving (`[Item Description]`) mee in de JSON - die wordt pas getoond ná het kiezen (zie
+hieronder), niet in de lijst zelf.
 
 **De filtervelden Serie, Uitvoering, Beugelmateriaal en Beugel zijn verwijderd** uit de
 "Beugel bepalen"-sectie, met alle code die er exclusief van afhing (`rebuildClampFilters()`,
-de diameter-typeahead over de CSV, de serie/uitvoering-knoppen). Die velden waren de enige weg
-om `state.selectedClamp` te zetten.
+de diameter-typeahead over de CSV, de serie/uitvoering-knoppen). Die velden waren voorheen de
+enige weg om `state.selectedClamp` te zetten - dat gebeurt nu via het kiezen van een live
+Exact-resultaat (zie hieronder). Ook de "X regels geladen"/"X mogelijkheden"-pilletjes boven het
+filterblok zijn weg (`ui.dataStatus`/`ui.resultCount`) - die hoorden bij de oude CSV-telling.
 
-**Nog niet gebouwd (Stap 2):** de secties Locaties 1-6, Materiaal bevestigingsdelen en
-Samenstellingscode blijven in de pagina staan, maar permanent uitgeschakeld ("Kies eerst een
-beugel") totdat er een nieuwe manier komt om een beugel te selecteren - de onderliggende functies
-(`selectClamp()`, `candidatesForPosition()`, `updateAssemblyCode()`, enz.) zijn intact gelaten
-voor die volgende stap, alleen niet meer aangesloten op een UI-element. Aanwijzing voor die
-volgende stap: de bouwgroep staat in Exact in de artikelomschrijving (`Item Description` op
-`GRV_SalesItems`) met het voorvoegsel `GR` (bijv. "GR10") - dat moet gebruikt worden bij het
-kiezen van de beugel in plaats van de CSV's `Bouwgroep`-kolom.
+**Stap 1b (dit is af): een artikel kiezen.** Klikken op een artikelnummer in de live
+resultatenlijst (`selectExactArticle()` in `assets/selector.js`) doet twee dingen:
+
+1. Vult het diameterveld met dat artikelnummer en vervangt de resultatenlijst door 1 regel met
+   het gekozen artikelnummer + de Exact-omschrijving, met een "Wijzig"-link om opnieuw te zoeken.
+2. Roept `selectClamp(artikelnummer)` aan - dezelfde functie die voorheen via de (inmiddels
+   verwijderde) Beugel-select liep. Staat dat artikelnummer in `data/stauff_selector.csv` (kolom
+   `Artikelcode`), dan activeert dit meteen Locaties 1-6, Materiaal bevestigingsdelen (incl. de
+   Staal/RVS-keuze) en de Samenstellingscode, exact zoals voorheen. Staat het er niet in, dan
+   blijven die secties leeg/uitgeschakeld met een duidelijke waarschuwing i.p.v. stil te falen.
+
+**Nog niet gebouwd (Stap 2):** dit koppelt een live Exact-artikel dus nog aan de **CSV** voor zijn
+attributen (Bouwgroep/Serie/Enkel-Dubbel/Materiaal) - de CSV is voor dat deel nog niet vervangen.
+Aanwijzing voor die volgende stap: de bouwgroep staat in Exact in de artikelomschrijving
+(`Item Description` op `GRV_SalesItems`) met het voorvoegsel `GR` (bijv. "GR10") - dat moet
+gebruikt worden om de bouwgroep rechtstreeks uit Exact te halen in plaats van via de CSV.
 
 ## Selectielogica
 
