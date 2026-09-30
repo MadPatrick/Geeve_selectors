@@ -174,12 +174,29 @@
         const serie = row['Serie'];
         const ed = row['Enkel / Dubbel'];
         const prefix = firstCodePart(row['Artikelcode']);
+        const artikelcode = upper(norm(row['Artikelcode']));
 
-        // Artikel-specifieke afbeeldingen. Deze controle staat bewust voor de
-        // onderdeel-switch, zodat de afbeelding ook blijft werken wanneer de
-        // omschrijving/classificatie in de CSV later wijzigt.
+        // Familie-afbeeldingen voor WSP/CRA.
         if (prefix === 'WSP') return 'wsp';
         if (prefix === 'CRA') return 'cra';
+
+        // De afbeelding van de beugel wordt op BOUWGROEP bepaald, niet op een
+        // specifiek artikelnummer. Bij voorkeur gebruiken we de GRx-tag uit de
+        // Exact-omschrijving (bijv. GR1, GR1A, GR2). Als die niet beschikbaar
+        // is, vallen we terug op de kolom Bouwgroep uit de CSV.
+        //
+        // Regel:
+        //   GR1           -> sp1.png
+        //   GR1A en GR2+  -> sp1a.png
+        if (onderdeel === 'Beugel' && ed !== 'Dubbel') {
+            const exactGroup = upper(state.beugelGroup);
+            const fallbackGroup = bouwgroep ? `GR${bouwgroep}` : '';
+            const group = exactGroup || fallbackGroup;
+            if (group === 'GR1') return 'sp1';
+            if (group === 'GR1A') return 'sp1a';
+            const groupNumber = group.match(/^GR(\d+)/);
+            if (groupNumber && Number(groupNumber[1]) >= 2) return 'sp1a';
+        }
 
         switch (onderdeel) {
             case 'Glijmoer':
@@ -192,6 +209,9 @@
                 return null;
             case 'Beugel':
                 if (ed === 'Dubbel') return '1dpp';
+                // Normaal wordt hierboven al sp1/sp1a gekozen op basis van GRx.
+                // Alleen als er geen bruikbare bouwgroep beschikbaar is, blijft
+                // de oude generieke fallback actief.
                 return (bouwgroep === '1' && serie === 'Licht (standaard)') ? '1pp' : '1app';
             case 'Dekplaat':
                 if (isDubbelClamp() || prefix === 'GD') return 'gd1';
