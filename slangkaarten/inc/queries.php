@@ -350,6 +350,62 @@ function findOrdersByCustomer(PDO $pdo, string $customerName): array
 }
 
 /**
+ * Zoekt de artikelgroep (Exact-database "005", GRV_SalesItems.[Item
+ * Group]) op voor een lijst artikelen, in 1 databaseronde i.p.v. per
+ * artikel - zelfde batch-patroon als findArtikelExactDataBatch() in
+ * index.php (Locatie/Voorraad). GRV_SalesItems (ItemCode, [Item Group])
+ * is dezelfde tabel die /stauff gebruikt om artikelgroep 67 te vinden
+ * (zie portal-README, "Database-koppeling Exact") - hier gebruikt om
+ * artikelgroep 0 (slangen) te herkennen.
+ *
+ * Geeft bij een connectiefout (of lege root-.env) een lege array terug -
+ * de aanroeper filtert dan niets weg, zodat een ontbrekende
+ * Exact-koppeling de rest van de zoekfunctie niet blokkeert.
+ *
+ * @param string[] $artikelen
+ * @return array<string, string> artikel => artikelgroep (ontbrekende sleutel = niet gevonden)
+ */
+function findArtikelItemGroepenBatch(array $artikelen): array
+{
+    $artikelen = array_values(array_unique(array_filter(
+        $artikelen,
+        static fn(string $artikel): bool => $artikel !== ''
+    )));
+    if ($artikelen === []) {
+        return [];
+    }
+
+    try {
+        $pdo = getExactPdoConnection();
+    } catch (Throwable $exception) {
+        return [];
+    }
+
+    $placeholders = [];
+    $params = [];
+    foreach ($artikelen as $index => $artikel) {
+        $placeholders[] = ":code{$index}";
+        $params["code{$index}"] = $artikel;
+    }
+    $inClause = implode(', ', $placeholders);
+
+    $result = [];
+    try {
+        $stmt = $pdo->prepare(
+            "SELECT ItemCode, [Item Group] FROM GRV_SalesItems WHERE ItemCode IN ({$inClause})"
+        );
+        $stmt->execute($params);
+        while (($row = $stmt->fetch()) !== false) {
+            $result[(string) $row['ItemCode']] = trim((string) ($row['Item Group'] ?? ''));
+        }
+    } catch (Throwable $exception) {
+        return [];
+    }
+
+    return $result;
+}
+
+/**
  * Zoekt slangregels op (een deel van) het slangnummer (GHnr, het
  * hose-artikelnummer - zie HOSE_KEY_COLUMNS). Dit is GEEN order-unieke
  * sleutel (zie findHoseCardsByKeys()), dus dit kan regels uit meerdere
@@ -357,10 +413,30 @@ function findOrdersByCustomer(PDO $pdo, string $customerName): array
  * findOrdersByCustomer() bij zoeken op klantnaam; de gebruiker kiest
  * daarna de order om verder te gaan naar het normale regel-overzicht
  * (stap 2) - geen aparte printflow nodig.
+ *
+ * Alleen artikelen uit artikelgroep 0 (echte slangen, zie
+ * findArtikelItemGroepenBatch()) komen in het resultaat - dit voorkomt
+ * dat een korte zoekterm ook niet-slangartikelen laat matchen. Is de
+ * Exact-koppeling niet beschikbaar, dan wordt niet gefilterd (zie
+ * findArtikelItemGroepenBatch()).
  */
 function findLinesByHoseNumber(PDO $pdo, string $hoseNumber): array
 {
     $rows = tryColumnsLikeQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseNumber);
+
+    $itemGroepen = findArtikelItemGroepenBatch(array_map(
+        static fn(array $row): string => pick($row, HOSE_KEY_COLUMNS),
+        $rows
+    ));
+    if ($itemGroepen !== []) {
+        $rows = array_values(array_filter(
+            $rows,
+            static function (array $row) use ($itemGroepen): bool {
+                $hoseKey = pick($row, HOSE_KEY_COLUMNS);
+                return ($itemGroepen[$hoseKey] ?? '') === '0';
+            }
+        ));
+    }
 
     usort($rows, static function (array $a, array $b): int {
         $orderNumberA = pick($a, ORDER_NUMBER_COLUMNS);

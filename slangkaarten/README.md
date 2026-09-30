@@ -12,7 +12,10 @@ De flow volgt het originele NiceLabel-scherm grotendeels 1-op-1, met 1 toevoegin
 slangnummer, zie hieronder):
 
 1. **Zoeken** - op ordernummer, (een deel van) de klantnaam, óf slangnummer (artikelnummer van de
-   slang - kolom `GHnr`, zie `HOSE_KEY_COLUMNS` in `inc/queries.php`).
+   slang - kolom `GHnr`, zie `HOSE_KEY_COLUMNS` in `inc/queries.php`). Bij zoeken op slangnummer
+   worden alleen artikelen uit artikelgroep 0 (echte slangen) getoond - zie
+   `findArtikelItemGroepenBatch()`/`findLinesByHoseNumber()` in `inc/queries.php` en "Picklijst-
+   locatie & voorraad" hieronder voor de gebruikte Exact-tabel.
 2. **Order kiezen** (bij zoeken op klantnaam of slangnummer) - een klant kan meerdere orders
    hebben, en hetzelfde slangnummer kan in meerdere orders/klanten voorkomen (het is het
    hose-artikelnummer, geen order-unieke sleutel) - dus eerst een lijst met resultaten (nieuwste
@@ -117,6 +120,18 @@ centraal in de portal-root `.env` (zie `../.env.example`, 1 map hoger) - hetzelf
 gebruikt voor artikelgroep 67, dus 1x instellen voor beide subapps. Zonder ingevulde root-`.env`
 (of bij een connectiefout) toont de Locatie-kolom gewoon een streepje - de rest van de
 app/picklijst blijft normaal werken.
+
+## Zoekfilter slangnummer: alleen artikelgroep 0 (Exact, database 005)
+
+Bij zoeken op slangnummer (stap 1, zie "Status" hierboven) worden de gevonden regels gefilterd op
+artikelgroep: alleen artikelen uit **artikelgroep 0** (echte slangen) blijven over, zodat een korte
+zoekterm niet ook koppelingen/andere artikelen laat matchen die toevallig hetzelfde cijferpatroon
+bevatten. `findArtikelItemGroepenBatch()` (`inc/queries.php`) zoekt de artikelgroep op in
+`GRV_SalesItems` (`ItemCode` → `[Item Group]`) - dezelfde tabel die `/stauff` gebruikt voor
+artikelgroep 67 (zie portal-README, "Database-koppeling Exact"), 1 databaseronde voor alle
+gevonden artikelen samen. Is de Exact-koppeling niet beschikbaar (lege root-`.env` of een
+connectiefout), dan wordt er niet gefilterd - de zoekfunctie blijft dan werken zoals vóór deze
+filter, met mogelijk ook niet-slangartikelen in de resultaten.
 
 ## Printvoorbeeld uitschakelen (client-instelling)
 
