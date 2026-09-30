@@ -174,6 +174,18 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 .clamp-facts strong { font-size: 15px; }
 .clamp-facts.is-empty { opacity: .65; }
 
+/* Live, fuzzy artikelnummer-zoekresultaten uit Exact (groep 67) bij het
+   diameterveld - zie api/exact_search.php. Losse sectie t.o.v. de
+   CSV-gedreven wizard hieronder (die voorlopig ongewijzigd blijft). */
+.exact-live-results { margin-top: 16px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: #f4f7fa; font-size: 13px; font-weight: 750; color: var(--muted); }
+.exact-live-status { font-size: 12px; font-weight: 700; }
+.exact-live-status.error { color: var(--danger); }
+.exact-live-list { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+.exact-live-list li { padding: 10px 15px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; font-size: 14px; }
+.exact-live-list li strong { color: var(--accent-dark); font-weight: 800; white-space: nowrap; }
+.exact-live-list li span { color: var(--muted); text-align: right; }
+
 .material-controls { display: flex; align-items: end; gap: 22px; }
 .segmented { display: inline-flex; padding: 4px; background: #edf2f6; border-radius: 12px; }
 .segment { border: 0; background: transparent; color: var(--muted); padding: 10px 22px; border-radius: 9px; cursor: pointer; font-weight: 750; }

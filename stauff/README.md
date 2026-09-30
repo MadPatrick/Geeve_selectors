@@ -1,6 +1,8 @@
 # STAUFF Beugelconfigurator
 
-Eerste webversie van de STAUFF selector op basis van `data/stauff_selector.csv`.
+Eerste webversie van de STAUFF selector op basis van `data/stauff_selector.csv`. De wizard
+(serie/uitvoering/materiaal/locaties) draait nog volledig op deze CSV - zie "Migratie naar live
+Exact-data" hieronder voor de eerste stap richting het vervangen ervan.
 
 ## Installatie
 
@@ -8,7 +10,37 @@ Eerste webversie van de STAUFF selector op basis van `data/stauff_selector.csv`.
 2. Zorg dat PHP `fgetcsv()` mag gebruiken en dat de map `data/` leesbaar is.
 3. Open `index.php` in de browser.
 
-Er is geen database nodig. Het PHP-endpoint `api/stauff.php` leest de CSV en stuurt JSON naar de JavaScript-configurator.
+Er is geen database nodig voor de CSV-gedreven wizard zelf. Het PHP-endpoint `api/stauff.php`
+leest de CSV en stuurt JSON naar de JavaScript-configurator. Voor de live Exact-zoekfunctie bij
+het diameterveld (zie hieronder) is wél een databaseverbinding nodig - zonder die verbinding
+toont dat zoekveld een foutmelding, de rest van de configurator blijft normaal werken.
+
+## Migratie naar live Exact-data (in opbouw)
+
+Doel: de statische CSV volledig vervangen door live queries op de Exact-database "005"
+(artikelgroep 67, zie portal-README "Database-koppeling Exact"), zodat de configurator altijd de
+actuele artikelen toont in plaats van een handmatig bijgehouden CSV-bestand.
+
+**Stap 1 (dit is af):** het diameterveld heeft een live, fuzzy zoekfunctie op het artikelnummer
+(`api/exact_search.php`) naast (niet i.p.v.) de bestaande CSV-gedreven autocomplete. Typ je een
+getal, dan zoekt dit endpoint in `GRV_SalesItems` naar artikelen met:
+
+- `[Item Group] = 67` (alleen Stauff-artikelen);
+- een artikelnummer dat met een cijfer begint (sluit lasplaat/dekplaat-codes als `SP...`/`GD...`
+  uit - die horen niet bij een diameter-zoekopdracht);
+- een fuzzy match op het getal: koppeltekens/spaties/punten/komma's worden genegeerd aan beide
+  kanten van de vergelijking (zelfde patroon als `tryColumnsFuzzyLikeQuery()` in
+  `slangkaarten/inc/queries.php`), dus "1680" vindt ook "10168-0".
+
+De live resultaten (artikelnummer + Exact-omschrijving) worden getoond in een eigen paneel
+("Live resultaten uit Exact") onder het filterblok - puur informatief, er is nog geen koppeling
+naar de rest van de wizard.
+
+**Nog niet gebouwd:** de rest van de wizard (serie/uitvoering/beugelmateriaal/locaties 1-6) blijft
+op de CSV draaien. `GRV_SalesItems` heeft geen equivalent van de CSV's curated
+`Onderdeel`/`Positie`/`Bouwgroep`/`Serie`/`Enkel-Dubbel`-kolommen - die logica moet in een
+volgende stap opnieuw (uit artikelnummer/omschrijving) afgeleid worden, of blijft op de CSV
+steunen voor artikelen die al bekend zijn.
 
 ## Selectielogica
 

@@ -107,6 +107,14 @@ function assetVersion(string $relativePath): string
         </div>
         <small>Lasplaat en Dekplaat worden standaard voorgeselecteerd zodra een passende optie beschikbaar is; de overige onderdelen blijven optioneel.</small>
 
+        <div id="exactLiveResults" class="exact-live-results" hidden>
+            <div class="exact-live-header">
+                <span>Live resultaten uit Exact (artikelgroep 67)</span>
+                <span id="exactLiveStatus" class="exact-live-status"></span>
+            </div>
+            <ul id="exactLiveList" class="exact-live-list"></ul>
+        </div>
+
         <div id="clampFacts" class="clamp-facts is-empty">
             <div><span>Bouwgroep</span><strong id="factGroup">&mdash;</strong></div>
             <div><span>Diameter</span><strong id="factDiameter">&mdash;</strong></div>

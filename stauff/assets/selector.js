@@ -15,6 +15,9 @@
         resultCount: el('resultCount'),
         diameterInput: el('diameterInput'),
         suggestions: el('diameterSuggestions'),
+        exactLiveResults: el('exactLiveResults'),
+        exactLiveStatus: el('exactLiveStatus'),
+        exactLiveList: el('exactLiveList'),
         serie: el('serieSelect'),
         serieButtons: [...document.querySelectorAll('[data-serie]')],
         execution: el('uitvoeringSelect'),
@@ -337,6 +340,70 @@
         ui.suggestions.hidden = false;
     }
 
+    let exactLiveController = null;
+    let exactLiveDebounce = null;
+
+    /**
+     * Live, fuzzy zoekopdracht op artikelnummer tegen de Exact-database
+     * (api/exact_search.php, groep 67, artikelen die met een cijfer
+     * beginnen) - eerste stap van het vervangen van de CSV door live
+     * Exact-data (zie de docblock daar). Toont de echte, actuele
+     * artikelcodes/omschrijvingen los van de bestaande (nog CSV-gedreven)
+     * wizard hieronder.
+     */
+    function queryExactLive(term) {
+        if (exactLiveDebounce) clearTimeout(exactLiveDebounce);
+
+        const typed = norm(term);
+        if (!typed) {
+            if (exactLiveController) exactLiveController.abort();
+            ui.exactLiveResults.hidden = true;
+            return;
+        }
+
+        exactLiveDebounce = setTimeout(() => {
+            if (exactLiveController) exactLiveController.abort();
+            exactLiveController = new AbortController();
+
+            ui.exactLiveResults.hidden = false;
+            ui.exactLiveStatus.textContent = 'Zoeken…';
+            ui.exactLiveStatus.classList.remove('error');
+            ui.exactLiveList.innerHTML = '';
+
+            fetch(`api/exact_search.php?q=${encodeURIComponent(typed)}`, {
+                cache: 'no-store',
+                signal: exactLiveController.signal,
+            })
+                .then(response => response.json())
+                .then(payload => {
+                    if (!payload || payload.ok !== true) {
+                        throw new Error((payload && payload.error) || 'Onbekende fout.');
+                    }
+                    ui.exactLiveList.innerHTML = '';
+                    if (payload.rows.length === 0) {
+                        ui.exactLiveStatus.textContent = 'Geen artikelen gevonden in Exact.';
+                        return;
+                    }
+                    ui.exactLiveStatus.textContent = `${payload.rows.length} artikel${payload.rows.length === 1 ? '' : 'en'}`;
+                    payload.rows.forEach(row => {
+                        const item = document.createElement('li');
+                        const code = document.createElement('strong');
+                        code.textContent = norm(row.ItemCode);
+                        const description = document.createElement('span');
+                        description.textContent = norm(row['Item Description']);
+                        item.appendChild(code);
+                        item.appendChild(description);
+                        ui.exactLiveList.appendChild(item);
+                    });
+                })
+                .catch(error => {
+                    if (error && error.name === 'AbortError') return;
+                    ui.exactLiveStatus.textContent = `Exact niet bereikbaar: ${error.message}`;
+                    ui.exactLiveStatus.classList.add('error');
+                });
+        }, 300);
+    }
+
     function filteredClamps(stage = 'all') {
         const diameter = exactDiameter();
         if (!diameter) return [];
@@ -610,6 +677,7 @@
             resizeDiameterField();
             showDiameterSuggestions();
             rebuildClampFilters(true);
+            queryExactLive(ui.diameterInput.value);
         });
         ui.diameterInput.addEventListener('focus', showDiameterSuggestions);
         ui.diameterInput.addEventListener('blur', () => setTimeout(() => { ui.suggestions.hidden = true; }, 100));
