@@ -129,6 +129,7 @@ function assetVersion(string $relativePath): string
                 <div class="location-content">
                     <div class="location-title"><strong>Lasplaat / Glijmoer</strong><span>Standaard Lasplaat &middot; Onderzijde</span></div>
                     <select id="location1Select" disabled><option value="">Kies eerst een beugel</option></select>
+                    <span id="locationPrice1" class="location-price"></span>
                 </div>
             </article>
 
@@ -141,6 +142,7 @@ function assetVersion(string $relativePath): string
                 <div class="location-content">
                     <div class="location-title"><strong>Beugel</strong><span>Beugelcode (bouwgroep + maat + materiaal)</span></div>
                     <div id="location2Value" class="fixed-value">&mdash;</div>
+                    <span id="locationPrice2" class="location-price"></span>
                 </div>
             </article>
 
@@ -153,6 +155,7 @@ function assetVersion(string $relativePath): string
                 <div class="location-content">
                     <div class="location-title"><strong>Borgplaat</strong><span>Optioneel &middot; opties uit bouwgroep</span></div>
                     <select id="location3Select" disabled><option value="">Kies eerst een beugel</option></select>
+                    <span id="locationPrice3" class="location-price"></span>
                 </div>
             </article>
 
@@ -165,6 +168,7 @@ function assetVersion(string $relativePath): string
                 <div class="location-content">
                     <div class="location-title"><strong>Dekplaat</strong><span>Standaard geselecteerd &middot; opties uit bouwgroep</span></div>
                     <select id="location4Select" disabled><option value="">Kies eerst een beugel</option></select>
+                    <span id="locationPrice4" class="location-price"></span>
                 </div>
             </article>
 
@@ -177,6 +181,7 @@ function assetVersion(string $relativePath): string
                 <div class="location-content">
                     <div class="location-title"><strong>Bout</strong><span>Optioneel &middot; stapel-, inbus- of zeskantbout</span></div>
                     <select id="location5Select" disabled><option value="">Kies eerst een beugel</option></select>
+                    <span id="locationPrice5" class="location-price"></span>
                 </div>
             </article>
 
@@ -188,6 +193,7 @@ function assetVersion(string $relativePath): string
                 <div class="location-content">
                     <div class="location-title"><strong>Materiaal</strong><span>Optioneel &middot; W-code bevestigingsdelen</span></div>
                     <div id="location6Value" class="fixed-value">&mdash;</div>
+                    <span id="locationPrice6" class="location-price"></span>
                 </div>
             </article>
         </div>

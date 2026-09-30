@@ -177,10 +177,16 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 .location-image-placeholder { display: none; color: var(--muted); font-size: 20px; }
 .location-image.is-empty { opacity: .5; }
 .location-image.is-empty .location-image-placeholder { display: block; }
-.location-content { padding: 14px 16px; display: grid; grid-template-columns: minmax(190px, .75fr) minmax(0, 1.25fr); align-items: center; gap: 18px; }
+.location-content { padding: 14px 16px; display: grid; grid-template-columns: minmax(190px, .75fr) minmax(0, 1.25fr) auto; align-items: center; gap: 18px; }
 .location-title strong, .location-title span { display: block; }
 .location-title span { color: var(--muted); font-size: 12px; margin-top: 2px; }
 .fixed-value { min-height: 44px; border-radius: 10px; padding: 11px 13px; background: #f5f8fa; border: 1px solid #d8e1e8; font-weight: 800; }
+
+/* Verkoopprijs (Exact, GRV_SalesItems) van het gekozen artikel per
+   locatie - zie api/exact_prices.php en refreshLocationPrices() in
+   assets/selector.js. Leeg zolang niets gekozen is of Exact geen prijs
+   teruggeeft. */
+.location-price { font-weight: 800; color: var(--accent-dark); white-space: nowrap; text-align: right; min-width: 70px; }
 .clamp-location { border-color: #f0a9bc; }
 .clamp-location .location-number { background: #fbdce6; }
 .material-location .location-number { background: #eef0f7; }

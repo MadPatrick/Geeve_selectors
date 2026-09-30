@@ -71,6 +71,22 @@ Aanwijzing voor die volgende stap: de bouwgroep staat in Exact in de artikelomsc
 (`Item Description` op `GRV_SalesItems`) met het voorvoegsel `GR` (bijv. "GR10") - dat moet
 gebruikt worden om de bouwgroep rechtstreeks uit Exact te halen in plaats van via de CSV.
 
+## Verkoopprijs per locatie (Exact, database 005)
+
+Zodra voor een locatie (1-6) een artikel gekozen is, wordt de verkoopprijs live opgehaald uit
+Exact (`api/exact_prices.php`, `GRV_SalesItems`, artikelgroep 67) en getoond rechts in de
+bijbehorende regel (`.location-price`), via `refreshLocationPrices()` in `assets/selector.js` -
+die wordt aangeroepen vanuit `updateAssemblyCode()`, dus bij elke wijziging van beugel,
+materiaalcode of een locatieselectie.
+
+**Kolomnaam nog niet bevestigd.** In tegenstelling tot Locatie/Voorraad in `/slangkaarten` (die al
+zijn uitgezocht, zie de portal-README) is de kolomnaam voor verkoopprijs op `GRV_SalesItems` nog
+niet geverifieerd. `exact_prices.php` probeert daarom een lijst kandidaat-kolomnamen (`Sales
+Price`, `SalesPrice`, `Price 1`, `Price1`, `Price`, `Verkoopprijs`, `Prijs`) totdat er 1 zonder
+SQL-fout data teruggeeft - welke kolom dat was staat in de JSON-response (`"column"`), zodat dat
+te controleren is. Werkt geen van de kandidaten, dan blijft de prijs overal leeg (geen
+foutmelding) - meld dan de echte kolomnaam terug zodat de lijst aangepast kan worden.
+
 ## Selectielogica
 
 - Locatie 1: Lasplaat / Lasplaat (hoek) / Glijmoer

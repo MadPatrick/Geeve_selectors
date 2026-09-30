@@ -31,6 +31,12 @@
         shapeImg3: el('shapeImg3'),
         shapeImg4: el('shapeImg4'),
         shapeImg5: el('shapeImg5'),
+        priceLoc1: el('locationPrice1'),
+        priceLoc2: el('locationPrice2'),
+        priceLoc3: el('locationPrice3'),
+        priceLoc4: el('locationPrice4'),
+        priceLoc5: el('locationPrice5'),
+        priceLoc6: el('locationPrice6'),
     };
 
     const norm = value => String(value ?? '').trim();
@@ -494,6 +500,7 @@
         const r4 = selectedRow(ui.loc4);
         const r5 = selectedRow(ui.loc5);
         updateShapeImages();
+        refreshLocationPrices();
         if (!clamp) {
             ui.assemblyCode.textContent = 'Selecteer eerst een beugel';
             ui.copyButton.disabled = true;
@@ -516,6 +523,52 @@
         ui.assemblyCode.textContent = code;
         ui.copyButton.disabled = !code;
         ui.codeHint.textContent = 'Alleen gekozen locaties worden opgenomen; de volgorde blijft locatie 1 → 6.';
+    }
+
+    function formatPrice(value) {
+        const n = Number(String(value).replace(',', '.'));
+        if (!Number.isFinite(n)) return '';
+        return `€ ${n.toFixed(2).replace('.', ',')}`;
+    }
+
+    let priceDebounce = null;
+
+    /**
+     * Haalt de verkoopprijs op (Exact, api/exact_prices.php) van het
+     * artikel dat nu bij elke locatie (1-6) gekozen is, en toont die in
+     * de bijbehorende .location-price. Wordt aangeroepen vanuit
+     * updateAssemblyCode() - dus bij elke wijziging van een
+     * locatieselectie/beugel/materiaalcode.
+     */
+    function refreshLocationPrices() {
+        if (priceDebounce) clearTimeout(priceDebounce);
+
+        const entries = [
+            [ui.priceLoc1, selectedRow(ui.loc1) ? norm(selectedRow(ui.loc1)['Artikelcode']) : ''],
+            [ui.priceLoc2, state.selectedClamp ? norm(state.selectedClamp['Artikelcode']) : ''],
+            [ui.priceLoc3, selectedRow(ui.loc3) ? norm(selectedRow(ui.loc3)['Artikelcode']) : ''],
+            [ui.priceLoc4, selectedRow(ui.loc4) ? norm(selectedRow(ui.loc4)['Artikelcode']) : ''],
+            [ui.priceLoc5, selectedRow(ui.loc5) ? norm(selectedRow(ui.loc5)['Artikelcode']) : ''],
+            [ui.priceLoc6, norm(ui.materialCode.value)],
+        ];
+        entries.forEach(([el]) => { if (el) el.textContent = ''; });
+
+        const codes = unique(entries.map(([, code]) => code));
+        if (codes.length === 0) return;
+
+        priceDebounce = setTimeout(() => {
+            fetch(`api/exact_prices.php?codes=${encodeURIComponent(codes.join(';'))}`, { cache: 'no-store' })
+                .then(response => response.json())
+                .then(payload => {
+                    if (!payload || payload.ok !== true) return;
+                    entries.forEach(([el, code]) => {
+                        if (!el || !code) return;
+                        const price = payload.prices[code];
+                        el.textContent = price ? formatPrice(price) : '';
+                    });
+                })
+                .catch(() => {});
+        }, 200);
     }
 
     function showWarnings(messages) {
