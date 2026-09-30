@@ -152,7 +152,10 @@
         return match ? match[1].toUpperCase() : s.split(/[\s-]/)[0].toUpperCase();
     }
 
-    const SHAPE_IMAGE_DIR = 'images/';
+    // Leid de image-map af van de URL van selector.js zelf. Dit blijft correct
+    // wanneer de Stauff-app in een submap of via een andere route wordt geopend.
+    const selectorScriptUrl = document.currentScript?.src || new URL('assets/selector.js', window.location.href).href;
+    const SHAPE_IMAGE_DIR = new URL('../images/', selectorScriptUrl).href;
 
     // Welk plaatje (images/<key>.png) hoort bij een gekozen rij. Lasplaat en
     // Dekplaat hebben zelf geen "Enkel / Dubbel"-waarde in de brondata die
@@ -171,6 +174,12 @@
         const serie = row['Serie'];
         const ed = row['Enkel / Dubbel'];
         const prefix = firstCodePart(row['Artikelcode']);
+
+        // Artikel-specifieke afbeeldingen. Deze controle staat bewust voor de
+        // onderdeel-switch, zodat de afbeelding ook blijft werken wanneer de
+        // omschrijving/classificatie in de CSV later wijzigt.
+        if (prefix === 'WSP') return 'wsp';
+        if (prefix === 'CRA') return 'cra';
 
         switch (onderdeel) {
             case 'Glijmoer':
@@ -196,7 +205,6 @@
             case 'Zeskantbout':
                 return 'as';
             default:
-                // Lasplaat (hoek): geen plaatje beschikbaar.
                 return null;
         }
     }
