@@ -109,6 +109,20 @@ h2 { margin: 4px 0 0; font-size: 20px; }
     font-size: 14px;
 }
 
+.order-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: #fdeaee;
+    border: 1px solid #f5c3cf;
+    color: var(--accent-dark);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.stap2-badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0; }
+
 .field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .field > span { font-weight: 750; font-size: 14px; }
 

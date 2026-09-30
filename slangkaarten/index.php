@@ -1294,10 +1294,13 @@ if ($selectedKeys !== []) {
             <div class="section-heading">
                 <div>
                     <span class="step">Stap 2</span>
-                    <h2>Order <?= h($hoseLinesOrderNumber) ?> &middot; <?= count($hoseLines) ?> slangregel<?= count($hoseLines) === 1 ? '' : 'en' ?> gevonden</h2>
-                    <?php if ($hoseLinesKlant !== ''): ?>
-                        <span class="klant-badge"><?= h($hoseLinesKlant) ?></span>
-                    <?php endif; ?>
+                    <div class="stap2-badges">
+                        <?php if ($hoseLinesKlant !== ''): ?>
+                            <span class="klant-badge"><?= h($hoseLinesKlant) ?></span>
+                        <?php endif; ?>
+                        <span class="order-badge">Order <?= h($hoseLinesOrderNumber) ?></span>
+                    </div>
+                    <h2><?= count($hoseLines) ?> slangregel<?= count($hoseLines) === 1 ? '' : 'en' ?> gevonden</h2>
                 </div>
                 <button type="submit" form="hoseLinesForm" class="submit-button">Print geselecteerde slangkaarten</button>
             </div>
