@@ -401,6 +401,33 @@ function matchesKoppelingType(string $artikelnummer, string $type): bool
     return preg_match('/\b' . preg_quote($type, '/') . '\b/i', $artikelnummer) === 1;
 }
 
+/**
+ * Vergelijkt een CSV-koppelveld (Huls, Pilaar of 1delig_N) met het
+ * werkelijke order-artikelnummer ($needleKoppeling, al uppercased). Deze
+ * velden bevatten 2 heel verschillende soorten waarden (geverifieerd over
+ * alle rijen in beide CSV's: lengte 1-3 of 7+, nooit ertussenin):
+ * - Korte seriecodes ("10", "48", "VS", "V4", max 3 tekens) - matchen los
+ *   via matchesKoppelingType() (prefix/los-woord), want het order-
+ *   artikelnummer is dan een langere, specifiekere code die ermee begint
+ *   of 'm als los token bevat (zie de docblock daarboven).
+ * - Volledige, specifieke artikelnummers ("1300P9-04RVS", "13002-04MM",
+ *   7+ tekens) - moeten exact overeenkomen. Los matchen zou hier per
+ *   ongeluk "13002-04RVS" laten matchen op het kortere "13002-04" (ander
+ *   materiaal, toevallig dezelfde eerste tekens).
+ */
+function matchesKoppelingField(string $needleKoppeling, string $fieldValue): bool
+{
+    if ($fieldValue === '') {
+        return false;
+    }
+
+    if (strlen($fieldValue) <= 3) {
+        return matchesKoppelingType($needleKoppeling, strtoupper($fieldValue));
+    }
+
+    return strtoupper($fieldValue) === $needleKoppeling;
+}
+
 /** Doorzoekt 1 CSV-bestand op slangtype + koppelartikel, zie findKrimpmaat(). */
 function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelingArtikel): ?array
 {
@@ -433,14 +460,7 @@ function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelin
             $prefix = "2delig_{$number}";
             $huls = csvGetColumn($row, "{$prefix} - Huls");
             $pilaar = csvGetColumn($row, "{$prefix} - Pilaar");
-            // Huls is een volledig, specifiek artikelnummer (bv. "1300P9-04RVS",
-            // "13002-04") - dat moet exact overeenkomen. matchesKoppelingType()
-            // is bedoeld voor de korte Pilaar-seriecode (zie de docblock erboven)
-            // en gebruikt daarvoor een prefix/los-woord-match; toegepast op Huls
-            // matchte dat ook per ongeluk "13002-04" tegen een order-artikel
-            // "13002-04RVS" (ander materiaal, toevallig dezelfde eerste tekens).
-            $hulsMatches = $huls !== '' && strtoupper($huls) === $needleKoppeling;
-            if ($hulsMatches || matchesKoppelingType($needleKoppeling, strtoupper($pilaar))) {
+            if (matchesKoppelingField($needleKoppeling, $huls) || matchesKoppelingField($needleKoppeling, $pilaar)) {
                 $result = [
                     'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
                     'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
@@ -453,9 +473,7 @@ function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelin
         foreach ([1, 2, 3] as $number) {
             $prefix = "1delig_{$number}";
             $koppelArtikel = csvGetColumn($row, $prefix);
-            // Zelfde reden als bij Huls hierboven: 1delig_N is ook een
-            // volledig artikelnummer, dus exacte match i.p.v. prefix-match.
-            if ($koppelArtikel !== '' && strtoupper($koppelArtikel) === $needleKoppeling) {
+            if (matchesKoppelingField($needleKoppeling, $koppelArtikel)) {
                 $result = [
                     'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
                     'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
