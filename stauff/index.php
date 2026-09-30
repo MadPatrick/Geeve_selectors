@@ -92,7 +92,7 @@ function assetVersion(string $relativePath): string
         <div class="section-heading">
             <div>
                 <span class="step">Materiaal</span>
-                <h2>Bevestigingsdelen</h2>
+                <h2>Materiaal</h2>
             </div>
         </div>
 
@@ -115,7 +115,7 @@ function assetVersion(string $relativePath): string
         <div class="section-heading">
             <div>
                 <span class="step">Samenstelling</span>
-                <h2>Locaties 1 t/m 6</h2>
+                <h2>Samenstelling</h2>
             </div>
         </div>
 
