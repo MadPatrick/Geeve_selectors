@@ -72,9 +72,8 @@ function assetVersion(string $relativePath): string
                 <div class="autocomplete">
                     <input id="diameterInput" type="text" inputmode="decimal" autocomplete="off"
                            placeholder="Typ diameter, bijvoorbeeld 19">
-                    <div id="diameterSuggestions" class="suggestions" hidden></div>
                 </div>
-                <small>Alleen diameters die in de beugellijst voorkomen worden voorgesteld.</small>
+                <small>Live fuzzy zoeken op artikelnummer in Exact (artikelgroep 67).</small>
             </label>
 
             <div class="field compact-field serie-field">

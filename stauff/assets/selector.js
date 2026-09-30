@@ -14,7 +14,6 @@
         dataStatus: el('dataStatus'),
         resultCount: el('resultCount'),
         diameterInput: el('diameterInput'),
-        suggestions: el('diameterSuggestions'),
         exactLiveResults: el('exactLiveResults'),
         exactLiveStatus: el('exactLiveStatus'),
         exactLiveList: el('exactLiveList'),
@@ -316,30 +315,6 @@
             .includes(d);
     }
 
-    function showDiameterSuggestions() {
-        const typed = norm(ui.diameterInput.value).toLowerCase().replace('.', ',');
-        const values = allDiameters().filter(d => !typed || norm(d).toLowerCase().replace('.', ',').startsWith(typed)).slice(0, 12);
-        ui.suggestions.innerHTML = '';
-        if (!values.length || (values.length === 1 && norm(values[0]) === norm(ui.diameterInput.value))) {
-            ui.suggestions.hidden = true;
-            return;
-        }
-        values.forEach(value => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.textContent = `${value} mm`;
-            button.addEventListener('mousedown', event => {
-                event.preventDefault();
-                ui.diameterInput.value = value;
-                resizeDiameterField();
-                ui.suggestions.hidden = true;
-                rebuildClampFilters(true);
-            });
-            ui.suggestions.appendChild(button);
-        });
-        ui.suggestions.hidden = false;
-    }
-
     let exactLiveController = null;
     let exactLiveDebounce = null;
 
@@ -347,9 +322,9 @@
      * Live, fuzzy zoekopdracht op artikelnummer tegen de Exact-database
      * (api/exact_search.php, groep 67, artikelen die met een cijfer
      * beginnen) - eerste stap van het vervangen van de CSV door live
-     * Exact-data (zie de docblock daar). Toont de echte, actuele
-     * artikelcodes/omschrijvingen los van de bestaande (nog CSV-gedreven)
-     * wizard hieronder.
+     * Exact-data (zie de docblock daar). Toont enkel de echte, actuele
+     * artikelnummers (geen omschrijving) - de gebruiker kiest er 1 uit,
+     * los van de bestaande (nog CSV-gedreven) wizard hieronder.
      */
     function queryExactLive(term) {
         if (exactLiveDebounce) clearTimeout(exactLiveDebounce);
@@ -386,13 +361,17 @@
                     }
                     ui.exactLiveStatus.textContent = `${payload.rows.length} artikel${payload.rows.length === 1 ? '' : 'en'}`;
                     payload.rows.forEach(row => {
+                        const artikelnummer = norm(row.ItemCode);
                         const item = document.createElement('li');
-                        const code = document.createElement('strong');
-                        code.textContent = norm(row.ItemCode);
-                        const description = document.createElement('span');
-                        description.textContent = norm(row['Item Description']);
-                        item.appendChild(code);
-                        item.appendChild(description);
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.textContent = artikelnummer;
+                        button.addEventListener('click', () => {
+                            ui.diameterInput.value = artikelnummer;
+                            resizeDiameterField();
+                            ui.exactLiveResults.hidden = true;
+                        });
+                        item.appendChild(button);
                         ui.exactLiveList.appendChild(item);
                     });
                 })
@@ -675,12 +654,9 @@
     function bindEvents() {
         ui.diameterInput.addEventListener('input', () => {
             resizeDiameterField();
-            showDiameterSuggestions();
             rebuildClampFilters(true);
             queryExactLive(ui.diameterInput.value);
         });
-        ui.diameterInput.addEventListener('focus', showDiameterSuggestions);
-        ui.diameterInput.addEventListener('blur', () => setTimeout(() => { ui.suggestions.hidden = true; }, 100));
         ui.serieButtons.forEach(button => {
             button.addEventListener('click', () => {
                 if (button.disabled) return;

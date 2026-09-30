@@ -53,7 +53,7 @@ $normalizedTerm = normalizeFuzzyTerm($searchTerm);
 
 try {
     $stmt = $pdo->prepare(
-        'SELECT TOP 50 ItemCode, [Item Description] FROM GRV_SalesItems ' .
+        'SELECT TOP 50 ItemCode FROM GRV_SalesItems ' .
         'WHERE [Item Group] = :groep ' .
         "AND ItemCode LIKE '[0-9]%' " .
         "AND REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(ItemCode, '-', ''), ' ', ''), '.', ''), ',', ''), '_', '') " .

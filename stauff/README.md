@@ -21,9 +21,10 @@ Doel: de statische CSV volledig vervangen door live queries op de Exact-database
 (artikelgroep 67, zie portal-README "Database-koppeling Exact"), zodat de configurator altijd de
 actuele artikelen toont in plaats van een handmatig bijgehouden CSV-bestand.
 
-**Stap 1 (dit is af):** het diameterveld heeft een live, fuzzy zoekfunctie op het artikelnummer
-(`api/exact_search.php`) naast (niet i.p.v.) de bestaande CSV-gedreven autocomplete. Typ je een
-getal, dan zoekt dit endpoint in `GRV_SalesItems` naar artikelen met:
+**Stap 1 (dit is af):** het diameterveld heeft uitsluitend nog een live, fuzzy zoekfunctie op het
+artikelnummer (`api/exact_search.php`) - de oude CSV-gedreven autocomplete (een lijst bekende
+diameters uit de CSV) is verwijderd. Typ je een getal, dan zoekt dit endpoint in
+`GRV_SalesItems` naar artikelen met:
 
 - `[Item Group] = 67` (alleen Stauff-artikelen);
 - een artikelnummer dat met een cijfer begint (sluit lasplaat/dekplaat-codes als `SP...`/`GD...`
@@ -32,9 +33,9 @@ getal, dan zoekt dit endpoint in `GRV_SalesItems` naar artikelen met:
   kanten van de vergelijking (zelfde patroon als `tryColumnsFuzzyLikeQuery()` in
   `slangkaarten/inc/queries.php`), dus "1680" vindt ook "10168-0".
 
-De live resultaten (artikelnummer + Exact-omschrijving) worden getoond in een eigen paneel
-("Live resultaten uit Exact") onder het filterblok - puur informatief, er is nog geen koppeling
-naar de rest van de wizard.
+De live resultaten tonen **uitsluitend het artikelnummer** (geen omschrijving) als klikbare knop
+in een eigen paneel ("Live resultaten uit Exact") onder het filterblok. Klikken vult het
+diameterveld met dat artikelnummer; er is nog geen koppeling naar de rest van de wizard.
 
 **Nog niet gebouwd:** de rest van de wizard (serie/uitvoering/beugelmateriaal/locaties 1-6) blijft
 op de CSV draaien. `GRV_SalesItems` heeft geen equivalent van de CSV's curated
