@@ -607,16 +607,19 @@
     };
 
     // Standaardaantal per vaste locatie (1-6) - overal 1, behalve Bout
-    // (locatie 5) die standaard 2 is. Gebruikt bij het opnieuw leegmaken
-    // van de samenstelling (clearAssembly()) en bij het kiezen van een
-    // nieuwe, andere beugel (selectClamp()).
-    const DEFAULT_AANTAL = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 2, 6: 1 };
+    // (locatie 5, zie resetAantalFields() hieronder: standaard 2, maar 1
+    // bij een dubbele beugel - isDubbelClamp(), overeenkomend met een
+    // GRxD-groep). Gebruikt bij het opnieuw leegmaken van de
+    // samenstelling (clearAssembly()) en bij het kiezen van een nieuwe,
+    // andere beugel (selectClamp()).
+    const DEFAULT_AANTAL = { 1: 1, 2: 1, 3: 1, 4: 1, 6: 1 };
 
     function resetAantalFields() {
         Object.entries(DEFAULT_AANTAL).forEach(([pos, value]) => {
             const input = ui[`aantalLoc${pos}`];
             if (input) input.value = String(value);
         });
+        if (ui.aantalLoc5) ui.aantalLoc5.value = isDubbelClamp() ? '1' : '2';
     }
 
     function syncLocationConfigButtons() {
@@ -962,10 +965,12 @@
 
         soortSelect.addEventListener('change', () => {
             const pos = soortSelect.value;
-            // Standaard 1, behalve bij Bout (2, waarde "5"). Alleen gezet
-            // bij het wisselen van soort, zodat een handmatig aangepast
-            // aantal daarna niet weer overschreven wordt.
-            aantalInput.value = pos === '5' ? '2' : '1';
+            // Standaard 1, behalve bij Bout (waarde "5"): standaard 2,
+            // maar 1 bij een dubbele beugel (zie isDubbelClamp()/
+            // resetAantalFields()). Alleen gezet bij het wisselen van
+            // soort, zodat een handmatig aangepast aantal daarna niet
+            // weer overschreven wordt.
+            aantalInput.value = pos === '5' ? (isDubbelClamp() ? '1' : '2') : '1';
             if (!pos) {
                 delete locationFilterRequests[requestKey];
                 artikelSelect.disabled = true;
