@@ -142,12 +142,18 @@ selecteren, worden bouwgroep en serie van die beugel gebruikt om de overige posi
 
 ## Materiaal bevestigingsdelen
 
-De Staal/RVS-keuzeknop is verwijderd - de Materiaalcode-pulldown (locatie 6, nu bovenin naast
-"Gekozen artikel") toont gewoon **alle** materiaalcodes die voorkomen bij de posities van de
-gekozen beugel, ongeacht familie. De familie (Staal/RVS) wordt intern nog wel afgeleid uit de
-gekozen code zelf (`metalFamily()` in `assets/selector.js`, o.b.v. het W-nummer: W1/W2/W3 = Staal,
-W4/W5/W55 = RVS) - alleen om locatie 1 (Lasplaat) te filteren op dezelfde familie als de gekozen
-code (zie de code-comments bij `candidatesForPosition()`), niet meer als aparte UI-keuze.
+De Staal/RVS-keuzeknop is verwijderd - de Materiaalcode-pulldown (locatie 6, nu bovenin in
+dezelfde kaderdoos-stijl (`.diameter-box`) als "Zoeken op beugel" en "Gekozen artikel") toont
+gewoon **alle** materiaalcodes die voorkomen bij de posities van de gekozen beugel, ongeacht
+familie. De familie (Staal/RVS) wordt intern nog wel afgeleid uit de gekozen code zelf
+(`metalFamily()` in `assets/selector.js`, o.b.v. het W-nummer: W1/W2/W3 = Staal, W4/W5/W55 = RVS)
+- alleen om locatie 1 (Lasplaat) te filteren op dezelfde familie als de gekozen code (zie de
+code-comments bij `candidatesForPosition()`), niet meer als aparte UI-keuze.
+
+**Automatische selectie bij 1 optie:** elke locatieselect (1, 3, 4, 5 en de materiaalcode)
+selecteert zichzelf meteen als er, na filtering, maar 1 echt artikel/code overblijft - de
+gebruiker hoeft dan niet uit een lijst van 1 te kiezen. Zie `setSelectOptions()` (CSV-pad) en
+`applyLocationFilterSelect()` (live Exact-filterpad) in `assets/selector.js`.
 
 ## Samenstellingscode
 

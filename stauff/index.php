@@ -84,12 +84,16 @@ function assetVersion(string $relativePath): string
                 <ul id="exactLiveList" class="exact-live-list"></ul>
             </div>
 
-            <label class="field material-code-field">
-                <span>Materiaalcode (locatie 6)</span>
-                <select id="materialCodeSelect" disabled>
-                    <option value="">Kies eerst een beugel</option>
-                </select>
-            </label>
+            <div class="diameter-box material-code-field">
+                <div class="exact-live-header">
+                    <span>Materiaalcode (locatie 6)</span>
+                </div>
+                <div class="diameter-box-body">
+                    <select id="materialCodeSelect" disabled>
+                        <option value="">Kies eerst een beugel</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <small>Lasplaat en Dekplaat worden standaard voorgeselecteerd zodra een passende optie beschikbaar is; de overige onderdelen blijven optioneel.</small>

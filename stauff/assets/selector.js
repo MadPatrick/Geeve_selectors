@@ -305,7 +305,13 @@
             select.appendChild(opt);
         });
         select.disabled = options.length === 0;
-        if (old && [...select.options].some(o => o.value === old)) select.value = old;
+        if (old && [...select.options].some(o => o.value === old)) {
+            select.value = old;
+        } else if (options.length === 1) {
+            // Maar 1 echte optie beschikbaar: die dan meteen zelf selecteren
+            // i.p.v. de gebruiker te laten kiezen uit een lijst van 1.
+            select.value = typeof options[0] === 'object' ? norm(options[0]['Artikelcode']) : norm(options[0]);
+        }
     }
 
     let exactLiveController = null;
@@ -559,7 +565,11 @@
                     select.appendChild(option);
                 });
                 select.disabled = false;
-                if (items.some(item => item.code === previousValue)) select.value = previousValue;
+                if (items.some(item => item.code === previousValue)) {
+                    select.value = previousValue;
+                } else if (items.length === 1) {
+                    select.value = items[0].code;
+                }
                 updateAssemblyCode();
             })
             .catch(error => {
