@@ -165,26 +165,20 @@
     const selectorScriptUrl = document.currentScript?.src || new URL('assets/selector.js', window.location.href).href;
     const SHAPE_IMAGE_DIR = new URL('../images/', selectorScriptUrl).href;
 
-    // Welk plaatje (images/<key>.png) hoort bij een gekozen rij. Lasplaat en
-    // Dekplaat hebben zelf geen "Enkel / Dubbel"-waarde in de brondata die
-    // een dubbele uitvoering onderscheidt (GD daargelaten); of het om een
-    // dubbele samenstelling gaat wordt daarom afgeleid van de gekozen beugel
-    // zelf. sp1d (lasplaat), 1dpp (beugel) en gd1 (dekplaat) horen zo als
-    // vast drietal bij elkaar zodra de beugel dubbel is.
-    function isDubbelClamp() {
-        return !!state.selectedClamp && norm(state.selectedClamp['Enkel / Dubbel']) === 'Dubbel';
-    }
+    // Welk plaatje (images/<key>.png) hoort bij een gekozen rij. Lasplaat,
+    // Dekplaat en Beugel gebruiken hiervoor of het om een dubbele
+    // samenstelling gaat (zie isDubbelBeugel() hieronder). sp1d (lasplaat),
+    // 1dpp (beugel) en gd1 (dekplaat) horen zo als vast drietal bij elkaar
+    // zodra de beugel dubbel is.
 
     /**
      * Dubbele beugel o.b.v. de GRxD-groep-tag uit de Exact-omschrijving
      * (state.beugelGroup, gezet in selectExactArticle() via
-     * extractGroupTag()) - bewust NIET de CSV ('Enkel / Dubbel', zie
-     * isDubbelClamp() hierboven, die nog wel voor de plaatjes gebruikt
-     * wordt). Gebruikt voor het standaard Bout-aantal (resetAantalFields()/
-     * addExtraItemRow()), op verzoek losgekoppeld van de CSV. Een "D" aan
-     * het eind van de groep-tag betekent dubbel/twin, zelfde conventie als
-     * groupMatches() hierboven al gebruikt voor Bouwgroep-waarden als "3D".
-     * Geen groep bekend (geen GR-tag in de omschrijving) -> niet dubbel.
+     * extractGroupTag()) - geen CSV. Een "D" aan het eind van de groep-tag
+     * betekent dubbel/twin, zelfde conventie als groupMatches() hierboven
+     * al gebruikt voor Bouwgroep-waarden als "3D". Geen groep bekend (geen
+     * GR-tag in de omschrijving) -> niet dubbel. Zie isDubbelBeugel()
+     * hieronder voor het gecombineerde, uiteindelijk gebruikte signaal.
      */
     function isDubbelFromExactGroup() {
         return /D$/i.test(norm(state.beugelGroup));
@@ -220,7 +214,6 @@
         const onderdeel = row['Onderdeel'];
         const bouwgroep = upper(row['Bouwgroep']);
         const serie = row['Serie'];
-        const ed = row['Enkel / Dubbel'];
         const prefix = firstCodePart(row['Artikelcode']);
         const artikelcode = upper(norm(row['Artikelcode']));
 
@@ -232,7 +225,7 @@
             case 'Glijmoer':
                 return 'gmv';
             case 'Lasplaat':
-                if (isDubbelClamp()) return 'sp1d';
+                if (isDubbelBeugel()) return 'sp1d';
                 if (prefix === 'SP') {
                     // Alleen de SP-lasplaat volgt de bouwgroep van de GEKOZEN
                     // beugel. De GRx-tag komt bij voorkeur uit de Exact-
@@ -256,10 +249,10 @@
                 if (prefix === 'SPV') return bouwgroep === '1' ? 'spv1' : 'spv1a';
                 return null;
             case 'Beugel':
-                if (ed === 'Dubbel') return '1dpp';
+                if (isDubbelBeugel()) return '1dpp';
                 return (bouwgroep === '1' && serie === 'Licht (standaard)') ? '1pp' : '1app';
             case 'Dekplaat':
-                if (isDubbelClamp() || prefix === 'GD') return 'gd1';
+                if (isDubbelBeugel() || prefix === 'GD') return 'gd1';
                 return bouwgroep === '1' ? 'dp1' : 'dp1a';
             case 'Borgplaat':
                 return (prefix === 'SIG' || prefix === 'SIP') ? 'sig' : null;
