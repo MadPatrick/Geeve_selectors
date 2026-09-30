@@ -137,20 +137,10 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 .autocomplete { position: relative; }
 
 /* Live, fuzzy artikelnummer-zoekresultaten uit Exact (groep 67) bij het
-   diameterveld - zie api/exact_search.php. Dropdown onder het veld, zelfde
-   positioneringspatroon als de vroegere CSV-autocomplete. */
-.exact-live-results {
-    position: absolute;
-    z-index: 20;
-    left: 0;
-    top: calc(100% + 5px);
-    width: max(100%, 320px);
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    box-shadow: 0 14px 34px rgba(0, 0, 0, .14);
-    overflow: hidden;
-}
+   diameterveld - zie api/exact_search.php. Gewoon blok direct onder het
+   diameterveld (geen absolute overlay - dat brak het aanklikken van een
+   resultaat). */
+.exact-live-results { margin-top: 16px; max-width: 420px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: #f4f7fa; font-size: 13px; font-weight: 750; color: var(--muted); }
 .exact-live-status { font-size: 12px; font-weight: 700; }
 .exact-live-status.error { color: var(--danger); }
