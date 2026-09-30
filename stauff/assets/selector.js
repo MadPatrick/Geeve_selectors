@@ -37,6 +37,11 @@
         // zoekactie opnieuw invullen. Leeg = gewone CSV-lijst.
         locationFilters: loadLocationFilters(),
         editingLocation: null,
+        // Laatst opgehaalde verkoopprijzen (Exact), per artikelcode - los
+        // bijgehouden zodat recomputeTotal() de totaalprijs opnieuw kan
+        // berekenen zodra een aantal wijzigt, zonder opnieuw te moeten
+        // fetchen (zie refreshLocationPrices()).
+        lastPrices: {},
     };
 
     const el = id => document.getElementById(id);
@@ -67,6 +72,13 @@
         priceLoc4: el('locationPrice4'),
         priceLoc5: el('locationPrice5'),
         priceLoc6: el('locationPrice6'),
+        aantalLoc1: el('locationAantal1'),
+        aantalLoc2: el('locationAantal2'),
+        aantalLoc3: el('locationAantal3'),
+        aantalLoc4: el('locationAantal4'),
+        aantalLoc5: el('locationAantal5'),
+        aantalLoc6: el('locationAantal6'),
+        assemblyTotalPrice: el('assemblyTotalPrice'),
         locationConfigButtons: [...document.querySelectorAll('.location-number[data-location]')],
         locationAddButtons: [...document.querySelectorAll('.location-add-button')],
         assemblyList: document.querySelector('.assembly-list'),
@@ -450,6 +462,7 @@
         // Een nieuwe beugel start altijd met een lege optionele samenstelling.
         if (previousArticle !== norm(state.selectedClamp['Artikelcode'])) {
             [ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => { select.value = ''; });
+            resetAantalFields();
         }
         const c = state.selectedClamp;
         ui.loc2.textContent = clampCodePart(c);
@@ -494,6 +507,19 @@
         4: 'Dekplaat',
         5: 'Bout',
     };
+
+    // Standaardaantal per vaste locatie (1-6) - overal 1, behalve Bout
+    // (locatie 5) die standaard 2 is. Gebruikt bij het opnieuw leegmaken
+    // van de samenstelling (clearAssembly()) en bij het kiezen van een
+    // nieuwe, andere beugel (selectClamp()).
+    const DEFAULT_AANTAL = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 2, 6: 1 };
+
+    function resetAantalFields() {
+        Object.entries(DEFAULT_AANTAL).forEach(([pos, value]) => {
+            const input = ui[`aantalLoc${pos}`];
+            if (input) input.value = String(value);
+        });
+    }
 
     function syncLocationConfigButtons() {
         ui.locationConfigButtons.forEach(button => {
@@ -831,6 +857,7 @@
             refreshLocationPrices();
         });
         artikelSelect.addEventListener('change', refreshLocationPrices);
+        aantalInput.addEventListener('input', recomputeTotal);
         removeButton.addEventListener('click', () => {
             delete locationFilterRequests[requestKey];
             card.remove();
@@ -914,7 +941,10 @@
         entries.forEach(([el]) => { if (el) el.textContent = ''; });
 
         const codes = unique(entries.map(([, code]) => code));
-        if (codes.length === 0) return;
+        if (codes.length === 0) {
+            recomputeTotal();
+            return;
+        }
 
         priceDebounce = setTimeout(() => {
             fetch(`api/exact_prices.php?codes=${encodeURIComponent(codes.join(';'))}`, { cache: 'no-store' })
@@ -926,9 +956,60 @@
                         const price = payload.prices[code];
                         el.textContent = price ? formatPrice(price) : '';
                     });
+                    Object.entries(payload.prices || {}).forEach(([code, value]) => {
+                        const n = Number(String(value).replace(',', '.'));
+                        if (Number.isFinite(n)) state.lastPrices[code] = n;
+                    });
+                    recomputeTotal();
                 })
                 .catch(() => {});
         }, 200);
+    }
+
+    function aantalValue(input) {
+        const n = parseInt(input && input.value, 10);
+        return Number.isFinite(n) && n > 0 ? n : 1;
+    }
+
+    /**
+     * Berekent de totaalprijs van de samenstelling: som van (verkoopprijs x
+     * aantal) over elk gekozen onderdeel - de vaste locaties 1-6 én elke
+     * extra, vrij toegevoegde regel. Gebruikt de laatst opgehaalde prijzen
+     * (state.lastPrices, zie refreshLocationPrices()) i.p.v. zelf opnieuw
+     * te fetchen, zodat wijzigen van een aantal direct (zonder netwerk-
+     * vertraging) een nieuw totaal toont.
+     */
+    function recomputeTotal() {
+        if (!ui.assemblyTotalPrice) return;
+
+        const entries = [
+            [norm(ui.loc1.value), aantalValue(ui.aantalLoc1)],
+            [state.selectedClamp ? norm(state.selectedClamp['Artikelcode']) : '', aantalValue(ui.aantalLoc2)],
+            [norm(ui.loc3.value), aantalValue(ui.aantalLoc3)],
+            [norm(ui.loc4.value), aantalValue(ui.aantalLoc4)],
+            [norm(ui.loc5.value), aantalValue(ui.aantalLoc5)],
+            [norm(ui.materialCode.value), aantalValue(ui.aantalLoc6)],
+        ];
+        if (ui.assemblyList) {
+            ui.assemblyList.querySelectorAll('.extra-item-card').forEach(card => {
+                entries.push([
+                    norm(card.querySelector('.extra-item-artikel').value),
+                    aantalValue(card.querySelector('.extra-item-aantal')),
+                ]);
+            });
+        }
+
+        let total = 0;
+        let hasAny = false;
+        entries.forEach(([code, aantal]) => {
+            if (!code) return;
+            const price = state.lastPrices[code];
+            if (typeof price === 'number' && Number.isFinite(price)) {
+                total += price * aantal;
+                hasAny = true;
+            }
+        });
+        ui.assemblyTotalPrice.textContent = hasAny ? `Totaalprijs: ${formatPrice(total)}` : '';
     }
 
     function showWarnings(messages) {
@@ -948,6 +1029,7 @@
             select.innerHTML = '<option value="">Kies eerst een beugel</option>';
             select.disabled = true;
         });
+        resetAantalFields();
         showWarnings([]);
         updateAssemblyCode();
     }
@@ -959,6 +1041,10 @@
         });
         ui.materialCode.addEventListener('change', rebuildComponents);
         [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => select.addEventListener('change', updateAssemblyCode));
+        // Aantal wijzigen hoeft geen nieuwe prijs op te halen - alleen de
+        // totaalprijs opnieuw berekenen met de al bekende prijzen.
+        [ui.aantalLoc1, ui.aantalLoc2, ui.aantalLoc3, ui.aantalLoc4, ui.aantalLoc5, ui.aantalLoc6]
+            .forEach(input => input.addEventListener('input', recomputeTotal));
 
         ui.copyButton.addEventListener('click', async () => {
             const code = ui.assemblyCode.textContent;

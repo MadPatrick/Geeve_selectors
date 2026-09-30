@@ -187,19 +187,29 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 /* Locaties 1, 3, 4 en 5: het nummer zelf is klikbaar en opent het
    zoekfilter (locationFilterOverlay) - vervangt het vroegere losse
    config-tandwiel. Locaties 2 en 6 hebben geen filter, dus blijven een
-   gewone (niet-klikbare) div. */
+   gewone (niet-klikbare) div. Bewust geen apart hover/actief-uiterlijk -
+   alle nummerboxen (1-6) blijven visueel gelijk, klikbaar of niet. */
 button.location-number { cursor: pointer; }
-button.location-number:hover { background: #fbd7e2; }
-button.location-number.is-active { box-shadow: inset 0 0 0 2px var(--accent-dark); }
 .location-image { display: flex; align-items: center; justify-content: center; padding: 6px; border-right: 1px solid var(--line); background: #fbfcfd; }
 .location-image img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
 .location-image-placeholder { display: none; color: var(--muted); font-size: 20px; }
 .location-image.is-empty { opacity: .5; }
 .location-image.is-empty .location-image-placeholder { display: block; }
-.location-content { padding: 14px 16px; display: grid; grid-template-columns: minmax(190px, .75fr) minmax(0, 1.25fr) auto auto; align-items: center; gap: 18px; }
+/* Laatste kolom is een vaste breedte (i.p.v. auto) gelijk aan de
+   "+"-knop, ook op locaties 2 en 6 die geen knop hebben - anders
+   verschuift de select/fixed-value-box (kolom 3) daar naar rechts omdat
+   er geen knop is om ruimte voor te reserveren. De aantal-kolom (kolom 2)
+   is er altijd, ook op locaties zonder knop, om alle rijen exact gelijk
+   te houden. */
+.location-content { padding: 14px 16px; display: grid; grid-template-columns: minmax(190px, .75fr) 64px minmax(0, 1.25fr) auto 34px; align-items: center; gap: 18px; }
 .location-title strong, .location-title span { display: block; }
 .location-title span { color: var(--muted); font-size: 12px; margin-top: 2px; }
 .fixed-value { min-height: 44px; border-radius: 10px; padding: 11px 13px; background: #f5f8fa; border: 1px solid #d8e1e8; font-weight: 800; }
+
+/* Aantal per locatie (1-6) - links van het artikel-/waardeveld. Standaard
+   1, behalve bij Bout (locatie 5) waar 2 de norm is (zie index.php). Telt
+   mee in de totaalprijs onderaan (zie recomputeTotal() in selector.js). */
+.location-aantal { width: 64px; text-align: center; }
 
 /* Verkoopprijs (Exact, GRV_SalesItems) van het gekozen artikel per
    locatie - zie api/exact_prices.php en refreshLocationPrices() in
@@ -271,13 +281,17 @@ button.location-number.is-active { box-shadow: inset 0 0 0 2px var(--accent-dark
 .modal .field { margin-bottom: 10px; }
 .modal small { display: block; color: var(--muted); font-size: 12px; line-height: 1.5; margin-bottom: 18px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
-.clamp-location { border-color: #f0a9bc; }
-.clamp-location .location-number { background: #fbdce6; }
-.material-location .location-number { background: #eef0f7; }
+/* Locaties 2 (Beugel) en 6 (Materiaal) hebben geen eigen kader-/nummerkleur
+   meer - alle 6 locatienummers gebruiken nu dezelfde .location-number
+   basisstijl, zodat de boxen 1-6 gelijk in layout blijven. */
 
 .code-panel { margin-top: 22px; border-radius: 18px; padding: 25px 26px; background: linear-gradient(105deg, var(--dark-1) 0%, var(--dark-2) 70%, var(--dark-1) 100%); color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 24px; box-shadow: var(--shadow); }
 .code-label { color: #f0819f; }
 .assembly-code { font-size: clamp(20px, 3vw, 30px); font-weight: 850; letter-spacing: .01em; margin: 6px 0 5px; overflow-wrap: anywhere; }
+/* Som van (verkoopprijs x aantal) van elk gekozen onderdeel (locaties 1-6
+   + extra regels) - zie recomputeTotal() in assets/selector.js. Leeg
+   zolang er nog geen enkele prijs bekend is. */
+.assembly-total-price { color: #f0819f; font-size: 15px; font-weight: 800; margin: 0 0 5px; }
 .code-hint { color: #c7c7c7; font-size: 12px; }
 .copy-button {
     appearance: none;

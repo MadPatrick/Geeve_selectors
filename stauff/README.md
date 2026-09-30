@@ -148,11 +148,28 @@ meerdere extra regels van dezelfde soort (of een extra regel en de vaste locatie
 soort) elkaars zoekopdracht niet annuleren (zelfde soort per-locatie-tracking als hierboven bij
 "Eigen zoekfilter per locatie"). Extra regels verversen automatisch mee zodra de beugel of
 materiaalcode wijzigt (`refreshExtraItems()`, aangeroepen vanuit `rebuildComponents()`), en hun
-verkoopprijs wordt meegenomen in de batch-lookup (`refreshLocationPrices()`) - niet vermenigvuldigd
-met het aantal.
+verkoopprijs wordt meegenomen in de batch-lookup (`refreshLocationPrices()`) - zie "Aantal en
+totaalprijs" hieronder voor hoe het aantal daarin meetelt.
 
 Extra regels worden **niet** meegenomen in de samenstellingscode-berekening (`updateAssemblyCode()`)
-- die blijft uitsluitend gebaseerd op de vaste locaties 1-6.
+- die blijft uitsluitend gebaseerd op de vaste locaties 1-6. Ze tellen wél mee in de totaalprijs.
+
+## Aantal en totaalprijs
+
+Elke locatie (1-6, en elke extra regel) heeft een eigen **aantal**-veld links van het artikel-/
+waardeveld (`.location-aantal` resp. `.extra-item-aantal`). Standaard staat dat op **1**, behalve
+locatie 5 (Bout) die standaard op **2** staat (`DEFAULT_AANTAL` in `assets/selector.js`) - bij een
+extra regel geldt dezelfde regel zodra "Bout" als soort gekozen wordt. Het aantal wordt **niet**
+automatisch teruggezet zolang dezelfde beugel/soort gekozen blijft - alleen bij het kiezen van een
+andere beugel (`selectClamp()`) of het legen van de samenstelling (`clearAssembly()`) springen alle
+aantallen terug naar hun standaardwaarde (`resetAantalFields()`).
+
+Onder de samenstellingscode staat de **totaalprijs**: de som van (verkoopprijs × aantal) over elk
+onderdeel waarvoor al een artikel gekozen is - de 6 vaste locaties én elke extra regel
+(`recomputeTotal()` in `assets/selector.js`). Deze rekent met de laatst opgehaalde prijzen
+(`state.lastPrices`, gevuld door `refreshLocationPrices()`) - een aantal wijzigen herberekent het
+totaal dus direct, zonder opnieuw bij Exact te bevragen. Zolang geen enkele prijs bekend is, blijft
+de totaalregel leeg.
 
 ## Selectielogica
 

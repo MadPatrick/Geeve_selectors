@@ -116,6 +116,7 @@ function assetVersion(string $relativePath): string
                 </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Lasplaat / Glijmoer</strong><span>Standaard Lasplaat &middot; Onderzijde</span></div>
+                    <input type="number" id="locationAantal1" class="location-aantal" min="1" value="1" aria-label="Aantal Lasplaat / Glijmoer">
                     <select id="location1Select" disabled><option value="">Kies eerst een beugel</option></select>
                     <span id="locationPrice1" class="location-price"></span>
                     <button type="button" class="location-add-button" data-location="1" aria-label="Extra artikel toevoegen">
@@ -127,7 +128,7 @@ function assetVersion(string $relativePath): string
                 </div>
             </article>
 
-            <article class="location-card clamp-location" data-location="2">
+            <article class="location-card" data-location="2">
                 <div class="location-number">2</div>
                 <div class="location-image is-empty">
                     <img id="shapeImg2" alt="" hidden>
@@ -135,6 +136,7 @@ function assetVersion(string $relativePath): string
                 </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Beugel</strong><span>Beugelcode (bouwgroep + maat + materiaal)</span></div>
+                    <input type="number" id="locationAantal2" class="location-aantal" min="1" value="1" aria-label="Aantal Beugel">
                     <div id="location2Value" class="fixed-value">&mdash;</div>
                     <span id="locationPrice2" class="location-price"></span>
                 </div>
@@ -148,6 +150,7 @@ function assetVersion(string $relativePath): string
                 </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Borgplaat</strong><span>Optioneel &middot; opties uit bouwgroep</span></div>
+                    <input type="number" id="locationAantal3" class="location-aantal" min="1" value="1" aria-label="Aantal Borgplaat">
                     <select id="location3Select" disabled><option value="">Kies eerst een beugel</option></select>
                     <span id="locationPrice3" class="location-price"></span>
                     <button type="button" class="location-add-button" data-location="3" aria-label="Extra artikel toevoegen">
@@ -167,6 +170,7 @@ function assetVersion(string $relativePath): string
                 </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Dekplaat</strong><span>Standaard geselecteerd &middot; opties uit bouwgroep</span></div>
+                    <input type="number" id="locationAantal4" class="location-aantal" min="1" value="1" aria-label="Aantal Dekplaat">
                     <select id="location4Select" disabled><option value="">Kies eerst een beugel</option></select>
                     <span id="locationPrice4" class="location-price"></span>
                     <button type="button" class="location-add-button" data-location="4" aria-label="Extra artikel toevoegen">
@@ -186,6 +190,7 @@ function assetVersion(string $relativePath): string
                 </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Bout</strong><span>Optioneel &middot; stapel-, inbus- of zeskantbout</span></div>
+                    <input type="number" id="locationAantal5" class="location-aantal" min="1" value="2" aria-label="Aantal Bout">
                     <select id="location5Select" disabled><option value="">Kies eerst een beugel</option></select>
                     <span id="locationPrice5" class="location-price"></span>
                     <button type="button" class="location-add-button" data-location="5" aria-label="Extra artikel toevoegen">
@@ -197,13 +202,14 @@ function assetVersion(string $relativePath): string
                 </div>
             </article>
 
-            <article class="location-card material-location" data-location="6">
+            <article class="location-card" data-location="6">
                 <div class="location-number">6</div>
                 <div class="location-image is-empty">
                     <span class="location-image-placeholder">&mdash;</span>
                 </div>
                 <div class="location-content">
                     <div class="location-title"><strong>Materiaal</strong><span>Optioneel &middot; W-code bevestigingsdelen</span></div>
+                    <input type="number" id="locationAantal6" class="location-aantal" min="1" value="1" aria-label="Aantal Materiaal">
                     <div id="location6Value" class="fixed-value">&mdash;</div>
                     <span id="locationPrice6" class="location-price"></span>
                 </div>
@@ -215,6 +221,7 @@ function assetVersion(string $relativePath): string
         <div>
             <span class="code-label">SAMENSTELLINGSCODE</span>
             <div id="assemblyCode" class="assembly-code">Selecteer eerst een beugel</div>
+            <div id="assemblyTotalPrice" class="assembly-total-price"></div>
             <div id="codeHint" class="code-hint">Lasplaat en Dekplaat worden standaard gekozen. Borgplaat en Bout blijven optioneel. Locatie 2 gebruikt de beugelcode, bijvoorbeeld <strong>215 PP</strong> of <strong>3015 PP</strong>.</div>
         </div>
         <button id="copyButton" type="button" class="copy-button" disabled>Kopieer code</button>
