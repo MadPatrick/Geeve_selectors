@@ -895,7 +895,11 @@
         removeButton.setAttribute('aria-label', 'Extra artikel verwijderen');
         removeButton.textContent = '×';
 
-        content.append(aantalInput, soortSelect, artikelSelect, priceSpan, addButton, removeButton);
+        // Volgorde bepaalt de grid-kolom (zie .extra-item-content in
+        // style.css): soort neemt de "titel"-kolomplek van de vaste
+        // locaties over, zodat aantal/artikel/prijs/+ daarna verticaal
+        // uitlijnen met de vaste rijen erboven/eronder.
+        content.append(soortSelect, aantalInput, artikelSelect, priceSpan, addButton, removeButton);
         card.append(numberDiv, imageDiv, content);
         if (afterElement) {
             afterElement.insertAdjacentElement('afterend', card);

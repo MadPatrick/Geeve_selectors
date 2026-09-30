@@ -235,13 +235,22 @@ button.location-number { cursor: pointer; }
 }
 .location-add-button:hover { background: var(--soft); color: var(--accent-dark); }
 
-/* Extra, vrij toegevoegde artikelregel (zie addExtraItemRow()) - eigen
-   layout i.p.v. de vaste locatie-titel/select-indeling. */
+/* Extra, vrij toegevoegde artikelregel (zie addExtraItemRow()) - zelfde
+   grid-kolommen als de vaste locaties (.location-content erft dat al,
+   beide classes staan op hetzelfde element), met 1 extra 34px-kolom aan
+   het eind voor de "×"-verwijderknop die de vaste rijen niet hebben. De
+   1e kolom (normaal de titel) wordt hier de soort-select - zo lijnen
+   aantal/artikel/prijs/+ globaal uit met de vaste rijen erboven/eronder
+   (zie ook de content.append()-volgorde in addExtraItemRow(), die
+   hierop is afgestemd). Niet pixel-perfect - elke .location-card is een
+   eigen grid-container, en de extra 34px-kolom hierboven laat de
+   flexibele fr-kolommen (1e/3e) per rij net iets anders uitrekenen dan
+   bij de vaste 5-koloms rijen - maar het verschil is klein genoeg om
+   niet op te vallen. */
 .extra-item-card .location-number { font-size: 22px; }
-.extra-item-content { display: flex; align-items: center; gap: 12px; }
-.extra-item-aantal { flex: 0 0 64px; width: 64px; text-align: center; }
-.extra-item-soort { flex: 0 0 190px; }
-.extra-item-artikel { flex: 1 1 auto; min-width: 0; }
+.extra-item-content { grid-template-columns: minmax(190px, .75fr) 64px minmax(0, 1.25fr) auto 34px 34px; }
+.extra-item-aantal { width: 64px; text-align: center; }
+.extra-item-artikel { min-width: 0; }
 /* "+"-knop op een extra regel zelf (zie addExtraItemRow()) - voegt weer
    een nieuwe regel toe, direct onder deze regel. Hergebruikt de
    .location-add-button doos-stijl (34px cirkel); alleen font-size/
@@ -330,8 +339,6 @@ button.location-number { cursor: pointer; }
     .header-home-button svg { width: 18px; height: 18px; }
     .filter-grid { flex-wrap: wrap; }
     .location-content { grid-template-columns: 1fr; gap: 8px; }
-    .extra-item-content { flex-wrap: wrap; }
-    .extra-item-soort, .extra-item-artikel { flex: 1 1 100%; }
     .code-panel { align-items: stretch; flex-direction: column; }
     .copy-button { width: 100%; }
 }
