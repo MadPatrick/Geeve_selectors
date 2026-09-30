@@ -26,6 +26,11 @@
         validRows: [],
         clamps: [],
         selectedClamp: null,
+        // Bouwgroep-tag (bijv. "GR10") van de gekozen beugel, gehaald uit de
+        // Exact-omschrijving bij het kiezen (selectExactArticle()) - niet
+        // uit de CSV. Gebruikt om locatie-filters (zie hieronder) verder te
+        // verfijnen op bouwgroep.
+        beugelGroup: '',
         metalFamily: 'Staal',
         // Per locatie (1, 3, 4, 5) een ; -gescheiden lijst artikelnummer-
         // voorvoegsels - ingesteld via de config-cog op die regel (zie
@@ -78,6 +83,16 @@
     const escapeHtml = value => norm(value).replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
     }[c]));
+    // Haalt de bouwgroep-tag (bijv. "GR10") uit een Exact-omschrijving -
+    // zelfde patroon als extractGroupTag() in api/exact_location_search.php.
+    // Komt altijd uit de omschrijving die de live Exact-zoekopdracht al
+    // teruggeeft, nooit uit de CSV.
+    // \d direct na "GR" is bewust verplicht - anders matcht dit ook gewone
+    // woorden die met "gr" beginnen (GROEP, GRIJS, GROOT, ...).
+    const extractGroupTag = description => {
+        const match = norm(description).match(/\bGR\d[A-Za-z0-9]*\b/);
+        return match ? match[0] : '';
+    };
 
 
     function setCompactWidth(element, text, minCh, extraCh, maxCh) {
@@ -372,6 +387,8 @@
         ui.diameterInput.value = artikelnummer;
         resizeDiameterField();
 
+        state.beugelGroup = extractGroupTag(omschrijving);
+
         selectClamp(artikelnummer);
         if (!state.selectedClamp) {
             showWarnings([`Artikelnummer "${escapeHtml(artikelnummer)}" is niet gevonden in de detailtabel - Locaties/Materiaal/Samenstellingscode blijven leeg.`]);
@@ -510,6 +527,7 @@
 
         const params = new URLSearchParams({ prefixes: state.locationFilters[pos] });
         if (code) params.set('material', code);
+        if (state.beugelGroup) params.set('group', state.beugelGroup);
 
         fetch(`api/exact_location_search.php?${params.toString()}`, { cache: 'no-store', signal: controller.signal })
             .then(response => response.json())
@@ -517,22 +535,25 @@
                 if (!payload || payload.ok !== true) {
                     throw new Error((payload && payload.error) || 'Onbekende fout.');
                 }
-                const items = payload.rows.map(row => norm(row.ItemCode));
+                const items = payload.rows.map(row => ({ code: norm(row.ItemCode), group: norm(row.Group) }));
                 select.innerHTML = '';
                 const placeholderOption = document.createElement('option');
                 placeholderOption.value = '';
                 placeholderOption.textContent = items.length
                     ? '— Geen onderdeel gekozen —'
-                    : `Geen artikelen gevonden voor dit filter${code ? ` (${code})` : ''}.`;
+                    : `Geen artikelen gevonden voor dit filter${code ? ` (${code})` : ''}${state.beugelGroup ? ` (${state.beugelGroup})` : ''}.`;
                 select.appendChild(placeholderOption);
-                items.forEach(itemCode => {
+                items.forEach(item => {
                     const option = document.createElement('option');
-                    option.value = itemCode;
-                    option.textContent = itemCode;
+                    option.value = item.code;
+                    // Toont het artikelnummer + de gematchte bouwgroep-tag
+                    // samen, zodat die combinatie zichtbaar is (niet alleen
+                    // stilzwijgend gefilterd).
+                    option.textContent = item.group ? `${item.code} (${item.group})` : item.code;
                     select.appendChild(option);
                 });
                 select.disabled = false;
-                if (items.includes(previousValue)) select.value = previousValue;
+                if (items.some(item => item.code === previousValue)) select.value = previousValue;
                 updateAssemblyCode();
             })
             .catch(error => {

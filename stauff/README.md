@@ -94,10 +94,20 @@ en 6) hebben een config-tandwiel-knop (`.location-config-button`) die een modal 
 (`locationFilterOverlay` in `index.php`). Daar kun je, ; -gescheiden, artikelnummer-voorvoegsels
 opgeven (bijv. `SP;SPAL;SPV`) - dit vervangt voor die locatie de gewone CSV-lijst
 (`candidatesForPosition()`) door een live zoekopdracht in Exact (`api/exact_location_search.php`):
-artikelen (artikelgroep 67) die met 1 van de opgegeven voorvoegsels **beginnen**, gecombineerd met
-de op dat moment gekozen materiaalcode (locatie 6, bijv. "W1"), die de artikelen ook moeten
-**bevatten**. Leeg filter (of nog niet geconfigureerd) = de locatie blijft de normale CSV-lijst
-gebruiken.
+artikelen (artikelgroep 67) die met 1 van de opgegeven voorvoegsels **beginnen**, gecombineerd met:
+
+- de op dat moment gekozen materiaalcode (locatie 6, bijv. "W1"), die de artikelen ook moeten
+  **bevatten**;
+- de bouwgroep van de gekozen beugel (bijv. "GR10") - deze wordt gehaald uit de Exact-
+  omschrijving van de beugel zelf (`extractGroupTag()`, aangeroepen in `selectExactArticle()`
+  met de omschrijving die de live diameter-zoekopdracht al teruggeeft) - **niet** uit de CSV.
+  Kandidaat-artikelen moeten dezelfde bouwgroep-tag in hún eigen `[Item Description]` hebben.
+  De match is woordgrens-veilig (`"GR10 "` of einde van de tekst, nooit los `%GR10%`) zodat
+  bouwgroep "GR10" niet per ongeluk ook "GR100" matcht.
+
+Elk gevonden artikel toont in de select de gematchte combinatie (artikelnummer + bouwgroep-tag,
+bijv. "SP-215 (GR10)"), zodat die zichtbaar is i.p.v. stilzwijgend gefilterd. Leeg filter (of nog
+niet geconfigureerd) = de locatie blijft de normale CSV-lijst gebruiken.
 
 Het filter wordt opgeslagen in `localStorage` (`stauffLocationFilters`), dus 1x instellen blijft
 staan - niet opnieuw invullen bij elke zoekopdracht of pagina-herlaad. Het tandwiel krijgt een
