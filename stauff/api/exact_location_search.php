@@ -8,19 +8,26 @@ header('Cache-Control: no-store, max-age=0');
 require_once dirname(__DIR__) . '/inc/db.php';
 
 /**
- * Live zoekfunctie op artikelnummer voor 1 samenstellingslocatie (1, 3, 4
- * of 5 - zie de config-cog per locatierij in index.php/selector.js), als
- * alternatief voor de CSV-gedreven candidatesForPosition() in
- * assets/selector.js.
+ * Live zoekfunctie op artikelnummer voor 1 samenstellingslocatie (1, 2, 3,
+ * 4 of 5) - de standaard, altijd actieve bron voor kandidaat-artikelen in
+ * assets/selector.js (rebuildComponents()/populateExtraArticleSelect()).
+ * Er wordt geen CSV meer gebruikt; het tandwiel/zoekfilter per locatie is
+ * alleen nog een optionele handmatige override van de standaard-
+ * voorvoegsels (PREFIXES_BY_POSITION).
  *
  * $prefixes ("SP;SPAL;SPV", ; -gescheiden) - artikelen moeten met 1 van
  * deze voorvoegsels BEGINNEN (LIKE 'PREFIX%'), niet fuzzy/contains: de
- * gebruiker configureert hiermee zelf welke artikelcode-prefixes bij die
- * locatie horen (vroeger hardcoded in candidatesForPosition()).
+ * standaardwaarde komt uit PREFIXES_BY_POSITION in assets/selector.js, met
+ * het tandwiel/zoekfilter als optionele handmatige override. Speciale
+ * waarde "__DIGIT__" (gebruikt voor locatie 2, Beugel-als-extra-regel):
+ * artikelen moeten met een CIJFER beginnen (LIKE '[0-9]%'), net als de
+ * hoofd-beugelzoekopdracht in exact_search.php - Beugel-artikelen hebben
+ * geen letter-voorvoegsel.
  *
- * $material (optioneel, bijv. "W1") - artikelen moeten deze materiaalcode
- * ook BEVATTEN (LIKE '%MATERIAAL%'), overeenkomend met de op dat moment
- * gekozen Materiaalcode (locatie 6).
+ * $material (optioneel, bijv. "W1" of "W1;W2;W3" - ; -gescheiden voor
+ * locatie 1, die op hele materiaalFAMILIE filtert) - artikelen moeten 1 van
+ * deze materiaalcodes ook BEVATTEN (LIKE '%MATERIAAL%'), overeenkomend met
+ * de op dat moment gekozen Materiaalcode (locatie 6).
  *
  * $group (optioneel, bijv. "GR10") - de volledige bouwgroep-tag zoals die
  * ook uit de omschrijving van de GEKOZEN BEUGEL gehaald is (zie
@@ -54,7 +61,7 @@ function extractGroupTag(string $description): string
 }
 
 $prefixesParam = trim((string) ($_GET['prefixes'] ?? ''));
-$material = trim((string) ($_GET['material'] ?? ''));
+$materialParam = trim((string) ($_GET['material'] ?? ''));
 $group = trim((string) ($_GET['group'] ?? ''));
 
 if ($prefixesParam === '') {
@@ -62,14 +69,20 @@ if ($prefixesParam === '') {
     exit;
 }
 
-$prefixes = array_values(array_unique(array_filter(
+$digitFirst = $prefixesParam === '__DIGIT__';
+$prefixes = $digitFirst ? [] : array_values(array_unique(array_filter(
     array_map('trim', explode(';', $prefixesParam)),
     static fn(string $prefix): bool => $prefix !== ''
 )));
-if ($prefixes === []) {
+if (!$digitFirst && $prefixes === []) {
     echo json_encode(['ok' => true, 'count' => 0, 'rows' => []], JSON_UNESCAPED_UNICODE);
     exit;
 }
+
+$materials = array_values(array_unique(array_filter(
+    array_map('trim', explode(';', $materialParam)),
+    static fn(string $material): bool => $material !== ''
+)));
 
 try {
     $pdo = getPdoConnection();
@@ -79,22 +92,34 @@ try {
     exit;
 }
 
-$prefixConditions = [];
 $params = ['groep' => STAUFF_ITEM_GROUP];
-foreach ($prefixes as $index => $prefix) {
-    // LIKE-jokertekens (%, _) in een door de gebruiker ingevoerd voorvoegsel
-    // moeten als letterlijke tekens behandeld worden, anders kan een
-    // toevallige % of _ de query laten afwijken van "begint met".
-    $prefixConditions[] = "ItemCode LIKE :prefix{$index}";
-    $params["prefix{$index}"] = escapeLikeLiteral($prefix) . '%';
+
+if ($digitFirst) {
+    // Beugel-artikelen (locatie 2) hebben geen letter-voorvoegsel - zelfde
+    // patroon als de hoofd-beugelzoekopdracht in exact_search.php.
+    $codeCondition = "ItemCode LIKE '[0-9]%'";
+} else {
+    $prefixConditions = [];
+    foreach ($prefixes as $index => $prefix) {
+        // LIKE-jokertekens (%, _) in een door de gebruiker ingevoerd voorvoegsel
+        // moeten als letterlijke tekens behandeld worden, anders kan een
+        // toevallige % of _ de query laten afwijken van "begint met".
+        $prefixConditions[] = "ItemCode LIKE :prefix{$index}";
+        $params["prefix{$index}"] = escapeLikeLiteral($prefix) . '%';
+    }
+    $codeCondition = '(' . implode(' OR ', $prefixConditions) . ')';
 }
 
 $sql = 'SELECT TOP 50 ItemCode, [Item Description] FROM GRV_SalesItems ' .
-    'WHERE [Item Group] = :groep AND (' . implode(' OR ', $prefixConditions) . ')';
+    'WHERE [Item Group] = :groep AND ' . $codeCondition;
 
-if ($material !== '') {
-    $sql .= ' AND ItemCode LIKE :material';
-    $params['material'] = '%' . escapeLikeLiteral($material) . '%';
+if ($materials !== []) {
+    $materialConditions = [];
+    foreach ($materials as $index => $materialValue) {
+        $materialConditions[] = "ItemCode LIKE :material{$index}";
+        $params["material{$index}"] = '%' . escapeLikeLiteral($materialValue) . '%';
+    }
+    $sql .= ' AND (' . implode(' OR ', $materialConditions) . ')';
 }
 
 if ($group !== '') {

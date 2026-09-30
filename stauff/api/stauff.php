@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
 
+// Niet meer aangeroepen door assets/selector.js - de configurator haalt al
+// zijn kandidaat-artikelen (incl. de beugel) live uit Exact
+// (api/exact_search.php, api/exact_location_search.php). Dit endpoint en de
+// CSV eronder blijven staan als inert referentie-/rollback-materiaal, zie
+// stauff/README.md ("Migratie naar live Exact-data").
+
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, max-age=0');
 

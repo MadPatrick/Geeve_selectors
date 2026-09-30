@@ -1,81 +1,99 @@
 # STAUFF Beugelconfigurator
 
-Eerste webversie van de STAUFF selector op basis van `data/stauff_selector.csv`. De wizard
-(serie/uitvoering/materiaal/locaties) draait nog volledig op deze CSV - zie "Migratie naar live
-Exact-data" hieronder voor de eerste stap richting het vervangen ervan.
+De STAUFF selector haalt al zijn kandidaat-artikelen (beugel én de bevestigingsdelen op
+locaties 1/3/4/5) live uit de Exact-database "005" (artikelgroep 67, zie portal-README
+"Database-koppeling Exact"). De statische `data/stauff_selector.csv` wordt door de
+configurator niet meer gebruikt - zie "Migratie naar live Exact-data" hieronder.
 
 ## Installatie
 
 1. Kopieer de volledige map naar een PHP-webserver (Apache/Nginx + PHP).
-2. Zorg dat PHP `fgetcsv()` mag gebruiken en dat de map `data/` leesbaar is.
-3. Open `index.php` in de browser.
+2. Open `index.php` in de browser.
+3. Voor de live Exact-zoekfuncties (diameterveld, locaties 1/3/4/5, verkoopprijs) is een
+   databaseverbinding nodig - zonder die verbinding tonen die onderdelen een foutmelding.
 
-Er is geen database nodig voor de CSV-gedreven wizard zelf. Het PHP-endpoint `api/stauff.php`
-leest de CSV en stuurt JSON naar de JavaScript-configurator. Voor de live Exact-zoekfunctie bij
-het diameterveld (zie hieronder) is wél een databaseverbinding nodig - zonder die verbinding
-toont dat zoekveld een foutmelding, de rest van de configurator blijft normaal werken.
+`data/stauff_selector.csv` en `api/stauff.php` staan nog op schijf als inert referentie-/
+rollback-materiaal, maar worden door `assets/selector.js` niet meer aangeroepen (zie hieronder).
 
-`data/stauff_selector.csv` is teruggebracht tot alleen de kolommen die de configurator nog
-daadwerkelijk gebruikt (`Artikelcode`, `Onderdeel`, `Positie`, `Diameter 1`, `Bouwgroep`,
-`Enkel / Dubbel`, `Materiaalcode`, `Serie`, `Status`) - `Diameter 2`, `Materiaal` (volledige
-omschrijving) en `Variant / specificatie` werden nergens meer gelezen. De ongebruikte, dubbele
-kopie van het bestand in de map-root (`stauff/stauff_selector.csv`, niet `data/`) is verwijderd.
+## Migratie naar live Exact-data
 
-## Migratie naar live Exact-data (in opbouw)
+Doel (**afgerond**): de statische CSV volledig vervangen door live queries op de Exact-database
+"005" (artikelgroep 67), zodat de configurator altijd de actuele artikelen toont in plaats van
+een handmatig bijgehouden CSV-bestand.
 
-Doel: de statische CSV volledig vervangen door live queries op de Exact-database "005"
-(artikelgroep 67, zie portal-README "Database-koppeling Exact"), zodat de configurator altijd de
-actuele artikelen toont in plaats van een handmatig bijgehouden CSV-bestand.
-
-**Stap 1 (dit is af):** het diameterveld heeft uitsluitend nog een live, fuzzy zoekfunctie op het
-artikelnummer (`api/exact_search.php`) - de oude CSV-gedreven autocomplete (een lijst bekende
-diameters uit de CSV) is verwijderd. Typ je een getal, dan zoekt dit endpoint in
-`GRV_SalesItems` naar artikelen met:
+**Beugel kiezen.** Het diameterveld heeft een live, fuzzy zoekfunctie op het artikelnummer
+(`api/exact_search.php`). Typ je een getal, dan zoekt dit endpoint in `GRV_SalesItems` naar
+artikelen met:
 
 - `[Item Group] = 67` (alleen Stauff-artikelen);
 - een artikelnummer dat met een cijfer begint (sluit lasplaat/dekplaat-codes als `SP...`/`GD...`
   uit - die horen niet bij een diameter-zoekopdracht);
 - een fuzzy match op het getal: koppeltekens/spaties/punten/komma's worden genegeerd aan beide
-  kanten van de vergelijking (zelfde patroon als `tryColumnsFuzzyLikeQuery()` in
-  `slangkaarten/inc/queries.php`), dus "1680" vindt ook "10168-0".
+  kanten van de vergelijking, dus "1680" vindt ook "10168-0".
 
-De live resultatenlijst toont **uitsluitend het artikelnummer** (geen omschrijving) als klikbare
-knop, in een gewoon blok náást het diameterveld (flex-buur in `.filter-grid`, géén absolute/
-floating overlay - dat bleek het aanklikken van een resultaat te breken, zie git-historie).
-`api/exact_search.php` geeft per rij wél de Exact-omschrijving (`[Item Description]`) mee in de
-JSON - die wordt pas getoond ná het kiezen (zie hieronder), niet in de lijst zelf.
+Klikken op een artikelnummer in de resultatenlijst (`selectExactArticle()` in
+`assets/selector.js`) vult het diameterveld, onthoudt de GRx/GRxD-bouwgroep-tag uit de
+Exact-omschrijving (`state.beugelGroup`, via `extractGroupTag()`) en bouwt `state.selectedClamp`
+**rechtstreeks** uit dit live resultaat op (`selectClamp()`) - er is geen CSV-koppeling meer nodig
+of mogelijk; elk live gevonden artikel activeert meteen Locaties 1-6, Materiaal bevestigingsdelen
+en de Samenstellingscode.
 
-Het diameterveld staat zelf ook in een kaderdoos (`.diameter-box`) met dezelfde kaderstijl/
-headerbalk (`.exact-live-header`, hergebruikt, tekst "Zoeken op beugel") als de resultatenbox
-ernaast (die header toont alleen nog de statustekst, geen "Live resultaten uit Exact"-titel meer)
-- dus zelfde "look" (rand, hoeken, header) en (via `align-items: stretch` op `.filter-grid`, de
-default) altijd
-even hoog.
+**Kandidaat-artikelen (locaties 1/3/4/5 en Beugel-als-extra-regel).** `api/exact_location_search.php`
+is de enige, altijd actieve bron - zie "Eigen zoekfilter per locatie" hieronder voor de
+standaard-voorvoegsels en de GRx/GRxD-bouwgroepfilter.
 
-**De filtervelden Serie, Uitvoering, Beugelmateriaal en Beugel zijn verwijderd** uit de
-"Beugel bepalen"-sectie, met alle code die er exclusief van afhing (`rebuildClampFilters()`,
-de diameter-typeahead over de CSV, de serie/uitvoering-knoppen). Die velden waren voorheen de
-enige weg om `state.selectedClamp` te zetten - dat gebeurt nu via het kiezen van een live
-Exact-resultaat (zie hieronder). Ook de "X regels geladen"/"X mogelijkheden"-pilletjes boven het
-filterblok zijn weg (`ui.dataStatus`/`ui.resultCount`) - die hoorden bij de oude CSV-telling.
+## Onderdeel-classificatie (`PREFIX_RULES`)
 
-**Stap 1b (dit is af): een artikel kiezen.** Klikken op een artikelnummer in de live
-resultatenlijst (`selectExactArticle()` in `assets/selector.js`) doet twee dingen:
+Welk artikelcode-voorvoegsel bij welke vaste locatie (1/3/4/5) en welk Onderdeel-type hoort staat
+in `PREFIX_RULES` in `assets/selector.js` - geverifieerd tegen alle 1282 rijen van de oude CSV:
+elk voorvoegsel wijst 100% betrouwbaar naar precies 1 Onderdeel, geen kruisbesmetting.
 
-1. Vult het diameterveld met dat artikelnummer en vervangt de resultatenlijst door 1 regel met
-   het gekozen artikelnummer + de Exact-omschrijving. Opnieuw zoeken kan door het diameterveld te
-   overtypen (geen apart "Wijzig"-knopje).
-2. Roept `selectClamp(artikelnummer)` aan - dezelfde functie die voorheen via de (inmiddels
-   verwijderde) Beugel-select liep. Staat dat artikelnummer in `data/stauff_selector.csv` (kolom
-   `Artikelcode`), dan activeert dit meteen Locaties 1-6, Materiaal bevestigingsdelen (incl. de
-   Staal/RVS-keuze) en de Samenstellingscode, exact zoals voorheen. Staat het er niet in, dan
-   blijven die secties leeg/uitgeschakeld met een duidelijke waarschuwing i.p.v. stil te falen.
+| Voorvoegsel(s) | Locatie | Onderdeel |
+|---|---|---|
+| `SP`, `SPAL`, `SPV` | 1 | Lasplaat |
+| `WSP` | 1 | Lasplaat (hoek) |
+| `GMV` | 1 | Glijmoer |
+| `DP`, `DPAL`, `DPAS`, `GD`, `DPAD` | 4 | Dekplaat |
+| `SI`, `SIP`, `SIG` | 3 | Borgplaat |
+| `AF` | 5 | Stapelbout |
+| `IS` | 5 | Inbusbout |
+| `AS` | 5 | Zeskantbout |
+| (cijfer-eerst) | 2 | Beugel |
 
-**Nog niet gebouwd (Stap 2):** dit koppelt een live Exact-artikel dus nog aan de **CSV** voor zijn
-attributen (Bouwgroep/Serie/Enkel-Dubbel/Materiaal) - de CSV is voor dat deel nog niet vervangen.
-Aanwijzing voor die volgende stap: de bouwgroep staat in Exact in de artikelomschrijving
-(`Item Description` op `GRV_SalesItems`) met het voorvoegsel `GR` (bijv. "GR10") - dat moet
-gebruikt worden om de bouwgroep rechtstreeks uit Exact te halen in plaats van via de CSV.
+Classificatie van een teruggekomen Exact-rij gebeurt altijd client-side (`classify()`) op de
+eigen `ItemCode` - nooit op basis van welke SQL-voorvoegselclausule raakte (die overlappen
+bewust, bijv. `DP%` matcht ook `DPAD...`, zodat de server een ruimere kandidatenset teruggeeft
+die client-side verder verfijnd wordt).
+
+## Bouwgroep + Enkel/Dubbel (`tagMatches()`, één mechanisme)
+
+Er is geen apart Enkel/Dubbel-veld meer. De GRx/GRxD-tag uit de Exact-omschrijving
+(`extractGroupTag()`, regex `/\bGR\d[A-Za-z0-9]*\b/`) definieert **beide tegelijk**: een
+kandidaat-artikel telt alleen mee als zijn eigen tag EXACT gelijk is aan die van de gekozen
+beugel (`state.beugelGroup`), inclusief de `D`-suffix - een Dubbel-beugel (tag eindigt op `D`)
+toont dus alleen kandidaten wier eigen omschrijving dezelfde `D`-tag draagt, een Enkel-beugel
+alleen kandidaten zonder `D`.
+
+```js
+function tagMatches(candidateTag, clampTag) {
+    const a = upper(candidateTag);
+    const b = upper(clampTag);
+    return !!a && !!b && a === b;
+}
+```
+
+`isDubbelBeugel()`/`isDubbelArtikelcode()` blijven ongewijzigd bestaan voor de twee
+ongerelateerde features (standaard-aantal bij Bout, vorm-afbeelding-keuze) - dat is geen
+kandidaat-filter.
+
+**Uitrol per locatie (`GROUP_FILTER_ENABLED_FOR` in `assets/selector.js`):** of deze tagfilter
+daadwerkelijk toegepast wordt, staat per locatie los aan/uit. Locatie 1 en 2 (beugel-gerelateerd)
+staan aan - bewezen, `state.beugelGroup` wordt al op precies deze manier uit een Exact-
+omschrijving gehaald. Locatie 3/4/5 staan **uit** totdat via `/stauff/db-test.php` gecontroleerd
+is dat Borgplaat/Dekplaat/Bout-omschrijvingen in Exact ook echt een herkenbare GRx/GRxD-tag
+dragen (inclusief of de `D` daar voorkomt voor de dubbele varianten, GD/DPAD-prefixen). Tot die
+tijd filteren die locaties alleen op voorvoegsel + materiaal (ruimere lijst, nooit verkeerde
+resultaten - wel tijdelijk minder scherp). Zet de vlag pas op `true` ná die controle.
 
 ## Verkoopprijs per locatie (Exact, database 005)
 
@@ -85,91 +103,71 @@ bijbehorende regel (`.location-price`), via `refreshLocationPrices()` in `assets
 die wordt aangeroepen vanuit `updateAssemblyCode()`, dus bij elke wijziging van beugel,
 materiaalcode of een locatieselectie.
 
-**Kolomnaam nog niet bevestigd.** In tegenstelling tot Locatie/Voorraad in `/slangkaarten` (die al
-zijn uitgezocht, zie de portal-README) is de kolomnaam voor verkoopprijs op `GRV_SalesItems` nog
-niet geverifieerd. `exact_prices.php` probeert daarom een lijst kandidaat-kolomnamen (`Sales
-Price`, `SalesPrice`, `Price 1`, `Price1`, `Price`, `Verkoopprijs`, `Prijs`) totdat er 1 zonder
-SQL-fout data teruggeeft - welke kolom dat was staat in de JSON-response (`"column"`), zodat dat
-te controleren is. Werkt geen van de kandidaten, dan blijft de prijs overal leeg (geen
-foutmelding) - meld dan de echte kolomnaam terug zodat de lijst aangepast kan worden.
+**Kolomnaam nog niet bevestigd.** De kolomnaam voor verkoopprijs op `GRV_SalesItems` is nog niet
+geverifieerd. `exact_prices.php` probeert daarom een lijst kandidaat-kolomnamen (`Sales Price`,
+`SalesPrice`, `Price 1`, `Price1`, `Price`, `Verkoopprijs`, `Prijs`) totdat er 1 zonder SQL-fout
+data teruggeeft - welke kolom dat was staat in de JSON-response (`"column"`). Werkt geen van de
+kandidaten, dan blijft de prijs overal leeg (geen foutmelding).
 
 ## Eigen zoekfilter per locatie (locatienummer als knop, Exact live)
 
-Locaties 1, 3, 4 en 5 (Lasplaat/Glijmoer, Borgplaat, Dekplaat, Bout - dus niet de vaste locaties 2
-en 6) hebben géén apart config-tandwiel meer - het **locatienummer zelf** is de knop
-(`<button class="location-number" data-location="N">`, gewoon het cijfer, geen icoon) die de
-config-modal opent (`locationFilterOverlay` in `index.php`). Daar kun je, ; -gescheiden, artikelnummer-voorvoegsels
-opgeven (bijv. `SP;SPAL;SPV`) - dit vervangt voor die locatie de gewone CSV-lijst
-(`candidatesForPosition()`) door een live zoekopdracht in Exact (`api/exact_location_search.php`):
-artikelen (artikelgroep 67) die met 1 van de opgegeven voorvoegsels **beginnen**, gecombineerd met:
+Locaties 1, 3, 4 en 5 hebben géén apart config-tandwiel - het **locatienummer zelf** is de knop
+(`<button class="location-number" data-location="N">`) die de config-modal opent
+(`locationFilterOverlay` in `index.php`). Daar kun je, `;`-gescheiden, artikelnummer-voorvoegsels
+opgeven (bijv. `SP;SPAL;SPV`) - dit **overschrijft** voor die locatie de standaard-voorvoegsels
+uit `PREFIXES_BY_POSITION` (afgeleid van `PREFIX_RULES` hierboven). Leeg = de standaard-
+voorvoegsels voor die locatie blijven gebruikt; er is geen "CSV-fallback" meer, het live pad is
+altijd actief.
 
-- de op dat moment gekozen materiaalcode (locatie 6, bijv. "W1"), die de artikelen ook moeten
-  **bevatten**;
-- de bouwgroep van de gekozen beugel (bijv. "GR10") - deze wordt gehaald uit de Exact-
-  omschrijving van de beugel zelf (`extractGroupTag()`, aangeroepen in `selectExactArticle()`
-  met de omschrijving die de live diameter-zoekopdracht al teruggeeft) - **niet** uit de CSV.
-  Kandidaat-artikelen moeten dezelfde bouwgroep-tag in hún eigen `[Item Description]` hebben.
-  De match is woordgrens-veilig (`"GR10 "` of einde van de tekst, nooit los `%GR10%`) zodat
-  bouwgroep "GR10" niet per ongeluk ook "GR100" matcht.
+`api/exact_location_search.php` zoekt artikelen (artikelgroep 67) die met 1 van de voorvoegsels
+**beginnen**, gecombineerd met:
+
+- de op dat moment gekozen materiaalcode (locatie 6) - voor locatie 1 de hele materiaalFAMILIE
+  (`;`-lijst, bijv. "W1;W2;W3"), voor overige locaties de exacte code;
+- (indien `GROUP_FILTER_ENABLED_FOR` voor die locatie aan staat) de GRx/GRxD-tag van de gekozen
+  beugel - zie "Bouwgroep + Enkel/Dubbel" hierboven.
 
 Elk gevonden artikel toont in de select de gematchte combinatie (artikelnummer + bouwgroep-tag,
-bijv. "SP-215 (GR10)"), zodat die zichtbaar is i.p.v. stilzwijgend gefilterd. Leeg filter (of nog
-niet geconfigureerd) = de locatie blijft de normale CSV-lijst gebruiken.
-
-Het filter wordt opgeslagen in `localStorage` (`stauffLocationFilters`), dus 1x instellen blijft
-staan - niet opnieuw invullen bij elke zoekopdracht of pagina-herlaad. Het tandwiel krijgt een
-rode rand (`.is-active`) zodra er een filter voor die locatie staat.
-
-Artikelen die zo (live, buiten de CSV) gekozen worden hebben geen CSV-attributen (Bouwgroep/
-Serie/Materiaal), dus geen automatische standaardselectie en geen shape-afbeelding zoals bij de
-CSV-lijst - de samenstellingscode en verkoopprijs werken wel gewoon, die gebruiken direct
-`select.value` (het artikelnummer), niet de CSV-rij.
+bijv. "SP-215 (GR10)"). Het filter wordt opgeslagen in `localStorage` (`stauffLocationFilters`),
+dus 1x instellen blijft staan. Het locatienummer krijgt een rode rand (`.is-active`) zodra er een
+filter voor die locatie staat.
 
 ## Extra artikelen toevoegen (vrije regels)
 
-Naast het locatienummer staat op de rijen 1, 3, 4 en 5 een `+`-knop (`.location-add-button`,
-zelfde cirkelstijl als voorheen het config-tandwiel). Klikken op `+`
-(`addExtraItemRow()` in `assets/selector.js`) voegt onderaan de samenstelling een nieuwe, vrij te
-configureren regel toe:
+Naast het locatienummer staat op de rijen 1, 3, 4 en 5 een `+`-knop (`.location-add-button`).
+Klikken op `+` (`addExtraItemRow()` in `assets/selector.js`) voegt direct ONDER de knop waarop
+geklikt is een nieuwe, vrij te configureren regel toe:
 
-1. **Soort** (select): dezelfde 4 opties als de vaste locaties (Lasplaat/Glijmoer, Borgplaat,
-   Dekplaat, Bout) - Beugel is bewust géén optie, die heeft een fundamenteel andere (diameter-
-   fuzzy) zoek-UX.
-2. **Artikel** (select, disabled tot een soort gekozen is): gebruikt precies dezelfde bron als de
-   vaste locatie voor die soort - een live Exact-filter als daar 1 voor geconfigureerd is (zie
-   hierboven), anders de gewone CSV-kandidatenlijst (`candidatesForPosition()`).
-3. **Aantal** (getalveld, links van soort): staat standaard op **1**, behalve bij **Bout**, dan
-   standaard **2** - alleen gezet bij het wisselen van soort, zodat een handmatig aangepast aantal
-   daarna niet weer overschreven wordt.
-4. Een `×`-knop om de regel weer te verwijderen.
+1. **Soort** (select): dezelfde opties als de vaste locaties, **inclusief Beugel** (een 2e beugel
+   binnen dezelfde bouwgroep/uitvoering, via dezelfde live Exact-bron met de `__DIGIT__`-
+   voorvoegselmodus, zie `applyLocationFilterSelect()`).
+2. **Artikel** (select, disabled tot een soort gekozen is): gebruikt precies dezelfde live bron
+   als de vaste locatie voor die soort (`populateExtraArticleSelect()`).
+3. **Aantal** (getalveld): staat standaard op **1**, behalve bij **Bout**, dan standaard **2**
+   (of **1** bij een dubbele beugel) - alleen gezet bij het wisselen van soort.
+4. Een `+`-knop (nog een regel eronder) en een `×`-knop om de regel te verwijderen.
 
-Elke extra regel heeft zijn eigen "request key" (`extra-<id>`) voor de live Exact-zoekopdracht, zodat
-meerdere extra regels van dezelfde soort (of een extra regel en de vaste locatie van diezelfde
-soort) elkaars zoekopdracht niet annuleren (zelfde soort per-locatie-tracking als hierboven bij
-"Eigen zoekfilter per locatie"). Extra regels verversen automatisch mee zodra de beugel of
-materiaalcode wijzigt (`refreshExtraItems()`, aangeroepen vanuit `rebuildComponents()`), en hun
-verkoopprijs wordt meegenomen in de batch-lookup (`refreshLocationPrices()`) - zie "Aantal en
-totaalprijs" hieronder voor hoe het aantal daarin meetelt.
+Elke extra regel heeft zijn eigen "request key" (`extra-<id>`) voor de live Exact-zoekopdracht,
+zodat meerdere gelijktijdige zoekopdrachten elkaar niet annuleren. Extra regels verversen
+automatisch mee zodra de beugel of materiaalcode wijzigt (`refreshExtraItems()`), en hun
+verkoopprijs wordt meegenomen in de batch-lookup (`refreshLocationPrices()`).
 
-Extra regels worden **niet** meegenomen in de samenstellingscode-berekening (`updateAssemblyCode()`)
-- die blijft uitsluitend gebaseerd op de vaste locaties 1-6. Ze tellen wél mee in de totaalprijs.
+Extra regels worden **niet** meegenomen in de samenstellingscode-berekening
+(`updateAssemblyCode()`) - die blijft uitsluitend gebaseerd op de vaste locaties 1-6. Ze tellen
+wél mee in de totaalprijs.
 
 ## Aantal en totaalprijs
 
-Elke locatie (1-6, en elke extra regel) heeft een eigen **aantal**-veld links van het artikel-/
-waardeveld (`.location-aantal` resp. `.extra-item-aantal`). Standaard staat dat op **1**, behalve
-locatie 5 (Bout) die standaard op **2** staat (`DEFAULT_AANTAL` in `assets/selector.js`) - bij een
-extra regel geldt dezelfde regel zodra "Bout" als soort gekozen wordt. Het aantal wordt **niet**
-automatisch teruggezet zolang dezelfde beugel/soort gekozen blijft - alleen bij het kiezen van een
-andere beugel (`selectClamp()`) of het legen van de samenstelling (`clearAssembly()`) springen alle
-aantallen terug naar hun standaardwaarde (`resetAantalFields()`).
+Elke locatie (1-6, en elke extra regel) heeft een eigen **aantal**-veld. Standaard staat dat op
+**1**, behalve locatie 5 (Bout) die standaard op **2** staat (**1** bij een dubbele beugel,
+`isDubbelBeugel()` - o.b.v. de artikelcode-"/" of de GRxD-tag, niet de CSV). Het aantal wordt
+**niet** automatisch teruggezet zolang dezelfde beugel/soort gekozen blijft - alleen bij het
+kiezen van een andere beugel of het legen van de samenstelling (`resetAantalFields()`).
 
 Onder de samenstellingscode staat de **totaalprijs**: de som van (verkoopprijs × aantal) over elk
-onderdeel waarvoor al een artikel gekozen is - de 6 vaste locaties én elke extra regel
-(`recomputeTotal()` in `assets/selector.js`). Deze rekent met de laatst opgehaalde prijzen
-(`state.lastPrices`, gevuld door `refreshLocationPrices()`) - een aantal wijzigen herberekent het
-totaal dus direct, zonder opnieuw bij Exact te bevragen. Zolang geen enkele prijs bekend is, blijft
-de totaalregel leeg.
+onderdeel waarvoor al een artikel gekozen is (`recomputeTotal()`), op basis van de laatst
+opgehaalde prijzen (`state.lastPrices`) - een aantal wijzigen herberekent het totaal dus direct,
+zonder opnieuw bij Exact te bevragen.
 
 ## Selectielogica
 
@@ -180,25 +178,17 @@ de totaalregel leeg.
 - Locatie 5: Bout (stapelbout, inbusbout of zeskantbout)
 - Locatie 6: gekozen materiaalcode W...
 
-Het diameterveld is nu uitsluitend een live, fuzzy zoekveld op Exact (zie "Migratie naar live
-Exact-data" hierboven) - geen CSV-typeahead meer. Zodra er weer een manier is om een beugel te
-selecteren, worden bouwgroep en serie van die beugel gebruikt om de overige posities te filteren
-(deze beschrijving hieronder blijft geldig voor zodra dat weer werkt).
-
-**Enkel/Dubbel-filtering:**
-
-- Locatie 1 Lasplaat / Lasplaat (hoek): geen filtering op Enkel/Dubbel
-- Locatie 3 Borgplaat: volgt de Enkel/Dubbel-uitvoering van de beugel
-- Locatie 4 Dekplaat: geen filtering op Enkel/Dubbel
-- Locatie 5 Bout: geen filtering op Enkel/Dubbel
-- Glijmoer behoudt zijn eigen Enkel/Dubbel-kenmerk uit de CSV
+Bouwgroep en enkel/dubbel van de gekozen beugel filteren de overige locaties, zie "Bouwgroep +
+Enkel/Dubbel" hierboven. Er is verder geen Serie-onderscheid (Licht/Zwaar) meer - dat veld bestaat
+niet in Exact en is met opzet vervallen; shape-afbeeldingen en de locatie-1 type-rangorde werken
+nu uitsluitend op bouwgroep.
 
 ## Materiaal bevestigingsdelen
 
-De Staal/RVS-keuzeknop is verwijderd - de Materiaalcode-pulldown (locatie 6, nu bovenin in
-dezelfde kaderdoos-stijl (`.diameter-box`) als "Zoeken op beugel" en "Gekozen artikel") toont een
-**vaste** lijst van 6 materiaalcodes (`MATERIAL_CODES` in `assets/selector.js`), niet meer
-afgeleid uit de CSV:
+De Materiaalcode-pulldown (locatie 6, bovenin dezelfde kaderdoos-stijl als "Zoeken op beugel")
+wordt voorafgegaan door een Staal/RVS-keuze (`materialFamilySelect`) die de pulldown filtert.
+Beide tonen een **vaste** lijst (`MATERIAL_CODES`/`MATERIAL_FAMILIES` in `assets/selector.js`),
+niet afgeleid uit de CSV:
 
 | Code  | Omschrijving |
 |-------|--------------|
@@ -210,15 +200,13 @@ afgeleid uit de CSV:
 | W55   | V4A CR       |
 
 De select-**waarde** blijft de kale W-code (gebruikt in alle matching/prijs/samenstellingscode-
-logica); de optie-**tekst** toont de combinatie, bijv. "W2 - CS Ph". De familie (Staal/RVS) wordt
-intern nog wel afgeleid uit de gekozen code zelf (`metalFamily()`, o.b.v. het W-nummer: W1/W2/W3 =
-Staal, W4/W5/W55 = RVS) - alleen om locatie 1 (Lasplaat) te filteren op dezelfde familie als de
-gekozen code (zie de code-comments bij `candidatesForPosition()`), niet meer als aparte UI-keuze.
+logica); de optie-**tekst** toont de combinatie, bijv. "W2 - CS Ph". `metalFamily()` (W1/W2/W3 =
+Staal, W4/W5/W55 = RVS) bepaalt zowel welke codes bij Staal/RVS getoond worden als, voor locatie 1
+(Lasplaat), welke materiaalFAMILIE als filter naar Exact gaat (`materialQueryValue()`).
 
-**Automatische selectie bij 1 optie:** elke locatieselect (1, 3, 4, 5 en de materiaalcode)
-selecteert zichzelf meteen als er, na filtering, maar 1 echt artikel/code overblijft - de
-gebruiker hoeft dan niet uit een lijst van 1 te kiezen. Zie `setSelectOptions()` (CSV-pad) en
-`applyLocationFilterSelect()` (live Exact-filterpad) in `assets/selector.js`.
+**Automatische selectie bij 1 optie:** elke locatieselect (1, 3, 4, 5) selecteert zichzelf meteen
+als er, na filtering, maar 1 artikel overblijft; locatie 1 en 4 selecteren altijd het eerste
+resultaat van hun vaste type-rangorde. Zie `renderLiveCandidates()` in `assets/selector.js`.
 
 ## Samenstellingscode
 

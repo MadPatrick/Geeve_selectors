@@ -86,12 +86,13 @@ function assetVersion(string $relativePath): string
 
             <div class="diameter-box material-code-field">
                 <div class="exact-live-header">
-                    <span>Materiaalcode (locatie 6)</span>
+                    <span>Materiaal soort</span>
                 </div>
                 <div class="diameter-box-body material-code-body">
-                    <select id="materialFamilySelect" disabled>
-                        <option value="">Kies eerst een beugel</option>
-                    </select>
+                    <div id="materialFamilySwitch" class="family-switch is-disabled" role="group" aria-label="Materiaal soort">
+                        <button type="button" class="family-switch-option" data-family="Staal" aria-pressed="false" disabled>Staal</button>
+                        <button type="button" class="family-switch-option" data-family="RVS" aria-pressed="false" disabled>RVS</button>
+                    </div>
                     <select id="materialCodeSelect" disabled>
                         <option value="">Kies eerst Staal of RVS</option>
                     </select>
@@ -243,8 +244,8 @@ function assetVersion(string $relativePath): string
             <input id="locationFilterInput" type="text" placeholder="bijv. SP;SPAL;SPV">
         </label>
         <small>Zoekt live in Exact (artikelgroep 67) naar artikelen die met 1 van deze voorvoegsels
-            beginnen, gecombineerd met de gekozen materiaalcode (locatie 6). Leeg = gewone
-            CSV-lijst blijft gebruikt.</small>
+            beginnen, gecombineerd met de gekozen materiaalcode (locatie 6). Leeg = de
+            standaard live Exact-voorvoegsels voor deze locatie blijven gebruikt.</small>
         <div class="modal-actions">
             <button type="button" id="locationFilterClear" class="link-button">Wissen</button>
             <button type="button" id="locationFilterCancel" class="segment">Annuleren</button>

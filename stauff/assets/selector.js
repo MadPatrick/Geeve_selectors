@@ -22,9 +22,6 @@
     }
 
     const state = {
-        rows: [],
-        validRows: [],
-        clamps: [],
         selectedClamp: null,
         // Bouwgroep-tag (bijv. "GR10") van de gekozen beugel, gehaald uit de
         // Exact-omschrijving bij het kiezen (selectExactArticle()) - niet
@@ -34,7 +31,8 @@
         // Per locatie (1, 3, 4, 5) een ; -gescheiden lijst artikelnummer-
         // voorvoegsels - ingesteld via de config-cog op die regel (zie
         // bindEvents()). Blijft bewaard in localStorage, dus niet per
-        // zoekactie opnieuw invullen. Leeg = gewone CSV-lijst.
+        // zoekactie opnieuw invullen. Leeg = de standaard live Exact-
+        // voorvoegsels voor die locatie blijven gebruikt (PREFIXES_BY_POSITION).
         locationFilters: loadLocationFilters(),
         editingLocation: null,
         // Laatst opgehaalde verkoopprijzen (Exact), per artikelcode - los
@@ -50,7 +48,7 @@
         exactLiveResults: el('exactLiveResults'),
         exactLiveStatus: el('exactLiveStatus'),
         exactLiveList: el('exactLiveList'),
-        materialFamily: el('materialFamilySelect'),
+        materialFamily: el('materialFamilySwitch'),
         materialCode: el('materialCodeSelect'),
         loc1: el('location1Select'),
         loc2: el('location2Value'),
@@ -124,10 +122,6 @@
         if (holder) holder.style.width = `calc(${chars}ch + 28px)`;
     }
 
-    function displaySerie(v) {
-        return v === 'Licht (standaard)' ? 'Licht' : v;
-    }
-
     function metalFamily(code) {
         const c = upper(code);
         if (/^W(?:1|2|3)(?:$|\/)/.test(c)) return 'Staal';
@@ -147,17 +141,109 @@
         { code: 'W55', label: 'V4A CR' },
     ];
 
-    // Staal/RVS-keuze vóór de materiaalcode-select (locatie 6) - filtert
-    // MATERIAL_CODES via metalFamily() (W1/W2/W3 -> Staal, W4/W5/W55 ->
-    // RVS), zie populateMaterialCodeSelect(). De uiteindelijke
-    // filterwaarde voor de artikelen blijft de kale W-code, precies zoals
-    // voorheen - deze select bepaalt alleen welke W-codes ter keuze staan.
-    const MATERIAL_FAMILIES = ['Staal', 'RVS'];
+    // Staal/RVS-switch vóór de materiaalcode-select (locatie 6, knoppen
+    // staan vast in index.php) - filtert MATERIAL_CODES via metalFamily()
+    // (W1/W2/W3 -> Staal, W4/W5/W55 -> RVS), zie populateMaterialCodeSelect().
+    // De uiteindelijke filterwaarde voor de artikelen blijft de kale
+    // W-code - de switch bepaalt alleen welke W-codes ter keuze staan.
 
     function firstCodePart(article) {
         const s = norm(article);
         const match = s.match(/^([A-Z+]+)/i);
         return match ? match[1].toUpperCase() : s.split(/[\s-]/)[0].toUpperCase();
+    }
+
+    // Eén centrale classificatietabel: welk artikelcode-voorvoegsel hoort bij
+    // welke vaste locatie (1/3/4/5) en welk Onderdeel-type. Geverifieerd
+    // tegen alle 1282 CSV-rijen: elk voorvoegsel wijst 100% betrouwbaar naar
+    // precies 1 Onderdeel, geen kruisbesmetting. Vervangt de losse
+    // voorvoegsel-arrays die voorheen verspreid in dit bestand stonden.
+    // Geen Enkel/Dubbel-informatie hier - dat komt voortaan uit de
+    // GRx/GRxD-tag in de Exact-omschrijving (zie tagMatches() hieronder),
+    // niet uit een apart veld per Onderdeel-type.
+    const PREFIX_RULES = [
+        { prefix: 'SP', position: 1, onderdeel: 'Lasplaat' },
+        { prefix: 'SPAL', position: 1, onderdeel: 'Lasplaat' },
+        { prefix: 'SPV', position: 1, onderdeel: 'Lasplaat' },
+        { prefix: 'WSP', position: 1, onderdeel: 'Lasplaat (hoek)' },
+        { prefix: 'GMV', position: 1, onderdeel: 'Glijmoer' },
+        { prefix: 'DP', position: 4, onderdeel: 'Dekplaat' },
+        { prefix: 'DPAL', position: 4, onderdeel: 'Dekplaat' },
+        { prefix: 'DPAS', position: 4, onderdeel: 'Dekplaat' },
+        { prefix: 'GD', position: 4, onderdeel: 'Dekplaat' },
+        { prefix: 'DPAD', position: 4, onderdeel: 'Dekplaat' },
+        { prefix: 'SI', position: 3, onderdeel: 'Borgplaat' },
+        { prefix: 'SIP', position: 3, onderdeel: 'Borgplaat' },
+        { prefix: 'SIG', position: 3, onderdeel: 'Borgplaat' },
+        { prefix: 'AF', position: 5, onderdeel: 'Stapelbout' },
+        { prefix: 'IS', position: 5, onderdeel: 'Inbusbout' },
+        { prefix: 'AS', position: 5, onderdeel: 'Zeskantbout' },
+    ];
+
+    // Let op: voorvoegsels overlappen qua SQL LIKE ('DP%' matcht ook
+    // 'DPAD...'). De server (exact_location_search.php) gebruikt deze lijst
+    // daarom alleen om een RUIMERE kandidatenset op te halen; classificatie
+    // van een teruggekomen rij gebeurt altijd hier, client-side, via
+    // RULE_BY_PREFIX op de eigen ItemCode - nooit via "welke voorvoegsel-
+    // clausule raakte".
+    const RULE_BY_PREFIX = new Map(PREFIX_RULES.map(rule => [rule.prefix, rule]));
+    const PREFIXES_BY_POSITION = PREFIX_RULES.reduce((acc, rule) => {
+        (acc[rule.position] ||= []).push(rule.prefix);
+        return acc;
+    }, {});
+
+    // Beugel-artikelen (locatie 2) hebben geen letter-voorvoegsel (cijfer-
+    // eerst, zie exact_search.php) en staan dus niet in PREFIX_RULES.
+    function classify(itemCode) {
+        const code = norm(itemCode);
+        if (!code) return null;
+        if (/^\d/.test(code)) return { position: 2, onderdeel: 'Beugel' };
+        return RULE_BY_PREFIX.get(firstCodePart(code)) || null;
+    }
+
+    // Per-locatie vlag: pas de GRx/GRxD-tagfilter (zie tagMatches()) toe op
+    // live kandidaten. Locatie 1 en 2 (beugel-gerelateerd) zijn al bewezen -
+    // state.beugelGroup wordt al op exact deze manier uit een Exact-
+    // omschrijving gehaald. Locatie 3/4/5 pas op true zetten nadat via
+    // /stauff/db-test.php gecontroleerd is dat Borgplaat/Dekplaat/Bout-
+    // omschrijvingen in Exact ook echt een herkenbare GRx/GRxD-tag dragen
+    // (zie README.md).
+    const GROUP_FILTER_ENABLED_FOR = { 1: true, 2: true, 3: false, 4: false, 5: false };
+
+    // Haalt de W-materiaalcode terug uit een artikelcode-string (bijv. "SPAL
+    // 8 M W2" -> "W2"), zodat de locatie-1 materiaal-rangorde (zie
+    // rebuildComponents()) kan werken zonder CSV-veld.
+    function materialCodeFromItemCode(itemCode) {
+        const match = upper(itemCode).match(/\bW\d+(?:\/\d+)?\b/);
+        return match ? match[0] : '';
+    }
+
+    // Welke waarde als "material"-parameter naar exact_location_search.php
+    // gaat. Locatie 1 filtert op materiaalFAMILIE (W1/W2/W3 door elkaar
+    // bruikbaar voor Staal, net als voorheen via metalFamily()) - de hele
+    // familie wordt meegegeven als ;-lijst. Locatie 2 (Beugel) slaat de
+    // materiaalcode-check over (eigen kunststof/beugel-schema, los van de
+    // W-codes). Overige locaties blijven de exact gekozen code.
+    function materialQueryValue(pos, code) {
+        if (!code || Number(pos) === 2) return '';
+        if (Number(pos) === 1) {
+            const family = metalFamily(code);
+            return MATERIAL_CODES.filter(m => metalFamily(m.code) === family).map(m => m.code).join(';');
+        }
+        return code;
+    }
+
+    /**
+     * Eén mechanisme voor zowel bouwgroep- als enkel/dubbel-matching: een
+     * kandidaat-artikel telt alleen mee als zijn eigen GRx/GRxD-tag (uit de
+     * Exact-omschrijving, zie extractGroupTag()) EXACT gelijk is aan die van
+     * de gekozen beugel - inclusief de "D". Geen apart enkel/dubbel-veld en
+     * geen D-strippen meer: de D is het onderscheidende signaal, niet ruis.
+     */
+    function tagMatches(candidateTag, clampTag) {
+        const a = upper(candidateTag);
+        const b = upper(clampTag);
+        return !!a && !!b && a === b;
     }
 
     // Leid de image-map af van de URL van selector.js zelf. Dit blijft correct
@@ -175,8 +261,8 @@
      * Dubbele beugel o.b.v. de GRxD-groep-tag uit de Exact-omschrijving
      * (state.beugelGroup, gezet in selectExactArticle() via
      * extractGroupTag()) - geen CSV. Een "D" aan het eind van de groep-tag
-     * betekent dubbel/twin, zelfde conventie als groupMatches() hierboven
-     * al gebruikt voor Bouwgroep-waarden als "3D". Geen groep bekend (geen
+     * betekent dubbel/twin, zelfde conventie als tagMatches() hieronder
+     * gebruikt voor de volledige GRx/GRxD-tag. Geen groep bekend (geen
      * GR-tag in de omschrijving) -> niet dubbel. Zie isDubbelBeugel()
      * hieronder voor het gecombineerde, uiteindelijk gebruikte signaal.
      */
@@ -209,13 +295,23 @@
         return isDubbelArtikelcode(state.selectedClamp ? state.selectedClamp['Artikelcode'] : '') || isDubbelFromExactGroup();
     }
 
-    function shapeImageKey(row) {
-        if (!row) return null;
-        const onderdeel = row['Onderdeel'];
-        const bouwgroep = upper(row['Bouwgroep']);
-        const serie = row['Serie'];
-        const prefix = firstCodePart(row['Artikelcode']);
-        const artikelcode = upper(norm(row['Artikelcode']));
+    /**
+     * Welk plaatje (images/<key>.png) hoort bij een gekozen artikelcode.
+     * Werkt volledig op live Exact-gegevens: de Onderdeel-classificatie komt
+     * uit classify()/PREFIX_RULES, de bouwgroep uit de eigen GRx/GRxD-tag
+     * van het artikel (ownGroupTag, zie selectedGroupTag()) met de tag van
+     * de gekozen beugel (state.beugelGroup) als terugval wanneer die eigen
+     * tag niet bekend is (bijv. nog niet tag-gefilterde locaties, zie
+     * GROUP_FILTER_ENABLED_FOR). Geen Serie/Licht-Zwaar meer - die bestaat
+     * niet in Exact en is met opzet vervallen.
+     */
+    function shapeImageKey(code, ownGroupTag = '') {
+        const artikelcode = norm(code);
+        if (!artikelcode) return null;
+        const prefix = firstCodePart(artikelcode);
+        const rule = classify(artikelcode);
+        const onderdeel = rule ? rule.onderdeel : null;
+        const group = upper(ownGroupTag) || upper(state.beugelGroup);
 
         // Familie-afbeeldingen voor WSP/CRA.
         if (prefix === 'WSP') return 'wsp';
@@ -227,33 +323,18 @@
             case 'Lasplaat':
                 if (isDubbelBeugel()) return 'sp1d';
                 if (prefix === 'SP') {
-                    // Alleen de SP-lasplaat volgt de bouwgroep van de GEKOZEN
-                    // beugel. De GRx-tag komt bij voorkeur uit de Exact-
-                    // omschrijving; als die ontbreekt gebruiken we de
-                    // Bouwgroep-kolom van de gekozen beugel als fallback.
-                    //
-                    // GR1          -> sp1.png
-                    // GR1A, GR2+   -> sp1a.png
-                    const exactGroup = upper(state.beugelGroup);
-                    const clampGroup = upper(state.selectedClamp?.['Bouwgroep']);
-                    const group = exactGroup || (clampGroup ? `GR${clampGroup}` : '');
-                    if (group === 'GR1') return 'sp1';
-                    if (group === 'GR1A') return 'sp1a';
-                    const groupNumber = group.match(/^GR(\d+)/);
-                    if (groupNumber && Number(groupNumber[1]) >= 2) return 'sp1a';
-                    // Oude fallback, alleen wanneer de geselecteerde beugel
-                    // geen bruikbare groepsinformatie heeft.
-                    return bouwgroep === '1' ? 'sp1' : 'sp1a';
+                    // GR1 -> sp1.png, GR1A/GR2+ (of onbekend) -> sp1a.png.
+                    return group === 'GR1' ? 'sp1' : 'sp1a';
                 }
                 if (prefix === 'SPAL') return 'sp1a';
-                if (prefix === 'SPV') return bouwgroep === '1' ? 'spv1' : 'spv1a';
+                if (prefix === 'SPV') return group === 'GR1' ? 'spv1' : 'spv1a';
                 return null;
             case 'Beugel':
                 if (isDubbelBeugel()) return '1dpp';
-                return (bouwgroep === '1' && serie === 'Licht (standaard)') ? '1pp' : '1app';
+                return group === 'GR1' ? '1pp' : '1app';
             case 'Dekplaat':
                 if (isDubbelBeugel() || prefix === 'GD') return 'gd1';
-                return bouwgroep === '1' ? 'dp1' : 'dp1a';
+                return group === 'GR1' ? 'dp1' : 'dp1a';
             case 'Borgplaat':
                 return (prefix === 'SIG' || prefix === 'SIP') ? 'sig' : null;
             case 'Stapelbout':
@@ -267,10 +348,19 @@
         }
     }
 
-    function setShapeImage(imgEl, row) {
+    // Leest de GRx/GRxD-tag van de nu geselecteerde optie terug (gezet als
+    // data-group bij het opbouwen van de lijst, zie renderLiveCandidates()) -
+    // zodat shapeImageKey() de EIGEN tag van het gekozen artikel kan
+    // gebruiken i.p.v. altijd terug te vallen op state.beugelGroup.
+    function selectedGroupTag(select) {
+        const option = select && select.selectedOptions && select.selectedOptions[0];
+        return option ? norm(option.dataset.group || '') : '';
+    }
+
+    function setShapeImage(imgEl, code, groupTag) {
         if (!imgEl) return;
         const slot = imgEl.closest('.location-image');
-        const key = shapeImageKey(row);
+        const key = shapeImageKey(code, groupTag);
         if (!key) {
             imgEl.hidden = true;
             imgEl.removeAttribute('src');
@@ -284,146 +374,11 @@
     }
 
     function updateShapeImages() {
-        setShapeImage(ui.shapeImg1, selectedRow(ui.loc1));
-        setShapeImage(ui.shapeImg2, state.selectedClamp);
-        setShapeImage(ui.shapeImg3, selectedRow(ui.loc3));
-        setShapeImage(ui.shapeImg4, selectedRow(ui.loc4));
-        setShapeImage(ui.shapeImg5, selectedRow(ui.loc5));
-    }
-
-    function groupMatches(componentGroup, clampGroup) {
-        let component = upper(componentGroup).replace(/\s+/g, '');
-        let clamp = upper(clampGroup).replace(/\s+/g, '');
-        if (!component || !clamp) return false;
-        if (component === clamp) return true;
-
-        // Values such as 1/1A or 1/2 mean that the component is usable for
-        // more than one group. A D marker indicates twin/double and is not
-        // part of the numeric group comparison here.
-        const tokens = component.split('/').map(v => v.replace(/D$/i, ''));
-        const normalizedClamp = clamp.replace(/D$/i, '');
-        if (tokens.includes(normalizedClamp)) return true;
-
-        // Ranges such as 3-5 (used for GMV) cover all groups in that range.
-        for (const token of tokens) {
-            const m = token.match(/^(\d+)-(\d+)$/);
-            if (m) {
-                const g = Number(normalizedClamp.replace(/[^0-9].*$/, ''));
-                if (Number.isFinite(g) && g >= Number(m[1]) && g <= Number(m[2])) return true;
-            }
-        }
-        return false;
-    }
-
-    function executionMatches(row, clamp) {
-        const component = norm(row['Onderdeel']);
-
-        // Lasplaten, dekplaten en bouten zijn niet afhankelijk van de
-        // Enkel/Dubbel-uitvoering van de gekozen beugel. Voor deze onderdelen
-        // filteren we uitsluitend op bouwgroep, serie en materiaalcode.
-        const ignoreExecutionFor = new Set([
-            'Lasplaat',
-            'Lasplaat (hoek)',
-            'Dekplaat',
-            'Stapelbout',
-            'Inbusbout',
-            'Zeskantbout',
-        ]);
-        if (ignoreExecutionFor.has(component)) return true;
-
-        const part = norm(row['Enkel / Dubbel']);
-        if (!part) return true;
-
-        // Dubbel/Enkel van de beugel zelf komt uit de artikelcode (zie
-        // isDubbelArtikelcode()), niet uit de CSV - het onderdeel-kandidaat
-        // (row) heeft alleen nog zijn eigen CSV-veld nodig om te weten
-        // welke uitvoering HIJ ondersteunt.
-        const clampLabel = isDubbelArtikelcode(clamp['Artikelcode']) ? 'Dubbel' : 'Enkel';
-        return part === clampLabel;
-    }
-
-    function seriesMatches(row, clamp) {
-        return norm(row['Serie']) === norm(clamp['Serie']);
-    }
-
-    function candidatesForPosition(position, materialCode = '') {
-        if (!state.selectedClamp) return [];
-        const clamp = state.selectedClamp;
-        return state.validRows.filter(row => {
-            const pos = Number(position);
-            const prefix = firstCodePart(row['Artikelcode']);
-            const rowPos = Number(row['Positie']);
-
-            // Harde scheiding tussen lasplaat en dekplaat. Dit voorkomt dat
-            // een foutieve CSV-classificatie DPAS/DPAD ooit in locatie 1 kan
-            // laten verschijnen. SP/SPAL/SPV/WSP blijven uitsluitend lasplaten.
-            if (pos === 1) {
-                if (prefix === 'DPAS' || prefix === 'DPAD') return false;
-                const isKnownLocation1 = ['SP', 'SPAL', 'SPV', 'WSP', 'GMV'].includes(prefix);
-                if (rowPos !== 1 && !isKnownLocation1) return false;
-                if (!isKnownLocation1 && !norm(row['Onderdeel']).startsWith('Lasplaat') && norm(row['Onderdeel']) !== 'Glijmoer') return false;
-            } else if (pos === 4) {
-                if (['SP', 'SPAL', 'SPV', 'WSP', 'GMV'].includes(prefix)) return false;
-                if (rowPos !== 4) return false;
-            } else if (rowPos !== pos) {
-                return false;
-            }
-
-            // Beugel-rijen (Positie 2, uitsluitend Onderdeel "Beugel" - zie
-            // ook state.clamps hierboven) blijven uitgesloten van de
-            // normale locaties 1/3/4/5, maar mogen wél als extra, vrij
-            // toegevoegde regel gekozen worden (pos === 2, zie
-            // addExtraItemRow()) - dat geeft een 2e beugel binnen dezelfde
-            // bouwgroep/serie/uitvoering als de al gekozen hoofdbeugel.
-            if (row['Onderdeel'] === 'Beugel' && pos !== 2) return false;
-            if (!groupMatches(row['Bouwgroep'], clamp['Bouwgroep'])) return false;
-            if (!seriesMatches(row, clamp)) return false;
-            if (!executionMatches(row, clamp)) return false;
-
-            // Lasplaten (positie 1) worden op materiaalFAMILIE gefilterd,
-            // niet op exact dezelfde W-code als locatie 6. Bijvoorbeeld
-            // SPAL 8 bestaat voor staal als W1/W2 en voor RVS als W4/W5.
-            // Zonder gekozen materialCode (survey-modus, zie
-            // rebuildMaterialCodes()) wordt hier niet op gefilterd, zodat
-            // alle materiaalcodes van alle posities in de pulldown komen.
-            //
-            // Beugel (pos 2) slaat deze materialCode-check helemaal over:
-            // een beugel heeft een eigen materiaalcode-schema (PA/PP/ACT/
-            // AL/... - kunststof/beugelvarianten), volledig los van de
-            // W-codes uit MATERIAL_CODES die alleen voor de metalen
-            // bevestigingsdelen (lasplaat/borgplaat/dekplaat/bout) gelden.
-            // Filteren op locatie 6 zou hier dus altijd 0 resultaten geven.
-            if (pos === 1) {
-                if (materialCode && metalFamily(row['Materiaalcode']) !== metalFamily(materialCode)) return false;
-            } else if (pos !== 2 && materialCode && upper(row['Materiaalcode']) !== upper(materialCode)) {
-                return false;
-            }
-            return true;
-        });
-    }
-
-    function setSelectOptions(select, options, placeholder, labelFn = v => v, keepValue = true) {
-        const old = keepValue ? select.value : '';
-        select.innerHTML = '';
-        const ph = document.createElement('option');
-        ph.value = '';
-        ph.textContent = placeholder;
-        select.appendChild(ph);
-        options.forEach(option => {
-            const opt = document.createElement('option');
-            const value = typeof option === 'object' ? norm(option['Artikelcode']) : norm(option);
-            opt.value = value;
-            opt.textContent = labelFn(option);
-            select.appendChild(opt);
-        });
-        select.disabled = options.length === 0;
-        if (old && [...select.options].some(o => o.value === old)) {
-            select.value = old;
-        } else if (options.length === 1) {
-            // Maar 1 echte optie beschikbaar: die dan meteen zelf selecteren
-            // i.p.v. de gebruiker te laten kiezen uit een lijst van 1.
-            select.value = typeof options[0] === 'object' ? norm(options[0]['Artikelcode']) : norm(options[0]);
-        }
+        setShapeImage(ui.shapeImg1, ui.loc1.value, selectedGroupTag(ui.loc1));
+        setShapeImage(ui.shapeImg2, state.selectedClamp ? state.selectedClamp['Artikelcode'] : '', state.beugelGroup);
+        setShapeImage(ui.shapeImg3, ui.loc3.value, selectedGroupTag(ui.loc3));
+        setShapeImage(ui.shapeImg4, ui.loc4.value, selectedGroupTag(ui.loc4));
+        setShapeImage(ui.shapeImg5, ui.loc5.value, selectedGroupTag(ui.loc5));
     }
 
     let exactLiveController = null;
@@ -493,13 +448,9 @@
 
     /**
      * Kiest een artikel uit de live Exact-zoekresultaten (zie
-     * queryExactLive()): vult het diameterveld met het artikelnummer, en
-     * probeert het artikel te koppelen aan een beugelregel in de CSV
-     * (selectClamp()) - dat activeert Locaties/Materiaal
-     * bevestigingsdelen/Samenstellingscode zoals voorheen bij het kiezen
-     * van een beugel uit de (inmiddels verwijderde) Beugel-lijst. Staat
-     * het artikelnummer niet in de CSV, dan blijft dat deel leeg met een
-     * duidelijke waarschuwing i.p.v. stil te falen. Het infopaneel toont
+     * queryExactLive()): vult het diameterveld met het artikelnummer en
+     * activeert de beugel rechtstreeks vanuit dit live resultaat - geen
+     * CSV-koppeling meer nodig (zie selectClamp()). Het infopaneel toont
      * daarna het gekozen artikelnummer + de Exact-omschrijving; opnieuw
      * zoeken kan door het diameterveld te overtypen.
      */
@@ -508,11 +459,7 @@
         resizeDiameterField();
 
         state.beugelGroup = extractGroupTag(omschrijving);
-
         selectClamp(artikelnummer);
-        if (!state.selectedClamp) {
-            showWarnings([`Artikelnummer "${escapeHtml(artikelnummer)}" is niet gevonden in de detailtabel - Locaties/Materiaal/Samenstellingscode blijven leeg.`]);
-        }
 
         ui.exactLiveStatus.textContent = 'Gekozen artikel';
         ui.exactLiveList.innerHTML = '';
@@ -539,7 +486,10 @@
 
     function selectClamp(articleCode) {
         const previousArticle = state.selectedClamp ? norm(state.selectedClamp['Artikelcode']) : '';
-        state.selectedClamp = state.clamps.find(r => norm(r['Artikelcode']) === norm(articleCode)) || null;
+        const code = norm(articleCode);
+        // Rechtstreeks uit het live Exact-zoekresultaat opgebouwd - geen
+        // CSV-koppeling/lookup meer nodig (zie selectExactArticle()).
+        state.selectedClamp = code ? { Artikelcode: code } : null;
         if (!state.selectedClamp) {
             clearAssembly();
             return;
@@ -547,7 +497,8 @@
 
         // Een nieuwe beugel start altijd met een lege optionele samenstelling.
         if (previousArticle !== norm(state.selectedClamp['Artikelcode'])) {
-            [ui.materialFamily, ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => { select.value = ''; });
+            setMaterialFamilyValue('');
+            [ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => { select.value = ''; });
             resetAantalFields();
         }
         const c = state.selectedClamp;
@@ -555,34 +506,44 @@
         rebuildMaterialCodes();
     }
 
+    // Staal/RVS-switch (2 knoppen, geen <select>) - deze helpers geven het
+    // gedrag van een normale select (.value/.disabled) terug zodat de rest
+    // van het bestand er op dezelfde manier mee om kan gaan.
+    function getMaterialFamily() {
+        return ui.materialFamily.dataset.value || '';
+    }
+
+    function setMaterialFamilyValue(value) {
+        ui.materialFamily.dataset.value = value || '';
+        ui.materialFamily.querySelectorAll('.family-switch-option').forEach(btn => {
+            const active = btn.dataset.family === value;
+            btn.classList.toggle('is-active', active);
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+    }
+
+    function setMaterialFamilyDisabled(disabled) {
+        ui.materialFamily.classList.toggle('is-disabled', disabled);
+        ui.materialFamily.querySelectorAll('.family-switch-option').forEach(btn => { btn.disabled = disabled; });
+        if (disabled) setMaterialFamilyValue('');
+    }
+
     function rebuildMaterialCodes() {
         if (!state.selectedClamp) {
-            ui.materialFamily.disabled = true;
+            setMaterialFamilyDisabled(true);
             ui.materialCode.disabled = true;
             return;
         }
-        const old = ui.materialFamily.value;
-        ui.materialFamily.innerHTML = '';
-        const placeholder = document.createElement('option');
-        placeholder.value = '';
-        placeholder.textContent = '— Kies Staal of RVS —';
-        ui.materialFamily.appendChild(placeholder);
-        MATERIAL_FAMILIES.forEach(family => {
-            const option = document.createElement('option');
-            option.value = family;
-            option.textContent = family;
-            ui.materialFamily.appendChild(option);
-        });
-        ui.materialFamily.disabled = false;
-        if (old && [...ui.materialFamily.options].some(o => o.value === old)) {
-            ui.materialFamily.value = old;
-        }
+        // De knoppen zelf staan al vast in index.php (Staal/RVS) - alleen
+        // ontgrendelen, een eerder gekozen familie (zelfde beugel opnieuw)
+        // blijft gewoon staan.
+        setMaterialFamilyDisabled(false);
         populateMaterialCodeSelect();
     }
 
     /**
      * Vult de materiaalcode-select (locatie 6) op basis van de gekozen
-     * Staal/RVS-familie (ui.materialFamily) - filtert MATERIAL_CODES via
+     * Staal/RVS-familie (getMaterialFamily()) - filtert MATERIAL_CODES via
      * metalFamily() zodat bij Staal alleen W1/W2/W3 en bij RVS alleen
      * W4/W5/W55 ter keuze staan. Zonder gekozen familie blijft de select
      * leeg en uitgeschakeld. Aangeroepen vanuit rebuildMaterialCodes()
@@ -590,7 +551,7 @@
      * (zie bindEvents()).
      */
     function populateMaterialCodeSelect() {
-        const family = ui.materialFamily.value;
+        const family = getMaterialFamily();
         const old = ui.materialCode.value;
         ui.materialCode.innerHTML = '';
 
@@ -628,13 +589,9 @@
         rebuildComponents();
     }
 
-    function componentLabel(row) {
-        return `${row['Artikelcode']}`;
-    }
-
     // Ook gebruikt als soort-lijst in addExtraItemRow() - Beugel (2) heeft
     // daar wél een eigen optie nodig (een 2e beugel binnen dezelfde
-    // bouwgroep kiezen, zie candidatesForPosition()), maar geen eigen
+    // bouwgroep kiezen, zie applyLocationFilterSelect()), maar geen eigen
     // zoekfilter-knop (die bestaat alleen voor 1/3/4/5, zie index.php)
     // - LOCATION_LABELS[2] wordt dus nooit voor de filtermodal-titel
     // opgevraagd.
@@ -706,20 +663,126 @@
     const locationFilterRequests = {};
     const LOCATION_FILTER_TIMEOUT_MS = 20000;
 
+    // Bijgehouden "geen kandidaten"-waarschuwing per vaste locatie (1/3/4/5) -
+    // apart per locatie omdat elke locatie zijn eigen, onafhankelijke async
+    // live-zoekopdracht heeft (zie applyLocationFilterSelect()), dus niet in
+    // 1 synchrone pas samen te voegen zoals voorheen bij de CSV-filter.
+    const emptyWarnings = {};
+    function refreshLocationWarnings() {
+        showWarnings(Object.values(emptyWarnings).filter(Boolean));
+    }
+
     /**
-     * Live alternatief voor candidatesForPosition(): zoekt in Exact op de
-     * geconfigureerde artikelnummer-voorvoegsels (state.locationFilters[pos])
-     * + de gekozen materiaalcode (api/exact_location_search.php), i.p.v. de
-     * CSV. Vult de select met de kale artikelnummers (geen CSV-attributen
-     * beschikbaar voor deze artikelen, dus geen automatische
-     * standaardselectie of shape-afbeelding zoals bij de CSV-lijst).
+     * Verwerkt de live Exact-zoekresultaten (ItemCode/Group-tag paren) tot
+     * de uiteindelijke kandidatenlijst voor 1 locatie/select: classificeert
+     * elke rij (classify()/PREFIX_RULES), filtert op de GRx/GRxD-tag wanneer
+     * GROUP_FILTER_ENABLED_FOR dat voor deze locatie toestaat (tagMatches() -
+     * dit vervangt zowel de oude bouwgroep- als enkel/dubbel-matching in één
+     * keer), past voor locatie 1 de vaste type-/materiaal-rangorde toe, en
+     * selecteert automatisch (locatie 1/4: altijd de eerste; overige
+     * locaties: alleen bij precies 1 resultaat). Gedeeld tussen de vaste
+     * locaties (rebuildComponents()) en vrij toegevoegde extra-regels
+     * (populateExtraArticleSelect()).
+     */
+    function renderLiveCandidates(pos, select, rawRows, { code = '', previousValue = '', emptyText = '', trackWarning = false } = {}) {
+        const numPos = Number(pos);
+        let items = rawRows
+            .map(row => ({ code: norm(row.ItemCode), group: norm(row.Group) }))
+            .filter(item => {
+                if (numPos === 2) return true; // Beugel: cijfer-eerst, geen PREFIX_RULES-classificatie.
+                const rule = classify(item.code);
+                return !!rule && rule.position === numPos;
+            });
+
+        if (GROUP_FILTER_ENABLED_FOR[numPos] && state.beugelGroup) {
+            items = items.filter(item => tagMatches(item.group, state.beugelGroup));
+        }
+
+        if (numPos === 1) {
+            const typeRank = item => {
+                const prefix = firstCodePart(item.code);
+                if (prefix === 'SP') return 0;
+                if (prefix === 'SPV') return 1;
+                if (prefix === 'WSP') return 2;
+                if (prefix === 'SPAL') return 3;
+                if (prefix === 'GMV') return 9;
+                return 8;
+            };
+            const materialRank = item => {
+                const mc = materialCodeFromItemCode(item.code);
+                if (mc === upper(code)) return 0;
+                const family = metalFamily(code);
+                if (family === 'Staal') {
+                    if (mc === 'W2') return 1;
+                    if (mc === 'W1') return 2;
+                    if (mc === 'W3') return 3;
+                } else if (family === 'RVS') {
+                    if (mc === 'W5') return 1;
+                    if (mc === 'W4') return 2;
+                    if (mc === 'W55') return 3;
+                }
+                return 4;
+            };
+            items = [...items].sort((a, b) =>
+                typeRank(a) - typeRank(b)
+                || materialRank(a) - materialRank(b)
+                || a.code.localeCompare(b.code, 'nl', { numeric: true })
+            );
+        }
+
+        select.innerHTML = '';
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.textContent = items.length
+            ? '— Geen onderdeel gekozen —'
+            : (emptyText || `Geen artikelen gevonden${code ? ` voor ${code}` : ''}.`);
+        select.appendChild(placeholderOption);
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.code;
+            // Bewaart de eigen GRx/GRxD-tag op de optie (data-group) - o.a.
+            // gebruikt door shapeImageKey()/selectedGroupTag() om de juiste
+            // vorm-afbeelding te tonen zonder opnieuw te hoeven zoeken.
+            option.dataset.group = item.group;
+            option.textContent = item.group ? `${item.code} (${item.group})` : item.code;
+            select.appendChild(option);
+        });
+        select.disabled = false;
+
+        if (items.some(item => item.code === previousValue)) {
+            select.value = previousValue;
+        } else if ((numPos === 1 || numPos === 4) && items.length) {
+            // Standaardselecties: locatie 1 Lasplaat en locatie 4 Dekplaat.
+            select.value = items[0].code;
+        } else if (items.length === 1) {
+            select.value = items[0].code;
+        }
+
+        if (trackWarning) {
+            emptyWarnings[numPos] = (code && items.length === 0)
+                ? `Locatie ${pos}: geen passend artikel voor ${code}.`
+                : null;
+            refreshLocationWarnings();
+        }
+    }
+
+    /**
+     * Live vervanging van de vroegere CSV-candidatesForPosition(): zoekt in
+     * Exact op artikelnummer-voorvoegsel (state.locationFilters[pos], of de
+     * vaste PREFIXES_BY_POSITION-default wanneer niets handmatig ingesteld
+     * is) + optioneel materiaalcode + optioneel de GRx/GRxD-bouwgroepfilter
+     * (api/exact_location_search.php) - dit is nu de ENIGE, altijd actieve
+     * bron voor locaties 1/3/4/5 en voor Beugel-als-extra-regel (pos 2);
+     * het tandwiel/state.locationFilters blijft alleen een optionele
+     * power-user override van de standaard-voorvoegsels. Classificatie/
+     * sortering/auto-selectie gebeurt client-side in renderLiveCandidates().
      *
      * requestKey is standaard pos, maar extra (vrij toegevoegde)
      * artikelregels voor dezelfde soort (zie addExtraItemRow()) geven
      * een eigen unieke key mee - anders zouden ze elkaars zoekopdracht
      * annuleren via dezelfde locationFilterRequests-sleutel.
      */
-    function applyLocationFilterSelect(pos, select, code, requestKey = pos) {
+    function applyLocationFilterSelect(pos, select, code, requestKey = pos, { emptyText = '', trackWarning = false } = {}) {
         if (locationFilterRequests[requestKey]) {
             clearTimeout(locationFilterRequests[requestKey].timeoutId);
             locationFilterRequests[requestKey].controller.abort();
@@ -733,9 +796,12 @@
         select.disabled = true;
         select.innerHTML = '<option value="">Zoeken…</option>';
 
-        const params = new URLSearchParams({ prefixes: state.locationFilters[pos] });
-        if (code) params.set('material', code);
-        if (state.beugelGroup) params.set('group', state.beugelGroup);
+        const prefixes = state.locationFilters[pos]
+            || (Number(pos) === 2 ? '__DIGIT__' : (PREFIXES_BY_POSITION[Number(pos)] || []).join(';'));
+        const params = new URLSearchParams({ prefixes });
+        const materialValue = materialQueryValue(pos, code);
+        if (materialValue) params.set('material', materialValue);
+        if (GROUP_FILTER_ENABLED_FOR[Number(pos)] && state.beugelGroup) params.set('group', state.beugelGroup);
 
         fetch(`api/exact_location_search.php?${params.toString()}`, { cache: 'no-store', signal: controller.signal })
             .then(response => response.json())
@@ -744,29 +810,7 @@
                 if (!payload || payload.ok !== true) {
                     throw new Error((payload && payload.error) || 'Onbekende fout.');
                 }
-                const items = payload.rows.map(row => ({ code: norm(row.ItemCode), group: norm(row.Group) }));
-                select.innerHTML = '';
-                const placeholderOption = document.createElement('option');
-                placeholderOption.value = '';
-                placeholderOption.textContent = items.length
-                    ? '— Geen onderdeel gekozen —'
-                    : `Geen artikelen gevonden voor dit filter${code ? ` (${code})` : ''}${state.beugelGroup ? ` (${state.beugelGroup})` : ''}.`;
-                select.appendChild(placeholderOption);
-                items.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item.code;
-                    // Toont het artikelnummer + de gematchte bouwgroep-tag
-                    // samen, zodat die combinatie zichtbaar is (niet alleen
-                    // stilzwijgend gefilterd).
-                    option.textContent = item.group ? `${item.code} (${item.group})` : item.code;
-                    select.appendChild(option);
-                });
-                select.disabled = false;
-                if (items.some(item => item.code === previousValue)) {
-                    select.value = previousValue;
-                } else if (items.length === 1) {
-                    select.value = items[0].code;
-                }
+                renderLiveCandidates(pos, select, payload.rows, { code, previousValue, emptyText, trackWarning });
                 updateAssemblyCode();
             })
             .catch(error => {
@@ -792,8 +836,7 @@
         // Kan aangeroepen worden zonder gekozen beugel (bijv. via
         // applyLocationFilter(), dat direct rebuildComponents() aanroept
         // ook als de config-cog gebruikt wordt vóórdat er een beugel
-        // gekozen is) - de locatie-1 rangschikking hieronder gaat er
-        // verder vanuit dat state.selectedClamp bestaat.
+        // gekozen is).
         if (!state.selectedClamp) return;
 
         const code = ui.materialCode.value;
@@ -804,94 +847,33 @@
             [4, ui.loc4, 'Geen passende dekplaat'],
             [5, ui.loc5, 'Geen passende bout'],
         ];
-        const warnings = [];
         mapping.forEach(([pos, select, emptyText]) => {
-            if (code && state.locationFilters[pos]) {
-                applyLocationFilterSelect(pos, select, code);
+            if (!code) {
+                select.innerHTML = '<option value="">Kies eerst materiaalcode</option>';
+                select.disabled = true;
+                emptyWarnings[pos] = null;
                 return;
             }
-
-            let candidates = code ? candidatesForPosition(pos, code) : [];
-
-            // Locatie 1: vaste type-prioriteit.
-            // Licht  -> SP is de standaardlasplaat; SPV/WSP zijn alternatieven.
-            // Zwaar  -> SPAL is de standaardlasplaat.
-            // DPAS/DPAD zijn dekplaten en zijn hierboven al hard uitgesloten.
-            if (pos === 1) {
-                const isHeavy = displaySerie(state.selectedClamp['Serie']) === 'Zwaar';
-                const typeRank = row => {
-                    const prefix = firstCodePart(row['Artikelcode']);
-                    if (isHeavy) {
-                        if (prefix === 'SPAL') return 0;
-                        if (prefix === 'SP') return 1;
-                        if (prefix === 'SPV') return 2;
-                        if (prefix === 'WSP') return 3;
-                        if (prefix === 'GMV') return 9;
-                        return 8;
-                    }
-                    if (prefix === 'SP') return 0;
-                    if (prefix === 'SPV') return 1;
-                    if (prefix === 'WSP') return 2;
-                    if (prefix === 'SPAL') return 3;
-                    if (prefix === 'GMV') return 9;
-                    return 8;
-                };
-                const materialRank = row => {
-                    const mc = upper(row['Materiaalcode']);
-                    if (mc === upper(code)) return 0;
-                    const family = metalFamily(code);
-                    if (family === 'Staal') {
-                        if (mc === 'W2') return 1;
-                        if (mc === 'W1') return 2;
-                        if (mc === 'W3') return 3;
-                    } else if (family === 'RVS') {
-                        if (mc === 'W5') return 1;
-                        if (mc === 'W4') return 2;
-                        if (mc === 'W55') return 3;
-                    }
-                    return 4;
-                };
-                candidates = [...candidates].sort((a, b) =>
-                    typeRank(a) - typeRank(b)
-                    || materialRank(a) - materialRank(b)
-                    || norm(a['Artikelcode']).localeCompare(norm(b['Artikelcode']), 'nl', { numeric: true })
-                );
-            }
-
-            const placeholder = code && candidates.length ? '— Geen onderdeel gekozen —' : (code ? emptyText : 'Kies eerst materiaalcode');
-            setSelectOptions(select, candidates, placeholder, componentLabel, true);
-
-            // Standaardselecties: locatie 1 Lasplaat en locatie 4 Dekplaat.
-            // De lege optie blijft bestaan, dus de gebruiker kan deze daarna
-            // bewust weer leeg maken.
-            if (code && !select.value && candidates.length && (pos === 1 || pos === 4)) {
-                select.value = norm(candidates[0]['Artikelcode']);
-            }
-
-            if (code && candidates.length === 0) warnings.push(`Locatie ${pos}: geen passend artikel voor ${code}.`);
+            applyLocationFilterSelect(pos, select, code, pos, { emptyText, trackWarning: true });
         });
+        refreshLocationWarnings();
         refreshExtraItems();
-        showWarnings(warnings);
         updateAssemblyCode();
     }
 
     /**
      * Vult de artikel-select van een vrij toegevoegde extra regel (zie
-     * addExtraItemRow()) voor de gekozen soort (pos). Zelfde bron als de
-     * vaste locaties: live Exact-filter als er 1 geconfigureerd is voor
-     * deze soort, anders de gewone CSV-kandidatenlijst.
+     * addExtraItemRow()) voor de gekozen soort (pos) - zelfde live bron als
+     * de vaste locaties (applyLocationFilterSelect()).
      */
     function populateExtraArticleSelect(pos, select, requestKey) {
         const code = ui.materialCode.value;
-        if (code && state.locationFilters[pos]) {
-            applyLocationFilterSelect(pos, select, code, requestKey);
+        if (!code) {
+            select.innerHTML = '<option value="">Kies eerst materiaalcode</option>';
+            select.disabled = true;
             return;
         }
-        const candidates = code ? candidatesForPosition(pos, code) : [];
-        const placeholder = code && candidates.length
-            ? '— Geen onderdeel gekozen —'
-            : (code ? `Geen passend artikel voor ${code}` : 'Kies eerst materiaalcode');
-        setSelectOptions(select, candidates, placeholder, componentLabel, true);
+        applyLocationFilterSelect(pos, select, code, requestKey, { emptyText: `Geen passend artikel voor ${code}` });
     }
 
     let extraItemCounter = 0;
@@ -924,7 +906,7 @@
      * i.p.v. ui.assemblyList.appendChild().
      *
      * De gebruiker kiest eerst de soort (dezelfde opties als de vaste
-     * locaties, inclusief Beugel - zie LOCATION_LABELS/candidatesForPosition()
+     * locaties, inclusief Beugel - zie LOCATION_LABELS/applyLocationFilterSelect()
      * voor hoe een 2e beugel binnen dezelfde bouwgroep gekozen kan worden),
      * dan het artikel binnen die soort, en het aantal (standaard 1, bij
      * Bout 2).
@@ -1029,11 +1011,6 @@
             card.remove();
             refreshLocationPrices();
         });
-    }
-
-    function selectedRow(select) {
-        if (!select.value) return null;
-        return state.validRows.find(r => norm(r['Artikelcode']) === norm(select.value)) || null;
     }
 
     function updateAssemblyCode() {
@@ -1191,7 +1168,8 @@
     function clearAssembly() {
         ui.loc2.textContent = '—';
         ui.loc6.textContent = '—';
-        [ui.materialFamily, ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => {
+        setMaterialFamilyDisabled(true);
+        [ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => {
             select.innerHTML = '<option value="">Kies eerst een beugel</option>';
             select.disabled = true;
         });
@@ -1205,7 +1183,13 @@
             resizeDiameterField();
             queryExactLive(ui.diameterInput.value);
         });
-        ui.materialFamily.addEventListener('change', populateMaterialCodeSelect);
+        ui.materialFamily.querySelectorAll('.family-switch-option').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.disabled) return;
+                setMaterialFamilyValue(button.dataset.family);
+                populateMaterialCodeSelect();
+            });
+        });
         ui.materialCode.addEventListener('change', rebuildComponents);
         [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => select.addEventListener('change', updateAssemblyCode));
         // Aantal wijzigen hoeft geen nieuwe prijs op te halen - alleen de
@@ -1244,22 +1228,14 @@
         });
     }
 
-    async function init() {
+    function init() {
         resizeDiameterField();
         bindEvents();
         syncLocationConfigButtons();
-        try {
-            const response = await fetch('api/stauff.php', { cache: 'no-store' });
-            const payload = await response.json();
-            if (!response.ok || !payload.ok) throw new Error(payload.error || 'Data kon niet worden geladen.');
-            state.rows = payload.rows;
-            state.validRows = state.rows.filter(r => upper(r['Status']) === 'OK');
-            state.clamps = state.validRows.filter(r => r['Onderdeel'] === 'Beugel' && Number(r['Positie']) === 2 && norm(r['Diameter 1']));
-            ui.diameterInput.disabled = false;
-        } catch (error) {
-            ui.warningBox.hidden = false;
-            ui.warningBox.innerHTML = `<strong>Fout:</strong> ${error.message}`;
-        }
+        // Geen CSV meer te laden - alles komt live uit Exact (zie
+        // queryExactLive()/applyLocationFilterSelect()), dus het diameterveld
+        // kan direct actief worden.
+        ui.diameterInput.disabled = false;
     }
 
     init();
