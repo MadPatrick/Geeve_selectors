@@ -50,6 +50,7 @@
         exactLiveResults: el('exactLiveResults'),
         exactLiveStatus: el('exactLiveStatus'),
         exactLiveList: el('exactLiveList'),
+        materialFamily: el('materialFamilySelect'),
         materialCode: el('materialCodeSelect'),
         loc1: el('location1Select'),
         loc2: el('location2Value'),
@@ -145,6 +146,13 @@
         { code: 'W5', label: 'V4A' },
         { code: 'W55', label: 'V4A CR' },
     ];
+
+    // Staal/RVS-keuze vóór de materiaalcode-select (locatie 6) - filtert
+    // MATERIAL_CODES via metalFamily() (W1/W2/W3 -> Staal, W4/W5/W55 ->
+    // RVS), zie populateMaterialCodeSelect(). De uiteindelijke
+    // filterwaarde voor de artikelen blijft de kale W-code, precies zoals
+    // voorheen - deze select bepaalt alleen welke W-codes ter keuze staan.
+    const MATERIAL_FAMILIES = ['Staal', 'RVS'];
 
     function firstCodePart(article) {
         const s = norm(article);
@@ -499,7 +507,7 @@
 
         // Een nieuwe beugel start altijd met een lege optionele samenstelling.
         if (previousArticle !== norm(state.selectedClamp['Artikelcode'])) {
-            [ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => { select.value = ''; });
+            [ui.materialFamily, ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => { select.value = ''; });
             resetAantalFields();
         }
         const c = state.selectedClamp;
@@ -509,25 +517,70 @@
 
     function rebuildMaterialCodes() {
         if (!state.selectedClamp) {
+            ui.materialFamily.disabled = true;
             ui.materialCode.disabled = true;
             return;
         }
-        // Vaste lijst (MATERIAL_CODES) i.p.v. afgeleid uit de CSV - de
-        // pulldown toont altijd deze 6 materiaalcodes. De select-waarde
-        // blijft de kale W-code (gebruikt in alle matching/prijs-logica);
-        // de omschrijving wordt enkel getoond in de optie-tekst.
+        const old = ui.materialFamily.value;
+        ui.materialFamily.innerHTML = '';
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '— Kies Staal of RVS —';
+        ui.materialFamily.appendChild(placeholder);
+        MATERIAL_FAMILIES.forEach(family => {
+            const option = document.createElement('option');
+            option.value = family;
+            option.textContent = family;
+            ui.materialFamily.appendChild(option);
+        });
+        ui.materialFamily.disabled = false;
+        if (old && [...ui.materialFamily.options].some(o => o.value === old)) {
+            ui.materialFamily.value = old;
+        }
+        populateMaterialCodeSelect();
+    }
+
+    /**
+     * Vult de materiaalcode-select (locatie 6) op basis van de gekozen
+     * Staal/RVS-familie (ui.materialFamily) - filtert MATERIAL_CODES via
+     * metalFamily() zodat bij Staal alleen W1/W2/W3 en bij RVS alleen
+     * W4/W5/W55 ter keuze staan. Zonder gekozen familie blijft de select
+     * leeg en uitgeschakeld. Aangeroepen vanuit rebuildMaterialCodes()
+     * (nieuwe beugel) en rechtstreeks bij het wisselen van Staal/RVS
+     * (zie bindEvents()).
+     */
+    function populateMaterialCodeSelect() {
+        const family = ui.materialFamily.value;
         const old = ui.materialCode.value;
         ui.materialCode.innerHTML = '';
+
+        if (!family) {
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Kies eerst Staal of RVS';
+            ui.materialCode.appendChild(placeholder);
+            ui.materialCode.disabled = true;
+            rebuildComponents();
+            return;
+        }
+
+        // Vaste lijst (MATERIAL_CODES) i.p.v. afgeleid uit de CSV - de
+        // pulldown toont altijd de W-codes van de gekozen familie. De
+        // select-waarde blijft de kale W-code (gebruikt in alle matching-/
+        // prijslogica); de omschrijving wordt enkel getoond in de
+        // optie-tekst.
         const placeholder = document.createElement('option');
         placeholder.value = '';
         placeholder.textContent = '— Geen materiaalcode gekozen —';
         ui.materialCode.appendChild(placeholder);
-        MATERIAL_CODES.forEach(({ code, label }) => {
-            const option = document.createElement('option');
-            option.value = code;
-            option.textContent = `${code} - ${label}`;
-            ui.materialCode.appendChild(option);
-        });
+        MATERIAL_CODES
+            .filter(({ code }) => metalFamily(code) === family)
+            .forEach(({ code, label }) => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = `${code} - ${label}`;
+                ui.materialCode.appendChild(option);
+            });
         ui.materialCode.disabled = false;
         if (old && [...ui.materialCode.options].some(o => o.value === old)) {
             ui.materialCode.value = old;
@@ -1093,7 +1146,7 @@
     function clearAssembly() {
         ui.loc2.textContent = '—';
         ui.loc6.textContent = '—';
-        [ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => {
+        [ui.materialFamily, ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => {
             select.innerHTML = '<option value="">Kies eerst een beugel</option>';
             select.disabled = true;
         });
@@ -1107,6 +1160,7 @@
             resizeDiameterField();
             queryExactLive(ui.diameterInput.value);
         });
+        ui.materialFamily.addEventListener('change', populateMaterialCodeSelect);
         ui.materialCode.addEventListener('change', rebuildComponents);
         [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => select.addEventListener('change', updateAssemblyCode));
         // Aantal wijzigen hoeft geen nieuwe prijs op te halen - alleen de

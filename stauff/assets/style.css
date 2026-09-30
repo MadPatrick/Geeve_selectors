@@ -136,6 +136,11 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 .diameter-box { flex: 0 0 auto; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .diameter-box-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; padding: 14px 15px; }
 
+/* Materiaalcode-box (locatie 6): Staal/RVS-select boven de gefilterde
+   W-code-select, zie rebuildMaterialCodes()/populateMaterialCodeSelect()
+   in assets/selector.js. */
+.material-code-body { gap: 8px; }
+
 /* Diameter is een type-ahead veld met minimaal 12 zichtbare tekens. */
 .diameter-field { gap: 7px; }
 .diameter-field .autocomplete { width: calc(12ch + 42px); min-width: calc(12ch + 42px); }

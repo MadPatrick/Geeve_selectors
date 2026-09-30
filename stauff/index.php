@@ -88,9 +88,12 @@ function assetVersion(string $relativePath): string
                 <div class="exact-live-header">
                     <span>Materiaalcode (locatie 6)</span>
                 </div>
-                <div class="diameter-box-body">
-                    <select id="materialCodeSelect" disabled>
+                <div class="diameter-box-body material-code-body">
+                    <select id="materialFamilySelect" disabled>
                         <option value="">Kies eerst een beugel</option>
+                    </select>
+                    <select id="materialCodeSelect" disabled>
+                        <option value="">Kies eerst Staal of RVS</option>
                     </select>
                 </div>
             </div>
