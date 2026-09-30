@@ -39,6 +39,11 @@ floating overlay - dat bleek het aanklikken van een resultaat te breken, zie git
 `api/exact_search.php` geeft per rij wél de Exact-omschrijving (`[Item Description]`) mee in de
 JSON - die wordt pas getoond ná het kiezen (zie hieronder), niet in de lijst zelf.
 
+Het diameterveld staat zelf ook in een kaderdoos (`.diameter-box`) met dezelfde kaderstijl/
+headerbalk (`.exact-live-header`, hergebruikt) als de resultatenbox ernaast - dus zelfde "look"
+(rand, hoeken, header) en (via `align-items: stretch` op `.filter-grid`, de default) altijd
+even hoog.
+
 **De filtervelden Serie, Uitvoering, Beugelmateriaal en Beugel zijn verwijderd** uit de
 "Beugel bepalen"-sectie, met alle code die er exclusief van afhing (`rebuildClampFilters()`,
 de diameter-typeahead over de CSV, de serie/uitvoering-knoppen). Die velden waren voorheen de

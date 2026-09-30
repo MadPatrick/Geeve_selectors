@@ -126,10 +126,18 @@ input, select {
 input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(238, 48, 93, .14); }
 select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 
-.filter-grid { display: flex; flex-wrap: nowrap; align-items: flex-start; gap: 20px; width: 100%; }
+/* align-items: stretch (default) zodat de diameter-box en de
+   live-resultatenbox altijd even hoog zijn. */
+.filter-grid { display: flex; flex-wrap: nowrap; gap: 20px; width: 100%; }
+
+/* Diameter-box: zelfde kaderstijl (rand/hoeken/header) als
+   .exact-live-results ernaast, zodat beide boxen op elkaar lijken en
+   even hoog zijn. */
+.diameter-box { flex: 0 0 auto; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.diameter-box-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; padding: 14px 15px; }
 
 /* Diameter is een type-ahead veld met minimaal 12 zichtbare tekens. */
-.diameter-field { flex: 0 0 auto; width: auto; }
+.diameter-field { gap: 7px; }
 .diameter-field .autocomplete { width: calc(12ch + 42px); min-width: calc(12ch + 42px); }
 .diameter-field input { width: 100%; }
 .diameter-field small { width: 24ch; }
@@ -137,10 +145,10 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 .autocomplete { position: relative; }
 
 /* Live, fuzzy artikelnummer-zoekresultaten uit Exact (groep 67) bij het
-   diameterveld - zie api/exact_search.php. Gewone flex-buur van het
-   diameterveld in .filter-grid (dus naast, niet onder), geen absolute
+   diameterveld - zie api/exact_search.php. Gewone flex-buur van de
+   diameter-box in .filter-grid (dus naast, niet onder), geen absolute
    overlay - dat brak het aanklikken van een resultaat. */
-.exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 840px; align-self: stretch; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 840px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: #f4f7fa; font-size: 13px; font-weight: 750; color: var(--muted); }
 .exact-live-status { font-size: 12px; font-weight: 700; }
 .exact-live-status.error { color: var(--danger); }
@@ -228,7 +236,7 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
     .panel { padding: 18px; border-radius: 14px; }
     .section-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
     .filter-grid { gap: 12px; }
-    .diameter-field { flex: 0 0 auto; }
+    .diameter-box { flex: 0 0 auto; }
     .segmented { width: 100%; }
     .segment { flex: 1; }
     .location-card { grid-template-columns: 40px 52px minmax(0,1fr); }
