@@ -378,3 +378,8 @@ button.location-number { cursor: pointer; }
 .db-test-table { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
 .db-test-table th, .db-test-table td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; }
 .db-test-table thead th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; }
+
+/* Verberg de onderdeelafbeelding echt wanneer geen artikel is geselecteerd.
+   De algemene display:block-regel op .location-image img overschrijft anders
+   het HTML hidden-attribuut en kan een kapot-afbeelding icoon tonen. */
+.location-image img[hidden] { display: none; }
