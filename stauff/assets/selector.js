@@ -202,13 +202,10 @@
     }
 
     // Per-locatie vlag: pas de GRx/GRxD-tagfilter (zie tagMatches()) toe op
-    // live kandidaten. Locatie 1 en 2 (beugel-gerelateerd) zijn al bewezen -
-    // state.beugelGroup wordt al op exact deze manier uit een Exact-
-    // omschrijving gehaald. Locatie 3/4/5 pas op true zetten nadat via
-    // /stauff/db-test.php gecontroleerd is dat Borgplaat/Dekplaat/Bout-
-    // omschrijvingen in Exact ook echt een herkenbare GRx/GRxD-tag dragen
+    // live kandidaten. Gecontroleerd voor alle locaties: Borgplaat/Dekplaat/
+    // Bout-omschrijvingen in Exact dragen ook een herkenbare GRx/GRxD-tag
     // (zie README.md).
-    const GROUP_FILTER_ENABLED_FOR = { 1: true, 2: true, 3: false, 4: false, 5: false };
+    const GROUP_FILTER_ENABLED_FOR = { 1: true, 2: true, 3: true, 4: true, 5: true };
 
     // Haalt de W-materiaalcode terug uit een artikelcode-string (bijv. "SPAL
     // 8 M W2" -> "W2"), zodat de locatie-1 materiaal-rangorde (zie

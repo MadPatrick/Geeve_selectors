@@ -87,13 +87,9 @@ ongerelateerde features (standaard-aantal bij Bout, vorm-afbeelding-keuze) - dat
 kandidaat-filter.
 
 **Uitrol per locatie (`GROUP_FILTER_ENABLED_FOR` in `assets/selector.js`):** of deze tagfilter
-daadwerkelijk toegepast wordt, staat per locatie los aan/uit. Locatie 1 en 2 (beugel-gerelateerd)
-staan aan - bewezen, `state.beugelGroup` wordt al op precies deze manier uit een Exact-
-omschrijving gehaald. Locatie 3/4/5 staan **uit** totdat via `/stauff/db-test.php` gecontroleerd
-is dat Borgplaat/Dekplaat/Bout-omschrijvingen in Exact ook echt een herkenbare GRx/GRxD-tag
-dragen (inclusief of de `D` daar voorkomt voor de dubbele varianten, GD/DPAD-prefixen). Tot die
-tijd filteren die locaties alleen op voorvoegsel + materiaal (ruimere lijst, nooit verkeerde
-resultaten - wel tijdelijk minder scherp). Zet de vlag pas op `true` ná die controle.
+daadwerkelijk toegepast wordt, staat per locatie los aan/uit - inmiddels voor **alle** locaties
+(1-5) op `true`. Bevestigd (via `/stauff/db-test.php`) dat Borgplaat/Dekplaat/Bout-omschrijvingen
+in Exact, net als bij de beugel zelf, een herkenbare GRx/GRxD-tag dragen.
 
 ## Verkoopprijs per locatie (Exact, database 005)
 
