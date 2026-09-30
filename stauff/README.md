@@ -34,10 +34,10 @@ diameters uit de CSV) is verwijderd. Typ je een getal, dan zoekt dit endpoint in
   `slangkaarten/inc/queries.php`), dus "1680" vindt ook "10168-0".
 
 De live resultatenlijst toont **uitsluitend het artikelnummer** (geen omschrijving) als klikbare
-knop, in een eigen paneel ("Live resultaten uit Exact") op de plek waar voorheen de "Bouwgroep/
-Diameter/Serie/Uitvoering"-infobox stond. `api/exact_search.php` geeft per rij wél de Exact-
-omschrijving (`[Item Description]`) mee in de JSON - die wordt pas getoond ná het kiezen (zie
-hieronder), niet in de lijst zelf.
+knop, als dropdown direct onder het diameterveld (zelfde positioneringspatroon als de vroegere
+CSV-autocomplete). `api/exact_search.php` geeft per rij wél de Exact-omschrijving
+(`[Item Description]`) mee in de JSON - die wordt pas getoond ná het kiezen (zie hieronder), niet
+in de lijst zelf.
 
 **De filtervelden Serie, Uitvoering, Beugelmateriaal en Beugel zijn verwijderd** uit de
 "Beugel bepalen"-sectie, met alle code die er exclusief van afhing (`rebuildClampFilters()`,
@@ -50,7 +50,8 @@ filterblok zijn weg (`ui.dataStatus`/`ui.resultCount`) - die hoorden bij de oude
 resultatenlijst (`selectExactArticle()` in `assets/selector.js`) doet twee dingen:
 
 1. Vult het diameterveld met dat artikelnummer en vervangt de resultatenlijst door 1 regel met
-   het gekozen artikelnummer + de Exact-omschrijving, met een "Wijzig"-link om opnieuw te zoeken.
+   het gekozen artikelnummer + de Exact-omschrijving. Opnieuw zoeken kan door het diameterveld te
+   overtypen (geen apart "Wijzig"-knopje).
 2. Roept `selectClamp(artikelnummer)` aan - dezelfde functie die voorheen via de (inmiddels
    verwijderde) Beugel-select liep. Staat dat artikelnummer in `data/stauff_selector.csv` (kolom
    `Artikelcode`), dan activeert dit meteen Locaties 1-6, Materiaal bevestigingsdelen (incl. de

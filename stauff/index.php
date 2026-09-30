@@ -68,19 +68,18 @@ function assetVersion(string $relativePath): string
                 <div class="autocomplete">
                     <input id="diameterInput" type="text" inputmode="decimal" autocomplete="off"
                            placeholder="Typ diameter, bijvoorbeeld 19">
+                    <div id="exactLiveResults" class="exact-live-results" hidden>
+                        <div class="exact-live-header">
+                            <span>Live resultaten uit Exact (artikelgroep 67)</span>
+                            <span id="exactLiveStatus" class="exact-live-status"></span>
+                        </div>
+                        <ul id="exactLiveList" class="exact-live-list"></ul>
+                    </div>
                 </div>
                 <small>Live fuzzy zoeken op artikelnummer in Exact (artikelgroep 67).</small>
             </label>
         </div>
         <small>Lasplaat en Dekplaat worden standaard voorgeselecteerd zodra een passende optie beschikbaar is; de overige onderdelen blijven optioneel.</small>
-
-        <div id="exactLiveResults" class="exact-live-results" hidden>
-            <div class="exact-live-header">
-                <span>Live resultaten uit Exact (artikelgroep 67)</span>
-                <span id="exactLiveStatus" class="exact-live-status"></span>
-            </div>
-            <ul id="exactLiveList" class="exact-live-list"></ul>
-        </div>
     </section>
 
     <section class="panel material-panel">

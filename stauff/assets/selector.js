@@ -326,8 +326,8 @@
      * van een beugel uit de (inmiddels verwijderde) Beugel-lijst. Staat
      * het artikelnummer niet in de CSV, dan blijft dat deel leeg met een
      * duidelijke waarschuwing i.p.v. stil te falen. Het infopaneel toont
-     * daarna het gekozen artikelnummer + de Exact-omschrijving, met een
-     * "Wijzig"-link om opnieuw te zoeken.
+     * daarna het gekozen artikelnummer + de Exact-omschrijving; opnieuw
+     * zoeken kan door het diameterveld te overtypen.
      */
     function selectExactArticle(artikelnummer, omschrijving) {
         ui.diameterInput.value = artikelnummer;
@@ -347,18 +347,8 @@
         code.textContent = artikelnummer;
         const description = document.createElement('span');
         description.textContent = omschrijving || '—';
-        const change = document.createElement('button');
-        change.type = 'button';
-        change.className = 'exact-live-change';
-        change.textContent = 'Wijzig';
-        change.addEventListener('click', () => {
-            ui.diameterInput.value = '';
-            ui.diameterInput.focus();
-            queryExactLive('');
-        });
         row.appendChild(code);
         row.appendChild(description);
-        row.appendChild(change);
         item.appendChild(row);
         ui.exactLiveList.appendChild(item);
     }
