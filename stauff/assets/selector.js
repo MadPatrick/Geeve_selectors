@@ -175,6 +175,21 @@
         return !!state.selectedClamp && norm(state.selectedClamp['Enkel / Dubbel']) === 'Dubbel';
     }
 
+    /**
+     * Dubbele beugel o.b.v. de GRxD-groep-tag uit de Exact-omschrijving
+     * (state.beugelGroup, gezet in selectExactArticle() via
+     * extractGroupTag()) - bewust NIET de CSV ('Enkel / Dubbel', zie
+     * isDubbelClamp() hierboven, die nog wel voor de plaatjes gebruikt
+     * wordt). Gebruikt voor het standaard Bout-aantal (resetAantalFields()/
+     * addExtraItemRow()), op verzoek losgekoppeld van de CSV. Een "D" aan
+     * het eind van de groep-tag betekent dubbel/twin, zelfde conventie als
+     * groupMatches() hierboven al gebruikt voor Bouwgroep-waarden als "3D".
+     * Geen groep bekend (geen GR-tag in de omschrijving) -> niet dubbel.
+     */
+    function isDubbelFromExactGroup() {
+        return /D$/i.test(norm(state.beugelGroup));
+    }
+
     function shapeImageKey(row) {
         if (!row) return null;
         const onderdeel = row['Onderdeel'];
@@ -608,10 +623,10 @@
 
     // Standaardaantal per vaste locatie (1-6) - overal 1, behalve Bout
     // (locatie 5, zie resetAantalFields() hieronder: standaard 2, maar 1
-    // bij een dubbele beugel - isDubbelClamp(), overeenkomend met een
-    // GRxD-groep). Gebruikt bij het opnieuw leegmaken van de
-    // samenstelling (clearAssembly()) en bij het kiezen van een nieuwe,
-    // andere beugel (selectClamp()).
+    // bij een dubbele beugel - isDubbelFromExactGroup(), de GRxD-groep uit
+    // de Exact-omschrijving, met opzet niet de CSV). Gebruikt bij het
+    // opnieuw leegmaken van de samenstelling (clearAssembly()) en bij het
+    // kiezen van een nieuwe, andere beugel (selectClamp()).
     const DEFAULT_AANTAL = { 1: 1, 2: 1, 3: 1, 4: 1, 6: 1 };
 
     function resetAantalFields() {
@@ -619,7 +634,7 @@
             const input = ui[`aantalLoc${pos}`];
             if (input) input.value = String(value);
         });
-        if (ui.aantalLoc5) ui.aantalLoc5.value = isDubbelClamp() ? '1' : '2';
+        if (ui.aantalLoc5) ui.aantalLoc5.value = isDubbelFromExactGroup() ? '1' : '2';
     }
 
     function syncLocationConfigButtons() {
@@ -966,11 +981,11 @@
         soortSelect.addEventListener('change', () => {
             const pos = soortSelect.value;
             // Standaard 1, behalve bij Bout (waarde "5"): standaard 2,
-            // maar 1 bij een dubbele beugel (zie isDubbelClamp()/
+            // maar 1 bij een dubbele beugel (zie isDubbelFromExactGroup()/
             // resetAantalFields()). Alleen gezet bij het wisselen van
             // soort, zodat een handmatig aangepast aantal daarna niet
             // weer overschreven wordt.
-            aantalInput.value = pos === '5' ? (isDubbelClamp() ? '1' : '2') : '1';
+            aantalInput.value = pos === '5' ? (isDubbelFromExactGroup() ? '1' : '2') : '1';
             if (!pos) {
                 delete locationFilterRequests[requestKey];
                 artikelSelect.disabled = true;
