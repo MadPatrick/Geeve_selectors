@@ -34,10 +34,10 @@ diameters uit de CSV) is verwijderd. Typ je een getal, dan zoekt dit endpoint in
   `slangkaarten/inc/queries.php`), dus "1680" vindt ook "10168-0".
 
 De live resultatenlijst toont **uitsluitend het artikelnummer** (geen omschrijving) als klikbare
-knop, in een gewoon blok direct onder het diameterveld (géén absolute/floating overlay - dat bleek
-het aanklikken van een resultaat te breken, zie git-historie). `api/exact_search.php` geeft per
-rij wél de Exact-omschrijving (`[Item Description]`) mee in de JSON - die wordt pas getoond ná het
-kiezen (zie hieronder), niet in de lijst zelf.
+knop, in een gewoon blok náást het diameterveld (flex-buur in `.filter-grid`, géén absolute/
+floating overlay - dat bleek het aanklikken van een resultaat te breken, zie git-historie).
+`api/exact_search.php` geeft per rij wél de Exact-omschrijving (`[Item Description]`) mee in de
+JSON - die wordt pas getoond ná het kiezen (zie hieronder), niet in de lijst zelf.
 
 **De filtervelden Serie, Uitvoering, Beugelmateriaal en Beugel zijn verwijderd** uit de
 "Beugel bepalen"-sectie, met alle code die er exclusief van afhing (`rebuildClampFilters()`,
