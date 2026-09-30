@@ -190,6 +190,31 @@
         return /D$/i.test(norm(state.beugelGroup));
     }
 
+    /**
+     * Dubbele beugel o.b.v. de artikelcode zelf: een herhaalde diameter,
+     * gescheiden door "/" (bijv. "112/12" of "103,2/03,2"), betekent
+     * dubbel; zonder "/" (bijv. "112") is enkel - rechtstreeks op de
+     * artikelcode-string zoals Exact die teruggeeft, geen CSV-veld nodig.
+     * Klopt 1-op-1 met de CSV ('Enkel / Dubbel') voor alle 128 dubbele
+     * beugel-rijen (geen enkele dubbele rij zonder "/", geen enkele "/"-
+     * rij die niet dubbel is) - betrouwbaarder dan de GR-tag hieronder,
+     * want de artikelcode is altijd beschikbaar (de omschrijving bevat
+     * niet altijd een parsbare GR-tag).
+     */
+    function isDubbelArtikelcode(code) {
+        return norm(code).includes('/');
+    }
+
+    /**
+     * Dubbele beugel, gecombineerd uit de 2 Exact-gebaseerde signalen
+     * hierboven (bewust geen CSV): de artikelcode (leidend) en de
+     * GRxD-groep-tag uit de omschrijving (vangnet voor het geval de
+     * artikelcode een ander formaat heeft).
+     */
+    function isDubbelBeugel() {
+        return isDubbelArtikelcode(state.selectedClamp ? state.selectedClamp['Artikelcode'] : '') || isDubbelFromExactGroup();
+    }
+
     function shapeImageKey(row) {
         if (!row) return null;
         const onderdeel = row['Onderdeel'];
@@ -314,7 +339,14 @@
         if (ignoreExecutionFor.has(component)) return true;
 
         const part = norm(row['Enkel / Dubbel']);
-        return !part || part === norm(clamp['Enkel / Dubbel']);
+        if (!part) return true;
+
+        // Dubbel/Enkel van de beugel zelf komt uit de artikelcode (zie
+        // isDubbelArtikelcode()), niet uit de CSV - het onderdeel-kandidaat
+        // (row) heeft alleen nog zijn eigen CSV-veld nodig om te weten
+        // welke uitvoering HIJ ondersteunt.
+        const clampLabel = isDubbelArtikelcode(clamp['Artikelcode']) ? 'Dubbel' : 'Enkel';
+        return part === clampLabel;
     }
 
     function seriesMatches(row, clamp) {
@@ -623,10 +655,10 @@
 
     // Standaardaantal per vaste locatie (1-6) - overal 1, behalve Bout
     // (locatie 5, zie resetAantalFields() hieronder: standaard 2, maar 1
-    // bij een dubbele beugel - isDubbelFromExactGroup(), de GRxD-groep uit
-    // de Exact-omschrijving, met opzet niet de CSV). Gebruikt bij het
-    // opnieuw leegmaken van de samenstelling (clearAssembly()) en bij het
-    // kiezen van een nieuwe, andere beugel (selectClamp()).
+    // bij een dubbele beugel - isDubbelBeugel(), met opzet niet de CSV).
+    // Gebruikt bij het opnieuw leegmaken van de samenstelling
+    // (clearAssembly()) en bij het kiezen van een nieuwe, andere beugel
+    // (selectClamp()).
     const DEFAULT_AANTAL = { 1: 1, 2: 1, 3: 1, 4: 1, 6: 1 };
 
     function resetAantalFields() {
@@ -634,7 +666,7 @@
             const input = ui[`aantalLoc${pos}`];
             if (input) input.value = String(value);
         });
-        if (ui.aantalLoc5) ui.aantalLoc5.value = isDubbelFromExactGroup() ? '1' : '2';
+        if (ui.aantalLoc5) ui.aantalLoc5.value = isDubbelBeugel() ? '1' : '2';
     }
 
     function syncLocationConfigButtons() {
@@ -981,11 +1013,11 @@
         soortSelect.addEventListener('change', () => {
             const pos = soortSelect.value;
             // Standaard 1, behalve bij Bout (waarde "5"): standaard 2,
-            // maar 1 bij een dubbele beugel (zie isDubbelFromExactGroup()/
+            // maar 1 bij een dubbele beugel (zie isDubbelBeugel()/
             // resetAantalFields()). Alleen gezet bij het wisselen van
             // soort, zodat een handmatig aangepast aantal daarna niet
             // weer overschreven wordt.
-            aantalInput.value = pos === '5' ? (isDubbelFromExactGroup() ? '1' : '2') : '1';
+            aantalInput.value = pos === '5' ? (isDubbelBeugel() ? '1' : '2') : '1';
             if (!pos) {
                 delete locationFilterRequests[requestKey];
                 artikelSelect.disabled = true;
