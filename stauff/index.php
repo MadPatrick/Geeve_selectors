@@ -93,9 +93,6 @@ function assetVersion(string $relativePath): string
                         <button type="button" class="family-switch-option" data-family="Staal" aria-pressed="false" disabled>Staal</button>
                         <button type="button" class="family-switch-option" data-family="RVS" aria-pressed="false" disabled>RVS</button>
                     </div>
-                    <select id="materialCodeSelect" disabled>
-                        <option value="">Kies eerst Staal of RVS</option>
-                    </select>
                 </div>
             </div>
         </div>
@@ -214,7 +211,7 @@ function assetVersion(string $relativePath): string
                 <div class="location-content">
                     <div class="location-title"><strong>Materiaal</strong><span>Optioneel &middot; W-code bevestigingsdelen</span></div>
                     <input type="number" id="locationAantal6" class="location-aantal" min="1" value="1" aria-label="Aantal Materiaal">
-                    <div id="location6Value" class="fixed-value">&mdash;</div>
+                    <select id="location6Select" disabled><option value="">Kies eerst een beugel</option></select>
                     <span id="locationPrice6" class="location-price"></span>
                 </div>
             </article>

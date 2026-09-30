@@ -49,13 +49,12 @@
         exactLiveStatus: el('exactLiveStatus'),
         exactLiveList: el('exactLiveList'),
         materialFamily: el('materialFamilySwitch'),
-        materialCode: el('materialCodeSelect'),
         loc1: el('location1Select'),
         loc2: el('location2Value'),
         loc3: el('location3Select'),
         loc4: el('location4Select'),
         loc5: el('location5Select'),
-        loc6: el('location6Value'),
+        loc6: el('location6Select'),
         assemblyCode: el('assemblyCode'),
         copyButton: el('copyButton'),
         codeHint: el('codeHint'),
@@ -216,18 +215,16 @@
     }
 
     // Welke waarde als "material"-parameter naar exact_location_search.php
-    // gaat. Locatie 1 filtert op materiaalFAMILIE (W1/W2/W3 door elkaar
-    // bruikbaar voor Staal, net als voorheen via metalFamily()) - de hele
-    // familie wordt meegegeven als ;-lijst. Locatie 2 (Beugel) slaat de
-    // materiaalcode-check over (eigen kunststof/beugel-schema, los van de
-    // W-codes). Overige locaties blijven de exact gekozen code.
-    function materialQueryValue(pos, code) {
-        if (!code || Number(pos) === 2) return '';
-        if (Number(pos) === 1) {
-            const family = metalFamily(code);
-            return MATERIAL_CODES.filter(m => metalFamily(m.code) === family).map(m => m.code).join(';');
-        }
-        return code;
+    // gaat. Alle locaties (1/3/4/5) filteren op de hele materiaalFAMILIE
+    // (W1/W2/W3 voor Staal, W4/W5/W55 voor RVS, als ;-lijst) - er is geen
+    // apart, vooraf gekozen exacte W-code meer die de andere locaties
+    // stuurt. De specifieke code volgt uit welk artikel de gebruiker per
+    // locatie kiest (zie materialCodeFromItemCode()), inclusief voor
+    // locatie 6 zelf (zie populateMaterialCodeSelect()). Locatie 2 (Beugel)
+    // slaat de materiaalcode-check over (eigen kunststof/beugel-schema).
+    function materialQueryValue(pos, family) {
+        if (!family || Number(pos) === 2) return '';
+        return MATERIAL_CODES.filter(m => metalFamily(m.code) === family).map(m => m.code).join(';');
     }
 
     /**
@@ -495,7 +492,7 @@
         // Een nieuwe beugel start altijd met een lege optionele samenstelling.
         if (previousArticle !== norm(state.selectedClamp['Artikelcode'])) {
             setMaterialFamilyValue('');
-            [ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => { select.value = ''; });
+            [ui.loc6, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => { select.value = ''; });
             resetAantalFields();
         }
         const c = state.selectedClamp;
@@ -528,7 +525,7 @@
     function rebuildMaterialCodes() {
         if (!state.selectedClamp) {
             setMaterialFamilyDisabled(true);
-            ui.materialCode.disabled = true;
+            ui.loc6.disabled = true;
             return;
         }
         // De knoppen zelf staan al vast in index.php (Staal/RVS) - alleen
@@ -542,46 +539,47 @@
      * Vult de materiaalcode-select (locatie 6) op basis van de gekozen
      * Staal/RVS-familie (getMaterialFamily()) - filtert MATERIAL_CODES via
      * metalFamily() zodat bij Staal alleen W1/W2/W3 en bij RVS alleen
-     * W4/W5/W55 ter keuze staan. Zonder gekozen familie blijft de select
-     * leeg en uitgeschakeld. Aangeroepen vanuit rebuildMaterialCodes()
-     * (nieuwe beugel) en rechtstreeks bij het wisselen van Staal/RVS
-     * (zie bindEvents()).
+     * W4/W5/W55 ter keuze staan. Locatie 6 is hiermee een gewone pulldown
+     * zoals de andere locaties: de Staal/RVS-switch is de ENIGE extra
+     * filter, de specifieke W-code kiest de gebruiker hier zelf - dit
+     * stuurt geen exacte-code-filter meer voor de andere locaties (die
+     * filteren zelf ook al op de hele familie, zie materialQueryValue()).
+     * Zonder gekozen familie blijft de select leeg en uitgeschakeld.
+     * Aangeroepen vanuit rebuildMaterialCodes() (nieuwe beugel) en
+     * rechtstreeks bij het wisselen van Staal/RVS (zie bindEvents()), en
+     * bouwt daarna ook meteen locaties 1/3/4/5 opnieuw op
+     * (rebuildComponents()).
      */
     function populateMaterialCodeSelect() {
         const family = getMaterialFamily();
-        const old = ui.materialCode.value;
-        ui.materialCode.innerHTML = '';
+        const old = ui.loc6.value;
+        ui.loc6.innerHTML = '';
 
         if (!family) {
             const placeholder = document.createElement('option');
             placeholder.value = '';
             placeholder.textContent = 'Kies eerst Staal of RVS';
-            ui.materialCode.appendChild(placeholder);
-            ui.materialCode.disabled = true;
+            ui.loc6.appendChild(placeholder);
+            ui.loc6.disabled = true;
             rebuildComponents();
             return;
         }
 
-        // Vaste lijst (MATERIAL_CODES) i.p.v. afgeleid uit de CSV - de
-        // pulldown toont altijd de W-codes van de gekozen familie. De
-        // select-waarde blijft de kale W-code (gebruikt in alle matching-/
-        // prijslogica); de omschrijving wordt enkel getoond in de
-        // optie-tekst.
         const placeholder = document.createElement('option');
         placeholder.value = '';
         placeholder.textContent = '— Geen materiaalcode gekozen —';
-        ui.materialCode.appendChild(placeholder);
+        ui.loc6.appendChild(placeholder);
         MATERIAL_CODES
             .filter(({ code }) => metalFamily(code) === family)
             .forEach(({ code, label }) => {
                 const option = document.createElement('option');
                 option.value = code;
                 option.textContent = `${code} - ${label}`;
-                ui.materialCode.appendChild(option);
+                ui.loc6.appendChild(option);
             });
-        ui.materialCode.disabled = false;
-        if (old && [...ui.materialCode.options].some(o => o.value === old)) {
-            ui.materialCode.value = old;
+        ui.loc6.disabled = false;
+        if (old && [...ui.loc6.options].some(o => o.value === old)) {
+            ui.loc6.value = old;
         }
         rebuildComponents();
     }
@@ -675,13 +673,15 @@
      * elke rij (classify()/PREFIX_RULES), filtert op de GRx/GRxD-tag wanneer
      * GROUP_FILTER_ENABLED_FOR dat voor deze locatie toestaat (tagMatches() -
      * dit vervangt zowel de oude bouwgroep- als enkel/dubbel-matching in één
-     * keer), past voor locatie 1 de vaste type-/materiaal-rangorde toe, en
+     * keer), past voor locatie 1/4 een vaste rangorde toe (locatie 1 ook op
+     * type, beide op materiaalcode-voorkeur binnen de gekozen familie - er
+     * is geen apart vooraf gekozen exacte code meer om op te ranken), en
      * selecteert automatisch (locatie 1/4: altijd de eerste; overige
      * locaties: alleen bij precies 1 resultaat). Gedeeld tussen de vaste
      * locaties (rebuildComponents()) en vrij toegevoegde extra-regels
      * (populateExtraArticleSelect()).
      */
-    function renderLiveCandidates(pos, select, rawRows, { code = '', previousValue = '', emptyText = '', trackWarning = false } = {}) {
+    function renderLiveCandidates(pos, select, rawRows, { family = '', previousValue = '', emptyText = '', trackWarning = false } = {}) {
         const numPos = Number(pos);
         let items = rawRows
             .map(row => ({ code: norm(row.ItemCode), group: norm(row.Group) }))
@@ -695,36 +695,41 @@
             items = items.filter(item => tagMatches(item.group, state.beugelGroup));
         }
 
-        if (numPos === 1) {
-            const typeRank = item => {
-                const prefix = firstCodePart(item.code);
-                if (prefix === 'SP') return 0;
-                if (prefix === 'SPV') return 1;
-                if (prefix === 'WSP') return 2;
-                if (prefix === 'SPAL') return 3;
-                if (prefix === 'GMV') return 9;
-                return 8;
-            };
+        if (numPos === 1 || numPos === 4) {
             const materialRank = item => {
                 const mc = materialCodeFromItemCode(item.code);
-                if (mc === upper(code)) return 0;
-                const family = metalFamily(code);
                 if (family === 'Staal') {
-                    if (mc === 'W2') return 1;
-                    if (mc === 'W1') return 2;
-                    if (mc === 'W3') return 3;
+                    if (mc === 'W2') return 0;
+                    if (mc === 'W1') return 1;
+                    if (mc === 'W3') return 2;
                 } else if (family === 'RVS') {
-                    if (mc === 'W5') return 1;
-                    if (mc === 'W4') return 2;
-                    if (mc === 'W55') return 3;
+                    if (mc === 'W5') return 0;
+                    if (mc === 'W4') return 1;
+                    if (mc === 'W55') return 2;
                 }
-                return 4;
+                return 3;
             };
-            items = [...items].sort((a, b) =>
-                typeRank(a) - typeRank(b)
-                || materialRank(a) - materialRank(b)
-                || a.code.localeCompare(b.code, 'nl', { numeric: true })
-            );
+            if (numPos === 1) {
+                const typeRank = item => {
+                    const prefix = firstCodePart(item.code);
+                    if (prefix === 'SP') return 0;
+                    if (prefix === 'SPV') return 1;
+                    if (prefix === 'WSP') return 2;
+                    if (prefix === 'SPAL') return 3;
+                    if (prefix === 'GMV') return 9;
+                    return 8;
+                };
+                items = [...items].sort((a, b) =>
+                    typeRank(a) - typeRank(b)
+                    || materialRank(a) - materialRank(b)
+                    || a.code.localeCompare(b.code, 'nl', { numeric: true })
+                );
+            } else {
+                items = [...items].sort((a, b) =>
+                    materialRank(a) - materialRank(b)
+                    || a.code.localeCompare(b.code, 'nl', { numeric: true })
+                );
+            }
         }
 
         select.innerHTML = '';
@@ -732,7 +737,7 @@
         placeholderOption.value = '';
         placeholderOption.textContent = items.length
             ? '— Geen onderdeel gekozen —'
-            : (emptyText || `Geen artikelen gevonden${code ? ` voor ${code}` : ''}.`);
+            : (emptyText || `Geen artikelen gevonden${family ? ` voor materiaalsoort ${family}` : ''}.`);
         select.appendChild(placeholderOption);
         items.forEach(item => {
             const option = document.createElement('option');
@@ -756,8 +761,8 @@
         }
 
         if (trackWarning) {
-            emptyWarnings[numPos] = (code && items.length === 0)
-                ? `Locatie ${pos}: geen passend artikel voor ${code}.`
+            emptyWarnings[numPos] = (family && items.length === 0)
+                ? `Locatie ${pos}: geen passend artikel voor materiaalsoort ${family}.`
                 : null;
             refreshLocationWarnings();
         }
@@ -779,7 +784,7 @@
      * een eigen unieke key mee - anders zouden ze elkaars zoekopdracht
      * annuleren via dezelfde locationFilterRequests-sleutel.
      */
-    function applyLocationFilterSelect(pos, select, code, requestKey = pos, { emptyText = '', trackWarning = false } = {}) {
+    function applyLocationFilterSelect(pos, select, family, requestKey = pos, { emptyText = '', trackWarning = false } = {}) {
         if (locationFilterRequests[requestKey]) {
             clearTimeout(locationFilterRequests[requestKey].timeoutId);
             locationFilterRequests[requestKey].controller.abort();
@@ -796,7 +801,7 @@
         const prefixes = state.locationFilters[pos]
             || (Number(pos) === 2 ? '__DIGIT__' : (PREFIXES_BY_POSITION[Number(pos)] || []).join(';'));
         const params = new URLSearchParams({ prefixes });
-        const materialValue = materialQueryValue(pos, code);
+        const materialValue = materialQueryValue(pos, family);
         if (materialValue) params.set('material', materialValue);
         if (GROUP_FILTER_ENABLED_FOR[Number(pos)] && state.beugelGroup) params.set('group', state.beugelGroup);
 
@@ -807,7 +812,7 @@
                 if (!payload || payload.ok !== true) {
                     throw new Error((payload && payload.error) || 'Onbekende fout.');
                 }
-                renderLiveCandidates(pos, select, payload.rows, { code, previousValue, emptyText, trackWarning });
+                renderLiveCandidates(pos, select, payload.rows, { family, previousValue, emptyText, trackWarning });
                 updateAssemblyCode();
             })
             .catch(error => {
@@ -836,8 +841,7 @@
         // gekozen is).
         if (!state.selectedClamp) return;
 
-        const code = ui.materialCode.value;
-        ui.loc6.textContent = code || '—';
+        const family = getMaterialFamily();
         const mapping = [
             [1, ui.loc1, 'Geen passende lasplaat/glijmoer'],
             [3, ui.loc3, 'Geen passende borgplaat'],
@@ -845,13 +849,13 @@
             [5, ui.loc5, 'Geen passende bout'],
         ];
         mapping.forEach(([pos, select, emptyText]) => {
-            if (!code) {
-                select.innerHTML = '<option value="">Kies eerst materiaalcode</option>';
+            if (!family) {
+                select.innerHTML = '<option value="">Kies eerst Staal of RVS</option>';
                 select.disabled = true;
                 emptyWarnings[pos] = null;
                 return;
             }
-            applyLocationFilterSelect(pos, select, code, pos, { emptyText, trackWarning: true });
+            applyLocationFilterSelect(pos, select, family, pos, { emptyText, trackWarning: true });
         });
         refreshLocationWarnings();
         refreshExtraItems();
@@ -864,13 +868,13 @@
      * de vaste locaties (applyLocationFilterSelect()).
      */
     function populateExtraArticleSelect(pos, select, requestKey) {
-        const code = ui.materialCode.value;
-        if (!code) {
-            select.innerHTML = '<option value="">Kies eerst materiaalcode</option>';
+        const family = getMaterialFamily();
+        if (!family) {
+            select.innerHTML = '<option value="">Kies eerst Staal of RVS</option>';
             select.disabled = true;
             return;
         }
-        applyLocationFilterSelect(pos, select, code, requestKey, { emptyText: `Geen passend artikel voor ${code}` });
+        applyLocationFilterSelect(pos, select, family, requestKey, { emptyText: `Geen passend artikel voor materiaalsoort ${family}` });
     }
 
     let extraItemCounter = 0;
@@ -1012,7 +1016,7 @@
 
     function updateAssemblyCode() {
         const clamp = state.selectedClamp;
-        const wcode = ui.materialCode.value;
+        const wcode = ui.loc6.value;
         updateShapeImages();
         refreshLocationPrices();
         if (!clamp) {
@@ -1066,7 +1070,7 @@
             [ui.priceLoc3, norm(ui.loc3.value)],
             [ui.priceLoc4, norm(ui.loc4.value)],
             [ui.priceLoc5, norm(ui.loc5.value)],
-            [ui.priceLoc6, norm(ui.materialCode.value)],
+            [ui.priceLoc6, norm(ui.loc6.value)],
         ];
         // Extra, vrij toegevoegde regels (zie addExtraItemRow()) tellen op
         // dezelfde manier mee in de prijs-batch-lookup - niet vermenigvuldigd
@@ -1128,7 +1132,7 @@
             [norm(ui.loc3.value), aantalValue(ui.aantalLoc3)],
             [norm(ui.loc4.value), aantalValue(ui.aantalLoc4)],
             [norm(ui.loc5.value), aantalValue(ui.aantalLoc5)],
-            [norm(ui.materialCode.value), aantalValue(ui.aantalLoc6)],
+            [norm(ui.loc6.value), aantalValue(ui.aantalLoc6)],
         ];
         if (ui.assemblyList) {
             ui.assemblyList.querySelectorAll('.extra-item-card').forEach(card => {
@@ -1164,9 +1168,8 @@
 
     function clearAssembly() {
         ui.loc2.textContent = '—';
-        ui.loc6.textContent = '—';
         setMaterialFamilyDisabled(true);
-        [ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => {
+        [ui.loc6, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => {
             select.innerHTML = '<option value="">Kies eerst een beugel</option>';
             select.disabled = true;
         });
@@ -1187,8 +1190,7 @@
                 populateMaterialCodeSelect();
             });
         });
-        ui.materialCode.addEventListener('change', rebuildComponents);
-        [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => select.addEventListener('change', updateAssemblyCode));
+        [ui.loc1, ui.loc3, ui.loc4, ui.loc5, ui.loc6].forEach(select => select.addEventListener('change', updateAssemblyCode));
         // Aantal wijzigen hoeft geen nieuwe prijs op te halen - alleen de
         // totaalprijs opnieuw berekenen met de al bekende prijzen.
         [ui.aantalLoc1, ui.aantalLoc2, ui.aantalLoc3, ui.aantalLoc4, ui.aantalLoc5, ui.aantalLoc6]

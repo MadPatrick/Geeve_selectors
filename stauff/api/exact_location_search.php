@@ -24,10 +24,13 @@ require_once dirname(__DIR__) . '/inc/db.php';
  * hoofd-beugelzoekopdracht in exact_search.php - Beugel-artikelen hebben
  * geen letter-voorvoegsel.
  *
- * $material (optioneel, bijv. "W1" of "W1;W2;W3" - ; -gescheiden voor
- * locatie 1, die op hele materiaalFAMILIE filtert) - artikelen moeten 1 van
- * deze materiaalcodes ook BEVATTEN (LIKE '%MATERIAAL%'), overeenkomend met
- * de op dat moment gekozen Materiaalcode (locatie 6).
+ * $material (optioneel, altijd de hele materiaalFAMILIE als ;-lijst, bijv.
+ * "W1;W2;W3" voor Staal of "W4;W5;W55" voor RVS - er is geen apart vooraf
+ * gekozen exacte W-code meer) - artikelen moeten 1 van deze materiaalcodes
+ * ook BEVATTEN (LIKE '%MATERIAAL%'). De Staal/RVS-switch is de enige
+ * materiaal-filter; de specifieke W-code volgt uit welk artikel de
+ * gebruiker per locatie kiest (ook voor locatie 6 zelf, dat is nu een
+ * gewone pulldown met alleen de familie-codes).
  *
  * $group (optioneel, bijv. "GR10") - de volledige bouwgroep-tag zoals die
  * ook uit de omschrijving van de GEKOZEN BEUGEL gehaald is (zie

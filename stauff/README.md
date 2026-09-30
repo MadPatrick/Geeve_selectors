@@ -114,8 +114,8 @@ altijd actief.
 `api/exact_location_search.php` zoekt artikelen (artikelgroep 67) die met 1 van de voorvoegsels
 **beginnen**, gecombineerd met:
 
-- de op dat moment gekozen materiaalcode (locatie 6) - voor locatie 1 de hele materiaalFAMILIE
-  (`;`-lijst, bijv. "W1;W2;W3"), voor overige locaties de exacte code;
+- de gekozen materiaal**familie** (Staal/RVS-switch, niet een vooraf gekozen exacte code) -
+  altijd de hele familie als `;`-lijst, bijv. "W1;W2;W3" voor Staal;
 - (indien `GROUP_FILTER_ENABLED_FOR` voor die locatie aan staat) de GRx/GRxD-tag van de gekozen
   beugel - zie "Bouwgroep + Enkel/Dubbel" hierboven.
 
@@ -175,30 +175,36 @@ Enkel/Dubbel" hierboven. Er is verder geen Serie-onderscheid (Licht/Zwaar) meer 
 niet in Exact en is met opzet vervallen; shape-afbeeldingen en de locatie-1 type-rangorde werken
 nu uitsluitend op bouwgroep.
 
-## Materiaal bevestigingsdelen
+## Materiaal soort
 
-De Materiaalcode-pulldown (locatie 6, bovenin dezelfde kaderdoos-stijl als "Zoeken op beugel")
-wordt voorafgegaan door een Staal/RVS-keuze (`materialFamilySelect`) die de pulldown filtert.
-Beide tonen een **vaste** lijst (`MATERIAL_CODES`/`MATERIAL_FAMILIES` in `assets/selector.js`),
-niet afgeleid uit de CSV:
+"Materiaal soort" (bovenin, dezelfde kaderdoos-stijl als "Zoeken op beugel") is uitsluitend de
+Staal/RVS-switch (`materialFamilySwitch`, 2 knoppen - geen `<select>`, zie `getMaterialFamily()`/
+`setMaterialFamilyValue()` in `assets/selector.js`) - dit is de **enige** extra materiaal-filter.
+Er is geen apart, vooraf gekozen exacte W-code meer die de andere locaties stuurt: alle locaties
+(1-5) filteren hun kandidaten op de hele gekozen familie (`materialQueryValue()`), en de
+specifieke W-code volgt uit welk artikel de gebruiker per locatie kiest - **inclusief locatie 6
+zelf**, dat een gewone pulldown is geworden (`location6Select`) met alleen de codes van de
+gekozen familie, net als elke andere locatie-select:
 
-| Code  | Omschrijving |
-|-------|--------------|
-| W1    | CS           |
-| W2    | CS Ph        |
-| W3    | ZN           |
-| W4    | V2A          |
-| W5    | V4A          |
-| W55   | V4A CR       |
+| Code  | Omschrijving | Familie |
+|-------|--------------|---------|
+| W1    | CS           | Staal   |
+| W2    | CS Ph        | Staal   |
+| W3    | ZN           | Staal   |
+| W4    | V2A          | RVS     |
+| W5    | V4A          | RVS     |
+| W55   | V4A CR       | RVS     |
 
-De select-**waarde** blijft de kale W-code (gebruikt in alle matching/prijs/samenstellingscode-
-logica); de optie-**tekst** toont de combinatie, bijv. "W2 - CS Ph". `metalFamily()` (W1/W2/W3 =
-Staal, W4/W5/W55 = RVS) bepaalt zowel welke codes bij Staal/RVS getoond worden als, voor locatie 1
-(Lasplaat), welke materiaalFAMILIE als filter naar Exact gaat (`materialQueryValue()`).
+Vaste lijst (`MATERIAL_CODES`/`metalFamily()` in `assets/selector.js`). De select-**waarde**
+blijft de kale W-code (gebruikt in alle matching/prijs/samenstellingscode-logica); de
+optie-**tekst** toont de combinatie, bijv. "W2 - CS Ph".
 
-**Automatische selectie bij 1 optie:** elke locatieselect (1, 3, 4, 5) selecteert zichzelf meteen
-als er, na filtering, maar 1 artikel overblijft; locatie 1 en 4 selecteren altijd het eerste
-resultaat van hun vaste type-rangorde. Zie `renderLiveCandidates()` in `assets/selector.js`.
+**Automatische selectie:** locatie 1 en 4 selecteren altijd het eerste resultaat van hun vaste
+rangorde (locatie 1 ook op type, beide op materiaalcode-voorkeur binnen de gekozen familie -
+zonder vooraf gekozen exacte code is dit nu de enige manier om standaard 1 sensible optie te
+tonen); locatie 3 en 5 selecteren zichzelf alleen als er, na filtering, maar 1 artikel overblijft.
+Locatie 6 heeft geen automatische selectie - de gebruiker kiest daar altijd zelf. Zie
+`renderLiveCandidates()` in `assets/selector.js`.
 
 ## Samenstellingscode
 
