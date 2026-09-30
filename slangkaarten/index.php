@@ -676,26 +676,23 @@ function findArtikelExactDataBatch(array $artikelen): array
 }
 
 /**
- * Leveringswijze (verzendwijze) opzoeken in Exact via het ordernummer -
- * ANDERS DAN de rest van dit bestand NOG NIET GEVERIFIEERD tegen het
- * echte schema (findArtikelExactDataBatch() hierboven gebruikt al
- * bevestigde tabel-/kolomnamen uit eerder live onderzoek; deze twee
- * kandidatenlijsten zijn nog een educated guess). Staat niet in "2500
- * Slangkaarten bij order" (bevestigd via de volledige INFORMATION_SCHEMA-
- * dump bovenaan queries.php) - het is een eigenschap van de order zelf in
- * Exact, dus wordt hier apart opgezocht in dezelfde Exact-database "005"
- * die findArtikelExactDataBatch() ook gebruikt (getExactPdoConnection()).
+ * Leveringswijze (verzendwijze) opzoeken in Exact via het ordernummer, in
+ * dezelfde Exact-database "005" die findArtikelExactDataBatch() hierboven
+ * ook gebruikt (getExactPdoConnection()). Staat niet in "2500 Slangkaarten
+ * bij order" (bevestigd via de volledige INFORMATION_SCHEMA-dump bovenaan
+ * queries.php) - het is een eigenschap van de order zelf in Exact.
  *
- * Kloppen de kandidaten hieronder niet (Verzendwijze blijft dan gewoon
- * "-" op de kaart, geen foutmelding)? Zoek de echte tabel/kolom op via
- * /stauff/db-test.php (verbindt met dezelfde database) - zoek op
- * tabelnaam "order", bekijk de kolommen, en zet de bevestigde naam
- * vooraan in LEVERINGSWIJZE_TABLE_CANDIDATES/_COLUMN_CANDIDATES hieronder.
+ * Tabel/kolom voor de waarde zelf zijn bevestigd: "ordlev", "oms40_0".
+ * De kolom om op ordernummer te filteren in die tabel is nog NIET
+ * bevestigd (LEVERINGSWIJZE_ORDERNR_COLUMN_CANDIDATES hieronder is nog
+ * een educated guess) - kloppen die niet (Verzendwijze blijft dan gewoon
+ * "-" op de kaart, geen foutmelding), zoek dan de echte kolomnaam op via
+ * /stauff/db-test.php (tabelnaam "ordlev") en zet 'm vooraan in die lijst.
  */
-const LEVERINGSWIJZE_TABLE_CANDIDATES = ['GRV_SalesOrders', 'GRV_SalesOrder', 'GRV_Orders', 'SalesOrder', 'Orders'];
+const LEVERINGSWIJZE_TABLE_CANDIDATES = ['ordlev', 'GRV_SalesOrders', 'GRV_SalesOrder', 'GRV_Orders', 'SalesOrder', 'Orders'];
 const LEVERINGSWIJZE_ORDERNR_COLUMN_CANDIDATES = ['OrderNumber', 'Order number', 'Ordernummer', 'OrderNr', 'Order nr'];
 const LEVERINGSWIJZE_COLUMN_CANDIDATES = [
-    'Leveringswijze', 'Verzendwijze', 'Wijze van verzenden', 'Aflevermethode',
+    'oms40_0', 'Leveringswijze', 'Verzendwijze', 'Wijze van verzenden', 'Aflevermethode',
     'Delivery method', 'DeliveryMethod', 'Shipping method', 'ShippingMethod',
 ];
 
