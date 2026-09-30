@@ -5,8 +5,9 @@ Startpagina met tegels naar de Geeve-selectors:
 - **`/hoses`** — Slangen fitting Selector
 - **`/adapters`** — Adapters Selector
 - **`/stauff`** — Stauff Selector / beugelconfigurator, zelfde brand-panel/paneel-stijl als `/hoses`
-  en `/adapters`. Heeft ook een databaseverbinding naar de Exact-database "005" (artikelgroep 67) -
-  nog in opbouw, zie "Database-koppeling Exact (database 005)" hieronder.
+  en `/adapters`. Heeft ook een databaseverbinding naar de Exact-database "005" (artikelgroep 67),
+  zie "Database-koppeling Exact (database 005)" hieronder. Tegel op de startpagina is weer actief
+  (was tijdelijk uitgeschakeld tijdens de opbouw).
 - **`/configurator`** — Slang configurator, zelfde brand-panel/paneel-stijl. Bestanden staan er nog,
   maar er is momenteel geen tegel op de startpagina die hierheen linkt.
 - **`/slangkaarten`** — Slangkaarten bij order - zoekt een order of klant op en print
