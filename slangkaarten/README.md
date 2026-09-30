@@ -11,11 +11,13 @@ hieronder.
 De flow volgt het originele NiceLabel-scherm grotendeels 1-op-1, met 1 toevoeging (zoeken op
 slangnummer, zie hieronder):
 
-1. **Zoeken** - op ordernummer, (een deel van) de klantnaam, óf slangnummer (artikelnummer van de
-   slang - kolom `GHnr`, zie `HOSE_KEY_COLUMNS` in `inc/queries.php`). Bij zoeken op slangnummer
-   worden alleen artikelen uit artikelgroep 0 (echte slangen) getoond - zie
+1. **Zoeken** - op ordernummer, slangnummer (artikelnummer van de slang - kolom `GHnr`, zie
+   `HOSE_KEY_COLUMNS` in `inc/queries.php`), óf (een deel van) de klantnaam. Bij zoeken op
+   slangnummer worden alleen artikelen uit artikelgroep 0 (echte slangen) getoond - zie
    `findArtikelItemGroepenBatch()`/`findLinesByHoseNumber()` in `inc/queries.php` en "Picklijst-
-   locatie & voorraad" hieronder voor de gebruikte Exact-tabel.
+   locatie & voorraad" hieronder voor de gebruikte Exact-tabel. Het slangnummer-veld zoekt "fuzzy":
+   koppeltekens/spaties/punten in zowel de zoekterm als de kolomwaarde worden genegeerd
+   (`tryColumnsFuzzyLikeQuery()`), dus "482953010" vindt ook "48295-30-10".
 2. **Order kiezen** (bij zoeken op klantnaam of slangnummer) - een klant kan meerdere orders
    hebben, en hetzelfde slangnummer kan in meerdere orders/klanten voorkomen (het is het
    hose-artikelnummer, geen order-unieke sleutel) - dus eerst een lijst met resultaten (nieuwste

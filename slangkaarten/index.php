@@ -1226,17 +1226,6 @@ if ($selectedKeys !== []) {
                     value="<?= h($orderNumber) ?>"
                 >
             </label>
-            <label class="field" for="klant">
-                <span>Klant</span>
-                <input
-                    id="klant"
-                    name="klant"
-                    type="text"
-                    placeholder="bijv. Palfinger"
-                    autocomplete="off"
-                    value="<?= h($customerName) ?>"
-                >
-            </label>
             <label class="field" for="slangnummer">
                 <span>Slangnummer</span>
                 <input
@@ -1246,6 +1235,17 @@ if ($selectedKeys !== []) {
                     placeholder="bijv. artikelnummer"
                     autocomplete="off"
                     value="<?= h($hoseNumberSearch) ?>"
+                >
+            </label>
+            <label class="field" for="klant">
+                <span>Klant</span>
+                <input
+                    id="klant"
+                    name="klant"
+                    type="text"
+                    placeholder="bijv. Palfinger"
+                    autocomplete="off"
+                    value="<?= h($customerName) ?>"
                 >
             </label>
             <button type="submit" class="submit-button" id="searchSubmitButton">

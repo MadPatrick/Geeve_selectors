@@ -155,6 +155,43 @@ function tryColumnsLikeQuery(PDO $pdo, string $table, array $candidateColumns, s
 }
 
 /**
+ * Zelfde als tryColumnsLikeQuery(), maar "fuzzy": koppeltekens, spaties,
+ * punten en underscores worden zowel uit de kolomwaarde (in SQL, via
+ * REPLACE) als uit de zoekterm (hieronder) verwijderd vóór het
+ * vergelijken. Zo vindt zoeken op slangnummer "482953010" ook
+ * "48295-30-10", ongeacht hoe de gebruiker de scheidingstekens intypt.
+ */
+function tryColumnsFuzzyLikeQuery(PDO $pdo, string $table, array $candidateColumns, string $searchTerm): array
+{
+    $normalizedTerm = preg_replace('/[-\s._]+/', '', $searchTerm) ?? $searchTerm;
+    if ($normalizedTerm === '') {
+        $normalizedTerm = $searchTerm;
+    }
+
+    $lastException = null;
+
+    foreach ($candidateColumns as $column) {
+        $normalizedColumn = "REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '')";
+        $sql = "SELECT * FROM [dbo].[{$table}] WHERE {$normalizedColumn} LIKE :value";
+
+        try {
+            $statement = $pdo->prepare($sql);
+            $statement->execute(['value' => '%' . $normalizedTerm . '%']);
+            return $statement->fetchAll();
+        } catch (PDOException $exception) {
+            $lastException = $exception;
+            continue;
+        }
+    }
+
+    throw new DatabaseConfigException(
+        "Kon tabel \"{$table}\" niet filteren - geen van de verwachte kolomnamen (" .
+        implode(', ', $candidateColumns) . ') bestaat in die tabel. ' .
+        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+    );
+}
+
+/**
  * Zelfde als tryColumnsQuery(), maar filtert met SQL IN (...) op een
  * lijst waarden i.p.v. 1 waarde - zodat bijv. de koppelingen van alle
  * regels van een order in 1 query op te halen zijn i.p.v. 1 query per
@@ -419,10 +456,14 @@ function findArtikelItemGroepenBatch(array $artikelen): array
  * dat een korte zoekterm ook niet-slangartikelen laat matchen. Is de
  * Exact-koppeling niet beschikbaar, dan wordt niet gefilterd (zie
  * findArtikelItemGroepenBatch()).
+ *
+ * Fuzzy: gebruikt tryColumnsFuzzyLikeQuery() i.p.v. tryColumnsLikeQuery(),
+ * zodat koppeltekens/spaties/punten in het slangnummer niet precies hoeven
+ * te matchen (zoeken op "482953010" vindt ook "48295-30-10").
  */
 function findLinesByHoseNumber(PDO $pdo, string $hoseNumber): array
 {
-    $rows = tryColumnsLikeQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseNumber);
+    $rows = tryColumnsFuzzyLikeQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseNumber);
 
     $itemGroepen = findArtikelItemGroepenBatch(array_map(
         static fn(array $row): string => pick($row, HOSE_KEY_COLUMNS),
