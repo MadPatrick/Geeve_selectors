@@ -433,7 +433,14 @@ function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelin
             $prefix = "2delig_{$number}";
             $huls = csvGetColumn($row, "{$prefix} - Huls");
             $pilaar = csvGetColumn($row, "{$prefix} - Pilaar");
-            if (matchesKoppelingType($needleKoppeling, strtoupper($huls)) || matchesKoppelingType($needleKoppeling, strtoupper($pilaar))) {
+            // Huls is een volledig, specifiek artikelnummer (bv. "1300P9-04RVS",
+            // "13002-04") - dat moet exact overeenkomen. matchesKoppelingType()
+            // is bedoeld voor de korte Pilaar-seriecode (zie de docblock erboven)
+            // en gebruikt daarvoor een prefix/los-woord-match; toegepast op Huls
+            // matchte dat ook per ongeluk "13002-04" tegen een order-artikel
+            // "13002-04RVS" (ander materiaal, toevallig dezelfde eerste tekens).
+            $hulsMatches = $huls !== '' && strtoupper($huls) === $needleKoppeling;
+            if ($hulsMatches || matchesKoppelingType($needleKoppeling, strtoupper($pilaar))) {
                 $result = [
                     'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
                     'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
@@ -445,7 +452,10 @@ function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelin
 
         foreach ([1, 2, 3] as $number) {
             $prefix = "1delig_{$number}";
-            if (matchesKoppelingType($needleKoppeling, strtoupper(csvGetColumn($row, $prefix)))) {
+            $koppelArtikel = csvGetColumn($row, $prefix);
+            // Zelfde reden als bij Huls hierboven: 1delig_N is ook een
+            // volledig artikelnummer, dus exacte match i.p.v. prefix-match.
+            if ($koppelArtikel !== '' && strtoupper($koppelArtikel) === $needleKoppeling) {
                 $result = [
                     'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
                     'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
