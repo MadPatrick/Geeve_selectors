@@ -140,7 +140,6 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 .diameter-field { gap: 7px; }
 .diameter-field .autocomplete { width: calc(12ch + 42px); min-width: calc(12ch + 42px); }
 .diameter-field input { width: 100%; }
-.diameter-field small { width: 24ch; }
 
 .autocomplete { position: relative; }
 
@@ -150,7 +149,6 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
    overlay - dat brak het aanklikken van een resultaat. */
 .exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 840px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: #f4f7fa; font-size: 13px; font-weight: 750; color: var(--muted); }
-.exact-live-status { font-size: 12px; font-weight: 700; }
 .exact-live-status.error { color: var(--danger); }
 .exact-live-list { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
 .exact-live-list li { border-top: 1px solid var(--line); }

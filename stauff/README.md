@@ -40,8 +40,10 @@ floating overlay - dat bleek het aanklikken van een resultaat te breken, zie git
 JSON - die wordt pas getoond ná het kiezen (zie hieronder), niet in de lijst zelf.
 
 Het diameterveld staat zelf ook in een kaderdoos (`.diameter-box`) met dezelfde kaderstijl/
-headerbalk (`.exact-live-header`, hergebruikt) als de resultatenbox ernaast - dus zelfde "look"
-(rand, hoeken, header) en (via `align-items: stretch` op `.filter-grid`, de default) altijd
+headerbalk (`.exact-live-header`, hergebruikt, tekst "Zoeken op beugel") als de resultatenbox
+ernaast (die header toont alleen nog de statustekst, geen "Live resultaten uit Exact"-titel meer)
+- dus zelfde "look" (rand, hoeken, header) en (via `align-items: stretch` op `.filter-grid`, de
+default) altijd
 even hoog.
 
 **De filtervelden Serie, Uitvoering, Beugelmateriaal en Beugel zijn verwijderd** uit de

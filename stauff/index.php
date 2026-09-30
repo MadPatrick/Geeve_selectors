@@ -65,7 +65,7 @@ function assetVersion(string $relativePath): string
         <div class="filter-grid">
             <div class="diameter-box">
                 <div class="exact-live-header">
-                    <span>Diameter</span>
+                    <span>Zoeken op beugel</span>
                 </div>
                 <div class="diameter-box-body">
                     <label class="field compact-field diameter-field">
@@ -73,14 +73,12 @@ function assetVersion(string $relativePath): string
                             <input id="diameterInput" type="text" inputmode="decimal" autocomplete="off"
                                    placeholder="Typ diameter, bijvoorbeeld 19">
                         </div>
-                        <small>Zoeken op artikelnummer</small>
                     </label>
                 </div>
             </div>
 
             <div id="exactLiveResults" class="exact-live-results" hidden>
                 <div class="exact-live-header">
-                    <span>Live resultaten uit Exact (artikelgroep 67)</span>
                     <span id="exactLiveStatus" class="exact-live-status"></span>
                 </div>
                 <ul id="exactLiveList" class="exact-live-list"></ul>
