@@ -506,7 +506,14 @@
         rebuildComponents();
     }
 
-    let locationFilterController = null;
+    // Per locatie (niet 1 gedeelde controller) - anders annuleert het
+    // zoeken voor locatie 3 per ongeluk een nog lopende zoekopdracht voor
+    // locatie 1, die dan voorgoed op "Zoeken…" blijft staan (er komt geen
+    // response meer om dat tekstje te vervangen). Zie ook de tijdslimiet
+    // hieronder: zonder die blijft een écht trage/hangende Exact-query
+    // ook voorgoed op "Zoeken…" staan, zonder foutmelding.
+    const locationFilterRequests = {};
+    const LOCATION_FILTER_TIMEOUT_MS = 20000;
 
     /**
      * Live alternatief voor candidatesForPosition(): zoekt in Exact op de
@@ -517,9 +524,14 @@
      * standaardselectie of shape-afbeelding zoals bij de CSV-lijst).
      */
     function applyLocationFilterSelect(pos, select, code) {
-        if (locationFilterController) locationFilterController.abort();
+        if (locationFilterRequests[pos]) {
+            clearTimeout(locationFilterRequests[pos].timeoutId);
+            locationFilterRequests[pos].controller.abort();
+        }
         const controller = new AbortController();
-        locationFilterController = controller;
+        const timeoutId = setTimeout(() => controller.abort(), LOCATION_FILTER_TIMEOUT_MS);
+        const request = { controller, timeoutId };
+        locationFilterRequests[pos] = request;
 
         const previousValue = select.value;
         select.disabled = true;
@@ -532,6 +544,7 @@
         fetch(`api/exact_location_search.php?${params.toString()}`, { cache: 'no-store', signal: controller.signal })
             .then(response => response.json())
             .then(payload => {
+                clearTimeout(timeoutId);
                 if (!payload || payload.ok !== true) {
                     throw new Error((payload && payload.error) || 'Onbekende fout.');
                 }
@@ -557,7 +570,19 @@
                 updateAssemblyCode();
             })
             .catch(error => {
-                if (error && error.name === 'AbortError') return;
+                clearTimeout(timeoutId);
+                if (error && error.name === 'AbortError') {
+                    // Alleen tonen als dit nog steeds de meest recente
+                    // zoekopdracht voor deze locatie is - anders is dit een
+                    // bewuste "overruled door een nieuwere aanroep"-abort,
+                    // die niet zelf iets hoeft te tonen (de nieuwere aanroep
+                    // doet dat al).
+                    if (locationFilterRequests[pos] === request) {
+                        select.innerHTML = '<option value="">Zoeken duurt te lang - probeer het filter opnieuw.</option>';
+                        select.disabled = false;
+                    }
+                    return;
+                }
                 select.innerHTML = `<option value="">Zoeken mislukt: ${escapeHtml(error.message)}</option>`;
                 select.disabled = false;
             });
