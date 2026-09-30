@@ -87,6 +87,27 @@ SQL-fout data teruggeeft - welke kolom dat was staat in de JSON-response (`"colu
 te controleren is. Werkt geen van de kandidaten, dan blijft de prijs overal leeg (geen
 foutmelding) - meld dan de echte kolomnaam terug zodat de lijst aangepast kan worden.
 
+## Eigen zoekfilter per locatie (config-cog, Exact live)
+
+Locaties 1, 3, 4 en 5 (Lasplaat/Glijmoer, Borgplaat, Dekplaat, Bout - dus niet de vaste locaties 2
+en 6) hebben een config-tandwiel-knop (`.location-config-button`) die een modal opent
+(`locationFilterOverlay` in `index.php`). Daar kun je, ; -gescheiden, artikelnummer-voorvoegsels
+opgeven (bijv. `SP;SPAL;SPV`) - dit vervangt voor die locatie de gewone CSV-lijst
+(`candidatesForPosition()`) door een live zoekopdracht in Exact (`api/exact_location_search.php`):
+artikelen (artikelgroep 67) die met 1 van de opgegeven voorvoegsels **beginnen**, gecombineerd met
+de op dat moment gekozen materiaalcode (locatie 6, bijv. "W1"), die de artikelen ook moeten
+**bevatten**. Leeg filter (of nog niet geconfigureerd) = de locatie blijft de normale CSV-lijst
+gebruiken.
+
+Het filter wordt opgeslagen in `localStorage` (`stauffLocationFilters`), dus 1x instellen blijft
+staan - niet opnieuw invullen bij elke zoekopdracht of pagina-herlaad. Het tandwiel krijgt een
+rode rand (`.is-active`) zodra er een filter voor die locatie staat.
+
+Artikelen die zo (live, buiten de CSV) gekozen worden hebben geen CSV-attributen (Bouwgroep/
+Serie/Materiaal), dus geen automatische standaardselectie en geen shape-afbeelding zoals bij de
+CSV-lijst - de samenstellingscode en verkoopprijs werken wel gewoon, die gebruiken direct
+`select.value` (het artikelnummer), niet de CSV-rij.
+
 ## Selectielogica
 
 - Locatie 1: Lasplaat / Lasplaat (hoek) / Glijmoer

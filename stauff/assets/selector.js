@@ -1,12 +1,38 @@
 (() => {
     'use strict';
 
+    const LOCATION_FILTERS_STORAGE_KEY = 'stauffLocationFilters';
+
+    function loadLocationFilters() {
+        try {
+            const raw = localStorage.getItem(LOCATION_FILTERS_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch {
+            return {};
+        }
+    }
+
+    function saveLocationFilters(filters) {
+        try {
+            localStorage.setItem(LOCATION_FILTERS_STORAGE_KEY, JSON.stringify(filters));
+        } catch {
+            // Geen opslag beschikbaar (bijv. privénavigatie) - filters blijven
+            // dan alleen voor deze paginaweergave actief, niet blokkerend.
+        }
+    }
+
     const state = {
         rows: [],
         validRows: [],
         clamps: [],
         selectedClamp: null,
         metalFamily: 'Staal',
+        // Per locatie (1, 3, 4, 5) een ; -gescheiden lijst artikelnummer-
+        // voorvoegsels - ingesteld via de config-cog op die regel (zie
+        // bindEvents()). Blijft bewaard in localStorage, dus niet per
+        // zoekactie opnieuw invullen. Leeg = gewone CSV-lijst.
+        locationFilters: loadLocationFilters(),
+        editingLocation: null,
     };
 
     const el = id => document.getElementById(id);
@@ -37,6 +63,13 @@
         priceLoc4: el('locationPrice4'),
         priceLoc5: el('locationPrice5'),
         priceLoc6: el('locationPrice6'),
+        locationConfigButtons: [...document.querySelectorAll('.location-config-button')],
+        locationFilterOverlay: el('locationFilterOverlay'),
+        locationFilterTitle: el('locationFilterTitle'),
+        locationFilterInput: el('locationFilterInput'),
+        locationFilterApply: el('locationFilterApply'),
+        locationFilterCancel: el('locationFilterCancel'),
+        locationFilterClear: el('locationFilterClear'),
     };
 
     const norm = value => String(value ?? '').trim();
@@ -414,7 +447,109 @@
         return `${row['Artikelcode']}`;
     }
 
+    const LOCATION_LABELS = {
+        1: 'Lasplaat / Glijmoer',
+        3: 'Borgplaat',
+        4: 'Dekplaat',
+        5: 'Bout',
+    };
+
+    function syncLocationConfigButtons() {
+        ui.locationConfigButtons.forEach(button => {
+            const pos = button.dataset.location;
+            button.classList.toggle('is-active', !!norm(state.locationFilters[pos]));
+        });
+    }
+
+    function openLocationFilterModal(pos) {
+        state.editingLocation = pos;
+        ui.locationFilterTitle.textContent = `Zoekfilter voor ${LOCATION_LABELS[pos] || `locatie ${pos}`}`;
+        ui.locationFilterInput.value = state.locationFilters[pos] || '';
+        ui.locationFilterOverlay.hidden = false;
+        ui.locationFilterInput.focus();
+    }
+
+    function closeLocationFilterModal() {
+        ui.locationFilterOverlay.hidden = true;
+        state.editingLocation = null;
+    }
+
+    function applyLocationFilter(value) {
+        const pos = state.editingLocation;
+        if (!pos) return;
+        const cleaned = norm(value);
+        if (cleaned) {
+            state.locationFilters[pos] = cleaned;
+        } else {
+            delete state.locationFilters[pos];
+        }
+        saveLocationFilters(state.locationFilters);
+        syncLocationConfigButtons();
+        closeLocationFilterModal();
+        rebuildComponents();
+    }
+
+    let locationFilterController = null;
+
+    /**
+     * Live alternatief voor candidatesForPosition(): zoekt in Exact op de
+     * geconfigureerde artikelnummer-voorvoegsels (state.locationFilters[pos])
+     * + de gekozen materiaalcode (api/exact_location_search.php), i.p.v. de
+     * CSV. Vult de select met de kale artikelnummers (geen CSV-attributen
+     * beschikbaar voor deze artikelen, dus geen automatische
+     * standaardselectie of shape-afbeelding zoals bij de CSV-lijst).
+     */
+    function applyLocationFilterSelect(pos, select, code) {
+        if (locationFilterController) locationFilterController.abort();
+        const controller = new AbortController();
+        locationFilterController = controller;
+
+        const previousValue = select.value;
+        select.disabled = true;
+        select.innerHTML = '<option value="">Zoeken…</option>';
+
+        const params = new URLSearchParams({ prefixes: state.locationFilters[pos] });
+        if (code) params.set('material', code);
+
+        fetch(`api/exact_location_search.php?${params.toString()}`, { cache: 'no-store', signal: controller.signal })
+            .then(response => response.json())
+            .then(payload => {
+                if (!payload || payload.ok !== true) {
+                    throw new Error((payload && payload.error) || 'Onbekende fout.');
+                }
+                const items = payload.rows.map(row => norm(row.ItemCode));
+                select.innerHTML = '';
+                const placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = items.length
+                    ? '— Geen onderdeel gekozen —'
+                    : `Geen artikelen gevonden voor dit filter${code ? ` (${code})` : ''}.`;
+                select.appendChild(placeholderOption);
+                items.forEach(itemCode => {
+                    const option = document.createElement('option');
+                    option.value = itemCode;
+                    option.textContent = itemCode;
+                    select.appendChild(option);
+                });
+                select.disabled = false;
+                if (items.includes(previousValue)) select.value = previousValue;
+                updateAssemblyCode();
+            })
+            .catch(error => {
+                if (error && error.name === 'AbortError') return;
+                select.innerHTML = `<option value="">Zoeken mislukt: ${escapeHtml(error.message)}</option>`;
+                select.disabled = false;
+            });
+    }
+
     function rebuildComponents() {
+        // Kan aangeroepen worden zonder gekozen beugel (bijv. via
+        // applyLocationFilter(), dat direct rebuildComponents() aanroept
+        // ook als de config-cog gebruikt wordt vóórdat er een beugel
+        // gekozen is) - de locatie-1 rangschikking hieronder gaat er
+        // verder vanuit dat state.selectedClamp bestaat.
+        if (!state.selectedClamp) return;
+
         const code = ui.materialCode.value;
         ui.loc6.textContent = code || '—';
         const mapping = [
@@ -425,6 +560,11 @@
         ];
         const warnings = [];
         mapping.forEach(([pos, select, emptyText]) => {
+            if (code && state.locationFilters[pos]) {
+                applyLocationFilterSelect(pos, select, code);
+                return;
+            }
+
             let candidates = code ? candidatesForPosition(pos, code) : [];
 
             // Locatie 1: vaste type-prioriteit.
@@ -495,10 +635,6 @@
     function updateAssemblyCode() {
         const clamp = state.selectedClamp;
         const wcode = ui.materialCode.value;
-        const r1 = selectedRow(ui.loc1);
-        const r3 = selectedRow(ui.loc3);
-        const r4 = selectedRow(ui.loc4);
-        const r5 = selectedRow(ui.loc5);
         updateShapeImages();
         refreshLocationPrices();
         if (!clamp) {
@@ -509,13 +645,16 @@
         }
 
         // Alleen daadwerkelijk gekozen locaties worden in de code opgenomen.
-        // De volgorde blijft altijd locatie 1 → 6.
+        // De volgorde blijft altijd locatie 1 → 6. select.value werkt voor
+        // zowel CSV-gedreven als live Exact-gefilterde locaties (zie
+        // applyLocationFilterSelect()) - beide zetten daar gewoon het
+        // artikelnummer in.
         const parts = [
-            r1 ? firstCodePart(r1['Artikelcode']) : '',
+            ui.loc1.value ? firstCodePart(ui.loc1.value) : '',
             clampCodePart(clamp),
-            r3 ? firstCodePart(r3['Artikelcode']) : '',
-            r4 ? firstCodePart(r4['Artikelcode']) : '',
-            r5 ? firstCodePart(r5['Artikelcode']) : '',
+            ui.loc3.value ? firstCodePart(ui.loc3.value) : '',
+            ui.loc4.value ? firstCodePart(ui.loc4.value) : '',
+            ui.loc5.value ? firstCodePart(ui.loc5.value) : '',
             wcode || '',
         ].filter(Boolean);
 
@@ -544,11 +683,11 @@
         if (priceDebounce) clearTimeout(priceDebounce);
 
         const entries = [
-            [ui.priceLoc1, selectedRow(ui.loc1) ? norm(selectedRow(ui.loc1)['Artikelcode']) : ''],
+            [ui.priceLoc1, norm(ui.loc1.value)],
             [ui.priceLoc2, state.selectedClamp ? norm(state.selectedClamp['Artikelcode']) : ''],
-            [ui.priceLoc3, selectedRow(ui.loc3) ? norm(selectedRow(ui.loc3)['Artikelcode']) : ''],
-            [ui.priceLoc4, selectedRow(ui.loc4) ? norm(selectedRow(ui.loc4)['Artikelcode']) : ''],
-            [ui.priceLoc5, selectedRow(ui.loc5) ? norm(selectedRow(ui.loc5)['Artikelcode']) : ''],
+            [ui.priceLoc3, norm(ui.loc3.value)],
+            [ui.priceLoc4, norm(ui.loc4.value)],
+            [ui.priceLoc5, norm(ui.loc5.value)],
             [ui.priceLoc6, norm(ui.materialCode.value)],
         ];
         entries.forEach(([el]) => { if (el) el.textContent = ''; });
@@ -621,11 +760,26 @@
                 window.prompt('Kopieer de samenstellingscode:', code);
             }
         });
+
+        ui.locationConfigButtons.forEach(button => {
+            button.addEventListener('click', () => openLocationFilterModal(button.dataset.location));
+        });
+        ui.locationFilterApply.addEventListener('click', () => applyLocationFilter(ui.locationFilterInput.value));
+        ui.locationFilterClear.addEventListener('click', () => applyLocationFilter(''));
+        ui.locationFilterCancel.addEventListener('click', closeLocationFilterModal);
+        ui.locationFilterOverlay.addEventListener('click', event => {
+            if (event.target === ui.locationFilterOverlay) closeLocationFilterModal();
+        });
+        ui.locationFilterInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') applyLocationFilter(ui.locationFilterInput.value);
+            if (event.key === 'Escape') closeLocationFilterModal();
+        });
     }
 
     async function init() {
         resizeDiameterField();
         bindEvents();
+        syncLocationConfigButtons();
         try {
             const response = await fetch('api/stauff.php', { cache: 'no-store' });
             const payload = await response.json();

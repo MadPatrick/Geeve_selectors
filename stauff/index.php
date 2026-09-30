@@ -130,6 +130,12 @@ function assetVersion(string $relativePath): string
                     <div class="location-title"><strong>Lasplaat / Glijmoer</strong><span>Standaard Lasplaat &middot; Onderzijde</span></div>
                     <select id="location1Select" disabled><option value="">Kies eerst een beugel</option></select>
                     <span id="locationPrice1" class="location-price"></span>
+                    <button type="button" class="location-config-button" data-location="1" aria-label="Zoekfilter voor Lasplaat / Glijmoer instellen">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.04 4.29l.06.06A1.65 1.65 0 0 0 8.92 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+                        </svg>
+                    </button>
                 </div>
             </article>
 
@@ -156,6 +162,12 @@ function assetVersion(string $relativePath): string
                     <div class="location-title"><strong>Borgplaat</strong><span>Optioneel &middot; opties uit bouwgroep</span></div>
                     <select id="location3Select" disabled><option value="">Kies eerst een beugel</option></select>
                     <span id="locationPrice3" class="location-price"></span>
+                    <button type="button" class="location-config-button" data-location="3" aria-label="Zoekfilter voor Borgplaat instellen">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.04 4.29l.06.06A1.65 1.65 0 0 0 8.92 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+                        </svg>
+                    </button>
                 </div>
             </article>
 
@@ -169,6 +181,12 @@ function assetVersion(string $relativePath): string
                     <div class="location-title"><strong>Dekplaat</strong><span>Standaard geselecteerd &middot; opties uit bouwgroep</span></div>
                     <select id="location4Select" disabled><option value="">Kies eerst een beugel</option></select>
                     <span id="locationPrice4" class="location-price"></span>
+                    <button type="button" class="location-config-button" data-location="4" aria-label="Zoekfilter voor Dekplaat instellen">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.04 4.29l.06.06A1.65 1.65 0 0 0 8.92 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+                        </svg>
+                    </button>
                 </div>
             </article>
 
@@ -182,6 +200,12 @@ function assetVersion(string $relativePath): string
                     <div class="location-title"><strong>Bout</strong><span>Optioneel &middot; stapel-, inbus- of zeskantbout</span></div>
                     <select id="location5Select" disabled><option value="">Kies eerst een beugel</option></select>
                     <span id="locationPrice5" class="location-price"></span>
+                    <button type="button" class="location-config-button" data-location="5" aria-label="Zoekfilter voor Bout instellen">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.04 4.29l.06.06A1.65 1.65 0 0 0 8.92 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+                        </svg>
+                    </button>
                 </div>
             </article>
 
@@ -210,6 +234,27 @@ function assetVersion(string $relativePath): string
 
     <section id="warningBox" class="warning-box" hidden></section>
 </main>
+
+<div id="locationFilterOverlay" class="modal-overlay" hidden>
+    <div class="modal location-filter-modal" role="dialog" aria-modal="true" aria-labelledby="locationFilterTitle">
+        <div class="modal-header">
+            <h2 id="locationFilterTitle">Zoekfilter</h2>
+        </div>
+        <label class="field" for="locationFilterInput">
+            <span>Artikelnummers die hiermee beginnen (; gescheiden)</span>
+            <input id="locationFilterInput" type="text" placeholder="bijv. SP;SPAL;SPV">
+        </label>
+        <small>Zoekt live in Exact (artikelgroep 67) naar artikelen die met 1 van deze voorvoegsels
+            beginnen, gecombineerd met de gekozen materiaalcode (locatie 6). Leeg = gewone
+            CSV-lijst blijft gebruikt.</small>
+        <div class="modal-actions">
+            <button type="button" id="locationFilterClear" class="link-button">Wissen</button>
+            <button type="button" id="locationFilterCancel" class="segment">Annuleren</button>
+            <button type="button" id="locationFilterApply" class="submit-button">Toepassen</button>
+        </div>
+    </div>
+</div>
+
 <script src="assets/selector.js?v=<?= h(assetVersion('assets/selector.js')) ?>"></script>
 </body>
 </html>
