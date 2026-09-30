@@ -963,10 +963,6 @@ function renderHoseCard(array $card): string
                         <strong><?= $fieldValue !== '' ? h($fieldValue) : '&mdash;' ?></strong>
                     </div>
                 <?php endforeach; ?>
-                <div class="card-detail-row">
-                    <span>Verzendwijze</span>
-                    <strong><?= $leveringswijze !== '' ? h($leveringswijze) : '&mdash;' ?></strong>
-                </div>
             </div>
             <div class="card-qty-box">
                 <span>Aantal slangen</span>
@@ -1018,6 +1014,10 @@ function renderHoseCard(array $card): string
                 <div class="card-address-block">
                     <span>Afleveradres</span>
                     <div><?= $afleveradres !== '' ? nl2br(h($afleveradres)) : '&mdash;' ?></div>
+                </div>
+                <div class="card-address-block card-verzendwijze">
+                    <span>Verzendwijze</span>
+                    <div><?= $leveringswijze !== '' ? h($leveringswijze) : '&mdash;' ?></div>
                 </div>
             </div>
             <div class="card-footer-meta">

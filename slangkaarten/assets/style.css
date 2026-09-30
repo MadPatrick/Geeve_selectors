@@ -312,11 +312,13 @@ input::placeholder { color: #929fac; }
 .card-flag-empty { background: #fafcfd; }
 
 .card-footer { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
-.card-footer-addresses { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 12px; }
+.card-footer-addresses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 12px; }
 .card-footer-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .card-address-block span, .card-meta-block span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
 .card-address-block div { font-size: 12.5px; line-height: 1.4; }
 .card-meta-block div { font-size: 10.5px; line-height: 1.4; }
+/* Zelfde tekstgrootte als het Ordernummer bovenaan de kaart (.card-order-meta strong). */
+.card-verzendwijze div { font-size: 18px; font-weight: 700; }
 
 /* ---- Picklijst (1 eigen printpagina vóór de slangkaarten): alle losse
    artikelen (koppelonderdelen + extra artikelen) van de hele order, met
