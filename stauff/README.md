@@ -34,14 +34,23 @@ diameters uit de CSV) is verwijderd. Typ je een getal, dan zoekt dit endpoint in
   `slangkaarten/inc/queries.php`), dus "1680" vindt ook "10168-0".
 
 De live resultaten tonen **uitsluitend het artikelnummer** (geen omschrijving) als klikbare knop
-in een eigen paneel ("Live resultaten uit Exact") onder het filterblok. Klikken vult het
-diameterveld met dat artikelnummer; er is nog geen koppeling naar de rest van de wizard.
+in een eigen paneel ("Live resultaten uit Exact"), op de plek waar voorheen de "Bouwgroep/
+Diameter/Serie/Uitvoering"-infobox stond. Klikken vult het diameterveld met dat artikelnummer;
+er is nog geen koppeling naar de rest van de wizard (zie "Stap 2" hieronder).
 
-**Nog niet gebouwd:** de rest van de wizard (serie/uitvoering/beugelmateriaal/locaties 1-6) blijft
-op de CSV draaien. `GRV_SalesItems` heeft geen equivalent van de CSV's curated
-`Onderdeel`/`Positie`/`Bouwgroep`/`Serie`/`Enkel-Dubbel`-kolommen - die logica moet in een
-volgende stap opnieuw (uit artikelnummer/omschrijving) afgeleid worden, of blijft op de CSV
-steunen voor artikelen die al bekend zijn.
+**De filtervelden Serie, Uitvoering, Beugelmateriaal en Beugel zijn verwijderd** uit de
+"Beugel bepalen"-sectie, met alle code die er exclusief van afhing (`rebuildClampFilters()`,
+de diameter-typeahead over de CSV, de serie/uitvoering-knoppen). Die velden waren de enige weg
+om `state.selectedClamp` te zetten.
+
+**Nog niet gebouwd (Stap 2):** de secties Locaties 1-6, Materiaal bevestigingsdelen en
+Samenstellingscode blijven in de pagina staan, maar permanent uitgeschakeld ("Kies eerst een
+beugel") totdat er een nieuwe manier komt om een beugel te selecteren - de onderliggende functies
+(`selectClamp()`, `candidatesForPosition()`, `updateAssemblyCode()`, enz.) zijn intact gelaten
+voor die volgende stap, alleen niet meer aangesloten op een UI-element. Aanwijzing voor die
+volgende stap: de bouwgroep staat in Exact in de artikelomschrijving (`Item Description` op
+`GRV_SalesItems`) met het voorvoegsel `GR` (bijv. "GR10") - dat moet gebruikt worden bij het
+kiezen van de beugel in plaats van de CSV's `Bouwgroep`-kolom.
 
 ## Selectielogica
 
@@ -52,8 +61,10 @@ steunen voor artikelen die al bekend zijn.
 - Locatie 5: Bout (stapelbout, inbusbout of zeskantbout)
 - Locatie 6: gekozen materiaalcode W...
 
-De diameter is een type-ahead veld en gebruikt uitsluitend diameters die in de beugelregels voorkomen.
-Na het kiezen van een beugel worden bouwgroep en serie gebruikt om de overige posities te filteren.
+Het diameterveld is nu uitsluitend een live, fuzzy zoekveld op Exact (zie "Migratie naar live
+Exact-data" hierboven) - geen CSV-typeahead meer. Zodra er weer een manier is om een beugel te
+selecteren, worden bouwgroep en serie van die beugel gebruikt om de overige posities te filteren
+(deze beschrijving hieronder blijft geldig voor zodra dat weer werkt).
 
 **Enkel/Dubbel-filtering:**
 

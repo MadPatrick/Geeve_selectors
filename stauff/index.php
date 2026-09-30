@@ -75,34 +75,6 @@ function assetVersion(string $relativePath): string
                 </div>
                 <small>Live fuzzy zoeken op artikelnummer in Exact (artikelgroep 67).</small>
             </label>
-
-            <div class="field compact-field serie-field">
-                <span>Serie</span>
-                <div class="segmented selection-toggle" id="serieButtons" role="radiogroup" aria-label="Serie">
-                    <button type="button" class="segment" data-serie="Licht" disabled>Licht</button>
-                    <button type="button" class="segment" data-serie="Zwaar" disabled>Zwaar</button>
-                </div>
-                <select id="serieSelect" class="logic-select" aria-hidden="true" tabindex="-1" disabled><option value="">Kies eerst diameter</option></select>
-            </div>
-
-            <div class="field compact-field uitvoering-field">
-                <span>Uitvoering</span>
-                <div class="segmented selection-toggle" id="uitvoeringButtons" role="radiogroup" aria-label="Uitvoering">
-                    <button type="button" class="segment" data-uitvoering="Enkel" disabled>Enkel</button>
-                    <button type="button" class="segment" data-uitvoering="Dubbel" disabled>Dubbel</button>
-                </div>
-                <select id="uitvoeringSelect" class="logic-select" aria-hidden="true" tabindex="-1" disabled><option value="">Kies eerst serie</option></select>
-            </div>
-
-            <label class="field compact-field clamp-material-field">
-                <span>Beugelmateriaal</span>
-                <select id="clampMaterialSelect" disabled><option value="">Kies eerst uitvoering</option></select>
-            </label>
-
-            <label class="field compact-field clamp-field">
-                <span>Beugel</span>
-                <select id="clampSelect" disabled><option value="">Kies een beugel</option></select>
-            </label>
         </div>
         <small>Lasplaat en Dekplaat worden standaard voorgeselecteerd zodra een passende optie beschikbaar is; de overige onderdelen blijven optioneel.</small>
 
@@ -112,13 +84,6 @@ function assetVersion(string $relativePath): string
                 <span id="exactLiveStatus" class="exact-live-status"></span>
             </div>
             <ul id="exactLiveList" class="exact-live-list"></ul>
-        </div>
-
-        <div id="clampFacts" class="clamp-facts is-empty">
-            <div><span>Bouwgroep</span><strong id="factGroup">&mdash;</strong></div>
-            <div><span>Diameter</span><strong id="factDiameter">&mdash;</strong></div>
-            <div><span>Serie</span><strong id="factSerie">&mdash;</strong></div>
-            <div><span>Uitvoering</span><strong id="factExecution">&mdash;</strong></div>
         </div>
     </section>
 

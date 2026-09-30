@@ -17,12 +17,6 @@
         exactLiveResults: el('exactLiveResults'),
         exactLiveStatus: el('exactLiveStatus'),
         exactLiveList: el('exactLiveList'),
-        serie: el('serieSelect'),
-        serieButtons: [...document.querySelectorAll('[data-serie]')],
-        execution: el('uitvoeringSelect'),
-        executionButtons: [...document.querySelectorAll('[data-uitvoering]')],
-        clampMaterial: el('clampMaterialSelect'),
-        clamp: el('clampSelect'),
         materialCode: el('materialCodeSelect'),
         loc1: el('location1Select'),
         loc2: el('location2Value'),
@@ -34,11 +28,6 @@
         copyButton: el('copyButton'),
         codeHint: el('codeHint'),
         warningBox: el('warningBox'),
-        factGroup: el('factGroup'),
-        factDiameter: el('factDiameter'),
-        factSerie: el('factSerie'),
-        factExecution: el('factExecution'),
-        clampFacts: el('clampFacts'),
         shapeImg1: el('shapeImg1'),
         shapeImg2: el('shapeImg2'),
         shapeImg3: el('shapeImg3'),
@@ -66,44 +55,8 @@
         if (holder) holder.style.width = `calc(${chars}ch + 28px)`;
     }
 
-    function resizeClampField() {
-        // Beugel vult samen met de andere hoofdselecties de resterende rijbreedte.
-        ui.clamp.style.width = '100%';
-    }
-
-    function resizeClampMaterialField() {
-        // Beugelmateriaal vult samen met de andere hoofdselecties de rijbreedte.
-        ui.clampMaterial.style.width = '100%';
-    }
-
-    function compareDiameter(a, b) {
-        const n = v => Number(String(v).replace(',', '.'));
-        const na = n(a), nb = n(b);
-        if (Number.isFinite(na) && Number.isFinite(nb) && na !== nb) return na - nb;
-        return String(a).localeCompare(String(b), 'nl', { numeric: true });
-    }
-
     function displaySerie(v) {
         return v === 'Licht (standaard)' ? 'Licht' : v;
-    }
-
-
-    function syncChoiceButtons(buttons, availableValues, selectedValue, displayFn = v => v) {
-        const availableLabels = availableValues.map(v => displayFn(v));
-        const selectedLabel = displayFn(selectedValue);
-        buttons.forEach(button => {
-            const choice = button.dataset.serie || button.dataset.uitvoering || '';
-            const enabled = availableLabels.includes(choice);
-            button.disabled = !enabled;
-            button.classList.toggle('active', enabled && choice === selectedLabel);
-            button.setAttribute('aria-checked', enabled && choice === selectedLabel ? 'true' : 'false');
-        });
-    }
-
-    function actualSerieValue(label) {
-        return [...ui.serie.options]
-            .map(option => option.value)
-            .find(value => value && displaySerie(value) === label) || '';
     }
 
     function metalFamily(code) {
@@ -298,23 +251,6 @@
         if (old && [...select.options].some(o => o.value === old)) select.value = old;
     }
 
-    function allDiameters() {
-        return unique(state.clamps.flatMap(row => [row['Diameter 1'], row['Diameter 2']]))
-            .sort(compareDiameter);
-    }
-
-    function exactDiameter() {
-        const typed = norm(ui.diameterInput.value).replace('.', ',');
-        return allDiameters().find(d => norm(d).replace('.', ',') === typed) || '';
-    }
-
-    function clampMatchesDiameter(row, diameter) {
-        const d = norm(diameter).replace('.', ',');
-        return [row['Diameter 1'], row['Diameter 2']]
-            .map(v => norm(v).replace('.', ','))
-            .includes(d);
-    }
-
     let exactLiveController = null;
     let exactLiveDebounce = null;
 
@@ -383,78 +319,6 @@
         }, 300);
     }
 
-    function filteredClamps(stage = 'all') {
-        const diameter = exactDiameter();
-        if (!diameter) return [];
-        let rows = state.clamps.filter(r => clampMatchesDiameter(r, diameter));
-        if (stage === 'diameter') return rows;
-        if (ui.serie.value) rows = rows.filter(r => norm(r['Serie']) === ui.serie.value);
-        if (stage === 'serie') return rows;
-        if (ui.execution.value) rows = rows.filter(r => norm(r['Enkel / Dubbel']) === ui.execution.value);
-        if (stage === 'execution') return rows;
-        if (ui.clampMaterial.value) rows = rows.filter(r => norm(r['Materiaalcode']) === ui.clampMaterial.value);
-        return rows;
-    }
-
-    function rebuildClampFilters(resetDownstream = false) {
-        const diameter = exactDiameter();
-        if (!diameter) {
-            resetClampArea('Kies een diameter uit de voorstellen');
-            return;
-        }
-
-        let rows = filteredClamps('diameter');
-        const series = unique(rows.map(r => norm(r['Serie']))).sort();
-        setSelectOptions(ui.serie, series, 'Kies serie', displaySerie, !resetDownstream);
-        // Standaard: lichte serie, zolang die voor de gekozen diameter bestaat.
-        if (!ui.serie.value) {
-            const preferred = series.find(v => v === 'Licht (standaard)') || series.find(v => displaySerie(v) === 'Licht');
-            if (preferred) ui.serie.value = preferred;
-        }
-        syncChoiceButtons(ui.serieButtons, series, ui.serie.value, displaySerie);
-
-        rows = filteredClamps('serie');
-        const executions = unique(rows.map(r => norm(r['Enkel / Dubbel']))).sort();
-        setSelectOptions(ui.execution, executions, 'Kies uitvoering', v => v, !resetDownstream);
-        // Standaard: Enkel.
-        if (!ui.execution.value && executions.includes('Enkel')) ui.execution.value = 'Enkel';
-        syncChoiceButtons(ui.executionButtons, executions, ui.execution.value);
-
-        rows = filteredClamps('execution');
-        const materials = unique(rows.map(r => norm(r['Materiaalcode']))).sort();
-        setSelectOptions(ui.clampMaterial, materials, 'Kies beugelmateriaal', code => {
-            const row = rows.find(r => norm(r['Materiaalcode']) === code);
-            return row ? `${code} — ${row['Materiaal']}` : code;
-        }, !resetDownstream);
-        // Standaard: PP.
-        if (!ui.clampMaterial.value && materials.includes('PP')) ui.clampMaterial.value = 'PP';
-        resizeClampMaterialField();
-
-        rows = filteredClamps('all');
-        setSelectOptions(ui.clamp, rows, 'Kies beugel', row => norm(row['Artikelcode']), !resetDownstream);
-        resizeClampField();
-
-        ui.resultCount.textContent = `${rows.length} ${rows.length === 1 ? 'mogelijkheid' : 'mogelijkheden'}`;
-
-        if (ui.clamp.value) selectClamp(ui.clamp.value);
-        else {
-            state.selectedClamp = null;
-            clearAssembly();
-        }
-    }
-
-    function resetClampArea(message) {
-        [ui.serie, ui.execution, ui.clampMaterial, ui.clamp].forEach(select => {
-            select.innerHTML = `<option value="">${message}</option>`;
-            select.disabled = true;
-        });
-        syncChoiceButtons(ui.serieButtons, [], '');
-        syncChoiceButtons(ui.executionButtons, [], '');
-        ui.resultCount.textContent = '0 mogelijkheden';
-        state.selectedClamp = null;
-        clearAssembly();
-    }
-
     function clampCodePart(clamp) {
         if (!clamp) return '';
         // Locatie 2 gebruikt de beugelcode zelf. De code bevat al bouwgroep,
@@ -476,11 +340,6 @@
             [ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => { select.value = ''; });
         }
         const c = state.selectedClamp;
-        ui.factGroup.textContent = c['Bouwgroep'] || '—';
-        ui.factDiameter.textContent = c['Diameter 2'] ? `${c['Diameter 1']} / ${c['Diameter 2']} mm` : `${c['Diameter 1']} mm`;
-        ui.factSerie.textContent = displaySerie(c['Serie']);
-        ui.factExecution.textContent = c['Enkel / Dubbel'] || '—';
-        ui.clampFacts.classList.remove('is-empty');
         ui.loc2.textContent = clampCodePart(c);
         rebuildMaterialCodes();
     }
@@ -636,11 +495,6 @@
     }
 
     function clearAssembly() {
-        ui.factGroup.textContent = '—';
-        ui.factDiameter.textContent = '—';
-        ui.factSerie.textContent = '—';
-        ui.factExecution.textContent = '—';
-        ui.clampFacts.classList.add('is-empty');
         ui.loc2.textContent = '—';
         ui.loc6.textContent = '—';
         [ui.materialCode, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => {
@@ -654,35 +508,8 @@
     function bindEvents() {
         ui.diameterInput.addEventListener('input', () => {
             resizeDiameterField();
-            rebuildClampFilters(true);
             queryExactLive(ui.diameterInput.value);
         });
-        ui.serieButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (button.disabled) return;
-                const value = actualSerieValue(button.dataset.serie);
-                if (!value || value === ui.serie.value) return;
-                ui.serie.value = value;
-                // Een andere serie kan andere uitvoeringen/materialen opleveren.
-                ui.execution.value = '';
-                ui.clampMaterial.value = '';
-                ui.clamp.value = '';
-                rebuildClampFilters(false);
-            });
-        });
-        ui.executionButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (button.disabled) return;
-                const value = button.dataset.uitvoering || '';
-                if (!value || value === ui.execution.value) return;
-                ui.execution.value = value;
-                ui.clampMaterial.value = '';
-                ui.clamp.value = '';
-                rebuildClampFilters(false);
-            });
-        });
-        ui.clampMaterial.addEventListener('change', () => { resizeClampMaterialField(); rebuildClampFilters(false); });
-        ui.clamp.addEventListener('change', () => { resizeClampField(); selectClamp(ui.clamp.value); });
         ui.materialCode.addEventListener('change', rebuildComponents);
         [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => select.addEventListener('change', updateAssemblyCode));
 
@@ -711,8 +538,6 @@
 
     async function init() {
         resizeDiameterField();
-        resizeClampMaterialField();
-        resizeClampField();
         bindEvents();
         try {
             const response = await fetch('api/stauff.php', { cache: 'no-store' });

@@ -149,27 +149,7 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 .diameter-field input { width: 100%; }
 .diameter-field small { width: 24ch; }
 
-/* De overige selecties verdelen samen de resterende regelbreedte. */
-.serie-field,
-.uitvoering-field,
-.clamp-material-field,
-.clamp-field { flex: 1 1 0; width: auto; }
-
-.serie-field { min-width: 150px; }
-.uitvoering-field { min-width: 165px; }
-.clamp-material-field { min-width: 145px; }
-.clamp-field { min-width: 170px; flex-grow: 1.25; }
-
-.clamp-material-field select,
-.clamp-field select { width: 100% !important; max-width: none; }
-
 .autocomplete { position: relative; }
-
-.clamp-facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 22px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-.clamp-facts > div { background: #fafcfd; padding: 13px 15px; }
-.clamp-facts span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 3px; }
-.clamp-facts strong { font-size: 15px; }
-.clamp-facts.is-empty { opacity: .65; }
 
 /* Live, fuzzy artikelnummer-zoekresultaten uit Exact (groep 67) bij het
    diameterveld - zie api/exact_search.php. Losse sectie t.o.v. de
@@ -188,9 +168,6 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 .segment { border: 0; background: transparent; color: var(--muted); padding: 10px 22px; border-radius: 9px; cursor: pointer; font-weight: 750; }
 .segment.active { background: #fff; color: var(--accent-dark); box-shadow: 0 2px 8px rgba(0, 0, 0, .12); }
 .segment:disabled { opacity: .38; cursor: not-allowed; }
-.selection-toggle { width: 100%; min-height: 44px; }
-.selection-toggle .segment { flex: 1; padding-left: 12px; padding-right: 12px; }
-.logic-select { display: none !important; }
 .material-code-field { width: min(300px, 100%); }
 
 .assembly-list { display: grid; gap: 10px; }
@@ -243,11 +220,6 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
     }
     .header-home-button svg { width: 18px; height: 18px; }
     .filter-grid { flex-wrap: wrap; }
-    .serie-field,
-    .uitvoering-field,
-    .clamp-material-field,
-    .clamp-field { flex: 1 1 180px; }
-    .clamp-facts { grid-template-columns: repeat(2, 1fr); }
     .material-controls { align-items: stretch; flex-direction: column; }
     .location-content { grid-template-columns: 1fr; gap: 8px; }
     .code-panel { align-items: stretch; flex-direction: column; }
@@ -264,9 +236,6 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
     .section-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
     .filter-grid { gap: 12px; }
     .diameter-field { flex: 0 0 auto; }
-    .serie-field, .uitvoering-field, .clamp-material-field, .clamp-field { flex: 1 1 100%; width: 100%; min-width: 0; }
-    .clamp-field select { max-width: none; }
-    .clamp-facts { grid-template-columns: 1fr 1fr; }
     .segmented { width: 100%; }
     .segment { flex: 1; }
     .location-card { grid-template-columns: 40px 52px minmax(0,1fr); }
