@@ -123,6 +123,22 @@ gebruikt voor artikelgroep 67, dus 1x instellen voor beide subapps. Zonder ingev
 (of bij een connectiefout) toont de Locatie-kolom gewoon een streepje - de rest van de
 app/picklijst blijft normaal werken.
 
+## Verzendwijze (Exact, database 005) - nog niet geverifieerd
+
+De kaart toont een "Verzendwijze"-regel (de Leveringswijze die in Exact op de order staat, opgezocht
+via het ordernummer). In tegenstelling tot de andere Exact-koppelingen hierboven is dit **nog niet**
+bevestigd tegen het echte schema - `findLeveringswijze()` in `index.php` probeert een lijst
+kandidaat-tabellen (`LEVERINGSWIJZE_TABLE_CANDIDATES`, bijv. `GRV_SalesOrders`) en per tabel een
+lijst kandidaat-kolommen voor zowel het ordernummer als de leveringswijze zelf. Klopt geen van de
+kandidaten, dan toont de kaart gewoon een streepje (geen foutmelding, zelfde gedrag als Locatie/
+Voorraad hierboven bij een missende koppeling).
+
+Om dit definitief te maken: gebruik `/stauff/db-test.php` (verbindt met dezelfde database "005") om
+op tabelnaam "order" te zoeken, de kolommen van de juiste tabel te bekijken, en de bevestigde
+tabel-/kolomnaam vooraan in de kandidatenlijsten in `index.php` te zetten - zelfde werkwijze als
+eerder gebruikt voor het schema van "2500 Slangkaarten bij order" (zie de "Update N"-aantekeningen
+bovenaan `inc/queries.php`).
+
 ## Zoekfilter slangnummer: alleen artikelgroep 0 (Exact, database 005)
 
 Bij zoeken op slangnummer (stap 1, zie "Status" hierboven) worden de gevonden regels gefilterd op
