@@ -180,38 +180,35 @@
         if (prefix === 'WSP') return 'wsp';
         if (prefix === 'CRA') return 'cra';
 
-        // De afbeelding van de beugel wordt op BOUWGROEP bepaald, niet op een
-        // specifiek artikelnummer. Bij voorkeur gebruiken we de GRx-tag uit de
-        // Exact-omschrijving (bijv. GR1, GR1A, GR2). Als die niet beschikbaar
-        // is, vallen we terug op de kolom Bouwgroep uit de CSV.
-        //
-        // Regel:
-        //   GR1           -> sp1.png
-        //   GR1A en GR2+  -> sp1a.png
-        if (onderdeel === 'Beugel' && ed !== 'Dubbel') {
-            const exactGroup = upper(state.beugelGroup);
-            const fallbackGroup = bouwgroep ? `GR${bouwgroep}` : '';
-            const group = exactGroup || fallbackGroup;
-            if (group === 'GR1') return 'sp1';
-            if (group === 'GR1A') return 'sp1a';
-            const groupNumber = group.match(/^GR(\d+)/);
-            if (groupNumber && Number(groupNumber[1]) >= 2) return 'sp1a';
-        }
-
         switch (onderdeel) {
             case 'Glijmoer':
                 return 'gmv';
             case 'Lasplaat':
                 if (isDubbelClamp()) return 'sp1d';
-                if (prefix === 'SP') return bouwgroep === '1' ? 'sp1' : 'sp1a';
+                if (prefix === 'SP') {
+                    // Alleen de SP-lasplaat volgt de bouwgroep van de GEKOZEN
+                    // beugel. De GRx-tag komt bij voorkeur uit de Exact-
+                    // omschrijving; als die ontbreekt gebruiken we de
+                    // Bouwgroep-kolom van de gekozen beugel als fallback.
+                    //
+                    // GR1          -> sp1.png
+                    // GR1A, GR2+   -> sp1a.png
+                    const exactGroup = upper(state.beugelGroup);
+                    const clampGroup = upper(state.selectedClamp?.['Bouwgroep']);
+                    const group = exactGroup || (clampGroup ? `GR${clampGroup}` : '');
+                    if (group === 'GR1') return 'sp1';
+                    if (group === 'GR1A') return 'sp1a';
+                    const groupNumber = group.match(/^GR(\d+)/);
+                    if (groupNumber && Number(groupNumber[1]) >= 2) return 'sp1a';
+                    // Oude fallback, alleen wanneer de geselecteerde beugel
+                    // geen bruikbare groepsinformatie heeft.
+                    return bouwgroep === '1' ? 'sp1' : 'sp1a';
+                }
                 if (prefix === 'SPAL') return 'sp1a';
                 if (prefix === 'SPV') return bouwgroep === '1' ? 'spv1' : 'spv1a';
                 return null;
             case 'Beugel':
                 if (ed === 'Dubbel') return '1dpp';
-                // Normaal wordt hierboven al sp1/sp1a gekozen op basis van GRx.
-                // Alleen als er geen bruikbare bouwgroep beschikbaar is, blijft
-                // de oude generieke fallback actief.
                 return (bouwgroep === '1' && serie === 'Licht (standaard)') ? '1pp' : '1app';
             case 'Dekplaat':
                 if (isDubbelClamp() || prefix === 'GD') return 'gd1';
