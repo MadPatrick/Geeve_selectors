@@ -83,24 +83,7 @@ function assetVersion(string $relativePath): string
                 </div>
                 <ul id="exactLiveList" class="exact-live-list"></ul>
             </div>
-        </div>
 
-        <small>Lasplaat en Dekplaat worden standaard voorgeselecteerd zodra een passende optie beschikbaar is; de overige onderdelen blijven optioneel.</small>
-    </section>
-
-    <section class="panel material-panel">
-        <div class="section-heading">
-            <div>
-                <span class="step">Materiaal</span>
-                <h2>Materiaal</h2>
-            </div>
-        </div>
-
-        <div class="material-controls">
-            <div class="segmented" role="radiogroup" aria-label="Materiaal bevestigingsdelen">
-                <button type="button" class="segment active" data-metal="Staal">Staal</button>
-                <button type="button" class="segment" data-metal="RVS">RVS</button>
-            </div>
             <label class="field material-code-field">
                 <span>Materiaalcode (locatie 6)</span>
                 <select id="materialCodeSelect" disabled>
@@ -108,7 +91,8 @@ function assetVersion(string $relativePath): string
                 </select>
             </label>
         </div>
-        <small>Staal gebruikt W1/W2/W3; RVS gebruikt W4/W5/W55. Alleen codes die bij de geselecteerde bouwgroep voorkomen worden getoond.</small>
+
+        <small>Lasplaat en Dekplaat worden standaard voorgeselecteerd zodra een passende optie beschikbaar is; de overige onderdelen blijven optioneel.</small>
     </section>
 
     <section class="panel assembly-panel">

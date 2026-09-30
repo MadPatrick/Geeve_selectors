@@ -147,7 +147,7 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
    diameterveld - zie api/exact_search.php. Gewone flex-buur van de
    diameter-box in .filter-grid (dus naast, niet onder), geen absolute
    overlay - dat brak het aanklikken van een resultaat. */
-.exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 840px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 400px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: #f4f7fa; font-size: 13px; font-weight: 750; color: var(--muted); }
 .exact-live-status.error { color: var(--danger); }
 .exact-live-list { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
@@ -162,15 +162,12 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 .exact-live-chosen strong { color: var(--accent-dark); font-weight: 800; font-size: 14px; white-space: nowrap; }
 .exact-live-chosen span { color: var(--muted); font-size: 13px; text-align: right; }
 
-.material-controls { display: flex; align-items: end; gap: 22px; }
-.segmented { display: inline-flex; padding: 4px; background: #edf2f6; border-radius: 12px; }
-.segment { border: 0; background: transparent; color: var(--muted); padding: 10px 22px; border-radius: 9px; cursor: pointer; font-weight: 750; }
-.segment.active { background: #fff; color: var(--accent-dark); box-shadow: 0 2px 8px rgba(0, 0, 0, .12); }
+.segment { border: 0; background: #edf2f6; color: var(--muted); padding: 10px 22px; border-radius: 9px; cursor: pointer; font-weight: 750; }
 .segment:disabled { opacity: .38; cursor: not-allowed; }
-.material-code-field { width: min(300px, 100%); }
+.material-code-field { flex: 0 0 auto; width: min(220px, 100%); }
 
 .assembly-list { display: grid; gap: 10px; }
-.location-card { display: grid; grid-template-columns: 52px 64px minmax(0, 1fr); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; background: #fff; }
+.location-card { display: grid; grid-template-columns: 52px 84px minmax(0, 1fr); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; background: #fff; }
 .location-number { display: grid; place-items: center; background: #fdeaee; color: var(--accent-dark); font-size: 20px; font-weight: 850; border-right: 1px solid var(--line); }
 .location-image { display: flex; align-items: center; justify-content: center; padding: 6px; border-right: 1px solid var(--line); background: #fbfcfd; }
 .location-image img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
@@ -267,7 +264,6 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
     }
     .header-home-button svg { width: 18px; height: 18px; }
     .filter-grid { flex-wrap: wrap; }
-    .material-controls { align-items: stretch; flex-direction: column; }
     .location-content { grid-template-columns: 1fr; gap: 8px; }
     .code-panel { align-items: stretch; flex-direction: column; }
     .copy-button { width: 100%; }
@@ -283,9 +279,8 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
     .section-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
     .filter-grid { gap: 12px; }
     .diameter-box { flex: 0 0 auto; }
-    .segmented { width: 100%; }
-    .segment { flex: 1; }
-    .location-card { grid-template-columns: 40px 52px minmax(0,1fr); }
+    .material-code-field { width: 100%; }
+    .location-card { grid-template-columns: 40px 64px minmax(0,1fr); }
 }
 
 /* ---- db-test.php (tijdelijke diagnosepagina, geen onderdeel van de

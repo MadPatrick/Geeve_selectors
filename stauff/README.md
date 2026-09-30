@@ -142,12 +142,12 @@ selecteren, worden bouwgroep en serie van die beugel gebruikt om de overige posi
 
 ## Materiaal bevestigingsdelen
 
-De UI groepeert de bekende STAUFF W-codes als:
-
-- Staal: W1, W2, W3
-- RVS: W4, W5, W55
-
-Andere W-codes blijven in de CSV staan maar worden in deze eerste versie niet onder Staal/RVS aangeboden.
+De Staal/RVS-keuzeknop is verwijderd - de Materiaalcode-pulldown (locatie 6, nu bovenin naast
+"Gekozen artikel") toont gewoon **alle** materiaalcodes die voorkomen bij de posities van de
+gekozen beugel, ongeacht familie. De familie (Staal/RVS) wordt intern nog wel afgeleid uit de
+gekozen code zelf (`metalFamily()` in `assets/selector.js`, o.b.v. het W-nummer: W1/W2/W3 = Staal,
+W4/W5/W55 = RVS) - alleen om locatie 1 (Lasplaat) te filteren op dezelfde familie als de gekozen
+code (zie de code-comments bij `candidatesForPosition()`), niet meer als aparte UI-keuze.
 
 ## Samenstellingscode
 

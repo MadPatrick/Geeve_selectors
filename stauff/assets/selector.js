@@ -31,7 +31,6 @@
         // uit de CSV. Gebruikt om locatie-filters (zie hieronder) verder te
         // verfijnen op bouwgroep.
         beugelGroup: '',
-        metalFamily: 'Staal',
         // Per locatie (1, 3, 4, 5) een ; -gescheiden lijst artikelnummer-
         // voorvoegsels - ingesteld via de config-cog op die regel (zie
         // bindEvents()). Blijft bewaard in localStorage, dus niet per
@@ -279,8 +278,11 @@
             // Lasplaten (positie 1) worden op materiaalFAMILIE gefilterd,
             // niet op exact dezelfde W-code als locatie 6. Bijvoorbeeld
             // SPAL 8 bestaat voor staal als W1/W2 en voor RVS als W4/W5.
+            // Zonder gekozen materialCode (survey-modus, zie
+            // rebuildMaterialCodes()) wordt hier niet op gefilterd, zodat
+            // alle materiaalcodes van alle posities in de pulldown komen.
             if (pos === 1) {
-                if (metalFamily(row['Materiaalcode']) !== state.metalFamily) return false;
+                if (materialCode && metalFamily(row['Materiaalcode']) !== metalFamily(materialCode)) return false;
             } else if (materialCode && upper(row['Materiaalcode']) !== upper(materialCode)) {
                 return false;
             }
@@ -439,24 +441,15 @@
             ui.materialCode.disabled = true;
             return;
         }
+        // Geen Staal/RVS-keuze meer - de pulldown toont alle materiaalcodes
+        // die voorkomen bij de posities van deze beugel, ongeacht familie.
         const positions = [1, 3, 4, 5];
         const all = positions.flatMap(pos => candidatesForPosition(pos));
         const codes = unique(all.map(r => norm(r['Materiaalcode'])))
-            .filter(code => metalFamily(code) === state.metalFamily)
             .sort((a, b) => a.localeCompare(b, 'nl', { numeric: true }));
 
-        const placeholder = codes.length ? '— Geen materiaalcode gekozen —' : `Geen ${state.metalFamily}-code beschikbaar`;
+        const placeholder = codes.length ? '— Geen materiaalcode gekozen —' : 'Geen materiaalcode beschikbaar';
         setSelectOptions(ui.materialCode, codes, placeholder, code => code, true);
-
-        // Standaard materiaalcode: staal = W3, RVS = W5.
-        // Als de gewenste standaardcode voor deze combinatie niet bestaat,
-        // blijft de keuze leeg zodat we geen andere W-code gokken.
-        if (!ui.materialCode.value) {
-            const preferredCode = state.metalFamily === 'RVS' ? 'W5' : 'W3';
-            if (codes.some(code => upper(code) === preferredCode)) {
-                ui.materialCode.value = codes.find(code => upper(code) === preferredCode) || '';
-            }
-        }
         rebuildComponents();
     }
 
@@ -639,11 +632,12 @@
                 const materialRank = row => {
                     const mc = upper(row['Materiaalcode']);
                     if (mc === upper(code)) return 0;
-                    if (state.metalFamily === 'Staal') {
+                    const family = metalFamily(code);
+                    if (family === 'Staal') {
                         if (mc === 'W2') return 1;
                         if (mc === 'W1') return 2;
                         if (mc === 'W3') return 3;
-                    } else if (state.metalFamily === 'RVS') {
+                    } else if (family === 'RVS') {
                         if (mc === 'W5') return 1;
                         if (mc === 'W4') return 2;
                         if (mc === 'W55') return 3;
@@ -784,15 +778,6 @@
         });
         ui.materialCode.addEventListener('change', rebuildComponents);
         [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => select.addEventListener('change', updateAssemblyCode));
-
-        document.querySelectorAll('[data-metal]').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelectorAll('[data-metal]').forEach(b => b.classList.remove('active'));
-                button.classList.add('active');
-                state.metalFamily = button.dataset.metal;
-                rebuildMaterialCodes();
-            });
-        });
 
         ui.copyButton.addEventListener('click', async () => {
             const code = ui.assemblyCode.textContent;
