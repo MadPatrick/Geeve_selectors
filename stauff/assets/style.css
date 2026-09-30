@@ -147,7 +147,7 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
    diameterveld - zie api/exact_search.php. Gewone flex-buur van de
    diameter-box in .filter-grid (dus naast, niet onder), geen absolute
    overlay - dat brak het aanklikken van een resultaat. */
-.exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 400px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 600px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: #f4f7fa; font-size: 13px; font-weight: 750; color: var(--muted); }
 .exact-live-status.error { color: var(--danger); }
 .exact-live-list { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
