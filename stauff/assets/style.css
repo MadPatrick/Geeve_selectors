@@ -147,20 +147,23 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
    diameterveld - zie api/exact_search.php. Gewone flex-buur van de
    diameter-box in .filter-grid (dus naast, niet onder), geen absolute
    overlay - dat brak het aanklikken van een resultaat. */
-.exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 600px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 600px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: #f4f7fa; font-size: 13px; font-weight: 750; color: var(--muted); }
 .exact-live-status.error { color: var(--danger); }
-.exact-live-list { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+.exact-live-list { flex: 1 1 auto; list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
 .exact-live-list li { border-top: 1px solid var(--line); }
-.exact-live-list button { display: block; width: 100%; padding: 10px 15px; border: 0; background: #fff; text-align: left; cursor: pointer; font-size: 14px; font-weight: 800; color: var(--accent-dark); }
+.exact-live-list li:first-child { border-top: 0; }
+.exact-live-list button { display: block; width: 100%; padding: 10px 15px; border: 0; background: #fff; text-align: left; cursor: pointer; font-size: 16px; font-weight: 800; color: var(--accent-dark); }
 .exact-live-list button:hover { background: var(--soft); }
 
 /* Weergave van het gekozen artikel (na klikken op een zoekresultaat) -
    vervangt de lijst in hetzelfde paneel, zie selectExactArticle() in
-   assets/selector.js. */
-.exact-live-chosen { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 12px 15px; border-top: 1px solid var(--line); }
-.exact-live-chosen strong { color: var(--accent-dark); font-weight: 800; font-size: 14px; white-space: nowrap; }
-.exact-live-chosen span { color: var(--muted); font-size: 13px; text-align: right; }
+   assets/selector.js. Zelfde lettergrootte (16px) als het diameterveld
+   en verticaal gecentreerd in de resterende boxhoogte (via
+   .exact-live-list hierboven), net als .diameter-box-body. */
+.exact-live-chosen { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 12px 15px; }
+.exact-live-chosen strong { color: var(--accent-dark); font-weight: 800; font-size: 16px; white-space: nowrap; }
+.exact-live-chosen span { color: var(--muted); font-size: 14px; text-align: right; }
 
 .segment { border: 0; background: #edf2f6; color: var(--muted); padding: 10px 22px; border-radius: 9px; cursor: pointer; font-weight: 750; }
 .segment:disabled { opacity: .38; cursor: not-allowed; }
