@@ -296,7 +296,13 @@
                 return false;
             }
 
-            if (row['Onderdeel'] === 'Beugel') return false;
+            // Beugel-rijen (Positie 2, uitsluitend Onderdeel "Beugel" - zie
+            // ook state.clamps hierboven) blijven uitgesloten van de
+            // normale locaties 1/3/4/5, maar mogen wél als extra, vrij
+            // toegevoegde regel gekozen worden (pos === 2, zie
+            // addExtraItemRow()) - dat geeft een 2e beugel binnen dezelfde
+            // bouwgroep/serie/uitvoering als de al gekozen hoofdbeugel.
+            if (row['Onderdeel'] === 'Beugel' && pos !== 2) return false;
             if (!groupMatches(row['Bouwgroep'], clamp['Bouwgroep'])) return false;
             if (!seriesMatches(row, clamp)) return false;
             if (!executionMatches(row, clamp)) return false;
@@ -307,9 +313,16 @@
             // Zonder gekozen materialCode (survey-modus, zie
             // rebuildMaterialCodes()) wordt hier niet op gefilterd, zodat
             // alle materiaalcodes van alle posities in de pulldown komen.
+            //
+            // Beugel (pos 2) slaat deze materialCode-check helemaal over:
+            // een beugel heeft een eigen materiaalcode-schema (PA/PP/ACT/
+            // AL/... - kunststof/beugelvarianten), volledig los van de
+            // W-codes uit MATERIAL_CODES die alleen voor de metalen
+            // bevestigingsdelen (lasplaat/borgplaat/dekplaat/bout) gelden.
+            // Filteren op locatie 6 zou hier dus altijd 0 resultaten geven.
             if (pos === 1) {
                 if (materialCode && metalFamily(row['Materiaalcode']) !== metalFamily(materialCode)) return false;
-            } else if (materialCode && upper(row['Materiaalcode']) !== upper(materialCode)) {
+            } else if (pos !== 2 && materialCode && upper(row['Materiaalcode']) !== upper(materialCode)) {
                 return false;
             }
             return true;
@@ -501,8 +514,15 @@
         return `${row['Artikelcode']}`;
     }
 
+    // Ook gebruikt als soort-lijst in addExtraItemRow() - Beugel (2) heeft
+    // daar wél een eigen optie nodig (een 2e beugel binnen dezelfde
+    // bouwgroep kiezen, zie candidatesForPosition()), maar geen eigen
+    // zoekfilter-knop (die bestaat alleen voor 1/3/4/5, zie index.php)
+    // - LOCATION_LABELS[2] wordt dus nooit voor de filtermodal-titel
+    // opgevraagd.
     const LOCATION_LABELS = {
         1: 'Lasplaat / Glijmoer',
+        2: 'Beugel',
         3: 'Borgplaat',
         4: 'Dekplaat',
         5: 'Bout',
@@ -775,12 +795,20 @@
 
     /**
      * Voegt een nieuwe, vrij te configureren artikelregel toe aan de
-     * samenstelling (klik op de "+"-knop bij locatie 1/3/4/5, zie
-     * bindEvents()). De gebruiker kiest eerst de soort (dezelfde 4 opties
-     * als de vaste locaties, met dezelfde per-locatie filters), dan het
-     * artikel binnen die soort, en het aantal (standaard 1, bij Bout 2).
+     * samenstelling - klik op de "+"-knop bij een vaste locatie (1/2/3/4/5,
+     * zie bindEvents()) of bij een al eerder toegevoegde extra regel
+     * (zie de "+"-knop hieronder in deze functie zelf). De regel komt
+     * direct ONDER de knop waarop geklikt is (afterElement), niet
+     * onderaan de hele lijst - vandaar de insertAdjacentElement('afterend', ...)
+     * i.p.v. ui.assemblyList.appendChild().
+     *
+     * De gebruiker kiest eerst de soort (dezelfde opties als de vaste
+     * locaties, inclusief Beugel - zie LOCATION_LABELS/candidatesForPosition()
+     * voor hoe een 2e beugel binnen dezelfde bouwgroep gekozen kan worden),
+     * dan het artikel binnen die soort, en het aantal (standaard 1, bij
+     * Bout 2).
      */
-    function addExtraItemRow() {
+    function addExtraItemRow(afterElement) {
         const id = ++extraItemCounter;
         const requestKey = `extra-${id}`;
 
@@ -830,21 +858,31 @@
         const priceSpan = document.createElement('span');
         priceSpan.className = 'extra-item-price location-price';
 
+        const addButton = document.createElement('button');
+        addButton.type = 'button';
+        addButton.className = 'location-add-button extra-item-add';
+        addButton.setAttribute('aria-label', 'Extra artikel toevoegen');
+        addButton.textContent = '+';
+
         const removeButton = document.createElement('button');
         removeButton.type = 'button';
         removeButton.className = 'extra-item-remove';
         removeButton.setAttribute('aria-label', 'Extra artikel verwijderen');
         removeButton.textContent = '×';
 
-        content.append(aantalInput, soortSelect, artikelSelect, priceSpan, removeButton);
+        content.append(aantalInput, soortSelect, artikelSelect, priceSpan, addButton, removeButton);
         card.append(numberDiv, imageDiv, content);
-        ui.assemblyList.appendChild(card);
+        if (afterElement) {
+            afterElement.insertAdjacentElement('afterend', card);
+        } else {
+            ui.assemblyList.appendChild(card);
+        }
 
         soortSelect.addEventListener('change', () => {
             const pos = soortSelect.value;
-            // Standaard 1, behalve bij Bout (2). Alleen gezet bij het
-            // wisselen van soort, zodat een handmatig aangepast aantal
-            // daarna niet weer overschreven wordt.
+            // Standaard 1, behalve bij Bout (2, waarde "5"). Alleen gezet
+            // bij het wisselen van soort, zodat een handmatig aangepast
+            // aantal daarna niet weer overschreven wordt.
             aantalInput.value = pos === '5' ? '2' : '1';
             if (!pos) {
                 delete locationFilterRequests[requestKey];
@@ -858,6 +896,7 @@
         });
         artikelSelect.addEventListener('change', refreshLocationPrices);
         aantalInput.addEventListener('input', recomputeTotal);
+        addButton.addEventListener('click', () => addExtraItemRow(card));
         removeButton.addEventListener('click', () => {
             delete locationFilterRequests[requestKey];
             card.remove();
@@ -1063,7 +1102,7 @@
             button.addEventListener('click', () => openLocationFilterModal(button.dataset.location));
         });
         ui.locationAddButtons.forEach(button => {
-            button.addEventListener('click', addExtraItemRow);
+            button.addEventListener('click', () => addExtraItemRow(button.closest('.location-card')));
         });
         ui.locationFilterApply.addEventListener('click', () => applyLocationFilter(ui.locationFilterInput.value));
         ui.locationFilterClear.addEventListener('click', () => applyLocationFilter(''));

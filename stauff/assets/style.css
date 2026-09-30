@@ -242,6 +242,12 @@ button.location-number { cursor: pointer; }
 .extra-item-aantal { flex: 0 0 64px; width: 64px; text-align: center; }
 .extra-item-soort { flex: 0 0 190px; }
 .extra-item-artikel { flex: 1 1 auto; min-width: 0; }
+/* "+"-knop op een extra regel zelf (zie addExtraItemRow()) - voegt weer
+   een nieuwe regel toe, direct onder deze regel. Hergebruikt de
+   .location-add-button doos-stijl (34px cirkel); alleen font-size/
+   line-height erbij voor de "+"-tekst (i.p.v. een SVG-icoon zoals bij de
+   vaste locaties). */
+.extra-item-add { font-size: 18px; line-height: 1; }
 .extra-item-remove {
     display: inline-flex;
     align-items: center;
