@@ -106,19 +106,26 @@ daadwerkelijk toegepast wordt, staat per locatie los aan/uit - inmiddels voor **
 (1-5) op `true`. Bevestigd (via `/stauff/db-test.php`) dat Borgplaat/Dekplaat/Bout-omschrijvingen
 in Exact, net als bij de beugel zelf, een herkenbare GRx/GRxD-tag dragen.
 
-## Verkoopprijs per locatie (Exact, database 005)
+## Verkoopprijs + voorraad per locatie (Exact, database 005)
 
-Zodra voor een locatie (1-6) een artikel gekozen is, wordt de verkoopprijs live opgehaald uit
-Exact (`api/exact_prices.php`, `GRV_SalesItems`, artikelgroep 67) en getoond rechts in de
-bijbehorende regel (`.location-price`), via `refreshLocationPrices()` in `assets/selector.js` -
-die wordt aangeroepen vanuit `updateAssemblyCode()`, dus bij elke wijziging van beugel,
-materiaalcode of een locatieselectie.
+Zodra voor een locatie (1-5) een artikel gekozen is, worden de verkoopprijs ÉN de vrije voorraad
+live opgehaald uit Exact (`api/exact_prices.php`, artikelgroep 67) en samen getoond rechts in de
+bijbehorende regel (`.location-price`, bijv. "€ 12,34 · 8 op voorraad"), via
+`refreshLocationPrices()`/`formatPriceAndStock()` in `assets/selector.js` - die wordt aangeroepen
+vanuit `updateAssemblyCode()`, dus bij elke wijziging van beugel, materiaalcode of een
+locatieselectie. Een voorraad van 0 is een geldige waarde en wordt gewoon getoond ("0 op
+voorraad"); alleen een onbekende/ontbrekende voorraad (geen koppeling, artikel niet gevonden)
+wordt weggelaten - ontbreekt de prijs of de voorraad, dan toont de regel alleen de andere.
 
-**Kolomnaam nog niet bevestigd.** De kolomnaam voor verkoopprijs op `GRV_SalesItems` is nog niet
-geverifieerd. `exact_prices.php` probeert daarom een lijst kandidaat-kolomnamen (`Sales Price`,
-`SalesPrice`, `Price 1`, `Price1`, `Price`, `Verkoopprijs`, `Prijs`) totdat er 1 zonder SQL-fout
-data teruggeeft - welke kolom dat was staat in de JSON-response (`"column"`). Werkt geen van de
-kandidaten, dan blijft de prijs overal leeg (geen foutmelding).
+**Kolomnaam prijs nog niet bevestigd.** De kolomnaam voor verkoopprijs op `GRV_SalesItems` is nog
+niet geverifieerd. `exact_prices.php` probeert daarom een lijst kandidaat-kolomnamen (`Sales
+Price`, `SalesPrice`, `Price 1`, `Price1`, `Price`, `Verkoopprijs`, `Prijs`) totdat er 1 zonder
+SQL-fout data teruggeeft - welke kolom dat was staat in de JSON-response (`"column"`). Werkt geen
+van de kandidaten, dan blijft de prijs overal leeg (geen foutmelding).
+
+**Voorraad wél al bevestigd** - zelfde, al uitgezochte formule als `findArtikelExactDataBatch()`
+in `slangkaarten/index.php`: `StockBalances` is een mutatielog, de vrije voorraad is het laagste
+van de FreeStock-som en de Quantity-som t/m vandaag (`[Date] <= GETDATE()`), met een vloer op 0.
 
 ## Eigen zoekfilter per locatie (locatienummer als knop, Exact live)
 

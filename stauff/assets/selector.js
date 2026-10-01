@@ -1174,15 +1174,36 @@
         return `€ ${n.toFixed(2).replace('.', ',')}`;
     }
 
+    /**
+     * Combineert prijs + vrije voorraad tot 1 regel voor .location-price,
+     * bijv. "€ 12,34 · 8 op voorraad". Een voorraad van 0 is een geldige,
+     * betekenisvolle waarde (géén voorraad) en wordt dus wél getoond - alleen
+     * een lege/onbekende waarde (geen koppeling, artikel niet gevonden)
+     * wordt weggelaten. Ontbreekt 1 van de 2, dan toont deze functie alleen
+     * de andere; ontbreken beide, dan een lege string (net als voorheen).
+     */
+    function formatPriceAndStock(price, stock) {
+        const priceText = price ? formatPrice(price) : '';
+        const stockNum = stock === undefined || stock === null || stock === ''
+            ? null
+            : Number(String(stock).replace(',', '.'));
+        const stockText = stockNum !== null && Number.isFinite(stockNum)
+            ? `${Math.trunc(stockNum)} op voorraad`
+            : '';
+        if (priceText && stockText) return `${priceText} · ${stockText}`;
+        return priceText || stockText;
+    }
+
     let priceDebounce = null;
 
     /**
-     * Haalt de verkoopprijs op (Exact, api/exact_prices.php) van het
-     * artikel dat nu bij elke locatie (1-5) gekozen is, en toont die in
-     * de bijbehorende .location-price. Wordt aangeroepen vanuit
-     * updateAssemblyCode() - dus bij elke wijziging van een
-     * locatieselectie/beugel/materiaalcode. Locatie 6 heeft geen eigen
-     * prijs (geen apart te kiezen artikel meer, zie computeLocation6Code()).
+     * Haalt de verkoopprijs + vrije voorraad op (Exact, api/exact_prices.php)
+     * van het artikel dat nu bij elke locatie (1-5) gekozen is, en toont die
+     * samen in de bijbehorende .location-price (zie formatPriceAndStock()).
+     * Wordt aangeroepen vanuit updateAssemblyCode() - dus bij elke wijziging
+     * van een locatieselectie/beugel/materiaalcode. Locatie 6 heeft geen
+     * eigen prijs/voorraad (geen apart te kiezen artikel meer, zie
+     * computeLocation6Code()).
      */
     function refreshLocationPrices() {
         if (priceDebounce) clearTimeout(priceDebounce);
@@ -1220,7 +1241,8 @@
                     entries.forEach(([el, code]) => {
                         if (!el || !code) return;
                         const price = payload.prices[code];
-                        el.textContent = price ? formatPrice(price) : '';
+                        const stock = (payload.stock || {})[code];
+                        el.textContent = formatPriceAndStock(price, stock);
                     });
                     Object.entries(payload.prices || {}).forEach(([code, value]) => {
                         const n = Number(String(value).replace(',', '.'));

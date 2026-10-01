@@ -236,11 +236,13 @@ button.location-number { cursor: pointer; }
    mee in de totaalprijs onderaan (zie recomputeTotal() in selector.js). */
 .location-aantal { width: 64px; text-align: center; }
 
-/* Verkoopprijs (Exact, GRV_SalesItems) van het gekozen artikel per
-   locatie - zie api/exact_prices.php en refreshLocationPrices() in
-   assets/selector.js. Leeg zolang niets gekozen is of Exact geen prijs
-   teruggeeft. */
-.location-price { font-weight: 800; color: var(--accent-dark); white-space: nowrap; text-align: right; min-width: 70px; }
+/* Verkoopprijs + vrije voorraad (Exact, GRV_SalesItems/StockBalances) van
+   het gekozen artikel per locatie - zie api/exact_prices.php en
+   refreshLocationPrices()/formatPriceAndStock() in assets/selector.js.
+   Leeg zolang niets gekozen is of Exact geen prijs/voorraad teruggeeft.
+   Geen nowrap meer (i.t.t. voorheen) - "€ 12,34 · 8 op voorraad" is te
+   lang om altijd op 1 regel te passen naast de andere kolommen. */
+.location-price { font-weight: 800; color: var(--accent-dark); text-align: right; min-width: 70px; max-width: 150px; line-height: 1.3; }
 
 /* "+"-knop per locatieregel (1, 3, 4, 5) - voegt een extra, vrij te
    configureren artikelregel toe onderaan de Samenstelling-lijst, zie
