@@ -1451,10 +1451,27 @@ if ($selectedKeys !== []) {
                     </div>
                     <h2><?= count($hoseLines) ?> slangregel<?= count($hoseLines) === 1 ? '' : 'en' ?> gevonden</h2>
                 </div>
-                <button type="submit" form="hoseLinesForm" class="submit-button">Print geselecteerde slangkaarten</button>
+                <button type="submit" form="hoseLinesForm" class="submit-button" id="printSelectedButton">
+                    <span class="button-fill" aria-hidden="true"></span>
+                    <span class="button-label">Print geselecteerde slangkaarten</span>
+                </button>
             </div>
             <?= renderHoseLinesForm($hoseLines, $orderNumber, $customerName) ?>
         </section>
+        <script>
+            (function () {
+                var form = document.getElementById('hoseLinesForm');
+                var button = document.getElementById('printSelectedButton');
+                var label = button ? button.querySelector('.button-label') : null;
+                if (!form || !button || !label) { return; }
+
+                form.addEventListener('submit', function () {
+                    button.classList.add('loading');
+                    button.disabled = true;
+                    label.textContent = 'Slangkaarten worden opgehaald…';
+                });
+            })();
+        </script>
     <?php elseif ($customerOrders !== []): ?>
         <section class="panel result-panel">
             <div class="section-heading">
