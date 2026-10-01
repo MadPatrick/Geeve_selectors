@@ -280,7 +280,7 @@ input::placeholder { color: #929fac; }
 .card-note span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
 /* Standaard 3 regels hoogte, ook leeg/ongebruikt (line-height 1.5em x 3);
    min-height i.p.v. height, dus groeit automatisch mee bij langere tekst. */
-.card-note div { min-height: 4.5em; line-height: 1.5; }
+.card-note div { min-height: 4.5em; line-height: 1.5; font-size: 11px; }
 
 .card-couplings { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: start; }
 .coupling-block h4 { margin: 0 0 8px; font-size: 13px; font-weight: 800; color: var(--accent-dark); }
