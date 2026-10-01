@@ -27,12 +27,14 @@ function assetVersion(string $relativePath): string
 }
 
 $searchTerm = trim((string) ($_GET['zoek'] ?? 'groep'));
+$columnSearchTerm = trim((string) ($_GET['kolom'] ?? ''));
 $selectedTable = trim((string) ($_GET['tabel'] ?? ''));
 $groupValue = trim((string) ($_GET['waarde'] ?? '67'));
 
 $errorMessage = null;
 $connectionOk = false;
 $tables = [];
+$columnMatches = [];
 $columns = [];
 $previewRows = [];
 $groupRows = null;
@@ -40,6 +42,18 @@ $groupRows = null;
 try {
     $pdo = getPdoConnection();
     $connectionOk = true;
+
+    if ($columnSearchTerm !== '') {
+        // Zoekt (anders dan de tabelnaam-zoekopdracht hieronder) over ALLE
+        // tabellen heen naar een kolomnaam - handig als je wel weet hoe het
+        // veld heet (bv. "levwijze") maar niet in welke tabel het staat.
+        $colSearchStmt = $pdo->prepare(
+            "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS " .
+            "WHERE COLUMN_NAME LIKE :pattern ORDER BY TABLE_NAME, ORDINAL_POSITION"
+        );
+        $colSearchStmt->execute(['pattern' => '%' . $columnSearchTerm . '%']);
+        $columnMatches = $colSearchStmt->fetchAll();
+    }
 
     $stmt = $pdo->prepare(
         "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES " .
@@ -145,6 +159,10 @@ try {
                 <input type="text" name="zoek" value="<?= h($searchTerm) ?>" placeholder="bijv. groep">
             </label>
             <label class="field">
+                <span>Zoek kolomnaam (bevat, over alle tabellen)</span>
+                <input type="text" name="kolom" value="<?= h($columnSearchTerm) ?>" placeholder="bijv. levwijze">
+            </label>
+            <label class="field">
                 <span>Groepswaarde</span>
                 <input type="text" name="waarde" value="<?= h($groupValue) ?>" placeholder="67">
             </label>
@@ -153,6 +171,30 @@ try {
             <?php endif; ?>
             <button type="submit" class="submit-button">Zoeken</button>
         </form>
+
+        <?php if ($columnSearchTerm !== ''): ?>
+            <?php if ($columnMatches === [] && $errorMessage === null): ?>
+                <p style="margin-top:16px">Geen kolommen gevonden met "<?= h($columnSearchTerm) ?>" in de naam.</p>
+            <?php else: ?>
+                <p style="margin-top:16px"><?= count($columnMatches) ?> kolom(men) gevonden met "<?= h($columnSearchTerm) ?>" in de naam:</p>
+                <table class="db-test-table">
+                    <thead><tr><th>Tabel</th><th>Kolomnaam</th><th>Type</th></tr></thead>
+                    <tbody>
+                        <?php foreach ($columnMatches as $match): ?>
+                            <tr>
+                                <td>
+                                    <a href="?<?= h(http_build_query(['zoek' => $searchTerm, 'kolom' => $columnSearchTerm, 'waarde' => $groupValue, 'tabel' => $match['TABLE_NAME']])) ?>">
+                                        <?= h((string) $match['TABLE_NAME']) ?>
+                                    </a>
+                                </td>
+                                <td><?= h((string) $match['COLUMN_NAME']) ?></td>
+                                <td><?= h((string) $match['DATA_TYPE']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        <?php endif; ?>
 
         <?php if ($tables === [] && $errorMessage === null): ?>
             <p style="margin-top:16px">Geen tabellen gevonden met "<?= h($searchTerm) ?>" in de naam.</p>
