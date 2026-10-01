@@ -346,10 +346,20 @@ button.location-number { cursor: pointer; }
 .code-panel { margin-top: 22px; border-radius: 18px; padding: 25px 26px; background: linear-gradient(105deg, var(--dark-1) 0%, var(--dark-2) 70%, var(--dark-1) 100%); color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 24px; box-shadow: var(--shadow); }
 .code-label { color: #f0819f; }
 .assembly-code { font-size: clamp(20px, 3vw, 30px); font-weight: 850; letter-spacing: .01em; margin: 6px 0 5px; overflow-wrap: anywhere; }
-/* Som van (verkoopprijs x aantal) van elk gekozen onderdeel (locaties 1-6
-   + extra regels) - zie recomputeTotal() in assets/selector.js. Leeg
-   zolang er nog geen enkele prijs bekend is. */
-.assembly-total-price { color: #f0819f; font-size: 15px; font-weight: 800; margin: 0 0 5px; }
+/* Totaalprijs (som van verkoopprijs x aantal) + totaal beschikbaar (het
+   laagste van floor(voorraad / aantal) over alle gekozen onderdelen - de
+   bottleneck: hoeveel complete samenstellingen er nu gemaakt kunnen worden)
+   - zie recomputeTotal() in assets/selector.js. Grid van 2 kolommen
+   (label/waarde) over beide rijen heen (elke .assembly-totals-row is zelf
+   "display:contents", dus de labels en waardes worden direct grid-items
+   van .assembly-totals) - zo staan de 2 getallen altijd recht onder elkaar
+   uitgelijnd, ongeacht de (verschillende) labellengtes. Een rij zonder
+   waarde (.is-empty, gezet in JS) wordt verborgen. */
+.assembly-totals { display: grid; grid-template-columns: max-content auto; column-gap: 10px; row-gap: 2px; margin: 6px 0 5px; }
+.assembly-totals-row { display: contents; }
+.assembly-totals-row span { color: #c7c7c7; font-size: 13px; }
+.assembly-totals-row strong { color: #f0819f; font-size: 15px; font-weight: 800; text-align: right; }
+.assembly-totals-row.is-empty { display: none; }
 .code-hint { color: #c7c7c7; font-size: 12px; }
 .copy-button {
     appearance: none;

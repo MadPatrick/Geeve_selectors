@@ -35,11 +35,13 @@
         // voorvoegsels voor die locatie blijven gebruikt (PREFIXES_BY_POSITION).
         locationFilters: loadLocationFilters(),
         editingLocation: null,
-        // Laatst opgehaalde verkoopprijzen (Exact), per artikelcode - los
-        // bijgehouden zodat recomputeTotal() de totaalprijs opnieuw kan
-        // berekenen zodra een aantal wijzigt, zonder opnieuw te moeten
-        // fetchen (zie refreshLocationPrices()).
+        // Laatst opgehaalde verkoopprijzen + vrije voorraad (Exact), per
+        // artikelcode - los bijgehouden zodat recomputeTotal() de
+        // totaalprijs/totaal beschikbaar opnieuw kan berekenen zodra een
+        // aantal wijzigt, zonder opnieuw te moeten fetchen (zie
+        // refreshLocationPrices()).
         lastPrices: {},
+        lastStock: {},
     };
 
     const el = id => document.getElementById(id);
@@ -80,6 +82,9 @@
         aantalLoc4: el('locationAantal4'),
         aantalLoc5: el('locationAantal5'),
         assemblyTotalPrice: el('assemblyTotalPrice'),
+        assemblyTotalPriceRow: el('assemblyTotalPriceRow'),
+        assemblyTotalStock: el('assemblyTotalStock'),
+        assemblyTotalStockRow: el('assemblyTotalStockRow'),
         locationConfigButtons: [...document.querySelectorAll('.location-number[data-location]')],
         locationAddButtons: [...document.querySelectorAll('.location-add-button')],
         assemblyList: document.querySelector('.assembly-list'),
@@ -1177,7 +1182,7 @@
         const code = parts.join('-');
         ui.assemblyCode.textContent = code;
         ui.copyButton.disabled = !code;
-        ui.codeHint.textContent = 'Alleen gekozen locaties worden opgenomen; de volgorde blijft locatie 1 → 6.';
+        ui.codeHint.textContent = '';
     }
 
     function formatPrice(value) {
@@ -1261,6 +1266,10 @@
                         const n = Number(String(value).replace(',', '.'));
                         if (Number.isFinite(n)) state.lastPrices[code] = n;
                     });
+                    Object.entries(payload.stock || {}).forEach(([code, value]) => {
+                        const n = Number(String(value).replace(',', '.'));
+                        if (Number.isFinite(n)) state.lastStock[code] = n;
+                    });
                     recomputeTotal();
                 })
                 .catch(() => {});
@@ -1273,13 +1282,20 @@
     }
 
     /**
-     * Berekent de totaalprijs van de samenstelling: som van (verkoopprijs x
-     * aantal) over elk gekozen onderdeel - de vaste locaties 1-5 (locatie 6
-     * heeft geen eigen artikel/prijs meer, zie computeLocation6Code()) én
-     * elke extra, vrij toegevoegde regel. Gebruikt de laatst opgehaalde
-     * prijzen (state.lastPrices, zie refreshLocationPrices()) i.p.v. zelf
-     * opnieuw te fetchen, zodat wijzigen van een aantal direct (zonder
-     * netwerkvertraging) een nieuw totaal toont.
+     * Berekent 2 totalen voor de samenstelling, over de vaste locaties 1-5
+     * (locatie 6 heeft geen eigen artikel/prijs/voorraad meer, zie
+     * computeLocation6Code()) én elke extra, vrij toegevoegde regel:
+     * - Totaalprijs: som van (verkoopprijs x aantal).
+     * - Totaal beschikbaar: de bottleneck - het laagste van
+     *   floor(voorraad / aantal) over alle onderdelen met een bekende
+     *   voorraad, dus hoeveel complete samenstellingen er NU gemaakt
+     *   kunnen worden gegeven de huidige voorraad van het krapste
+     *   onderdeel. Onderdelen zonder bekende voorraad tellen niet mee
+     *   (blokkeren de berekening niet).
+     * Gebruikt de laatst opgehaalde prijzen/voorraad (state.lastPrices/
+     * state.lastStock, zie refreshLocationPrices()) i.p.v. zelf opnieuw te
+     * fetchen, zodat wijzigen van een aantal direct (zonder
+     * netwerkvertraging) nieuwe totalen toont.
      */
     function recomputeTotal() {
         if (!ui.assemblyTotalPrice) return;
@@ -1301,16 +1317,27 @@
         }
 
         let total = 0;
-        let hasAny = false;
+        let hasPrice = false;
+        let available = Infinity;
+        let hasStock = false;
         entries.forEach(([code, aantal]) => {
             if (!code) return;
             const price = state.lastPrices[code];
             if (typeof price === 'number' && Number.isFinite(price)) {
                 total += price * aantal;
-                hasAny = true;
+                hasPrice = true;
+            }
+            const stock = state.lastStock[code];
+            if (typeof stock === 'number' && Number.isFinite(stock)) {
+                available = Math.min(available, Math.floor(stock / aantal));
+                hasStock = true;
             }
         });
-        ui.assemblyTotalPrice.textContent = hasAny ? `Totaalprijs: ${formatPrice(total)}` : '';
+
+        ui.assemblyTotalPrice.textContent = hasPrice ? formatPrice(total) : '';
+        ui.assemblyTotalPriceRow.classList.toggle('is-empty', !hasPrice);
+        ui.assemblyTotalStock.textContent = hasStock ? String(Math.max(0, available)) : '';
+        ui.assemblyTotalStockRow.classList.toggle('is-empty', !hasStock);
     }
 
     function showWarnings(messages) {

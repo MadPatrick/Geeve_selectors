@@ -235,7 +235,14 @@ function assetVersion(string $relativePath): string
         <div>
             <span class="code-label">SAMENSTELLINGSCODE</span>
             <div id="assemblyCode" class="assembly-code">Selecteer eerst een beugel</div>
-            <div id="assemblyTotalPrice" class="assembly-total-price"></div>
+            <div class="assembly-totals">
+                <div id="assemblyTotalPriceRow" class="assembly-totals-row is-empty">
+                    <span>Totaalprijs</span><strong id="assemblyTotalPrice"></strong>
+                </div>
+                <div id="assemblyTotalStockRow" class="assembly-totals-row is-empty">
+                    <span>Totaal beschikbaar</span><strong id="assemblyTotalStock"></strong>
+                </div>
+            </div>
             <div id="codeHint" class="code-hint">Lasplaat en Dekplaat worden standaard gekozen. Borgplaat en Bout blijven optioneel. Locatie 2 gebruikt de beugelcode, bijvoorbeeld <strong>215 PP</strong> of <strong>3015 PP</strong>.</div>
         </div>
         <button id="copyButton" type="button" class="copy-button" disabled>Kopieer code</button>

@@ -130,6 +130,22 @@ van de kandidaten, dan blijft de prijs overal leeg (geen foutmelding).
 in `slangkaarten/index.php`: `StockBalances` is een mutatielog, de vrije voorraad is het laagste
 van de FreeStock-som en de Quantity-som t/m vandaag (`[Date] <= GETDATE()`), met een vloer op 0.
 
+## Totaalprijs + totaal beschikbaar
+
+Onder de samenstellingscode staan 2 getallen, `recomputeTotal()` in `assets/selector.js`:
+
+- **Totaalprijs**: som van (verkoopprijs x aantal) over alle gekozen onderdelen (locaties 1-5 +
+  extra regels).
+- **Totaal beschikbaar**: de bottleneck - het laagste van `floor(voorraad / aantal)` over alle
+  onderdelen met een bekende voorraad, dus hoeveel complete samenstellingen er NU gemaakt kunnen
+  worden gegeven de voorraad van het krapste onderdeel. Onderdelen zonder bekende voorraad tellen
+  niet mee (blokkeren de berekening niet).
+
+Beide staan in een 2-koloms grid (`.assembly-totals`, elke rij zelf `display: contents`) zodat de
+2 getallen altijd recht onder elkaar uitgelijnd staan, ongeacht de verschillende labellengtes
+("Totaalprijs" vs. "Totaal beschikbaar"). Een rij zonder bekende waarde wordt verborgen
+(`.is-empty`), niet met een streepje getoond.
+
 ## Eigen zoekfilter per locatie (locatienummer als knop, Exact live)
 
 Locaties 1, 3, 4 en 5 hebben géén apart config-tandwiel - het **locatienummer zelf** is de knop
