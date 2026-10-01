@@ -752,6 +752,10 @@ function findLeveringswijze(string $ordernummer): string
             $stmt = $pdo->prepare('SELECT TOP 1 [oms40_1] FROM [dbo].[ordlev] WHERE [levwijze] = :code');
             $stmt->execute(['code' => $code]);
             $result = trim((string) ($stmt->fetchColumn() ?: ''));
+            // "oms40_1" begint vaak met een vaste "Delivery by "-prefix
+            // (bv. "Delivery by Starintex Innight today") - die voegt
+            // niets toe op de kaart, alleen de vervoerder/dienst zelf.
+            $result = preg_replace('/^delivery\s+by\s+/i', '', $result) ?? $result;
         }
     } catch (Throwable $exception) {
         // Leveringswijze blijft leeg (geen .env, connectiefout, o.i.d.).
