@@ -27,19 +27,36 @@ function assetVersion(string $relativePath): string
 }
 
 $searchTerm = trim((string) ($_GET['zoek'] ?? 'groep'));
+$columnSearchTerm = trim((string) ($_GET['kolom'] ?? ''));
 $selectedTable = trim((string) ($_GET['tabel'] ?? ''));
 $groupValue = trim((string) ($_GET['waarde'] ?? '67'));
+$filterColumn = trim((string) ($_GET['filterkolom'] ?? ''));
+$filterValue = trim((string) ($_GET['filterwaarde'] ?? ''));
 
 $errorMessage = null;
 $connectionOk = false;
 $tables = [];
+$columnMatches = [];
 $columns = [];
 $previewRows = [];
 $groupRows = null;
+$filterRows = null;
 
 try {
     $pdo = getPdoConnection();
     $connectionOk = true;
+
+    if ($columnSearchTerm !== '') {
+        // Zoekt (anders dan de tabelnaam-zoekopdracht hieronder) over ALLE
+        // tabellen heen naar een kolomnaam - handig als je wel weet hoe het
+        // veld heet (bv. "levwijze") maar niet in welke tabel het staat.
+        $colSearchStmt = $pdo->prepare(
+            "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS " .
+            "WHERE COLUMN_NAME LIKE :pattern ORDER BY TABLE_NAME, ORDINAL_POSITION"
+        );
+        $colSearchStmt->execute(['pattern' => '%' . $columnSearchTerm . '%']);
+        $columnMatches = $colSearchStmt->fetchAll();
+    }
 
     $stmt = $pdo->prepare(
         "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES " .
@@ -87,6 +104,21 @@ try {
                     } catch (PDOException $exception) {
                         continue;
                     }
+                }
+            }
+
+            // Expliciet kolom+waarde-filter (bv. "ordernr" = 36019177) - i.p.v.
+            // het automatisch geraden groep-filter hierboven, voor het
+            // opzoeken van een specifieke rij/order om te zien wat erin staat.
+            if ($filterColumn !== '' && $filterValue !== '' && in_array($filterColumn, array_column($columns, 'COLUMN_NAME'), true)) {
+                try {
+                    $filterStmt = $pdo->prepare(
+                        "SELECT TOP 20 * FROM [dbo].[{$selectedTable}] WHERE [{$filterColumn}] = :value"
+                    );
+                    $filterStmt->execute(['value' => $filterValue]);
+                    $filterRows = $filterStmt->fetchAll();
+                } catch (PDOException $exception) {
+                    $filterRows = [];
                 }
             }
         }
@@ -145,14 +177,50 @@ try {
                 <input type="text" name="zoek" value="<?= h($searchTerm) ?>" placeholder="bijv. groep">
             </label>
             <label class="field">
+                <span>Zoek kolomnaam (bevat, over alle tabellen)</span>
+                <input type="text" name="kolom" value="<?= h($columnSearchTerm) ?>" placeholder="bijv. levwijze">
+            </label>
+            <label class="field">
                 <span>Groepswaarde</span>
                 <input type="text" name="waarde" value="<?= h($groupValue) ?>" placeholder="67">
+            </label>
+            <label class="field">
+                <span>Filter kolomnaam (exact, binnen geselecteerde tabel)</span>
+                <input type="text" name="filterkolom" value="<?= h($filterColumn) ?>" placeholder="bijv. ordernr">
+            </label>
+            <label class="field">
+                <span>Filter waarde</span>
+                <input type="text" name="filterwaarde" value="<?= h($filterValue) ?>" placeholder="bijv. 36019177">
             </label>
             <?php if ($selectedTable !== ''): ?>
                 <input type="hidden" name="tabel" value="<?= h($selectedTable) ?>">
             <?php endif; ?>
             <button type="submit" class="submit-button">Zoeken</button>
         </form>
+
+        <?php if ($columnSearchTerm !== ''): ?>
+            <?php if ($columnMatches === [] && $errorMessage === null): ?>
+                <p style="margin-top:16px">Geen kolommen gevonden met "<?= h($columnSearchTerm) ?>" in de naam.</p>
+            <?php else: ?>
+                <p style="margin-top:16px"><?= count($columnMatches) ?> kolom(men) gevonden met "<?= h($columnSearchTerm) ?>" in de naam:</p>
+                <table class="db-test-table">
+                    <thead><tr><th>Tabel</th><th>Kolomnaam</th><th>Type</th></tr></thead>
+                    <tbody>
+                        <?php foreach ($columnMatches as $match): ?>
+                            <tr>
+                                <td>
+                                    <a href="?<?= h(http_build_query(['zoek' => $searchTerm, 'kolom' => $columnSearchTerm, 'waarde' => $groupValue, 'filterkolom' => $filterColumn, 'filterwaarde' => $filterValue, 'tabel' => $match['TABLE_NAME']])) ?>">
+                                        <?= h((string) $match['TABLE_NAME']) ?>
+                                    </a>
+                                </td>
+                                <td><?= h((string) $match['COLUMN_NAME']) ?></td>
+                                <td><?= h((string) $match['DATA_TYPE']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        <?php endif; ?>
 
         <?php if ($tables === [] && $errorMessage === null): ?>
             <p style="margin-top:16px">Geen tabellen gevonden met "<?= h($searchTerm) ?>" in de naam.</p>
@@ -161,7 +229,7 @@ try {
             <ul class="db-test-table-list">
                 <?php foreach ($tables as $tableName): ?>
                     <li>
-                        <a href="?<?= h(http_build_query(['zoek' => $searchTerm, 'waarde' => $groupValue, 'tabel' => $tableName])) ?>">
+                        <a href="?<?= h(http_build_query(['zoek' => $searchTerm, 'kolom' => $columnSearchTerm, 'waarde' => $groupValue, 'filterkolom' => $filterColumn, 'filterwaarde' => $filterValue, 'tabel' => $tableName])) ?>">
                             <?= h($tableName) ?>
                         </a>
                         <?= $tableName === $selectedTable ? ' &larr; geselecteerd' : '' ?>
@@ -206,6 +274,28 @@ try {
                 Bekijk de kolommenlijst hierboven en zoek zelf de juiste kolom - pas dan de query in
                 <code>db-test.php</code> aan, of geef door welke kolom het moet zijn.
             </section>
+        <?php endif; ?>
+
+        <?php if ($filterRows !== null): ?>
+            <?php if ($filterRows !== []): ?>
+                <section class="panel">
+                    <h2>Resultaat: [<?= h($filterColumn) ?>] = <?= h($filterValue) ?> (max. 20 rijen)</h2>
+                    <div class="db-test-scroll">
+                        <table class="db-test-table">
+                            <thead><tr><?php foreach (array_keys($filterRows[0]) as $col): ?><th><?= h((string) $col) ?></th><?php endforeach; ?></tr></thead>
+                            <tbody>
+                                <?php foreach ($filterRows as $row): ?>
+                                    <tr><?php foreach ($row as $value): ?><td><?= h((string) ($value ?? '')) ?></td><?php endforeach; ?></tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            <?php else: ?>
+                <section class="warning-box">
+                    Geen rijen gevonden in "<?= h($selectedTable) ?>" met [<?= h($filterColumn) ?>] = "<?= h($filterValue) ?>".
+                </section>
+            <?php endif; ?>
         <?php endif; ?>
 
         <?php if ($previewRows !== []): ?>
