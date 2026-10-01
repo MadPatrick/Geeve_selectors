@@ -724,9 +724,11 @@ function findArtikelExactDataBatch(array $artikelen): array
  * 2 stappen, beide bevestigd (via /stauff/db-test.php's kolomnaam-
  * zoekoptie): "ordlev" bleek zelf GEEN ordernummer te bevatten - het is
  * een vertaaltabel van levwijze-code naar omschrijving (kolom
- * "levwijze" = code, "oms40_1" = omschrijving zoals op de kaart). De
- * code per order staat in de orderkop-tabel "orhkrg" (kolom "ordernr"
- * voor het ordernummer, "levwijze" voor dezelfde code).
+ * "levwijze" = code, "oms40_0" = omschrijving zoals op de kaart). De
+ * code per order staat in "orkrg" (kolom "ordernr" voor het ordernummer,
+ * "levwijze" voor dezelfde code) - deze tabel heeft de code al vanaf het
+ * aanmaken van de order (i.t.t. "orhkrg", dat pas een rij krijgt zodra er
+ * een pakbon is, en dus leeg blijft voor nog niet geleverde orders).
  */
 function findLeveringswijze(string $ordernummer): string
 {
@@ -744,15 +746,15 @@ function findLeveringswijze(string $ordernummer): string
     try {
         $pdo = getExactPdoConnection();
 
-        $stmt = $pdo->prepare('SELECT TOP 1 [levwijze] FROM [dbo].[orhkrg] WHERE [ordernr] = :value');
+        $stmt = $pdo->prepare('SELECT TOP 1 [levwijze] FROM [dbo].[orkrg] WHERE [ordernr] = :value');
         $stmt->execute(['value' => $ordernummer]);
         $code = trim((string) ($stmt->fetchColumn() ?: ''));
 
         if ($code !== '') {
-            $stmt = $pdo->prepare('SELECT TOP 1 [oms40_1] FROM [dbo].[ordlev] WHERE [levwijze] = :code');
+            $stmt = $pdo->prepare('SELECT TOP 1 [oms40_0] FROM [dbo].[ordlev] WHERE [levwijze] = :code');
             $stmt->execute(['code' => $code]);
             $result = trim((string) ($stmt->fetchColumn() ?: ''));
-            // "oms40_1" begint vaak met een vaste "Delivery by "-prefix
+            // "oms40_0" begint soms met een vaste "Delivery by "-prefix
             // (bv. "Delivery by Starintex Innight today") - die voegt
             // niets toe op de kaart, alleen de vervoerder/dienst zelf.
             $result = preg_replace('/^delivery\s+by\s+/i', '', $result) ?? $result;

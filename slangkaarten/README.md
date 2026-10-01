@@ -129,13 +129,15 @@ De kaart toont een "Verzendwijze"-regel (de Leveringswijze die in Exact op de or
 via `findLeveringswijze()` in `index.php` in 2 stappen (beide bevestigd via `/stauff/db-test.php`'s
 kolomnaam-zoekoptie, `?kolom=levwijze`):
 
-1. De orderkop-tabel `orhkrg` (kolom `ordernr` voor het ordernummer) geeft de `levwijze`-code van die
-   order (bijv. "001").
+1. De tabel `orkrg` (kolom `ordernr` voor het ordernummer) geeft de `levwijze`-code van die order
+   (bijv. "001") - deze tabel heeft de code al vanaf het aanmaken van de order. (`orhkrg`, de eerst
+   geprobeerde kandidaat, bleek pas een rij te krijgen zodra er een pakbon is, en bleef dus leeg voor
+   nog niet geleverde orders.)
 2. Die code wordt opgezocht in `ordlev` (ook kolom `levwijze`) - **niet** een ordertabel, maar een
    vertaaltabel van code naar omschrijving; de kolom die overeenkomt met de tekst op de kaart is
-   `oms40_1` (niet `oms40_0`, dat is een langere/formelere variant).
+   `oms40_0`.
 
-Is de order niet gevonden in `orhkrg`, of de code niet in `ordlev`, dan toont de kaart een streepje
+Is de order niet gevonden in `orkrg`, of de code niet in `ordlev`, dan toont de kaart een streepje
 (geen foutmelding, zelfde gedrag als Locatie/Voorraad hierboven bij een missende koppeling).
 
 ## Zoekfilter slangnummer: alleen artikelgroep 0 (Exact, database 005)
