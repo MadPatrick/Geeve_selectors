@@ -123,21 +123,20 @@ gebruikt voor artikelgroep 67, dus 1x instellen voor beide subapps. Zonder ingev
 (of bij een connectiefout) toont de Locatie-kolom gewoon een streepje - de rest van de
 app/picklijst blijft normaal werken.
 
-## Verzendwijze (Exact, database 005) - tabel/kolom deels geverifieerd
+## Verzendwijze (Exact, database 005) - volledig geverifieerd
 
-De kaart toont een "Verzendwijze"-regel (de Leveringswijze die in Exact op de order staat, opgezocht
-via het ordernummer). Tabel en kolom voor de waarde zelf zijn bevestigd: `ordlev`, kolom `oms40_0`
-(zie `LEVERINGSWIJZE_TABLE_CANDIDATES`/`LEVERINGSWIJZE_COLUMN_CANDIDATES` in `index.php`, beide
-staan vooraan in hun kandidatenlijst). De kolom om in `ordlev` op ordernummer te filteren
-(`LEVERINGSWIJZE_ORDERNR_COLUMN_CANDIDATES`) is nog **niet** bevestigd - dat is nog een educated
-guess. Klopt geen van die kandidaten, dan toont de kaart gewoon een streepje (geen foutmelding,
-zelfde gedrag als Locatie/Voorraad hierboven bij een missende koppeling).
+De kaart toont een "Verzendwijze"-regel (de Leveringswijze die in Exact op de order staat), opgezocht
+via `findLeveringswijze()` in `index.php` in 2 stappen (beide bevestigd via `/stauff/db-test.php`'s
+kolomnaam-zoekoptie, `?kolom=levwijze`):
 
-Om ook dit laatste stukje te bevestigen: gebruik `/stauff/db-test.php` (verbindt met dezelfde
-database "005") om de tabel `ordlev` te bekijken en de kolom te vinden die het ordernummer bevat, en
-zet de bevestigde naam vooraan in `LEVERINGSWIJZE_ORDERNR_COLUMN_CANDIDATES` in `index.php` - zelfde
-werkwijze als eerder gebruikt voor het schema van "2500 Slangkaarten bij order" (zie de
-"Update N"-aantekeningen bovenaan `inc/queries.php`).
+1. De orderkop-tabel `orhkrg` (kolom `ordernr` voor het ordernummer) geeft de `levwijze`-code van die
+   order (bijv. "001").
+2. Die code wordt opgezocht in `ordlev` (ook kolom `levwijze`) - **niet** een ordertabel, maar een
+   vertaaltabel van code naar omschrijving; de kolom die overeenkomt met de tekst op de kaart is
+   `oms40_1` (niet `oms40_0`, dat is een langere/formelere variant).
+
+Is de order niet gevonden in `orhkrg`, of de code niet in `ordlev`, dan toont de kaart een streepje
+(geen foutmelding, zelfde gedrag als Locatie/Voorraad hierboven bij een missende koppeling).
 
 ## Zoekfilter slangnummer: alleen artikelgroep 0 (Exact, database 005)
 

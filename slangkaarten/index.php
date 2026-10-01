@@ -721,20 +721,13 @@ function findArtikelExactDataBatch(array $artikelen): array
  * bij order" (bevestigd via de volledige INFORMATION_SCHEMA-dump bovenaan
  * queries.php) - het is een eigenschap van de order zelf in Exact.
  *
- * Tabel/kolom voor de waarde zelf zijn bevestigd: "ordlev", "oms40_0".
- * De kolom om op ordernummer te filteren in die tabel is nog NIET
- * bevestigd (LEVERINGSWIJZE_ORDERNR_COLUMN_CANDIDATES hieronder is nog
- * een educated guess) - kloppen die niet (Verzendwijze blijft dan gewoon
- * "-" op de kaart, geen foutmelding), zoek dan de echte kolomnaam op via
- * /stauff/db-test.php (tabelnaam "ordlev") en zet 'm vooraan in die lijst.
+ * 2 stappen, beide bevestigd (via /stauff/db-test.php's kolomnaam-
+ * zoekoptie): "ordlev" bleek zelf GEEN ordernummer te bevatten - het is
+ * een vertaaltabel van levwijze-code naar omschrijving (kolom
+ * "levwijze" = code, "oms40_1" = omschrijving zoals op de kaart). De
+ * code per order staat in de orderkop-tabel "orhkrg" (kolom "ordernr"
+ * voor het ordernummer, "levwijze" voor dezelfde code).
  */
-const LEVERINGSWIJZE_TABLE_CANDIDATES = ['ordlev', 'GRV_SalesOrders', 'GRV_SalesOrder', 'GRV_Orders', 'SalesOrder', 'Orders'];
-const LEVERINGSWIJZE_ORDERNR_COLUMN_CANDIDATES = ['OrderNumber', 'Order number', 'Ordernummer', 'OrderNr', 'Order nr'];
-const LEVERINGSWIJZE_COLUMN_CANDIDATES = [
-    'oms40_0', 'Leveringswijze', 'Verzendwijze', 'Wijze van verzenden', 'Aflevermethode',
-    'Delivery method', 'DeliveryMethod', 'Shipping method', 'ShippingMethod',
-];
-
 function findLeveringswijze(string $ordernummer): string
 {
     static $cache = [];
@@ -751,37 +744,14 @@ function findLeveringswijze(string $ordernummer): string
     try {
         $pdo = getExactPdoConnection();
 
-        foreach (LEVERINGSWIJZE_TABLE_CANDIDATES as $table) {
-            $row = null;
-            foreach (LEVERINGSWIJZE_ORDERNR_COLUMN_CANDIDATES as $orderColumn) {
-                try {
-                    $stmt = $pdo->prepare("SELECT TOP 1 * FROM [dbo].[{$table}] WHERE [{$orderColumn}] = :value");
-                    $stmt->execute(['value' => $ordernummer]);
-                    $fetched = $stmt->fetch();
-                } catch (PDOException $exception) {
-                    continue;
-                }
-                if ($fetched !== false) {
-                    $row = $fetched;
-                    break;
-                }
-            }
-            if ($row === null) {
-                continue;
-            }
+        $stmt = $pdo->prepare('SELECT TOP 1 [levwijze] FROM [dbo].[orhkrg] WHERE [ordernr] = :value');
+        $stmt->execute(['value' => $ordernummer]);
+        $code = trim((string) ($stmt->fetchColumn() ?: ''));
 
-            foreach (LEVERINGSWIJZE_COLUMN_CANDIDATES as $wantedColumn) {
-                foreach ($row as $column => $value) {
-                    if (strcasecmp((string) $column, $wantedColumn) === 0) {
-                        $text = trim((string) $value);
-                        if ($text !== '') {
-                            $result = $text;
-                        }
-                        break 3;
-                    }
-                }
-            }
-            break;
+        if ($code !== '') {
+            $stmt = $pdo->prepare('SELECT TOP 1 [oms40_1] FROM [dbo].[ordlev] WHERE [levwijze] = :code');
+            $stmt->execute(['code' => $code]);
+            $result = trim((string) ($stmt->fetchColumn() ?: ''));
         }
     } catch (Throwable $exception) {
         // Leveringswijze blijft leeg (geen .env, connectiefout, o.i.d.).
