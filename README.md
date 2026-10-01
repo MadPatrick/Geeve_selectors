@@ -109,3 +109,27 @@ laadt dit via `is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/
 `return '...'` in `version.php` aan. `/stauff` is qua opmaak omgezet naar deze gedeelde
 brand-panel/paneel-stijl; de selectielogica in `assets/selector.js` en `api/stauff.php` bleef
 daarbij ongewijzigd.
+
+## `hoses/data/` lokaal op de server beschermen tegen `git pull`
+
+De CSV's in `hoses/data/` (`artikelnummers_staal.csv`, `artikelnummers_rvs.csv`,
+`artikelnummers_accessoires.csv`) worden op de productieserver soms rechtstreeks bewerkt
+(bijgewerkte artikelnummers/materialen), los van wat er in de repo staat. Een gewone `git pull` zou
+die lokale aanpassingen zonder waarschuwing overschrijven zodra de bestanden ook in de repo
+wijzigen.
+
+Oplossing: `git update-index --skip-worktree` - dit is **lokaal aan de checkout** (staat niet in
+een commit, wordt niet meegenomen door `git pull`/`push`/clone), dus dit moet 1x uitgevoerd worden
+op de machine waar de portal daadwerkelijk draait/gepulld wordt, niet in een losse ontwikkel-
+checkout. Git blijft de bestanden gewoon tracken, maar negeert voortaan lokale wijzigingen eraan
+bij `checkout`/`pull`/`merge`:
+
+```bash
+git update-index --skip-worktree hoses/data/artikelnummers_accessoires.csv
+git update-index --skip-worktree hoses/data/artikelnummers_rvs.csv
+git update-index --skip-worktree hoses/data/artikelnummers_staal.csv
+```
+
+Terugdraaien (bijv. om een keer bewust wél de reponversie te pullen): zelfde commando's met
+`--no-skip-worktree` i.p.v. `--skip-worktree`. Controleren welke bestanden momenteel op
+skip-worktree staan: `git ls-files -v | grep '^S'`.
