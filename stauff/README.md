@@ -48,7 +48,7 @@ elk voorvoegsel wijst 100% betrouwbaar naar precies 1 Onderdeel, geen kruisbesme
 |---|---|---|
 | `SP`, `SPAL`, `SPV` | 1 | Lasplaat |
 | `WSP` | 1 | Lasplaat (hoek) |
-| `GMV` | 1 | Glijmoer |
+| `GMV`, `SM` | 1 | Glijmoer |
 | `DP`, `DPAL`, `DPAS`, `GD`, `DPAD` | 4 | Dekplaat |
 | `SI`, `SIP`, `SIG` | 3 | Borgplaat |
 | `AF` | 5 | Stapelbout |
@@ -64,19 +64,38 @@ die client-side verder verfijnd wordt).
 ## Bouwgroep + Enkel/Dubbel (`tagMatches()`, één mechanisme)
 
 Er is geen apart Enkel/Dubbel-veld meer. De GRx/GRxD-tag uit de Exact-omschrijving
-(`extractGroupTag()`, regex `/\bGR\d[A-Za-z0-9]*\b/`) definieert **beide tegelijk**: een
-kandidaat-artikel telt alleen mee als zijn eigen tag EXACT gelijk is aan die van de gekozen
-beugel (`state.beugelGroup`), inclusief de `D`-suffix - een Dubbel-beugel (tag eindigt op `D`)
-toont dus alleen kandidaten wier eigen omschrijving dezelfde `D`-tag draagt, een Enkel-beugel
-alleen kandidaten zonder `D`.
+(`extractGroupTag()`, regex `/\bGR\d[A-Za-z0-9\/-]*\b/`) definieert **beide tegelijk**: een
+kandidaat-artikel telt alleen mee als zijn eigen tag de bouwgroep van de gekozen beugel
+(`state.beugelGroup`) dekt, inclusief de `D`-suffix - een Dubbel-beugel (tag eindigt op `D`) toont
+dus alleen kandidaten wier eigen omschrijving dezelfde `D`-tag draagt, een Enkel-beugel alleen
+kandidaten zonder `D`.
+
+Voor de meeste Onderdeel-types is dat een exacte 1-op-1 match (1 artikel = 1 bouwgroep), maar
+glijmoer-artikelen (`SM`/`GMV`) kunnen met 1 artikel meerdere bouwgroepen dekken via een
+range-tag in de omschrijving, bijv.:
+
+- `SM 1`: `GR1-8/1D` -> dekt `GR1` t/m `GR8` **en** `GR1D` (talrange zonder letter-suffix, plus
+  een losse extra tag na de `/`).
+- `GMV 3`: `GR3-5S` -> dekt `GR3S`, `GR4S`, `GR5S` (talrange MET letter-suffix, geldt voor elk
+  nummer in de range).
+
+`parseGroupTags()` breidt zo'n range-tag uit naar de losse GRx-waarden die hij dekt (een gewone,
+niet-range tag levert gewoon zichzelf als enige resultaat op); `tagMatches()` slaagt zodra de
+beugel-tag ergens in die uitbreiding voorkomt:
 
 ```js
 function tagMatches(candidateTag, clampTag) {
-    const a = upper(candidateTag);
     const b = upper(clampTag);
-    return !!a && !!b && a === b;
+    if (!b) return false;
+    return parseGroupTags(candidateTag).includes(b);
 }
 ```
+
+Omdat de SQL-query in `api/exact_location_search.php` normaal gesproken alleen rijen teruggeeft
+wier omschrijving de gevraagde tag **letterlijk** bevat (zie hieronder) - wat bij een range-
+omschrijving als `GR1-8/1D` nooit het geval is voor een losse tag als `GR3` - laat die query voor
+de voorvoegsels `SM`/`GMV` ook elke `GRx-y`-range-omschrijving door; de daadwerkelijke (uitgebreide)
+match gebeurt alsnog hier, client-side.
 
 `isDubbelBeugel()`/`isDubbelArtikelcode()` blijven ongewijzigd bestaan voor de twee
 ongerelateerde features (standaard-aantal bij Bout, vorm-afbeelding-keuze) - dat is geen

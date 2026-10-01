@@ -55,12 +55,20 @@ function escapeLikeLiteral(string $value): string
     return str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], $value);
 }
 
-/** Haalt de eerste "GRx"-bouwgroepaanduiding uit een Exact-omschrijving. */
+/**
+ * Haalt de eerste "GRx"-bouwgroepaanduiding uit een Exact-omschrijving - dit
+ * kan ook een range-tag zijn (bv. "GR1-8/1D", "GR3-5S") bij glijmoer-
+ * artikelen (SM/GMV), die met 1 artikel meerdere bouwgroepen dekken. De
+ * expansie van zo'n range-tag naar de losse GRx-waarden die 'm dekken
+ * gebeurt client-side (parseGroupTags() in assets/selector.js) - hier wordt
+ * alleen de rauwe tag-tekst teruggegeven.
+ */
 function extractGroupTag(string $description): string
 {
     // \d direct na "GR" is bewust verplicht - anders matcht dit ook gewone
-    // woorden die met "gr" beginnen (GROEP, GRIJS, GROOT, ...).
-    return preg_match('/\bGR\d[A-Za-z0-9]*\b/', $description, $matches) === 1 ? $matches[0] : '';
+    // woorden die met "gr" beginnen (GROEP, GRIJS, GROOT, ...). "-" en "/"
+    // horen bij de class voor de range-notatie hierboven.
+    return preg_match('/\bGR\d[A-Za-z0-9\/-]*\b/', $description, $matches) === 1 ? $matches[0] : '';
 }
 
 $prefixesParam = trim((string) ($_GET['prefixes'] ?? ''));
@@ -127,9 +135,22 @@ if ($materials !== []) {
 
 if ($group !== '') {
     $groupTag = escapeLikeLiteral($group);
-    $sql .= ' AND ([Item Description] LIKE :groupMid OR [Item Description] LIKE :groupEnd)';
+    $conditions = ['[Item Description] LIKE :groupMid', '[Item Description] LIKE :groupEnd'];
     $params['groupMid'] = '%' . $groupTag . ' %';
     $params['groupEnd'] = '%' . $groupTag;
+
+    // Glijmoer-artikelen (SM/GMV) dekken soms meerdere bouwgroepen met 1
+    // range-tag (bv. "GR1-8/1D", "GR3-5S") - de exacte match hierboven mist
+    // die rijen altijd, want de omschrijving bevat de gevraagde tag nooit
+    // letterlijk. Laat voor deze 2 voorvoegsels daarom ook elke "GRx-y"-
+    // range-omschrijving door; de echte (uitgebreide) match gebeurt
+    // client-side in tagMatches()/parseGroupTags(), dit is alleen om te
+    // voorkomen dat de SQL-query ze al op voorhand wegfiltert.
+    if (array_intersect(['SM', 'GMV'], $prefixes) !== []) {
+        $conditions[] = "[Item Description] LIKE '%GR[0-9]%-%'";
+    }
+
+    $sql .= ' AND (' . implode(' OR ', $conditions) . ')';
 }
 
 $sql .= ' ORDER BY ItemCode';

@@ -94,16 +94,53 @@
     const escapeHtml = value => norm(value).replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
     }[c]));
-    // Haalt de bouwgroep-tag (bijv. "GR10") uit een Exact-omschrijving -
-    // zelfde patroon als extractGroupTag() in api/exact_location_search.php.
-    // Komt altijd uit de omschrijving die de live Exact-zoekopdracht al
-    // teruggeeft, nooit uit de CSV.
+    // Haalt de bouwgroep-tag (bijv. "GR10", of een range-tag als "GR1-8/1D")
+    // uit een Exact-omschrijving - zelfde patroon als extractGroupTag() in
+    // api/exact_location_search.php. Komt altijd uit de omschrijving die de
+    // live Exact-zoekopdracht al teruggeeft, nooit uit de CSV.
     // \d direct na "GR" is bewust verplicht - anders matcht dit ook gewone
-    // woorden die met "gr" beginnen (GROEP, GRIJS, GROOT, ...).
+    // woorden die met "gr" beginnen (GROEP, GRIJS, GROOT, ...). "-" en "/"
+    // horen bij de class, voor glijmoer-artikelen (SM/GMV) wier omschrijving
+    // meerdere bouwgroepen in 1 tag dekt (zie parseGroupTags() hieronder) -
+    // bv. "GR1-8/1D" (Glijmoer SM 1) of "GR3-5S" (Glijmoer GMV 3).
     const extractGroupTag = description => {
-        const match = norm(description).match(/\bGR\d[A-Za-z0-9]*\b/);
+        const match = norm(description).match(/\bGR\d[A-Za-z0-9/-]*\b/);
         return match ? match[0] : '';
     };
+
+    /**
+     * Breidt een (mogelijk range-)bouwgroep-tag uit naar de losse GRx-tags
+     * die hij dekt - nodig voor glijmoer-artikelen (SM/GMV), die met 1
+     * artikel meerdere bouwgroepen bedienen i.p.v. 1 tag per artikel zoals
+     * de rest (zie tagMatches() hieronder). Patronen (bevestigd door de
+     * klant aan de hand van 2 echte voorbeelden):
+     *   - "GR1-8/1D" -> GR1..GR8 (talrange, hier zonder letter-suffix) +
+     *     GR1D (het stuk na de "/" is een eigen, losse tag - "1D" wordt
+     *     "GR1D", geen GR-prefix nodig in de omschrijving zelf).
+     *   - "GR3-5S" -> GR3S, GR4S, GR5S (talrange MET letter-suffix "S" -
+     *     die suffix geldt dan voor elk nummer in de range).
+     * Een gewone, niet-range tag ("GR10") levert gewoon zichzelf als enige
+     * resultaat op - dit vervangt dus geen bestaand gedrag, het breidt het
+     * alleen uit voor de nieuwe range-notatie.
+     */
+    function parseGroupTags(rawTag) {
+        const tag = upper(rawTag).replace(/^GR/, '');
+        if (!tag) return [];
+
+        return tag.split('/').flatMap(segment => {
+            const rangeMatch = segment.match(/^(\d+)-(\d+)([A-Za-z]*)$/);
+            if (!rangeMatch) return [`GR${segment}`];
+
+            const start = Number(rangeMatch[1]);
+            const end = Number(rangeMatch[2]);
+            const suffix = rangeMatch[3] || '';
+            const tags = [];
+            for (let i = start; i <= end; i++) {
+                tags.push(`GR${i}${suffix}`);
+            }
+            return tags;
+        });
+    }
 
 
     function setCompactWidth(element, text, minCh, extraCh, maxCh) {
@@ -166,6 +203,7 @@
         { prefix: 'SPV', position: 1, onderdeel: 'Lasplaat' },
         { prefix: 'WSP', position: 1, onderdeel: 'Lasplaat (hoek)' },
         { prefix: 'GMV', position: 1, onderdeel: 'Glijmoer' },
+        { prefix: 'SM', position: 1, onderdeel: 'Glijmoer' },
         { prefix: 'DP', position: 4, onderdeel: 'Dekplaat' },
         { prefix: 'DPAL', position: 4, onderdeel: 'Dekplaat' },
         { prefix: 'DPAS', position: 4, onderdeel: 'Dekplaat' },
@@ -230,14 +268,18 @@
     /**
      * Eén mechanisme voor zowel bouwgroep- als enkel/dubbel-matching: een
      * kandidaat-artikel telt alleen mee als zijn eigen GRx/GRxD-tag (uit de
-     * Exact-omschrijving, zie extractGroupTag()) EXACT gelijk is aan die van
-     * de gekozen beugel - inclusief de "D". Geen apart enkel/dubbel-veld en
-     * geen D-strippen meer: de D is het onderscheidende signaal, niet ruis.
+     * Exact-omschrijving, zie extractGroupTag()) de bouwgroep van de gekozen
+     * beugel dekt - inclusief de "D". Voor de meeste Onderdeel-types is dat
+     * een exacte 1-op-1 match; glijmoer-artikelen (SM/GMV) kunnen met 1
+     * artikel meerdere bouwgroepen dekken via een range-tag (bv. "GR1-8/1D")
+     * - parseGroupTags() breidt die uit, en de match slaagt zodra de
+     * beugel-tag ergens in die uitbreiding voorkomt. Geen apart enkel/
+     * dubbel-veld en geen D-strippen: de D is het onderscheidende signaal.
      */
     function tagMatches(candidateTag, clampTag) {
-        const a = upper(candidateTag);
         const b = upper(clampTag);
-        return !!a && !!b && a === b;
+        if (!b) return false;
+        return parseGroupTags(candidateTag).includes(b);
     }
 
     // Leid de image-map af van de URL van selector.js zelf. Dit blijft correct
@@ -716,7 +758,7 @@
                     if (prefix === 'SPV') return 1;
                     if (prefix === 'WSP') return 2;
                     if (prefix === 'SPAL') return 3;
-                    if (prefix === 'GMV') return 9;
+                    if (prefix === 'GMV' || prefix === 'SM') return 9;
                     return 8;
                 };
                 items = [...items].sort((a, b) =>
