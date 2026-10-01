@@ -788,12 +788,23 @@
         }
 
         if (numPos === 1 || numPos === 4) {
+            // Locatie 1 (Lasplaat/Glijmoer) en 4 (Dekplaat) hebben elk hun
+            // eigen standaard-materiaalvoorkeur: locatie 1 default naar W3
+            // bij Staal / W5 bij RVS, locatie 4 blijft W2 bij Staal / W5 bij
+            // RVS (ongewijzigd). Alleen de EERSTE (rank 0) bepaalt de
+            // standaardselectie hieronder; de rest is tiebreak-volgorde.
             const materialRank = item => {
                 const mc = materialCodeFromItemCode(item.code);
                 if (family === 'Staal') {
-                    if (mc === 'W2') return 0;
-                    if (mc === 'W1') return 1;
-                    if (mc === 'W3') return 2;
+                    if (numPos === 1) {
+                        if (mc === 'W3') return 0;
+                        if (mc === 'W1') return 1;
+                        if (mc === 'W2') return 2;
+                    } else {
+                        if (mc === 'W2') return 0;
+                        if (mc === 'W1') return 1;
+                        if (mc === 'W3') return 2;
+                    }
                 } else if (family === 'RVS') {
                     if (mc === 'W5') return 0;
                     if (mc === 'W4') return 1;
@@ -848,7 +859,10 @@
         } else if ((numPos === 1 || numPos === 4) && items.length) {
             // Standaardselecties: locatie 1 Lasplaat en locatie 4 Dekplaat.
             select.value = items[0].code;
-        } else if (items.length === 1) {
+        } else if (numPos !== 3 && items.length === 1) {
+            // Locatie 3 (Borgplaat) staat bewust standaard op "geen keuze",
+            // ook als er maar 1 passend artikel is - optioneel onderdeel,
+            // de gebruiker kiest 'm pas als 'ie 'm echt nodig heeft.
             select.value = items[0].code;
         }
 

@@ -218,8 +218,12 @@ familiefilter - niet meer voor een eigen locatie-6-select (zie "Locatie 6" hiero
 **Automatische selectie:** locatie 1 en 4 selecteren altijd het eerste resultaat van hun vaste
 rangorde (locatie 1 ook op type, beide op materiaalcode-voorkeur binnen de gekozen familie -
 zonder vooraf gekozen exacte code is dit nu de enige manier om standaard 1 sensible optie te
-tonen); locatie 3 en 5 selecteren zichzelf alleen als er, na filtering, maar 1 artikel overblijft.
-Zie `renderLiveCandidates()` in `assets/selector.js`.
+tonen). De materiaalcode-voorkeur verschilt bewust per locatie: locatie 1 default naar **W3**
+(Staal) / **W5** (RVS), locatie 4 naar **W2** (Staal) / **W5** (RVS) - zie `materialRank()` in
+`renderLiveCandidates()`. Locatie 5 selecteert zichzelf alleen als er, na filtering, maar 1
+artikel overblijft; **locatie 3 (Borgplaat) nooit automatisch** - bewust altijd "geen keuze" als
+start, ook bij maar 1 passend artikel, omdat het een optioneel onderdeel is. Zie
+`renderLiveCandidates()` in `assets/selector.js`.
 
 ## Locatie 6 (automatisch, geen eigen select meer)
 
