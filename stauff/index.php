@@ -209,10 +209,8 @@ function assetVersion(string $relativePath): string
                     <span class="location-image-placeholder">&mdash;</span>
                 </div>
                 <div class="location-content">
-                    <div class="location-title"><strong>Materiaal</strong><span>Optioneel &middot; W-code bevestigingsdelen</span></div>
-                    <input type="number" id="locationAantal6" class="location-aantal" min="1" value="1" aria-label="Aantal Materiaal">
-                    <select id="location6Select" disabled><option value="">Kies eerst een beugel</option></select>
-                    <span id="locationPrice6" class="location-price"></span>
+                    <div class="location-title"><strong>Materiaal</strong><span>Automatisch bepaald uit de W-codes van locatie 1, 3, 4 en 5</span></div>
+                    <div id="location6Value" class="fixed-value">&mdash;</div>
                 </div>
             </article>
         </div>
@@ -241,7 +239,7 @@ function assetVersion(string $relativePath): string
             <input id="locationFilterInput" type="text" placeholder="bijv. SP;SPAL;SPV">
         </label>
         <small>Zoekt live in Exact (artikelgroep 67) naar artikelen die met 1 van deze voorvoegsels
-            beginnen, gecombineerd met de gekozen materiaalcode (locatie 6). Leeg = de
+            beginnen, gecombineerd met de gekozen materiaalsoort (Staal/RVS). Leeg = de
             standaard live Exact-voorvoegsels voor deze locatie blijven gebruikt.</small>
         <div class="modal-actions">
             <button type="button" id="locationFilterClear" class="link-button">Wissen</button>

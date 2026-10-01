@@ -54,7 +54,7 @@
         loc3: el('location3Select'),
         loc4: el('location4Select'),
         loc5: el('location5Select'),
-        loc6: el('location6Select'),
+        loc6: el('location6Value'),
         assemblyCode: el('assemblyCode'),
         copyButton: el('copyButton'),
         codeHint: el('codeHint'),
@@ -69,13 +69,11 @@
         priceLoc3: el('locationPrice3'),
         priceLoc4: el('locationPrice4'),
         priceLoc5: el('locationPrice5'),
-        priceLoc6: el('locationPrice6'),
         aantalLoc1: el('locationAantal1'),
         aantalLoc2: el('locationAantal2'),
         aantalLoc3: el('locationAantal3'),
         aantalLoc4: el('locationAantal4'),
         aantalLoc5: el('locationAantal5'),
-        aantalLoc6: el('locationAantal6'),
         assemblyTotalPrice: el('assemblyTotalPrice'),
         locationConfigButtons: [...document.querySelectorAll('.location-number[data-location]')],
         locationAddButtons: [...document.querySelectorAll('.location-add-button')],
@@ -165,9 +163,11 @@
         return 'Overig';
     }
 
-    // Vaste lijst voor de materiaalcode-select (locatie 6) - niet meer
-    // afgeleid uit de CSV (die alleen de codes bevat die in de huidige
-    // rijen voorkomen); dit is de volledige, altijd-beschikbare set.
+    // Volledige, altijd-beschikbare set W-materiaalcodes per familie -
+    // gebruikt door materialQueryValue() om locaties 1/3/4/5 op de hele
+    // gekozen familie (Staal/RVS) te filteren. Niet meer gebruikt voor een
+    // eigen locatie-6-select - zie computeLocation6Code() voor hoe code 6
+    // tegenwoordig (automatisch) tot stand komt.
     const MATERIAL_CODES = [
         { code: 'W1', label: 'CS' },
         { code: 'W2', label: 'CS Ph' },
@@ -177,11 +177,11 @@
         { code: 'W55', label: 'V4A CR' },
     ];
 
-    // Staal/RVS-switch vóór de materiaalcode-select (locatie 6, knoppen
-    // staan vast in index.php) - filtert MATERIAL_CODES via metalFamily()
-    // (W1/W2/W3 -> Staal, W4/W5/W55 -> RVS), zie populateMaterialCodeSelect().
-    // De uiteindelijke filterwaarde voor de artikelen blijft de kale
-    // W-code - de switch bepaalt alleen welke W-codes ter keuze staan.
+    // Staal/RVS-switch (knoppen staan vast in index.php) - filtert
+    // MATERIAL_CODES via metalFamily() (W1/W2/W3 -> Staal, W4/W5/W55 -> RVS)
+    // voor materialQueryValue(). De uiteindelijke filterwaarde voor de
+    // artikelen blijft de kale W-code - de switch bepaalt alleen welke
+    // W-codes ter keuze staan.
 
     function firstCodePart(article) {
         const s = norm(article);
@@ -257,12 +257,112 @@
     // (W1/W2/W3 voor Staal, W4/W5/W55 voor RVS, als ;-lijst) - er is geen
     // apart, vooraf gekozen exacte W-code meer die de andere locaties
     // stuurt. De specifieke code volgt uit welk artikel de gebruiker per
-    // locatie kiest (zie materialCodeFromItemCode()), inclusief voor
-    // locatie 6 zelf (zie populateMaterialCodeSelect()). Locatie 2 (Beugel)
+    // locatie kiest (zie materialCodeFromItemCode()). Locatie 2 (Beugel)
     // slaat de materiaalcode-check over (eigen kunststof/beugel-schema).
     function materialQueryValue(pos, family) {
         if (!family || Number(pos) === 2) return '';
         return MATERIAL_CODES.filter(m => metalFamily(m.code) === family).map(m => m.code).join(';');
+    }
+
+    /**
+     * Welke "rol" (uit de Stauff-materiaalcombinatietabel, zie
+     * MATERIAL_COMBINATION_RULES hieronder) hoort bij een gekozen
+     * artikelcode - gebaseerd op de Onderdeel-classificatie (classify()),
+     * niet op de locatie zelf: locatie 1 kan zowel Lasplaat/Lasplaat (hoek)
+     * (rol "WeldPlate") als Glijmoer (rol "Glijmoer") zijn, afhankelijk van
+     * wat er daadwerkelijk gekozen is.
+     */
+    function materialRoleForCode(itemCode) {
+        const rule = classify(itemCode);
+        if (!rule) return null;
+        switch (rule.onderdeel) {
+            case 'Lasplaat':
+            case 'Lasplaat (hoek)':
+                return 'WeldPlate';
+            case 'Glijmoer':
+                return 'Glijmoer';
+            case 'Dekplaat':
+                return 'CoverPlate';
+            case 'Borgplaat':
+                return 'SafetyLockingPlate';
+            case 'Stapelbout':
+            case 'Inbusbout':
+            case 'Zeskantbout':
+                return 'Bolts';
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Code 6 (het "Materiaal"-onderdeel van de samenstellingscode) is geen
+     * apart te kiezen artikel meer, maar wordt automatisch afgeleid uit de
+     * eigen W-code van de daadwerkelijk gekozen artikelen op locatie 1, 3, 4
+     * en 5 - volgens Stauff's officiële materiaalcombinatietabel. Zijn alle
+     * aanwezige rollen gelijk (bv. alles W2), dan is dat gewoon de
+     * samenstellingscode (geen aparte combinatiecode nodig). Verschillen ze,
+     * dan moet de combinatie exact voorkomen in MATERIAL_COMBINATION_RULES -
+     * komt geen enkele regel overeen, dan blijft code 6 leeg (geen
+     * foutmelding, net als een niet-ingevulde optionele locatie).
+     *
+     * Volgorde is belangrijk: regels met meer genoemde rollen staan vooraan,
+     * zodat bv. W12 (WeldPlate+CoverPlate+Bolts) voorrang krijgt boven het
+     * minder specifieke W19 (alleen CoverPlate+Bolts) wanneer ook WeldPlate
+     * aanwezig is.
+     */
+    const MATERIAL_COMBINATION_RULES = [
+        { code: 'W12', roles: { WeldPlate: 'W2', CoverPlate: 'W2', Bolts: 'W1' } },
+        { code: 'W13', roles: { Glijmoer: 'W3', CoverPlate: 'W2', Bolts: 'W1' } },
+        { code: 'W15', roles: { WeldPlate: 'W2', CoverPlate: 'W2', Bolts: 'W3' } },
+        { code: 'W16', roles: { Glijmoer: 'W3', CoverPlate: 'W2', Bolts: 'W3' } },
+        { code: 'W17', roles: { SafetyLockingPlate: 'W2', Bolts: 'W3' } },
+        { code: 'W18', roles: { SafetyLockingPlate: 'W1', Bolts: 'W2' } },
+        { code: 'W19', roles: { CoverPlate: 'W2', Bolts: 'W1' } },
+        // Speciaal: "Other metal parts" in de tabel noemt geen vaste rollen -
+        // elke andere aanwezige rol moet W3 zijn (othersCode), niet alleen de
+        // hier expliciet genoemde.
+        { code: 'W10', roles: { WeldPlate: 'W2' }, othersCode: 'W3' },
+    ];
+
+    /**
+     * Haalt de huidige materiaalcode per rol op uit de daadwerkelijk
+     * gekozen artikelen op locatie 1, 3, 4 en 5 (ontbrekende/optionele
+     * locaties tellen niet mee).
+     */
+    function currentMaterialByRole() {
+        const byRole = {};
+        [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => {
+            const code = norm(select.value);
+            if (!code) return;
+            const role = materialRoleForCode(code);
+            const material = materialCodeFromItemCode(code);
+            if (role && material) byRole[role] = material;
+        });
+        return byRole;
+    }
+
+    /** Zie MATERIAL_COMBINATION_RULES hierboven voor de volledige toelichting. */
+    function computeLocation6Code(materialByRole) {
+        const presentRoles = Object.keys(materialByRole);
+        if (presentRoles.length === 0) return '';
+
+        const codes = presentRoles.map(role => materialByRole[role]);
+        if (codes.every(code => code === codes[0])) return codes[0];
+
+        for (const rule of MATERIAL_COMBINATION_RULES) {
+            const namedRoles = Object.keys(rule.roles);
+            const namedMatch = namedRoles.every(role => materialByRole[role] === rule.roles[role]);
+            if (!namedMatch) continue;
+
+            if (!rule.othersCode) return rule.code;
+
+            const otherRoles = presentRoles.filter(role => !namedRoles.includes(role));
+            if (otherRoles.length > 0 && otherRoles.every(role => materialByRole[role] === rule.othersCode)) {
+                return rule.code;
+            }
+        }
+
+        return '';
     }
 
     /**
@@ -534,7 +634,7 @@
         // Een nieuwe beugel start altijd met een lege optionele samenstelling.
         if (previousArticle !== norm(state.selectedClamp['Artikelcode'])) {
             setMaterialFamilyValue('');
-            [ui.loc6, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => { select.value = ''; });
+            [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => { select.value = ''; });
             resetAantalFields();
         }
         const c = state.selectedClamp;
@@ -567,62 +667,12 @@
     function rebuildMaterialCodes() {
         if (!state.selectedClamp) {
             setMaterialFamilyDisabled(true);
-            ui.loc6.disabled = true;
             return;
         }
         // De knoppen zelf staan al vast in index.php (Staal/RVS) - alleen
         // ontgrendelen, een eerder gekozen familie (zelfde beugel opnieuw)
         // blijft gewoon staan.
         setMaterialFamilyDisabled(false);
-        populateMaterialCodeSelect();
-    }
-
-    /**
-     * Vult de materiaalcode-select (locatie 6) op basis van de gekozen
-     * Staal/RVS-familie (getMaterialFamily()) - filtert MATERIAL_CODES via
-     * metalFamily() zodat bij Staal alleen W1/W2/W3 en bij RVS alleen
-     * W4/W5/W55 ter keuze staan. Locatie 6 is hiermee een gewone pulldown
-     * zoals de andere locaties: de Staal/RVS-switch is de ENIGE extra
-     * filter, de specifieke W-code kiest de gebruiker hier zelf - dit
-     * stuurt geen exacte-code-filter meer voor de andere locaties (die
-     * filteren zelf ook al op de hele familie, zie materialQueryValue()).
-     * Zonder gekozen familie blijft de select leeg en uitgeschakeld.
-     * Aangeroepen vanuit rebuildMaterialCodes() (nieuwe beugel) en
-     * rechtstreeks bij het wisselen van Staal/RVS (zie bindEvents()), en
-     * bouwt daarna ook meteen locaties 1/3/4/5 opnieuw op
-     * (rebuildComponents()).
-     */
-    function populateMaterialCodeSelect() {
-        const family = getMaterialFamily();
-        const old = ui.loc6.value;
-        ui.loc6.innerHTML = '';
-
-        if (!family) {
-            const placeholder = document.createElement('option');
-            placeholder.value = '';
-            placeholder.textContent = 'Kies eerst Staal of RVS';
-            ui.loc6.appendChild(placeholder);
-            ui.loc6.disabled = true;
-            rebuildComponents();
-            return;
-        }
-
-        const placeholder = document.createElement('option');
-        placeholder.value = '';
-        placeholder.textContent = '— Geen materiaalcode gekozen —';
-        ui.loc6.appendChild(placeholder);
-        MATERIAL_CODES
-            .filter(({ code }) => metalFamily(code) === family)
-            .forEach(({ code, label }) => {
-                const option = document.createElement('option');
-                option.value = code;
-                option.textContent = `${code} - ${label}`;
-                ui.loc6.appendChild(option);
-            });
-        ui.loc6.disabled = false;
-        if (old && [...ui.loc6.options].some(o => o.value === old)) {
-            ui.loc6.value = old;
-        }
         rebuildComponents();
     }
 
@@ -646,7 +696,7 @@
     // Gebruikt bij het opnieuw leegmaken van de samenstelling
     // (clearAssembly()) en bij het kiezen van een nieuwe, andere beugel
     // (selectClamp()).
-    const DEFAULT_AANTAL = { 1: 1, 2: 1, 3: 1, 4: 1, 6: 1 };
+    const DEFAULT_AANTAL = { 1: 1, 2: 1, 3: 1, 4: 1 };
 
     function resetAantalFields() {
         Object.entries(DEFAULT_AANTAL).forEach(([pos, value]) => {
@@ -1058,13 +1108,14 @@
 
     function updateAssemblyCode() {
         const clamp = state.selectedClamp;
-        const wcode = ui.loc6.value;
+        const wcode = computeLocation6Code(currentMaterialByRole());
+        ui.loc6.textContent = wcode || '—';
         updateShapeImages();
         refreshLocationPrices();
         if (!clamp) {
             ui.assemblyCode.textContent = 'Selecteer eerst een beugel';
             ui.copyButton.disabled = true;
-            ui.codeHint.innerHTML = 'Locaties 1, 3, 4, 5 en 6 zijn optioneel. Locatie 2 gebruikt de beugelcode, bijvoorbeeld <strong>215 PP</strong> of <strong>3015 PP</strong>.';
+            ui.codeHint.innerHTML = 'Locaties 1, 3, 4 en 5 zijn optioneel; locatie 6 wordt automatisch bepaald. Locatie 2 gebruikt de beugelcode, bijvoorbeeld <strong>215 PP</strong> of <strong>3015 PP</strong>.';
             return;
         }
 
@@ -1098,10 +1149,11 @@
 
     /**
      * Haalt de verkoopprijs op (Exact, api/exact_prices.php) van het
-     * artikel dat nu bij elke locatie (1-6) gekozen is, en toont die in
+     * artikel dat nu bij elke locatie (1-5) gekozen is, en toont die in
      * de bijbehorende .location-price. Wordt aangeroepen vanuit
      * updateAssemblyCode() - dus bij elke wijziging van een
-     * locatieselectie/beugel/materiaalcode.
+     * locatieselectie/beugel/materiaalcode. Locatie 6 heeft geen eigen
+     * prijs (geen apart te kiezen artikel meer, zie computeLocation6Code()).
      */
     function refreshLocationPrices() {
         if (priceDebounce) clearTimeout(priceDebounce);
@@ -1112,7 +1164,6 @@
             [ui.priceLoc3, norm(ui.loc3.value)],
             [ui.priceLoc4, norm(ui.loc4.value)],
             [ui.priceLoc5, norm(ui.loc5.value)],
-            [ui.priceLoc6, norm(ui.loc6.value)],
         ];
         // Extra, vrij toegevoegde regels (zie addExtraItemRow()) tellen op
         // dezelfde manier mee in de prijs-batch-lookup - niet vermenigvuldigd
@@ -1159,11 +1210,12 @@
 
     /**
      * Berekent de totaalprijs van de samenstelling: som van (verkoopprijs x
-     * aantal) over elk gekozen onderdeel - de vaste locaties 1-6 én elke
-     * extra, vrij toegevoegde regel. Gebruikt de laatst opgehaalde prijzen
-     * (state.lastPrices, zie refreshLocationPrices()) i.p.v. zelf opnieuw
-     * te fetchen, zodat wijzigen van een aantal direct (zonder netwerk-
-     * vertraging) een nieuw totaal toont.
+     * aantal) over elk gekozen onderdeel - de vaste locaties 1-5 (locatie 6
+     * heeft geen eigen artikel/prijs meer, zie computeLocation6Code()) én
+     * elke extra, vrij toegevoegde regel. Gebruikt de laatst opgehaalde
+     * prijzen (state.lastPrices, zie refreshLocationPrices()) i.p.v. zelf
+     * opnieuw te fetchen, zodat wijzigen van een aantal direct (zonder
+     * netwerkvertraging) een nieuw totaal toont.
      */
     function recomputeTotal() {
         if (!ui.assemblyTotalPrice) return;
@@ -1174,7 +1226,6 @@
             [norm(ui.loc3.value), aantalValue(ui.aantalLoc3)],
             [norm(ui.loc4.value), aantalValue(ui.aantalLoc4)],
             [norm(ui.loc5.value), aantalValue(ui.aantalLoc5)],
-            [norm(ui.loc6.value), aantalValue(ui.aantalLoc6)],
         ];
         if (ui.assemblyList) {
             ui.assemblyList.querySelectorAll('.extra-item-card').forEach(card => {
@@ -1211,7 +1262,7 @@
     function clearAssembly() {
         ui.loc2.textContent = '—';
         setMaterialFamilyDisabled(true);
-        [ui.loc6, ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => {
+        [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => {
             select.innerHTML = '<option value="">Kies eerst een beugel</option>';
             select.disabled = true;
         });
@@ -1229,13 +1280,13 @@
             button.addEventListener('click', () => {
                 if (button.disabled) return;
                 setMaterialFamilyValue(button.dataset.family);
-                populateMaterialCodeSelect();
+                rebuildComponents();
             });
         });
-        [ui.loc1, ui.loc3, ui.loc4, ui.loc5, ui.loc6].forEach(select => select.addEventListener('change', updateAssemblyCode));
+        [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => select.addEventListener('change', updateAssemblyCode));
         // Aantal wijzigen hoeft geen nieuwe prijs op te halen - alleen de
         // totaalprijs opnieuw berekenen met de al bekende prijzen.
-        [ui.aantalLoc1, ui.aantalLoc2, ui.aantalLoc3, ui.aantalLoc4, ui.aantalLoc5, ui.aantalLoc6]
+        [ui.aantalLoc1, ui.aantalLoc2, ui.aantalLoc3, ui.aantalLoc4, ui.aantalLoc5]
             .forEach(input => input.addEventListener('input', recomputeTotal));
 
         ui.copyButton.addEventListener('click', async () => {

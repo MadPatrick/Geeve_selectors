@@ -199,11 +199,9 @@ nu uitsluitend op bouwgroep.
 "Materiaal soort" (bovenin, dezelfde kaderdoos-stijl als "Zoeken op beugel") is uitsluitend de
 Staal/RVS-switch (`materialFamilySwitch`, 2 knoppen - geen `<select>`, zie `getMaterialFamily()`/
 `setMaterialFamilyValue()` in `assets/selector.js`) - dit is de **enige** extra materiaal-filter.
-Er is geen apart, vooraf gekozen exacte W-code meer die de andere locaties stuurt: alle locaties
-(1-5) filteren hun kandidaten op de hele gekozen familie (`materialQueryValue()`), en de
-specifieke W-code volgt uit welk artikel de gebruiker per locatie kiest - **inclusief locatie 6
-zelf**, dat een gewone pulldown is geworden (`location6Select`) met alleen de codes van de
-gekozen familie, net als elke andere locatie-select:
+Er is geen apart, vooraf gekozen exacte W-code meer die de andere locaties stuurt: locaties 1, 3,
+4 en 5 filteren hun kandidaten op de hele gekozen familie (`materialQueryValue()`), en de
+specifieke W-code volgt uit welk artikel de gebruiker per locatie kiest:
 
 | Code  | Omschrijving | Familie |
 |-------|--------------|---------|
@@ -214,16 +212,36 @@ gekozen familie, net als elke andere locatie-select:
 | W5    | V4A          | RVS     |
 | W55   | V4A CR       | RVS     |
 
-Vaste lijst (`MATERIAL_CODES`/`metalFamily()` in `assets/selector.js`). De select-**waarde**
-blijft de kale W-code (gebruikt in alle matching/prijs/samenstellingscode-logica); de
-optie-**tekst** toont de combinatie, bijv. "W2 - CS Ph".
+Vaste lijst (`MATERIAL_CODES`/`metalFamily()` in `assets/selector.js`), gebruikt voor de
+familiefilter - niet meer voor een eigen locatie-6-select (zie "Locatie 6" hieronder).
 
 **Automatische selectie:** locatie 1 en 4 selecteren altijd het eerste resultaat van hun vaste
 rangorde (locatie 1 ook op type, beide op materiaalcode-voorkeur binnen de gekozen familie -
 zonder vooraf gekozen exacte code is dit nu de enige manier om standaard 1 sensible optie te
 tonen); locatie 3 en 5 selecteren zichzelf alleen als er, na filtering, maar 1 artikel overblijft.
-Locatie 6 heeft geen automatische selectie - de gebruiker kiest daar altijd zelf. Zie
-`renderLiveCandidates()` in `assets/selector.js`.
+Zie `renderLiveCandidates()` in `assets/selector.js`.
+
+## Locatie 6 (automatisch, geen eigen select meer)
+
+Locatie 6 ("Materiaal") was een eigen pulldown waarin de gebruiker zelf een W-code koos. Dat is
+vervallen: de code volgt nu automatisch uit de combinatie van W-codes die de daadwerkelijk
+gekozen artikelen op locatie 1, 3, 4 en 5 al dragen (`computeLocation6Code()`/
+`currentMaterialByRole()` in `assets/selector.js`), volgens Stauff's officiële
+materiaalcombinatietabel:
+
+- Zijn alle aanwezige onderdelen van dezelfde W-code (bijv. alles W2), dan is dat gewoon code 6 -
+  geen aparte combinatiecode nodig.
+- Verschillen ze, dan moet de combinatie exact voorkomen in `MATERIAL_COMBINATION_RULES` (W10,
+  W12, W13, W15-W19 - elk gekoppeld aan specifieke rollen: `WeldPlate` = Lasplaat/Lasplaat (hoek),
+  `Glijmoer` = Glijmoer, `CoverPlate` = Dekplaat, `SafetyLockingPlate` = Borgplaat, `Bolts` =
+  Stapel-/Inbus-/Zeskantbout). W10 is een speciaal geval ("Other metal parts"): alleen de Weld
+  Plate-code ligt vast, elke andere aanwezige rol moet W3 zijn.
+- Komt geen enkele regel overeen (of zijn er nog geen onderdelen gekozen), dan blijft code 6 leeg
+  - geen foutmelding, zelfde gedrag als een niet-ingevulde optionele locatie.
+
+Locatie 6 toont deze berekende code nu read-only (`location6Value`, net als `location2Value` voor
+de beugel) - geen keuzemenu, aantal of eigen prijs meer (een combinatiecode is geen apart
+besteld artikel).
 
 ## Samenstellingscode
 
