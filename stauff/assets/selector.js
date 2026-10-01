@@ -787,11 +787,11 @@
             items = items.filter(item => tagMatches(item.group, state.beugelGroup));
         }
 
-        if (numPos === 1 || numPos === 4) {
+        if (numPos === 1 || numPos === 4 || numPos === 5) {
             // Locatie 1 (Lasplaat/Glijmoer) en 4 (Dekplaat) hebben elk hun
             // eigen standaard-materiaalvoorkeur: locatie 1 default naar W3
-            // bij Staal / W5 bij RVS, locatie 4 blijft W2 bij Staal / W5 bij
-            // RVS (ongewijzigd). Alleen de EERSTE (rank 0) bepaalt de
+            // bij Staal / W5 bij RVS, locatie 4/5 blijven W2 bij Staal / W5
+            // bij RVS (ongewijzigd). Alleen de EERSTE (rank 0) bepaalt de
             // standaardselectie hieronder; de rest is tiebreak-volgorde.
             const materialRank = item => {
                 const mc = materialCodeFromItemCode(item.code);
@@ -827,6 +827,20 @@
                     || materialRank(a) - materialRank(b)
                     || a.code.localeCompare(b.code, 'nl', { numeric: true })
                 );
+            } else if (numPos === 5) {
+                // Standaardtype Bout: Zeskantbout (AS) eerst.
+                const typeRank = item => {
+                    const prefix = firstCodePart(item.code);
+                    if (prefix === 'AS') return 0;
+                    if (prefix === 'IS') return 1;
+                    if (prefix === 'AF') return 2;
+                    return 3;
+                };
+                items = [...items].sort((a, b) =>
+                    typeRank(a) - typeRank(b)
+                    || materialRank(a) - materialRank(b)
+                    || a.code.localeCompare(b.code, 'nl', { numeric: true })
+                );
             } else {
                 items = [...items].sort((a, b) =>
                     materialRank(a) - materialRank(b)
@@ -856,8 +870,9 @@
 
         if (items.some(item => item.code === previousValue)) {
             select.value = previousValue;
-        } else if ((numPos === 1 || numPos === 4) && items.length) {
-            // Standaardselecties: locatie 1 Lasplaat en locatie 4 Dekplaat.
+        } else if ((numPos === 1 || numPos === 4 || numPos === 5) && items.length) {
+            // Standaardselecties: locatie 1 Lasplaat, locatie 4 Dekplaat,
+            // locatie 5 Bout (voorkeur Zeskantbout/AS, zie typeRank hierboven).
             select.value = items[0].code;
         } else if (numPos !== 3 && items.length === 1) {
             // Locatie 3 (Borgplaat) staat bewust standaard op "geen keuze",

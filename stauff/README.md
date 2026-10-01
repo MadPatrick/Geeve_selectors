@@ -215,15 +215,22 @@ specifieke W-code volgt uit welk artikel de gebruiker per locatie kiest:
 Vaste lijst (`MATERIAL_CODES`/`metalFamily()` in `assets/selector.js`), gebruikt voor de
 familiefilter - niet meer voor een eigen locatie-6-select (zie "Locatie 6" hieronder).
 
-**Automatische selectie:** locatie 1 en 4 selecteren altijd het eerste resultaat van hun vaste
-rangorde (locatie 1 ook op type, beide op materiaalcode-voorkeur binnen de gekozen familie -
-zonder vooraf gekozen exacte code is dit nu de enige manier om standaard 1 sensible optie te
-tonen). De materiaalcode-voorkeur verschilt bewust per locatie: locatie 1 default naar **W3**
-(Staal) / **W5** (RVS), locatie 4 naar **W2** (Staal) / **W5** (RVS) - zie `materialRank()` in
-`renderLiveCandidates()`. Locatie 5 selecteert zichzelf alleen als er, na filtering, maar 1
-artikel overblijft; **locatie 3 (Borgplaat) nooit automatisch** - bewust altijd "geen keuze" als
-start, ook bij maar 1 passend artikel, omdat het een optioneel onderdeel is. Zie
-`renderLiveCandidates()` in `assets/selector.js`.
+**Automatische selectie:** locatie 1, 4 en 5 selecteren altijd het eerste resultaat van hun eigen
+vaste rangorde (locatie 1 en 5 ook op type, alle drie op materiaalcode-voorkeur binnen de gekozen
+familie - zonder vooraf gekozen exacte code is dit de enige manier om standaard 1 sensible optie
+te tonen). De voorkeuren verschillen bewust per locatie, zie `typeRank()`/`materialRank()` in
+`renderLiveCandidates()`:
+
+- Locatie 1 (Lasplaat/Glijmoer): type SP > SPV > WSP > SPAL > GMV/SM; materiaal **W3** (Staal) /
+  **W5** (RVS).
+- Locatie 4 (Dekplaat): materiaal **W2** (Staal) / **W5** (RVS) (geen eigen type-voorkeur nodig,
+  er is maar 1 Dekplaat-voorvoegselgroep per bouwgroep).
+- Locatie 5 (Bout): type **AS** (Zeskantbout) > IS (Inbusbout) > AF (Stapelbout); materiaal W2
+  (Staal) / W5 (RVS), zelfde als locatie 4.
+
+**Locatie 3 (Borgplaat) nooit automatisch** - bewust altijd "geen keuze" als start, ook bij maar 1
+passend artikel, omdat het een optioneel onderdeel is. Zie `renderLiveCandidates()` in
+`assets/selector.js`.
 
 ## Locatie 6 (automatisch, geen eigen select meer)
 
