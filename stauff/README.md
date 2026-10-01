@@ -109,13 +109,17 @@ in Exact, net als bij de beugel zelf, een herkenbare GRx/GRxD-tag dragen.
 ## Verkoopprijs + voorraad per locatie (Exact, database 005)
 
 Zodra voor een locatie (1-5) een artikel gekozen is, worden de verkoopprijs ÉN de vrije voorraad
-live opgehaald uit Exact (`api/exact_prices.php`, artikelgroep 67) en samen getoond rechts in de
-bijbehorende regel (`.location-price`, bijv. "€ 12,34 · 8 op voorraad"), via
-`refreshLocationPrices()`/`formatPriceAndStock()` in `assets/selector.js` - die wordt aangeroepen
-vanuit `updateAssemblyCode()`, dus bij elke wijziging van beugel, materiaalcode of een
-locatieselectie. Een voorraad van 0 is een geldige waarde en wordt gewoon getoond ("0 op
-voorraad"); alleen een onbekende/ontbrekende voorraad (geen koppeling, artikel niet gevonden)
-wordt weggelaten - ontbreekt de prijs of de voorraad, dan toont de regel alleen de andere.
+live opgehaald uit Exact (`api/exact_prices.php`, artikelgroep 67) en samen getoond in een eigen
+kader rechts in de bijbehorende regel (`.location-price`, bijv. "€ 12,34 · 8" - kaal voorraadgetal,
+geen "op voorraad"-tekst), via `refreshLocationPrices()`/`formatPriceAndStock()` in
+`assets/selector.js` - die wordt aangeroepen vanuit `updateAssemblyCode()`, dus bij elke wijziging
+van beugel, materiaalcode of een locatieselectie. Een voorraad van 0 is een geldige waarde en wordt
+gewoon getoond; alleen een onbekende/ontbrekende voorraad (geen koppeling, artikel niet gevonden)
+wordt weggelaten - ontbreekt de prijs of de voorraad, dan toont de regel alleen de andere. Zonder
+gekozen artikel (of helemaal geen prijs/voorraad bekend) toont het kader een liggend streepje
+("—") i.p.v. leeg te blijven - zo houdt elke rij, met of zonder prijs/voorraad, exact dezelfde
+hoogte/uitlijning (`.location-price` heeft een vaste min-height/min-width, zelfde kaderstijl als
+`.fixed-value`).
 
 **Kolomnaam prijs nog niet bevestigd.** De kolomnaam voor verkoopprijs op `GRV_SalesItems` is nog
 niet geverifieerd. `exact_prices.php` probeert daarom een lijst kandidaat-kolomnamen (`Sales

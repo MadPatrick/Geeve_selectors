@@ -1082,6 +1082,7 @@
 
         const priceSpan = document.createElement('span');
         priceSpan.className = 'extra-item-price location-price';
+        priceSpan.textContent = '—';
 
         const addButton = document.createElement('button');
         addButton.type = 'button';
@@ -1176,11 +1177,14 @@
 
     /**
      * Combineert prijs + vrije voorraad tot 1 regel voor .location-price,
-     * bijv. "€ 12,34 · 8 op voorraad". Een voorraad van 0 is een geldige,
-     * betekenisvolle waarde (géén voorraad) en wordt dus wél getoond - alleen
-     * een lege/onbekende waarde (geen koppeling, artikel niet gevonden)
-     * wordt weggelaten. Ontbreekt 1 van de 2, dan toont deze functie alleen
-     * de andere; ontbreken beide, dan een lege string (net als voorheen).
+     * bijv. "€ 12,34 · 116" (kaal getal, geen "op voorraad"-tekst - dat
+     * maakt de tekst te lang om op 1 regel te passen in het vaste kader).
+     * Een voorraad van 0 is een geldige, betekenisvolle waarde (géén
+     * voorraad) en wordt dus wél getoond - alleen een lege/onbekende
+     * waarde (geen koppeling, artikel niet gevonden) wordt weggelaten.
+     * Ontbreekt 1 van de 2, dan toont deze functie alleen de andere;
+     * ontbreken beide, dan een liggend streepje - zodat het kader altijd
+     * dezelfde hoogte/uitlijning houdt, ook zonder gekozen artikel.
      */
     function formatPriceAndStock(price, stock) {
         const priceText = price ? formatPrice(price) : '';
@@ -1188,10 +1192,10 @@
             ? null
             : Number(String(stock).replace(',', '.'));
         const stockText = stockNum !== null && Number.isFinite(stockNum)
-            ? `${Math.trunc(stockNum)} op voorraad`
+            ? String(Math.trunc(stockNum))
             : '';
         if (priceText && stockText) return `${priceText} · ${stockText}`;
-        return priceText || stockText;
+        return priceText || stockText || '—';
     }
 
     let priceDebounce = null;
@@ -1225,7 +1229,10 @@
             ])
             : [];
         entries.push(...extraEntries);
-        entries.forEach(([el]) => { if (el) el.textContent = ''; });
+        // "—" i.p.v. leeg: het prijs/voorraad-kader houdt zo altijd dezelfde
+        // hoogte, ook zonder gekozen artikel (zie .location-price in
+        // style.css) - anders stond elke rij net iets anders uitgelijnd.
+        entries.forEach(([el]) => { if (el) el.textContent = '—'; });
 
         const codes = unique(entries.map(([, code]) => code));
         if (codes.length === 0) {
