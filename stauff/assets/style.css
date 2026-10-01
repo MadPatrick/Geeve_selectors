@@ -238,23 +238,24 @@ button.location-number { cursor: pointer; }
 
 /* Verkoopprijs + vrije voorraad (Exact, GRV_SalesItems/StockBalances) van
    het gekozen artikel per locatie - zie api/exact_prices.php en
-   refreshLocationPrices()/formatPriceAndStock() in assets/selector.js, bijv.
-   "€ 12,34 · 8" (kaal voorraadgetal, geen "op voorraad"-tekst). Eigen kader
-   (zelfde stijl als .fixed-value) met een vaste min-height/min-width, en
-   altijd gevuld - met "—" zolang niets gekozen is of Exact niets teruggeeft
-   (zie formatPriceAndStock()) - zodat elke rij, met of zonder prijs/
-   voorraad, exact even hoog/breed uitlijnt. */
-.location-price {
+   refreshLocationPrices()/formatPrice()/formatStock() in
+   assets/selector.js. .location-price is alleen de flex-rij; elk getal
+   (prijs, voorraad - kaal, geen "op voorraad"-tekst) krijgt zijn EIGEN
+   kader (.price-box), altijd gevuld met "—" zolang niets gekozen is of
+   Exact niets teruggeeft, zodat elke rij, met of zonder prijs/voorraad,
+   exact even hoog/breed uitlijnt. */
+.location-price { display: flex; align-items: center; gap: 6px; }
+.price-box {
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 44px;
-    min-width: 92px;
+    min-width: 54px;
     border-radius: 10px;
-    padding: 11px 13px;
+    padding: 11px 10px;
     background: #f5f8fa;
     border: 1px solid #d8e1e8;
-    font-weight: 800;
+    font-weight: 500;
     color: var(--accent-dark);
     white-space: nowrap;
 }

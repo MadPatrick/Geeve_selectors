@@ -69,6 +69,11 @@
         priceLoc3: el('locationPrice3'),
         priceLoc4: el('locationPrice4'),
         priceLoc5: el('locationPrice5'),
+        stockLoc1: el('locationStock1'),
+        stockLoc2: el('locationStock2'),
+        stockLoc3: el('locationStock3'),
+        stockLoc4: el('locationStock4'),
+        stockLoc5: el('locationStock5'),
         aantalLoc1: el('locationAantal1'),
         aantalLoc2: el('locationAantal2'),
         aantalLoc3: el('locationAantal3'),
@@ -1080,9 +1085,15 @@
         artikelSelect.disabled = true;
         artikelSelect.innerHTML = '<option value="">Kies eerst een soort</option>';
 
+        const priceBox = document.createElement('div');
+        priceBox.className = 'location-price';
         const priceSpan = document.createElement('span');
-        priceSpan.className = 'extra-item-price location-price';
+        priceSpan.className = 'extra-item-price price-box';
         priceSpan.textContent = '—';
+        const stockSpan = document.createElement('span');
+        stockSpan.className = 'extra-item-stock price-box';
+        stockSpan.textContent = '—';
+        priceBox.append(priceSpan, stockSpan);
 
         const addButton = document.createElement('button');
         addButton.type = 'button';
@@ -1100,7 +1111,7 @@
         // style.css): soort neemt de "titel"-kolomplek van de vaste
         // locaties over, zodat aantal/artikel/prijs/+ daarna verticaal
         // uitlijnen met de vaste rijen erboven/eronder.
-        content.append(soortSelect, aantalInput, artikelSelect, priceSpan, addButton, removeButton);
+        content.append(soortSelect, aantalInput, artikelSelect, priceBox, addButton, removeButton);
         card.append(numberDiv, imageDiv, content);
         if (afterElement) {
             afterElement.insertAdjacentElement('afterend', card);
@@ -1176,26 +1187,18 @@
     }
 
     /**
-     * Combineert prijs + vrije voorraad tot 1 regel voor .location-price,
-     * bijv. "€ 12,34 · 116" (kaal getal, geen "op voorraad"-tekst - dat
-     * maakt de tekst te lang om op 1 regel te passen in het vaste kader).
-     * Een voorraad van 0 is een geldige, betekenisvolle waarde (géén
-     * voorraad) en wordt dus wél getoond - alleen een lege/onbekende
-     * waarde (geen koppeling, artikel niet gevonden) wordt weggelaten.
-     * Ontbreekt 1 van de 2, dan toont deze functie alleen de andere;
-     * ontbreken beide, dan een liggend streepje - zodat het kader altijd
+     * Voorraad als kaal getal voor zijn eigen kader (.price-box), geen "op
+     * voorraad"-tekst erbij. Een voorraad van 0 is een geldige,
+     * betekenisvolle waarde (géén voorraad) en wordt dus wél getoond -
+     * alleen een lege/onbekende waarde (geen koppeling, artikel niet
+     * gevonden) geeft een liggend streepje, zodat het kader altijd
      * dezelfde hoogte/uitlijning houdt, ook zonder gekozen artikel.
      */
-    function formatPriceAndStock(price, stock) {
-        const priceText = price ? formatPrice(price) : '';
+    function formatStock(stock) {
         const stockNum = stock === undefined || stock === null || stock === ''
             ? null
             : Number(String(stock).replace(',', '.'));
-        const stockText = stockNum !== null && Number.isFinite(stockNum)
-            ? String(Math.trunc(stockNum))
-            : '';
-        if (priceText && stockText) return `${priceText} · ${stockText}`;
-        return priceText || stockText || '—';
+        return stockNum !== null && Number.isFinite(stockNum) ? String(Math.trunc(stockNum)) : '—';
     }
 
     let priceDebounce = null;
@@ -1203,21 +1206,21 @@
     /**
      * Haalt de verkoopprijs + vrije voorraad op (Exact, api/exact_prices.php)
      * van het artikel dat nu bij elke locatie (1-5) gekozen is, en toont die
-     * samen in de bijbehorende .location-price (zie formatPriceAndStock()).
-     * Wordt aangeroepen vanuit updateAssemblyCode() - dus bij elke wijziging
-     * van een locatieselectie/beugel/materiaalcode. Locatie 6 heeft geen
-     * eigen prijs/voorraad (geen apart te kiezen artikel meer, zie
-     * computeLocation6Code()).
+     * elk in hun eigen kader (.price-box: 1 voor prijs, 1 voor voorraad - zie
+     * formatPrice()/formatStock()). Wordt aangeroepen vanuit
+     * updateAssemblyCode() - dus bij elke wijziging van een locatieselectie/
+     * beugel/materiaalcode. Locatie 6 heeft geen eigen prijs/voorraad (geen
+     * apart te kiezen artikel meer, zie computeLocation6Code()).
      */
     function refreshLocationPrices() {
         if (priceDebounce) clearTimeout(priceDebounce);
 
         const entries = [
-            [ui.priceLoc1, norm(ui.loc1.value)],
-            [ui.priceLoc2, state.selectedClamp ? norm(state.selectedClamp['Artikelcode']) : ''],
-            [ui.priceLoc3, norm(ui.loc3.value)],
-            [ui.priceLoc4, norm(ui.loc4.value)],
-            [ui.priceLoc5, norm(ui.loc5.value)],
+            [ui.priceLoc1, ui.stockLoc1, norm(ui.loc1.value)],
+            [ui.priceLoc2, ui.stockLoc2, state.selectedClamp ? norm(state.selectedClamp['Artikelcode']) : ''],
+            [ui.priceLoc3, ui.stockLoc3, norm(ui.loc3.value)],
+            [ui.priceLoc4, ui.stockLoc4, norm(ui.loc4.value)],
+            [ui.priceLoc5, ui.stockLoc5, norm(ui.loc5.value)],
         ];
         // Extra, vrij toegevoegde regels (zie addExtraItemRow()) tellen op
         // dezelfde manier mee in de prijs-batch-lookup - niet vermenigvuldigd
@@ -1225,16 +1228,20 @@
         const extraEntries = ui.assemblyList
             ? [...ui.assemblyList.querySelectorAll('.extra-item-card')].map(card => [
                 card.querySelector('.extra-item-price'),
+                card.querySelector('.extra-item-stock'),
                 norm(card.querySelector('.extra-item-artikel').value),
             ])
             : [];
         entries.push(...extraEntries);
-        // "—" i.p.v. leeg: het prijs/voorraad-kader houdt zo altijd dezelfde
-        // hoogte, ook zonder gekozen artikel (zie .location-price in
-        // style.css) - anders stond elke rij net iets anders uitgelijnd.
-        entries.forEach(([el]) => { if (el) el.textContent = '—'; });
+        // "—" i.p.v. leeg: elk kader houdt zo altijd dezelfde hoogte, ook
+        // zonder gekozen artikel (zie .price-box in style.css) - anders stond
+        // elke rij net iets anders uitgelijnd.
+        entries.forEach(([priceEl, stockEl]) => {
+            if (priceEl) priceEl.textContent = '—';
+            if (stockEl) stockEl.textContent = '—';
+        });
 
-        const codes = unique(entries.map(([, code]) => code));
+        const codes = unique(entries.map(([, , code]) => code));
         if (codes.length === 0) {
             recomputeTotal();
             return;
@@ -1245,11 +1252,10 @@
                 .then(response => response.json())
                 .then(payload => {
                     if (!payload || payload.ok !== true) return;
-                    entries.forEach(([el, code]) => {
-                        if (!el || !code) return;
-                        const price = payload.prices[code];
-                        const stock = (payload.stock || {})[code];
-                        el.textContent = formatPriceAndStock(price, stock);
+                    entries.forEach(([priceEl, stockEl, code]) => {
+                        if (!code) return;
+                        if (priceEl) priceEl.textContent = formatPrice(payload.prices[code]) || '—';
+                        if (stockEl) stockEl.textContent = formatStock((payload.stock || {})[code]);
                     });
                     Object.entries(payload.prices || {}).forEach(([code, value]) => {
                         const n = Number(String(value).replace(',', '.'));

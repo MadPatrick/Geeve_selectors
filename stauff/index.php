@@ -119,7 +119,10 @@ function assetVersion(string $relativePath): string
                     <div class="location-title"><strong>Lasplaat / Glijmoer</strong><span>Standaard Lasplaat &middot; Onderzijde</span></div>
                     <input type="number" id="locationAantal1" class="location-aantal" min="1" value="1" aria-label="Aantal Lasplaat / Glijmoer">
                     <select id="location1Select" disabled><option value="">Kies eerst een beugel</option></select>
-                    <span id="locationPrice1" class="location-price">&mdash;</span>
+                    <div class="location-price">
+                        <span id="locationPrice1" class="price-box">&mdash;</span>
+                        <span id="locationStock1" class="price-box">&mdash;</span>
+                    </div>
                     <button type="button" class="location-add-button" data-location="1" aria-label="Extra artikel toevoegen">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -139,7 +142,10 @@ function assetVersion(string $relativePath): string
                     <div class="location-title"><strong>Beugel</strong><span>Beugelcode (bouwgroep + maat + materiaal)</span></div>
                     <input type="number" id="locationAantal2" class="location-aantal" min="1" value="1" aria-label="Aantal Beugel">
                     <div id="location2Value" class="fixed-value">&mdash;</div>
-                    <span id="locationPrice2" class="location-price">&mdash;</span>
+                    <div class="location-price">
+                        <span id="locationPrice2" class="price-box">&mdash;</span>
+                        <span id="locationStock2" class="price-box">&mdash;</span>
+                    </div>
                 </div>
             </article>
 
@@ -153,7 +159,10 @@ function assetVersion(string $relativePath): string
                     <div class="location-title"><strong>Borgplaat</strong><span>Optioneel &middot; opties uit bouwgroep</span></div>
                     <input type="number" id="locationAantal3" class="location-aantal" min="1" value="1" aria-label="Aantal Borgplaat">
                     <select id="location3Select" disabled><option value="">Kies eerst een beugel</option></select>
-                    <span id="locationPrice3" class="location-price">&mdash;</span>
+                    <div class="location-price">
+                        <span id="locationPrice3" class="price-box">&mdash;</span>
+                        <span id="locationStock3" class="price-box">&mdash;</span>
+                    </div>
                     <button type="button" class="location-add-button" data-location="3" aria-label="Extra artikel toevoegen">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -173,7 +182,10 @@ function assetVersion(string $relativePath): string
                     <div class="location-title"><strong>Dekplaat</strong><span>Standaard geselecteerd &middot; opties uit bouwgroep</span></div>
                     <input type="number" id="locationAantal4" class="location-aantal" min="1" value="1" aria-label="Aantal Dekplaat">
                     <select id="location4Select" disabled><option value="">Kies eerst een beugel</option></select>
-                    <span id="locationPrice4" class="location-price">&mdash;</span>
+                    <div class="location-price">
+                        <span id="locationPrice4" class="price-box">&mdash;</span>
+                        <span id="locationStock4" class="price-box">&mdash;</span>
+                    </div>
                     <button type="button" class="location-add-button" data-location="4" aria-label="Extra artikel toevoegen">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -193,7 +205,10 @@ function assetVersion(string $relativePath): string
                     <div class="location-title"><strong>Bout</strong><span>Optioneel &middot; stapel-, inbus- of zeskantbout</span></div>
                     <input type="number" id="locationAantal5" class="location-aantal" min="1" value="2" aria-label="Aantal Bout">
                     <select id="location5Select" disabled><option value="">Kies eerst een beugel</option></select>
-                    <span id="locationPrice5" class="location-price">&mdash;</span>
+                    <div class="location-price">
+                        <span id="locationPrice5" class="price-box">&mdash;</span>
+                        <span id="locationStock5" class="price-box">&mdash;</span>
+                    </div>
                     <button type="button" class="location-add-button" data-location="5" aria-label="Extra artikel toevoegen">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
