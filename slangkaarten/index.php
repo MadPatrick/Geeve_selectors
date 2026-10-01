@@ -428,31 +428,66 @@ function matchesKoppelingField(string $needleKoppeling, string $fieldValue): boo
     return strtoupper($fieldValue) === $needleKoppeling;
 }
 
-/** Doorzoekt 1 CSV-bestand op slangtype + koppelartikel, zie findKrimpmaat(). */
-function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelingArtikel): ?array
+/**
+ * Leest en parset 1 CSV-bestand volledig in, 1x per bestand per request
+ * (static cache, sleutel = bestandspad) - i.p.v. opnieuw openen/inlezen
+ * bij elke aanroep van findKrimpmaatInCsv(). Bij het printen van meerdere
+ * slangkaarten (elk met meerdere koppelartikelen) riep renderKrimpmatenTable()
+ * findKrimpmaat() voorheen per artikel per kaart aan, en dat opende/parste
+ * beide CSV's (940 regels elk) telkens opnieuw vanaf het begin - bij bv. 10
+ * kaarten met elk een paar koppelingen al snel honderden keren. Met deze
+ * cache gebeurt het parsen nog maar 1x, ongeacht het aantal kaarten/artikelen.
+ *
+ * @return array<int, array<string, string>>|null null = bestand niet leesbaar
+ */
+function readCsvRows(string $csvFile): ?array
 {
+    static $cache = [];
+
+    if (array_key_exists($csvFile, $cache)) {
+        return $cache[$csvFile];
+    }
+
     $handle = @fopen($csvFile, 'rb');
     if ($handle === false) {
-        return null;
+        return $cache[$csvFile] = null;
     }
 
     $headers = fgetcsv($handle, 0, ',');
     if ($headers === false) {
         fclose($handle);
-        return null;
+        return $cache[$csvFile] = null;
     }
     $headers = array_map('csvCleanValue', $headers);
 
-    $result = null;
-    $needleSlang = strtoupper($slangType);
-    $needleKoppeling = strtoupper($koppelingArtikel);
-
+    $rows = [];
     while (($data = fgetcsv($handle, 0, ',')) !== false) {
         if (count($data) !== count($headers)) {
             continue;
         }
         $row = array_combine($headers, $data);
-        if ($row === false || strtoupper(csvGetColumn($row, 'artnr')) !== $needleSlang) {
+        if ($row !== false) {
+            $rows[] = $row;
+        }
+    }
+    fclose($handle);
+
+    return $cache[$csvFile] = $rows;
+}
+
+/** Doorzoekt 1 CSV-bestand op slangtype + koppelartikel, zie findKrimpmaat(). */
+function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelingArtikel): ?array
+{
+    $rows = readCsvRows($csvFile);
+    if ($rows === null) {
+        return null;
+    }
+
+    $needleSlang = strtoupper($slangType);
+    $needleKoppeling = strtoupper($koppelingArtikel);
+
+    foreach ($rows as $row) {
+        if (strtoupper(csvGetColumn($row, 'artnr')) !== $needleSlang) {
             continue;
         }
 
@@ -461,12 +496,11 @@ function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelin
             $huls = csvGetColumn($row, "{$prefix} - Huls");
             $pilaar = csvGetColumn($row, "{$prefix} - Pilaar");
             if (matchesKoppelingField($needleKoppeling, $huls) || matchesKoppelingField($needleKoppeling, $pilaar)) {
-                $result = [
+                return [
                     'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
                     'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
                     'schilExtern' => csvGetColumn($row, "{$prefix} - Schilmaat extern (mm)"),
                 ];
-                break 2;
             }
         }
 
@@ -474,20 +508,18 @@ function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelin
             $prefix = "1delig_{$number}";
             $koppelArtikel = csvGetColumn($row, $prefix);
             if (matchesKoppelingField($needleKoppeling, $koppelArtikel)) {
-                $result = [
+                return [
                     'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
                     'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
                     'schilExtern' => csvGetColumn($row, "{$prefix} - Schilmaat extern (mm)"),
                 ];
-                break 2;
             }
         }
 
-        break;
+        return null;
     }
 
-    fclose($handle);
-    return $result;
+    return null;
 }
 
 /** Zoekt de krimpmaat (Persmaat) op in beide materiaal-CSV's, zie boven. */
@@ -497,14 +529,21 @@ function findKrimpmaat(string $slangType, string $koppelingArtikel): ?array
         return null;
     }
 
+    static $cache = [];
+    $cacheKey = $slangType . "\0" . $koppelingArtikel;
+    if (array_key_exists($cacheKey, $cache)) {
+        return $cache[$cacheKey];
+    }
+
+    $result = null;
     foreach (['artikelnummers_staal.csv', 'artikelnummers_rvs.csv'] as $filename) {
         $result = findKrimpmaatInCsv(__DIR__ . '/../hoses/data/' . $filename, $slangType, $koppelingArtikel);
         if ($result !== null) {
-            return $result;
+            break;
         }
     }
 
-    return null;
+    return $cache[$cacheKey] = $result;
 }
 
 /**
