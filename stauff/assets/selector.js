@@ -797,9 +797,20 @@
 
     // Laatst opgehaalde, ONGEFILTERDE kandidaten per vaste locatie (1/3/4/5)
     // - gebruikt door reapplyBoutFilter() om locatie 5 (Bout) opnieuw te
-    // renderen op basis van het montagetype van de (inmiddels bekende)
-    // gekozen lasplaat, zonder opnieuw bij Exact te bevragen.
+    // renderen op basis van het montagetype van de gekozen lasplaat en de
+    // AS/IS-voorkeur, zonder opnieuw bij Exact te bevragen.
     const lastRawRowsByPosition = {};
+
+    // Locatie 5 (Bout) mag pas zijn EERSTE keer gefetcht worden zodra
+    // locatie 1 (lasplaat, voor montagetype) EN locatie 4 (dekplaat, voor
+    // de AS/IS-voorkeur) allebei hun eigen (async) zoekopdracht hebben
+    // afgerond - anders kiest Bout soms IS omdat locatie 4 op dat moment
+    // nog "Zoeken…" (leeg) stond, en blijft die IS-keuze daarna "vastzitten"
+    // (een al gekozen bout wordt bewust niet overschreven, zie
+    // renderLiveCandidates()) zelfs als locatie 4 vlak daarna wél een
+    // dekplaat vindt. Wordt bij elke rebuildComponents()-cyclus (nieuwe
+    // beugel/materiaalfamilie) gereset - zie daar.
+    const locationReadyForBout = { 1: false, 4: false };
 
     // Bijgehouden "geen kandidaten"-waarschuwing per vaste locatie (1/3/4/5) -
     // apart per locatie omdat elke locatie zijn eigen, onafhankelijke async
@@ -1050,23 +1061,44 @@
     }
 
     /**
-     * Rendert locatie 5 (Bout) opnieuw vanuit de laatst opgehaalde
-     * kandidaten (lastRawRowsByPosition), zodat zowel de montagetype-filter
-     * (lasplaatMountType(), afhankelijk van locatie 1) als de AS/IS-
-     * typevoorkeur (afhankelijk van of locatie 4 een dekplaat heeft, zie
-     * renderLiveCandidates()) de actuele staat gebruiken - nodig ná het
-     * (asynchrone) ophalen van locatie 1/4 én wanneer de gebruiker die
-     * selects handmatig wijzigt (zie bindEvents()). Geen nieuwe Exact-
-     * aanvraag: puur een client-side herberekening van dezelfde, al
-     * binnengehaalde rijen. Doet niets als locatie 5 zelf nog niet gefetcht
-     * is - die eigen fetch past alles dan vanzelf meteen goed toe, want
-     * locatie 1/4 zijn op dat moment al bekend.
+     * Markeert dat locatie 1 of 4 klaar is (eigen fetch afgerond, of de
+     * gebruiker heeft 'm handmatig gewijzigd) en roept daarna altijd
+     * reapplyBoutFilter() aan - die bepaalt zelf of er al genoeg bekend is
+     * om iets te doen (zie daar). Dezelfde functie voor zowel de
+     * "onRendered"-callback na een fetch als de handmatige change-listener
+     * (zie bindEvents()/rebuildComponents()).
+     */
+    function markBoutDependencyReady(pos) {
+        locationReadyForBout[pos] = true;
+        reapplyBoutFilter();
+    }
+
+    /**
+     * Rendert locatie 5 (Bout), met de montagetype-filter
+     * (lasplaatMountType(), afhankelijk van locatie 1) en de AS/IS-
+     * typevoorkeur (afhankelijk van of locatie 4 een dekplaat heeft) - zie
+     * renderLiveCandidates(). Doet pas iets zodra ZOWEL locatie 1 als 4
+     * minstens 1x klaar zijn (locationReadyForBout) - anders zou Bout zijn
+     * EERSTE keuze kunnen maken terwijl locatie 4 nog "Zoeken…" is, met IS
+     * als resultaat dat daarna blijft "vastzitten" (een al gekozen bout
+     * wordt bewust niet overschreven) zelfs als locatie 4 vlak daarna wél
+     * een dekplaat blijkt te hebben.
+     *
+     * Eerste keer (locatie 5 nog nooit gefetcht voor deze beugel/familie):
+     * doet de echte Exact-aanvraag. Daarna (handmatige wijziging van
+     * locatie 1/4): puur een client-side herberekening van de al
+     * binnengehaalde rijen (lastRawRowsByPosition), geen nieuwe aanvraag.
      */
     function reapplyBoutFilter() {
-        const rawRows = lastRawRowsByPosition[5];
-        if (!rawRows) return;
+        if (!locationReadyForBout[1] || !locationReadyForBout[4]) return;
         const family = getMaterialFamily();
         if (!family) return;
+
+        const rawRows = lastRawRowsByPosition[5];
+        if (rawRows === undefined) {
+            applyLocationFilterSelect(5, ui.loc5, family, 5, { emptyText: 'Geen passende bout', trackWarning: true });
+            return;
+        }
         renderLiveCandidates(5, ui.loc5, rawRows, {
             family,
             previousValue: ui.loc5.value,
@@ -1083,25 +1115,43 @@
         // gekozen is).
         if (!state.selectedClamp) return;
 
+        // Nieuwe cyclus (andere beugel/materiaalfamilie, of handmatig
+        // filter toegepast) - locatie 5 (Bout) moet opnieuw wachten tot
+        // locatie 1 EN 4 allebei (opnieuw) klaar zijn vóór zijn eerste
+        // keuze, en de oude gecachte rijen zijn niet meer geldig voor deze
+        // nieuwe situatie. Zie reapplyBoutFilter()/markBoutDependencyReady().
+        locationReadyForBout[1] = false;
+        locationReadyForBout[4] = false;
+        delete lastRawRowsByPosition[5];
+        ui.loc5.disabled = true;
+        ui.loc5.innerHTML = '<option value="">Zoeken…</option>';
+
         const family = getMaterialFamily();
         const mapping = [
             [1, ui.loc1, 'Geen passende lasplaat/glijmoer'],
             [3, ui.loc3, 'Geen passende borgplaat'],
             [4, ui.loc4, 'Geen passende dekplaat'],
-            [5, ui.loc5, 'Geen passende bout'],
         ];
-        mapping.forEach(([pos, select, emptyText]) => {
-            if (!family) {
+        if (!family) {
+            [...mapping, [5, ui.loc5, '']].forEach(([pos, select]) => {
                 select.innerHTML = '<option value="">Kies eerst Staal of RVS</option>';
                 select.disabled = true;
                 emptyWarnings[pos] = null;
-                return;
-            }
+            });
+            refreshLocationWarnings();
+            refreshExtraItems();
+            updateAssemblyCode();
+            return;
+        }
+        mapping.forEach(([pos, select, emptyText]) => {
             // Locatie 1's eigen fetch moet, zodra 'ie klaar is, locatie 5
             // (Bout) opnieuw filteren op montagetype; locatie 4's fetch moet
             // locatie 5 opnieuw op type (AS/IS) laten rangschikken zodra
-            // bekend is of er een dekplaat gekozen is - zie reapplyBoutFilter().
-            const onRendered = (pos === 1 || pos === 4) ? reapplyBoutFilter : null;
+            // bekend is of er een dekplaat gekozen is - zie
+            // markBoutDependencyReady()/reapplyBoutFilter(). Locatie 5 zelf
+            // wordt hier bewust NIET gefetcht - dat gebeurt pas via die
+            // functie, zodra zowel 1 als 4 klaar zijn.
+            const onRendered = (pos === 1 || pos === 4) ? (() => markBoutDependencyReady(pos)) : null;
             applyLocationFilterSelect(pos, select, family, pos, { emptyText, trackWarning: true, onRendered });
         });
         refreshLocationWarnings();
@@ -1495,8 +1545,8 @@
         // veranderen, en handmatig de dekplaat (leeg) maken/kiezen verandert
         // de AS/IS-typevoorkeur - locatie 5 (Bout) moet dan opnieuw
         // gerangschikt/gefilterd worden.
-        ui.loc1.addEventListener('change', reapplyBoutFilter);
-        ui.loc4.addEventListener('change', reapplyBoutFilter);
+        ui.loc1.addEventListener('change', () => markBoutDependencyReady(1));
+        ui.loc4.addEventListener('change', () => markBoutDependencyReady(4));
         // Aantal wijzigen hoeft geen nieuwe prijs op te halen - alleen de
         // totaalprijs opnieuw berekenen met de al bekende prijzen.
         [ui.aantalLoc1, ui.aantalLoc2, ui.aantalLoc3, ui.aantalLoc4, ui.aantalLoc5]

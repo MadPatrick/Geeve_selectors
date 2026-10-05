@@ -272,12 +272,19 @@ artikelen) dan filtert locatie 5 niet op montagetype, zoals voorheen.
 
 Dit werkt zowel bij de automatische standaardselectie als wanneer de gebruiker handmatig een
 andere lasplaat kiest, en hetzelfde geldt voor de AS/IS-typevoorkeur hierboven bij een wijzigende
-dekplaat-keuze: `reapplyBoutFilter()` wordt aangeroepen zodra locatie 1's/4's eigen zoekopdracht
-klaar is én bij elke handmatige wijziging van locatie 1/4 - zonder dat daarvoor opnieuw bij Exact
-gevraagd wordt, want het werkt op de al opgehaalde kandidaten van locatie 5
-(`lastRawRowsByPosition`). Een bout die al gekozen was blijft staan als die nog steeds een geldige
-optie is (dezelfde "niet overschrijven"-regel als overal elders) - alleen de volgorde in de lijst
-verandert meteen mee; de gebruiker kan daarna bewust de nieuwe eerste optie kiezen.
+dekplaat-keuze. Locatie 5 wordt **bewust niet** tegelijk met locatie 1/3/4 bevraagd: die wacht tot
+zowel locatie 1 (montagetype) als locatie 4 (AS/IS) minstens 1x klaar zijn
+(`locationReadyForBout`/`markBoutDependencyReady()` in `assets/selector.js`) vóórdat 'ie zijn
+eerste keuze maakt. Zonder die wachtstap kon locatie 5 zijn allereerste keuze maken terwijl locatie
+4 toevallig nog niet klaar was (nog "Zoeken…"), met IS als resultaat dat daarna "vastzat" - óók
+als locatie 4 vlak daarna alsnog een dekplaat bleek te hebben (een al gekozen bout wordt immers
+bewust niet overschreven, zie hieronder). Eerst wachten op beide voorkomt dat.
+
+Na die eerste keer werkt het verder zonder extra Exact-aanvraag: `reapplyBoutFilter()` herberekent
+bij elke latere wijziging van locatie 1/4 puur client-side, op de al opgehaalde kandidaten van
+locatie 5 (`lastRawRowsByPosition`). Een bout die al gekozen was blijft staan als die nog steeds
+een geldige optie is (dezelfde "niet overschrijven"-regel als overal elders) - alleen de volgorde
+in de lijst verandert meteen mee; de gebruiker kan daarna bewust de nieuwe eerste optie kiezen.
 
 **Locatie 3 (Borgplaat) nooit automatisch** - bewust altijd "geen keuze" als start, ook bij maar 1
 passend artikel, omdat het een optioneel onderdeel is. Zie `renderLiveCandidates()` in
