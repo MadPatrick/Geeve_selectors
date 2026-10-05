@@ -251,8 +251,10 @@ te tonen). De voorkeuren verschillen bewust per locatie, zie `typeRank()`/`mater
   **W5** (RVS).
 - Locatie 4 (Dekplaat): type DP > DPAL > DPAS > DPAD > GD; materiaal **W2** (Staal) / **W5** (RVS)
   voor de lichte serie, maar **W3** (Staal) zodra de beugel zware serie is.
-- Locatie 5 (Bout): type **AS** (Zeskantbout) > IS (Inbusbout) > AF (Stapelbout); materiaal W2
-  (Staal, lichte serie) / **W3** (Staal, zware serie) / W5 (RVS), zelfde als locatie 4.
+- Locatie 5 (Bout): type **AS** (Zeskantbout) > IS (Inbusbout) > AF (Stapelbout) **zodra er een
+  dekplaat gekozen is** (AS draait daar tegenaan); is locatie 4 leeg (geen passende dekplaat, of
+  handmatig leeggemaakt), dan draait de voorkeur om: **IS** > AS > AF. Materiaal W2 (Staal, lichte
+  serie) / **W3** (Staal, zware serie) / W5 (RVS), zelfde als locatie 4.
 
 **Lichte vs. zware serie:** er is geen apart Serie-veld (zie "Selectielogica" hierboven) - de
 zware serie blijkt uit de bouwgroep-tag van de beugel zelf: eindigt die (na het eventueel
@@ -269,10 +271,13 @@ de gekozen lasplaat zo'n letter heeft, filtert locatie 5 (Bout) op datzelfde mon
 artikelen) dan filtert locatie 5 niet op montagetype, zoals voorheen.
 
 Dit werkt zowel bij de automatische standaardselectie als wanneer de gebruiker handmatig een
-andere lasplaat kiest (`reapplyBoutFilter()`, aangeroepen zodra locatie 1's eigen zoekopdracht
-klaar is én bij elke handmatige wijziging van locatie 1) - zonder dat daarvoor opnieuw bij Exact
-gevraagd wordt, want de filter werkt op de al opgehaalde kandidaten van locatie 5
-(`lastRawRowsByPosition`).
+andere lasplaat kiest, en hetzelfde geldt voor de AS/IS-typevoorkeur hierboven bij een wijzigende
+dekplaat-keuze: `reapplyBoutFilter()` wordt aangeroepen zodra locatie 1's/4's eigen zoekopdracht
+klaar is én bij elke handmatige wijziging van locatie 1/4 - zonder dat daarvoor opnieuw bij Exact
+gevraagd wordt, want het werkt op de al opgehaalde kandidaten van locatie 5
+(`lastRawRowsByPosition`). Een bout die al gekozen was blijft staan als die nog steeds een geldige
+optie is (dezelfde "niet overschrijven"-regel als overal elders) - alleen de volgorde in de lijst
+verandert meteen mee; de gebruiker kan daarna bewust de nieuwe eerste optie kiezen.
 
 **Locatie 3 (Borgplaat) nooit automatisch** - bewust altijd "geen keuze" als start, ook bij maar 1
 passend artikel, omdat het een optioneel onderdeel is. Zie `renderLiveCandidates()` in

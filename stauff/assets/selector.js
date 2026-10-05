@@ -894,11 +894,22 @@
                     || a.code.localeCompare(b.code, 'nl', { numeric: true })
                 );
             } else if (numPos === 5) {
-                // Standaardtype Bout: Zeskantbout (AS) eerst.
+                // Standaardtype Bout: Zeskantbout (AS) eerst, want die heeft
+                // een dekplaat nodig om tegenaan te draaien. Is er geen
+                // dekplaat gekozen (locatie 4 leeg - geen passende optie, of
+                // handmatig leeggemaakt), dan is Inbusbout (IS) de juiste
+                // standaardkeuze in plaats van AS. Herberekend zodra locatie
+                // 4 verandert, zie reapplyBoutFilter().
+                const dekplaatGekozen = !!norm(ui.loc4.value);
                 const typeRank = item => {
                     const prefix = firstCodePart(item.code);
-                    if (prefix === 'AS') return 0;
-                    if (prefix === 'IS') return 1;
+                    if (dekplaatGekozen) {
+                        if (prefix === 'AS') return 0;
+                        if (prefix === 'IS') return 1;
+                    } else {
+                        if (prefix === 'IS') return 0;
+                        if (prefix === 'AS') return 1;
+                    }
                     if (prefix === 'AF') return 2;
                     return 3;
                 };
@@ -1040,14 +1051,16 @@
 
     /**
      * Rendert locatie 5 (Bout) opnieuw vanuit de laatst opgehaalde
-     * kandidaten (lastRawRowsByPosition), zodat de montagetype-filter (zie
-     * renderLiveCandidates()) het actuele lasplaatMountType() gebruikt -
-     * nodig zowel ná het (asynchrone) ophalen van locatie 1 als wanneer de
-     * gebruiker de lasplaat-select handmatig wijzigt (zie bindEvents()).
-     * Geen nieuwe Exact-aanvraag: puur een client-side herberekening van
-     * dezelfde, al binnengehaalde rijen. Doet niets als locatie 5 zelf nog
-     * niet gefetcht is - die eigen fetch past de filter dan vanzelf meteen
-     * goed toe, want lasplaatMountType() is op dat moment al bekend.
+     * kandidaten (lastRawRowsByPosition), zodat zowel de montagetype-filter
+     * (lasplaatMountType(), afhankelijk van locatie 1) als de AS/IS-
+     * typevoorkeur (afhankelijk van of locatie 4 een dekplaat heeft, zie
+     * renderLiveCandidates()) de actuele staat gebruiken - nodig ná het
+     * (asynchrone) ophalen van locatie 1/4 én wanneer de gebruiker die
+     * selects handmatig wijzigt (zie bindEvents()). Geen nieuwe Exact-
+     * aanvraag: puur een client-side herberekening van dezelfde, al
+     * binnengehaalde rijen. Doet niets als locatie 5 zelf nog niet gefetcht
+     * is - die eigen fetch past alles dan vanzelf meteen goed toe, want
+     * locatie 1/4 zijn op dat moment al bekend.
      */
     function reapplyBoutFilter() {
         const rawRows = lastRawRowsByPosition[5];
@@ -1085,8 +1098,10 @@
                 return;
             }
             // Locatie 1's eigen fetch moet, zodra 'ie klaar is, locatie 5
-            // (Bout) opnieuw filteren op montagetype - zie reapplyBoutFilter().
-            const onRendered = pos === 1 ? reapplyBoutFilter : null;
+            // (Bout) opnieuw filteren op montagetype; locatie 4's fetch moet
+            // locatie 5 opnieuw op type (AS/IS) laten rangschikken zodra
+            // bekend is of er een dekplaat gekozen is - zie reapplyBoutFilter().
+            const onRendered = (pos === 1 || pos === 4) ? reapplyBoutFilter : null;
             applyLocationFilterSelect(pos, select, family, pos, { emptyText, trackWarning: true, onRendered });
         });
         refreshLocationWarnings();
@@ -1477,8 +1492,11 @@
         });
         [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => select.addEventListener('change', updateAssemblyCode));
         // Handmatig een andere lasplaat kiezen kan het montagetype (U/M)
-        // veranderen - locatie 5 (Bout) moet dan opnieuw gefilterd worden.
+        // veranderen, en handmatig de dekplaat (leeg) maken/kiezen verandert
+        // de AS/IS-typevoorkeur - locatie 5 (Bout) moet dan opnieuw
+        // gerangschikt/gefilterd worden.
         ui.loc1.addEventListener('change', reapplyBoutFilter);
+        ui.loc4.addEventListener('change', reapplyBoutFilter);
         // Aantal wijzigen hoeft geen nieuwe prijs op te halen - alleen de
         // totaalprijs opnieuw berekenen met de al bekende prijzen.
         [ui.aantalLoc1, ui.aantalLoc2, ui.aantalLoc3, ui.aantalLoc4, ui.aantalLoc5]
