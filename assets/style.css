@@ -1,61 +1,8 @@
 
-:root {
-    --bg: #ececec;
-    --panel: #ffffff;
-    --ink: #1f2328;
-    --muted: #687383;
-    --line: #d6dde4;
-    --accent: #ee305d;
-    --accent-dark: #b90d32;
-    --shadow: 0 10px 24px rgba(0, 0, 0, .06);
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-* { box-sizing: border-box; }
-html { min-height: 100%; }
-body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); }
-
-.page-shell { width: min(1100px, calc(100% - 28px)); margin: 16px auto 40px; }
-.page-header { margin-bottom: 18px; }
-.brand-panel {
-    background: #000;
-    color: #fff;
-    border-radius: 18px 18px 0 0;
-    padding: 10px 20px 14px;
-    display: grid;
-    grid-template-columns: minmax(280px, 430px) minmax(280px, 1fr);
-    gap: 24px;
-    align-items: center;
-    position: relative;
-    box-shadow: var(--shadow);
-}
-.brand-panel::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 4px;
-    background: var(--accent);
-}
-.brand-copy { display: flex; flex-direction: column; align-items: flex-start; }
-.brand-logo-row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
-.brand-logo-img { display: block; height: 66px; width: auto; }
-.brand-rubix-img { display: block; height: 33px; width: auto; border-radius: 4px; }
-.header-content { text-align: right; padding-top: 0; }
-h1 {
-    font-size: clamp(22px, 2.2vw, 28px);
-    margin: 2px 0 3px;
-    line-height: 1.2;
-    letter-spacing: -.02em;
-    color: #fff6ea;
-    background: linear-gradient(90deg, #b9b9b9 0%, #ffffff 45%, #b9b9b9 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-}
-@supports (-webkit-background-clip: text) or (background-clip: text) {
-    h1 { color: transparent; }
-}
+/* Tokens, resets, header/brand-panel-chrome en h1 staan nu in
+   ../shared/style.css (bij de subapps) resp. shared/style.css (hier, de
+   portal-root) - geladen vóór dit bestand, zie index.php. Hier alleen
+   app-specifieke stijlen. */
 
 .intro { margin: 22px 4px 26px; color: var(--muted); font-size: 15px; line-height: 1.5; max-width: 640px; }
 
@@ -123,29 +70,6 @@ h1 {
 
 .page-footer { margin: 30px 4px 0; color: var(--muted); font-size: 12px; text-align: center; }
 
-.header-topline { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 6px; }
-.version-inline {
-    font-size: 12px;
-    font-weight: 700;
-    color: #f1f1f1;
-    opacity: .92;
-    white-space: nowrap;
-}
-.header-icon-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    flex: 0 0 auto;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, .35);
-    color: #fff;
-    background: rgba(255, 255, 255, .08);
-    transition: background .15s, border-color .15s;
-}
-.header-icon-button:hover { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .55); }
-.header-icon-button svg { display: block; }
 .update-button svg { display: block; }
 
 .back-link {
@@ -262,16 +186,15 @@ h1 {
 .modal p { margin: 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 
 @media (max-width: 720px) {
-    .brand-panel { grid-template-columns: 1fr; }
-    .header-content { text-align: left; }
+    /* .brand-panel/.header-content vallen al bij 980px uit shared op
+       1 kolom (zie ../shared/style.css) - hier nog alleen de tegel-
+       layout, die niet gedeeld is. */
     .tile-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
+    /* Override: hier een iets kleinere maximumbreedte (1100px i.p.v.
+       shared's 1180px), passend bij deze pagina's smallere .page-shell. */
     .page-shell { width: min(100% - 16px, 1100px); margin-top: 14px; }
-    .brand-panel { padding: 12px 14px 16px; border-radius: 18px 18px 0 0; }
-    .brand-logo-img { height: 50px; }
-    .brand-rubix-img { height: 25px; }
-    h1 { font-size: 24px; }
     .tile { padding: 22px 20px; }
 }

@@ -48,58 +48,46 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
     <meta name="robots" content="noindex,nofollow">
     <title>Hose and fitting Selector | Geeve Hydraulics</title>
     <link rel="icon" href="../favicon.ico?v=<?= h(assetVersion('../favicon.ico')) ?>" type="image/x-icon">
+    <link rel="stylesheet" href="../shared/style.css?v=<?= h(assetVersion('../shared/style.css')) ?>">
     <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
 </head>
 <body>
 <main class="page-shell">
-    <header class="page-header">
-        <div class="brand-panel">
-            <div class="brand-copy">
-                <div class="brand-logo-row">
-                    <img src="../images/geeve.jpg" alt="Geeve Hydraulics - know how in hydraulics" class="brand-logo-img">
-                    <img src="../images/rubix.jpg" alt="Powered by Rubix" class="brand-rubix-img">
-                </div>
-            </div>
-            <a href="../index.php" class="header-home-button" title="Terug naar hoofdmenu" aria-label="Terug naar hoofdmenu">
-                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M3 11.5 12 4l9 7.5"></path>
-                    <path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-5a2 2 0 1 1 4 0v5h3.5a1 1 0 0 0 1-1V9.5"></path>
-                </svg>
-            </a>
-            <div class="header-content">
-                <div class="header-topline">
-                    <div class="topbar-status-pill <?= h($dataState) ?>"><?= h($dataLabel) ?></div>
-                    <div class="pdf-dropdown">
-                        <button type="button" id="pdfButton" class="topbar-pdf-button" aria-haspopup="true" aria-expanded="false">Perslijst (PDF)</button>
-                        <div class="pdf-menu" id="pdfMenu" hidden>
-                            <button type="button" class="pdf-menu-item" data-scope="all">Complete catalogus</button>
-                            <button type="button" class="pdf-menu-item" data-scope="accessoires">Accessoires</button>
-                            <button type="button" class="pdf-menu-item" data-scope="staal">Staal</button>
-                            <button type="button" class="pdf-menu-item" data-scope="rvs">RVS</button>
-                        </div>
-                    </div>
-                    <button type="button" id="editToggleButton" class="header-icon-button" title="Gegevens wijzigen" aria-label="Gegevens wijzigen" disabled>
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M12 20h9"></path>
-                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-                        </svg>
-                    </button>
-                    <button type="button" id="saveEditButton" class="header-icon-button header-icon-button-save" title="Wijzigingen opslaan" aria-label="Wijzigingen opslaan" hidden>
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M20 6 9 17l-5-5"></path>
-                        </svg>
-                    </button>
-                    <button type="button" id="cancelEditButton" class="header-icon-button header-icon-button-cancel" title="Wijzigingen annuleren" aria-label="Wijzigingen annuleren" hidden>
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M18 6 6 18"></path>
-                            <path d="M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                <h1>Hose and fitting Selector</h1>
-            </div>
+    <?php
+    $headerTitle = 'Hose and fitting Selector';
+    ob_start();
+    ?>
+    <div class="topbar-status-pill <?= h($dataState) ?>"><?= h($dataLabel) ?></div>
+    <div class="pdf-dropdown">
+        <button type="button" id="pdfButton" class="topbar-pdf-button" aria-haspopup="true" aria-expanded="false">Perslijst (PDF)</button>
+        <div class="pdf-menu" id="pdfMenu" hidden>
+            <button type="button" class="pdf-menu-item" data-scope="all">Complete catalogus</button>
+            <button type="button" class="pdf-menu-item" data-scope="accessoires">Accessoires</button>
+            <button type="button" class="pdf-menu-item" data-scope="staal">Staal</button>
+            <button type="button" class="pdf-menu-item" data-scope="rvs">RVS</button>
         </div>
-    </header>
+    </div>
+    <button type="button" id="editToggleButton" class="header-icon-button" title="Gegevens wijzigen" aria-label="Gegevens wijzigen" disabled>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+        </svg>
+    </button>
+    <button type="button" id="saveEditButton" class="header-icon-button header-icon-button-save" title="Wijzigingen opslaan" aria-label="Wijzigingen opslaan" hidden>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5"></path>
+        </svg>
+    </button>
+    <button type="button" id="cancelEditButton" class="header-icon-button header-icon-button-cancel" title="Wijzigingen annuleren" aria-label="Wijzigingen annuleren" hidden>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18"></path>
+            <path d="M6 6l12 12"></path>
+        </svg>
+    </button>
+    <?php
+    $headerTopline = ob_get_clean();
+    require __DIR__ . '/../shared/header.php';
+    ?>
 
     <?php foreach ($loadErrors as $loadError): ?>
         <section class="warning-box"><?= h($loadError) ?></section>
