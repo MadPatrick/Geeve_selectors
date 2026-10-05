@@ -262,6 +262,26 @@
         return match ? match[0] : '';
     }
 
+    /**
+     * Haalt de montagetype-letter (U of M) terug uit een artikelcode-string
+     * (bijv. "SPAL 3 S U W2" -> "U", "AS 4 S M W3" -> "M") - sommige SPAL-
+     * lasplaten (en hun bijbehorende bouten) bestaan in 2 montagevarianten,
+     * los van bouwgroep/materiaal/serie. Geen U/M in de code (de meeste
+     * artikelen) -> "" = geen montagetype-onderscheid voor dit artikel.
+     * Gebruikt door lasplaatMountType() om de bouten (locatie 5) te
+     * filteren op hetzelfde montagetype als de gekozen lasplaat, zie
+     * renderLiveCandidates().
+     */
+    function extractMountType(itemCode) {
+        const match = upper(itemCode).match(/\b([UM])\s*W\d/);
+        return match ? match[1] : '';
+    }
+
+    /** Montagetype (zie extractMountType()) van de momenteel gekozen lasplaat. */
+    function lasplaatMountType() {
+        return extractMountType(ui.loc1.value);
+    }
+
     // Welke waarde als "material"-parameter naar exact_location_search.php
     // gaat. Alle locaties (1/3/4/5) filteren op de hele materiaalFAMILIE
     // (W1/W2/W3 voor Staal, W4/W5/W55 voor RVS, als ;-lijst) - er is geen
@@ -775,6 +795,12 @@
     const locationFilterRequests = {};
     const LOCATION_FILTER_TIMEOUT_MS = 20000;
 
+    // Laatst opgehaalde, ONGEFILTERDE kandidaten per vaste locatie (1/3/4/5)
+    // - gebruikt door reapplyBoutFilter() om locatie 5 (Bout) opnieuw te
+    // renderen op basis van het montagetype van de (inmiddels bekende)
+    // gekozen lasplaat, zonder opnieuw bij Exact te bevragen.
+    const lastRawRowsByPosition = {};
+
     // Bijgehouden "geen kandidaten"-waarschuwing per vaste locatie (1/3/4/5) -
     // apart per locatie omdat elke locatie zijn eigen, onafhankelijke async
     // live-zoekopdracht heeft (zie applyLocationFilterSelect()), dus niet in
@@ -810,6 +836,17 @@
 
         if (GROUP_FILTER_ENABLED_FOR[numPos] && state.beugelGroup) {
             items = items.filter(item => tagMatches(item.group, state.beugelGroup));
+        }
+
+        if (numPos === 5) {
+            // Bouten moeten hetzelfde montagetype (U/M) hebben als de
+            // gekozen lasplaat, zodra die er 1 heeft (zie extractMountType()/
+            // lasplaatMountType()) - geen montagetype bij de lasplaat (de
+            // meeste artikelen) betekent geen extra filter hier.
+            const requiredMountType = lasplaatMountType();
+            if (requiredMountType) {
+                items = items.filter(item => extractMountType(item.code) === requiredMountType);
+            }
         }
 
         if (numPos === 1 || numPos === 4 || numPos === 5) {
@@ -949,7 +986,7 @@
      * een eigen unieke key mee - anders zouden ze elkaars zoekopdracht
      * annuleren via dezelfde locationFilterRequests-sleutel.
      */
-    function applyLocationFilterSelect(pos, select, family, requestKey = pos, { emptyText = '', trackWarning = false } = {}) {
+    function applyLocationFilterSelect(pos, select, family, requestKey = pos, { emptyText = '', trackWarning = false, onRendered = null } = {}) {
         if (locationFilterRequests[requestKey]) {
             clearTimeout(locationFilterRequests[requestKey].timeoutId);
             locationFilterRequests[requestKey].controller.abort();
@@ -977,8 +1014,10 @@
                 if (!payload || payload.ok !== true) {
                     throw new Error((payload && payload.error) || 'Onbekende fout.');
                 }
+                lastRawRowsByPosition[Number(pos)] = payload.rows;
                 renderLiveCandidates(pos, select, payload.rows, { family, previousValue, emptyText, trackWarning });
                 updateAssemblyCode();
+                if (onRendered) onRendered();
             })
             .catch(error => {
                 clearTimeout(timeoutId);
@@ -997,6 +1036,31 @@
                 select.innerHTML = `<option value="">Zoeken mislukt: ${escapeHtml(error.message)}</option>`;
                 select.disabled = false;
             });
+    }
+
+    /**
+     * Rendert locatie 5 (Bout) opnieuw vanuit de laatst opgehaalde
+     * kandidaten (lastRawRowsByPosition), zodat de montagetype-filter (zie
+     * renderLiveCandidates()) het actuele lasplaatMountType() gebruikt -
+     * nodig zowel ná het (asynchrone) ophalen van locatie 1 als wanneer de
+     * gebruiker de lasplaat-select handmatig wijzigt (zie bindEvents()).
+     * Geen nieuwe Exact-aanvraag: puur een client-side herberekening van
+     * dezelfde, al binnengehaalde rijen. Doet niets als locatie 5 zelf nog
+     * niet gefetcht is - die eigen fetch past de filter dan vanzelf meteen
+     * goed toe, want lasplaatMountType() is op dat moment al bekend.
+     */
+    function reapplyBoutFilter() {
+        const rawRows = lastRawRowsByPosition[5];
+        if (!rawRows) return;
+        const family = getMaterialFamily();
+        if (!family) return;
+        renderLiveCandidates(5, ui.loc5, rawRows, {
+            family,
+            previousValue: ui.loc5.value,
+            emptyText: 'Geen passende bout',
+            trackWarning: true,
+        });
+        updateAssemblyCode();
     }
 
     function rebuildComponents() {
@@ -1020,7 +1084,10 @@
                 emptyWarnings[pos] = null;
                 return;
             }
-            applyLocationFilterSelect(pos, select, family, pos, { emptyText, trackWarning: true });
+            // Locatie 1's eigen fetch moet, zodra 'ie klaar is, locatie 5
+            // (Bout) opnieuw filteren op montagetype - zie reapplyBoutFilter().
+            const onRendered = pos === 1 ? reapplyBoutFilter : null;
+            applyLocationFilterSelect(pos, select, family, pos, { emptyText, trackWarning: true, onRendered });
         });
         refreshLocationWarnings();
         refreshExtraItems();
@@ -1409,6 +1476,9 @@
             });
         });
         [ui.loc1, ui.loc3, ui.loc4, ui.loc5].forEach(select => select.addEventListener('change', updateAssemblyCode));
+        // Handmatig een andere lasplaat kiezen kan het montagetype (U/M)
+        // veranderen - locatie 5 (Bout) moet dan opnieuw gefilterd worden.
+        ui.loc1.addEventListener('change', reapplyBoutFilter);
         // Aantal wijzigen hoeft geen nieuwe prijs op te halen - alleen de
         // totaalprijs opnieuw berekenen met de al bekende prijzen.
         [ui.aantalLoc1, ui.aantalLoc2, ui.aantalLoc3, ui.aantalLoc4, ui.aantalLoc5]

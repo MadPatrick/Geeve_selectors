@@ -260,6 +260,20 @@ strippen van de "D" voor dubbel) op **"S"** (bijv. `GR10S`, `GR10SD`), dan is de
 serie (`isZwareSerieBeugel()` in `assets/selector.js`). Geen "S" (bijv. `GR10`, `GR10D`) = lichte
 serie, de standaard.
 
+**Montagetype (U/M) - lasplaat en bout moeten overeenkomen:** sommige SPAL-lasplaten bestaan in 2
+montagevarianten, zichtbaar als een losse "U" of "M" vlak vóór de materiaalcode in het
+**artikelnummer** zelf (niet de Exact-omschrijving), bijv. `SPAL 3 S U W2` / `SPAL 3 S M W2`. Zodra
+de gekozen lasplaat zo'n letter heeft, filtert locatie 5 (Bout) op datzelfde montagetype (bijv.
+`AS 4 S U W3` hoort bij `SPAL 3 S U W2`, niet bij de M-variant) - zie `extractMountType()`/
+`lasplaatMountType()` in `assets/selector.js`. Heeft de gekozen lasplaat geen U/M (de meeste
+artikelen) dan filtert locatie 5 niet op montagetype, zoals voorheen.
+
+Dit werkt zowel bij de automatische standaardselectie als wanneer de gebruiker handmatig een
+andere lasplaat kiest (`reapplyBoutFilter()`, aangeroepen zodra locatie 1's eigen zoekopdracht
+klaar is én bij elke handmatige wijziging van locatie 1) - zonder dat daarvoor opnieuw bij Exact
+gevraagd wordt, want de filter werkt op de al opgehaalde kandidaten van locatie 5
+(`lastRawRowsByPosition`).
+
 **Locatie 3 (Borgplaat) nooit automatisch** - bewust altijd "geen keuze" als start, ook bij maar 1
 passend artikel, omdat het een optioneel onderdeel is. Zie `renderLiveCandidates()` in
 `assets/selector.js`.
