@@ -140,6 +140,25 @@ kolomnaam-zoekoptie, `?kolom=levwijze`):
 Is de order niet gevonden in `orkrg`, of de code niet in `ordlev`, dan toont de kaart een streepje
 (geen foutmelding, zelfde gedrag als Locatie/Voorraad hierboven bij een missende koppeling).
 
+## Krimpmaten (CSV-matching) - performance
+
+Het "Krimpmaten"-kader op elke slangkaart zoekt per koppelartikel de Persmaat/Schilmaat op via
+`findKrimpmaat()` in `index.php`, in 2 lokale CSV-bestanden (`../hoses/data/artikelnummers_staal.csv`
+en `_rvs.csv`, ~940 regels elk) - géén database. Dit bleek de hoofdoorzaak van wisselend trage
+prints: `findKrimpmaatInCsv()` las voorheen bij **elke aanroep** het bestand opnieuw open en liep
+het van voor naar achter door tot de eerste regel met het juiste `artnr`, zonder enige caching -
+ook niet voor exact dezelfde (slangtype, koppelartikel)-combinatie die vaker voorkomt in dezelfde
+printopdracht. Bij N kaarten met in totaal M van die combinaties liep de totale tijd dus op tot M
+volledige bestandsscans. Dat verklaart ook waarom het aantal kaarten geen goede voorspeller was van
+de printsnelheid: een kleine, uiteenlopende order (veel verschillende, verspreid-in-het-bestand-
+staande slangtypes) kon trager zijn dan een grote order met vooral identieke/vroeg-in-het-bestand
+voorkomende slangtypes.
+
+Opgelost door elke CSV 1x per paginaverzoek te parsen in een index per `artnr`
+(`loadKrimpmatenCsv()`, statisch gecached), waarna elke opzoeking een simpele array-lookup is
+i.p.v. een lineaire scan. Zelfde matchgedrag als voorheen (alleen de eerste rij per `artnr` telt),
+geverifieerd tegen de echte CSV's met identieke resultaten voor beide implementaties.
+
 ## Zoekfilter slangnummer: alleen artikelgroep 0 (Exact, database 005)
 
 Bij zoeken op slangnummer (stap 1, zie "Status" hierboven) worden de gevonden regels gefilterd op

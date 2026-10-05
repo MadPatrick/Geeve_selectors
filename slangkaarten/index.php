@@ -429,94 +429,96 @@ function matchesKoppelingField(string $needleKoppeling, string $fieldValue): boo
 }
 
 /**
- * Leest en parset 1 CSV-bestand volledig in, 1x per bestand per request
- * (static cache, sleutel = bestandspad) - i.p.v. opnieuw openen/inlezen
- * bij elke aanroep van findKrimpmaatInCsv(). Bij het printen van meerdere
- * slangkaarten (elk met meerdere koppelartikelen) riep renderKrimpmatenTable()
- * findKrimpmaat() voorheen per artikel per kaart aan, en dat opende/parste
- * beide CSV's (940 regels elk) telkens opnieuw vanaf het begin - bij bv. 10
- * kaarten met elk een paar koppelingen al snel honderden keren. Met deze
- * cache gebeurt het parsen nog maar 1x, ongeacht het aantal kaarten/artikelen.
- *
- * @return array<int, array<string, string>>|null null = bestand niet leesbaar
+ * Leest en indexeert 1 krimpmaten-CSV op "artnr" (slangtype) - 1x per
+ * requestproces, statisch gecached per bestandsnaam. findKrimpmaatInCsv()
+ * las dit bestand voorheen bij ELKE aanroep opnieuw van voor naar achter
+ * uit (tot ~940 regels), voor elk uniek (slangtype, koppelartikel)-paar
+ * op elke kaart - zonder enige memoization, ook niet voor exact dezelfde
+ * combinatie die vaker voorkomt in dezelfde printopdracht. Bij N
+ * slangkaarten met in totaal M van die combinaties liep de totale tijd op
+ * tot M volledige bestandsscans, en viel die tijd niet te voorspellen uit
+ * het aantal kaarten alleen - een kleine, uiteenlopende printopdracht kan
+ * trager zijn dan een grote met veel identieke/vroeg-in-het-bestand-
+ * staande slangtypes. Alleen de EERSTE rij per artnr wordt bewaard - zelfde
+ * gedrag als de oude code, die ook altijd stopte bij de eerste artnr-match
+ * (zie de onvoorwaardelijke "break" die hieronder is vervallen). Geeft een
+ * echte index terug (sleutel = artnr), niet enkel een gecachte rijenlijst -
+ * dat laatste zou findKrimpmaatInCsv() nog steeds lineair laten zoeken per
+ * aanroep.
  */
-function readCsvRows(string $csvFile): ?array
+function loadKrimpmatenCsv(string $csvFile): array
 {
     static $cache = [];
-
     if (array_key_exists($csvFile, $cache)) {
         return $cache[$csvFile];
     }
 
+    $index = [];
     $handle = @fopen($csvFile, 'rb');
     if ($handle === false) {
-        return $cache[$csvFile] = null;
+        return $cache[$csvFile] = $index;
     }
 
     $headers = fgetcsv($handle, 0, ',');
     if ($headers === false) {
         fclose($handle);
-        return $cache[$csvFile] = null;
+        return $cache[$csvFile] = $index;
     }
     $headers = array_map('csvCleanValue', $headers);
 
-    $rows = [];
     while (($data = fgetcsv($handle, 0, ',')) !== false) {
         if (count($data) !== count($headers)) {
             continue;
         }
         $row = array_combine($headers, $data);
-        if ($row !== false) {
-            $rows[] = $row;
+        if ($row === false) {
+            continue;
         }
+        $artnr = strtoupper(csvGetColumn($row, 'artnr'));
+        if ($artnr === '' || isset($index[$artnr])) {
+            continue;
+        }
+        $index[$artnr] = $row;
     }
     fclose($handle);
 
-    return $cache[$csvFile] = $rows;
+    return $cache[$csvFile] = $index;
 }
 
-/** Doorzoekt 1 CSV-bestand op slangtype + koppelartikel, zie findKrimpmaat(). */
+/** Doorzoekt 1 CSV-bestand (via de index, zie loadKrimpmatenCsv()) op slangtype + koppelartikel, zie findKrimpmaat(). */
 function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelingArtikel): ?array
 {
-    $rows = readCsvRows($csvFile);
-    if ($rows === null) {
+    $index = loadKrimpmatenCsv($csvFile);
+    $needleSlang = strtoupper($slangType);
+    if (!isset($index[$needleSlang])) {
         return null;
     }
-
-    $needleSlang = strtoupper($slangType);
+    $row = $index[$needleSlang];
     $needleKoppeling = strtoupper($koppelingArtikel);
 
-    foreach ($rows as $row) {
-        if (strtoupper(csvGetColumn($row, 'artnr')) !== $needleSlang) {
-            continue;
+    foreach ([1, 2] as $number) {
+        $prefix = "2delig_{$number}";
+        $huls = csvGetColumn($row, "{$prefix} - Huls");
+        $pilaar = csvGetColumn($row, "{$prefix} - Pilaar");
+        if (matchesKoppelingField($needleKoppeling, $huls) || matchesKoppelingField($needleKoppeling, $pilaar)) {
+            return [
+                'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
+                'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
+                'schilExtern' => csvGetColumn($row, "{$prefix} - Schilmaat extern (mm)"),
+            ];
         }
+    }
 
-        foreach ([1, 2] as $number) {
-            $prefix = "2delig_{$number}";
-            $huls = csvGetColumn($row, "{$prefix} - Huls");
-            $pilaar = csvGetColumn($row, "{$prefix} - Pilaar");
-            if (matchesKoppelingField($needleKoppeling, $huls) || matchesKoppelingField($needleKoppeling, $pilaar)) {
-                return [
-                    'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
-                    'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
-                    'schilExtern' => csvGetColumn($row, "{$prefix} - Schilmaat extern (mm)"),
-                ];
-            }
+    foreach ([1, 2, 3] as $number) {
+        $prefix = "1delig_{$number}";
+        $koppelArtikel = csvGetColumn($row, $prefix);
+        if (matchesKoppelingField($needleKoppeling, $koppelArtikel)) {
+            return [
+                'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
+                'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
+                'schilExtern' => csvGetColumn($row, "{$prefix} - Schilmaat extern (mm)"),
+            ];
         }
-
-        foreach ([1, 2, 3] as $number) {
-            $prefix = "1delig_{$number}";
-            $koppelArtikel = csvGetColumn($row, $prefix);
-            if (matchesKoppelingField($needleKoppeling, $koppelArtikel)) {
-                return [
-                    'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
-                    'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
-                    'schilExtern' => csvGetColumn($row, "{$prefix} - Schilmaat extern (mm)"),
-                ];
-            }
-        }
-
-        return null;
     }
 
     return null;
