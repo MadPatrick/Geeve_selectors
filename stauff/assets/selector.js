@@ -871,8 +871,23 @@
                     || a.code.localeCompare(b.code, 'nl', { numeric: true })
                 );
             } else {
+                // Locatie 4 (Dekplaat): zonder eigen typeRank viel de
+                // standaardselectie terug op alfabetische volgorde zodra DP
+                // niet bestond voor deze bouwgroep - dat liet DPAD/DPAS vóór
+                // DPAL komen. DPAL hoort net als DP standaard gekozen te
+                // kunnen worden, dus krijgt een vaste plek in de voorkeur.
+                const typeRank = item => {
+                    const prefix = firstCodePart(item.code);
+                    if (prefix === 'DP') return 0;
+                    if (prefix === 'DPAL') return 1;
+                    if (prefix === 'DPAS') return 2;
+                    if (prefix === 'DPAD') return 3;
+                    if (prefix === 'GD') return 4;
+                    return 8;
+                };
                 items = [...items].sort((a, b) =>
-                    materialRank(a) - materialRank(b)
+                    typeRank(a) - typeRank(b)
+                    || materialRank(a) - materialRank(b)
                     || a.code.localeCompare(b.code, 'nl', { numeric: true })
                 );
             }

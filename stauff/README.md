@@ -249,9 +249,8 @@ te tonen). De voorkeuren verschillen bewust per locatie, zie `typeRank()`/`mater
 
 - Locatie 1 (Lasplaat/Glijmoer): type SP > SPV > WSP > SPAL > GMV/SM; materiaal **W3** (Staal) /
   **W5** (RVS).
-- Locatie 4 (Dekplaat): materiaal **W2** (Staal) / **W5** (RVS) voor de lichte serie, maar **W3**
-  (Staal) zodra de beugel zware serie is (geen eigen type-voorkeur nodig, er is maar 1
-  Dekplaat-voorvoegselgroep per bouwgroep).
+- Locatie 4 (Dekplaat): type DP > DPAL > DPAS > DPAD > GD; materiaal **W2** (Staal) / **W5** (RVS)
+  voor de lichte serie, maar **W3** (Staal) zodra de beugel zware serie is.
 - Locatie 5 (Bout): type **AS** (Zeskantbout) > IS (Inbusbout) > AF (Stapelbout); materiaal W2
   (Staal, lichte serie) / **W3** (Staal, zware serie) / W5 (RVS), zelfde als locatie 4.
 
