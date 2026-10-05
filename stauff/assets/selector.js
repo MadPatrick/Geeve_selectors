@@ -417,6 +417,21 @@
     }
 
     /**
+     * Zware serie o.b.v. de GRxS-groep-tag uit de Exact-omschrijving
+     * (state.beugelGroup) - een "S" aan het eind van de groep-tag (na het
+     * eventueel strippen van de "D" voor dubbel, bijv. "GR10SD") betekent
+     * zware serie, zelfde conventie als isDubbelFromExactGroup() hierboven
+     * voor de "D". Geen groep bekend -> niet zwaar (lichte serie is de
+     * standaard). Gebruikt door materialRank() in renderLiveCandidates()
+     * om voor Dekplaat/Bout bij een zware-serie-beugel ook W3 (ZN) als
+     * standaard te nemen, i.p.v. de W2 (CS Ph) die voor de lichte serie
+     * blijft gelden.
+     */
+    function isZwareSerieBeugel() {
+        return /S$/i.test(norm(state.beugelGroup).replace(/D$/i, ''));
+    }
+
+    /**
      * Dubbele beugel o.b.v. de artikelcode zelf: een herhaalde diameter,
      * gescheiden door "/" (bijv. "112/12" of "103,2/03,2"), betekent
      * dubbel; zonder "/" (bijv. "112") is enkel - rechtstreeks op de
@@ -799,14 +814,18 @@
 
         if (numPos === 1 || numPos === 4 || numPos === 5) {
             // Locatie 1 (Lasplaat/Glijmoer) en 4 (Dekplaat) hebben elk hun
-            // eigen standaard-materiaalvoorkeur: locatie 1 default naar W3
-            // bij Staal / W5 bij RVS, locatie 4/5 blijven W2 bij Staal / W5
-            // bij RVS (ongewijzigd). Alleen de EERSTE (rank 0) bepaalt de
-            // standaardselectie hieronder; de rest is tiebreak-volgorde.
+            // eigen standaard-materiaalvoorkeur: locatie 1 default altijd
+            // naar W3 bij Staal / W5 bij RVS. Locatie 4/5 blijven W2 bij
+            // Staal voor de LICHTE serie, maar gaan ook naar W3 bij Staal
+            // zodra de beugel een zware-serie-tag heeft (GRxS, zie
+            // isZwareSerieBeugel()) - de klant gaf aan dat W3 voor
+            // Dekplaat/Bout bij de zware serie de 1e keuze moet zijn.
+            // Alleen de EERSTE (rank 0) bepaalt de standaardselectie
+            // hieronder; de rest is tiebreak-volgorde.
             const materialRank = item => {
                 const mc = materialCodeFromItemCode(item.code);
                 if (family === 'Staal') {
-                    if (numPos === 1) {
+                    if (numPos === 1 || isZwareSerieBeugel()) {
                         if (mc === 'W3') return 0;
                         if (mc === 'W1') return 1;
                         if (mc === 'W2') return 2;
