@@ -73,9 +73,12 @@ daarom 1x centraal, niet los per subapp:
 ```
 index.php              Startpagina met tegels
 version.php             Eén gedeeld versienummer voor hoofdscherm + alle subapps, zie hieronder
+shared/style.css        Gedeelde basisopmaak (tokens, header/brand-panel-chrome, formulier-
+                        primitieven) voor hoofdscherm + alle subapps, zie "Gedeelde layout"
+shared/header.php       Gedeelde header/brand-panel-include, zie "Gedeelde layout"
 .env.example            Gedeelde Exact-database "005"-inloggegevens (EXACT_DB_*), gebruikt door
                         /stauff en /slangkaarten - zie "Database-koppeling Exact (database 005)"
-assets/style.css        Styling van alleen de startpagina
+assets/style.css        Styling van alleen de startpagina (bovenop shared/style.css)
 images/                 Gedeeld Geeve/Rubix-merklogo (geeve.jpg, rubix.jpg) - door alle
                         subapps gebruikt via ../images/..., één plek om bij te werken
 docs/                   Bron-PDF's (catalogi, persmaatlijsten) - alleen referentiemateriaal,
@@ -97,6 +100,57 @@ stickers/               Eigen scherm met 3 tegels (nog niet functioneel - "Binne
                         beschikbaar") - bestanden staan er nog, momenteel geen tegel op de
                         startpagina
 ```
+
+## Gedeelde layout
+
+Het hoofdscherm en alle subapps gebruiken dezelfde basisopmaak (kleurtokens, resets, de
+header/brand-panel-chrome, en de meest gebruikte formulierprimitieven zoals `.panel`/`.field`/
+`input`/`select`) - 1x onderhouden in `shared/style.css` en `shared/header.php` op portal-niveau,
+i.p.v. per app gekopieerd. Dit loste een concrete inconsistentie op: elke app had vóór deze
+refactor zijn eigen, licht uiteengelopen kopie van dezelfde tokens/header-stijlen (verschillende
+`.page-shell`-breedtes, een enkele app zonder reponsive header-inklap op mobiel, etc.).
+
+**CSS.** Elke pagina laadt `shared/style.css` vóór zijn eigen `assets/style.css`:
+
+```html
+<link rel="stylesheet" href="../shared/style.css?v=...">  <!-- subapps -->
+<link rel="stylesheet" href="assets/style.css?v=...">
+```
+
+(het hoofdscherm zelf gebruikt `shared/style.css` zonder `../`, want dat staat al op rootniveau).
+Omdat de eigen stylesheet ná de gedeelde laadt, kan een app met een enkele regel een specifieke
+waarde overschrijven (bijv. `.page-shell { width: min(1400px, calc(100% - 28px)); }` voor een
+bredere pagina) zonder de hele regel te moeten herhalen. Wat wél overal identiek is (bijv.
+`.brand-panel`, `h1`, `input, select`) staat **alleen** nog in `shared/style.css` - de eigen
+`assets/style.css` van elke app bevat nu alleen nog app-specifieke stijlen en zulke overrides.
+
+**Header-HTML.** Dezelfde brand-panel/header-markup (logo's, "terug naar hoofdmenu"-knop, `<h1>`)
+stond ook bijna letterlijk gekopieerd in elke `index.php`. Dat is nu `shared/header.php`, een
+PHP-include die je zo gebruikt:
+
+```php
+<main class="page-shell">
+    <?php
+    $headerTitle = 'Stauff Selector';
+    require __DIR__ . '/../shared/header.php';
+    ?>
+```
+
+Variabelen (vóór het includen zetten, zie de docblock in `shared/header.php` voor de volledige
+lijst):
+
+- `$headerTitle` (verplicht) - tekst voor `<h1>`.
+- `$headerImagesPath` (optioneel, default `'../images/'`) - het hoofdscherm zet hier `'images/'`.
+- `$headerShowHome` (optioneel, default `true`) - het hoofdscherm zet hier `false` (dat IS het
+  hoofdmenu, dus geen "terug"-knop).
+- `$headerTopline` (optioneel, kale HTML) - voor een eigen icoon-knoppenrij/versietekst/statuspil
+  boven de titel; bouw dit met `ob_start()`/`ob_get_clean()` vóór het includen als het meer dan 1
+  regel is (zie `adapters/index.php` of `hoses/index.php` voor een voorbeeld met meerdere
+  icoon-knoppen).
+
+**Een nieuwe app aanhaken** kost dus maar 2 regels: de `<link>` naar `shared/style.css` (vóór de
+eigen stylesheet) en de `require` van `shared/header.php` (met `$headerTitle` gezet) - daarmee
+heeft de nieuwe app meteen dezelfde huisstijl, zonder iets te kopiëren.
 
 ## Eén gedeeld versienummer
 
