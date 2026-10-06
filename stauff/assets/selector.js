@@ -283,6 +283,19 @@
         return extractMountType(ui.loc1.value);
     }
 
+    /**
+     * Codegedeelte voor locatie 5 (Bout) in de samenstellingscode: het
+     * voorvoegsel (AS/IS) plus, als de gekozen bout een montagetype (U/M)
+     * heeft (zie extractMountType()), dat erachter met een spatie - zodat
+     * bijvoorbeeld "AS 1/1A M W3" "AS M" oplevert i.p.v. alleen "AS". Geen
+     * montagetype bij deze bout -> gewoon het voorvoegsel, zoals voorheen.
+     */
+    function boutCodePart(itemCode) {
+        const prefix = firstCodePart(itemCode);
+        const mountType = extractMountType(itemCode);
+        return mountType ? `${prefix} ${mountType}` : prefix;
+    }
+
     // Welke waarde als "material"-parameter naar exact_location_search.php
     // gaat. Alle locaties (1/3/4/5) filteren op de hele materiaalFAMILIE
     // (W1/W2/W3 voor Staal, W4/W5/W55 voor RVS, als ;-lijst) - er is geen
@@ -1343,7 +1356,7 @@
             clampCodePart(clamp),
             ui.loc3.value ? firstCodePart(ui.loc3.value) : '',
             ui.loc4.value ? firstCodePart(ui.loc4.value) : '',
-            ui.loc5.value ? firstCodePart(ui.loc5.value) : '',
+            ui.loc5.value ? boutCodePart(ui.loc5.value) : '',
             wcode || '',
         ].filter(Boolean);
 

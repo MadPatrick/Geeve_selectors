@@ -334,6 +334,14 @@ Een complete samenstelling kan bijvoorbeeld worden:
 
 `SP-215 PP-SIG-DP-AS-W3`
 
+Locatie 5 (Bout) krijgt er, als de gekozen bout een montagetype (U/M) heeft (zie
+`extractMountType()` hierboven), dat achter het voorvoegsel met een spatie bij -
+`boutCodePart()` maakt daar bijvoorbeeld `AS M` van i.p.v. alleen `AS`:
+
+`SP-106A PP-DP-AS M-W10`
+
+Geen montagetype bij deze bout (de meeste) → gewoon het voorvoegsel, zoals hierboven.
+
 
 ## Optionele samenstelling
 
