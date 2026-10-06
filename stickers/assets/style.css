@@ -69,10 +69,5 @@
 .page-footer { margin: 30px 4px 0; color: var(--muted); font-size: 12px; text-align: center; }
 
 @media (max-width: 720px) {
-    .page-shell { width: min(100% - 16px, 1100px); margin-top: 14px; }
-    .brand-panel { padding: 12px 14px 16px; }
-    .brand-logo-img { height: 50px; }
-    .brand-rubix-img { height: 25px; }
-    h1 { font-size: 22px; }
     .tile-grid { grid-template-columns: 1fr; }
 }

@@ -87,6 +87,18 @@ function runGitPull(string $repoRoot): array
 
     $output = trim(($stdout !== false ? $stdout : '') . (($stderr !== false && $stderr !== '') ? "\n" . $stderr : ''));
 
+    // "cannot open '.git/FETCH_HEAD': Permission denied": de gebruiker waaronder
+    // PHP draait mag niet in .git schrijven (de map is bijv. als root of via
+    // een andere gebruiker gekloond). Geef direct de oplossing mee.
+    if ($exitCode !== 0 && stripos($output, 'Permission denied') !== false) {
+        $phpUser = function_exists('posix_getpwuid') && function_exists('posix_geteuid')
+            ? (posix_getpwuid(posix_geteuid())['name'] ?? get_current_user())
+            : get_current_user();
+        $output .= "\n\nOplossing: PHP draait als gebruiker \"{$phpUser}\", maar die mag niet schrijven in "
+            . $repoRoot . "/.git. Draai eenmalig op de server:\n"
+            . "  sudo chown -R {$phpUser}: " . $repoRoot;
+    }
+
     return [
         'ok'     => $exitCode === 0,
         'output' => $output !== '' ? $output : '(geen uitvoer)',

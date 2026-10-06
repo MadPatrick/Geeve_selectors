@@ -37,10 +37,6 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 }
 .pdf-button:hover { background: var(--accent-dark); color: #fff; }
 
-/* Override: hier 14px (shared default is 4px). */
-.panel > small { margin-top: 14px; }
-/* Override: eigen kleuren/cursor (shared heeft alleen input/select samen). */
-select:disabled { background: var(--soft); color: var(--muted); cursor: not-allowed; }
 
 .config-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
 .gc-1 { grid-column: 1; }
