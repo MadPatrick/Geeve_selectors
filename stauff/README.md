@@ -70,18 +70,21 @@ kandidaat-artikel telt alleen mee als zijn eigen tag de bouwgroep van de gekozen
 dus alleen kandidaten wier eigen omschrijving dezelfde `D`-tag draagt, een Enkel-beugel alleen
 kandidaten zonder `D`.
 
-Voor de meeste Onderdeel-types is dat een exacte 1-op-1 match (1 artikel = 1 bouwgroep), maar
-glijmoer-artikelen (`SM`/`GMV`) kunnen met 1 artikel meerdere bouwgroepen dekken via een
-range-tag in de omschrijving, bijv.:
+Voor de meeste artikelen is dat een exacte 1-op-1 match (1 artikel = 1 bouwgroep), maar sommige
+artikelen dekken met 1 artikel meerdere bouwgroepen via een talrange- of lijst-tag in de
+omschrijving - dit bleek niet beperkt tot glijmoer-artikelen (`SM`/`GMV`), bijv.:
 
 - `SM 1`: `GR1-8/1D` -> dekt `GR1` t/m `GR8` **en** `GR1D` (talrange zonder letter-suffix, plus
   een losse extra tag na de `/`).
 - `GMV 3`: `GR3-5S` -> dekt `GR3S`, `GR4S`, `GR5S` (talrange MET letter-suffix, geldt voor elk
   nummer in de range).
+- `AS 1/1A M W3` (bout): omschrijving `HEX BOLT AS-M6X30-DIN931/933-8.8-W3, GR1/1A` -> dekt
+  `GR1` **en** `GR1A` (losse lijst, geen talrange - elk segment na een `/` is gewoon zijn eigen
+  tag).
 
-`parseGroupTags()` breidt zo'n range-tag uit naar de losse GRx-waarden die hij dekt (een gewone,
-niet-range tag levert gewoon zichzelf als enige resultaat op); `tagMatches()` slaagt zodra de
-beugel-tag ergens in die uitbreiding voorkomt:
+`parseGroupTags()` breidt zo'n tag uit naar de losse GRx-waarden die hij dekt (een gewone,
+niet-range/niet-lijst tag levert gewoon zichzelf als enige resultaat op); `tagMatches()` slaagt
+zodra de beugel-tag ergens in die uitbreiding voorkomt:
 
 ```js
 function tagMatches(candidateTag, clampTag) {
@@ -92,10 +95,12 @@ function tagMatches(candidateTag, clampTag) {
 ```
 
 Omdat de SQL-query in `api/exact_location_search.php` normaal gesproken alleen rijen teruggeeft
-wier omschrijving de gevraagde tag **letterlijk** bevat (zie hieronder) - wat bij een range-
-omschrijving als `GR1-8/1D` nooit het geval is voor een losse tag als `GR3` - laat die query voor
-de voorvoegsels `SM`/`GMV` ook elke `GRx-y`-range-omschrijving door; de daadwerkelijke (uitgebreide)
-match gebeurt alsnog hier, client-side.
+wier omschrijving de gevraagde tag **letterlijk** bevat (zie hieronder) - wat bij een range- of
+lijst-omschrijving als `GR1-8/1D` of `GR1/1A` nooit het geval is voor een losse tag als `GR3` of
+`GR1A` - laat die query, voor elk voorvoegsel, ook elke omschrijving met een `GRx-`- of
+`GRx/`-notatie door; de daadwerkelijke (uitgebreide) match gebeurt alsnog hier, client-side.
+(Eerder stond deze doorlaat alleen aan voor `SM`/`GMV` - de bout-casus hierboven liet zien dat
+ook andere onderdeeltypes deze notatie gebruiken, dus die beperking is vervallen.)
 
 `isDubbelBeugel()`/`isDubbelArtikelcode()` blijven ongewijzigd bestaan voor de twee
 ongerelateerde features (standaard-aantal bij Bout, vorm-afbeelding-keuze) - dat is geen

@@ -139,16 +139,19 @@ if ($group !== '') {
     $params['groupMid'] = '%' . $groupTag . ' %';
     $params['groupEnd'] = '%' . $groupTag;
 
-    // Glijmoer-artikelen (SM/GMV) dekken soms meerdere bouwgroepen met 1
-    // range-tag (bv. "GR1-8/1D", "GR3-5S") - de exacte match hierboven mist
-    // die rijen altijd, want de omschrijving bevat de gevraagde tag nooit
-    // letterlijk. Laat voor deze 2 voorvoegsels daarom ook elke "GRx-y"-
-    // range-omschrijving door; de echte (uitgebreide) match gebeurt
+    // Niet alleen glijmoer-artikelen (SM/GMV) dekken soms meerdere
+    // bouwgroepen met 1 tag i.p.v. 1 tag per artikel - bevestigd ook bij
+    // bouten (AS), bv. "HEX BOLT AS-M6X30-DIN931/933-8.8-W3, GR1/1A" dekt
+    // zowel GR1 als GR1A. Twee notaties komen voor: een talrange
+    // ("GR1-8/1D") en een losse lijst ("GR1/1A") - de exacte match
+    // hierboven mist zulke rijen altijd, want de omschrijving bevat de
+    // gevraagde tag nooit letterlijk als los woord/einde-van-string. Laat
+    // daarom, voor elk voorvoegsel, ook elke omschrijving met zo'n
+    // "GRx-"- of "GRx/"-notatie door; de echte (uitgebreide) match gebeurt
     // client-side in tagMatches()/parseGroupTags(), dit is alleen om te
     // voorkomen dat de SQL-query ze al op voorhand wegfiltert.
-    if (array_intersect(['SM', 'GMV'], $prefixes) !== []) {
-        $conditions[] = "[Item Description] LIKE '%GR[0-9]%-%'";
-    }
+    $conditions[] = "[Item Description] LIKE '%GR[0-9]%-%'";
+    $conditions[] = "[Item Description] LIKE '%GR[0-9]%/%'";
 
     $sql .= ' AND (' . implode(' OR ', $conditions) . ')';
 }
