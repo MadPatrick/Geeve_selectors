@@ -335,3 +335,32 @@ Een complete samenstelling kan bijvoorbeeld worden:
 Locatie 2 (de beugel) is de basis van de configuratie. Locaties 1, 3, 4, 5 en 6 zijn optioneel.
 Locatie 1 (Lasplaat) en locatie 4 (Dekplaat) worden standaard voorgeselecteerd zodra een passende optie beschikbaar is; de gebruiker kan ze daarna leeg maken.
 Borgplaat en Bout blijven standaard leeg. De samenstellingscode bevat alleen de gekozen locaties, altijd in de volgorde 1 t/m 6.
+
+## Automatische controle: bestaat de samenstelling al in Exact?
+
+Zodra er een beugel gekozen is (dus zodra er een samenstellingscode is, zie
+hierboven) wordt automatisch - zonder knop - gecontroleerd of die
+samenstelling al als **1 kant-en-klaar artikel** in Exact bestaat, i.p.v.
+hem uit de losse onderdelen 1-6 te moeten samenstellen. Dit gebeurt in
+`checkAssemblyInErp()` in `assets/selector.js`, die `api/exact_assembly_check.php`
+aanroept (debounced, 300ms, zelfde stijl als de prijs/voorraad-lookup
+hierboven) en het resultaat toont onder de totalen, boven de toelichting:
+
+- **Bezig met controleren…** - request loopt nog.
+- **Bestaat al als artikel in Exact: `<ItemCode>`** - gevonden.
+- **Nog niet als samengesteld artikel gevonden in Exact** - geen match (of
+  de database is niet bereikbaar; dat geeft bewust geen foutmelding, de
+  rest van de configurator blijft gewoon werken).
+
+**LET OP - AANNAME, NOG NIET BEVESTIGD MET ECHTE EXACT-DATA:** er is (nog)
+geen bevestigde Exact-conventie bekend voor hoe een vooraf samengesteld
+Stauff-kit-artikel zijn `ItemCode` krijgt, en of de door deze app zelf
+opgebouwde samenstellingscode-string (bv. `SP-215 PP-SIG-DP-AS-W3`)
+daar überhaupt mee overeenkomt. `api/exact_assembly_check.php` zoekt daarom
+op goed geluk een paar aannemelijke varianten van die string (met
+spaties/koppeltekens, zonder spaties, zonder spaties én koppeltekens) in
+`GRV_SalesItems.ItemCode`, bewust zonder filter op `[Item Group] = 67`
+(een kit-artikel hoort mogelijk in een andere artikelgroep). Dit moet
+tegen echte Exact-data gecontroleerd en zo nodig aangepast worden - zie
+`matchedVariant` in de JSON-response, die laat zien welke variant (als
+die er was) de match gaf.

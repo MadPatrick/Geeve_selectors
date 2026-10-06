@@ -246,6 +246,15 @@ button.location-number { cursor: pointer; }
 .assembly-totals-row span { color: #c7c7c7; font-size: 13px; }
 .assembly-totals-row strong { color: #f0819f; font-size: 15px; font-weight: 800; text-align: right; }
 .assembly-totals-row.is-empty { display: none; }
+/* Resultaat van de automatische Exact-controle (zie checkAssemblyInErp() in
+   assets/selector.js) of de samenstellingscode al als kant-en-klaar
+   artikel bestaat. Eigen kleuren i.p.v. de globale --ok/--danger-tokens:
+   die zijn bedoeld voor een lichte achtergrond en vallen weg tegen het
+   donkere .code-panel. */
+.assembly-erp-status { font-size: 12px; font-weight: 700; margin: 2px 0 5px; }
+.assembly-erp-status.is-checking { color: #c7c7c7; font-weight: 600; }
+.assembly-erp-status.is-found { color: #6fd38c; }
+.assembly-erp-status.is-missing { color: #f0819f; }
 .code-hint { color: #c7c7c7; font-size: 12px; }
 .copy-button {
     appearance: none;

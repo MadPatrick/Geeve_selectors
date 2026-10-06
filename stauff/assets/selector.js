@@ -58,6 +58,7 @@
         loc5: el('location5Select'),
         loc6: el('location6Value'),
         assemblyCode: el('assemblyCode'),
+        assemblyErpStatus: el('assemblyErpStatus'),
         copyButton: el('copyButton'),
         codeHint: el('codeHint'),
         warningBox: el('warningBox'),
@@ -1328,6 +1329,7 @@
             ui.assemblyCode.textContent = 'Selecteer eerst een beugel';
             ui.copyButton.disabled = true;
             ui.codeHint.innerHTML = 'Locaties 1, 3, 4 en 5 zijn optioneel; locatie 6 wordt automatisch bepaald. Locatie 2 gebruikt de beugelcode, bijvoorbeeld <strong>215 PP</strong> of <strong>3015 PP</strong>.';
+            checkAssemblyInErp('');
             return;
         }
 
@@ -1349,6 +1351,63 @@
         ui.assemblyCode.textContent = code;
         ui.copyButton.disabled = !code;
         ui.codeHint.textContent = '';
+        checkAssemblyInErp(code);
+    }
+
+    /**
+     * Controleert automatisch (geen knop) of de zojuist opgebouwde
+     * samenstellingscode al als 1 kant-en-klaar artikel in Exact bestaat -
+     * zie api/exact_assembly_check.php. Wordt bij elke wijziging vanuit
+     * updateAssemblyCode() aangeroepen, zelfde debounce-stijl als
+     * refreshLocationPrices() (voorkomt een fetch per toetsaanslag/wijziging
+     * wanneer meerdere locaties snel achter elkaar wijzigen).
+     *
+     * LET OP: welke Exact-ItemCode-notatie(s) voor een samengesteld
+     * kit-artikel gebruikt worden is nog niet bevestigd met echte data (zie
+     * api/exact_assembly_check.php) - dit is dus een eerste, expliciet als
+     * zodanig gemarkeerde aanname, geen geverifieerd gedrag.
+     *
+     * erpCheckRequestedCode bewaart welke code het laatst opgevraagd is, zodat
+     * een trage/oudere fetch die later binnenkomt het resultaat van een
+     * inmiddels nieuwere wijziging niet kan overschrijven.
+     */
+    function checkAssemblyInErp(code) {
+        if (!ui.assemblyErpStatus) return;
+        if (erpCheckDebounce) clearTimeout(erpCheckDebounce);
+        erpCheckRequestedCode = code;
+
+        if (!code) {
+            ui.assemblyErpStatus.hidden = true;
+            ui.assemblyErpStatus.className = 'assembly-erp-status';
+            return;
+        }
+
+        ui.assemblyErpStatus.hidden = false;
+        ui.assemblyErpStatus.className = 'assembly-erp-status is-checking';
+        ui.assemblyErpStatus.textContent = 'Samenstelling controleren in Exact…';
+
+        erpCheckDebounce = setTimeout(() => {
+            fetch(`api/exact_assembly_check.php?code=${encodeURIComponent(code)}`, { cache: 'no-store' })
+                .then(response => response.json())
+                .then(payload => {
+                    if (erpCheckRequestedCode !== code) return;
+                    if (!payload || payload.ok !== true) {
+                        ui.assemblyErpStatus.hidden = true;
+                        return;
+                    }
+                    if (payload.found) {
+                        ui.assemblyErpStatus.className = 'assembly-erp-status is-found';
+                        ui.assemblyErpStatus.textContent = `Bestaat al als artikel in Exact: ${payload.item.ItemCode}`;
+                    } else {
+                        ui.assemblyErpStatus.className = 'assembly-erp-status is-missing';
+                        ui.assemblyErpStatus.textContent = 'Nog niet als samengesteld artikel gevonden in Exact.';
+                    }
+                })
+                .catch(() => {
+                    if (erpCheckRequestedCode !== code) return;
+                    ui.assemblyErpStatus.hidden = true;
+                });
+        }, 300);
     }
 
     function formatPrice(value) {
@@ -1373,6 +1432,8 @@
     }
 
     let priceDebounce = null;
+    let erpCheckDebounce = null;
+    let erpCheckRequestedCode = '';
 
     /**
      * Haalt de verkoopprijs + vrije voorraad op (Exact, api/exact_prices.php)
