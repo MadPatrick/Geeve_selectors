@@ -1181,7 +1181,7 @@ function renderCustomerOrdersForm(array $customerOrders, bool $showCreated = fal
                     <th>Klant</th>
                     <th>Uw referentie</th>
                     <th>Orderdatum</th>
-                    <?php if ($showCreated): ?><th>Order aangemaakt</th><?php endif; ?>
+                    <?php if ($showCreated): ?><th>Aangemaakt</th><?php endif; ?>
                     <th>Aantal slangregels</th>
                     <th></th>
                 </tr>
@@ -1490,7 +1490,7 @@ if ($selectedKeys !== []) {
                     <h2>Laatste <?= count($recentOrders) ?> orders / offertes - of zoek hierboven</h2>
                 </div>
             </div>
-            <?= renderCustomerOrdersForm($recentOrders, pick($recentOrders[0]['row'], AANGEMAAKT_DATUM_CANDIDATES) !== '') ?>
+            <?= renderCustomerOrdersForm($recentOrders, true) ?>
         </section>
     <?php elseif ($orderNumber !== '' || $customerName !== '' || $hoseNumberSearch !== ''): ?>
         <section class="empty-result">Geen slangregels gevonden voor deze zoekopdracht.</section>
