@@ -392,10 +392,12 @@ function findOrdersByCustomer(PDO $pdo, string $customerName): array
  * findOrdersByCustomer() (1 rij per order + aantal slangregels), zodat
  * renderCustomerOrdersForm() ze direct kan tonen.
  *
- * "Nieuwste" = hoogste ordernummer (numeriek) - dezelfde "nieuwste eerst"-
- * regel als de klant-zoekopdracht, en orders en offertes delen 1
- * nummerreeks. Eerder sorteerde dit op MAX(syscreated), maar dat zet een
- * oude offerte die recent is aangepast tussen de nieuwe orders.
+ * "Nieuwste" = hoogste orderdatum (orddat), daarbinnen hoogste ordernummer.
+ * Sorteren op ordernummer alleen werkt niet: er zijn meerdere
+ * nummerreeksen (bijv. 51139260 uit 2017 en 45005308 uit 2008 staan hoger
+ * dan de huidige 36021012). Sorteren op MAX(syscreated) werkt ook niet: een
+ * oude offerte die recent is aangepast komt dan tussen de nieuwe orders.
+ * Terugval op alleen ordernummer als orddat niet te sorteren is.
  */
 function findRecentOrders(PDO $pdo, int $limit = 10): array
 {
@@ -404,8 +406,8 @@ function findRecentOrders(PDO $pdo, int $limit = 10): array
     $columns = 'MIN([nm]) AS [nm], MAX([orddat]) AS [orddat], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], COUNT(*) AS [aantal]';
 
     $queries = [
+        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY MAX([orddat]) DESC, TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
         "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
-        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY [ordernr] DESC",
     ];
 
     $rows = null;

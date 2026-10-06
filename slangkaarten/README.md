@@ -179,10 +179,10 @@ klant-zoekresultaten (`renderCustomerOrdersForm()`) met een "Kiezen"-knop per ri
 worden de zoekresultaten getoond i.p.v. deze lijst; "Wissen" brengt hem terug.
 
 `findRecentOrders()` in `inc/queries.php` doet 1 query op `2500 Slangkaarten bij order`
-(`GROUP BY ordernr`, 1 rij per order + aantal slangregels). "Laatste" = hoogste ordernummer
-(`TRY_CAST(ordernr AS BIGINT) DESC`; orders en offertes delen 1 nummerreeks). Sorteren op
-`MAX(syscreated)` bleek niet te werken: een oude offerte die recent is aangepast kwam dan tussen
-de nieuwe orders te staan. Een databasefout laat de lijst alleen weg - de zoekformulieren blijven
+(`GROUP BY ordernr`, 1 rij per order + aantal slangregels). "Laatste" = hoogste orderdatum (`MAX(orddat) DESC`), daarbinnen het hoogste ordernummer. Alleen op
+ordernummer sorteren werkt niet: er zijn meerdere nummerreeksen (oude orders uit 2008/2017 hebben
+een hoger nummer dan de huidige 36021012). Sorteren op `MAX(syscreated)` werkt ook niet: een oude
+offerte die recent is aangepast kwam dan tussen de nieuwe orders te staan. Een databasefout laat de lijst alleen weg - de zoekformulieren blijven
 gewoon werken.
 
 De orderdatum (`orddat`) is een datum zonder tijd (altijd `00:00:00` in de database) en wordt
