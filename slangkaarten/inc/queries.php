@@ -387,6 +387,48 @@ function findOrdersByCustomer(PDO $pdo, string $customerName): array
 }
 
 /**
+ * De laatste $limit orders/offertes (ord_soort V/Q), nieuwste eerst - wat
+ * de pagina standaard toont zolang er nog niet gezocht is. Zelfde vorm als
+ * findOrdersByCustomer() (1 rij per order + aantal slangregels), zodat
+ * renderCustomerOrdersForm() ze direct kan tonen.
+ *
+ * "Nieuwste" = laatst aangemaakt (syscreated, een echte datetime-kolom, dus
+ * MAX() klopt ook zonder de Nederlandse datumnotatie te hoeven parsen).
+ * Lukt dat niet (afwijkend schema), dan valt het terug op het hoogste
+ * ordernummer - dezelfde "nieuwste eerst"-regel als de klant-zoekopdracht.
+ */
+function findRecentOrders(PDO $pdo, int $limit = 10): array
+{
+    $limit = max(1, min(50, $limit));
+    $table = '[dbo].[2500 Slangkaarten bij order]';
+    $columns = 'MIN([nm]) AS [nm], MAX([orddat]) AS [orddat], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], COUNT(*) AS [aantal]';
+
+    $queries = [
+        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY MAX([syscreated]) DESC, [ordernr] DESC",
+        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
+    ];
+
+    $rows = null;
+    foreach ($queries as $sql) {
+        try {
+            $rows = $pdo->query($sql)->fetchAll();
+            break;
+        } catch (PDOException $exception) {
+            continue;
+        }
+    }
+
+    $orders = [];
+    foreach ($rows ?? [] as $row) {
+        $count = (int) ($row['aantal'] ?? 0);
+        unset($row['aantal']);
+        $orders[] = ['row' => $row, 'count' => $count];
+    }
+
+    return $orders;
+}
+
+/**
  * Zoekt de artikelgroep (Exact-database "005", GRV_SalesItems.[Item
  * Group]) op voor een lijst artikelen, in 1 databaseronde i.p.v. per
  * artikel - zelfde batch-patroon als findArtikelExactDataBatch() in

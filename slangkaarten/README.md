@@ -171,6 +171,21 @@ gevonden artikelen samen. Is de Exact-koppeling niet beschikbaar (lege root-`.en
 connectiefout), dan wordt er niet gefilterd - de zoekfunctie blijft dan werken zoals vóór deze
 filter, met mogelijk ook niet-slangartikelen in de resultaten.
 
+## Standaard: laatste 10 orders/offertes
+
+Zolang er nog niet gezocht is (geen ordernummer, klant of slangnummer) toont de pagina direct de
+laatste 10 orders/offertes (`ord_soort` V = Order, Q = Quote), in dezelfde tabel als de
+klant-zoekresultaten (`renderCustomerOrdersForm()`) met een "Kiezen"-knop per rij. Zodra je zoekt
+worden de zoekresultaten getoond i.p.v. deze lijst; "Wissen" brengt hem terug.
+
+`findRecentOrders()` in `inc/queries.php` doet 1 query op `2500 Slangkaarten bij order`
+(`GROUP BY ordernr`, 1 rij per order + aantal slangregels). "Laatste" = laatst aangemaakt
+(`MAX(syscreated)`); lukt dat niet, dan terugval op het hoogste ordernummer
+(`TRY_CAST(ordernr AS BIGINT)`). Een databasefout laat de lijst alleen weg - de zoekformulieren
+blijven gewoon werken. Niet getest tegen de echte database (geen toegang vanuit de
+ontwikkelomgeving): controleer of de volgorde klopt als orders en offertes een eigen nummerreeks
+hebben.
+
 ## Printvoorbeeld uitschakelen (client-instelling)
 
 De print-actie roept automatisch `window.print()` aan - de app zelf toont geen eigen

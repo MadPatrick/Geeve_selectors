@@ -1249,6 +1249,7 @@ $hoseLines = [];
 $hoseCards = [];
 $customerOrders = [];
 $hoseNumberResults = [];
+$recentOrders = [];
 $errorMessage = null;
 
 if ($selectedKeys !== []) {
@@ -1293,6 +1294,16 @@ if ($selectedKeys !== []) {
         $hoseNumberResults = findLinesByHoseNumber($pdo, $hoseNumberSearch);
     } catch (DatabaseConfigException $exception) {
         $errorMessage = $exception->getMessage();
+    }
+} else {
+    // Nog niet gezocht: standaard de laatste 10 orders/offertes tonen. Een
+    // databasefout hier blokkeert de zoekformulieren niet - de lijst blijft
+    // dan gewoon weg.
+    try {
+        $pdo = getPdoConnection();
+        $recentOrders = findRecentOrders($pdo, 10);
+    } catch (DatabaseConfigException | PDOException $exception) {
+        $recentOrders = [];
     }
 }
 ?>
@@ -1453,6 +1464,16 @@ if ($selectedKeys !== []) {
                 </div>
             </div>
             <?= renderHoseNumberResultsForm($hoseNumberResults) ?>
+        </section>
+    <?php elseif ($recentOrders !== []): ?>
+        <section class="panel result-panel">
+            <div class="section-heading">
+                <div>
+                    <span class="step">Recent</span>
+                    <h2>Laatste <?= count($recentOrders) ?> orders / offertes - of zoek hierboven</h2>
+                </div>
+            </div>
+            <?= renderCustomerOrdersForm($recentOrders) ?>
         </section>
     <?php elseif ($orderNumber !== '' || $customerName !== '' || $hoseNumberSearch !== ''): ?>
         <section class="empty-result">Geen slangregels gevonden voor deze zoekopdracht.</section>
