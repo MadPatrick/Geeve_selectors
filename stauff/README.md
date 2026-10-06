@@ -227,6 +227,17 @@ handmatige aanpassing van het aantal niet ongevraagd te overschrijven, gebeurt d
 enkel/dubbel-gestapeld-signaal zelf **wisselt** (`state.lastGestapeldDubbel`), niet bij elke
 herberekening.
 
+**Dekplaat volgt de Lasplaat (DPAL/DPAS):** kiest de gebruiker een `SPAS`-Lasplaat, dan moet
+locatie 4 (Dekplaat) zelf ook de bijbehorende `DPAS`-variant als 1e voorkeur tonen i.p.v. de
+gewone `DPAL` (en omgekeerd bij `SPAL`) - de typeRank voor locatie 4 in `renderLiveCandidates()`
+leest hiervoor `firstCodePart(ui.loc1.value)`. Locatie 4 wacht daarom, net als locatie 5, met zijn
+EERSTE keuze tot locatie 1 minstens 1x bekend is (`reapplyDekplaatPreference()`, aangeroepen
+vanuit `markBoutDependencyReady(1)`) - anders zou Dekplaat zijn eigen eerste keuze (DPAL) kunnen
+maken vóórdat bekend is of de Lasplaat SPAL of SPAS is. Wisselt de gebruiker de Lasplaat later
+handmatig tussen SPAL/SPAS, dan forceert `reapplyDekplaatPreference()` ook een nieuwe keuze voor
+Dekplaat (negeert de huidige selectie) - maar alleen als dat enkel/dubbel-gestapeld-signaal zelf
+wisselt (`state.lastLasplaatIsGestapeld`), dus niet bij een ongerelateerde herberekening.
+
 **Nog niet bevestigd/geïmplementeerd:** de volledige samenstellingscode-STRING van de catalogus
 (zie `## Samenstellingscode` hieronder) gebruikt overal koppeltekens (ook tussen beugelnummer en
 -materiaal, bijv. `3006-PP` i.p.v. de spatie die deze app gebruikt), kent een extra `DUEB`-

@@ -43,6 +43,12 @@
         // gebruiker geen ander type Lasplaat/Dekplaat kiest. null = nog
         // niet toegepast voor de huidige beugel/cyclus (zie rebuildComponents()).
         lastGestapeldDubbel: null,
+        // Laatst toegepaste "Lasplaat is SPAS"-uitkomst (zie
+        // reapplyDekplaatPreference()) - zodat een al gekozen Dekplaat
+        // alleen gedwongen opnieuw gekozen wordt (DPAS/DPAL als 1e) als dit
+        // signaal daadwerkelijk WISSELT, niet bij elke herberekening. null =
+        // nog niet toegepast voor de huidige beugel/cyclus.
+        lastLasplaatIsGestapeld: null,
         // Laatst opgehaalde verkoopprijzen + vrije voorraad (Exact), per
         // artikelcode - los bijgehouden zodat recomputeTotal() de
         // totaalprijs/totaal beschikbaar opnieuw kan berekenen zodra een
@@ -1009,11 +1015,23 @@
                 // niet bestond voor deze bouwgroep - dat liet DPAD/DPAS vóór
                 // DPAL komen. DPAL hoort net als DP standaard gekozen te
                 // kunnen worden, dus krijgt een vaste plek in de voorkeur.
+                // Is de gekozen Lasplaat (locatie 1) de dubbel-gestapelde
+                // SPAS-variant, dan moet Dekplaat de bijbehorende DPAS-
+                // variant als 1e voorkeur krijgen i.p.v. DPAL (en
+                // omgekeerd bij SPAL) - zie reapplyDekplaatPreference(),
+                // die dit opnieuw toepast zodra locatie 1 verandert.
+                const lasplaatGestapeld = firstCodePart(ui.loc1.value) === 'SPAS';
                 const typeRank = item => {
                     const prefix = firstCodePart(item.code);
-                    if (prefix === 'DP') return 0;
-                    if (prefix === 'DPAL') return 1;
-                    if (prefix === 'DPAS') return 2;
+                    if (lasplaatGestapeld) {
+                        if (prefix === 'DP') return 0;
+                        if (prefix === 'DPAS') return 1;
+                        if (prefix === 'DPAL') return 2;
+                    } else {
+                        if (prefix === 'DP') return 0;
+                        if (prefix === 'DPAL') return 1;
+                        if (prefix === 'DPAS') return 2;
+                    }
                     if (prefix === 'DPAD') return 3;
                     if (prefix === 'GD') return 4;
                     return 8;
@@ -1140,11 +1158,60 @@
      * reapplyBoutFilter() aan - die bepaalt zelf of er al genoeg bekend is
      * om iets te doen (zie daar). Dezelfde functie voor zowel de
      * "onRendered"-callback na een fetch als de handmatige change-listener
-     * (zie bindEvents()/rebuildComponents()).
+     * (zie bindEvents()/rebuildComponents()). Wordt locatie 1 klaar, dan
+     * moet ook locatie 4 (Dekplaat) zijn DPAL/DPAS-voorkeur (opnieuw)
+     * toepassen - zie reapplyDekplaatPreference().
      */
     function markBoutDependencyReady(pos) {
         locationReadyForBout[pos] = true;
+        if (pos === 1) reapplyDekplaatPreference();
         reapplyBoutFilter();
+    }
+
+    /**
+     * Rendert locatie 4 (Dekplaat) met de DPAL/DPAS-typevoorkeur die
+     * afhangt van de gekozen Lasplaat (locatie 1, zie de typeRank in
+     * renderLiveCandidates()) - doet pas iets zodra locatie 1 minstens 1x
+     * klaar is (locationReadyForBout[1]), anders zou Dekplaat zijn eigen
+     * eerste keuze kunnen maken vóórdat bekend is of de Lasplaat SPAL of
+     * SPAS is. Locatie 4 wordt daarom BEWUST niet in de directe
+     * rebuildComponents()-fetch meegenomen, net als locatie 5 daar al niet
+     * werd.
+     *
+     * Eerste keer (locatie 4 nog nooit gefetcht voor deze beugel/familie):
+     * doet de echte Exact-aanvraag. Daarna (handmatige wijziging van
+     * locatie 1): een client-side herberekening van de al binnengehaalde
+     * rijen (lastRawRowsByPosition) - en alleen als de SPAL/SPAS-voorkeur
+     * zelf WISSELT (state.lastLasplaatIsGestapeld) wordt de huidige keuze
+     * genegeerd (previousValue leeg) om de nieuwe voorkeur (DPAS/DPAL) ook
+     * echt te forceren; blijft de voorkeur gelijk, dan blijft een
+     * eventuele eigen Dekplaat-keuze van de gebruiker staan.
+     */
+    function reapplyDekplaatPreference() {
+        if (!locationReadyForBout[1]) return;
+        const family = getMaterialFamily();
+        if (!family) return;
+
+        const gestapeld = firstCodePart(ui.loc1.value) === 'SPAS';
+        const signalChanged = gestapeld !== state.lastLasplaatIsGestapeld;
+        state.lastLasplaatIsGestapeld = gestapeld;
+
+        const rawRows = lastRawRowsByPosition[4];
+        if (rawRows === undefined) {
+            applyLocationFilterSelect(4, ui.loc4, family, 4, {
+                emptyText: 'Geen passende dekplaat',
+                trackWarning: true,
+                onRendered: () => markBoutDependencyReady(4),
+            });
+            return;
+        }
+        renderLiveCandidates(4, ui.loc4, rawRows, {
+            family,
+            previousValue: signalChanged ? '' : ui.loc4.value,
+            emptyText: 'Geen passende dekplaat',
+            trackWarning: true,
+        });
+        updateAssemblyCode();
     }
 
     /**
@@ -1194,13 +1261,19 @@
         if (!state.selectedClamp) return;
 
         // Nieuwe cyclus (andere beugel/materiaalfamilie, of handmatig
-        // filter toegepast) - locatie 5 (Bout) moet opnieuw wachten tot
-        // locatie 1 EN 4 allebei (opnieuw) klaar zijn vóór zijn eerste
-        // keuze, en de oude gecachte rijen zijn niet meer geldig voor deze
-        // nieuwe situatie. Zie reapplyBoutFilter()/markBoutDependencyReady().
+        // filter toegepast) - locatie 4 (Dekplaat) moet opnieuw wachten tot
+        // locatie 1 (opnieuw) klaar is vóór zijn eerste keuze (DPAL/DPAS-
+        // voorkeur, zie reapplyDekplaatPreference()), en locatie 5 (Bout)
+        // moet wachten tot locatie 1 EN 4 allebei (opnieuw) klaar zijn (zie
+        // reapplyBoutFilter()) - de oude gecachte rijen van beide zijn niet
+        // meer geldig voor deze nieuwe situatie.
         locationReadyForBout[1] = false;
         locationReadyForBout[4] = false;
+        state.lastLasplaatIsGestapeld = null;
+        delete lastRawRowsByPosition[4];
         delete lastRawRowsByPosition[5];
+        ui.loc4.disabled = true;
+        ui.loc4.innerHTML = '<option value="">Zoeken…</option>';
         ui.loc5.disabled = true;
         ui.loc5.innerHTML = '<option value="">Zoeken…</option>';
 
@@ -1208,10 +1281,9 @@
         const mapping = [
             [1, ui.loc1, 'Geen passende lasplaat/glijmoer'],
             [3, ui.loc3, 'Geen passende borgplaat'],
-            [4, ui.loc4, 'Geen passende dekplaat'],
         ];
         if (!family) {
-            [...mapping, [5, ui.loc5, '']].forEach(([pos, select]) => {
+            [...mapping, [4, ui.loc4, ''], [5, ui.loc5, '']].forEach(([pos, select]) => {
                 select.innerHTML = '<option value="">Kies eerst Staal of RVS</option>';
                 select.disabled = true;
                 emptyWarnings[pos] = null;
@@ -1222,14 +1294,13 @@
             return;
         }
         mapping.forEach(([pos, select, emptyText]) => {
-            // Locatie 1's eigen fetch moet, zodra 'ie klaar is, locatie 5
-            // (Bout) opnieuw filteren op montagetype; locatie 4's fetch moet
-            // locatie 5 opnieuw op type (AS/IS) laten rangschikken zodra
-            // bekend is of er een dekplaat gekozen is - zie
-            // markBoutDependencyReady()/reapplyBoutFilter(). Locatie 5 zelf
-            // wordt hier bewust NIET gefetcht - dat gebeurt pas via die
-            // functie, zodra zowel 1 als 4 klaar zijn.
-            const onRendered = (pos === 1 || pos === 4) ? (() => markBoutDependencyReady(pos)) : null;
+            // Locatie 1's eigen fetch moet, zodra 'ie klaar is, zowel
+            // locatie 4 (Dekplaat-typevoorkeur) als - via die functie
+            // vandaaruit - locatie 5 (Bout) opnieuw laten rangschikken/
+            // filteren - zie markBoutDependencyReady(). Locatie 4 en 5 zelf
+            // worden hier bewust NIET gefetcht - dat gebeurt pas via
+            // reapplyDekplaatPreference()/reapplyBoutFilter().
+            const onRendered = pos === 1 ? (() => markBoutDependencyReady(pos)) : null;
             applyLocationFilterSelect(pos, select, family, pos, { emptyText, trackWarning: true, onRendered });
         });
         refreshLocationWarnings();
