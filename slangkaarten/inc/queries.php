@@ -392,10 +392,10 @@ function findOrdersByCustomer(PDO $pdo, string $customerName): array
  * findOrdersByCustomer() (1 rij per order + aantal slangregels), zodat
  * renderCustomerOrdersForm() ze direct kan tonen.
  *
- * "Nieuwste" = laatst aangemaakt (syscreated, een echte datetime-kolom, dus
- * MAX() klopt ook zonder de Nederlandse datumnotatie te hoeven parsen).
- * Lukt dat niet (afwijkend schema), dan valt het terug op het hoogste
- * ordernummer - dezelfde "nieuwste eerst"-regel als de klant-zoekopdracht.
+ * "Nieuwste" = hoogste ordernummer (numeriek) - dezelfde "nieuwste eerst"-
+ * regel als de klant-zoekopdracht, en orders en offertes delen 1
+ * nummerreeks. Eerder sorteerde dit op MAX(syscreated), maar dat zet een
+ * oude offerte die recent is aangepast tussen de nieuwe orders.
  */
 function findRecentOrders(PDO $pdo, int $limit = 10): array
 {
@@ -404,8 +404,8 @@ function findRecentOrders(PDO $pdo, int $limit = 10): array
     $columns = 'MIN([nm]) AS [nm], MAX([orddat]) AS [orddat], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], COUNT(*) AS [aantal]';
 
     $queries = [
-        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY MAX([syscreated]) DESC, [ordernr] DESC",
         "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
+        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY [ordernr] DESC",
     ];
 
     $rows = null;

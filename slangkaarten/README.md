@@ -179,12 +179,15 @@ klant-zoekresultaten (`renderCustomerOrdersForm()`) met een "Kiezen"-knop per ri
 worden de zoekresultaten getoond i.p.v. deze lijst; "Wissen" brengt hem terug.
 
 `findRecentOrders()` in `inc/queries.php` doet 1 query op `2500 Slangkaarten bij order`
-(`GROUP BY ordernr`, 1 rij per order + aantal slangregels). "Laatste" = laatst aangemaakt
-(`MAX(syscreated)`); lukt dat niet, dan terugval op het hoogste ordernummer
-(`TRY_CAST(ordernr AS BIGINT)`). Een databasefout laat de lijst alleen weg - de zoekformulieren
-blijven gewoon werken. Niet getest tegen de echte database (geen toegang vanuit de
-ontwikkelomgeving): controleer of de volgorde klopt als orders en offertes een eigen nummerreeks
-hebben.
+(`GROUP BY ordernr`, 1 rij per order + aantal slangregels). "Laatste" = hoogste ordernummer
+(`TRY_CAST(ordernr AS BIGINT) DESC`; orders en offertes delen 1 nummerreeks). Sorteren op
+`MAX(syscreated)` bleek niet te werken: een oude offerte die recent is aangepast kwam dan tussen
+de nieuwe orders te staan. Een databasefout laat de lijst alleen weg - de zoekformulieren blijven
+gewoon werken.
+
+De orderdatum (`orddat`) is een datum zonder tijd (altijd `00:00:00` in de database) en wordt
+overal alleen als datum getoond (`formatDate()`, bijv. `2026-10-06`). Aangemaakt/Laatste gewijzigd
+op de kaart behouden hun tijd.
 
 ## Printvoorbeeld uitschakelen (client-instelling)
 

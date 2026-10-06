@@ -80,6 +80,21 @@ function formatQuantity(string $value, int $decimals = 3): string
  * Onherkenbare/lege waarden blijven ongewijzigd (zie parseDutchDateTime()
  * in inc/queries.php).
  */
+/**
+ * Alleen de datum ("2026-10-06"), zonder tijd - voor de orderdatum (orddat),
+ * dat een datum zonder tijdcomponent is (altijd 00:00:00 in de database).
+ */
+function formatDate(string $value): string
+{
+    if ($value === '') {
+        return '';
+    }
+
+    $date = parseDutchDateTime($value);
+
+    return $date !== null ? $date->format('Y-m-d') : $value;
+}
+
 function formatDateTime(string $value): string
 {
     if ($value === '') {
@@ -938,7 +953,7 @@ function renderHoseCard(array $card): string
         pick($row, AFLEVERADRES_PLAATS_CANDIDATES)
     );
 
-    $orderdatum = formatDateTime(pick($row, ORDERDATUM_CANDIDATES));
+    $orderdatum = formatDate(pick($row, ORDERDATUM_CANDIDATES));
 
     $aangemaakt = composeDatumNaam(
         formatDateTime(pick($row, AANGEMAAKT_DATUM_CANDIDATES)),
@@ -1179,7 +1194,7 @@ function renderCustomerOrdersForm(array $customerOrders): string
                         <td><?= h(formatOrderType(pick($row, ORDER_TYPE_CANDIDATES))) ?: '&mdash;' ?></td>
                         <td><?= h(pick($row, KLANT_CANDIDATES)) ?: '&mdash;' ?></td>
                         <td><?= h(pick($row, UW_REFERENTIE_CANDIDATES)) ?: '&mdash;' ?></td>
-                        <td><?= h(formatDateTime(pick($row, ORDERDATUM_CANDIDATES))) ?: '&mdash;' ?></td>
+                        <td><?= h(formatDate(pick($row, ORDERDATUM_CANDIDATES))) ?: '&mdash;' ?></td>
                         <td><?= (int) $order['count'] ?></td>
                         <td>
                             <a class="link-button" href="index.php?ordernummer=<?= h(rawurlencode($orderNumberValue)) ?>">Kiezen</a>
@@ -1224,7 +1239,7 @@ function renderHoseNumberResultsForm(array $hoseNumberResults): string
                         <td><?= h(pick($row, SLANGTYPE_CANDIDATES)) ?: '&mdash;' ?></td>
                         <td><?= h($orderNumberValue) ?: '&mdash;' ?></td>
                         <td><?= h(pick($row, KLANT_CANDIDATES)) ?: '&mdash;' ?></td>
-                        <td><?= h(formatDateTime(pick($row, ORDERDATUM_CANDIDATES))) ?: '&mdash;' ?></td>
+                        <td><?= h(formatDate(pick($row, ORDERDATUM_CANDIDATES))) ?: '&mdash;' ?></td>
                         <td>
                             <a class="link-button" href="index.php?ordernummer=<?= h(rawurlencode($orderNumberValue)) ?>">Kiezen</a>
                         </td>
