@@ -1263,6 +1263,11 @@ function renderHoseNumberResultsForm(array $hoseNumberResults): string
  * hoe lang elke stap duurde.
  */
 const RECENT_ORDERS_CACHE_SECONDS = 120;
+// Een oudere lijst dan dit wordt niet meer getoond; tussen de 2 minuten en dit
+// wordt hij nog WEL meteen getoond, terwijl de pagina op de achtergrond een
+// verse opvraagt (stale-while-revalidate) - zodat niemand op de trage
+// opvraging hoeft te wachten behalve de allereerste keer.
+const RECENT_ORDERS_MAX_STALE_SECONDS = 86400;
 
 function renderRecentOrdersFragment(bool $fresh, bool $debug): string
 {
@@ -1271,11 +1276,16 @@ function renderRecentOrdersFragment(bool $fresh, bool $debug): string
     $startedAt = microtime(true);
     $orders = null;
 
-    if (!$fresh && is_file($cacheFile) && (time() - (int) @filemtime($cacheFile)) < RECENT_ORDERS_CACHE_SECONDS) {
+    $cacheAge = is_file($cacheFile) ? time() - (int) @filemtime($cacheFile) : PHP_INT_MAX;
+    if (!$fresh && $cacheAge < RECENT_ORDERS_MAX_STALE_SECONDS) {
         $cached = json_decode((string) @file_get_contents($cacheFile), true);
         if (is_array($cached) && $cached !== []) {
             $orders = $cached;
             $source = 'cache';
+            if ($cacheAge >= RECENT_ORDERS_CACHE_SECONDS) {
+                $source = 'cache (verouderd, wordt ververst)';
+                header('X-Recent-Stale: 1');
+            }
         }
     }
 
@@ -1553,8 +1563,19 @@ if ($selectedKeys !== []) {
                 if (!body || !window.fetch) { return; }
                 var url = 'index.php?recent=1' + (location.search.indexOf('debug') !== -1 ? '&debug=1' : '');
                 fetch(url, { cache: 'no-store' })
-                    .then(function (response) { return response.text(); })
-                    .then(function (html) { body.innerHTML = html; })
+                    .then(function (response) {
+                        var stale = response.headers.get('X-Recent-Stale') === '1';
+                        return response.text().then(function (html) {
+                            body.innerHTML = html;
+                            if (stale) {
+                                // Oude lijst staat er al; vervang door een verse zodra die binnen is.
+                                fetch(url + '&fresh=1', { cache: 'no-store' })
+                                    .then(function (r) { return r.text(); })
+                                    .then(function (fresh) { body.innerHTML = fresh; })
+                                    .catch(function () {});
+                            }
+                        });
+                    })
                     .catch(function () {
                         body.innerHTML = '<p class="print-status">De laatste orders konden niet worden geladen.</p>';
                     });

@@ -195,8 +195,11 @@ databasefout laat de lijst alleen weg; de zoekformulieren blijven gewoon werken.
 **Snelheid.** De opvraging (Exact + slangkaart-tabel) kan een paar seconden duren, dus die gebeurt
 niet tijdens het openen van de pagina: de pagina staat meteen er en toont "Laatste orders laden...";
 daarna haalt een klein script de lijst op via `index.php?recent=1` (`renderRecentOrdersFragment()`).
-Het resultaat wordt 2 minuten in een bestand bewaard (`RECENT_ORDERS_CACHE_SECONDS`, in de tijdelijke
-map van de server), dus de meeste bezoekers krijgen de lijst direct. Diagnose: `index.php?debug=1`
+Het resultaat wordt in een bestand bewaard (in de tijdelijke map van de server). Is het jonger dan
+2 minuten (`RECENT_ORDERS_CACHE_SECONDS`), dan wordt het zonder meer gebruikt; is het ouder (tot 24 uur,
+`RECENT_ORDERS_MAX_STALE_SECONDS`), dan wordt de oude lijst meteen getoond en vraagt de pagina op de
+achtergrond een verse op (stale-while-revalidate, header `X-Recent-Stale`). Alleen de allereerste
+opvraging na het leegraken van de cache wacht dus op de database. Diagnose: `index.php?debug=1`
 toont onder de lijst hoe lang elke stap duurde (`orkrg top N`, `slangkaarten-tabel`), `?recent=1&fresh=1`
 slaat de cache over. Zo zien we welke query traag is zonder te gokken.
 
