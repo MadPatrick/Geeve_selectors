@@ -33,20 +33,16 @@ $uploadMessage = $_GET['msg'] ?? '';
     <meta name="robots" content="noindex,nofollow">
     <title>Data beheer | Geeve Hydraulics</title>
     <link rel="icon" href="../favicon.ico?v=<?= h(assetVersion('../favicon.ico')) ?>" type="image/x-icon">
+    <link rel="stylesheet" href="../shared/style.css?v=<?= h(assetVersion('../shared/style.css')) ?>">
     <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
 </head>
 <body>
 <main class="page-shell">
-    <header class="page-header">
-        <div class="brand-panel">
-            <div class="brand-copy">
-                <div class="brand-logo-row">
-                    <img src="../images/geeve.jpg" alt="Geeve Hydraulics - know how in hydraulics" class="brand-logo-img">
-                    <img src="../images/rubix.jpg" alt="Powered by Rubix" class="brand-rubix-img">
-                </div>
-            </div>
-            <div class="header-content">
-                <div class="header-topline">
+    <?php
+    $headerTitle = 'Data beheer';
+    $headerShowHome = false;
+    ob_start();
+    ?>
                     <a href="data.php" class="header-icon-button" title="Data downloaden / uploaden" aria-label="Data downloaden / uploaden">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <ellipse cx="12" cy="5" rx="8" ry="3"></ellipse>
@@ -54,11 +50,10 @@ $uploadMessage = $_GET['msg'] ?? '';
                             <path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"></path>
                         </svg>
                     </a>
-                </div>
-                <h1>Data beheer</h1>
-            </div>
-        </div>
-    </header>
+    <?php
+    $headerTopline = ob_get_clean();
+    require __DIR__ . '/../shared/header.php';
+    ?>
 
     <section class="panel data-panel">
         <div class="section-heading">
