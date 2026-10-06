@@ -400,10 +400,8 @@ function findOrdersByCustomer(PDO $pdo, string $customerName): array
  * ook niet bruikbaar voor de tijd: die is altijd 00:00:00, en alleen op
  * ordernummer sorteren werkt niet (meerdere nummerreeksen).
  *
- * Werkwijze: de nieuwste orders uit orkrg ophalen (alle orders, ook zonder
- * slangregels), en daarvan alleen de orders houden die in de slangkaart-
- * tabel staan; te weinig gevonden = een grotere set uit orkrg proberen.
- * Lukt Exact niet, dan terugval op de slangkaart-tabel zelf (orderdatum).
+ * Werkwijze: zie findRecentOrdersViaExact(). Lukt dat niet, dan terugval op
+ * de slangkaart-tabel zelf (alleen orderdatum, zonder aanmaaktijd).
  */
 function findRecentOrders(PDO $pdo, int $limit = 10): array
 {
@@ -422,79 +420,101 @@ function findRecentOrders(PDO $pdo, int $limit = 10): array
 }
 
 /**
- * @param array<int, array{ordernr: string, orddat: string, syscreated: string}> $exactRows nieuwste eerst
- * @param array<string, array{row: array<string, mixed>, count: int}> $slangByOrder per ordernummer
+ * Zet de Exact-gegevens (orddat/syscreated uit orkrg) bij de orders uit de
+ * slangkaart-tabel en sorteert op het moment waarop de order in Exact is
+ * aangemaakt, nieuwste eerst. Orders zonder Exact-gegevens komen achteraan
+ * (op ordernummer).
+ *
+ * @param array<int, array{row: array<string, mixed>, count: int}> $orders
+ * @param array<string, array{orddat: string, syscreated: string}> $exactByOrder per ordernummer
  * @return array<int, array{row: array<string, mixed>, count: int}>
  */
-function mergeRecentOrders(array $exactRows, array $slangByOrder, int $limit): array
+function sortRecentOrdersByExact(array $orders, array $exactByOrder, int $limit): array
 {
-    $orders = [];
-    foreach ($exactRows as $exact) {
-        $orderNumber = trim((string) $exact['ordernr']);
-        if (!isset($slangByOrder[$orderNumber])) {
-            continue;
+    foreach ($orders as &$order) {
+        $number = trim((string) $order['row']['ordernr']);
+        if (isset($exactByOrder[$number])) {
+            $order['row']['orddat'] = $exactByOrder[$number]['orddat'];
+            $order['row']['syscreated'] = $exactByOrder[$number]['syscreated'];
         }
-        $entry = $slangByOrder[$orderNumber];
-        $entry['row']['orddat'] = $exact['orddat'];
-        $entry['row']['syscreated'] = $exact['syscreated'];
-        $orders[] = $entry;
+    }
+    unset($order);
+
+    usort($orders, static function (array $a, array $b): int {
+        $createdA = (string) ($a['row']['syscreated'] ?? '');
+        $createdB = (string) ($b['row']['syscreated'] ?? '');
+        if ($createdA !== $createdB) {
+            return strcmp($createdB, $createdA);
+        }
+
+        return strcmp((string) $b['row']['ordernr'], (string) $a['row']['ordernr']);
+    });
+
+    return array_slice($orders, 0, $limit);
+}
+
+/**
+ * Werkwijze (de eerdere variant zocht 100/400 ordernummers uit Exact op in de
+ * slangkaart-tabel en deed daar 5 resp. 33 seconden over):
+ *   1. Uit de slangkaart-tabel de orders van de nieuwste orderdata ophalen -
+ *      TOP n WITH TIES, dus ALLE orders van de dag waarop de n-de order valt,
+ *      met een datumvenster (7, 30, 365 dagen, anders alles) zodat niet de
+ *      hele tabel gelezen hoeft te worden.
+ *   2. Voor alleen die paar orders de aanmaaktijd uit Exact (orkrg, op
+ *      ordernummer) erbij halen en daarop sorteren.
+ * Tijden per stap staan in $GLOBALS['recentOrdersTimings'] (index.php?debug=1).
+ */
+function findRecentOrdersViaExact(PDO $slangPdo, int $limit): array
+{
+    $GLOBALS['recentOrdersTimings'] = [];
+    $table = '[dbo].[2500 Slangkaarten bij order]';
+
+    $orders = [];
+    foreach ([7, 30, 365, null] as $days) {
+        $where = $days === null ? '' : "WHERE [orddat] >= DATEADD(DAY, -{$days}, CAST(GETDATE() AS date)) ";
+        $t = microtime(true);
+        $rows = $slangPdo->query(
+            "SELECT TOP {$limit} WITH TIES [ordernr], MIN([nm]) AS [nm], MAX([orddat]) AS [orddat], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], COUNT(*) AS [aantal] " .
+            "FROM {$table} {$where}GROUP BY [ordernr] ORDER BY MAX([orddat]) DESC"
+        )->fetchAll();
+        $GLOBALS['recentOrdersTimings']['slangkaarten-tabel ' . ($days === null ? 'alles' : "{$days} dagen")] = (int) round((microtime(true) - $t) * 1000);
+
+        $orders = [];
+        foreach ($rows as $row) {
+            $count = (int) ($row['aantal'] ?? 0);
+            unset($row['aantal']);
+            $orders[] = ['row' => $row, 'count' => $count];
+        }
         if (count($orders) >= $limit) {
             break;
         }
     }
 
-    return $orders;
-}
-
-function findRecentOrdersViaExact(PDO $slangPdo, int $limit): array
-{
-    $exactPdo = getExactPdoConnection();
-
-    $GLOBALS['recentOrdersTimings'] = [];
-
-    foreach ([100, 400, 1500] as $candidates) {
-        $t = microtime(true);
-        $exactRows = $exactPdo->query(
-            "SELECT TOP {$candidates} [ordernr], [orddat], [syscreated] FROM [dbo].[orkrg] ORDER BY [syscreated] DESC"
-        )->fetchAll();
-        $GLOBALS['recentOrdersTimings']["orkrg top {$candidates}"] = (int) round((microtime(true) - $t) * 1000);
-
-        $numbers = [];
-        foreach ($exactRows as $row) {
-            $number = trim((string) $row['ordernr']);
-            if ($number !== '') {
-                $numbers[$number] = true;
-            }
-        }
-        if ($numbers === []) {
-            return [];
-        }
-
-        $numbers = array_keys($numbers);
-        $placeholders = implode(', ', array_fill(0, count($numbers), '?'));
-        $statement = $slangPdo->prepare(
-            'SELECT [ordernr], MIN([nm]) AS [nm], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], COUNT(*) AS [aantal] ' .
-            "FROM [dbo].[2500 Slangkaarten bij order] WHERE [ordernr] IN ({$placeholders}) GROUP BY [ordernr]"
-        );
-        $t = microtime(true);
-        $statement->execute($numbers);
-        $slangRows = $statement->fetchAll();
-        $GLOBALS['recentOrdersTimings']['slangkaarten-tabel (' . count($numbers) . ' orders)'] = (int) round((microtime(true) - $t) * 1000);
-
-        $slangByOrder = [];
-        foreach ($slangRows as $row) {
-            $count = (int) ($row['aantal'] ?? 0);
-            unset($row['aantal']);
-            $slangByOrder[trim((string) $row['ordernr'])] = ['row' => $row, 'count' => $count];
-        }
-
-        $orders = mergeRecentOrders($exactRows, $slangByOrder, $limit);
-        if (count($orders) >= $limit || count($exactRows) < $candidates) {
-            return $orders;
-        }
+    if ($orders === []) {
+        return [];
     }
 
-    return $orders ?? [];
+    try {
+        $numbers = array_values(array_unique(array_map(
+            static fn(array $order): string => trim((string) $order['row']['ordernr']),
+            $orders
+        )));
+        $placeholders = implode(', ', array_fill(0, count($numbers), '?'));
+        $t = microtime(true);
+        $statement = getExactPdoConnection()->prepare(
+            "SELECT [ordernr], [orddat], [syscreated] FROM [dbo].[orkrg] WHERE [ordernr] IN ({$placeholders})"
+        );
+        $statement->execute($numbers);
+        $exactByOrder = [];
+        foreach ($statement->fetchAll() as $row) {
+            $exactByOrder[trim((string) $row['ordernr'])] = ['orddat' => (string) $row['orddat'], 'syscreated' => (string) $row['syscreated']];
+        }
+        $GLOBALS['recentOrdersTimings']['orkrg (' . count($numbers) . ' orders)'] = (int) round((microtime(true) - $t) * 1000);
+    } catch (Throwable $exception) {
+        $exactByOrder = [];
+    }
+
+    return sortRecentOrdersByExact($orders, $exactByOrder, $limit);
 }
 
 /** Terugval: de nieuwste orders uit de slangkaart-tabel zelf, op orderdatum. */

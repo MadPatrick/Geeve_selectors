@@ -178,15 +178,23 @@ laatste 10 orders/offertes (`ord_soort` V = Order, Q = Quote), in dezelfde tabel
 klant-zoekresultaten (`renderCustomerOrdersForm()`) met een "Kiezen"-knop per rij. Zodra je zoekt
 worden de zoekresultaten getoond i.p.v. deze lijst; "Wissen" brengt hem terug.
 
-**"Laatste" komt uit de order in Exact**, niet uit de slangkaart-tabel: `findRecentOrdersViaExact()`
-haalt de nieuwste orders uit `orkrg` (Exact, database 005) op `orkrg.syscreated` - het moment
-waarop de order in Exact is aangemaakt, een echte `datetime` - en houdt daarvan de orders die in
-`2500 Slangkaarten bij order` staan (eerst de nieuwste 300 uit `orkrg`, te weinig slangorders
-daarin = 1500). De kolom **Order aangemaakt** toont die Exact-tijd. Waarom niet de slangkaart-
-tabel: `syscreated` van een slangregel zegt niets over de order (een oude offerte met een recent
-toegevoegde regel kwam tussen de nieuwe orders), `orddat` is altijd `00:00:00`, en alleen op
-ordernummer sorteren werkt niet (er zijn meerdere nummerreeksen: orders uit 2008/2017 hebben een
-hoger nummer dan de huidige 36021012).
+**"Laatste" komt uit de order in Exact**, niet uit de slangkaart-tabel: de kolom **Order aangemaakt**
+is `orkrg.syscreated` (Exact, database 005) - het moment waarop de order in Exact is aangemaakt, een
+echte `datetime`. Waarom niet de slangkaart-tabel: `syscreated` van een slangregel zegt niets over
+de order (een oude offerte met een recent toegevoegde regel kwam tussen de nieuwe orders), `orddat`
+is altijd `00:00:00`, en alleen op ordernummer sorteren werkt niet (er zijn meerdere
+nummerreeksen: orders uit 2008/2017 hebben een hoger nummer dan de huidige 36021012).
+
+`findRecentOrdersViaExact()` werkt in 2 stappen (de eerste variant zocht 100/400 ordernummers uit
+Exact op in de slangkaart-tabel en deed daar 5 resp. 33 seconden over - gemeten met `?debug=1`):
+1. Uit de slangkaart-tabel de orders van de nieuwste orderdata (`TOP 10 WITH TIES ... ORDER BY
+   MAX(orddat) DESC`, dus alle orders van de dag waarop de 10e valt), binnen een datumvenster van
+   7 dagen (anders 30, 365, alles) zodat niet de hele tabel gelezen hoeft te worden.
+2. Voor alleen die paar orders `orkrg.syscreated` ophalen en daarop sorteren
+   (`sortRecentOrdersByExact()`), daarna de nieuwste 10 houden.
+
+Beperking: een order die vandaag is aangemaakt maar een oude orderdatum heeft (teruggedateerd) valt
+buiten de selectie in stap 1.
 
 Lukt Exact niet (geen `EXACT_DB_*` in de `.env`, connectiefout), dan terugval op de slangkaart-
 tabel zelf: `findRecentOrdersLocal()`, op `MAX(orddat)` - dan zonder kolom "Order aangemaakt". Een
@@ -200,13 +208,13 @@ Het resultaat wordt in een bestand bewaard (in de tijdelijke map van de server).
 `RECENT_ORDERS_MAX_STALE_SECONDS`), dan wordt de oude lijst meteen getoond en vraagt de pagina op de
 achtergrond een verse op (stale-while-revalidate, header `X-Recent-Stale`). Alleen de allereerste
 opvraging na het leegraken van de cache wacht dus op de database. Diagnose: `index.php?debug=1`
-toont onder de lijst hoe lang elke stap duurde (`orkrg top N`, `slangkaarten-tabel`), `?recent=1&fresh=1`
+toont onder de lijst hoe lang elke stap duurde (`slangkaarten-tabel 7 dagen`, `orkrg`), `?recent=1&fresh=1`
 slaat de cache over. Zo zien we welke query traag is zonder te gokken.
 
 De orderdatum (`orddat`) is een datum zonder tijd (altijd `00:00:00` in de database) en wordt
 overal alleen als datum getoond (`formatDate()`, bijv. `2026-10-06`). Aangemaakt/Laatste gewijzigd
 op de kaart behouden hun tijd. Niet getest tegen de echte database (geen toegang vanuit de
-ontwikkelomgeving); alleen de samenvoeg-logica (`mergeRecentOrders()`) is los getest.
+ontwikkelomgeving); alleen de sorteer-logica (`sortRecentOrdersByExact()`) is los getest.
 
 ## Printvoorbeeld uitschakelen (client-instelling)
 
