@@ -352,15 +352,9 @@ hierboven) en het resultaat toont onder de totalen, boven de toelichting:
   de database is niet bereikbaar; dat geeft bewust geen foutmelding, de
   rest van de configurator blijft gewoon werken).
 
-**LET OP - AANNAME, NOG NIET BEVESTIGD MET ECHTE EXACT-DATA:** er is (nog)
-geen bevestigde Exact-conventie bekend voor hoe een vooraf samengesteld
-Stauff-kit-artikel zijn `ItemCode` krijgt, en of de door deze app zelf
-opgebouwde samenstellingscode-string (bv. `SP-215 PP-SIG-DP-AS-W3`)
-daar überhaupt mee overeenkomt. `api/exact_assembly_check.php` zoekt daarom
-op goed geluk een paar aannemelijke varianten van die string (met
-spaties/koppeltekens, zonder spaties, zonder spaties én koppeltekens) in
-`GRV_SalesItems.ItemCode`, bewust zonder filter op `[Item Group] = 67`
-(een kit-artikel hoort mogelijk in een andere artikelgroep). Dit moet
-tegen echte Exact-data gecontroleerd en zo nodig aangepast worden - zie
-`matchedVariant` in de JSON-response, die laat zien welke variant (als
-die er was) de match gaf.
+De match is **exact**: `api/exact_assembly_check.php` vergelijkt de
+samenstellingscode-string letterlijk (spaties, koppeltekens én de volgorde
+van de onderdelen, locatie 1 t/m 6, precies zoals `updateAssemblyCode()`
+die opbouwt) met `GRV_SalesItems.ItemCode` - geen varianten, geen fuzzy
+matching. Bewust zonder filter op `[Item Group] = 67` (een kit-artikel
+hoort mogelijk in een andere artikelgroep dan de losse beugel-onderdelen).
