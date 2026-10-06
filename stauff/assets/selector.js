@@ -1368,6 +1368,20 @@
     }
 
     /**
+     * Toont op de "Kopieer code"-knop zelf of de samenstelling al als
+     * artikel in Exact bestaat (zie checkAssemblyInErp()): groen/"Kopieer
+     * code" als hij nog niet bestaat (of nog niet bekend is), rood/"Update
+     * prijs" zodra hij gevonden is - er is dan al een kant-en-klaar artikel,
+     * dus is de prijs daarvan bijwerken relevanter dan de code kopiëren.
+     * Verandert alleen label/kleur, niet het klikgedrag.
+     */
+    function setCopyButtonState(found) {
+        if (!ui.copyButton) return;
+        ui.copyButton.textContent = found ? 'Update prijs' : 'Kopieer code';
+        ui.copyButton.classList.toggle('is-found', found);
+    }
+
+    /**
      * Controleert automatisch (geen knop) of de zojuist opgebouwde
      * samenstellingscode al als 1 kant-en-klaar artikel in Exact bestaat -
      * zie api/exact_assembly_check.php. Wordt bij elke wijziging vanuit
@@ -1392,12 +1406,14 @@
         if (!code) {
             ui.assemblyErpStatus.hidden = true;
             ui.assemblyErpStatus.className = 'assembly-erp-status';
+            setCopyButtonState(false);
             return;
         }
 
         ui.assemblyErpStatus.hidden = false;
         ui.assemblyErpStatus.className = 'assembly-erp-status is-checking';
         ui.assemblyErpStatus.textContent = 'Samenstelling controleren in Exact…';
+        setCopyButtonState(false);
 
         erpCheckDebounce = setTimeout(() => {
             fetch(`api/exact_assembly_check.php?code=${encodeURIComponent(code)}`, { cache: 'no-store' })
@@ -1411,9 +1427,11 @@
                     if (payload.found) {
                         ui.assemblyErpStatus.className = 'assembly-erp-status is-found';
                         ui.assemblyErpStatus.textContent = `Bestaat al als artikel in Exact: ${payload.item.ItemCode}`;
+                        setCopyButtonState(true);
                     } else {
                         ui.assemblyErpStatus.className = 'assembly-erp-status is-missing';
                         ui.assemblyErpStatus.textContent = 'Nog niet als samengesteld artikel gevonden in Exact.';
+                        setCopyButtonState(false);
                     }
                 })
                 .catch(() => {

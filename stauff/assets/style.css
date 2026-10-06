@@ -258,9 +258,9 @@ button.location-number { cursor: pointer; }
 .code-hint { color: #c7c7c7; font-size: 12px; }
 .copy-button {
     appearance: none;
-    border: 1px solid var(--accent-dark);
+    border: 1px solid var(--ok);
     border-radius: 999px;
-    background: var(--accent-dark);
+    background: var(--ok);
     color: #fff;
     font-weight: 800;
     min-height: 44px;
@@ -268,6 +268,10 @@ button.location-number { cursor: pointer; }
     cursor: pointer;
     white-space: nowrap;
 }
+/* Samenstelling bestaat al in Exact (zie checkAssemblyInErp()/
+   setCopyButtonState() in assets/selector.js) - knop wordt dan rood en
+   toont "Update prijs" i.p.v. "Kopieer code". */
+.copy-button.is-found { border-color: var(--danger); background: var(--danger); }
 .copy-button:hover:not(:disabled) { opacity: .9; }
 .copy-button:disabled { opacity: .45; cursor: default; }
 

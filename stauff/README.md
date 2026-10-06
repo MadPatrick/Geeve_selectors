@@ -371,3 +371,10 @@ van de onderdelen, locatie 1 t/m 6, precies zoals `updateAssemblyCode()`
 die opbouwt) met `GRV_SalesItems.ItemCode` - geen varianten, geen fuzzy
 matching. Bewust zonder filter op `[Item Group] = 67` (een kit-artikel
 hoort mogelijk in een andere artikelgroep dan de losse beugel-onderdelen).
+
+**De knop "Kopieer code" wisselt zelf mee** (`setCopyButtonState()`):
+groen/"Kopieer code" zolang de samenstelling nog niet (of nog niet bekend)
+bestaat, rood/"Update prijs" zodra ze gevonden is - er is dan al een
+kant-en-klaar artikel, dus is de prijs daarvan bijwerken relevanter dan de
+code opnieuw te kopiëren. Alleen label/kleur wisselen, niet het klikgedrag
+(nog steeds de samenstellingscode naar het klembord kopiëren).
