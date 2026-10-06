@@ -178,22 +178,24 @@ laatste 10 orders/offertes (`ord_soort` V = Order, Q = Quote), in dezelfde tabel
 klant-zoekresultaten (`renderCustomerOrdersForm()`) met een "Kiezen"-knop per rij. Zodra je zoekt
 worden de zoekresultaten getoond i.p.v. deze lijst; "Wissen" brengt hem terug.
 
-`findRecentOrders()` in `inc/queries.php` doet 1 query op `2500 Slangkaarten bij order`
-(`GROUP BY ordernr`, 1 rij per order + aantal slangregels). "Laatste" = hoogste orderdatum (`MAX(orddat) DESC`), daarbinnen het hoogste ordernummer. Alleen op
-ordernummer sorteren werkt niet: er zijn meerdere nummerreeksen (oude orders uit 2008/2017 hebben
-een hoger nummer dan de huidige 36021012). Sorteren op `MAX(syscreated)` werkt ook niet: een oude
-offerte die recent is aangepast kwam dan tussen de nieuwe orders te staan. Een databasefout laat de lijst alleen weg - de zoekformulieren blijven
-gewoon werken.
+**"Laatste" komt uit de order in Exact**, niet uit de slangkaart-tabel: `findRecentOrdersViaExact()`
+haalt de nieuwste orders uit `orkrg` (Exact, database 005) op `orkrg.syscreated` - het moment
+waarop de order in Exact is aangemaakt, een echte `datetime` - en houdt daarvan de orders die in
+`2500 Slangkaarten bij order` staan (eerst de nieuwste 300 uit `orkrg`, te weinig slangorders
+daarin = 1500). De kolom **Order aangemaakt** toont die Exact-tijd. Waarom niet de slangkaart-
+tabel: `syscreated` van een slangregel zegt niets over de order (een oude offerte met een recent
+toegevoegde regel kwam tussen de nieuwe orders), `orddat` is altijd `00:00:00`, en alleen op
+ordernummer sorteren werkt niet (er zijn meerdere nummerreeksen: orders uit 2008/2017 hebben een
+hoger nummer dan de huidige 36021012).
 
-In deze lijst staat ook een kolom **Aangemaakt** (`MIN(syscreated)`: de tijd van de eerste regel van
-de order, een echte `datetime` - kolomtype bevestigd via `INFORMATION_SCHEMA` op de
-Slangkaarten-database: `syscreated`/`sysmodified`/`orddat`/`afldat` zijn `datetime`, `Datum` is
-`date`), en die tijd bepaalt ook de volgorde binnen dezelfde orderdatum. `MIN` en niet `MAX`,
-anders telt een later toegevoegde regel mee. De echte tijdwaarden zijn niet gecontroleerd.
+Lukt Exact niet (geen `EXACT_DB_*` in de `.env`, connectiefout), dan terugval op de slangkaart-
+tabel zelf: `findRecentOrdersLocal()`, op `MAX(orddat)` - dan zonder kolom "Order aangemaakt". Een
+databasefout laat de lijst alleen weg; de zoekformulieren blijven gewoon werken.
 
 De orderdatum (`orddat`) is een datum zonder tijd (altijd `00:00:00` in de database) en wordt
 overal alleen als datum getoond (`formatDate()`, bijv. `2026-10-06`). Aangemaakt/Laatste gewijzigd
-op de kaart behouden hun tijd.
+op de kaart behouden hun tijd. Niet getest tegen de echte database (geen toegang vanuit de
+ontwikkelomgeving); alleen de samenvoeg-logica (`mergeRecentOrders()`) is los getest.
 
 ## Printvoorbeeld uitschakelen (client-instelling)
 

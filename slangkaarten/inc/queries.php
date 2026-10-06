@@ -387,33 +387,118 @@ function findOrdersByCustomer(PDO $pdo, string $customerName): array
 }
 
 /**
- * De laatste $limit orders/offertes (ord_soort V/Q), nieuwste eerst - wat
- * de pagina standaard toont zolang er nog niet gezocht is. Zelfde vorm als
- * findOrdersByCustomer() (1 rij per order + aantal slangregels), zodat
- * renderCustomerOrdersForm() ze direct kan tonen.
+ * De laatste $limit orders/offertes, nieuwste eerst - wat de pagina standaard
+ * toont zolang er nog niet gezocht is. Zelfde vorm als findOrdersByCustomer()
+ * (1 rij per order + aantal slangregels), zodat renderCustomerOrdersForm()
+ * ze direct kan tonen.
  *
- * "Nieuwste" = hoogste orderdatum (orddat), daarbinnen hoogste ordernummer.
- * Sorteren op ordernummer alleen werkt niet: er zijn meerdere
- * nummerreeksen (bijv. 51139260 uit 2017 en 45005308 uit 2008 staan hoger
- * dan de huidige 36021012). Sorteren op MAX(syscreated) werkt ook niet: een
- * oude offerte die recent is aangepast komt dan tussen de nieuwe orders.
- * Binnen dezelfde orderdatum telt de tijd van de eerste regel (MIN(syscreated),
- * een echte datetime - orddat zelf is altijd 00:00:00). Terugval op alleen
- * ordernummer als orddat/syscreated niet te sorteren zijn.
+ * "Nieuwste" komt uit de ORDER in Exact (database 005, tabel orkrg): het
+ * moment waarop de order daar is aangemaakt (orkrg.syscreated, een echte
+ * datetime) - niet uit de slangkaart-tabel, want daar zegt de aanmaaktijd
+ * van een regel niets over de order (een oude offerte met een recent
+ * toegevoegde regel kwam tussen de nieuwe orders). Orderdatum (orddat) is
+ * ook niet bruikbaar voor de tijd: die is altijd 00:00:00, en alleen op
+ * ordernummer sorteren werkt niet (meerdere nummerreeksen).
+ *
+ * Werkwijze: de nieuwste orders uit orkrg ophalen (alle orders, ook zonder
+ * slangregels), en daarvan alleen de orders houden die in de slangkaart-
+ * tabel staan; te weinig gevonden = een grotere set uit orkrg proberen.
+ * Lukt Exact niet, dan terugval op de slangkaart-tabel zelf (orderdatum).
  */
 function findRecentOrders(PDO $pdo, int $limit = 10): array
 {
     $limit = max(1, min(50, $limit));
-    $table = '[dbo].[2500 Slangkaarten bij order]';
-    $columns = 'MIN([nm]) AS [nm], MAX([orddat]) AS [orddat], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], MIN([syscreated]) AS [syscreated], COUNT(*) AS [aantal]';
 
-    $columnsBasic = str_replace(' MIN([syscreated]) AS [syscreated],', '', $columns);
+    try {
+        $orders = findRecentOrdersViaExact($pdo, $limit);
+        if ($orders !== []) {
+            return $orders;
+        }
+    } catch (Throwable $exception) {
+        // Geen Exact-koppeling/.env: terugval hieronder.
+    }
+
+    return findRecentOrdersLocal($pdo, $limit);
+}
+
+/**
+ * @param array<int, array{ordernr: string, orddat: string, syscreated: string}> $exactRows nieuwste eerst
+ * @param array<string, array{row: array<string, mixed>, count: int}> $slangByOrder per ordernummer
+ * @return array<int, array{row: array<string, mixed>, count: int}>
+ */
+function mergeRecentOrders(array $exactRows, array $slangByOrder, int $limit): array
+{
+    $orders = [];
+    foreach ($exactRows as $exact) {
+        $orderNumber = trim((string) $exact['ordernr']);
+        if (!isset($slangByOrder[$orderNumber])) {
+            continue;
+        }
+        $entry = $slangByOrder[$orderNumber];
+        $entry['row']['orddat'] = $exact['orddat'];
+        $entry['row']['syscreated'] = $exact['syscreated'];
+        $orders[] = $entry;
+        if (count($orders) >= $limit) {
+            break;
+        }
+    }
+
+    return $orders;
+}
+
+function findRecentOrdersViaExact(PDO $slangPdo, int $limit): array
+{
+    $exactPdo = getExactPdoConnection();
+
+    foreach ([300, 1500] as $candidates) {
+        $exactRows = $exactPdo->query(
+            "SELECT TOP {$candidates} [ordernr], [orddat], [syscreated] FROM [dbo].[orkrg] ORDER BY [syscreated] DESC"
+        )->fetchAll();
+
+        $numbers = [];
+        foreach ($exactRows as $row) {
+            $number = trim((string) $row['ordernr']);
+            if ($number !== '') {
+                $numbers[$number] = true;
+            }
+        }
+        if ($numbers === []) {
+            return [];
+        }
+
+        $numbers = array_keys($numbers);
+        $placeholders = implode(', ', array_fill(0, count($numbers), '?'));
+        $statement = $slangPdo->prepare(
+            'SELECT [ordernr], MIN([nm]) AS [nm], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], COUNT(*) AS [aantal] ' .
+            "FROM [dbo].[2500 Slangkaarten bij order] WHERE [ordernr] IN ({$placeholders}) GROUP BY [ordernr]"
+        );
+        $statement->execute($numbers);
+
+        $slangByOrder = [];
+        foreach ($statement->fetchAll() as $row) {
+            $count = (int) ($row['aantal'] ?? 0);
+            unset($row['aantal']);
+            $slangByOrder[trim((string) $row['ordernr'])] = ['row' => $row, 'count' => $count];
+        }
+
+        $orders = mergeRecentOrders($exactRows, $slangByOrder, $limit);
+        if (count($orders) >= $limit || count($exactRows) < $candidates) {
+            return $orders;
+        }
+    }
+
+    return $orders ?? [];
+}
+
+/** Terugval: de nieuwste orders uit de slangkaart-tabel zelf, op orderdatum. */
+function findRecentOrdersLocal(PDO $pdo, int $limit): array
+{
+    $table = '[dbo].[2500 Slangkaarten bij order]';
+    $columns = 'MIN([nm]) AS [nm], MAX([orddat]) AS [orddat], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], COUNT(*) AS [aantal]';
 
     $queries = [
-        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY MAX([orddat]) DESC, MIN([syscreated]) DESC, TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
-        // Zonder syscreated (kolom bestaat niet in dit schema): nog steeds op orderdatum.
-        "SELECT TOP {$limit} [ordernr], {$columnsBasic} FROM {$table} GROUP BY [ordernr] ORDER BY MAX([orddat]) DESC, TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
-        "SELECT TOP {$limit} [ordernr], {$columnsBasic} FROM {$table} GROUP BY [ordernr] ORDER BY TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
+        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY MAX([orddat]) DESC, TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
+        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
     ];
 
     $rows = null;
