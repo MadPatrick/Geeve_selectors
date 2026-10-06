@@ -186,9 +186,10 @@ offerte die recent is aangepast kwam dan tussen de nieuwe orders te staan. Een d
 gewoon werken.
 
 In deze lijst staat ook een kolom **Aangemaakt** (`MIN(syscreated)`: de tijd van de eerste regel van
-de order, een echte `datetime` - bevestigd via `INFORMATION_SCHEMA`), en die tijd bepaalt ook de
-volgorde binnen dezelfde orderdatum. `MIN` en niet `MAX`, anders telt een later toegevoegde regel
-mee. Nog niet met echte waarden gecontroleerd.
+de order, een echte `datetime` - kolomtype bevestigd via `INFORMATION_SCHEMA` op de
+Slangkaarten-database: `syscreated`/`sysmodified`/`orddat`/`afldat` zijn `datetime`, `Datum` is
+`date`), en die tijd bepaalt ook de volgorde binnen dezelfde orderdatum. `MIN` en niet `MAX`,
+anders telt een later toegevoegde regel mee. De echte tijdwaarden zijn niet gecontroleerd.
 
 De orderdatum (`orddat`) is een datum zonder tijd (altijd `00:00:00` in de database) en wordt
 overal alleen als datum getoond (`formatDate()`, bijv. `2026-10-06`). Aangemaakt/Laatste gewijzigd
