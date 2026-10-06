@@ -13,7 +13,7 @@ h2 { margin: 4px 0 0; font-size: 20px; }
     padding: 10px 16px;
     border-radius: 10px;
     background: #e8f4ed;
-    border: 1px solid #c9e6d5;
+    border: 1px solid var(--ok-soft-line);
     color: var(--ok);
     font-weight: 700;
     font-size: 14px;
@@ -43,7 +43,7 @@ input::placeholder { color: #929fac; }
     position: relative;
     overflow: hidden;
     flex: 0 0 auto;
-    border: 1px solid var(--accent-dark);
+    border: 1px solid var(--accent-dark-line);
     border-radius: 999px;
     background: var(--accent-dark);
     color: #fff;
@@ -100,7 +100,7 @@ input::placeholder { color: #929fac; }
     display: inline-block;
     appearance: none;
     text-decoration: none;
-    border: 1px solid #c9e6d5;
+    border: 1px solid var(--ok-soft-line);
     border-radius: 999px;
     background: #e8f4ed;
     color: var(--ok);

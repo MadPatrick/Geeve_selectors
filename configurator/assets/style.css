@@ -19,7 +19,7 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
 .step { display: none !important; }
 
-.section-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.section-actions { display: flex; align-items: center; gap: var(--btn-gap); flex-wrap: wrap; }
 
 .pdf-button {
     appearance: none;

@@ -182,6 +182,16 @@ require __DIR__ . '/../shared/header.php';
 | `--ok` | `#237447` | Succes/positief - bedoeld voor een **lichte** achtergrond. |
 | `--danger` | `#a03636` | Fout/negatief - bedoeld voor een **lichte** achtergrond. |
 | `--shadow` | `0 10px 24px rgba(0,0,0,.06)` | Standaard schaduw (`.panel`, `.brand-panel`). |
+| `--btn-gap` | `5px` | Ruimte tussen aangrenzende knoppen (gebruik als `gap` van een knoppenrij). |
+| `--line-strong` | `#c9d4de` | Rand voor een lichte/neutrale knop (wit of `#edf2f6`). |
+| `--ok-soft-line` | `#b3d5c2` | Rand voor een lichtgroene knop (`#e8f4ed`). |
+| `--accent-line` | `#f47896` | Rand voor een knop in `--accent`. |
+| `--accent-dark-line` | `#d2627a` | Rand voor een knop in `--accent-dark`. |
+| `--ok-line` / `--danger-line` | `#70a587` / `#c17c7c` | Rand voor een knop in `--ok` / `--danger`. |
+
+**Knopregel:** elke knop heeft een rand in dezelfde kleurtoon als zijn achtergrond - een
+**lichtere** rand op een donkere knop, een **donkerdere** rand op een lichte knop (gebruik de
+`*-line`-tokens hierboven) - en aangrenzende knoppen staan `var(--btn-gap)` (5px) uit elkaar.
 
 `--ok`/`--danger` zijn te donker om op een donkere achtergrond (`--dark-1`/`--dark-2`) te
 gebruiken - zie Stauff's `.copy-button`/`.assembly-erp-status` voor een voorbeeld van eigen,

@@ -31,10 +31,10 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 /* Knoppen: overal 5px ruimte ertussen en een rand in dezelfde kleurtoon als
    de knop - lichtere rand op een donkere knop, donkerdere rand op een lichte
    knop (zie de border-color van .segment, .submit-button, .copy-button, ...). */
-.family-switch { display: flex; background: #edf2f6; border-radius: 9px; padding: 3px; gap: 5px; }
+.family-switch { display: flex; background: transparent; gap: var(--btn-gap); }
 .family-switch-option {
     flex: 1 1 0;
-    border: 1px solid #c9d4de;
+    border: 1px solid var(--line-strong);
     background: transparent;
     color: var(--muted);
     padding: 7px 11px;
@@ -44,8 +44,8 @@ h2 { margin: 4px 0 0; font-size: 22px; }
     font-size: 14px;
     transition: background .15s ease, color .15s ease;
 }
-.family-switch-option:hover:not(:disabled):not(.is-active) { background: rgba(255, 255, 255, .6); }
-.family-switch-option.is-active { background: var(--accent); border-color: #f47896; color: #fff; }
+.family-switch-option:hover:not(:disabled):not(.is-active) { background: var(--soft); }
+.family-switch-option.is-active { background: var(--accent); border-color: var(--accent-line); color: #fff; }
 .family-switch.is-disabled, .family-switch-option:disabled { cursor: not-allowed; }
 .family-switch-option:disabled { opacity: .5; }
 
@@ -78,7 +78,7 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 .exact-live-chosen strong { color: var(--accent-dark); font-weight: 800; font-size: 16px; white-space: nowrap; }
 .exact-live-chosen span { color: var(--muted); font-size: 14px; text-align: right; }
 
-.segment { border: 1px solid #c9d4de; background: #edf2f6; color: var(--muted); padding: 9px 21px; border-radius: 9px; cursor: pointer; font-weight: 750; }
+.segment { border: 1px solid var(--line-strong); background: #edf2f6; color: var(--muted); padding: 9px 21px; border-radius: 9px; cursor: pointer; font-weight: 750; }
 .segment:disabled { opacity: .38; cursor: not-allowed; }
 .material-code-field { flex: 0 0 auto; width: min(220px, 100%); }
 
@@ -158,7 +158,7 @@ button.location-number { cursor: pointer; }
     width: 34px;
     height: 34px;
     border-radius: 999px;
-    border: 1px solid #c5cfd9;
+    border: 1px solid var(--line-strong);
     background: #fff;
     color: var(--muted);
     cursor: pointer;
@@ -195,7 +195,7 @@ button.location-number { cursor: pointer; }
     width: 34px;
     height: 34px;
     border-radius: 999px;
-    border: 1px solid #c5cfd9;
+    border: 1px solid var(--line-strong);
     background: #fff;
     color: var(--muted);
     cursor: pointer;
@@ -208,7 +208,7 @@ button.location-number { cursor: pointer; }
 .link-button {
     display: inline-block;
     appearance: none;
-    border: 1px solid #b3d5c2;
+    border: 1px solid var(--ok-soft-line);
     border-radius: 999px;
     background: #e8f4ed;
     color: var(--ok);
@@ -226,7 +226,7 @@ button.location-number { cursor: pointer; }
 .modal-header h2 { margin: 0; font-size: 19px; }
 .modal .field { margin-bottom: 10px; }
 .modal small { display: block; color: var(--muted); font-size: 12px; line-height: 1.5; margin-bottom: 18px; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 5px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: var(--btn-gap); }
 /* Locaties 2 (Beugel) en 6 (Materiaal) hebben geen eigen kader-/nummerkleur
    meer - alle 6 locatienummers gebruiken nu dezelfde .location-number
    basisstijl, zodat de boxen 1-6 gelijk in layout blijven. */
@@ -260,7 +260,7 @@ button.location-number { cursor: pointer; }
 .code-hint { color: #c7c7c7; font-size: 12px; }
 .copy-button {
     appearance: none;
-    border: 1px solid #70a587;
+    border: 1px solid var(--ok-line);
     border-radius: 999px;
     background: var(--ok);
     color: #fff;
@@ -273,7 +273,7 @@ button.location-number { cursor: pointer; }
 /* Samenstelling bestaat al in Exact (zie checkAssemblyInErp()/
    setCopyButtonState() in assets/selector.js) - knop wordt dan rood en
    toont "Update prijs" i.p.v. "Kopieer code". */
-.copy-button.is-found { border-color: #c17c7c; background: var(--danger); }
+.copy-button.is-found { border-color: var(--danger-line); background: var(--danger); }
 .copy-button:hover:not(:disabled) { opacity: .9; }
 .copy-button:disabled { opacity: .45; cursor: default; }
 
@@ -303,7 +303,7 @@ button.location-number { cursor: pointer; }
 
 .submit-button {
     appearance: none;
-    border: 1px solid #d2627a;
+    border: 1px solid var(--accent-dark-line);
     border-radius: 999px;
     background: var(--accent-dark);
     color: #fff;

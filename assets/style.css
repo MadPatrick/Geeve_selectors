@@ -98,7 +98,7 @@
 .update-panel h2 { margin: 0 0 10px; font-size: 19px; }
 .update-panel p { margin: 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 
-.update-form { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.update-form { display: flex; gap: var(--btn-gap); align-items: flex-end; flex-wrap: wrap; }
 .update-form[hidden] { display: none; }
 .update-code-field { display: flex; flex-direction: column; gap: 7px; }
 .update-code-field span { font-weight: 750; font-size: 14px; }
@@ -119,7 +119,7 @@
 
 .update-submit {
     appearance: none;
-    border: 1px solid var(--accent-dark);
+    border: 1px solid var(--accent-dark-line);
     border-radius: 999px;
     background: var(--accent-dark);
     color: #fff;

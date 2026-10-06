@@ -23,7 +23,7 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 .result-count { color: var(--muted); font-size: 14px; font-weight: 700; }
 .step { display: none !important; }
 
-.section-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.section-actions { display: flex; align-items: center; gap: var(--btn-gap); flex-wrap: wrap; }
 
 .pdf-button {
     appearance: none;
@@ -45,7 +45,7 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 .data-panel-block p { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.4; }
 .data-panel-block h3 { margin: 0 0 8px; font-size: 15px; }
 
-.data-download-links { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.data-download-links { display: flex; flex-direction: column; gap: var(--btn-gap); align-items: flex-start; }
 .data-download-link {
     display: inline-flex;
     align-items: center;
@@ -66,7 +66,7 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 .upload-form input[type="file"] { border: 1px solid #cbd6df; background: #fff; color: var(--ink); border-radius: 10px; min-height: auto; padding: 9px 12px; }
 .upload-button {
     appearance: none;
-    border: 1px solid var(--accent-dark);
+    border: 1px solid var(--accent-dark-line);
     border-radius: 999px;
     background: var(--accent-dark);
     color: #fff;
