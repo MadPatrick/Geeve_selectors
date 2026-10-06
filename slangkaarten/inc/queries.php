@@ -411,6 +411,8 @@ function findRecentOrders(PDO $pdo, int $limit = 10): array
 
     $queries = [
         "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY MAX([orddat]) DESC, MIN([syscreated]) DESC, TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
+        // Zonder syscreated (kolom bestaat niet in dit schema): nog steeds op orderdatum.
+        "SELECT TOP {$limit} [ordernr], {$columnsBasic} FROM {$table} GROUP BY [ordernr] ORDER BY MAX([orddat]) DESC, TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
         "SELECT TOP {$limit} [ordernr], {$columnsBasic} FROM {$table} GROUP BY [ordernr] ORDER BY TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
     ];
 
