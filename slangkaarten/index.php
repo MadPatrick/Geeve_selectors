@@ -1181,7 +1181,7 @@ function renderCustomerOrdersForm(array $customerOrders, bool $showCreated = fal
                     <th>Klant</th>
                     <th>Uw referentie</th>
                     <th>Orderdatum</th>
-                    <?php if ($showCreated): ?><th>Aangemaakt</th><?php endif; ?>
+                    <?php if ($showCreated): ?><th>Order aangemaakt</th><?php endif; ?>
                     <th>Aantal slangregels</th>
                     <th></th>
                 </tr>
@@ -1254,6 +1254,67 @@ function renderHoseNumberResultsForm(array $hoseNumberResults): string
     return (string) ob_get_clean();
 }
 
+/**
+ * De laatste 10 orders/offertes, met een korte bestandscache (zie
+ * RECENT_ORDERS_CACHE_SECONDS): de opvraging (Exact + slangkaart-tabel) kan
+ * een paar seconden duren, dus die gebeurt NIET tijdens het openen van de
+ * pagina maar via ?recent=1 (zie het script onderaan) - de rest van de
+ * pagina staat dan meteen er. ?fresh=1 slaat de cache over, ?debug=1 toont
+ * hoe lang elke stap duurde.
+ */
+const RECENT_ORDERS_CACHE_SECONDS = 120;
+
+function renderRecentOrdersFragment(bool $fresh, bool $debug): string
+{
+    $cacheFile = sys_get_temp_dir() . '/geeve_slangkaarten_recent_orders.json';
+    $source = 'database';
+    $startedAt = microtime(true);
+    $orders = null;
+
+    if (!$fresh && is_file($cacheFile) && (time() - (int) @filemtime($cacheFile)) < RECENT_ORDERS_CACHE_SECONDS) {
+        $cached = json_decode((string) @file_get_contents($cacheFile), true);
+        if (is_array($cached) && $cached !== []) {
+            $orders = $cached;
+            $source = 'cache';
+        }
+    }
+
+    if ($orders === null) {
+        try {
+            $orders = findRecentOrders(getPdoConnection(), 10);
+        } catch (Throwable $exception) {
+            $orders = [];
+        }
+        if ($orders !== []) {
+            @file_put_contents($cacheFile, json_encode($orders, JSON_UNESCAPED_UNICODE), LOCK_EX);
+        }
+    }
+
+    if ($orders === []) {
+        return '<p class="print-status">De laatste orders konden niet worden geladen - zoek hierboven op een order, klant of slangnummer.</p>';
+    }
+
+    $html = renderCustomerOrdersForm($orders, pick($orders[0]['row'], AANGEMAAKT_DATUM_CANDIDATES) !== '');
+
+    if ($debug) {
+        $timings = $GLOBALS['recentOrdersTimings'] ?? [];
+        $parts = ['totaal ' . round((microtime(true) - $startedAt) * 1000) . ' ms', 'bron: ' . $source];
+        foreach ($timings as $name => $ms) {
+            $parts[] = $name . ' ' . $ms . ' ms';
+        }
+        $html .= '<p class="print-status">' . h(implode(' | ', $parts)) . '</p>';
+    }
+
+    return $html;
+}
+
+if (isset($_GET['recent'])) {
+    header('Content-Type: text/html; charset=utf-8');
+    header('Cache-Control: no-store');
+    echo renderRecentOrdersFragment(isset($_GET['fresh']), isset($_GET['debug']));
+    exit;
+}
+
 $orderNumber = trim((string) ($_GET['ordernummer'] ?? $_POST['ordernummer'] ?? ''));
 $customerName = trim((string) ($_GET['klant'] ?? $_POST['klant'] ?? ''));
 $hoseNumberSearch = trim((string) ($_GET['slangnummer'] ?? $_POST['slangnummer'] ?? ''));
@@ -1266,7 +1327,7 @@ $hoseLines = [];
 $hoseCards = [];
 $customerOrders = [];
 $hoseNumberResults = [];
-$recentOrders = [];
+$showRecentOrders = false;
 $errorMessage = null;
 
 if ($selectedKeys !== []) {
@@ -1313,15 +1374,9 @@ if ($selectedKeys !== []) {
         $errorMessage = $exception->getMessage();
     }
 } else {
-    // Nog niet gezocht: standaard de laatste 10 orders/offertes tonen. Een
-    // databasefout hier blokkeert de zoekformulieren niet - de lijst blijft
-    // dan gewoon weg.
-    try {
-        $pdo = getPdoConnection();
-        $recentOrders = findRecentOrders($pdo, 10);
-    } catch (DatabaseConfigException | PDOException $exception) {
-        $recentOrders = [];
-    }
+    // Nog niet gezocht: de laatste 10 orders/offertes worden na het laden van
+    // de pagina opgehaald (zie renderRecentOrdersFragment()), niet hier.
+    $showRecentOrders = true;
 }
 ?>
 <!doctype html>
@@ -1482,16 +1537,29 @@ if ($selectedKeys !== []) {
             </div>
             <?= renderHoseNumberResultsForm($hoseNumberResults) ?>
         </section>
-    <?php elseif ($recentOrders !== []): ?>
+    <?php elseif ($showRecentOrders): ?>
         <section class="panel result-panel">
             <div class="section-heading">
                 <div>
                     <span class="step">Recent</span>
-                    <h2>Laatste <?= count($recentOrders) ?> orders / offertes - of zoek hierboven</h2>
+                    <h2>Laatste 10 orders / offertes - of zoek hierboven</h2>
                 </div>
             </div>
-            <?= renderCustomerOrdersForm($recentOrders, true) ?>
+            <div id="recentOrdersBody"><p class="print-status">Laatste orders laden&hellip;</p></div>
         </section>
+        <script>
+            (function () {
+                var body = document.getElementById('recentOrdersBody');
+                if (!body || !window.fetch) { return; }
+                var url = 'index.php?recent=1' + (location.search.indexOf('debug') !== -1 ? '&debug=1' : '');
+                fetch(url, { cache: 'no-store' })
+                    .then(function (response) { return response.text(); })
+                    .then(function (html) { body.innerHTML = html; })
+                    .catch(function () {
+                        body.innerHTML = '<p class="print-status">De laatste orders konden niet worden geladen.</p>';
+                    });
+            })();
+        </script>
     <?php elseif ($orderNumber !== '' || $customerName !== '' || $hoseNumberSearch !== ''): ?>
         <section class="empty-result">Geen slangregels gevonden voor deze zoekopdracht.</section>
     <?php endif; ?>
