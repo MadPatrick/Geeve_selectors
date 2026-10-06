@@ -3,11 +3,7 @@
    select-basisstijlen staan nu in ../shared/style.css (geladen vóór dit
    bestand, zie index.php) - hier alleen app-specifieke overrides en
    aanvullingen. */
-.page-shell { width: min(1400px, calc(100% - 28px)); }
 
-/* Override: hier mag de topline wrappen (pil + PDF-menu + 3 icoon-
-   knoppen op kleinere schermen). */
-.header-topline { flex-wrap: wrap; }
 .eyebrow {
     font-size: 12px;
     letter-spacing: .16em;
@@ -184,8 +180,6 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 .search-row .search-field-werkdruk,
 .search-row .search-field-maat { flex: 1 1 0; }
 .search-row .clear-filter-button { flex: 0 0 auto; align-self: flex-end; }
-/* Override: hier geen margin-top (shared default is 4px). */
-.panel > small { margin-top: 0; }
 .autocomplete { position: relative; }
 input::placeholder { color: #929fac; }
 

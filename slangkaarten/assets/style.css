@@ -2,7 +2,6 @@
    select-basisstijlen staan nu in ../shared/style.css (geladen vóór dit
    bestand, zie index.php) - hier alleen app-specifieke overrides en
    aanvullingen. */
-.page-shell { width: min(1250px, calc(100% - 28px)); }
 
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
 h2 { margin: 4px 0 0; font-size: 20px; }
@@ -292,7 +291,7 @@ input::placeholder { color: #929fac; }
 }
 
 @media (max-width: 700px) {
-    .page-shell { width: min(100% - 16px, 1250px); margin-top: 14px; }
+    .page-shell { margin-top: 14px; }
     .brand-panel { padding: 14px 16px 18px; grid-template-columns: 1fr; }
     .brand-logo-img { height: 50px; }
     .brand-rubix-img { height: 25px; }

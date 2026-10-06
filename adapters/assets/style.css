@@ -3,7 +3,6 @@
    select-basisstijlen staan nu in ../shared/style.css (geladen vóór dit
    bestand, zie index.php) - hier alleen app-specifieke overrides en
    aanvullingen. */
-.page-shell { width: min(1400px, calc(100% - 28px)); }
 
 h2 { margin: 4px 0 0; font-size: 22px; }
 h3 { margin: 4px 0 0; font-size: 19px; }

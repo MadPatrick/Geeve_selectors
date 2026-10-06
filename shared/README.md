@@ -87,7 +87,7 @@ hieronder) en app-specifieke JS.
    </head>
    ```
 
-4. **`<body>`** - open `<main class="page-shell">` en include `shared/header.php` direct erna, met
+4. **`<body>`** - open `<main class="page-shell">` (of `<main class="page-shell page-shell--wide">` voor een brede selector-app) en include `shared/header.php` direct erna, met
    minimaal `$headerTitle` gezet:
 
    ```php
@@ -112,7 +112,7 @@ hieronder) en app-specifieke JS.
 
 5. **Eigen stijlen** - vul `assets/style.css` alleen met wat deze ene app nodig heeft: eigen
    secties (`.section-heading`, stappen, statuspillen, ...) en eventuele **overrides** van een
-   gedeelde regel (bijv. een bredere `.page-shell`). Zie "Wat hoort in je eigen
+   gedeelde regel. Een andere paginabreedte hoort daar **niet** bij: gebruik `page-shell--wide`. Zie "Wat hoort in je eigen
    `assets/style.css`" hieronder.
 
 6. **(Optioneel) registreer de app op het hoofdscherm** - de tegel-grid op de portal-homepage
@@ -197,7 +197,8 @@ helderdere varianten op zo'n plek (gedocumenteerd in `stauff/README.md`).
 
 | Klasse | Omschrijving |
 |---|---|
-| `.page-shell` | De centrale contentkolom (`width: min(1100px, calc(100% - 28px))`, gecentreerd). Een app met bredere content overschrijft dit in eigen `assets/style.css` (bijv. `width: min(1400px, calc(100% - 28px));`). |
+| `.page-shell` | De centrale contentkolom (`width: min(1100px, calc(100% - 28px))`, gecentreerd) - de standaard voor o.a. het hoofdscherm. |
+| `.page-shell--wide` | Standaard brede variant (1400px) voor selector-apps met veel kolommen: `<main class="page-shell page-shell--wide">`. Gebruikt door hoses/adapters/stauff/slangkaarten - geen eigen breedte-override meer nodig. |
 | `.page-header` | Wrapper om `shared/header.php`'s `<header>`. |
 | `.brand-panel` + `::after` | De zwarte header-balk met logo's/titel + de accentstreep onderaan. |
 | `.brand-copy`, `.brand-logo-row`, `.brand-logo-img`, `.brand-rubix-img` | Logo-opmaak binnen de brand-panel. |
@@ -229,8 +230,8 @@ nu bewust **niet** gedeeld zijn (elke app gebruikt een licht andere variant). Da
 gedeelde regel hier overschrijven (de eigen stylesheet laadt ná `shared/style.css`), bijvoorbeeld:
 
 ```css
-/* Deze app heeft bredere content nodig dan de gedeelde 1100px. */
-.page-shell { width: min(1400px, calc(100% - 28px)); }
+/* Voorbeeld van een legitieme override: dit element heeft in deze app een eigen kleur nodig. */
+.header-icon-button-save { color: var(--ok); }
 ```
 
 Dupliceer nooit een gedeelde regel 1-op-1 in de eigen stylesheet - als twee apps toevallig exact

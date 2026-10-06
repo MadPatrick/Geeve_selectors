@@ -123,8 +123,8 @@ korte samenvatting.
 
 (het hoofdscherm zelf gebruikt `shared/style.css` zonder `../`, want dat staat al op rootniveau).
 Omdat de eigen stylesheet ná de gedeelde laadt, kan een app met een enkele regel een specifieke
-waarde overschrijven (bijv. `.page-shell { width: min(1400px, calc(100% - 28px)); }` voor een
-bredere pagina) zonder de hele regel te moeten herhalen. Wat wél overal identiek is (bijv.
+waarde overschrijven zonder de hele regel te moeten herhalen. Een bredere pagina is geen
+override meer: gebruik `<main class="page-shell page-shell--wide">`. Wat wél overal identiek is (bijv.
 `.brand-panel`, `h1`, `input, select`) staat **alleen** nog in `shared/style.css` - de eigen
 `assets/style.css` van elke app bevat nu alleen nog app-specifieke stijlen en zulke overrides.
 

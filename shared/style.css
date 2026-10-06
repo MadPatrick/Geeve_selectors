@@ -38,6 +38,10 @@ body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); }
 button, input, select { font: inherit; }
 
 .page-shell { width: min(1100px, calc(100% - 28px)); margin: 16px auto 40px; }
+/* Brede variant voor de selector-apps met veel kolommen (hoses/adapters/stauff/
+   slangkaarten): <main class="page-shell page-shell--wide">. Moet VOOR de
+   responsive .page-shell-regels onderaan staan, zodat die op mobiel winnen. */
+.page-shell--wide { width: min(1400px, calc(100% - 28px)); }
 .page-header { margin-bottom: 18px; }
 .brand-panel {
     background: #000;
@@ -71,6 +75,7 @@ button, input, select { font: inherit; }
     justify-content: flex-end;
     align-items: center;
     gap: 16px;
+    flex-wrap: wrap;
     min-height: 16px;
     margin-bottom: 4px;
 }

@@ -138,7 +138,7 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
     <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
 </head>
 <body>
-<main class="page-shell">
+<main class="page-shell page-shell--wide">
     <?php
     $headerTitle = 'Adapters Selector';
     ob_start();

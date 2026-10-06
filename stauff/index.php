@@ -34,7 +34,7 @@ function assetVersion(string $relativePath): string
     <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
 </head>
 <body>
-<main class="page-shell">
+<main class="page-shell page-shell--wide">
     <?php
     $headerTitle = 'Stauff Selector';
     require __DIR__ . '/../shared/header.php';
