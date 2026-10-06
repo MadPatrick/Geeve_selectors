@@ -397,17 +397,21 @@ function findOrdersByCustomer(PDO $pdo, string $customerName): array
  * nummerreeksen (bijv. 51139260 uit 2017 en 45005308 uit 2008 staan hoger
  * dan de huidige 36021012). Sorteren op MAX(syscreated) werkt ook niet: een
  * oude offerte die recent is aangepast komt dan tussen de nieuwe orders.
- * Terugval op alleen ordernummer als orddat niet te sorteren is.
+ * Binnen dezelfde orderdatum telt de tijd van de eerste regel (MIN(syscreated),
+ * een echte datetime - orddat zelf is altijd 00:00:00). Terugval op alleen
+ * ordernummer als orddat/syscreated niet te sorteren zijn.
  */
 function findRecentOrders(PDO $pdo, int $limit = 10): array
 {
     $limit = max(1, min(50, $limit));
     $table = '[dbo].[2500 Slangkaarten bij order]';
-    $columns = 'MIN([nm]) AS [nm], MAX([orddat]) AS [orddat], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], COUNT(*) AS [aantal]';
+    $columns = 'MIN([nm]) AS [nm], MAX([orddat]) AS [orddat], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], MIN([syscreated]) AS [syscreated], COUNT(*) AS [aantal]';
+
+    $columnsBasic = str_replace(' MIN([syscreated]) AS [syscreated],', '', $columns);
 
     $queries = [
-        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY MAX([orddat]) DESC, TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
-        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
+        "SELECT TOP {$limit} [ordernr], {$columns} FROM {$table} GROUP BY [ordernr] ORDER BY MAX([orddat]) DESC, MIN([syscreated]) DESC, TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
+        "SELECT TOP {$limit} [ordernr], {$columnsBasic} FROM {$table} GROUP BY [ordernr] ORDER BY TRY_CAST([ordernr] AS BIGINT) DESC, [ordernr] DESC",
     ];
 
     $rows = null;

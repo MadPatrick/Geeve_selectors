@@ -1168,7 +1168,7 @@ function renderHoseLinesForm(array $hoseLines, string $orderNumber, string $cust
  * van orders van deze klant, nieuwste eerst, elk met een "Kiezen"-knop
  * die verder gaat als een gewone ordernummer-zoekopdracht.
  */
-function renderCustomerOrdersForm(array $customerOrders): string
+function renderCustomerOrdersForm(array $customerOrders, bool $showCreated = false): string
 {
     ob_start();
     ?>
@@ -1181,6 +1181,7 @@ function renderCustomerOrdersForm(array $customerOrders): string
                     <th>Klant</th>
                     <th>Uw referentie</th>
                     <th>Orderdatum</th>
+                    <?php if ($showCreated): ?><th>Aangemaakt</th><?php endif; ?>
                     <th>Aantal slangregels</th>
                     <th></th>
                 </tr>
@@ -1195,7 +1196,8 @@ function renderCustomerOrdersForm(array $customerOrders): string
                         <td><?= h(pick($row, KLANT_CANDIDATES)) ?: '&mdash;' ?></td>
                         <td><?= h(pick($row, UW_REFERENTIE_CANDIDATES)) ?: '&mdash;' ?></td>
                         <td><?= h(formatDate(pick($row, ORDERDATUM_CANDIDATES))) ?: '&mdash;' ?></td>
-                        <td><?= (int) $order['count'] ?></td>
+                        
+                        <?php if ($showCreated): ?><td><?= h(formatDateTime(pick($row, AANGEMAAKT_DATUM_CANDIDATES))) ?: '&mdash;' ?></td><?php endif; ?><td><?= (int) $order['count'] ?></td>
                         <td>
                             <a class="link-button" href="index.php?ordernummer=<?= h(rawurlencode($orderNumberValue)) ?>">Kiezen</a>
                         </td>
@@ -1488,7 +1490,7 @@ if ($selectedKeys !== []) {
                     <h2>Laatste <?= count($recentOrders) ?> orders / offertes - of zoek hierboven</h2>
                 </div>
             </div>
-            <?= renderCustomerOrdersForm($recentOrders) ?>
+            <?= renderCustomerOrdersForm($recentOrders, true) ?>
         </section>
     <?php elseif ($orderNumber !== '' || $customerName !== '' || $hoseNumberSearch !== ''): ?>
         <section class="empty-result">Geen slangregels gevonden voor deze zoekopdracht.</section>
