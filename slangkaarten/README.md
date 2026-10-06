@@ -187,10 +187,11 @@ nummerreeksen: orders uit 2008/2017 hebben een hoger nummer dan de huidige 36021
 
 `findRecentOrdersViaExact()` werkt in 2 stappen (de eerste variant zocht 100/400 ordernummers uit
 Exact op in de slangkaart-tabel en deed daar 5 resp. 33 seconden over - gemeten met `?debug=1`):
-1. Uit de slangkaart-tabel de orders van de nieuwste orderdata (`TOP 10 WITH TIES ... ORDER BY
-   MAX(orddat) DESC`, dus alle orders van de dag waarop de 10e valt), binnen een datumvenster van
-   7 dagen (anders 30, 365, alles) zodat niet de hele tabel gelezen hoeft te worden.
-2. Voor alleen die paar orders `orkrg.syscreated` ophalen en daarop sorteren
+1. Uit de slangkaart-tabel alle orders van de laatste 7 dagen (orderdatum, max. 300; te weinig =
+   30, 365 dagen, anders alles). Niet alleen "de nieuwste 10 op orderdatum": een order kan een
+   orderdatum van vandaag hebben terwijl hij op 23 september is aangemaakt, en die nam de plek in
+   van een echt nieuwe order van gisteren (gezien in de praktijk). Dit kostte 71 ms.
+2. Voor die orders `orkrg.syscreated` ophalen (1 query op ordernummer, ~100 ms) en daarop sorteren
    (`sortRecentOrdersByExact()`), daarna de nieuwste 10 houden.
 
 Beperking: een order die vandaag is aangemaakt maar een oude orderdatum heeft (teruggedateerd) valt

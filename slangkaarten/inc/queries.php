@@ -456,12 +456,13 @@ function sortRecentOrdersByExact(array $orders, array $exactByOrder, int $limit)
 /**
  * Werkwijze (de eerdere variant zocht 100/400 ordernummers uit Exact op in de
  * slangkaart-tabel en deed daar 5 resp. 33 seconden over):
- *   1. Uit de slangkaart-tabel de orders van de nieuwste orderdata ophalen -
- *      TOP n WITH TIES, dus ALLE orders van de dag waarop de n-de order valt,
- *      met een datumvenster (7, 30, 365 dagen, anders alles) zodat niet de
- *      hele tabel gelezen hoeft te worden.
- *   2. Voor alleen die paar orders de aanmaaktijd uit Exact (orkrg, op
- *      ordernummer) erbij halen en daarop sorteren.
+ *   1. Uit de slangkaart-tabel ALLE orders van de laatste 7 dagen (orderdatum)
+ *      ophalen (max. 300; te weinig = 30, 365 dagen, anders alles). Niet
+ *      alleen "de nieuwste 10 op orderdatum": een order kan een orderdatum
+ *      van vandaag hebben terwijl hij op 23 september is aangemaakt - die
+ *      nam dan de plek in van een echt nieuwe order van gisteren.
+ *   2. Van die orders de aanmaaktijd uit Exact (orkrg, op ordernummer)
+ *      erbij halen (1 query, ~100 ms) en daarop sorteren.
  * Tijden per stap staan in $GLOBALS['recentOrdersTimings'] (index.php?debug=1).
  */
 function findRecentOrdersViaExact(PDO $slangPdo, int $limit): array
@@ -474,7 +475,7 @@ function findRecentOrdersViaExact(PDO $slangPdo, int $limit): array
         $where = $days === null ? '' : "WHERE [orddat] >= DATEADD(DAY, -{$days}, CAST(GETDATE() AS date)) ";
         $t = microtime(true);
         $rows = $slangPdo->query(
-            "SELECT TOP {$limit} WITH TIES [ordernr], MIN([nm]) AS [nm], MAX([orddat]) AS [orddat], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], COUNT(*) AS [aantal] " .
+            "SELECT TOP 300 [ordernr], MIN([nm]) AS [nm], MAX([orddat]) AS [orddat], MIN([Uw_referentie]) AS [Uw_referentie], MIN([ord_soort]) AS [ord_soort], COUNT(*) AS [aantal] " .
             "FROM {$table} {$where}GROUP BY [ordernr] ORDER BY MAX([orddat]) DESC"
         )->fetchAll();
         $GLOBALS['recentOrdersTimings']['slangkaarten-tabel ' . ($days === null ? 'alles' : "{$days} dagen")] = (int) round((microtime(true) - $t) * 1000);
