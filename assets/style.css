@@ -193,8 +193,5 @@
 }
 
 @media (max-width: 480px) {
-    /* Override: hier een iets kleinere maximumbreedte (1100px i.p.v.
-       shared's 1180px), passend bij deze pagina's smallere .page-shell. */
-    .page-shell { width: min(100% - 16px, 1100px); margin-top: 14px; }
     .tile { padding: 22px 20px; }
 }
