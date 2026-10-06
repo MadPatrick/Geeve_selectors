@@ -47,6 +47,7 @@ elk voorvoegsel wijst 100% betrouwbaar naar precies 1 Onderdeel, geen kruisbesme
 | Voorvoegsel(s) | Locatie | Onderdeel |
 |---|---|---|
 | `SP`, `SPAL`, `SPV` | 1 | Lasplaat |
+| `SPAS` | 1 | Lasplaat (dubbel-gestapeld, zie `## Aantal en totaalprijs`) |
 | `WSP` | 1 | Lasplaat (hoek) |
 | `GMV`, `SM` | 1 | Glijmoer |
 | `DP`, `DPAL`, `DPAS`, `GD`, `DPAD` | 4 | Dekplaat |
@@ -205,6 +206,36 @@ Elke locatie (1-6, en elke extra regel) heeft een eigen **aantal**-veld. Standaa
 `isDubbelBeugel()` - o.b.v. de artikelcode-"/" of de GRxD-tag, niet de CSV). Het aantal wordt
 **niet** automatisch teruggezet zolang dezelfde beugel/soort gekozen blijft - alleen bij het
 kiezen van een andere beugel of het legen van de samenstelling (`resetAantalFields()`).
+
+**Dubbel-gestapeld (SPAS/DPAS):** een ANDER "dubbel"-concept dan `isDubbelBeugel()` hierboven -
+hier gaat het om 2 complete, gelijke klembeugels die samen onder 1 gedeelde, bredere
+Lasplaat/Dekplaat vallen, i.p.v. 1 beugel met 2 verschillende diameters. Te herkennen aan het
+"AS"-voorvoegsel van de gekozen Lasplaat/Dekplaat (`SPAS`/`DPAS`) i.p.v. het gewone "AL"
+(`SPAL`/`DPAL`) - bevestigd met de STAUFF-catalogus ("Heavy Series according to DIN 3015,
+Part 2"):
+
+- `SPAL-3006-PP-DPAL-AS-M-W12` (enkel): 1x Clamp Body, 2x Hexagon Head Bolt.
+- `SPAS-3006-PP-DPAS-AS-M-W12` (dubbel-gestapeld): 2x Clamp Body ("four halves"), 4x Hexagon
+  Head Bolt - de Cover Plate/Weld Plate blijven wél 1x (een eigen, bredere "for Double Clamps"-
+  variant, geen 2 losse platen).
+
+`isGestapeldDubbel()` herkent dit aan `ui.loc1.value`/`ui.loc4.value` (`SPAS`/`DPAS`), en
+`applyGestapeldDubbelAantal()` zet dan het aantal van locatie 2 (Beugel: 1 → 2) en locatie 5
+(Bout: 2 → 4, of 1 → 2 bij een dubbele beugel) - aangeroepen vanuit `reapplyBoutFilter()`, dus
+zodra zowel locatie 1 als 4 minstens 1x bekend zijn, en opnieuw bij elke latere wijziging. Om een
+handmatige aanpassing van het aantal niet ongevraagd te overschrijven, gebeurt dit alleen als het
+enkel/dubbel-gestapeld-signaal zelf **wisselt** (`state.lastGestapeldDubbel`), niet bij elke
+herberekening.
+
+**Nog niet bevestigd/geïmplementeerd:** de volledige samenstellingscode-STRING van de catalogus
+(zie `## Samenstellingscode` hieronder) gebruikt overal koppeltekens (ook tussen beugelnummer en
+-materiaal, bijv. `3006-PP` i.p.v. de spatie die deze app gebruikt), kent een extra `DUEB`-
+modifier voor een "Elongated" Lasplaat/Dekplaat-variant, en eindigt op een SAMENGESTELDE
+materiaal/afwerkingscode (`W12`, `W13`, `W15`-`W19`, ...) die een combinatie van materialen over
+meerdere onderdelen tegelijk beschrijft - een ander soort code dan de simpele W1-W5-materiaalcode
+per onderdeel die deze app al gebruikt (zie `Thread codes`/`Material codes` in de catalogus). Dit
+raakt dus ook `api/exact_assembly_check.php` (de exacte ERP-match verwacht precies dit
+format) - nog niet aangepast, bewust als apart vervolg gelaten.
 
 Onder de samenstellingscode staat de **totaalprijs**: de som van (verkoopprijs × aantal) over elk
 onderdeel waarvoor al een artikel gekozen is (`recomputeTotal()`), op basis van de laatst

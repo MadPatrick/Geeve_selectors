@@ -35,6 +35,14 @@
         // voorvoegsels voor die locatie blijven gebruikt (PREFIXES_BY_POSITION).
         locationFilters: loadLocationFilters(),
         editingLocation: null,
+        // Laatst toegepaste isGestapeldDubbel()-uitkomst (zie
+        // applyGestapeldDubbelAantal()) - zodat het Beugel/Bout-aantal
+        // alleen overschreven wordt als dit signaal daadwerkelijk WISSELT
+        // (enkel <-> dubbel-gestapeld), niet bij elke herberekening. Zo
+        // blijft een handmatige aanpassing van het aantal staan zolang de
+        // gebruiker geen ander type Lasplaat/Dekplaat kiest. null = nog
+        // niet toegepast voor de huidige beugel/cyclus (zie rebuildComponents()).
+        lastGestapeldDubbel: null,
         // Laatst opgehaalde verkoopprijzen + vrije voorraad (Exact), per
         // artikelcode - los bijgehouden zodat recomputeTotal() de
         // totaalprijs/totaal beschikbaar opnieuw kan berekenen zodra een
@@ -211,6 +219,7 @@
     const PREFIX_RULES = [
         { prefix: 'SP', position: 1, onderdeel: 'Lasplaat' },
         { prefix: 'SPAL', position: 1, onderdeel: 'Lasplaat' },
+        { prefix: 'SPAS', position: 1, onderdeel: 'Lasplaat (dubbel-gestapeld)' },
         { prefix: 'SPV', position: 1, onderdeel: 'Lasplaat' },
         { prefix: 'WSP', position: 1, onderdeel: 'Lasplaat (hoek)' },
         { prefix: 'GMV', position: 1, onderdeel: 'Glijmoer' },
@@ -491,6 +500,28 @@
     }
 
     /**
+     * Dubbel-gestapelde samenstelling: 2 complete klembeugels onder 1
+     * gedeelde, bredere Lasplaat/Dekplaat - te herkennen aan het "AS"-
+     * voorvoegsel van de gekozen Lasplaat/Dekplaat (SPAS/DPAS) i.p.v. het
+     * gewone "AL" (SPAL/DPAL). Bevestigd met de STAUFF-catalogus ("Heavy
+     * Series according to DIN 3015, Part 2"): SPAL-3006-PP-DPAL-AS-M-W12
+     * (enkel, 1x Clamp Body, 2x bout) vs SPAS-3006-PP-DPAS-AS-M-W12
+     * (dubbel-gestapeld, 2x Clamp Body/"four halves", 4x bout) - zie
+     * applyGestapeldDubbelAantal().
+     *
+     * Dit is een ANDER "dubbel"-concept dan isDubbelBeugel() hierboven
+     * (dat gaat over 1 beugel met 2 verschillende diameters in zijn eigen
+     * artikelcode, bijv. "112/12") - hier gaat het om 2 gelijke beugels die
+     * samen onder 1 bredere plaat vallen. Beide signalen kunnen in theorie
+     * samen voorkomen; dit bestand behandelt ze bewust los van elkaar,
+     * zonder aanname over hoe ze precies interacteren (geen catalogus-
+     * voorbeeld daarvan beschikbaar).
+     */
+    function isGestapeldDubbel() {
+        return firstCodePart(ui.loc1.value) === 'SPAS' || firstCodePart(ui.loc4.value) === 'DPAS';
+    }
+
+    /**
      * Welk plaatje (images/<key>.png) hoort bij een gekozen artikelcode.
      * Werkt volledig op live Exact-gegevens: de Onderdeel-classificatie komt
      * uit classify()/PREFIX_RULES, de bouwgroep uit de eigen GRx/GRxD-tag
@@ -763,6 +794,35 @@
             if (input) input.value = String(value);
         });
         if (ui.aantalLoc5) ui.aantalLoc5.value = isDubbelBeugel() ? '1' : '2';
+        // Nieuwe cyclus: isGestapeldDubbel() moet hierna weer minstens 1x
+        // toegepast worden, ook als de uitkomst toevallig hetzelfde is als
+        // in de vorige cyclus - zie applyGestapeldDubbelAantal().
+        state.lastGestapeldDubbel = null;
+    }
+
+    /**
+     * Verdubbelt het Beugel-aantal (locatie 2: 1 -> 2) en het Bout-aantal
+     * (locatie 5: 2 -> 4, of 1 -> 2 bij een dubbele beugel - isDubbelBeugel())
+     * zodra de gekozen Lasplaat/Dekplaat de dubbel-gestapelde variant is
+     * (isGestapeldDubbel(), SPAS/DPAS) - en zet ze terug naar hun gewone
+     * waarde zodra dat niet meer het geval is. Overschrijft het aantal-veld
+     * alleen als dit signaal daadwerkelijk WISSELT t.o.v. de vorige keer
+     * (state.lastGestapeldDubbel) - zo blijft een handmatige aanpassing van
+     * het aantal staan zolang de gebruiker niet van Lasplaat/Dekplaat-type
+     * wisselt. Wordt aangeroepen vanuit reapplyBoutFilter(), dus pas zodra
+     * zowel locatie 1 als 4 minstens 1x klaar zijn (zelfde afhankelijkheid
+     * als de bout-filter daar).
+     */
+    function applyGestapeldDubbelAantal() {
+        const gestapeld = isGestapeldDubbel();
+        if (gestapeld === state.lastGestapeldDubbel) return;
+        state.lastGestapeldDubbel = gestapeld;
+
+        if (ui.aantalLoc2) ui.aantalLoc2.value = gestapeld ? '2' : '1';
+        if (ui.aantalLoc5) ui.aantalLoc5.value = gestapeld ? '4' : (isDubbelBeugel() ? '1' : '2');
+        // .value = triggert geen 'input'-event (zie bindEvents()) - de
+        // totalen dus hier zelf meteen herberekenen met de nieuwe aantallen.
+        recomputeTotal();
     }
 
     function syncLocationConfigButtons() {
@@ -1091,10 +1151,13 @@
      * Rendert locatie 5 (Bout), met de montagetype-filter
      * (lasplaatMountType(), afhankelijk van locatie 1) en de AS/IS-
      * typevoorkeur (afhankelijk van of locatie 4 een dekplaat heeft) - zie
-     * renderLiveCandidates(). Doet pas iets zodra ZOWEL locatie 1 als 4
-     * minstens 1x klaar zijn (locationReadyForBout) - anders zou Bout zijn
-     * EERSTE keuze kunnen maken terwijl locatie 4 nog "Zoeken…" is, met IS
-     * als resultaat dat daarna blijft "vastzitten" (een al gekozen bout
+     * renderLiveCandidates(). Past ook (via applyGestapeldDubbelAantal())
+     * het Beugel/Bout-aantal aan zodra de gekozen Lasplaat/Dekplaat de
+     * dubbel-gestapelde variant is (SPAS/DPAS) - zelfde afhankelijkheid,
+     * dus hier is dat de logische plek. Doet pas iets zodra ZOWEL locatie 1
+     * als 4 minstens 1x klaar zijn (locationReadyForBout) - anders zou Bout
+     * zijn EERSTE keuze kunnen maken terwijl locatie 4 nog "Zoeken…" is, met
+     * IS als resultaat dat daarna blijft "vastzitten" (een al gekozen bout
      * wordt bewust niet overschreven) zelfs als locatie 4 vlak daarna wél
      * een dekplaat blijkt te hebben.
      *
@@ -1105,6 +1168,7 @@
      */
     function reapplyBoutFilter() {
         if (!locationReadyForBout[1] || !locationReadyForBout[4]) return;
+        applyGestapeldDubbelAantal();
         const family = getMaterialFamily();
         if (!family) return;
 
