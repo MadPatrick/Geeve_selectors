@@ -110,6 +110,10 @@ i.p.v. per app gekopieerd. Dit loste een concrete inconsistentie op: elke app ha
 refactor zijn eigen, licht uiteengelopen kopie van dezelfde tokens/header-stijlen (verschillende
 `.page-shell`-breedtes, een enkele app zonder reponsive header-inklap op mobiel, etc.).
 
+**Nieuwe app toevoegen?** Zie **[`shared/README.md`](shared/README.md)** voor de complete
+stap-voor-stap gids + checklist + volledige CSS-/`header.php`-referentie. Hieronder alleen een
+korte samenvatting.
+
 **CSS.** Elke pagina laadt `shared/style.css` vóór zijn eigen `assets/style.css`:
 
 ```html
