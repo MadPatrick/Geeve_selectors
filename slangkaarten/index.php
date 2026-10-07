@@ -1590,17 +1590,6 @@ if ($selectedKeys !== []) {
             <?= renderCustomerOrdersForm($customerOrders) ?>
         </section>
     <?php elseif ($hoseNumberResults !== [] || $hoseCardsWithoutOrder !== []): ?>
-        <?php if ($hoseNumberResults !== []): ?>
-            <section class="panel result-panel">
-                <div class="section-heading">
-                    <div>
-                        <span class="step">Stap 1b</span>
-                        <h2><?= count($hoseNumberResults) ?> slangregel<?= count($hoseNumberResults) === 1 ? '' : 'en' ?> gevonden voor dit slangnummer - kies een order</h2>
-                    </div>
-                </div>
-                <?= renderHoseNumberResultsForm($hoseNumberResults) ?>
-            </section>
-        <?php endif; ?>
         <?php if ($hoseCardsWithoutOrder !== []): ?>
             <section class="panel result-panel">
                 <div class="section-heading">
@@ -1610,6 +1599,17 @@ if ($selectedKeys !== []) {
                     </div>
                 </div>
                 <?= renderHoseCardsWithoutOrderForm($hoseCardsWithoutOrder) ?>
+            </section>
+        <?php endif; ?>
+        <?php if ($hoseNumberResults !== []): ?>
+            <section class="panel result-panel">
+                <div class="section-heading">
+                    <div>
+                        <span class="step">Stap 1b</span>
+                        <h2><?= count($hoseNumberResults) ?> slangregel<?= count($hoseNumberResults) === 1 ? '' : 'en' ?> gevonden voor dit slangnummer - kies een order</h2>
+                    </div>
+                </div>
+                <?= renderHoseNumberResultsForm($hoseNumberResults) ?>
             </section>
         <?php endif; ?>
     <?php elseif ($showRecentOrders): ?>
