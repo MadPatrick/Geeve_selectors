@@ -782,8 +782,10 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
     $groupedB = groupRowsByHoseKey($sideBRows);
 
     $cards = [];
+    $foundKeys = [];
     foreach ($mainRows as $row) {
         $hoseKey = pick($row, HOSE_KEY_COLUMNS);
+        $foundKeys[$hoseKey] = true;
         $cards[] = [
             'row'   => $row,
             'sideA' => $groupedA[$hoseKey] ?? [],
@@ -791,7 +793,145 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
         ];
     }
 
+    // Slangkaarten die nog in geen enkele order/offerte zitten (zie
+    // findHoseNumbersWithoutOrder()): geen rij in de order-tabel, dus alleen
+    // het slangnummer en de koppelonderdelen - de orderdelen blijven leeg.
+    // Alleen zonder ordernummer; binnen een order is een ontbrekende regel
+    // gewoon "niet in deze order".
+    if ($orderNumber === '') {
+        $missingKeys = array_values(array_filter($hoseKeys, static fn(string $key): bool => !isset($foundKeys[$key])));
+        $detailSides = $missingKeys !== [] ? findCouplingRowsFromDetails($pdo, $missingKeys) : [];
+        foreach ($missingKeys as $hoseKey) {
+            $sideA = $groupedA[$hoseKey] ?? ($detailSides[$hoseKey]['A'] ?? []);
+            $sideB = $groupedB[$hoseKey] ?? ($detailSides[$hoseKey]['B'] ?? []);
+            if ($sideA === [] && $sideB === []) {
+                continue;
+            }
+            $cards[] = [
+                'row'   => [HOSE_KEY_COLUMNS[0] => $hoseKey],
+                'sideA' => $sideA,
+                'sideB' => $sideB,
+            ];
+        }
+    }
+
     return $cards;
+}
+
+/**
+ * Koppelonderdelen per slangnummer uit "Details slangen" (1 rij per
+ * onderdeel: artnr, Type A/B voor de zijde, Regel voor de volgorde) - voor
+ * slangkaarten die niet in "93004 hv 3001 Slangonderdelen Zijde A/B" staan.
+ * De tabel bevat dubbele rijen (join op omschrijvingstabellen), dus per
+ * zijde en artikel gededupliceerd. Geeft rijen in dezelfde vorm als Zijde
+ * A/B ('Zijde AA' resp. 'Zijde BB' = artikelnummer, zie
+ * ARTIKELNUMMER_CANDIDATES).
+ *
+ * @param string[] $hoseKeys
+ * @return array<string, array{A: array<int, array<string, string>>, B: array<int, array<string, string>>}>
+ */
+function findCouplingRowsFromDetails(PDO $pdo, array $hoseKeys): array
+{
+    $hoseKeys = array_values(array_unique($hoseKeys));
+    if ($hoseKeys === []) {
+        return [];
+    }
+
+    try {
+        $placeholders = implode(', ', array_fill(0, count($hoseKeys), '?'));
+        $statement = $pdo->prepare(
+            "SELECT [GHnr], [Type], [Regel], [artnr] FROM [dbo].[Details slangen] WHERE [GHnr] IN ({$placeholders}) " .
+            'GROUP BY [GHnr], [Type], [Regel], [artnr] ORDER BY [GHnr], [Type], [Regel]'
+        );
+        $statement->execute($hoseKeys);
+        $rows = $statement->fetchAll();
+    } catch (PDOException $exception) {
+        return [];
+    }
+
+    $result = [];
+    foreach ($rows as $row) {
+        $key = trim((string) $row['GHnr']);
+        $side = strtoupper(trim((string) $row['Type']));
+        $article = trim((string) $row['artnr']);
+        if ($article === '' || ($side !== 'A' && $side !== 'B')) {
+            continue;
+        }
+        $result[$key] ??= ['A' => [], 'B' => []];
+        // "Details slangen" heeft geen aantallen: 1 per onderdeel is een AANNAME
+        // (1 koppeling + 1 huls per zijde), anders toont de picklijst 0.
+        $result[$key][$side][] = [
+            $side === 'A' ? 'Zijde AA' : 'Zijde BB' => $article,
+            $side === 'A' ? 'Aantal_A' : 'Aantal_B' => '1',
+        ];
+    }
+
+    return $result;
+}
+
+/**
+ * Slangkaarten (slangnummers) die WEL bestaan maar nog in geen enkele order
+ * of offerte zitten, dus niet in "2500 Slangkaarten bij order" voorkomen -
+ * zoekopdracht op slangnummer vond die voorheen niet. Bron: "Details
+ * slangen" (1 rij per kaart-onderdeel, GHnr = slangnummer; bevestigd voor
+ * slang 507500-2, die in de order-tabellen en in "2000 overzicht slangkaart
+ * obv exact" ontbreekt). Zelfde fuzzy zoeklogica als de order-zoekopdracht
+ * (streepjes/spaties/punten negeren). Slangnummers die al in de
+ * order-resultaten staan ($excludeKeys) worden overgeslagen.
+ *
+ * Geeft per slangkaart een regel met de koppelonderdelen erbij (zelfde
+ * vorm als enrichHoseLinesWithCouplings()). Een fout (bijv. tabel ontbreekt
+ * in een andere omgeving) geeft een lege lijst - dit mag de gewone
+ * zoekopdracht nooit blokkeren.
+ *
+ * @param string[] $excludeKeys
+ */
+function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $excludeKeys): array
+{
+    $normalizedTerm = preg_replace('/[-\s._]+/', '', $searchTerm) ?? $searchTerm;
+    if ($normalizedTerm === '') {
+        $normalizedTerm = $searchTerm;
+    }
+
+    try {
+        $statement = $pdo->prepare(
+            "SELECT TOP 50 [GHnr] FROM [dbo].[Details slangen] WHERE " .
+            "REPLACE(REPLACE(REPLACE(REPLACE([GHnr], '-', ''), ' ', ''), '.', ''), '_', '') LIKE :value " .
+            'GROUP BY [GHnr] ORDER BY [GHnr]'
+        );
+        $statement->execute(['value' => '%' . $normalizedTerm . '%']);
+        $keys = array_map('trim', $statement->fetchAll(PDO::FETCH_COLUMN));
+    } catch (PDOException $exception) {
+        return [];
+    }
+
+    $exclude = array_flip(array_map('strtolower', array_map('trim', $excludeKeys)));
+    $keys = array_values(array_filter(
+        $keys,
+        static fn(string $key): bool => $key !== '' && !isset($exclude[strtolower($key)])
+    ));
+    if ($keys === []) {
+        return [];
+    }
+
+    $lines = array_map(static fn(string $key): array => [HOSE_KEY_COLUMNS[0] => $key], $keys);
+    try {
+        $lines = enrichHoseLinesWithCouplings($pdo, $lines);
+    } catch (PDOException | DatabaseConfigException $exception) {
+        // Zonder koppelonderdelen tonen we de slangnummers toch.
+    }
+
+    $detailSides = findCouplingRowsFromDetails($pdo, $keys);
+    foreach ($lines as &$line) {
+        $key = (string) $line[HOSE_KEY_COLUMNS[0]];
+        if (($line['_KoppelingAList'] ?? []) === [] && ($line['_KoppelingBList'] ?? []) === []) {
+            $line['_KoppelingAList'] = collectCouplingArticles($detailSides[$key]['A'] ?? []);
+            $line['_KoppelingBList'] = collectCouplingArticles($detailSides[$key]['B'] ?? []);
+        }
+    }
+    unset($line);
+
+    return $lines;
 }
 
 /**

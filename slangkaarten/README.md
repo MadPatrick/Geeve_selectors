@@ -217,6 +217,30 @@ overal alleen als datum getoond (`formatDate()`, bijv. `2026-10-06`). Aangemaakt
 op de kaart behouden hun tijd. Niet getest tegen de echte database (geen toegang vanuit de
 ontwikkelomgeving); alleen de sorteer-logica (`sortRecentOrdersByExact()`) is los getest.
 
+## Slangkaarten zonder order of offerte
+
+Zoeken op slangnummer vindt ook slangkaarten die wel bestaan maar nog in geen enkele order of
+offerte zitten (de order-tabel `2500 Slangkaarten bij order` bevat ze dan niet). Ze staan onder
+"zonder order of offerte" met een knop **Kaart printen**, die de kaart direct print zonder
+ordernummer.
+
+- **Bron:** `Details slangen` (`GHnr` = slangnummer; 1 rij per onderdeel met `artnr`, `Type` A/B en
+  `Regel`). Bevestigd voor slang `507500-2`: die staat alleen daar, niet in `2500 Slangkaarten bij
+  order/deb`, `2000 overzicht slangkaart obv exact`, `1001 Slang en variant artikelen Exact` of
+  `3000 Slang definitie`. De tabel bevat dubbele rijen (join op omschrijvingstabellen), dus alles
+  wordt per slangnummer/zijde/artikel gededupliceerd. Zelfde fuzzy zoeken als bij de orders
+  (streepjes/spaties/punten negeren), max. 50 slangnummers.
+- **Op de kaart:** slangnummer en de koppelonderdelen A/B. Alles wat uit een order komt blijft leeg
+  (klant, ordernummer, aantal slangen, referentie, datums), en ook Slang type, Lengte en
+  Krimpmaten: die staan alleen in de order-tabel, niet in `Details slangen`.
+- **Koppelonderdelen:** eerst uit `93004 hv 3001 Slangonderdelen Zijde A/B` (zoals bij orders, met
+  aantallen), en alleen als die tabel niets heeft uit `Details slangen`
+  (`findCouplingRowsFromDetails()`). **Aanname:** daar staan geen aantallen, dus 1 per onderdeel
+  (1 koppeling + 1 huls per zijde), anders zou de picklijst 0 tonen. Controleer dat op de eerste
+  echte kaart.
+- `findHoseNumbersWithoutOrder()` (zoeken) en `findHoseCardsByKeys()` (kaart bouwen voor een
+  slangnummer zonder orderrij, alleen zonder ordernummer) in `inc/queries.php`.
+
 ## Printvoorbeeld uitschakelen (client-instelling)
 
 De print-actie roept automatisch `window.print()` aan - de app zelf toont geen eigen

@@ -1211,6 +1211,47 @@ function renderCustomerOrdersForm(array $customerOrders, bool $showCreated = fal
 }
 
 /**
+ * Slangkaarten die wel bestaan maar nog in geen enkele order of offerte
+ * zitten (zie findHoseNumbersWithoutOrder()): slangnummer + koppelonderdelen,
+ * met een knop die de kaart rechtstreeks print (zonder ordernummer).
+ */
+function renderHoseCardsWithoutOrderForm(array $hoseLines): string
+{
+    ob_start();
+    ?>
+    <div class="lines-table-wrap">
+        <table class="lines-table">
+            <thead>
+                <tr>
+                    <th>Slangnummer</th>
+                    <th>Koppeling A</th>
+                    <th>Koppeling B</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($hoseLines as $line): ?>
+                    <?php $hoseKey = pick($line, HOSE_KEY_COLUMNS); ?>
+                    <tr>
+                        <td><?= h($hoseKey) ?: '&mdash;' ?></td>
+                        <td><?= h(implode(', ', $line['_KoppelingAList'] ?? [])) ?: '&mdash;' ?></td>
+                        <td><?= h(implode(', ', $line['_KoppelingBList'] ?? [])) ?: '&mdash;' ?></td>
+                        <td>
+                            <form method="post" action="index.php">
+                                <input type="hidden" name="slangnummers[]" value="<?= h($hoseKey) ?>">
+                                <button type="submit" class="link-button">Kaart printen</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
+    return (string) ob_get_clean();
+}
+
+/**
  * Rendert de gevonden regels bij zoeken op slangnummer (artikelnummer,
  * zie findLinesByHoseNumber()) - géén order-unieke sleutel, dus dit kan
  * regels uit meerdere orders/klanten tonen. Elke rij heeft een
@@ -1337,6 +1378,7 @@ $hoseLines = [];
 $hoseCards = [];
 $customerOrders = [];
 $hoseNumberResults = [];
+$hoseCardsWithoutOrder = [];
 $showRecentOrders = false;
 $errorMessage = null;
 
@@ -1380,6 +1422,12 @@ if ($selectedKeys !== []) {
     try {
         $pdo = getPdoConnection();
         $hoseNumberResults = findLinesByHoseNumber($pdo, $hoseNumberSearch);
+        // Ook slangkaarten die nog in geen enkele order/offerte zitten.
+        $hoseCardsWithoutOrder = findHoseNumbersWithoutOrder(
+            $pdo,
+            $hoseNumberSearch,
+            array_map(static fn(array $row): string => pick($row, HOSE_KEY_COLUMNS), $hoseNumberResults)
+        );
     } catch (DatabaseConfigException $exception) {
         $errorMessage = $exception->getMessage();
     }
@@ -1537,16 +1585,29 @@ if ($selectedKeys !== []) {
             </div>
             <?= renderCustomerOrdersForm($customerOrders) ?>
         </section>
-    <?php elseif ($hoseNumberResults !== []): ?>
-        <section class="panel result-panel">
-            <div class="section-heading">
-                <div>
-                    <span class="step">Stap 1b</span>
-                    <h2><?= count($hoseNumberResults) ?> slangregel<?= count($hoseNumberResults) === 1 ? '' : 'en' ?> gevonden voor dit slangnummer - kies een order</h2>
+    <?php elseif ($hoseNumberResults !== [] || $hoseCardsWithoutOrder !== []): ?>
+        <?php if ($hoseNumberResults !== []): ?>
+            <section class="panel result-panel">
+                <div class="section-heading">
+                    <div>
+                        <span class="step">Stap 1b</span>
+                        <h2><?= count($hoseNumberResults) ?> slangregel<?= count($hoseNumberResults) === 1 ? '' : 'en' ?> gevonden voor dit slangnummer - kies een order</h2>
+                    </div>
                 </div>
-            </div>
-            <?= renderHoseNumberResultsForm($hoseNumberResults) ?>
-        </section>
+                <?= renderHoseNumberResultsForm($hoseNumberResults) ?>
+            </section>
+        <?php endif; ?>
+        <?php if ($hoseCardsWithoutOrder !== []): ?>
+            <section class="panel result-panel">
+                <div class="section-heading">
+                    <div>
+                        <span class="step">Zonder order</span>
+                        <h2><?= count($hoseCardsWithoutOrder) ?> slangkaart<?= count($hoseCardsWithoutOrder) === 1 ? '' : 'en' ?> zonder order of offerte</h2>
+                    </div>
+                </div>
+                <?= renderHoseCardsWithoutOrderForm($hoseCardsWithoutOrder) ?>
+            </section>
+        <?php endif; ?>
     <?php elseif ($showRecentOrders): ?>
         <section class="panel result-panel">
             <div class="section-heading">
