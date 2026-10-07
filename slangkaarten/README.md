@@ -224,22 +224,26 @@ offerte zitten (de order-tabel `2500 Slangkaarten bij order` bevat ze dan niet).
 "zonder order of offerte" met een knop **Kaart printen**, die de kaart direct print zonder
 ordernummer.
 
-- **Bron:** `Details slangen` (`GHnr` = slangnummer; 1 rij per onderdeel met `artnr`, `Type` A/B en
-  `Regel`). Bevestigd voor slang `507500-2`: die staat alleen daar, niet in `2500 Slangkaarten bij
-  order/deb`, `2000 overzicht slangkaart obv exact`, `1001 Slang en variant artikelen Exact` of
-  `3000 Slang definitie`. De tabel bevat dubbele rijen (join op omschrijvingstabellen), dus alles
-  wordt per slangnummer/zijde/artikel gededupliceerd. Zelfde fuzzy zoeken als bij de orders
-  (streepjes/spaties/punten negeren), max. 50 slangnummers.
-- **Op de kaart:** slangnummer en de koppelonderdelen A/B. Alles wat uit een order komt blijft leeg
-  (klant, ordernummer, aantal slangen, referentie, datums), en ook Slang type, Lengte en
-  Krimpmaten: die staan alleen in de order-tabel, niet in `Details slangen`.
+- **De slangkaart zelf is `2500 Slangkaarten`** (sleutel `Nummer` = slangnummer). De view `2500
+  Slangkaarten bij order` is precies die tabel (`SK`) met er een orderregel naast gezet
+  (`INNER JOIN dbo.[2500 Order info voor Slangkaarten bij order] ord ON ord.artcode = SK.Nummer`,
+  via `OBJECT_DEFINITION` opgevraagd). Alle kaartgegevens - SlangType, Lengte, Referentie, Hoek,
+  Notitie, de bewerkingen (Labelen, Graveren, Testen, TestenSpoelen, PinPrikken, Proppen(JN),
+  SnijlengteJN, DNVCertificaat), extra artikelen, Draaien/Monteren/ExtraMontage - komen daaruit,
+  dus ook voor een slang zonder order (`findSlangkaartMasterRows()`; `Lassen` heet in de view
+  `Solderen`). Alleen wat uit de order komt blijft leeg: klant, ordernummer, aantal slangen, Uw
+  referentie, orderdatum/aangemaakt/gewijzigd, adressen en verzendwijze.
+- **Zoeken:** in `2500 Slangkaarten.Nummer`, plus `Details slangen.GHnr` voor kaarten waarvan alleen
+  de koppelonderdelen bekend zijn (bevestigd voor `507500-2`). Zelfde fuzzy zoeken als bij de orders
+  (streepjes/spaties/punten negeren), max. 50. De lijst toont slangnummer, slangtype, lengte en de
+  koppelonderdelen A/B (`findHoseNumbersWithoutOrder()`).
 - **Koppelonderdelen:** eerst uit `93004 hv 3001 Slangonderdelen Zijde A/B` (zoals bij orders, met
   aantallen), en alleen als die tabel niets heeft uit `Details slangen`
-  (`findCouplingRowsFromDetails()`). **Aanname:** daar staan geen aantallen, dus 1 per onderdeel
-  (1 koppeling + 1 huls per zijde), anders zou de picklijst 0 tonen. Controleer dat op de eerste
-  echte kaart.
-- `findHoseNumbersWithoutOrder()` (zoeken) en `findHoseCardsByKeys()` (kaart bouwen voor een
-  slangnummer zonder orderrij, alleen zonder ordernummer) in `inc/queries.php`.
+  (`findCouplingRowsFromDetails()`; die bevat dubbele rijen, dus gededupliceerd). **Aanname:** daar
+  staan geen aantallen, dus 1 per onderdeel (1 koppeling + 1 huls per zijde), anders zou de picklijst
+  0 tonen. Controleer dat op de eerste echte kaart.
+- `findHoseCardsByKeys()` bouwt de kaart voor een slangnummer zonder orderrij (alleen zonder
+  ordernummer; binnen een order is een ontbrekende regel gewoon "niet in deze order").
 
 ## Printvoorbeeld uitschakelen (client-instelling)
 

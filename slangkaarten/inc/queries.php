@@ -800,15 +800,17 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
     // gewoon "niet in deze order".
     if ($orderNumber === '') {
         $missingKeys = array_values(array_filter($hoseKeys, static fn(string $key): bool => !isset($foundKeys[$key])));
+        $masterRows = $missingKeys !== [] ? findSlangkaartMasterRows($pdo, $missingKeys) : [];
         $detailSides = $missingKeys !== [] ? findCouplingRowsFromDetails($pdo, $missingKeys) : [];
         foreach ($missingKeys as $hoseKey) {
             $sideA = $groupedA[$hoseKey] ?? ($detailSides[$hoseKey]['A'] ?? []);
             $sideB = $groupedB[$hoseKey] ?? ($detailSides[$hoseKey]['B'] ?? []);
-            if ($sideA === [] && $sideB === []) {
+            $masterRow = $masterRows[$hoseKey] ?? null;
+            if ($masterRow === null && $sideA === [] && $sideB === []) {
                 continue;
             }
             $cards[] = [
-                'row'   => [HOSE_KEY_COLUMNS[0] => $hoseKey],
+                'row'   => $masterRow ?? [HOSE_KEY_COLUMNS[0] => $hoseKey],
                 'sideA' => $sideA,
                 'sideB' => $sideB,
             ];
@@ -816,6 +818,51 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
     }
 
     return $cards;
+}
+
+/**
+ * De slangkaart zelf: tabel "2500 Slangkaarten" (sleutel "Nummer" = slangnummer).
+ * De view "2500 Slangkaarten bij order" is precies deze tabel (SK) met er een
+ * orderregel naast gezet (INNER JOIN ... ON ord.artcode = SK.Nummer) - dus
+ * ALLE kaartgegevens (SlangType, Lengte, Labelen, Graveren, Testen, Proppen,
+ * PinPrikken, Notitie, Hoek, extra artikelen, ...) komen hieruit, ook voor een
+ * slang die nog in geen enkele order zit. Geeft rijen in dezelfde vorm als de
+ * view: GHnr = Nummer, en Solderen = Lassen (zoals de view dat hernoemt). De
+ * orderkolommen (ordernr, nm, Aantal, datums, adressen) ontbreken.
+ *
+ * @param string[] $hoseKeys
+ * @return array<string, array<string, mixed>> per slangnummer
+ */
+function findSlangkaartMasterRows(PDO $pdo, array $hoseKeys): array
+{
+    $hoseKeys = array_values(array_unique($hoseKeys));
+    if ($hoseKeys === []) {
+        return [];
+    }
+
+    try {
+        $placeholders = implode(', ', array_fill(0, count($hoseKeys), '?'));
+        $statement = $pdo->prepare("SELECT * FROM [dbo].[2500 Slangkaarten] WHERE [Nummer] IN ({$placeholders})");
+        $statement->execute($hoseKeys);
+        $rows = $statement->fetchAll();
+    } catch (PDOException $exception) {
+        return [];
+    }
+
+    $result = [];
+    foreach ($rows as $row) {
+        $key = trim((string) $row['Nummer']);
+        if ($key === '' || isset($result[$key])) {
+            continue;
+        }
+        $row[HOSE_KEY_COLUMNS[0]] = $key;
+        if (!array_key_exists('Solderen', $row) && array_key_exists('Lassen', $row)) {
+            $row['Solderen'] = $row['Lassen'];
+        }
+        $result[$key] = $row;
+    }
+
+    return $result;
 }
 
 /**
@@ -893,17 +940,26 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
         $normalizedTerm = $searchTerm;
     }
 
-    try {
-        $statement = $pdo->prepare(
-            "SELECT TOP 50 [GHnr] FROM [dbo].[Details slangen] WHERE " .
-            "REPLACE(REPLACE(REPLACE(REPLACE([GHnr], '-', ''), ' ', ''), '.', ''), '_', '') LIKE :value " .
-            'GROUP BY [GHnr] ORDER BY [GHnr]'
-        );
-        $statement->execute(['value' => '%' . $normalizedTerm . '%']);
-        $keys = array_map('trim', $statement->fetchAll(PDO::FETCH_COLUMN));
-    } catch (PDOException $exception) {
-        return [];
+    // Eerst de slangkaart zelf (2500 Slangkaarten.Nummer), daarnaast de
+    // slangnummers uit "Details slangen" (kaarten waarvan alleen de
+    // koppelonderdelen bekend zijn).
+    $keys = [];
+    foreach ([['2500 Slangkaarten', 'Nummer'], ['Details slangen', 'GHnr']] as [$table, $column]) {
+        try {
+            $statement = $pdo->prepare(
+                "SELECT TOP 50 [{$column}] FROM [dbo].[{$table}] WHERE " .
+                "REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '') LIKE :value " .
+                "GROUP BY [{$column}] ORDER BY [{$column}]"
+            );
+            $statement->execute(['value' => '%' . $normalizedTerm . '%']);
+            foreach ($statement->fetchAll(PDO::FETCH_COLUMN) as $found) {
+                $keys[trim((string) $found)] = true;
+            }
+        } catch (PDOException $exception) {
+            continue;
+        }
     }
+    $keys = array_slice(array_keys($keys), 0, 50);
 
     $exclude = array_flip(array_map('strtolower', array_map('trim', $excludeKeys)));
     $keys = array_values(array_filter(
@@ -914,7 +970,12 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
         return [];
     }
 
-    $lines = array_map(static fn(string $key): array => [HOSE_KEY_COLUMNS[0] => $key], $keys);
+    // Kaartgegevens (SlangType, Lengte, ...) uit de slangkaart zelf, indien aanwezig.
+    $masterRows = findSlangkaartMasterRows($pdo, $keys);
+    $lines = array_map(
+        static fn(string $key): array => $masterRows[$key] ?? [HOSE_KEY_COLUMNS[0] => $key],
+        $keys
+    );
     try {
         $lines = enrichHoseLinesWithCouplings($pdo, $lines);
     } catch (PDOException | DatabaseConfigException $exception) {
@@ -923,7 +984,7 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
 
     $detailSides = findCouplingRowsFromDetails($pdo, $keys);
     foreach ($lines as &$line) {
-        $key = (string) $line[HOSE_KEY_COLUMNS[0]];
+        $key = pick($line, HOSE_KEY_COLUMNS);
         if (($line['_KoppelingAList'] ?? []) === [] && ($line['_KoppelingBList'] ?? []) === []) {
             $line['_KoppelingAList'] = collectCouplingArticles($detailSides[$key]['A'] ?? []);
             $line['_KoppelingBList'] = collectCouplingArticles($detailSides[$key]['B'] ?? []);

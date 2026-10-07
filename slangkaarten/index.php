@@ -1224,6 +1224,8 @@ function renderHoseCardsWithoutOrderForm(array $hoseLines): string
             <thead>
                 <tr>
                     <th>Slangnummer</th>
+                    <th>Slang type</th>
+                    <th>Lengte</th>
                     <th>Koppeling A</th>
                     <th>Koppeling B</th>
                     <th></th>
@@ -1234,6 +1236,8 @@ function renderHoseCardsWithoutOrderForm(array $hoseLines): string
                     <?php $hoseKey = pick($line, HOSE_KEY_COLUMNS); ?>
                     <tr>
                         <td><?= h($hoseKey) ?: '&mdash;' ?></td>
+                        <td><?= h(pick($line, SLANGTYPE_CANDIDATES)) ?: '&mdash;' ?></td>
+                        <td><?= h(pick($line, LENGTE_CANDIDATES)) ?: '&mdash;' ?></td>
                         <td><?= h(implode(', ', $line['_KoppelingAList'] ?? [])) ?: '&mdash;' ?></td>
                         <td><?= h(implode(', ', $line['_KoppelingBList'] ?? [])) ?: '&mdash;' ?></td>
                         <td>
