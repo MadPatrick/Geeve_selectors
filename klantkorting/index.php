@@ -65,7 +65,7 @@ try {
                 ob_end_clean();
             }
             header('Content-Type: application/xml; charset=utf-8');
-            header('Content-Disposition: attachment; filename="DISCOUNTS.xml"');
+            header('Content-Disposition: attachment; filename="ITEMPRICES.xml"');
             echo $xml;
             exit;
         }
