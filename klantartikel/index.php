@@ -21,17 +21,13 @@ function assetVersion(string $relativePath): string
     return $mtime !== false ? (string) $mtime : APP_VERSION;
 }
 
-$priceList = trim((string) ($_GET['prijslijst'] ?? ''));
+$priceList = trim((string) ($_GET['prijslijst'] ?? $_POST['prijslijst'] ?? ''));
 $priceColumn = trim((string) ($_GET['pcol'] ?? ''));
 $customers = [];
 $articles = [];
-$truncated = false;
 $schema = null;
 $diag = null;
 $usedLink = null;
-$consolidated = false;
-$counts = [];
-$klant = trim((string) ($_GET['klant'] ?? ''));
 $error = null;
 
 if ($priceList !== '') {
@@ -39,36 +35,34 @@ if ($priceList !== '') {
         $pdo = getPdoConnection();
         $schema = detectSchema($pdo, $priceColumn);
         $customers = findCustomersByPriceList($pdo, $schema, $priceList);
-        // Eerst de werkende koppeling vaststellen (1 rij is genoeg), dan tellen en pas daarna de lijst ophalen.
+
+        // XML-export van de (in de pagina bewerkte) regels: elke regel geldt voor alle klanten op de prijslijst.
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'export') {
+            $rows = [];
+            $postedItems = (array) ($_POST['artikel'] ?? []);
+            $postedCodes = (array) ($_POST['klantartikel'] ?? []);
+            foreach ($postedItems as $i => $item) {
+                $item = trim((string) $item);
+                $code = trim((string) ($postedCodes[$i] ?? ''));
+                if ($item !== '' && $code !== '') {
+                    $rows[] = ['artikel' => $item, 'klantartikel' => $code];
+                }
+            }
+            header('Content-Type: application/xml; charset=utf-8');
+            header('Content-Disposition: attachment; filename="klantartikelen_' . preg_replace('/[^A-Za-z0-9_-]/', '_', $priceList) . '.xml"');
+            echo buildExactXmlForRows($customers, $rows);
+            exit;
+        }
+
         [, $usedLink] = findCustomerArticlesAny($pdo, $schema, $priceList, null, 1);
         if ($usedLink !== null) {
-            $counts = countCustomerArticles($pdo, $schema, $priceList, $usedLink);
-            $isExport = ($_GET['export'] ?? '') === 'xml';
-            if ($isExport) {
-                $articles = findCustomerArticles($pdo, $schema, $priceList, $usedLink, $klant !== '' ? $klant : null, null);
-            } elseif ($klant !== '') {
-                $articles = findCustomerArticles($pdo, $schema, $priceList, $usedLink, $klant, MAX_ARTICLE_ROWS + 1);
-            } else {
-                $consolidated = true;
-                $articles = findConsolidatedArticles($pdo, $schema, $priceList, $usedLink);
-            }
+            $articles = findConsolidatedArticles($pdo, $schema, $priceList, $usedLink, null);
         }
         if ($customers !== [] && $articles === []) {
             $diag = diagnoseItemAccounts($pdo, $schema, $priceList);
         }
-        if (count($articles) > MAX_ARTICLE_ROWS) {
-            $truncated = true;
-            array_pop($articles);
-        }
     } catch (Throwable $e) {
         $error = $e->getMessage();
-    }
-
-    if ($error === null && ($_GET['export'] ?? '') === 'xml') {
-        header('Content-Type: application/xml; charset=utf-8');
-        header('Content-Disposition: attachment; filename="klantartikelen_' . preg_replace('/[^A-Za-z0-9_-]/', '_', $priceList) . '.xml"');
-        echo buildExactXml($customers, $articles);
-        exit;
     }
 }
 ?>
@@ -98,9 +92,6 @@ if ($priceList !== '') {
                 <input type="text" name="prijslijst" value="<?= h($priceList) ?>" placeholder="bijv. 100" autocomplete="off" autofocus required>
             </label>
             <button type="submit" class="ka-button">Zoeken</button>
-            <?php if ($priceList !== '' && $error === null): ?>
-                <a class="ka-button ka-button--secondary" href="?prijslijst=<?= h(rawurlencode($priceList)) ?><?= $klant !== '' ? '&amp;klant=' . h(rawurlencode($klant)) : '' ?>&amp;export=xml">Exporteer XML</a>
-            <?php endif; ?>
         </form>
     </section>
 
@@ -112,49 +103,48 @@ if ($priceList !== '') {
             <?php if ($customers === []): ?>
                 <p class="ka-empty">Geen klanten gevonden op deze prijslijst (kolom <code><?= h($schema['pricelist']) ?></code>).</p>
             <?php else: ?>
-                <div class="ka-table-wrap"><table class="ka-table">
-                    <thead><tr><th>Debiteurnr</th><th>Klant</th><th>Artikelen met klantartikelnr</th></tr></thead>
-                    <tbody>
+                <div class="ka-chips">
                     <?php foreach ($customers as $c): ?>
-                        <?php $dn = trim((string) $c['debnr']); $n = $counts[$dn] ?? 0; ?>
-                        <tr><td><?= h($dn) ?></td><td><?= h((string) $c['naam']) ?></td>
-                            <td><?php if ($n > 0): ?><a href="?prijslijst=<?= h(rawurlencode($priceList)) ?>&amp;klant=<?= h(rawurlencode($dn)) ?>"><?= $n ?></a><?php else: ?>0<?php endif; ?></td></tr>
+                        <span class="ka-chip"><strong><?= h(trim((string) $c['debnr'])) ?></strong> <?= h((string) $c['naam']) ?></span>
                     <?php endforeach; ?>
-                    </tbody>
-                </table></div>
+                </div>
             <?php endif; ?>
         </section>
 
         <section class="panel">
-            <h2>Artikelen met klantartikelnummer<?= $consolidated ? ' (geconsolideerd)' : '' ?> <small>(<?= count($articles) ?><?= $truncated ? '+' : '' ?>)</small></h2>
-            <?php if ($klant !== ''): ?>
-                <p class="ka-empty">Gefilterd op debiteur <?= h($klant) ?> - <a href="?prijslijst=<?= h(rawurlencode($priceList)) ?>">alle klanten tonen</a></p>
-            <?php endif; ?>
-            <?php if ($truncated): ?>
-                <div class="ka-message ka-message--error">Alleen de eerste <?= MAX_ARTICLE_ROWS ?> rijen worden getoond - klik hierboven op het aantal bij een klant om één klant te zien. De XML-export bevat altijd alle rijen.</div>
-            <?php endif; ?>
-            <?php if ($articles === []): ?>
-                <p class="ka-empty">Voor deze klanten is geen klantartikelnummer ingevuld.</p>
-            <?php else: ?>
-                <div class="ka-table-wrap"><table class="ka-table">
-                    <thead><tr>
-                        <?php if (!$consolidated): ?><th>Debiteurnr</th><th>Klant</th><?php endif; ?>
-                        <th>Artikelnummer</th><th>Omschrijving</th><th>Klantartikelnummer</th>
-                        <?php if ($consolidated): ?><th>Klanten</th><?php endif; ?>
-                    </tr></thead>
+            <form method="post" id="kaForm" data-lookup="api/item_lookup.php">
+                <input type="hidden" name="action" value="export">
+                <input type="hidden" name="prijslijst" value="<?= h($priceList) ?>">
+                <div class="ka-heading">
+                    <h2>Artikelen met klantartikelnummer <small id="kaCount">(<?= count($articles) ?>)</small></h2>
+                    <button type="submit" class="ka-button ka-button--secondary" id="kaExport">Exporteer XML</button>
+                </div>
+                <p class="ka-empty">Geldt voor alle <?= count($customers) ?> klanten op deze prijslijst. Het klantartikelnummer is te wijzigen; met + voeg je een regel toe. Een artikelnummer wordt direct in Exact gecontroleerd.</p>
+                <div id="kaMessage" class="ka-message ka-message--error" hidden></div>
+                <div class="ka-table-wrap"><table class="ka-table" id="kaTable">
+                    <thead>
+                        <tr class="ka-filter-row">
+                            <th><input type="search" id="kaFilterItem" class="ka-input" placeholder="Zoek artikelnummer" autocomplete="off"></th>
+                            <th></th>
+                            <th><input type="search" id="kaFilterCode" class="ka-input" placeholder="Zoek klantartikelnummer" autocomplete="off"></th>
+                            <th></th>
+                        </tr>
+                        <tr><th>Artikelnummer</th><th>Omschrijving</th><th>Klantartikelnummer</th><th></th></tr>
+                    </thead>
                     <tbody>
                     <?php foreach ($articles as $a): ?>
-                        <tr>
-                            <?php if (!$consolidated): ?><td><?= h(trim((string) $a['debnr'])) ?></td><td><?= h((string) $a['klant']) ?></td><?php endif; ?>
-                            <td><?= h(trim((string) $a['artikel'])) ?></td>
-                            <td><?= h((string) $a['omschrijving']) ?></td>
-                            <td><strong><?= h(trim((string) $a['klantartikel'])) ?></strong></td>
-                            <?php if ($consolidated): ?><td><?= (int) $a['klanten'] ?></td><?php endif; ?>
+                        <tr class="is-found">
+                            <td><input type="text" name="artikel[]" value="<?= h(trim((string) $a['artikel'])) ?>" class="ka-input ka-item" autocomplete="off"></td>
+                            <td class="ka-desc"><?= h((string) $a['omschrijving']) ?></td>
+                            <td><input type="text" name="klantartikel[]" value="<?= h(trim((string) $a['klantartikel'])) ?>" class="ka-input" autocomplete="off"></td>
+                            <td><button type="button" class="ka-remove" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
                 </table></div>
-            <?php endif; ?>
+                <button type="button" id="kaAdd" class="ka-add" title="Regel toevoegen" aria-label="Regel toevoegen">+</button>
+            </form>
+
             <?php if ($diag !== null): ?>
                 <h3>Diagnose</h3>
                 <p class="ka-empty">Geprobeerde koppelingen (in volgorde): <?= h(implode('; ', array_map(static fn ($l) => "ItemAccounts.{$l[0]} = cicmpy.{$l[1]}", $schema['links']))) ?>. Klantartikelnummer uit <code><?= h($schema['codeColumn']) ?></code>.</p>
@@ -167,20 +157,9 @@ if ($priceList !== '') {
                     <?php endforeach; ?>
                     </tbody>
                 </table></div>
-                <p class="ka-empty">Kolommen op ItemAccounts: <?= h(implode(', ', $diag['columns'])) ?></p>
-                <?php if ($diag['sample'] !== []): ?>
-                    <p class="ka-empty">Voorbeeldrijen (met ingevuld klantartikelnummer, willekeurige klanten):</p>
-                    <div class="ka-table-wrap"><table class="ka-table">
-                        <thead><tr><?php foreach (array_keys($diag['sample'][0]) as $col): ?><th><?= h((string) $col) ?></th><?php endforeach; ?></tr></thead>
-                        <tbody>
-                        <?php foreach ($diag['sample'] as $row): ?>
-                            <tr><?php foreach ($row as $v): ?><td><?= h(is_scalar($v) || $v === null ? trim((string) $v) : '(binair)') ?></td><?php endforeach; ?></tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table></div>
-                <?php endif; ?>
             <?php endif; ?>
         </section>
+        <script src="assets/klantartikel.js?v=<?= h(assetVersion('assets/klantartikel.js')) ?>"></script>
     <?php endif; ?>
 
     <p class="page-footer">Geeve Hydraulics</p>

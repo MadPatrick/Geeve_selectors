@@ -305,3 +305,35 @@ function findConsolidatedArticles(PDO $pdo, array $schema, string $priceList, ar
     $stmt->execute(['pl' => $priceList]);
     return $stmt->fetchAll();
 }
+
+/**
+ * Zoekt een artikel in Exact (exacte match op ItemCode, hoofdletterongevoelig door de collation).
+ *
+ * @return array{found: bool, code: string, description: string}
+ */
+function lookupItem(PDO $pdo, string $code): array
+{
+    $stmt = $pdo->prepare('SELECT TOP 1 LTRIM(RTRIM(ItemCode)) AS code, Description AS description FROM Items WHERE LTRIM(RTRIM(ItemCode)) = :code');
+    $stmt->execute(['code' => trim($code)]);
+    $row = $stmt->fetch();
+    return $row
+        ? ['found' => true, 'code' => (string) $row['code'], 'description' => trim((string) $row['description'])]
+        : ['found' => false, 'code' => trim($code), 'description' => ''];
+}
+
+/**
+ * Zet de (bewerkte) artikelregels om naar XML: elke regel komt bij alle klanten op de prijslijst.
+ *
+ * @param list<array<string,mixed>> $customers
+ * @param list<array{artikel: string, klantartikel: string}> $rows
+ */
+function buildExactXmlForRows(array $customers, array $rows): string
+{
+    $articles = [];
+    foreach ($customers as $c) {
+        foreach ($rows as $r) {
+            $articles[] = ['debnr' => $c['debnr'], 'artikel' => $r['artikel'], 'klantartikel' => $r['klantartikel']];
+        }
+    }
+    return buildExactXml($customers, $articles);
+}

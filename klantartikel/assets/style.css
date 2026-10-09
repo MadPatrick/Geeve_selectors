@@ -17,3 +17,24 @@
 .ka-empty { color: var(--muted); font-size: 13px; }
 .ka-message { padding: 12px 15px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
 .ka-message--error { color: #a03636; background: #f7eaea; }
+
+.ka-chips { display: flex; flex-wrap: wrap; gap: var(--btn-gap); }
+.ka-chip {
+    display: inline-flex; gap: 6px; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px;
+    font-size: 13px; border: 1px solid var(--accent-line, #f47896); color: var(--ink);
+}
+.ka-heading { display: flex; justify-content: space-between; align-items: center; gap: var(--btn-gap); flex-wrap: wrap; }
+.ka-heading h2 { margin: 0; }
+.ka-input { width: 100%; min-width: 14ch; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid #cbd6df; border-radius: 8px; font: inherit; font-size: 13px; background: #fff; }
+.ka-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(238, 48, 93, .14); }
+.ka-desc { white-space: normal; min-width: 20ch; }
+.ka-table tr.is-found .ka-item { border-color: #6fd38c; }
+.ka-table tr.is-missing .ka-item { border-color: #f0819f; background: #fdf1f4; }
+.ka-table tr.is-missing .ka-desc { color: #a03636; font-weight: 600; }
+.ka-table tr.is-checking .ka-desc { color: var(--muted); font-style: italic; }
+.ka-remove { border: 1px solid #cbd6df; background: transparent; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; }
+.ka-remove:hover { color: var(--accent); border-color: var(--accent-line); }
+.ka-add { margin-top: 12px; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; line-height: 1; cursor: pointer; color: #fff; background: #3fa564; border: 1px solid #6fd38c; }
+.ka-add:hover { opacity: .9; }
+.ka-filter-row th { background: transparent; padding-bottom: 4px; border-bottom: 0; }
+.ka-table tr[hidden] { display: none; }
