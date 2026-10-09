@@ -12,7 +12,7 @@
 .ka-table-wrap { overflow-x: auto; }
 .ka-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .ka-table th, .ka-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3e9ee; white-space: nowrap; }
-.ka-table td:nth-child(4) { white-space: normal; }
+.ka-table td:nth-child(2) { white-space: normal; }
 .ka-table th { font-weight: 750; background: var(--soft, #f4f7fa); }
 .ka-empty { color: var(--muted); font-size: 13px; }
 .ka-message { padding: 12px 15px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }

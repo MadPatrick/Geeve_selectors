@@ -278,3 +278,30 @@ function buildExactXml(array $customers, array $articles): string
     }
     return $xml . "</Accounts>\r\n</eExact>\r\n";
 }
+
+/**
+ * Geconsolideerd: elke combinatie artikel + klantartikelnummer 1x, ongeacht bij hoeveel
+ * klanten op de prijslijst die voorkomt (kolom "klanten"). Heeft een artikel bij verschillende
+ * klanten een ander klantartikelnummer, dan staat het artikel meerdere keren (1x per nummer).
+ *
+ * @return list<array<string,mixed>>
+ */
+function findConsolidatedArticles(PDO $pdo, array $schema, string $priceList, array $link, ?int $limit = MAX_ARTICLE_ROWS + 1): array
+{
+    $p = q($schema['pricelist']);
+    $join = 'LTRIM(RTRIM(CAST(ia.' . q($link[0]) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($link[1]) . ' AS varchar(64))))';
+    $code = 'ia.' . q($schema['codeColumn']);
+    $itemCode = 'ia.' . q($schema['itemCode']);
+    $descJoin = $schema['hasItems'] ? "LEFT JOIN Items i ON i.ItemCode = {$itemCode}" : '';
+    $descCol = $schema['hasItems'] ? 'i.Description' : "CAST('' AS varchar(1))";
+    $stmt = $pdo->prepare(
+        'SELECT ' . ($limit !== null ? "TOP {$limit} " : '') . "LTRIM(RTRIM({$itemCode})) AS artikel, {$descCol} AS omschrijving, " .
+        "LTRIM(RTRIM({$code})) AS klantartikel, COUNT(DISTINCT c.debnr) AS klanten " .
+        "FROM ItemAccounts ia JOIN cicmpy c ON {$join} {$descJoin} " .
+        "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl AND {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' " .
+        "GROUP BY LTRIM(RTRIM({$itemCode})), {$descCol}, LTRIM(RTRIM({$code})) " .
+        'ORDER BY LTRIM(RTRIM(' . $itemCode . ')), LTRIM(RTRIM(' . $code . '))'
+    );
+    $stmt->execute(['pl' => $priceList]);
+    return $stmt->fetchAll();
+}

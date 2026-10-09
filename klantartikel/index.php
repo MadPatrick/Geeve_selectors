@@ -29,6 +29,7 @@ $truncated = false;
 $schema = null;
 $diag = null;
 $usedLink = null;
+$consolidated = false;
 $counts = [];
 $klant = trim((string) ($_GET['klant'] ?? ''));
 $error = null;
@@ -43,7 +44,14 @@ if ($priceList !== '') {
         if ($usedLink !== null) {
             $counts = countCustomerArticles($pdo, $schema, $priceList, $usedLink);
             $isExport = ($_GET['export'] ?? '') === 'xml';
-            $articles = findCustomerArticles($pdo, $schema, $priceList, $usedLink, $klant !== '' ? $klant : null, $isExport ? null : MAX_ARTICLE_ROWS + 1);
+            if ($isExport) {
+                $articles = findCustomerArticles($pdo, $schema, $priceList, $usedLink, $klant !== '' ? $klant : null, null);
+            } elseif ($klant !== '') {
+                $articles = findCustomerArticles($pdo, $schema, $priceList, $usedLink, $klant, MAX_ARTICLE_ROWS + 1);
+            } else {
+                $consolidated = true;
+                $articles = findConsolidatedArticles($pdo, $schema, $priceList, $usedLink);
+            }
         }
         if ($customers !== [] && $articles === []) {
             $diag = diagnoseItemAccounts($pdo, $schema, $priceList);
@@ -118,7 +126,7 @@ if ($priceList !== '') {
         </section>
 
         <section class="panel">
-            <h2>Artikelen met klantartikelnummer <small>(<?= $klant !== '' ? (int) ($counts[$klant] ?? count($articles)) : array_sum($counts) ?>)</small></h2>
+            <h2>Artikelen met klantartikelnummer<?= $consolidated ? ' (geconsolideerd)' : '' ?> <small>(<?= count($articles) ?><?= $truncated ? '+' : '' ?>)</small></h2>
             <?php if ($klant !== ''): ?>
                 <p class="ka-empty">Gefilterd op debiteur <?= h($klant) ?> - <a href="?prijslijst=<?= h(rawurlencode($priceList)) ?>">alle klanten tonen</a></p>
             <?php endif; ?>
@@ -129,15 +137,19 @@ if ($priceList !== '') {
                 <p class="ka-empty">Voor deze klanten is geen klantartikelnummer ingevuld.</p>
             <?php else: ?>
                 <div class="ka-table-wrap"><table class="ka-table">
-                    <thead><tr><th>Debiteurnr</th><th>Klant</th><th>Artikelnummer</th><th>Omschrijving</th><th>Klantartikelnummer</th></tr></thead>
+                    <thead><tr>
+                        <?php if (!$consolidated): ?><th>Debiteurnr</th><th>Klant</th><?php endif; ?>
+                        <th>Artikelnummer</th><th>Omschrijving</th><th>Klantartikelnummer</th>
+                        <?php if ($consolidated): ?><th>Klanten</th><?php endif; ?>
+                    </tr></thead>
                     <tbody>
                     <?php foreach ($articles as $a): ?>
                         <tr>
-                            <td><?= h(trim((string) $a['debnr'])) ?></td>
-                            <td><?= h((string) $a['klant']) ?></td>
+                            <?php if (!$consolidated): ?><td><?= h(trim((string) $a['debnr'])) ?></td><td><?= h((string) $a['klant']) ?></td><?php endif; ?>
                             <td><?= h(trim((string) $a['artikel'])) ?></td>
                             <td><?= h((string) $a['omschrijving']) ?></td>
                             <td><strong><?= h(trim((string) $a['klantartikel'])) ?></strong></td>
+                            <?php if ($consolidated): ?><td><?= (int) $a['klanten'] ?></td><?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
