@@ -20,7 +20,7 @@ function assetVersion(string $relativePath): string
     return $mtime !== false ? (string) $mtime : APP_VERSION;
 }
 
-$priceList = trim((string) ($_GET['prijslijst'] ?? ''));
+$priceList = trim((string) ($_GET['prijslijst'] ?? $_POST['prijslijst'] ?? ''));
 $priceColumn = trim((string) ($_GET['pcol'] ?? ''));
 $customers = [];
 $schema = null;
@@ -36,10 +36,45 @@ try {
         $schema = detectSchema($pdo, $priceColumn);
         $customers = findCustomersByPriceList($pdo, $schema, $priceList);
         $listDescription = findPriceListDescription($pdo, $priceList);
+
+        // XML-export van de gewijzigde/nieuwe regels uit het scherm.
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'export') {
+            $rows = [];
+            foreach ((array) ($_POST['group'] ?? []) as $i => $group) {
+                $group = trim((string) $group);
+                $tiers = parseTiersText((string) ($_POST['staffel'][$i] ?? ''));
+                if ($group === '' || $tiers === null) {
+                    continue;
+                }
+                $rows[] = [
+                    'id' => trim((string) ($_POST['id'][$i] ?? '')),
+                    'group' => $group,
+                    'debcode' => trim((string) ($_POST['debcode'][$i] ?? '')),
+                    'from' => trim((string) ($_POST['from'][$i] ?? '')),
+                    'to' => trim((string) ($_POST['to'][$i] ?? '')),
+                    'tiers' => $tiers,
+                ];
+            }
+            $xml = buildDiscountXml($priceList, $rows);
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            header('Content-Type: application/xml; charset=utf-8');
+            header('Content-Disposition: attachment; filename="DISCOUNTS.xml"');
+            echo $xml;
+            exit;
+        }
+
         $lines = findDiscountLines($pdo, $priceList);
     }
 } catch (Throwable $e) {
     $error = $e->getMessage();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        http_response_code(500);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo 'Export mislukt: ' . $error;
+        exit;
+    }
 }
 
 if ($error === null) {
@@ -103,29 +138,51 @@ if ($error === null) {
             <h2>Kortingstructuur prijslijst <?= h($priceList) ?><?= $listDescription ? ' - ' . h($listDescription) : '' ?> <small>(<?= count($lines) ?> regels)</small></h2>
             <?php if ($listDescription === null): ?>
                 <div class="ka-message ka-message--error">Prijslijst <?= h($priceList) ?> staat niet als staffel-prijslijst (stfoms, type S) in Exact.</div>
-            <?php elseif ($lines === []): ?>
-                <p class="ka-empty">Geen kortingsregels per artikelgroep gevonden voor deze prijslijst.</p>
             <?php else: ?>
-                <div class="ka-table-wrap"><table class="ka-table kk-lines">
-                    <thead><tr><th>Artikelgroep</th><th>Omschrijving</th><th>Geldt voor</th><th>Geldig van</th><th>Geldig tot</th><th>Soort</th><th>Staffel (vanaf aantal &rarr; korting)</th></tr></thead>
+            <form method="post" id="kkForm" data-lookup="api/group_lookup.php" data-pricelist="<?= h($priceList) ?>">
+                <input type="hidden" name="action" value="export">
+                <input type="hidden" name="prijslijst" value="<?= h($priceList) ?>">
+                <div class="ka-heading">
+                    <p class="ka-empty">Staffel als <code>aantal=korting</code>, gescheiden door <code>;</code> (bijv. <code>1=25; 10=30</code>). De XML bevat alleen gewijzigde en nieuwe regels.</p>
+                    <div class="ka-actions">
+                        <button type="button" id="kkTemplate" class="ka-button ka-button--secondary">Download Excel</button>
+                        <button type="button" id="kkAdd" class="ka-add" title="Regel toevoegen" aria-label="Regel toevoegen">+</button>
+                        <button type="submit" class="ka-button ka-button--secondary">Exporteer XML</button>
+                    </div>
+                </div>
+                <div id="kkDrop" class="ka-drop" tabindex="0" role="button">
+                    <strong>Excel importeren</strong> - sleep een ingevuld bestand hierheen of <u>kies een bestand</u>
+                    <input type="file" id="kkFile" accept=".xlsx,.xls,.xlsm,.csv" hidden>
+                </div>
+                <div id="kkMessage" class="ka-message ka-message--error" hidden></div>
+                <div id="kkInfo" class="ka-message ka-message--ok" hidden></div>
+                <div class="ka-table-wrap"><table class="ka-table kk-lines" id="kkTable">
+                    <thead><tr><th>Artikelgroep</th><th>Omschrijving</th><th>Geldt voor</th><th>Geldig van</th><th>Geldig tot</th><th>Staffel (aantal=korting)</th><th></th></tr></thead>
                     <tbody>
                     <?php foreach ($lines as $l): ?>
-                        <tr>
-                            <td><strong><?= h((string) $l['ItemGroup']) ?></strong></td>
-                            <td><?= h((string) $l['ItemGroupDescr']) ?></td>
-                            <td><?php if ($l['debcode'] !== null && trim((string) $l['debcode']) !== ''): ?><span class="kk-badge"><?= h(trim((string) $l['debcode'])) ?> <?= h((string) $l['klant']) ?></span><?php else: ?>Alle klanten<?php endif; ?></td>
-                            <td><?= h(formatDateShort($l['validfrom'])) ?></td>
-                            <td><?= h(formatDateShort($l['validto'])) ?></td>
-                            <td><?= h(trim((string) $l['kort_pbn'])) ?></td>
-                            <td>
-                                <?php foreach (discountTiers($l) as $t): ?>
-                                    <span class="kk-tier"><?= h($t['qty']) ?> &rarr; <strong><?= h($t['discount']) ?></strong></span>
-                                <?php endforeach; ?>
-                            </td>
+                        <?php
+                        $debcode = trim((string) ($l['debcode'] ?? ''));
+                        $orig = tiersToText($l) . '|' . dateToIso($l['validfrom']) . '|' . dateToIso($l['validto']);
+                        ?>
+                        <tr class="is-found" data-orig="<?= h($orig) ?>" data-kort="<?= h(trim((string) $l['kort_pbn'])) ?>">
+                            <td class="ka-itemcell"><strong class="ka-itemtext"><?= h((string) $l['ItemGroup']) ?></strong>
+                                <input type="hidden" name="group[]" class="kk-group" value="<?= h((string) $l['ItemGroup']) ?>">
+                                <input type="hidden" name="id[]" value="<?= h((string) $l['ID']) ?>">
+                                <input type="hidden" name="debcode[]" class="kk-debcode" value="<?= h($debcode) ?>"></td>
+                            <td class="ka-desc"><?= h((string) $l['ItemGroupDescr']) ?></td>
+                            <td><?php if ($debcode !== ''): ?><span class="kk-badge"><?= h($debcode) ?> <?= h((string) $l['klant']) ?></span><?php else: ?>Alle klanten<?php endif; ?></td>
+                            <td><input type="date" name="from[]" class="ka-input kk-from" value="<?= h(dateToIso($l['validfrom'])) ?>"></td>
+                            <td><input type="date" name="to[]" class="ka-input kk-to" value="<?= h(dateToIso($l['validto'])) ?>"></td>
+                            <td><input type="text" name="staffel[]" class="ka-input kk-staffel" value="<?= h(tiersToText($l)) ?>" autocomplete="off"></td>
+                            <td></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
                 </table></div>
+                <?php if ($lines === []): ?><p class="ka-empty" id="kkEmpty">Nog geen kortingsregels op deze prijslijst - voeg er een toe met +.</p><?php endif; ?>
+            </form>
+            <script src="../klantartikel/assets/vendor/xlsx.core.min.js"></script>
+            <script src="assets/klantkorting.js?v=<?= h(assetVersion('assets/klantkorting.js')) ?>"></script>
             <?php endif; ?>
         </section>
         <?php endif; ?>

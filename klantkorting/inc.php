@@ -128,3 +128,66 @@ function formatDateShort(mixed $value): string
     $ts = strtotime((string) $value);
     return $ts === false || (int) date('Y', $ts) <= 1900 || (int) date('Y', $ts) > 2999 ? '' : date('d-m-Y', $ts);
 }
+
+/** Staffel als tekst: "1=25; 10=30" (aantal=korting). */
+function tiersToText(array $line): string
+{
+    return implode('; ', array_map(static fn ($t) => $t['qty'] . '=' . $t['discount'], discountTiers($line)));
+}
+
+/** @return list<array{qty: string, discount: string}>|null null bij ongeldige tekst */
+function parseTiersText(string $text): ?array
+{
+    $tiers = [];
+    foreach (preg_split('/\s*;\s*/', trim($text), -1, PREG_SPLIT_NO_EMPTY) ?: [] as $part) {
+        if (!preg_match('/^(\d+(?:[.,]\d+)?)\s*=\s*(\d+(?:[.,]\d+)?)$/', trim($part), $m)) {
+            return null;
+        }
+        $tiers[] = ['qty' => str_replace(',', '.', $m[1]), 'discount' => str_replace(',', '.', $m[2])];
+    }
+    return count($tiers) >= 1 && count($tiers) <= 10 ? $tiers : null;
+}
+
+function dateToIso(mixed $value): string
+{
+    $text = formatDateShort($value);
+    return $text === '' ? '' : date('Y-m-d', (int) strtotime((string) $value));
+}
+
+/** Artikelgroep (ItemAssortment) opzoeken. @return array{found: bool, code: string, description: string} */
+function lookupItemGroup(PDO $pdo, string $code): array
+{
+    $stmt = $pdo->prepare('SELECT TOP 1 LTRIM(RTRIM(Assortment)) AS code, ISNULL(Description_0, \'\') AS description FROM ItemAssortment WHERE LTRIM(RTRIM(Assortment)) = :code');
+    $stmt->execute(['code' => trim($code)]);
+    $row = $stmt->fetch();
+    return $row
+        ? ['found' => true, 'code' => (string) $row['code'], 'description' => trim((string) $row['description'])]
+        : ['found' => false, 'code' => trim($code), 'description' => ''];
+}
+
+/**
+ * Importbestand (eExact XML) met de gewijzigde/nieuwe kortingsregels.
+ * LET OP: de elementnamen van dit kortingsformaat zijn nog niet tegen een echte Exact-import
+ * geverifieerd (het klantartikel-formaat wel); pas deze functie aan op basis van een voorbeeld-XML.
+ *
+ * @param list<array{id: string, group: string, debcode: string, from: string, to: string, tiers: list<array{qty: string, discount: string}>}> $rows
+ */
+function buildDiscountXml(string $priceList, array $rows): string
+{
+    $xml = "<?xml version=\"1.0\" ?>\r\n" .
+        "<eExact xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"eExact-Schema.xsd\">\r\n" .
+        '<PriceLists>' . "\r\n" . '<PriceList code="' . xmlEscape($priceList) . "\" type=\"S\">\r\n  <DiscountLines>\r\n";
+    foreach ($rows as $r) {
+        $xml .= '    <DiscountLine' . ($r['id'] !== '' ? ' id="' . xmlEscape($r['id']) . '"' : '') . " linetype=\"2\">\r\n" .
+            '      <ItemGroup>' . xmlEscape($r['group']) . "</ItemGroup>\r\n" .
+            ($r['debcode'] !== '' ? '      <Account code="' . xmlEscape($r['debcode']) . "\"/>\r\n" : '') .
+            ($r['from'] !== '' ? '      <ValidFrom>' . xmlEscape($r['from']) . "</ValidFrom>\r\n" : '') .
+            ($r['to'] !== '' ? '      <ValidTo>' . xmlEscape($r['to']) . "</ValidTo>\r\n" : '') .
+            "      <Tiers>\r\n";
+        foreach ($r['tiers'] as $i => $t) {
+            $xml .= '        <Tier no="' . ($i + 1) . '"><Quantity>' . xmlEscape($t['qty']) . '</Quantity><Discount>' . xmlEscape($t['discount']) . "</Discount></Tier>\r\n";
+        }
+        $xml .= "      </Tiers>\r\n    </DiscountLine>\r\n";
+    }
+    return $xml . "  </DiscountLines>\r\n</PriceList>\r\n</PriceLists>\r\n</eExact>\r\n";
+}
