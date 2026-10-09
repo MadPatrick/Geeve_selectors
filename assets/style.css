@@ -196,6 +196,14 @@
     .tile { padding: 22px 20px; }
 }
 
-.settings-form { align-items: flex-end; }
-.settings-field { flex: 1 1 220px; }
-.settings-field input { width: 100%; box-sizing: border-box; letter-spacing: normal; text-align: left; }
+.settings-form { flex-direction: column; align-items: flex-start; }
+.settings-row { display: flex; gap: var(--btn-gap); align-items: flex-end; flex-wrap: wrap; }
+.settings-form .update-code-field input { max-width: none; width: calc(20ch + 26px); box-sizing: border-box; letter-spacing: normal; text-align: left; }
+.settings-form .update-code-field input[name="EXACT_DB_PORT"] { width: calc(7ch + 26px); }
+.settings-switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; font-weight: 600; }
+.settings-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.settings-switch-track { position: relative; width: 42px; height: 24px; border-radius: 12px; background: #c7c7c7; transition: background .15s; flex: none; }
+.settings-switch-track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.settings-switch input:checked + .settings-switch-track { background: #3fa564; }
+.settings-switch input:checked + .settings-switch-track::after { transform: translateX(18px); }
+.settings-switch input:focus-visible + .settings-switch-track { box-shadow: 0 0 0 3px rgba(238, 48, 93, .25); }

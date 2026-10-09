@@ -36,7 +36,7 @@ function getPdoConnection(): PDO
     if ($db['user'] === null || $db['password'] === null) {
         throw new DatabaseConfigException(
             'Database-inloggegevens ontbreken. Zet EXACT_DB_USER en ' .
-            'EXACT_DB_PASSWORD in de portal-root .env (zie .env.example daar) ' .
+            'EXACT_DB_PASSWORD via Config in het hoofdmenu ' .
             'voor de SQL-login die database "005" mag lezen.'
         );
     }

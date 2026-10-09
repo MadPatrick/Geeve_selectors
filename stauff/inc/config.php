@@ -43,7 +43,7 @@ function loadEnvFile(string $path): void
 // Gedeelde Exact-database "005"-inloggegevens staan centraal in de
 // portal-root (../../.env vanaf hier), niet los per subapp - hetzelfde
 // SQL-account wordt ook door /slangkaarten gebruikt (Locatie op de
-// picklijst). Zie de portal-root .env.example.
+// picklijst). Invullen via Config in het hoofdmenu.
 // Eerst de versleutelde instellingen uit Config (hoofdmenu), daarna pas .env.
 if (is_file(__DIR__ . '/../../shared/secure_settings.php')) {
     require_once __DIR__ . '/../../shared/secure_settings.php';
@@ -61,7 +61,7 @@ function appConfig(): array
 {
     return [
         'db' => [
-            // Zie de portal-root .env.example - "EXACT_DB_*" (gedeeld met
+            // Zie Config in het hoofdmenu - "EXACT_DB_*" (gedeeld met
             // /slangkaarten). In tegenstelling tot /slangkaarten's eigen
             // "Slangkaarten"-database is dit de Exact-database "005" -
             // zelfde server (GEEVE-SQL-2019), ander doel: het uitlezen

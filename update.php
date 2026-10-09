@@ -288,6 +288,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         $values = secureSettingsRead();
         foreach (SECURE_SETTINGS_KEYS as $settingKey) {
             $posted = trim((string) ($_POST[$settingKey] ?? ''));
+            if ($settingKey === 'EXACT_DB_TRUST_SERVER_CERT') {
+                $posted = $posted === 'yes' ? 'yes' : 'no';
+            }
             // Wachtwoord leeg laten = ongewijzigd laten.
             if ($settingKey === 'EXACT_DB_PASSWORD' && $posted === '') {
                 continue;
@@ -362,24 +365,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
             <input type="hidden" name="action" value="save-settings">
             <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
             <?php
-            $fields = [
-                'EXACT_DB_HOST' => ['Server', 'text', 'GEEVE-SQL-2019'],
-                'EXACT_DB_PORT' => ['Poort', 'text', ''],
-                'EXACT_DB_NAME' => ['Database', 'text', '005'],
-                'EXACT_DB_USER' => ['Gebruiker', 'text', ''],
-                'EXACT_DB_PASSWORD' => ['Wachtwoord', 'password', ''],
-                'EXACT_DB_TRUST_SERVER_CERT' => ['Server-certificaat vertrouwen (yes/no)', 'text', 'yes'],
-            ];
-            foreach ($fields as $fieldKey => [$label, $type, $placeholder]):
-                $isPassword = $fieldKey === 'EXACT_DB_PASSWORD';
-                $value = $isPassword ? '' : ($storedSettings[$fieldKey] ?? '');
-                $ph = $isPassword && isset($storedSettings[$fieldKey]) ? 'Opgeslagen (leeg = ongewijzigd)' : $placeholder;
+            $val = static fn (string $k): string => $storedSettings[$k] ?? '';
+            $trustOn = strtolower($val('EXACT_DB_TRUST_SERVER_CERT') ?: 'yes') !== 'no';
+            $hasPassword = isset($storedSettings['EXACT_DB_PASSWORD']);
             ?>
-                <label class="update-code-field settings-field">
-                    <span><?= h($label) ?></span>
-                    <input type="<?= $type ?>" name="<?= h($fieldKey) ?>" value="<?= h($value) ?>" placeholder="<?= h($ph) ?>" autocomplete="off">
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Server</span>
+                    <input type="text" name="EXACT_DB_HOST" value="<?= h($val('EXACT_DB_HOST')) ?>" placeholder="GEEVE-SQL-2019" size="20" autocomplete="off">
                 </label>
-            <?php endforeach; ?>
+                <label class="update-code-field">
+                    <span>Poort</span>
+                    <input type="text" name="EXACT_DB_PORT" value="<?= h($val('EXACT_DB_PORT')) ?>" size="6" autocomplete="off">
+                </label>
+            </div>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Database</span>
+                    <input type="text" name="EXACT_DB_NAME" value="<?= h($val('EXACT_DB_NAME')) ?>" placeholder="005" size="20" autocomplete="off">
+                </label>
+            </div>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Gebruiker</span>
+                    <input type="text" name="EXACT_DB_USER" value="<?= h($val('EXACT_DB_USER')) ?>" size="20" autocomplete="off">
+                </label>
+                <label class="update-code-field">
+                    <span>Wachtwoord</span>
+                    <input type="password" name="EXACT_DB_PASSWORD" value="" placeholder="<?= $hasPassword ? 'Opgeslagen' : '' ?>" size="20" autocomplete="new-password">
+                </label>
+            </div>
+            <div class="settings-row">
+                <label class="settings-switch">
+                    <input type="checkbox" name="EXACT_DB_TRUST_SERVER_CERT" value="yes"<?= $trustOn ? ' checked' : '' ?>>
+                    <span class="settings-switch-track"></span>
+                    <span>Server-certificaat vertrouwen</span>
+                </label>
+            </div>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
     </section>

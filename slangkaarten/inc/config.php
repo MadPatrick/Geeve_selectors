@@ -49,7 +49,7 @@ loadEnvFile(__DIR__ . '/../.env');
 // Gedeelde Exact-database "005"-inloggegevens (EXACT_DB_*) staan centraal
 // in de portal-root, niet los in deze .env - hetzelfde SQL-account wordt
 // ook door /stauff gebruikt (artikelgroep 67). Zie de portal-root
-// .env.example.
+// Config in het hoofdmenu.
 loadEnvFile(__DIR__ . '/../../.env');
 
 function env(string $key, ?string $default = null): ?string

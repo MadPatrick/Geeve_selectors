@@ -118,7 +118,7 @@ leeg - géén databasekolom, puur ruimte om met de hand op de uitgeprinte pickli
 
 Dit is een **losse, optionele** tweede databaseverbinding (`getExactPdoConnection()` in
 `inc/db.php`). De `EXACT_DB_*`-inloggegevens staan niet in de eigen `.env` van deze map, maar
-centraal in de portal-root `.env` (zie `../.env.example`, 1 map hoger) - hetzelfde SQL-account als `/stauff`
+centraal in de portal-root `.env` (in te vullen via Config in het hoofdmenu) - hetzelfde SQL-account als `/stauff`
 gebruikt voor artikelgroep 67, dus 1x instellen voor beide subapps. Zonder ingevulde root-`.env`
 (of bij een connectiefout) toont de Locatie-kolom gewoon een streepje - de rest van de
 app/picklijst blijft normaal werken.

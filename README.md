@@ -51,8 +51,8 @@ portal blijft gewoon werken.
 "Slangkaarten"-database, `GEEVE-SQL-2019`), met **hetzelfde SQL-account**. Die inloggegevens staan
 daarom 1x centraal, niet los per subapp:
 
-1. **Verbinding opgezet** (dit is af): kopieer `.env.example` (hier in de portal-root) naar `.env`
-   en vul `EXACT_DB_USER`/`EXACT_DB_PASSWORD` in van een bestaand SQL-account dat database "005"
+1. **Verbinding opgezet** (dit is af): vul via Config in het hoofdmenu (versleuteld opgeslagen, `.settings.enc`)
+   `EXACT_DB_USER`/`EXACT_DB_PASSWORD` in van een bestaand SQL-account dat database "005"
    mag lezen. Zowel `stauff/inc/config.php` als `slangkaarten/inc/config.php` laden deze
    root-`.env` automatisch mee (naast hun eigen subapp-`.env` voor overige instellingen) - er is
    dus maar 1 plek om deze inloggegevens te zetten of te wijzigen. De root-`.htaccess` blokkeert
@@ -76,8 +76,8 @@ version.php             Eén gedeeld versienummer voor hoofdscherm + alle subapp
 shared/style.css        Gedeelde basisopmaak (tokens, header/brand-panel-chrome, formulier-
                         primitieven) voor hoofdscherm + alle subapps, zie "Gedeelde layout"
 shared/header.php       Gedeelde header/brand-panel-include, zie "Gedeelde layout"
-.env.example            Gedeelde Exact-database "005"-inloggegevens (EXACT_DB_*), gebruikt door
-                        /stauff en /slangkaarten - zie "Database-koppeling Exact (database 005)"
+shared/secure_settings.php  Versleutelde opslag van de Exact-database "005"-inloggegevens (EXACT_DB_*),
+                        ingevuld via Config; gebruikt door /stauff en /slangkaarten
 assets/style.css        Styling van alleen de startpagina (bovenop shared/style.css)
 images/                 Gedeeld Geeve/Rubix-merklogo (geeve.jpg, rubix.jpg) - door alle
                         subapps gebruikt via ../images/..., één plek om bij te werken
