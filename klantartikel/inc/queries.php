@@ -18,6 +18,11 @@ const PRICELIST_COLUMN_CANDIDATES = ['PriceList', 'Prijslijst', 'prijslijst', 'p
 // [kolom op ItemAccounts, kolom op cicmpy] - in volgorde geprobeerd; de eerste die rijen oplevert wordt gebruikt.
 // Het Exact-importbestand koppelt ItemAccount aan <Account code="debcode"/>, vandaar debcode eerst.
 const ITEMACCOUNT_LINK_CANDIDATES = [
+    // ItemAccounts.AccountCode bevat een GUID (zie diagnose); cicmpy.cmp_wwn / ID is dezelfde GUID.
+    ['AccountCode', 'cmp_wwn'],
+    ['AccountCode', 'ID'],
+    ['AccountCode', 'debcode'],
+    ['AccountCode', 'AccountCode'],
     ['Account', 'debcode'],
     ['Account', 'cmp_wwn'],
     ['Account', 'debnr'],
