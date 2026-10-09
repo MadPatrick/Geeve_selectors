@@ -232,11 +232,29 @@ function diagnoseItemAccounts(PDO $pdo, array $schema, string $priceList): array
     return $result;
 }
 
+/** UTF-8-teken (1 teken) naar 4 bytes big-endian codepoint, zonder mbstring. */
+function utf8CodepointBytes(string $char): string
+{
+    $b = array_values(unpack('C*', $char));
+    $cp = match (count($b)) {
+        2 => (($b[0] & 0x1F) << 6) | ($b[1] & 0x3F),
+        3 => (($b[0] & 0x0F) << 12) | (($b[1] & 0x3F) << 6) | ($b[2] & 0x3F),
+        4 => (($b[0] & 0x07) << 18) | (($b[1] & 0x3F) << 12) | (($b[2] & 0x3F) << 6) | ($b[3] & 0x3F),
+        default => 63,
+    };
+    return pack('N', $cp);
+}
+
 function xmlEscape(string $value): string
 {
     $escaped = htmlspecialchars($value, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     // Alles buiten ASCII als &#nnn; (zelfde als de Excel-template "Geeve Import debiteuren").
-    return mb_encode_numericentity($escaped, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
+    // Zonder mbstring-extensie (niet overal geïnstalleerd), dus met een gewone regex.
+    return (string) preg_replace_callback('/[^\x00-\x7F]/u', static function (array $m): string {
+        $cp = 0;
+        $chars = unpack('N', utf8CodepointBytes($m[0]));
+        return '&#' . ($chars[1] ?? $cp) . ';';
+    }, $escaped);
 }
 
 /**

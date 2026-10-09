@@ -48,9 +48,13 @@ if ($priceList !== '') {
                     $rows[] = ['artikel' => $item, 'klantartikel' => $code];
                 }
             }
+            $xml = buildExactXmlForRows($customers, $rows);
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
             header('Content-Type: application/xml; charset=utf-8');
             header('Content-Disposition: attachment; filename="klantartikelen_' . preg_replace('/[^A-Za-z0-9_-]/', '_', $priceList) . '.xml"');
-            echo buildExactXmlForRows($customers, $rows);
+            echo $xml;
             exit;
         }
 
@@ -63,6 +67,13 @@ if ($priceList !== '') {
         }
     } catch (Throwable $e) {
         $error = $e->getMessage();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'export') {
+            // Een export-fout mag nooit als HTML-pagina in een .xml-download terechtkomen.
+            http_response_code(500);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Export mislukt: ' . $error;
+            exit;
+        }
     }
 }
 ?>
