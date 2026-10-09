@@ -153,6 +153,7 @@ if ($error === null) {
                         <button type="button" id="kkTemplate" class="ka-button ka-button--secondary">Download Excel</button>
                         <button type="button" id="kkAdd" class="ka-add" title="Regel toevoegen" aria-label="Regel toevoegen">+</button>
                         <button type="submit" class="ka-button ka-button--secondary">Exporteer XML</button>
+                        <strong class="kk-hint">Importen in Exact via XML\Logistieke import\Artikelprijzen</strong>
                     </div>
                 </div>
                 <div id="kkDrop" class="ka-drop" tabindex="0" role="button">

@@ -13,3 +13,5 @@ details.panel > summary { cursor: pointer; font-weight: 750; }
 .kk-lines tr.is-missing .ka-desc { color: #a03636; font-weight: 600; }
 .kk-lines tr.is-checking .ka-desc { color: var(--muted); font-style: italic; }
 .kk-qty, .kk-disc { min-width: 10ch; }
+.kk-hint { font-size: 13px; color: var(--ink); }
+.ka-actions { flex-wrap: wrap; }
