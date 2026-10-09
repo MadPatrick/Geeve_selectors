@@ -102,7 +102,7 @@
             '<td><input type="date" name="from[]" class="ka-input kk-from"></td>' +
             '<td><input type="date" name="to[]" class="ka-input kk-to"></td>' +
             '<td><input type="text" name="aantal[]" class="ka-input kk-qty" autocomplete="off"></td>' +
-            '<td><input type="text" name="korting[]" class="ka-input kk-disc" autocomplete="off"></td>' +
+            '<td><input type="text" name="korting[]" class="ka-input kk-disc" autocomplete="off"><input type="hidden" name="soort[]" value="P"></td>' +
             '<td><button type="button" class="ka-remove" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td>';
         tr.querySelector('.kk-group').value = v.group || '';
         tr.querySelector('.kk-debcode').value = v.debcode || '';

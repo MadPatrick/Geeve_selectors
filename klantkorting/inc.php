@@ -204,7 +204,7 @@ function lookupItemGroup(PDO $pdo, string $code): array
  * LET OP: de elementnamen van dit kortingsformaat zijn nog niet tegen een echte Exact-import
  * geverifieerd (het klantartikel-formaat wel); pas deze functie aan op basis van een voorbeeld-XML.
  *
- * @param list<array{id: string, group: string, debcode: string, from: string, to: string, tiers: list<array{qty: string, discount: string}>}> $rows
+ * @param list<array{id: string, group: string, debcode: string, kind: string, from: string, to: string, tiers: list<array{qty: string, discount: string}>}> $rows
  */
 function buildDiscountXml(string $priceList, array $rows): string
 {
@@ -212,7 +212,7 @@ function buildDiscountXml(string $priceList, array $rows): string
         "<eExact xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"eExact-Schema.xsd\">\r\n" .
         '<PriceLists>' . "\r\n" . '<PriceList code="' . xmlEscape($priceList) . "\" type=\"S\">\r\n  <DiscountLines>\r\n";
     foreach ($rows as $r) {
-        $xml .= '    <DiscountLine' . ($r['id'] !== '' ? ' id="' . xmlEscape($r['id']) . '"' : '') . " linetype=\"2\">\r\n" .
+        $xml .= '    <DiscountLine' . ($r['id'] !== '' ? ' id="' . xmlEscape($r['id']) . '"' : '') . ' linetype="2" kind="' . xmlEscape($r['kind'] ?? 'P') . "\">\r\n" .
             '      <ItemGroup>' . xmlEscape($r['group']) . "</ItemGroup>\r\n" .
             ($r['debcode'] !== '' ? '      <Account code="' . xmlEscape($r['debcode']) . "\"/>\r\n" : '') .
             ($r['from'] !== '' ? '      <ValidFrom>' . xmlEscape($r['from']) . "</ValidFrom>\r\n" : '') .

@@ -50,6 +50,7 @@ try {
                     'id' => trim((string) ($_POST['id'][$i] ?? '')),
                     'group' => $group,
                     'debcode' => trim((string) ($_POST['debcode'][$i] ?? '')),
+                    'kind' => trim((string) ($_POST['soort'][$i] ?? 'P')) ?: 'P',
                     'from' => trim((string) ($_POST['from'][$i] ?? '')),
                     'to' => trim((string) ($_POST['to'][$i] ?? '')),
                     'tiers' => $tiers,
@@ -157,7 +158,7 @@ if ($error === null) {
                 <div id="kkMessage" class="ka-message ka-message--error" hidden></div>
                 <div id="kkInfo" class="ka-message ka-message--ok" hidden></div>
                 <div class="ka-table-wrap"><table class="ka-table kk-lines" id="kkTable">
-                    <thead><tr><th>Artikelgroep</th><th>Omschrijving</th><th>Geldt voor</th><th>Geldig van</th><th>Geldig tot</th><th>Aantal</th><th>Korting</th><th></th></tr></thead>
+                    <thead><tr><th>Artikelgroep</th><th>Omschrijving</th><th>Geldt voor</th><th>Geldig van</th><th>Geldig tot</th><th>Aantal</th><th>Korting (%)</th><th></th></tr></thead>
                     <tbody>
                     <?php foreach ($lines as $l): ?>
                         <?php
@@ -174,7 +175,9 @@ if ($error === null) {
                             <td><input type="date" name="from[]" class="ka-input kk-from" value="<?= h(dateToIso($l['validfrom'])) ?>"></td>
                             <td><input type="date" name="to[]" class="ka-input kk-to" value="<?= h(dateToIso($l['validto'])) ?>"></td>
                             <td><input type="text" name="aantal[]" class="ka-input kk-qty" value="<?= h(tierQtyText($l)) ?>" autocomplete="off"></td>
-                            <td><input type="text" name="korting[]" class="ka-input kk-disc" value="<?= h(tierDiscountText($l)) ?>" autocomplete="off"></td>
+                            <td><input type="text" name="korting[]" class="ka-input kk-disc" value="<?= h(tierDiscountText($l)) ?>" autocomplete="off">
+                                <input type="hidden" name="soort[]" value="<?= h(trim((string) $l['kort_pbn']) ?: 'P') ?>">
+                                <?php if (trim((string) $l['kort_pbn']) !== 'P' && trim((string) $l['kort_pbn']) !== ''): ?><span class="kk-badge" title="Soort <?= h(trim((string) $l['kort_pbn'])) ?>: geen percentage">soort <?= h(trim((string) $l['kort_pbn'])) ?></span><?php endif; ?></td>
                             <td></td>
                         </tr>
                     <?php endforeach; ?>
