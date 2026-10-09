@@ -1,1 +1,0 @@
-<?php header('Content-Type: application/json'); $c=$_GET['code']??''; echo json_encode($c==='C-9'?['found'=>true,'code'=>'C-9','description'=>'Nieuw artikel uit Exact']:['found'=>false,'code'=>$c,'description'=>'']);
