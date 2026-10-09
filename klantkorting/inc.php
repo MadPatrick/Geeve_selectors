@@ -212,11 +212,12 @@ function lookupItemGroup(PDO $pdo, string $code): array
  * Item@code is de staffl.artcode van de groepsregel ("972CF629-4279-45E4-I" + artikelgroep), Unit/Factor/Value
  * komen uit staffl.unitcode/unitfactor/prijs83.
  *
- * Nog niet geverifieerd tegen een echte import (Exact verwerkte eerdere varianten zonder melding).
+ * De opbouw is gespiegeld aan een echte Exact-export (ITEMPRICES.xml, LineType 2-regels); alleen de
+ * verplichte onderdelen zijn overgenomen. Nog niet getest in een echte import.
  *
  * @param list<array<string,mixed>> $rows
  */
-function buildDiscountXml(string $priceList, array $rows): string
+function buildDiscountXml(string $priceList, array $rows, string $priceListDescription = ''): string
 {
     $xml = "<?xml version=\"1.0\" ?>\r\n" .
         "<eExact xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"eExact-Schema.xsd\">\r\n" .
@@ -227,11 +228,19 @@ function buildDiscountXml(string $priceList, array $rows): string
         $factor = trim((string) ($r['factor'] ?? '')) ?: '1';
         $value = trim((string) ($r['value'] ?? '')) ?: '0';
         $xml .= "  <ItemPrice>\r\n" .
-            '    <Item code="' . xmlEscape($artcode) . "\"/>\r\n" .
-            '    <PriceList code="' . xmlEscape($priceList) . "\" type=\"S\"/>\r\n" .
+            '    <Item code="' . xmlEscape($artcode) . "\" type=\"P\">\r\n" .
+            '      <Description>' . xmlEscape($artcode) . "</Description>\r\n" .
+            '      <Assortment number="' . xmlEscape($r['group']) . '" code="' . xmlEscape($r['group']) . "\"/>\r\n" .
+            "      <IsSalesItem>0</IsSalesItem>\r\n" .
+            "      <IsFractionAllowedItem>0</IsFractionAllowedItem>\r\n" .
+            "    </Item>\r\n" .
+            '    <PriceList code="' . xmlEscape($priceList) . "\" type=\"S\">\r\n" .
+            '      <Description>' . xmlEscape($priceListDescription !== '' ? $priceListDescription : $priceList) . "</Description>\r\n" .
+            "      <Currency code=\"EUR\"/>\r\n" .
+            "    </PriceList>\r\n" .
             ($r['debcode'] !== '' ? '    <Account code="' . xmlEscape($r['debcode']) . "\"/>\r\n" : '') .
             '    <Value>' . xmlEscape(str_replace(',', '.', $value)) . "</Value>\r\n" .
-            '    <Unit unit="' . xmlEscape($unit) . "\"/>\r\n" .
+            '    <Unit unit="' . xmlEscape($unit) . "\" type=\"O\" active=\"1\"/>\r\n" .
             '    <Factor>' . xmlEscape(str_replace(',', '.', $factor)) . "</Factor>\r\n" .
             "    <LineType>2</LineType>\r\n";
         if ($r['from'] !== '' || $r['to'] !== '') {

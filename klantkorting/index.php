@@ -60,7 +60,7 @@ try {
                     'tiers' => $tiers,
                 ];
             }
-            $xml = buildDiscountXml($priceList, $rows);
+            $xml = buildDiscountXml($priceList, $rows, (string) $listDescription);
             while (ob_get_level() > 0) {
                 ob_end_clean();
             }
