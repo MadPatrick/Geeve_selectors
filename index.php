@@ -115,6 +115,18 @@ function assetVersion(string $relativePath): string
             <p>Zoek op prijslijstnummer de gekoppelde klanten en hun artikelen met klantartikelnummer uit Exact.</p>
             <span class="tile-cta">Open overzicht &rarr;</span>
         </a>
+        <a class="tile" href="klantkorting/index.php">
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="19" y1="5" x2="5" y2="19"></line>
+                    <circle cx="6.5" cy="6.5" r="2.5"></circle>
+                    <circle cx="17.5" cy="17.5" r="2.5"></circle>
+                </svg>
+            </div>
+            <h2>Kortingstructuur</h2>
+            <p>Bekijk en pas de kortingstructuur van klanten aan op basis van hun prijslijst.</p>
+            <span class="tile-cta">Open overzicht &rarr;</span>
+        </a>
     </div>
 
     <p class="page-footer">Geeve Hydraulics</p>

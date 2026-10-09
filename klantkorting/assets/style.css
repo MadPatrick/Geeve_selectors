@@ -1,0 +1,4 @@
+/* Hergebruikt de stijlen van /klantartikel (formulier, klantchips, tabel); alleen wat hier extra nodig is. */
+.kk-columns { font-size: 12px; color: var(--muted); word-break: break-word; white-space: normal; }
+.kk-schema td { vertical-align: top; white-space: normal; }
+.kk-schema td:first-child { white-space: nowrap; }
