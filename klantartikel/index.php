@@ -27,6 +27,7 @@ $customers = [];
 $articles = [];
 $truncated = false;
 $schema = null;
+$diag = null;
 $error = null;
 
 if ($priceList !== '') {
@@ -35,6 +36,9 @@ if ($priceList !== '') {
         $schema = detectSchema($pdo, $priceColumn);
         $customers = findCustomersByPriceList($pdo, $schema, $priceList);
         $articles = findCustomerArticles($pdo, $schema, $priceList);
+        if ($customers !== [] && $articles === []) {
+            $diag = diagnoseItemAccounts($pdo, $schema, $priceList);
+        }
         if (count($articles) > MAX_ARTICLE_ROWS) {
             $truncated = true;
             array_pop($articles);
@@ -130,6 +134,31 @@ if ($priceList !== '') {
                     <?php endforeach; ?>
                     </tbody>
                 </table></div>
+            <?php endif; ?>
+            <?php if ($diag !== null): ?>
+                <h3>Diagnose</h3>
+                <p class="ka-empty">Koppeling gebruikt: ItemAccounts.<?= h($schema['itemLink']) ?> = cicmpy.<?= h($schema['debtorLink']) ?>, klantartikelnummer uit <code><?= h($schema['codeColumn']) ?></code>.</p>
+                <?php if ($diag['error'] !== null): ?><div class="ka-message ka-message--error"><?= h($diag['error']) ?></div><?php endif; ?>
+                <div class="ka-table-wrap"><table class="ka-table">
+                    <thead><tr><th>Mogelijke koppeling</th><th>Rijen voor deze klanten</th><th>Waarvan klantartikelnr gevuld</th></tr></thead>
+                    <tbody>
+                    <?php foreach ($diag['links'] as $l): ?>
+                        <tr><td><?= h($l['link']) ?></td><td><?= h($l['total']) ?></td><td><?= h($l['filled']) ?></td></tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table></div>
+                <p class="ka-empty">Kolommen op ItemAccounts: <?= h(implode(', ', $diag['columns'])) ?></p>
+                <?php if ($diag['sample'] !== []): ?>
+                    <p class="ka-empty">Voorbeeldrijen (met ingevuld klantartikelnummer, willekeurige klanten):</p>
+                    <div class="ka-table-wrap"><table class="ka-table">
+                        <thead><tr><?php foreach (array_keys($diag['sample'][0]) as $col): ?><th><?= h((string) $col) ?></th><?php endforeach; ?></tr></thead>
+                        <tbody>
+                        <?php foreach ($diag['sample'] as $row): ?>
+                            <tr><?php foreach ($row as $v): ?><td><?= h(is_scalar($v) || $v === null ? trim((string) $v) : '(binair)') ?></td><?php endforeach; ?></tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table></div>
+                <?php endif; ?>
             <?php endif; ?>
         </section>
     <?php endif; ?>

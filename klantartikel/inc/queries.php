@@ -148,3 +148,42 @@ function findCustomerArticles(PDO $pdo, array $schema, string $priceList): array
     $stmt->execute(['pl' => $priceList]);
     return $stmt->fetchAll();
 }
+
+/**
+ * Diagnose als er wel klanten maar geen artikelen zijn: welke kolommen heeft
+ * ItemAccounts, hoeveel rijen koppelen er per mogelijke koppeling, hoeveel
+ * hebben een ingevuld klantartikelnummer, en een paar voorbeeldrijen.
+ *
+ * @return array{columns: list<string>, links: list<array{link: string, total: string, filled: string}>, sample: list<array<string,mixed>>, error: ?string}
+ */
+function diagnoseItemAccounts(PDO $pdo, array $schema, string $priceList): array
+{
+    $p = q($schema['pricelist']);
+    $result = ['columns' => $schema['itemColumns'], 'links' => [], 'sample' => [], 'error' => null];
+    $code = 'ia.' . q($schema['codeColumn']);
+    try {
+        foreach (ITEMACCOUNT_LINK_CANDIDATES as $itemCol => $debtorCol) {
+            $a = findColumn($schema['itemColumns'], [$itemCol]);
+            $b = findColumn($schema['debtorColumns'], [$debtorCol]);
+            if ($a === null || $b === null) {
+                continue;
+            }
+            $stmt = $pdo->prepare(
+                "SELECT COUNT(*) AS totaal, SUM(CASE WHEN {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' THEN 1 ELSE 0 END) AS gevuld " .
+                'FROM ItemAccounts ia JOIN cicmpy c ON LTRIM(RTRIM(CAST(ia.' . q($a) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($b) . " AS varchar(64)))) " .
+                "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl"
+            );
+            $stmt->execute(['pl' => $priceList]);
+            $row = $stmt->fetch();
+            $result['links'][] = [
+                'link'   => "ItemAccounts.{$a} = cicmpy.{$b}",
+                'total'  => (string) ($row['totaal'] ?? 0),
+                'filled' => (string) ($row['gevuld'] ?? 0),
+            ];
+        }
+        $result['sample'] = $pdo->query('SELECT TOP 5 * FROM ItemAccounts ia WHERE ' . $code . " IS NOT NULL AND LTRIM(RTRIM({$code})) <> ''")->fetchAll();
+    } catch (Throwable $e) {
+        $result['error'] = $e->getMessage();
+    }
+    return $result;
+}
