@@ -10,19 +10,39 @@
     var filterItem = document.getElementById('kaFilterItem');
     var filterCode = document.getElementById('kaFilterCode');
 
-    function applyFilter() {
+    var PAGE_SIZE = 50;
+    var page = 1;
+    var pager = document.getElementById('kaPager');
+    var pageInfo = document.getElementById('kaPageInfo');
+
+    // Filter + paginering: alle regels blijven in het formulier (en dus in de export), alleen de zichtbaarheid wisselt.
+    function applyFilter(resetPage) {
+        if (resetPage === true) { page = 1; }
         var fi = filterItem.value.trim().toLowerCase();
         var fc = filterCode.value.trim().toLowerCase();
+        var matched = [];
         Array.prototype.forEach.call(tbody.rows, function (row) {
             var item = row.querySelector('.ka-item').value.trim().toLowerCase();
             var code = row.querySelector('.ka-code').value.trim().toLowerCase();
             // Lege (net toegevoegde) regels blijven zichtbaar zodat ze invulbaar blijven.
             var blank = item === '' && code === '';
-            row.hidden = !blank && ((fi !== '' && item.indexOf(fi) === -1) || (fc !== '' && code.indexOf(fc) === -1));
+            var ok = blank || ((fi === '' || item.indexOf(fi) !== -1) && (fc === '' || code.indexOf(fc) !== -1));
+            row.hidden = true;
+            if (ok) { matched.push(row); }
         });
+        var pages = Math.max(1, Math.ceil(matched.length / PAGE_SIZE));
+        page = Math.min(Math.max(page, 1), pages);
+        matched.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).forEach(function (row) { row.hidden = false; });
+        pager.hidden = pages <= 1;
+        pageInfo.textContent = 'Pagina ' + page + ' van ' + pages + ' (' + matched.length + ' regels)';
+        document.getElementById('kaPrev').disabled = page <= 1;
+        document.getElementById('kaNext').disabled = page >= pages;
     }
-    filterItem.addEventListener('input', applyFilter);
-    filterCode.addEventListener('input', applyFilter);
+    document.getElementById('kaPrev').addEventListener('click', function () { page--; applyFilter(); });
+    document.getElementById('kaNext').addEventListener('click', function () { page++; applyFilter(); });
+
+    filterItem.addEventListener('input', function () { applyFilter(true); });
+    filterCode.addEventListener('input', function () { applyFilter(true); });
 
     function updateCount() { count.textContent = '(' + tbody.rows.length + ')'; }
 
@@ -72,10 +92,11 @@
             '<td><button type="button" class="ka-remove" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td>';
         tbody.insertBefore(tr, tbody.firstChild);
         updateCount();
-        applyFilter();
+        applyFilter(true);
         tr.querySelector('.ka-item').focus();
     }
 
+    applyFilter(true);
     document.getElementById('kaAdd').addEventListener('click', addRow);
 
     tbody.addEventListener('input', function (e) {
@@ -85,6 +106,7 @@
         if (e.target.classList.contains('ka-remove')) {
             e.target.closest('tr').remove();
             updateCount();
+            applyFilter();
         }
     });
 

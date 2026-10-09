@@ -145,6 +145,11 @@ if ($priceList !== '') {
                     <?php endforeach; ?>
                     </tbody>
                 </table></div>
+                <div class="ka-pager" id="kaPager" hidden>
+                    <button type="button" class="ka-button ka-button--secondary" id="kaPrev">&larr; Vorige</button>
+                    <span id="kaPageInfo"></span>
+                    <button type="button" class="ka-button ka-button--secondary" id="kaNext">Volgende &rarr;</button>
+                </div>
             </form>
 
             <?php if ($diag !== null): ?>
