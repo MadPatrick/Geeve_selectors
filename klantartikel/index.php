@@ -53,7 +53,8 @@ if ($priceList !== '') {
                 ob_end_clean();
             }
             header('Content-Type: application/xml; charset=utf-8');
-            header('Content-Disposition: attachment; filename="klantartikelen_' . preg_replace('/[^A-Za-z0-9_-]/', '_', $priceList) . '.xml"');
+            // Exact verwacht altijd dezelfde bestandsnaam (ook in de Excel-template: DEBTORS.xml).
+            header('Content-Disposition: attachment; filename="DEBTORS.xml"');
             echo $xml;
             exit;
         }
