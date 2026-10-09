@@ -207,3 +207,25 @@
 .settings-switch input:checked + .settings-switch-track { background: #3fa564; }
 .settings-switch input:checked + .settings-switch-track::after { transform: translateX(18px); }
 .settings-switch input:focus-visible + .settings-switch-track { box-shadow: 0 0 0 3px rgba(238, 48, 93, .25); }
+
+/* Tegel van een app die nog in ontwikkeling is: lichter, met een schuine tekst. Blijft gewoon klikbaar. */
+.tile--wip { background: var(--soft, #f4f7fa); border-style: dashed; }
+.tile--wip > * { opacity: .5; }
+.tile--wip::before {
+    content: "In progress";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-18deg);
+    padding: 4px 22px;
+    border: 2px solid var(--accent-dark);
+    border-radius: 6px;
+    color: var(--accent-dark);
+    background: rgba(255, 255, 255, .55);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1;
+}

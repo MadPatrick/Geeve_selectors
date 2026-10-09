@@ -91,7 +91,7 @@ function assetVersion(string $relativePath): string
             <span class="tile-cta">Open selector &rarr;</span>
         </a>
 
-        <a class="tile" href="stauff/index.php">
+        <a class="tile tile--wip" href="stauff/index.php">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="10" width="16" height="7" rx="2"></rect>
@@ -104,7 +104,7 @@ function assetVersion(string $relativePath): string
             <p>Stel de juiste beugelsamenstelling samen op basis van diameter, serie, uitvoering en materiaal.</p>
             <span class="tile-cta">Open selector &rarr;</span>
         </a>
-        <a class="tile" href="klantartikel/index.php">
+        <a class="tile tile--wip" href="klantartikel/index.php">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path>
@@ -115,7 +115,7 @@ function assetVersion(string $relativePath): string
             <p>Zoek op prijslijstnummer de gekoppelde klanten en hun artikelen met klantartikelnummer uit Exact.</p>
             <span class="tile-cta">Open overzicht &rarr;</span>
         </a>
-        <a class="tile" href="klantkorting/index.php">
+        <a class="tile tile--wip" href="klantkorting/index.php">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <line x1="19" y1="5" x2="5" y2="19"></line>
