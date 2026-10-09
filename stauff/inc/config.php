@@ -44,6 +44,11 @@ function loadEnvFile(string $path): void
 // portal-root (../../.env vanaf hier), niet los per subapp - hetzelfde
 // SQL-account wordt ook door /slangkaarten gebruikt (Locatie op de
 // picklijst). Zie de portal-root .env.example.
+// Eerst de versleutelde instellingen uit Config (hoofdmenu), daarna pas .env.
+if (is_file(__DIR__ . '/../../shared/secure_settings.php')) {
+    require_once __DIR__ . '/../../shared/secure_settings.php';
+    loadSecureSettings();
+}
 loadEnvFile(__DIR__ . '/../../.env');
 
 function env(string $key, ?string $default = null): ?string

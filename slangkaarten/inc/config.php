@@ -40,6 +40,11 @@ function loadEnvFile(string $path): void
     }
 }
 
+// Eerst de versleutelde instellingen uit Config (hoofdmenu), daarna pas .env.
+if (is_file(__DIR__ . '/../../shared/secure_settings.php')) {
+    require_once __DIR__ . '/../../shared/secure_settings.php';
+    loadSecureSettings();
+}
 loadEnvFile(__DIR__ . '/../.env');
 // Gedeelde Exact-database "005"-inloggegevens (EXACT_DB_*) staan centraal
 // in de portal-root, niet los in deze .env - hetzelfde SQL-account wordt

@@ -9,6 +9,8 @@ session_start();
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 const UPDATE_CODE = '1308';
 
+require_once __DIR__ . '/shared/secure_settings.php';
+
 // Fallback-bron als de map op de server geen git-repository is (bijv. de
 // map is via FTP gekopieerd zonder de verborgen .git-map mee te nemen).
 // Haalt in dat geval de laatste stand rechtstreeks van GitHub op als zip.
@@ -273,6 +275,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check
 $unlocked = !empty($_SESSION['config_unlocked']);
 $result = null;
 $codeError = false;
+$settingsMessage = null;
+
+if (empty($_SESSION['config_csrf'])) {
+    $_SESSION['config_csrf'] = bin2hex(random_bytes(16));
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-settings') {
+    if (!$unlocked || !hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+        $codeError = true;
+    } else {
+        $values = secureSettingsRead();
+        foreach (SECURE_SETTINGS_KEYS as $settingKey) {
+            $posted = trim((string) ($_POST[$settingKey] ?? ''));
+            // Wachtwoord leeg laten = ongewijzigd laten.
+            if ($settingKey === 'EXACT_DB_PASSWORD' && $posted === '') {
+                continue;
+            }
+            if ($posted === '') {
+                unset($values[$settingKey]);
+            } else {
+                $values[$settingKey] = $posted;
+            }
+        }
+        $settingsMessage = secureSettingsWrite($values)
+            ? ['ok' => true, 'text' => 'Instellingen versleuteld opgeslagen.']
+            : ['ok' => false, 'text' => 'Opslaan mislukt: de map is niet schrijfbaar of de PHP openssl-extensie ontbreekt.'];
+    }
+}
+
+$storedSettings = secureSettingsRead();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-update') {
     // De echte update-knop op deze pagina - vereist dat de code al via de
@@ -301,7 +333,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Applicatie bijwerken | Geeve Hydraulics</title>
+    <title>Config | Geeve Hydraulics</title>
     <link rel="icon" href="favicon.ico?v=<?= h(assetVersion('favicon.ico')) ?>" type="image/x-icon">
     <link rel="stylesheet" href="shared/style.css?v=<?= h(assetVersion('shared/style.css')) ?>">
     <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
@@ -309,13 +341,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
 <body>
 <main class="page-shell">
     <?php
-    $headerTitle = 'Applicatie bijwerken';
+    $headerTitle = 'Config';
     $headerImagesPath = 'images/';
     $headerShowHome = false;
     require __DIR__ . '/shared/header.php';
     ?>
 
     <a href="index.php" class="back-link">&larr; Terug naar hoofdmenu</a>
+
+    <?php if ($unlocked): ?>
+    <section class="update-panel">
+        <h2>Database-instellingen</h2>
+        <p>Inloggegevens voor de Exact-database (gedeeld door Stauff en Slangkaarten). Ze worden versleuteld opgeslagen, niet als leesbaar bestand. Staan ze nog in <code>.env</code>, dan hebben deze instellingen voorrang. Wachtwoord leeg laten = ongewijzigd.</p>
+
+        <?php if ($settingsMessage !== null): ?>
+            <div class="update-message <?= $settingsMessage['ok'] ? 'ok' : 'error' ?>"><?= h($settingsMessage['text']) ?></div>
+        <?php endif; ?>
+
+        <form method="post" class="update-form settings-form" autocomplete="off">
+            <input type="hidden" name="action" value="save-settings">
+            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <?php
+            $fields = [
+                'EXACT_DB_HOST' => ['Server', 'text', 'GEEVE-SQL-2019'],
+                'EXACT_DB_PORT' => ['Poort', 'text', ''],
+                'EXACT_DB_NAME' => ['Database', 'text', '005'],
+                'EXACT_DB_USER' => ['Gebruiker', 'text', ''],
+                'EXACT_DB_PASSWORD' => ['Wachtwoord', 'password', ''],
+                'EXACT_DB_TRUST_SERVER_CERT' => ['Server-certificaat vertrouwen (yes/no)', 'text', 'yes'],
+            ];
+            foreach ($fields as $fieldKey => [$label, $type, $placeholder]):
+                $isPassword = $fieldKey === 'EXACT_DB_PASSWORD';
+                $value = $isPassword ? '' : ($storedSettings[$fieldKey] ?? '');
+                $ph = $isPassword && isset($storedSettings[$fieldKey]) ? 'Opgeslagen (leeg = ongewijzigd)' : $placeholder;
+            ?>
+                <label class="update-code-field settings-field">
+                    <span><?= h($label) ?></span>
+                    <input type="<?= $type ?>" name="<?= h($fieldKey) ?>" value="<?= h($value) ?>" placeholder="<?= h($ph) ?>" autocomplete="off">
+                </label>
+            <?php endforeach; ?>
+            <button type="submit" class="update-submit">Opslaan</button>
+        </form>
+    </section>
+    <?php endif; ?>
 
     <section class="update-panel">
         <h2>Update ophalen</h2>

@@ -115,7 +115,7 @@ function assetVersion(string $relativePath): string
             <h2 id="configModalTitle">Config</h2>
             <button type="button" id="configModalClose" class="modal-close" aria-label="Sluiten">&times;</button>
         </div>
-        <p>Voer de 4-cijferige code in om naar de update-pagina te gaan.</p>
+        <p>Voer de 4-cijferige code in voor de instellingen en de update.</p>
 
         <div id="configMessage" class="update-message" hidden></div>
 

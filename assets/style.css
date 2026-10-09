@@ -195,3 +195,7 @@
 @media (max-width: 480px) {
     .tile { padding: 22px 20px; }
 }
+
+.settings-form { align-items: flex-end; }
+.settings-field { flex: 1 1 220px; }
+.settings-field input { width: 100%; box-sizing: border-box; letter-spacing: normal; text-align: left; }
