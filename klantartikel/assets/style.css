@@ -47,3 +47,7 @@
 .ka-pager { display: flex; gap: var(--btn-gap); align-items: center; justify-content: center; margin-top: 14px; font-size: 13px; color: var(--muted); }
 .ka-pager button:disabled { opacity: .4; cursor: default; }
 .ka-pager[hidden] { display: none; }
+
+.ka-drop { margin: 12px 0; padding: 18px; border: 2px dashed var(--accent-line, #f47896); border-radius: 12px; text-align: center; font-size: 13px; color: var(--muted); cursor: pointer; }
+.ka-drop:hover, .ka-drop:focus-visible, .ka-drop.is-over { background: var(--soft, #f4f7fa); border-color: var(--accent); outline: none; }
+.ka-message--ok { color: #237447; background: #e8f4ed; }
