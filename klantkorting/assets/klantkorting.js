@@ -6,7 +6,7 @@
     var info = document.getElementById('kkInfo');
     var lookupUrl = form.getAttribute('data-lookup');
     var priceList = form.getAttribute('data-pricelist');
-    var STAFFEL_RE = /^\d+([.,]\d+)?\s*=\s*\d+([.,]\d+)?$/;
+    var NUM_RE = /^\d+([.,]\d+)?$/;
 
     function showInfo(text, isError) {
         info.hidden = true;
@@ -16,9 +16,15 @@
         box.hidden = false;
     }
 
-    function staffelValid(text) {
-        var parts = text.split(';').map(function (p) { return p.trim(); }).filter(Boolean);
-        return parts.length >= 1 && parts.length <= 10 && parts.every(function (p) { return STAFFEL_RE.test(p); });
+    function splitList(text) {
+        return text.split(';').map(function (p) { return p.trim(); }).filter(Boolean);
+    }
+
+    // Aantallen en kortingen: evenveel waarden (1-10), allemaal getallen.
+    function tiersValid(qtyText, discText) {
+        var q = splitList(qtyText), d = splitList(discText);
+        return q.length >= 1 && q.length <= 10 && q.length === d.length &&
+            q.every(function (x) { return NUM_RE.test(x); }) && d.every(function (x) { return NUM_RE.test(x); });
     }
 
     function rowValues(row) {
@@ -27,14 +33,15 @@
             debcode: row.querySelector('.kk-debcode').value.trim(),
             from: row.querySelector('.kk-from').value,
             to: row.querySelector('.kk-to').value,
-            staffel: row.querySelector('.kk-staffel').value.trim()
+            qty: row.querySelector('.kk-qty').value.trim(),
+            disc: row.querySelector('.kk-disc').value.trim()
         };
     }
 
     function isChanged(row) {
         if (!row.hasAttribute('data-orig')) { return true; }
         var v = rowValues(row);
-        return (v.staffel + '|' + v.from + '|' + v.to) !== row.getAttribute('data-orig');
+        return (v.qty + '|' + v.disc + '|' + v.from + '|' + v.to) !== row.getAttribute('data-orig');
     }
 
     function setState(row, state, description) {
@@ -94,14 +101,16 @@
             '<td class="ka-desc"></td><td class="kk-for"></td>' +
             '<td><input type="date" name="from[]" class="ka-input kk-from"></td>' +
             '<td><input type="date" name="to[]" class="ka-input kk-to"></td>' +
-            '<td><input type="text" name="staffel[]" class="ka-input kk-staffel" autocomplete="off"></td>' +
+            '<td><input type="text" name="aantal[]" class="ka-input kk-qty" autocomplete="off"></td>' +
+            '<td><input type="text" name="korting[]" class="ka-input kk-disc" autocomplete="off"></td>' +
             '<td><button type="button" class="ka-remove" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td>';
         tr.querySelector('.kk-group').value = v.group || '';
         tr.querySelector('.kk-debcode').value = v.debcode || '';
         tr.querySelector('.kk-for').textContent = v.debcode ? v.debcode : 'Alle klanten';
         tr.querySelector('.kk-from').value = v.from || '';
         tr.querySelector('.kk-to').value = v.to || '';
-        tr.querySelector('.kk-staffel').value = v.staffel || '';
+        tr.querySelector('.kk-qty').value = v.qty || '';
+        tr.querySelector('.kk-disc').value = v.disc || '';
         tbody.insertBefore(tr, tbody.firstChild);
         var empty = document.getElementById('kkEmpty');
         if (empty) { empty.remove(); }
@@ -116,10 +125,10 @@
         Array.prototype.forEach.call(tbody.rows, function (row) {
             if (!isChanged(row)) { return; }
             var v = rowValues(row);
-            if (v.group === '' && v.staffel === '') { return; }
+            if (v.group === '' && v.qty === '' && v.disc === '') { return; }
             changed++;
             if (v.group === '') { problems.push('Regel zonder artikelgroep'); }
-            else if (!staffelValid(v.staffel)) { problems.push('Artikelgroep ' + v.group + ': staffel ongeldig (gebruik aantal=korting; ...)'); }
+            else if (!tiersValid(v.qty, v.disc)) { problems.push('Artikelgroep ' + v.group + ': aantal en korting ongeldig (getallen, evenveel waarden, gescheiden door ;)'); }
             else if (row.classList.contains('is-missing') || row.classList.contains('is-checking')) { problems.push('Artikelgroep ' + v.group + ' is niet gevonden/gecontroleerd in Exact'); }
             else if (v.from && v.to && v.to < v.from) { problems.push('Artikelgroep ' + v.group + ': geldig tot ligt voor geldig van'); }
         });
@@ -134,7 +143,7 @@
         var disabled = [];
         Array.prototype.forEach.call(tbody.rows, function (row) {
             var v = rowValues(row);
-            if (!isChanged(row) || (v.group === '' && v.staffel === '')) {
+            if (!isChanged(row) || (v.group === '' && v.qty === '' && v.disc === '')) {
                 Array.prototype.forEach.call(row.querySelectorAll('input'), function (i) { i.disabled = true; disabled.push(i); });
             }
         });
@@ -153,22 +162,22 @@
 
     document.getElementById('kkTemplate').addEventListener('click', function () {
         if (typeof XLSX === 'undefined') { showInfo('Excel-bibliotheek niet geladen.', true); return; }
-        var rows = [['Artikelgroep', 'Omschrijving', 'Debiteurcode', 'Geldig van', 'Geldig tot', 'Staffel']];
+        var rows = [['Artikelgroep', 'Omschrijving', 'Debiteurcode', 'Geldig van', 'Geldig tot', 'Aantal', 'Korting']];
         Array.prototype.forEach.call(tbody.rows, function (row) {
             var v = rowValues(row);
             if (v.group === '') { return; }
-            rows.push([v.group, row.querySelector('.ka-desc').textContent, v.debcode, dmy(v.from), dmy(v.to), v.staffel]);
+            rows.push([v.group, row.querySelector('.ka-desc').textContent, v.debcode, dmy(v.from), dmy(v.to), v.qty, v.disc]);
         });
         var ws = XLSX.utils.aoa_to_sheet(rows);
         for (var r = rows.length + 1; r <= rows.length + 300; r++) {
-            ['A', 'B', 'C', 'D', 'E', 'F'].forEach(function (c) { ws[c + r] = { t: 's', v: '', z: '@' }; });
+            ['A', 'B', 'C', 'D', 'E', 'F', 'G'].forEach(function (c) { ws[c + r] = { t: 's', v: '', z: '@' }; });
         }
-        ws['!ref'] = 'A1:F' + (rows.length + 300);
-        ws['!cols'] = [{ wch: 14 }, { wch: 34 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 40 }];
+        ws['!ref'] = 'A1:G' + (rows.length + 300);
+        ws['!cols'] = [{ wch: 14 }, { wch: 34 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 14 }];
         var help = XLSX.utils.aoa_to_sheet([
             ['Kortingstructuur prijslijst ' + priceList + ' - sjabloon'],
-            ['Pas op blad "Kortingen" de kolommen Geldig van / Geldig tot (dd-mm-jjjj) en Staffel aan, of voeg onderaan regels toe.'],
-            ['Staffel: aantal=korting, gescheiden door ;  bijvoorbeeld  1=25; 10=30'],
+            ['Pas op blad "Kortingen" de kolommen Geldig van / Geldig tot (dd-mm-jjjj), Aantal en Korting aan, of voeg onderaan regels toe.'],
+            ['Aantal en Korting: meestal 1 waarde (bijv. 1 en 25). Meerdere staffels: waarden gescheiden door ; in beide kolommen (Aantal 1; 10  /  Korting 25; 30).'],
             ['Debiteurcode leeg = geldt voor alle klanten op de prijslijst; ingevuld = klantspecifieke afspraak.'],
             ['Regels worden herkend op artikelgroep + debiteurcode. Omschrijving wordt niet ingelezen.']
         ]);
@@ -179,15 +188,23 @@
         XLSX.writeFile(wb, 'Kortingstructuur_' + priceList.replace(/[^A-Za-z0-9_-]/g, '_') + '.xlsx');
     });
 
+    // Oude notatie "1=25; 10=30" (kolom Staffel) omzetten naar aantal- en kortinglijst.
+    function splitLegacy(text) {
+        var q = [], d = [];
+        splitList(text).forEach(function (p) { var m = p.split('='); q.push((m[0] || '').trim()); d.push((m[1] || '').trim()); });
+        return { qty: q.join('; '), disc: d.join('; ') };
+    }
+
     function importRows(data) {
-        var start = 0, c = { group: 0, debcode: 2, from: 3, to: 4, staffel: 5 };
+        var start = 0, c = { group: 0, debcode: 2, from: 3, to: 4, qty: 5, disc: 6, staffel: -1 };
         if (data.length) {
             var head = data[0].map(function (v) { return cellText(v).toLowerCase(); });
             var find = function (names) { return head.findIndex(function (h) { return names.some(function (n) { return h.indexOf(n) === 0; }); }); };
-            var g = find(['artikelgroep']), s = find(['staffel']);
-            if (g !== -1 && s !== -1) {
+            var g = find(['artikelgroep']);
+            if (g !== -1) {
                 start = 1;
-                c = { group: g, staffel: s, debcode: find(['debiteurcode', 'klant']), from: find(['geldig van']), to: find(['geldig tot']) };
+                c = { group: g, debcode: find(['debiteurcode', 'klant']), from: find(['geldig van']), to: find(['geldig tot']),
+                      qty: find(['aantal']), disc: find(['korting']), staffel: find(['staffel']) };
             }
         }
         var existing = {};
@@ -199,14 +216,17 @@
         for (var i = start; i < data.length; i++) {
             var rec = data[i];
             var get = function (idx) { return idx === -1 ? '' : cellText(rec[idx]); };
-            var group = get(c.group), staffel = get(c.staffel);
-            if (group === '' && staffel === '') { continue; }
-            if (group === '' || !staffelValid(staffel)) { skipped++; continue; }
-            var v = { group: group, debcode: get(c.debcode), from: toIso(get(c.from)), to: toIso(get(c.to)), staffel: staffel };
+            var group = get(c.group);
+            var qty = get(c.qty), disc = get(c.disc);
+            if (qty === '' && disc === '' && get(c.staffel) !== '') { var lg = splitLegacy(get(c.staffel)); qty = lg.qty; disc = lg.disc; }
+            if (group === '' && qty === '' && disc === '') { continue; }
+            if (group === '' || !tiersValid(qty, disc)) { skipped++; continue; }
+            var v = { group: group, debcode: get(c.debcode), from: toIso(get(c.from)), to: toIso(get(c.to)), qty: qty, disc: disc };
             var key = (v.group + '|' + v.debcode).toLowerCase();
             if (existing[key]) {
                 var row = existing[key];
-                row.querySelector('.kk-staffel').value = v.staffel;
+                row.querySelector('.kk-qty').value = v.qty;
+                row.querySelector('.kk-disc').value = v.disc;
                 row.querySelector('.kk-from').value = v.from;
                 row.querySelector('.kk-to').value = v.to;
                 if (isChanged(row)) { updated++; }
@@ -225,7 +245,7 @@
             }
         })();
         showInfo('Excel ingelezen: ' + added + ' nieuw, ' + updated + ' bijgewerkt' +
-            (skipped ? ', ' + skipped + ' overgeslagen (artikelgroep of staffel ongeldig)' : '') + '.', false);
+            (skipped ? ', ' + skipped + ' overgeslagen (artikelgroep, aantal of korting ongeldig)' : '') + '.', false);
     }
 
     var drop = document.getElementById('kkDrop');

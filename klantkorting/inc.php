@@ -129,6 +129,40 @@ function formatDateShort(mixed $value): string
     return $ts === false || (int) date('Y', $ts) <= 1900 || (int) date('Y', $ts) > 2999 ? '' : date('d-m-Y', $ts);
 }
 
+/** Aantallen van de staffels als tekst: "1; 10". */
+function tierQtyText(array $line): string
+{
+    return implode('; ', array_column(discountTiers($line), 'qty'));
+}
+
+/** Kortingen van de staffels als tekst: "25; 30". */
+function tierDiscountText(array $line): string
+{
+    return implode('; ', array_column(discountTiers($line), 'discount'));
+}
+
+/**
+ * Twee gelijk lange lijsten (aantallen en kortingen, gescheiden door ;) naar staffels.
+ *
+ * @return list<array{qty: string, discount: string}>|null null bij ongeldige invoer
+ */
+function parseTierLists(string $qtyText, string $discountText): ?array
+{
+    $qty = preg_split('/\s*;\s*/', trim($qtyText), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $disc = preg_split('/\s*;\s*/', trim($discountText), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    if (count($qty) < 1 || count($qty) > 10 || count($qty) !== count($disc)) {
+        return null;
+    }
+    $tiers = [];
+    foreach ($qty as $i => $q) {
+        if (!preg_match('/^\d+(?:[.,]\d+)?$/', $q) || !preg_match('/^\d+(?:[.,]\d+)?$/', $disc[$i])) {
+            return null;
+        }
+        $tiers[] = ['qty' => str_replace(',', '.', $q), 'discount' => str_replace(',', '.', $disc[$i])];
+    }
+    return $tiers;
+}
+
 /** Staffel als tekst: "1=25; 10=30" (aantal=korting). */
 function tiersToText(array $line): string
 {

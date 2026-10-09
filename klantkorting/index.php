@@ -42,7 +42,7 @@ try {
             $rows = [];
             foreach ((array) ($_POST['group'] ?? []) as $i => $group) {
                 $group = trim((string) $group);
-                $tiers = parseTiersText((string) ($_POST['staffel'][$i] ?? ''));
+                $tiers = parseTierLists((string) ($_POST['aantal'][$i] ?? ''), (string) ($_POST['korting'][$i] ?? ''));
                 if ($group === '' || $tiers === null) {
                     continue;
                 }
@@ -143,7 +143,7 @@ if ($error === null) {
                 <input type="hidden" name="action" value="export">
                 <input type="hidden" name="prijslijst" value="<?= h($priceList) ?>">
                 <div class="ka-heading">
-                    <p class="ka-empty">Staffel als <code>aantal=korting</code>, gescheiden door <code>;</code> (bijv. <code>1=25; 10=30</code>). De XML bevat alleen gewijzigde en nieuwe regels.</p>
+                    <p class="ka-empty">Meestal één staffel: aantal <code>1</code>, korting <code>25</code>. Meerdere staffels zet je in beide velden achter elkaar, gescheiden door <code>;</code> (aantal <code>1; 10</code>, korting <code>25; 30</code>). De XML bevat alleen gewijzigde en nieuwe regels.</p>
                     <div class="ka-actions">
                         <button type="button" id="kkTemplate" class="ka-button ka-button--secondary">Download Excel</button>
                         <button type="button" id="kkAdd" class="ka-add" title="Regel toevoegen" aria-label="Regel toevoegen">+</button>
@@ -157,12 +157,12 @@ if ($error === null) {
                 <div id="kkMessage" class="ka-message ka-message--error" hidden></div>
                 <div id="kkInfo" class="ka-message ka-message--ok" hidden></div>
                 <div class="ka-table-wrap"><table class="ka-table kk-lines" id="kkTable">
-                    <thead><tr><th>Artikelgroep</th><th>Omschrijving</th><th>Geldt voor</th><th>Geldig van</th><th>Geldig tot</th><th>Staffel (aantal=korting)</th><th></th></tr></thead>
+                    <thead><tr><th>Artikelgroep</th><th>Omschrijving</th><th>Geldt voor</th><th>Geldig van</th><th>Geldig tot</th><th>Aantal</th><th>Korting</th><th></th></tr></thead>
                     <tbody>
                     <?php foreach ($lines as $l): ?>
                         <?php
                         $debcode = trim((string) ($l['debcode'] ?? ''));
-                        $orig = tiersToText($l) . '|' . dateToIso($l['validfrom']) . '|' . dateToIso($l['validto']);
+                        $orig = tierQtyText($l) . '|' . tierDiscountText($l) . '|' . dateToIso($l['validfrom']) . '|' . dateToIso($l['validto']);
                         ?>
                         <tr class="is-found" data-orig="<?= h($orig) ?>" data-kort="<?= h(trim((string) $l['kort_pbn'])) ?>">
                             <td class="ka-itemcell"><strong class="ka-itemtext"><?= h((string) $l['ItemGroup']) ?></strong>
@@ -173,7 +173,8 @@ if ($error === null) {
                             <td><?php if ($debcode !== ''): ?><span class="kk-badge"><?= h($debcode) ?> <?= h((string) $l['klant']) ?></span><?php else: ?>Alle klanten<?php endif; ?></td>
                             <td><input type="date" name="from[]" class="ka-input kk-from" value="<?= h(dateToIso($l['validfrom'])) ?>"></td>
                             <td><input type="date" name="to[]" class="ka-input kk-to" value="<?= h(dateToIso($l['validto'])) ?>"></td>
-                            <td><input type="text" name="staffel[]" class="ka-input kk-staffel" value="<?= h(tiersToText($l)) ?>" autocomplete="off"></td>
+                            <td><input type="text" name="aantal[]" class="ka-input kk-qty" value="<?= h(tierQtyText($l)) ?>" autocomplete="off"></td>
+                            <td><input type="text" name="korting[]" class="ka-input kk-disc" value="<?= h(tierDiscountText($l)) ?>" autocomplete="off"></td>
                             <td></td>
                         </tr>
                     <?php endforeach; ?>
