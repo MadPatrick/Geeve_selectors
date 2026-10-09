@@ -88,14 +88,27 @@ function secureSettingsRead(): array
     return $out;
 }
 
+/** Laatste foutreden van secureSettingsWrite(), voor in de melding. */
+function secureSettingsLastError(): string
+{
+    return $GLOBALS['secureSettingsError'] ?? '';
+}
+
 /** @param array<string,string> $values */
 function secureSettingsWrite(array $values): bool
 {
+    $GLOBALS['secureSettingsError'] = '';
     if (!function_exists('openssl_encrypt')) {
+        $GLOBALS['secureSettingsError'] = 'De PHP openssl-extensie ontbreekt op deze server.';
         return false;
     }
     $key = secureSettingsKey(true);
     if ($key === null) {
+        $phpUser = function_exists('posix_getpwuid') && function_exists('posix_geteuid')
+            ? (posix_getpwuid(posix_geteuid())['name'] ?? get_current_user())
+            : get_current_user();
+        $dir = realpath(dirname(secureSettingsKeyPath())) ?: dirname(secureSettingsKeyPath());
+        $GLOBALS['secureSettingsError'] = "Kon de sleutel niet aanmaken/lezen in {$dir}. PHP draait als \"{$phpUser}\" en moet daar kunnen schrijven. Draai eenmalig op de server: sudo chown {$phpUser}: {$dir}  (of: sudo touch {$dir}/.settings.key {$dir}/.settings.enc && sudo chown {$phpUser}: {$dir}/.settings.*)";
         return false;
     }
     $clean = [];
@@ -115,10 +128,12 @@ function secureSettingsWrite(array $values): bool
         $tag
     );
     if ($cipher === false) {
+        $GLOBALS['secureSettingsError'] = 'Versleutelen mislukt.';
         return false;
     }
     $path = secureSettingsDataPath();
     if (@file_put_contents($path, base64_encode($iv . $tag . $cipher), LOCK_EX) === false) {
+        $GLOBALS['secureSettingsError'] = 'Kon ' . $path . ' niet schrijven. Geef de gebruiker waaronder PHP draait schrijfrechten op dit bestand of de map.';
         return false;
     }
     @chmod($path, 0600);

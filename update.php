@@ -300,7 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         }
         $settingsMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Instellingen versleuteld opgeslagen.']
-            : ['ok' => false, 'text' => 'Opslaan mislukt: de map is niet schrijfbaar of de PHP openssl-extensie ontbreekt.'];
+            : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
     }
 }
 
