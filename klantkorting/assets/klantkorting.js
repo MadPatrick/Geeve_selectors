@@ -97,7 +97,8 @@
         var tr = document.createElement('tr');
         tr.innerHTML =
             '<td class="ka-itemcell"><input type="text" name="group[]" class="ka-input kk-group" placeholder="Artikelgroep" autocomplete="off">' +
-            '<input type="hidden" name="id[]" value=""><input type="hidden" name="debcode[]" class="kk-debcode" value=""></td>' +
+            '<input type="hidden" name="id[]" value=""><input type="hidden" name="debcode[]" class="kk-debcode" value="">' +
+            '<input type="hidden" name="artcode[]" value=""><input type="hidden" name="unit[]" value=""><input type="hidden" name="factor[]" value=""><input type="hidden" name="value[]" value=""></td>' +
             '<td class="ka-desc"></td><td class="kk-for"></td>' +
             '<td><input type="date" name="from[]" class="ka-input kk-from"></td>' +
             '<td><input type="date" name="to[]" class="ka-input kk-to"></td>' +
@@ -109,7 +110,8 @@
         tr.querySelector('.kk-for').textContent = v.debcode ? v.debcode : 'Alle klanten';
         tr.querySelector('.kk-from').value = v.from || '';
         tr.querySelector('.kk-to').value = v.to || '';
-        tr.querySelector('.kk-qty').value = v.qty || '';
+        // Exact gebruikt als eerste staffelaantal 0,01 (dus: vanaf het eerste stuk).
+        tr.querySelector('.kk-qty').value = v.qty || (quiet ? '' : '0,01');
         tr.querySelector('.kk-disc').value = v.disc || '';
         tbody.insertBefore(tr, tbody.firstChild);
         var empty = document.getElementById('kkEmpty');

@@ -51,6 +51,10 @@ try {
                     'group' => $group,
                     'debcode' => trim((string) ($_POST['debcode'][$i] ?? '')),
                     'kind' => trim((string) ($_POST['soort'][$i] ?? 'P')) ?: 'P',
+                    'artcode' => trim((string) ($_POST['artcode'][$i] ?? '')),
+                    'unit' => trim((string) ($_POST['unit'][$i] ?? '')),
+                    'factor' => trim((string) ($_POST['factor'][$i] ?? '')),
+                    'value' => trim((string) ($_POST['value'][$i] ?? '')),
                     'from' => trim((string) ($_POST['from'][$i] ?? '')),
                     'to' => trim((string) ($_POST['to'][$i] ?? '')),
                     'tiers' => $tiers,
@@ -169,7 +173,11 @@ if ($error === null) {
                             <td class="ka-itemcell"><strong class="ka-itemtext"><?= h((string) $l['ItemGroup']) ?></strong>
                                 <input type="hidden" name="group[]" class="kk-group" value="<?= h((string) $l['ItemGroup']) ?>">
                                 <input type="hidden" name="id[]" value="<?= h((string) $l['ID']) ?>">
-                                <input type="hidden" name="debcode[]" class="kk-debcode" value="<?= h($debcode) ?>"></td>
+                                <input type="hidden" name="debcode[]" class="kk-debcode" value="<?= h($debcode) ?>">
+                                <input type="hidden" name="artcode[]" value="<?= h(trim((string) $l['artcode'])) ?>">
+                                <input type="hidden" name="unit[]" value="<?= h(trim((string) $l['unitcode'])) ?>">
+                                <input type="hidden" name="factor[]" value="<?= h(formatNumber($l['unitfactor'])) ?>">
+                                <input type="hidden" name="value[]" value="<?= h(formatNumber($l['prijs83'])) ?>"></td>
                             <td class="ka-desc"><?= h((string) $l['ItemGroupDescr']) ?></td>
                             <td><?php if ($debcode !== ''): ?><span class="kk-badge"><?= h($debcode) ?> <?= h((string) $l['klant']) ?></span><?php else: ?>Alle klanten<?php endif; ?></td>
                             <td><input type="date" name="from[]" class="ka-input kk-from" value="<?= h(dateToIso($l['validfrom'])) ?>"></td>

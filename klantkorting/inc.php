@@ -7,6 +7,9 @@ require_once __DIR__ . '/../klantartikel/inc/db.php';
 require_once __DIR__ . '/../klantartikel/inc/queries.php';
 
 const DISCOUNT_TABLE_PATTERNS = ['%korting%', '%discount%', '%prlst%', '%pricelist%', '%prijslijst%', '%price%'];
+/** Eerste 20 tekens van staffl.artcode bij een artikelgroepregel (LineType 2); daarna volgt de artikelgroep. */
+const GROUP_ARTCODE_PREFIX = '972CF629-4279-45E4-I';
+
 const DISCOUNT_COLUMN_PATTERN = '%korting%|%discount%|%prijs%|%price%';
 
 /**
@@ -77,6 +80,8 @@ function findDiscountLines(PDO $pdo, string $priceList): array
         'LTRIM(RTRIM(cicmpy.debcode)) AS debcode',
         'cicmpy.cmp_name AS klant',
         'staffl.validfrom', 'staffl.validto', 'staffl.ID', 'staffl.kort_pbn',
+        'LTRIM(RTRIM(staffl.artcode)) AS artcode', 'LTRIM(RTRIM(staffl.unitcode)) AS unitcode',
+        'staffl.unitfactor', 'staffl.prijs83',
         'aantal1 AS qty1', 'staffl.bedr1 AS d1', 'aantal2 AS qty2', 'staffl.bedr2 AS d2',
         'aantal3 AS qty3', 'staffl.bedr3 AS d3', 'aantal4 AS qty4', 'staffl.bedr4 AS d4',
         'aantal5 AS qty5', 'staffl.bedrag5 AS d5',
@@ -204,11 +209,12 @@ function lookupItemGroup(PDO $pdo, string $code): array
  * eExact-Schema.xsd: <ItemPrices><ItemPrice> met LineType 2 ("prijslijst/prijsafspraak per
  * artikelgroep"). Elementvolgorde is die van het schema: Item, PriceList, Account, Value, Unit,
  * Factor, LineType, Availability, Discounts. Discounts@type is dezelfde code als staffl.kort_pbn (P/B/N/M).
+ * Item@code is de staffl.artcode van de groepsregel ("972CF629-4279-45E4-I" + artikelgroep), Unit/Factor/Value
+ * komen uit staffl.unitcode/unitfactor/prijs83.
  *
- * Nog niet geverifieerd tegen een echte import: Item (leeg artikel + Assortment), Value (0),
- * Unit (leeg) en Factor (1) bij een groepsregel zijn aannames.
+ * Nog niet geverifieerd tegen een echte import (Exact verwerkte eerdere varianten zonder melding).
  *
- * @param list<array{id: string, group: string, debcode: string, kind: string, from: string, to: string, tiers: list<array{qty: string, discount: string}>}> $rows
+ * @param list<array<string,mixed>> $rows
  */
 function buildDiscountXml(string $priceList, array $rows): string
 {
@@ -216,13 +222,17 @@ function buildDiscountXml(string $priceList, array $rows): string
         "<eExact xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"eExact-Schema.xsd\">\r\n" .
         "<ItemPrices>\r\n";
     foreach ($rows as $r) {
+        $artcode = trim((string) ($r['artcode'] ?? '')) ?: GROUP_ARTCODE_PREFIX . $r['group'];
+        $unit = trim((string) ($r['unit'] ?? '')) ?: 'STUKS';
+        $factor = trim((string) ($r['factor'] ?? '')) ?: '1';
+        $value = trim((string) ($r['value'] ?? '')) ?: '0';
         $xml .= "  <ItemPrice>\r\n" .
-            '    <Item code=""><Assortment number="' . xmlEscape($r['group']) . "\"/></Item>\r\n" .
+            '    <Item code="' . xmlEscape($artcode) . "\"/>\r\n" .
             '    <PriceList code="' . xmlEscape($priceList) . "\" type=\"S\"/>\r\n" .
             ($r['debcode'] !== '' ? '    <Account code="' . xmlEscape($r['debcode']) . "\"/>\r\n" : '') .
-            "    <Value>0</Value>\r\n" .
-            "    <Unit unit=\"\"/>\r\n" .
-            "    <Factor>1</Factor>\r\n" .
+            '    <Value>' . xmlEscape(str_replace(',', '.', $value)) . "</Value>\r\n" .
+            '    <Unit unit="' . xmlEscape($unit) . "\"/>\r\n" .
+            '    <Factor>' . xmlEscape(str_replace(',', '.', $factor)) . "</Factor>\r\n" .
             "    <LineType>2</LineType>\r\n";
         if ($r['from'] !== '' || $r['to'] !== '') {
             $xml .= "    <Availability>\r\n" .
