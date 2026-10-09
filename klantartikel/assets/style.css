@@ -38,3 +38,8 @@
 .ka-add:hover { opacity: .9; }
 .ka-filter-row th { background: transparent; padding-bottom: 4px; border-bottom: 0; }
 .ka-table tr[hidden] { display: none; }
+
+.ka-actions { display: flex; gap: var(--btn-gap); align-items: center; }
+.ka-add { margin: 0; flex: none; }
+.ka-itemtext { font-weight: 600; }
+.ka-table tr.is-found .ka-itemtext { color: var(--ink); }

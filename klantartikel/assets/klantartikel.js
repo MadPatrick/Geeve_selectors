@@ -14,9 +14,8 @@
         var fi = filterItem.value.trim().toLowerCase();
         var fc = filterCode.value.trim().toLowerCase();
         Array.prototype.forEach.call(tbody.rows, function (row) {
-            var inputs = row.querySelectorAll('.ka-input');
-            var item = inputs[0].value.trim().toLowerCase();
-            var code = inputs[1].value.trim().toLowerCase();
+            var item = row.querySelector('.ka-item').value.trim().toLowerCase();
+            var code = row.querySelector('.ka-code').value.trim().toLowerCase();
             // Lege (net toegevoegde) regels blijven zichtbaar zodat ze invulbaar blijven.
             var blank = item === '' && code === '';
             row.hidden = !blank && ((fi !== '' && item.indexOf(fi) === -1) || (fc !== '' && code.indexOf(fc) === -1));
@@ -43,8 +42,15 @@
             .then(function (data) {
                 if (input.value.trim() !== code) { return; } // intussen gewijzigd
                 if (data.found) {
+                    // Gevonden artikelnummer wordt vastgezet (niet meer wijzigbaar).
                     input.value = data.code;
+                    var label = document.createElement('span');
+                    label.className = 'ka-itemtext';
+                    label.textContent = data.code;
+                    input.type = 'hidden';
+                    input.parentNode.insertBefore(label, input);
                     setState(row, 'is-found', data.description);
+                    row.querySelector('.ka-code').focus();
                 } else {
                     setState(row, 'is-missing', data.error ? 'Controle mislukt: ' + data.error : 'Niet gevonden in Exact');
                 }
@@ -60,11 +66,11 @@
     function addRow() {
         var tr = document.createElement('tr');
         tr.innerHTML =
-            '<td><input type="text" name="artikel[]" class="ka-input ka-item" autocomplete="off"></td>' +
+            '<td class="ka-itemcell"><input type="text" name="artikel[]" class="ka-input ka-item" placeholder="Artikelnummer" autocomplete="off"></td>' +
             '<td class="ka-desc"></td>' +
-            '<td><input type="text" name="klantartikel[]" class="ka-input" autocomplete="off"></td>' +
+            '<td><input type="text" name="klantartikel[]" class="ka-input ka-code" autocomplete="off"></td>' +
             '<td><button type="button" class="ka-remove" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td>';
-        tbody.appendChild(tr);
+        tbody.insertBefore(tr, tbody.firstChild);
         updateCount();
         applyFilter();
         tr.querySelector('.ka-item').focus();
@@ -86,7 +92,7 @@
         var problems = [];
         Array.prototype.forEach.call(tbody.rows, function (row) {
             var item = row.querySelector('.ka-item').value.trim();
-            var code = row.querySelectorAll('.ka-input')[1].value.trim();
+            var code = row.querySelector('.ka-code').value.trim();
             if (item === '' && code === '') { return; }
             if (item === '' || code === '') { problems.push('Regel met onvolledige invoer (' + (item || code) + ')'); }
             else if (row.classList.contains('is-missing') || row.classList.contains('is-checking')) { problems.push('Artikel ' + item + ' is niet gevonden/gecontroleerd in Exact'); }

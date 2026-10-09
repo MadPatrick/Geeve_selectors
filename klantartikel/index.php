@@ -117,9 +117,12 @@ if ($priceList !== '') {
                 <input type="hidden" name="prijslijst" value="<?= h($priceList) ?>">
                 <div class="ka-heading">
                     <h2>Artikelen met klantartikelnummer <small id="kaCount">(<?= count($articles) ?>)</small></h2>
-                    <button type="submit" class="ka-button ka-button--secondary" id="kaExport">Exporteer XML</button>
+                    <div class="ka-actions">
+                        <button type="button" id="kaAdd" class="ka-add" title="Regel toevoegen" aria-label="Regel toevoegen">+</button>
+                        <button type="submit" class="ka-button ka-button--secondary" id="kaExport">Exporteer XML</button>
+                    </div>
                 </div>
-                <p class="ka-empty">Geldt voor alle <?= count($customers) ?> klanten op deze prijslijst. Het klantartikelnummer is te wijzigen; met + voeg je een regel toe. Een artikelnummer wordt direct in Exact gecontroleerd.</p>
+                <p class="ka-empty">Geldt voor alle <?= count($customers) ?> klanten op deze prijslijst. Het klantartikelnummer is te wijzigen; met + voeg je bovenaan een regel toe, waarvan het artikelnummer direct in Exact wordt gecontroleerd.</p>
                 <div id="kaMessage" class="ka-message ka-message--error" hidden></div>
                 <div class="ka-table-wrap"><table class="ka-table" id="kaTable">
                     <thead>
@@ -134,15 +137,14 @@ if ($priceList !== '') {
                     <tbody>
                     <?php foreach ($articles as $a): ?>
                         <tr class="is-found">
-                            <td><input type="text" name="artikel[]" value="<?= h(trim((string) $a['artikel'])) ?>" class="ka-input ka-item" autocomplete="off"></td>
+                            <td class="ka-itemcell"><span class="ka-itemtext"><?= h(trim((string) $a['artikel'])) ?></span><input type="hidden" name="artikel[]" value="<?= h(trim((string) $a['artikel'])) ?>" class="ka-item"></td>
                             <td class="ka-desc"><?= h((string) $a['omschrijving']) ?></td>
-                            <td><input type="text" name="klantartikel[]" value="<?= h(trim((string) $a['klantartikel'])) ?>" class="ka-input" autocomplete="off"></td>
+                            <td><input type="text" name="klantartikel[]" value="<?= h(trim((string) $a['klantartikel'])) ?>" class="ka-input ka-code" autocomplete="off"></td>
                             <td><button type="button" class="ka-remove" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
                 </table></div>
-                <button type="button" id="kaAdd" class="ka-add" title="Regel toevoegen" aria-label="Regel toevoegen">+</button>
             </form>
 
             <?php if ($diag !== null): ?>
