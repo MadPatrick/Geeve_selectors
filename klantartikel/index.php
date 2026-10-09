@@ -29,6 +29,8 @@ $truncated = false;
 $schema = null;
 $diag = null;
 $usedLink = null;
+$counts = [];
+$klant = trim((string) ($_GET['klant'] ?? ''));
 $error = null;
 
 if ($priceList !== '') {
@@ -36,7 +38,13 @@ if ($priceList !== '') {
         $pdo = getPdoConnection();
         $schema = detectSchema($pdo, $priceColumn);
         $customers = findCustomersByPriceList($pdo, $schema, $priceList);
-        [$articles, $usedLink] = findCustomerArticlesAny($pdo, $schema, $priceList);
+        // Eerst de werkende koppeling vaststellen (1 rij is genoeg), dan tellen en pas daarna de lijst ophalen.
+        [, $usedLink] = findCustomerArticlesAny($pdo, $schema, $priceList, null, 1);
+        if ($usedLink !== null) {
+            $counts = countCustomerArticles($pdo, $schema, $priceList, $usedLink);
+            $isExport = ($_GET['export'] ?? '') === 'xml';
+            $articles = findCustomerArticles($pdo, $schema, $priceList, $usedLink, $klant !== '' ? $klant : null, $isExport ? null : MAX_ARTICLE_ROWS + 1);
+        }
         if ($customers !== [] && $articles === []) {
             $diag = diagnoseItemAccounts($pdo, $schema, $priceList);
         }
@@ -83,7 +91,7 @@ if ($priceList !== '') {
             </label>
             <button type="submit" class="ka-button">Zoeken</button>
             <?php if ($priceList !== '' && $error === null): ?>
-                <a class="ka-button ka-button--secondary" href="?prijslijst=<?= h(rawurlencode($priceList)) ?>&amp;export=xml">Exporteer XML</a>
+                <a class="ka-button ka-button--secondary" href="?prijslijst=<?= h(rawurlencode($priceList)) ?><?= $klant !== '' ? '&amp;klant=' . h(rawurlencode($klant)) : '' ?>&amp;export=xml">Exporteer XML</a>
             <?php endif; ?>
         </form>
     </section>
@@ -97,10 +105,12 @@ if ($priceList !== '') {
                 <p class="ka-empty">Geen klanten gevonden op deze prijslijst (kolom <code><?= h($schema['pricelist']) ?></code>).</p>
             <?php else: ?>
                 <div class="ka-table-wrap"><table class="ka-table">
-                    <thead><tr><th>Debiteurnr</th><th>Klant</th></tr></thead>
+                    <thead><tr><th>Debiteurnr</th><th>Klant</th><th>Artikelen met klantartikelnr</th></tr></thead>
                     <tbody>
                     <?php foreach ($customers as $c): ?>
-                        <tr><td><?= h(trim((string) $c['debnr'])) ?></td><td><?= h((string) $c['naam']) ?></td></tr>
+                        <?php $dn = trim((string) $c['debnr']); $n = $counts[$dn] ?? 0; ?>
+                        <tr><td><?= h($dn) ?></td><td><?= h((string) $c['naam']) ?></td>
+                            <td><?php if ($n > 0): ?><a href="?prijslijst=<?= h(rawurlencode($priceList)) ?>&amp;klant=<?= h(rawurlencode($dn)) ?>"><?= $n ?></a><?php else: ?>0<?php endif; ?></td></tr>
                     <?php endforeach; ?>
                     </tbody>
                 </table></div>
@@ -108,9 +118,12 @@ if ($priceList !== '') {
         </section>
 
         <section class="panel">
-            <h2>Artikelen met klantartikelnummer <small>(<?= count($articles) ?><?= $truncated ? '+' : '' ?>)</small></h2>
+            <h2>Artikelen met klantartikelnummer <small>(<?= $klant !== '' ? (int) ($counts[$klant] ?? count($articles)) : array_sum($counts) ?>)</small></h2>
+            <?php if ($klant !== ''): ?>
+                <p class="ka-empty">Gefilterd op debiteur <?= h($klant) ?> - <a href="?prijslijst=<?= h(rawurlencode($priceList)) ?>">alle klanten tonen</a></p>
+            <?php endif; ?>
             <?php if ($truncated): ?>
-                <div class="ka-message ka-message--error">Alleen de eerste <?= MAX_ARTICLE_ROWS ?> rijen worden getoond.</div>
+                <div class="ka-message ka-message--error">Alleen de eerste <?= MAX_ARTICLE_ROWS ?> rijen worden getoond - klik hierboven op het aantal bij een klant om één klant te zien. De XML-export bevat altijd alle rijen.</div>
             <?php endif; ?>
             <?php if ($articles === []): ?>
                 <p class="ka-empty">Voor deze klanten is geen klantartikelnummer ingevuld.</p>

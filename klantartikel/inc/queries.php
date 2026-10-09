@@ -143,10 +143,10 @@ function findCustomersByPriceList(PDO $pdo, array $schema, string $priceList): a
  *
  * @return array{0: list<array<string,mixed>>, 1: ?array{0:string,1:string}}
  */
-function findCustomerArticlesAny(PDO $pdo, array $schema, string $priceList): array
+function findCustomerArticlesAny(PDO $pdo, array $schema, string $priceList, ?string $debnr = null, ?int $limit = MAX_ARTICLE_ROWS + 1): array
 {
     foreach ($schema['links'] as $link) {
-        $rows = findCustomerArticles($pdo, $schema, $priceList, $link);
+        $rows = findCustomerArticles($pdo, $schema, $priceList, $link, $debnr, $limit);
         if ($rows !== []) {
             return [$rows, $link];
         }
@@ -155,7 +155,7 @@ function findCustomerArticlesAny(PDO $pdo, array $schema, string $priceList): ar
 }
 
 /** @return list<array<string,mixed>> artikelen met klantartikelnummer, voor alle debiteuren op de prijslijst */
-function findCustomerArticles(PDO $pdo, array $schema, string $priceList, array $link): array
+function findCustomerArticles(PDO $pdo, array $schema, string $priceList, array $link, ?string $debnr = null, ?int $limit = MAX_ARTICLE_ROWS + 1): array
 {
     $p = q($schema['pricelist']);
     $join = 'LTRIM(RTRIM(CAST(ia.' . q($link[0]) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($link[1]) . ' AS varchar(64))))';
@@ -164,14 +164,38 @@ function findCustomerArticles(PDO $pdo, array $schema, string $priceList, array 
     $descJoin = $schema['hasItems'] ? "LEFT JOIN Items i ON i.ItemCode = {$itemCode}" : '';
     $descCol = $schema['hasItems'] ? 'i.Description' : "CAST('' AS varchar(1))";
     $stmt = $pdo->prepare(
-        'SELECT TOP ' . (MAX_ARTICLE_ROWS + 1) . " LTRIM(RTRIM(c.debnr)) AS debnr, c.cmp_name AS klant, {$itemCode} AS artikel, " .
+        'SELECT ' . ($limit !== null ? "TOP {$limit} " : '') . "LTRIM(RTRIM(c.debnr)) AS debnr, c.cmp_name AS klant, {$itemCode} AS artikel, " .
         "{$descCol} AS omschrijving, {$code} AS klantartikel " .
         "FROM ItemAccounts ia JOIN cicmpy c ON {$join} {$descJoin} " .
         "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl AND {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' " .
+        ($debnr !== null ? 'AND LTRIM(RTRIM(c.debnr)) = :debnr ' : '') .
         'ORDER BY c.cmp_name, ' . $itemCode
     );
-    $stmt->execute(['pl' => $priceList]);
+    $params = ['pl' => $priceList];
+    if ($debnr !== null) {
+        $params['debnr'] = $debnr;
+    }
+    $stmt->execute($params);
     return $stmt->fetchAll();
+}
+
+/** @return array<string,int> debiteurnr => aantal artikelen met klantartikelnummer */
+function countCustomerArticles(PDO $pdo, array $schema, string $priceList, array $link): array
+{
+    $p = q($schema['pricelist']);
+    $join = 'LTRIM(RTRIM(CAST(ia.' . q($link[0]) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($link[1]) . ' AS varchar(64))))';
+    $code = 'ia.' . q($schema['codeColumn']);
+    $stmt = $pdo->prepare(
+        "SELECT LTRIM(RTRIM(c.debnr)) AS debnr, COUNT(*) AS aantal FROM ItemAccounts ia JOIN cicmpy c ON {$join} " .
+        "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl AND {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' " .
+        'GROUP BY LTRIM(RTRIM(c.debnr))'
+    );
+    $stmt->execute(['pl' => $priceList]);
+    $out = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $out[trim((string) $row['debnr'])] = (int) $row['aantal'];
+    }
+    return $out;
 }
 
 /**
