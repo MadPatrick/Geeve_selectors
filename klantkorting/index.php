@@ -27,12 +27,16 @@ $schema = null;
 $explore = null;
 $error = null;
 $exploreError = null;
+$lines = [];
+$listDescription = null;
 
 try {
     $pdo = getPdoConnection();
     if ($priceList !== '') {
         $schema = detectSchema($pdo, $priceColumn);
         $customers = findCustomersByPriceList($pdo, $schema, $priceList);
+        $listDescription = findPriceListDescription($pdo, $priceList);
+        $lines = findDiscountLines($pdo, $priceList);
     }
 } catch (Throwable $e) {
     $error = $e->getMessage();
@@ -94,33 +98,56 @@ if ($error === null) {
             </section>
         <?php endif; ?>
 
+        <?php if ($priceList !== ''): ?>
         <section class="panel">
-            <h2>Kortingstructuur</h2>
-            <p class="ka-empty">De kortingstructuur wordt hier getoond en aanpasbaar zodra bekend is in welke Exact-tabellen die staat. Hieronder staat wat de database aan kortings- en prijslijsttabellen heeft.</p>
+            <h2>Kortingstructuur prijslijst <?= h($priceList) ?><?= $listDescription ? ' - ' . h($listDescription) : '' ?> <small>(<?= count($lines) ?> regels)</small></h2>
+            <?php if ($listDescription === null): ?>
+                <div class="ka-message ka-message--error">Prijslijst <?= h($priceList) ?> staat niet als staffel-prijslijst (stfoms, type S) in Exact.</div>
+            <?php elseif ($lines === []): ?>
+                <p class="ka-empty">Geen kortingsregels per artikelgroep gevonden voor deze prijslijst.</p>
+            <?php else: ?>
+                <div class="ka-table-wrap"><table class="ka-table kk-lines">
+                    <thead><tr><th>Artikelgroep</th><th>Omschrijving</th><th>Geldt voor</th><th>Geldig van</th><th>Geldig tot</th><th>Soort</th><th>Staffel (vanaf aantal &rarr; korting)</th></tr></thead>
+                    <tbody>
+                    <?php foreach ($lines as $l): ?>
+                        <tr>
+                            <td><strong><?= h((string) $l['ItemGroup']) ?></strong></td>
+                            <td><?= h((string) $l['ItemGroupDescr']) ?></td>
+                            <td><?php if ($l['debcode'] !== null && trim((string) $l['debcode']) !== ''): ?><span class="kk-badge"><?= h(trim((string) $l['debcode'])) ?> <?= h((string) $l['klant']) ?></span><?php else: ?>Alle klanten<?php endif; ?></td>
+                            <td><?= h(formatDateShort($l['validfrom'])) ?></td>
+                            <td><?= h(formatDateShort($l['validto'])) ?></td>
+                            <td><?= h(trim((string) $l['kort_pbn'])) ?></td>
+                            <td>
+                                <?php foreach (discountTiers($l) as $t): ?>
+                                    <span class="kk-tier"><?= h($t['qty']) ?> &rarr; <strong><?= h($t['discount']) ?></strong></span>
+                                <?php endforeach; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table></div>
+            <?php endif; ?>
+        </section>
+        <?php endif; ?>
+
+        <details class="panel">
+            <summary>Database-verkenning (korting-/prijslijsttabellen)</summary>
             <?php if ($exploreError !== null): ?>
                 <div class="ka-message ka-message--error"><?= h($exploreError) ?></div>
             <?php elseif ($explore !== null): ?>
                 <h3>Kolommen op cicmpy (debiteuren) die op prijs/korting lijken</h3>
                 <p class="kk-columns"><?= $explore['debtorColumns'] === [] ? '(geen)' : h(implode(', ', $explore['debtorColumns'])) ?></p>
                 <h3>Tabellen met korting/prijslijst in de naam</h3>
-                <?php if ($explore['tables'] === []): ?>
-                    <p class="ka-empty">(geen)</p>
-                <?php else: ?>
-                    <div class="ka-table-wrap"><table class="ka-table kk-schema">
-                        <thead><tr><th>Tabel</th><th>Rijen</th><th>Kolommen</th></tr></thead>
-                        <tbody>
-                        <?php foreach ($explore['tables'] as $t): ?>
-                            <tr>
-                                <td><strong><?= h($t['name']) ?></strong></td>
-                                <td><?= $t['rows'] === null ? '' : h((string) $t['rows']) ?></td>
-                                <td class="kk-columns"><?= h(implode(', ', $t['columns'])) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table></div>
-                <?php endif; ?>
+                <div class="ka-table-wrap"><table class="ka-table kk-schema">
+                    <thead><tr><th>Tabel</th><th>Rijen</th><th>Kolommen</th></tr></thead>
+                    <tbody>
+                    <?php foreach ($explore['tables'] as $t): ?>
+                        <tr><td><strong><?= h($t['name']) ?></strong></td><td><?= $t['rows'] === null ? '' : h((string) $t['rows']) ?></td><td class="kk-columns"><?= h(implode(', ', $t['columns'])) ?></td></tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table></div>
             <?php endif; ?>
-        </section>
+        </details>
     <?php endif; ?>
 
     <p class="page-footer">Geeve Hydraulics</p>

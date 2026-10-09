@@ -49,3 +49,82 @@ function exploreDiscountSchema(PDO $pdo): array
 
     return ['tables' => $tables, 'debtorColumns' => $debtorMatches];
 }
+
+/**
+ * Omschrijving van de prijslijst (stfoms, type 'S' = staffel/kortingsprijslijst).
+ */
+function findPriceListDescription(PDO $pdo, string $priceList): ?string
+{
+    $stmt = $pdo->prepare("SELECT TOP 1 ISNULL(oms30_0, '') AS oms FROM stfoms WHERE LTRIM(RTRIM(prijslijst)) = :pl AND type = 'S'");
+    $stmt->execute(['pl' => $priceList]);
+    $row = $stmt->fetch();
+    return $row ? trim((string) $row['oms']) : null;
+}
+
+/**
+ * Kortingsregels per artikelgroep van een prijslijst (staffl, LineType 2). Regels met een
+ * AccountID zijn klantspecifieke prijsafspraken (debcode), de rest geldt voor de hele prijslijst.
+ * Per regel tot 10 staffels (aantal -> korting).
+ *
+ * @return list<array<string,mixed>>
+ */
+function findDiscountLines(PDO $pdo, string $priceList): array
+{
+    $cols = [
+        'LTRIM(RTRIM(staffl.prijslijst)) AS prijslijst',
+        "TRY_CAST(SUBSTRING(staffl.artcode, 21, 10) AS INT) AS ItemGroup",
+        "ISNULL(i.Description_0, '') AS ItemGroupDescr",
+        'LTRIM(RTRIM(cicmpy.debcode)) AS debcode',
+        'cicmpy.cmp_name AS klant',
+        'staffl.validfrom', 'staffl.validto', 'staffl.ID', 'staffl.kort_pbn',
+        'aantal1 AS qty1', 'staffl.bedr1 AS d1', 'aantal2 AS qty2', 'staffl.bedr2 AS d2',
+        'aantal3 AS qty3', 'staffl.bedr3 AS d3', 'aantal4 AS qty4', 'staffl.bedr4 AS d4',
+        'aantal5 AS qty5', 'staffl.bedrag5 AS d5',
+    ];
+    for ($n = 6; $n <= 10; $n++) {
+        $cols[] = "quantity{$n} AS qty{$n}";
+        $cols[] = "staffl.price{$n} AS d{$n}";
+    }
+    $sql = 'SELECT ' . implode(', ', $cols) .
+        ' FROM staffl INNER JOIN stfoms ON stfoms.prijslijst = staffl.prijslijst' .
+        ' LEFT JOIN cicmpy ON cicmpy.cmp_wwn = staffl.AccountID AND staffl.AccountID IS NOT NULL' .
+        ' LEFT JOIN ItemAssortment i ON i.Assortment = SUBSTRING(staffl.artcode, 21, 10)' .
+        " WHERE stfoms.type = 'S' AND staffl.LineType = '2' AND LTRIM(RTRIM(staffl.prijslijst)) = :pl" .
+        ' ORDER BY TRY_CAST(SUBSTRING(staffl.artcode, 21, 10) AS INT), cicmpy.debcode, staffl.validfrom';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['pl' => $priceList]);
+    return $stmt->fetchAll();
+}
+
+function formatNumber(mixed $value): string
+{
+    if ($value === null || $value === '') {
+        return '';
+    }
+    $text = rtrim(rtrim(number_format((float) $value, 4, ',', ''), '0'), ',');
+    return $text === '' ? '0' : $text;
+}
+
+/** @return list<array{qty: string, discount: string}> staffels die zijn ingevuld */
+function discountTiers(array $line): array
+{
+    $tiers = [];
+    for ($n = 1; $n <= 10; $n++) {
+        $d = $line["d{$n}"] ?? null;
+        $q = $line["qty{$n}"] ?? null;
+        if ($d === null || ($n > 1 && ((float) $d === 0.0 && (float) $q === 0.0))) {
+            continue;
+        }
+        $tiers[] = ['qty' => formatNumber($q), 'discount' => formatNumber($d)];
+    }
+    return $tiers;
+}
+
+function formatDateShort(mixed $value): string
+{
+    if ($value === null || $value === '') {
+        return '';
+    }
+    $ts = strtotime((string) $value);
+    return $ts === false || (int) date('Y', $ts) <= 1900 || (int) date('Y', $ts) > 2999 ? '' : date('d-m-Y', $ts);
+}

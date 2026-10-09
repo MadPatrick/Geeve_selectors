@@ -2,3 +2,8 @@
 .kk-columns { font-size: 12px; color: var(--muted); word-break: break-word; white-space: normal; }
 .kk-schema td { vertical-align: top; white-space: normal; }
 .kk-schema td:first-child { white-space: nowrap; }
+
+.kk-lines td { vertical-align: top; }
+.kk-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--accent-line, #f47896); font-size: 12px; }
+.kk-tier { display: inline-block; margin: 0 8px 4px 0; padding: 2px 10px; border-radius: 999px; background: var(--soft, #f4f7fa); border: 1px solid #cbd6df; font-size: 12px; white-space: nowrap; }
+details.panel > summary { cursor: pointer; font-weight: 750; }
