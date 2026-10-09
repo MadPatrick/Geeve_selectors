@@ -7,7 +7,7 @@ Startpagina met tegels naar de Geeve-selectors:
 - **`/klantartikel`** — Klant Artikelnummers: voer een prijslijstnummer in, krijg de debiteuren op die prijslijst en hun
   artikelen met een klantartikelnummer (`ItemAccounts.ItemCodeAccount`) uit Exact (database 005, zelfde
   inloggegevens als `/stauff`). Kolomnamen worden uit `INFORMATION_SCHEMA` afgeleid, zie `klantartikel/inc/queries.php`.
-  Met CSV-export.
+  Met XML-export in het Exact-importformaat (eExact, zoals de Excel-template "Geeve Import debiteuren").
 - **`/stauff`** — Stauff Selector / beugelconfigurator, zelfde brand-panel/paneel-stijl als `/hoses`
   en `/adapters`. Heeft ook een databaseverbinding naar de Exact-database "005" (artikelgroep 67),
   zie "Database-koppeling Exact (database 005)" hieronder. Tegel op de startpagina is weer actief

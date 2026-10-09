@@ -15,12 +15,16 @@ declare(strict_types=1);
  */
 
 const PRICELIST_COLUMN_CANDIDATES = ['PriceList', 'Prijslijst', 'prijslijst', 'prlst', 'PrLst', 'pricelist'];
-// kolom op ItemAccounts => kolom op cicmpy waarmee die gejoind wordt
+// [kolom op ItemAccounts, kolom op cicmpy] - in volgorde geprobeerd; de eerste die rijen oplevert wordt gebruikt.
+// Het Exact-importbestand koppelt ItemAccount aan <Account code="debcode"/>, vandaar debcode eerst.
 const ITEMACCOUNT_LINK_CANDIDATES = [
-    'Account' => 'cmp_wwn',
-    'cmp_wwn' => 'cmp_wwn',
-    'debnr'   => 'debnr',
-    'crdnr'   => 'crdnr',
+    ['Account', 'debcode'],
+    ['Account', 'cmp_wwn'],
+    ['Account', 'debnr'],
+    ['Account', 'AccountCode'],
+    ['cmp_wwn', 'cmp_wwn'],
+    ['debnr', 'debnr'],
+    ['crdnr', 'crdnr'],
 ];
 const ITEMACCOUNT_CODE_COLUMN = 'ItemCodeAccount';
 const MAX_ARTICLE_ROWS = 5000;
@@ -53,7 +57,7 @@ function findColumn(array $columns, array $candidates): ?string
 }
 
 /**
- * @return array{pricelist: string, itemLink: string, debtorLink: string, itemCode: string, itemColumns: list<string>, debtorColumns: list<string>}
+ * @return array<string,mixed>
  */
 function detectSchema(PDO $pdo, ?string $priceListColumnOverride = null): array
 {
@@ -80,20 +84,17 @@ function detectSchema(PDO $pdo, ?string $priceListColumnOverride = null): array
         );
     }
 
-    $itemLink = null;
-    $debtorLink = null;
-    foreach (ITEMACCOUNT_LINK_CANDIDATES as $itemCol => $debtorCol) {
-        $a = findColumn($item, [$itemCol]);
-        $b = findColumn($debtor, [$debtorCol]);
-        if ($a !== null && $b !== null) {
-            $itemLink = $a;
-            $debtorLink = $b;
-            break;
+    $links = [];
+    foreach (ITEMACCOUNT_LINK_CANDIDATES as [$itemCol, $debtorCol]) {
+        $x = findColumn($item, [$itemCol]);
+        $y = findColumn($debtor, [$debtorCol]);
+        if ($x !== null && $y !== null) {
+            $links[] = [$x, $y];
         }
     }
     $codeColumn = findColumn($item, [ITEMACCOUNT_CODE_COLUMN]);
     $itemCode = findColumn($item, ['ItemCode']);
-    if ($itemLink === null || $codeColumn === null || $itemCode === null) {
+    if ($links === [] || $codeColumn === null || $itemCode === null) {
         throw new RuntimeException(
             'Kan ItemAccounts niet aan cicmpy koppelen. Kolommen op ItemAccounts: ' . implode(', ', $item) . '.'
         );
@@ -101,8 +102,9 @@ function detectSchema(PDO $pdo, ?string $priceListColumnOverride = null): array
 
     return [
         'pricelist'     => $pricelist,
-        'itemLink'      => $itemLink,
-        'debtorLink'    => $debtorLink,
+        'links'         => $links,
+        'accountCode'   => findColumn($debtor, ['AccountCode']),
+        'debcode'       => findColumn($debtor, ['debcode']),
         'itemCode'      => $itemCode,
         'codeColumn'    => $codeColumn,
         'itemColumns'   => $item,
@@ -121,7 +123,9 @@ function findCustomersByPriceList(PDO $pdo, array $schema, string $priceList): a
 {
     $p = q($schema['pricelist']);
     $stmt = $pdo->prepare(
-        "SELECT LTRIM(RTRIM(debnr)) AS debnr, cmp_name AS naam, LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) AS prijslijst " .
+        'SELECT LTRIM(RTRIM(debnr)) AS debnr, cmp_name AS naam, ' .
+        ($schema['accountCode'] !== null ? 'LTRIM(RTRIM(c.' . q($schema['accountCode']) . ')) ' : "CAST('' AS varchar(1)) ") . 'AS relatienr, ' .
+        ($schema['debcode'] !== null ? 'LTRIM(RTRIM(c.' . q($schema['debcode']) . ')) ' : "CAST('' AS varchar(1)) ") . 'AS debcode ' .
         "FROM cicmpy c WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl AND debnr IS NOT NULL AND LTRIM(RTRIM(debnr)) <> '' " .
         'ORDER BY cmp_name'
     );
@@ -129,11 +133,27 @@ function findCustomersByPriceList(PDO $pdo, array $schema, string $priceList): a
     return $stmt->fetchAll();
 }
 
+/**
+ * Probeert de mogelijke koppelingen tot er artikelen zijn.
+ *
+ * @return array{0: list<array<string,mixed>>, 1: ?array{0:string,1:string}}
+ */
+function findCustomerArticlesAny(PDO $pdo, array $schema, string $priceList): array
+{
+    foreach ($schema['links'] as $link) {
+        $rows = findCustomerArticles($pdo, $schema, $priceList, $link);
+        if ($rows !== []) {
+            return [$rows, $link];
+        }
+    }
+    return [[], null];
+}
+
 /** @return list<array<string,mixed>> artikelen met klantartikelnummer, voor alle debiteuren op de prijslijst */
-function findCustomerArticles(PDO $pdo, array $schema, string $priceList): array
+function findCustomerArticles(PDO $pdo, array $schema, string $priceList, array $link): array
 {
     $p = q($schema['pricelist']);
-    $link = 'ia.' . q($schema['itemLink']) . ' = c.' . q($schema['debtorLink']);
+    $join = 'LTRIM(RTRIM(CAST(ia.' . q($link[0]) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($link[1]) . ' AS varchar(64))))';
     $code = 'ia.' . q($schema['codeColumn']);
     $itemCode = 'ia.' . q($schema['itemCode']);
     $descJoin = $schema['hasItems'] ? "LEFT JOIN Items i ON i.ItemCode = {$itemCode}" : '';
@@ -141,7 +161,7 @@ function findCustomerArticles(PDO $pdo, array $schema, string $priceList): array
     $stmt = $pdo->prepare(
         'SELECT TOP ' . (MAX_ARTICLE_ROWS + 1) . " LTRIM(RTRIM(c.debnr)) AS debnr, c.cmp_name AS klant, {$itemCode} AS artikel, " .
         "{$descCol} AS omschrijving, {$code} AS klantartikel " .
-        "FROM ItemAccounts ia JOIN cicmpy c ON {$link} {$descJoin} " .
+        "FROM ItemAccounts ia JOIN cicmpy c ON {$join} {$descJoin} " .
         "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl AND {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' " .
         'ORDER BY c.cmp_name, ' . $itemCode
     );
@@ -162,12 +182,7 @@ function diagnoseItemAccounts(PDO $pdo, array $schema, string $priceList): array
     $result = ['columns' => $schema['itemColumns'], 'links' => [], 'sample' => [], 'error' => null];
     $code = 'ia.' . q($schema['codeColumn']);
     try {
-        foreach (ITEMACCOUNT_LINK_CANDIDATES as $itemCol => $debtorCol) {
-            $a = findColumn($schema['itemColumns'], [$itemCol]);
-            $b = findColumn($schema['debtorColumns'], [$debtorCol]);
-            if ($a === null || $b === null) {
-                continue;
-            }
+        foreach ($schema['links'] as [$a, $b]) {
             $stmt = $pdo->prepare(
                 "SELECT COUNT(*) AS totaal, SUM(CASE WHEN {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' THEN 1 ELSE 0 END) AS gevuld " .
                 'FROM ItemAccounts ia JOIN cicmpy c ON LTRIM(RTRIM(CAST(ia.' . q($a) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($b) . " AS varchar(64)))) " .
@@ -186,4 +201,51 @@ function diagnoseItemAccounts(PDO $pdo, array $schema, string $priceList): array
         $result['error'] = $e->getMessage();
     }
     return $result;
+}
+
+function xmlEscape(string $value): string
+{
+    $escaped = htmlspecialchars($value, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    // Alles buiten ASCII als &#nnn; (zelfde als de Excel-template "Geeve Import debiteuren").
+    return mb_encode_numericentity($escaped, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
+}
+
+/**
+ * Exact Globe-importbestand (eExact XML), identiek van opzet aan wat de Excel-template
+ * "Geeve Import debiteuren - artikelcodes klant" maakt: per debiteur een <Account> met
+ * <Debtor> en daarin alle <ItemAccount>-regels.
+ *
+ * @param list<array<string,mixed>> $customers
+ * @param list<array<string,mixed>> $articles
+ */
+function buildExactXml(array $customers, array $articles): string
+{
+    $byDebtor = [];
+    foreach ($articles as $a) {
+        $byDebtor[trim((string) $a['debnr'])][] = $a;
+    }
+
+    $xml = "<?xml version=\"1.0\" ?>\r\n" .
+        "<eExact xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"eExact-Schema.xsd\">\r\n" .
+        "<Accounts>\r\n";
+    foreach ($customers as $c) {
+        $debnr = trim((string) $c['debnr']);
+        if (!isset($byDebtor[$debnr])) {
+            continue;
+        }
+        $debcode = trim((string) ($c['debcode'] ?? ''));
+        $xml .= '<Account code="' . xmlEscape(trim((string) ($c['relatienr'] ?? ''))) . "\" status=\"A\" type=\"C\">\r\n" .
+            '  <Name>' . xmlEscape((string) $c['naam']) . "</Name>\r\n" .
+            '  <Debtor number="' . xmlEscape($debnr) . '" code="' . xmlEscape($debcode) . "\">\r\n" .
+            "    <ItemAccounts>\r\n";
+        foreach ($byDebtor[$debnr] as $a) {
+            $xml .= "      <ItemAccount>\r\n" .
+                '        <Account code="' . xmlEscape($debcode) . "\"/>\r\n" .
+                '        <ItemCode>' . xmlEscape(trim((string) $a['artikel'])) . "</ItemCode>\r\n" .
+                '        <ItemCodeAccount>' . xmlEscape(trim((string) $a['klantartikel'])) . "</ItemCodeAccount>\r\n" .
+                "      </ItemAccount>\r\n";
+        }
+        $xml .= "    </ItemAccounts>\r\n  </Debtor>\r\n</Account>\r\n";
+    }
+    return $xml . "</Accounts>\r\n</eExact>\r\n";
 }

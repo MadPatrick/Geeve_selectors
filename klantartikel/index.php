@@ -28,6 +28,7 @@ $articles = [];
 $truncated = false;
 $schema = null;
 $diag = null;
+$usedLink = null;
 $error = null;
 
 if ($priceList !== '') {
@@ -35,7 +36,7 @@ if ($priceList !== '') {
         $pdo = getPdoConnection();
         $schema = detectSchema($pdo, $priceColumn);
         $customers = findCustomersByPriceList($pdo, $schema, $priceList);
-        $articles = findCustomerArticles($pdo, $schema, $priceList);
+        [$articles, $usedLink] = findCustomerArticlesAny($pdo, $schema, $priceList);
         if ($customers !== [] && $articles === []) {
             $diag = diagnoseItemAccounts($pdo, $schema, $priceList);
         }
@@ -47,16 +48,10 @@ if ($priceList !== '') {
         $error = $e->getMessage();
     }
 
-    if ($error === null && ($_GET['export'] ?? '') === 'csv') {
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="klantartikelen_' . preg_replace('/[^A-Za-z0-9_-]/', '_', $priceList) . '.csv"');
-        $out = fopen('php://output', 'w');
-        fwrite($out, "\xEF\xBB\xBF");
-        fputcsv($out, ['Debiteurnr', 'Klant', 'Artikelnummer', 'Omschrijving', 'Klantartikelnummer'], ';');
-        foreach ($articles as $a) {
-            fputcsv($out, [trim((string) $a['debnr']), $a['klant'], trim((string) $a['artikel']), $a['omschrijving'], trim((string) $a['klantartikel'])], ';');
-        }
-        fclose($out);
+    if ($error === null && ($_GET['export'] ?? '') === 'xml') {
+        header('Content-Type: application/xml; charset=utf-8');
+        header('Content-Disposition: attachment; filename="klantartikelen_' . preg_replace('/[^A-Za-z0-9_-]/', '_', $priceList) . '.xml"');
+        echo buildExactXml($customers, $articles);
         exit;
     }
 }
@@ -88,7 +83,7 @@ if ($priceList !== '') {
             </label>
             <button type="submit" class="ka-button">Zoeken</button>
             <?php if ($priceList !== '' && $error === null): ?>
-                <a class="ka-button ka-button--secondary" href="?prijslijst=<?= h(rawurlencode($priceList)) ?>&amp;export=csv">Exporteer CSV</a>
+                <a class="ka-button ka-button--secondary" href="?prijslijst=<?= h(rawurlencode($priceList)) ?>&amp;export=xml">Exporteer XML</a>
             <?php endif; ?>
         </form>
     </section>
@@ -137,7 +132,7 @@ if ($priceList !== '') {
             <?php endif; ?>
             <?php if ($diag !== null): ?>
                 <h3>Diagnose</h3>
-                <p class="ka-empty">Koppeling gebruikt: ItemAccounts.<?= h($schema['itemLink']) ?> = cicmpy.<?= h($schema['debtorLink']) ?>, klantartikelnummer uit <code><?= h($schema['codeColumn']) ?></code>.</p>
+                <p class="ka-empty">Geprobeerde koppelingen (in volgorde): <?= h(implode('; ', array_map(static fn ($l) => "ItemAccounts.{$l[0]} = cicmpy.{$l[1]}", $schema['links']))) ?>. Klantartikelnummer uit <code><?= h($schema['codeColumn']) ?></code>.</p>
                 <?php if ($diag['error'] !== null): ?><div class="ka-message ka-message--error"><?= h($diag['error']) ?></div><?php endif; ?>
                 <div class="ka-table-wrap"><table class="ka-table">
                     <thead><tr><th>Mogelijke koppeling</th><th>Rijen voor deze klanten</th><th>Waarvan klantartikelnr gevuld</th></tr></thead>
