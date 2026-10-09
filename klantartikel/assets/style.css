@@ -1,0 +1,19 @@
+.ka-form { display: flex; gap: var(--btn-gap); align-items: flex-end; flex-wrap: wrap; }
+.ka-form .field { margin: 0; }
+.ka-form input { width: calc(20ch + 26px); }
+.ka-button {
+    min-height: 44px; padding: 0 20px; border-radius: 999px; font: inherit; font-weight: 750; font-size: 13px;
+    cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+    color: #fff; background: var(--accent, #c8102e); border: 1px solid var(--accent-line, #e0516a);
+}
+.ka-button--secondary { color: var(--accent, #c8102e); background: transparent; }
+.ka-button:hover { opacity: .9; }
+.panel h2 small { color: var(--muted); font-weight: 600; }
+.ka-table-wrap { overflow-x: auto; }
+.ka-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ka-table th, .ka-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3e9ee; white-space: nowrap; }
+.ka-table td:nth-child(4) { white-space: normal; }
+.ka-table th { font-weight: 750; background: var(--soft, #f4f7fa); }
+.ka-empty { color: var(--muted); font-size: 13px; }
+.ka-message { padding: 12px 15px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.ka-message--error { color: #a03636; background: #f7eaea; }

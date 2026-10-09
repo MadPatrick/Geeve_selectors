@@ -104,6 +104,17 @@ function assetVersion(string $relativePath): string
             <p>Stel de juiste beugelsamenstelling samen op basis van diameter, serie, uitvoering en materiaal.</p>
             <span class="tile-cta">Open selector &rarr;</span>
         </a>
+        <a class="tile" href="klantartikel/index.php">
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path>
+                    <circle cx="7.5" cy="7.5" r="1.5"></circle>
+                </svg>
+            </div>
+            <h2>Klant Artikelnummers</h2>
+            <p>Zoek op prijslijstnummer de gekoppelde klanten en hun artikelen met klantartikelnummer uit Exact.</p>
+            <span class="tile-cta">Open overzicht &rarr;</span>
+        </a>
     </div>
 
     <p class="page-footer">Geeve Hydraulics</p>
