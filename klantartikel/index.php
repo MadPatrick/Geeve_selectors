@@ -122,7 +122,7 @@ if ($priceList !== '') {
                         <button type="submit" class="ka-button ka-button--secondary" id="kaExport">Exporteer XML</button>
                     </div>
                 </div>
-                <p class="ka-empty">Geldt voor alle <?= count($customers) ?> klanten op deze prijslijst. Het klantartikelnummer is te wijzigen; met + voeg je bovenaan een regel toe, waarvan het artikelnummer direct in Exact wordt gecontroleerd.</p>
+                <p class="ka-empty">Geldt voor alle <?= count($customers) ?> klanten op deze prijslijst. De XML bevat alleen gewijzigde en nieuwe regels. Het klantartikelnummer is te wijzigen; met + voeg je bovenaan een regel toe, waarvan het artikelnummer direct in Exact wordt gecontroleerd.</p>
                 <div id="kaMessage" class="ka-message ka-message--error" hidden></div>
                 <div class="ka-table-wrap"><table class="ka-table" id="kaTable">
                     <thead>
@@ -136,7 +136,7 @@ if ($priceList !== '') {
                     </thead>
                     <tbody>
                     <?php foreach ($articles as $a): ?>
-                        <tr class="is-found">
+                        <tr class="is-found" data-orig="<?= h(trim((string) $a['klantartikel'])) ?>">
                             <td class="ka-itemcell"><span class="ka-itemtext"><?= h(trim((string) $a['artikel'])) ?></span><input type="hidden" name="artikel[]" value="<?= h(trim((string) $a['artikel'])) ?>" class="ka-item"></td>
                             <td class="ka-desc"><?= h((string) $a['omschrijving']) ?></td>
                             <td><input type="text" name="klantartikel[]" value="<?= h(trim((string) $a['klantartikel'])) ?>" class="ka-input ka-code" autocomplete="off"></td>

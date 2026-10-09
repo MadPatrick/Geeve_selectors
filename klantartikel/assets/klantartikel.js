@@ -88,21 +88,40 @@
         }
     });
 
+    // Alleen nieuwe regels (geen data-orig) en regels met een gewijzigd klantartikelnummer gaan mee in de XML.
+    function isChanged(row) {
+        var code = row.querySelector('.ka-code').value.trim();
+        return !row.hasAttribute('data-orig') || code !== row.getAttribute('data-orig');
+    }
+
     form.addEventListener('submit', function (e) {
         var problems = [];
+        var changed = 0;
         Array.prototype.forEach.call(tbody.rows, function (row) {
             var item = row.querySelector('.ka-item').value.trim();
             var code = row.querySelector('.ka-code').value.trim();
             if (item === '' && code === '') { return; }
+            if (!isChanged(row)) { return; }
+            changed++;
             if (item === '' || code === '') { problems.push('Regel met onvolledige invoer (' + (item || code) + ')'); }
             else if (row.classList.contains('is-missing') || row.classList.contains('is-checking')) { problems.push('Artikel ' + item + ' is niet gevonden/gecontroleerd in Exact'); }
         });
-        if (problems.length) {
+        if (problems.length || changed === 0) {
             e.preventDefault();
-            message.textContent = 'Export niet mogelijk: ' + problems.slice(0, 5).join('; ') + (problems.length > 5 ? ' (+' + (problems.length - 5) + ' meer)' : '') + '.';
+            message.textContent = problems.length
+                ? 'Export niet mogelijk: ' + problems.slice(0, 5).join('; ') + (problems.length > 5 ? ' (+' + (problems.length - 5) + ' meer)' : '') + '.'
+                : 'Er zijn geen gewijzigde of nieuwe regels om te exporteren.';
             message.hidden = false;
-        } else {
-            message.hidden = true;
+            return;
         }
+        message.hidden = true;
+        // Ongewijzigde regels uitzetten zodat ze niet worden meegestuurd (beide velden, zodat de volgorde klopt).
+        var disabled = [];
+        Array.prototype.forEach.call(tbody.rows, function (row) {
+            if (!isChanged(row)) {
+                Array.prototype.forEach.call(row.querySelectorAll('input'), function (i) { i.disabled = true; disabled.push(i); });
+            }
+        });
+        setTimeout(function () { disabled.forEach(function (i) { i.disabled = false; }); }, 0);
     });
 })();
