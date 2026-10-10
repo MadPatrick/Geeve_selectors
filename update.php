@@ -8,7 +8,6 @@ session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 require_once __DIR__ . '/shared/secure_settings.php';
-require_once __DIR__ . '/shared/server_login.php';
 
 // Fallback-bron als de map op de server geen git-repository is (bijv. de
 // map is via FTP gekopieerd zonder de verborgen .git-map mee te nemen).
@@ -259,47 +258,13 @@ function removeDirectoryRecursive(string $dir): void
 $result = null;
 $requestError = false;
 $settingsMessage = null;
-$loginError = null;
 
 if (empty($_SESSION['config_csrf'])) {
     $_SESSION['config_csrf'] = bin2hex(random_bytes(16));
 }
-$csrfOk = static fn (): bool => hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''));
 
-// Inloggen met een serveraccount (lid van de groep "sudo"). Is het hulpscript op de server niet
-// geinstalleerd (server-setup/README.md), dan blijft de pagina open met een waarschuwing.
-$loginRequired = serverLoginAvailable();
-$action = $_SERVER['REQUEST_METHOD'] === 'POST' ? (string) ($_POST['action'] ?? '') : '';
-
-if ($action === 'login') {
-    if (!$csrfOk()) {
-        $loginError = 'Ongeldig verzoek (sessie verlopen). Probeer het opnieuw.';
-    } elseif (loginBlocked()) {
-        $loginError = 'Te veel mislukte pogingen. Probeer het over enkele minuten opnieuw.';
-    } elseif (serverLoginCheck(trim((string) ($_POST['username'] ?? '')), (string) ($_POST['password'] ?? ''))) {
-        session_regenerate_id(true);
-        $_SESSION['config_user'] = trim((string) $_POST['username']);
-        $_SESSION['config_until'] = time() + LOGIN_IDLE_SECONDS;
-    } else {
-        recordLoginFailure();
-        $loginError = 'Onjuiste gebruikersnaam of wachtwoord, of dit account is geen beheerder (sudo).';
-    }
-} elseif ($action === 'logout' && $csrfOk()) {
-    unset($_SESSION['config_user'], $_SESSION['config_until']);
-}
-
-$loggedIn = !$loginRequired
-    || (isset($_SESSION['config_user'], $_SESSION['config_until']) && time() < (int) $_SESSION['config_until']);
-if ($loginRequired && $loggedIn) {
-    $_SESSION['config_until'] = time() + LOGIN_IDLE_SECONDS; // verlengt bij activiteit
-}
-// Zonder geldige login worden de acties hieronder nooit uitgevoerd.
-if (!$loggedIn && in_array($action, ['save-settings', 'run-update'], true)) {
-    $action = '';
-}
-
-if ($action === 'save-settings') {
-    if (!$csrfOk()) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-settings') {
+    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
         $requestError = true;
     } else {
         $values = secureSettingsRead();
@@ -324,10 +289,10 @@ if ($action === 'save-settings') {
     }
 }
 
-$storedSettings = $loggedIn ? secureSettingsRead() : [];
+$storedSettings = secureSettingsRead();
 
-if ($action === 'run-update') {
-    if ($csrfOk()) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-update') {
+    if (hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
         $result = runUpdate();
     } else {
         $requestError = true;
@@ -355,42 +320,6 @@ if ($action === 'run-update') {
     ?>
 
     <a href="index.php" class="back-link">&larr; Terug naar hoofdmenu</a>
-
-    <?php if (!$loggedIn): ?>
-    <section class="update-panel">
-        <h2>Inloggen</h2>
-        <p>Log in met het account waarmee u beheerder (sudo) bent op de server.</p>
-        <?php if ($loginError !== null): ?>
-            <div class="update-message error"><?= h($loginError) ?></div>
-        <?php endif; ?>
-        <form method="post" class="update-form settings-form" autocomplete="off">
-            <input type="hidden" name="action" value="login">
-            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
-            <div class="settings-row">
-                <label class="update-code-field">
-                    <span>Gebruikersnaam</span>
-                    <input type="text" name="username" size="20" autocomplete="username" autofocus required>
-                </label>
-                <label class="update-code-field">
-                    <span>Wachtwoord</span>
-                    <input type="password" name="password" size="20" autocomplete="current-password" required>
-                </label>
-            </div>
-            <button type="submit" class="update-submit">Inloggen</button>
-        </form>
-    </section>
-    <?php else: ?>
-
-    <?php if ($loginRequired): ?>
-        <form method="post" class="update-form" style="margin-bottom:12px">
-            <input type="hidden" name="action" value="logout">
-            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
-            <strong>Ingelogd als <?= h((string) $_SESSION['config_user']) ?></strong>
-            <button type="submit" class="update-submit">Uitloggen</button>
-        </form>
-    <?php else: ?>
-        <div class="update-message error">Let op: inloggen met een serveraccount is nog niet ingesteld, dus deze pagina is nu voor iedereen open. Zie <code>server-setup/README.md</code>.</div>
-    <?php endif; ?>
 
     <section class="update-panel">
         <h2>Database-instellingen</h2>
@@ -465,7 +394,6 @@ if ($action === 'run-update') {
             <button type="submit" class="update-submit">Update uitvoeren</button>
         </form>
     </section>
-    <?php endif; ?>
 
     <p class="page-footer">Geeve Hydraulics</p>
 </main>
