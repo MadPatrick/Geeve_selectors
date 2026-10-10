@@ -1,0 +1,3 @@
+# Laat de webserver-gebruiker uitsluitend het inlogcontrole-script als root starten, zonder argumenten.
+# Installeren: zie README.md in deze map (visudo -c controleert het bestand).
+www-data ALL=(root) NOPASSWD: /usr/local/sbin/geeve-auth

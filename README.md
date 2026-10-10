@@ -50,6 +50,10 @@ koppeling Exact (database 005)" hieronder). Zonder ingevulde `.env` toont die te
 alleen de Locatie-kolom op de picklijst) een foutmelding/streepje i.p.v. te crashen; de rest van de
 portal blijft gewoon werken.
 
+## Inloggen op Config
+
+De Config-pagina (database-instellingen en update) vraagt een serveraccount dat lid is van de groep `sudo`. Eenmalig te installeren met `server-setup/install.sh`, zie `server-setup/README.md`. Zolang dat niet gedaan is, is de pagina open (met waarschuwing).
+
 ## Database-koppeling Exact (database 005) - gedeeld door /stauff en /slangkaarten
 
 `/stauff` (artikelgroep 67) en `/slangkaarten` (Locatie op de picklijst, zie
