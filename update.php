@@ -7,8 +7,6 @@ session_start();
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
-const UPDATE_CODE = '1308';
-
 require_once __DIR__ . '/shared/secure_settings.php';
 
 // Fallback-bron als de map op de server geen git-repository is (bijv. de
@@ -257,24 +255,8 @@ function removeDirectoryRecursive(string $dir): void
     @rmdir($dir);
 }
 
-// De config-popup in het hoofdmenu roept deze pagina aan via fetch() om
-// alleen de code te controleren - dit voert de update zelf niet uit. Bij
-// een juiste code wordt dat in de sessie onthouden en stuurt de popup de
-// browser hierna naar deze pagina, waar de daadwerkelijke
-// "Update uitvoeren"-knop staat (zonder dat de code opnieuw nodig is).
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check-code') {
-    $ok = hash_equals(UPDATE_CODE, (string) ($_POST['code'] ?? ''));
-    if ($ok) {
-        $_SESSION['config_unlocked'] = true;
-    }
-    header('Content-Type: application/json');
-    echo json_encode(['ok' => $ok], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-$unlocked = !empty($_SESSION['config_unlocked']);
 $result = null;
-$codeError = false;
+$requestError = false;
 $settingsMessage = null;
 
 if (empty($_SESSION['config_csrf'])) {
@@ -282,8 +264,8 @@ if (empty($_SESSION['config_csrf'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-settings') {
-    if (!$unlocked || !hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
-        $codeError = true;
+    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+        $requestError = true;
     } else {
         $values = secureSettingsRead();
         foreach (SECURE_SETTINGS_KEYS as $settingKey) {
@@ -310,23 +292,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
 $storedSettings = secureSettingsRead();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-update') {
-    // De echte update-knop op deze pagina - vereist dat de code al via de
-    // popup (of het codeveld hieronder) is bevestigd.
-    if ($unlocked) {
+    if (hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
         $result = runUpdate();
     } else {
-        $codeError = true;
-    }
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Fallback: rechtstreeks op deze pagina de code invoeren, voor wie hier
-    // buiten de config-popup om komt (bijv. zonder JavaScript).
-    $submittedCode = (string) ($_POST['code'] ?? '');
-
-    if (!hash_equals(UPDATE_CODE, $submittedCode)) {
-        $codeError = true;
-    } else {
-        $unlocked = true;
-        $_SESSION['config_unlocked'] = true;
+        $requestError = true;
     }
 }
 ?>
@@ -352,7 +321,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
 
     <a href="index.php" class="back-link">&larr; Terug naar hoofdmenu</a>
 
-    <?php if ($unlocked): ?>
     <section class="update-panel">
         <h2>Database-instellingen</h2>
         <p>Inloggegevens voor de Exact-database (gedeeld door Stauff en Slangkaarten). Ze worden versleuteld opgeslagen, niet als leesbaar bestand. Staan ze nog in <code>.env</code>, dan hebben deze instellingen voorrang. Wachtwoord leeg laten = ongewijzigd.</p>
@@ -405,7 +373,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
     </section>
-    <?php endif; ?>
 
     <section class="update-panel">
         <h2>Update ophalen</h2>
@@ -418,23 +385,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
             <pre class="update-output"><?= h($result['output']) ?></pre>
         <?php endif; ?>
 
-        <?php if ($unlocked): ?>
-            <form method="post" class="update-form">
-                <input type="hidden" name="action" value="run-update">
-                <button type="submit" class="update-submit">Update uitvoeren</button>
-            </form>
-        <?php else: ?>
-            <?php if ($codeError): ?>
-                <div class="update-message error">Onjuiste code. Update is niet uitgevoerd.</div>
-            <?php endif; ?>
-            <form method="post" class="update-form">
-                <label class="update-code-field" for="updateCode">
-                    <span>Code</span>
-                    <input id="updateCode" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" name="code" placeholder="&bull;&bull;&bull;&bull;" autocomplete="off" required>
-                </label>
-                <button type="submit" class="update-submit">Doorgaan</button>
-            </form>
+        <?php if ($requestError): ?>
+            <div class="update-message error">Ongeldig verzoek (sessie verlopen). Laad de pagina opnieuw en probeer het nog eens.</div>
         <?php endif; ?>
+        <form method="post" class="update-form">
+            <input type="hidden" name="action" value="run-update">
+            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <button type="submit" class="update-submit">Update uitvoeren</button>
+        </form>
     </section>
 
     <p class="page-footer">Geeve Hydraulics</p>
