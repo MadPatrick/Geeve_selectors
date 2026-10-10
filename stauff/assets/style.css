@@ -295,12 +295,6 @@ button.location-number { cursor: pointer; }
     .location-card { grid-template-columns: 40px 64px minmax(0,1fr); }
 }
 
-/* ---- db-test.php (tijdelijke diagnosepagina, geen onderdeel van de
-   uiteindelijke selector) ---- */
-
-.db-test-form { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
-.db-test-form .field { flex: 0 0 auto; min-width: 160px; }
-
 .submit-button {
     appearance: none;
     border: 1px solid var(--accent-dark-line);
@@ -316,13 +310,7 @@ button.location-number { cursor: pointer; }
 }
 .submit-button:hover { opacity: .9; }
 
-.db-test-table-list { margin: 8px 0 0; padding: 0 0 0 20px; }
-.db-test-table-list li { margin-bottom: 4px; }
 
-.db-test-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
-.db-test-table { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
-.db-test-table th, .db-test-table td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; }
-.db-test-table thead th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; }
 
 /* Verberg de onderdeelafbeelding echt wanneer geen artikel is geselecteerd.
    De algemene display:block-regel op .location-image img overschrijft anders

@@ -126,7 +126,7 @@ app/picklijst blijft normaal werken.
 ## Verzendwijze (Exact, database 005) - volledig geverifieerd
 
 De kaart toont een "Verzendwijze"-regel (de Leveringswijze die in Exact op de order staat), opgezocht
-via `findLeveringswijze()` in `index.php` in 2 stappen (beide bevestigd via `/stauff/db-test.php`'s
+via `findLeveringswijze()` in `index.php` in 2 stappen (beide bevestigd via de (inmiddels verwijderde) diagnosepagina stauff/db-test.php`'s
 kolomnaam-zoekoptie, `?kolom=levwijze`):
 
 1. De tabel `orkrg` (kolom `ordernr` voor het ordernummer) geeft de `levwijze`-code van die order

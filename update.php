@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-session_start();
+session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.

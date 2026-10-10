@@ -38,6 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+require_once __DIR__ . '/../shared/csrf.php';
+if (!csrfValid($_POST['csrf'] ?? null)) {
+    redirectWithMessage('error', 'Ongeldig verzoek (sessie verlopen). Laad de pagina opnieuw en probeer het nog eens.');
+}
+
 if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
     redirectWithMessage('error', 'Upload mislukt. Kies een geldig CSV-bestand.');
 }

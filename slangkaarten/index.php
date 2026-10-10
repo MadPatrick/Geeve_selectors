@@ -738,7 +738,7 @@ function findArtikelExactDataBatch(array $artikelen): array
  * bij order" (bevestigd via de volledige INFORMATION_SCHEMA-dump bovenaan
  * queries.php) - het is een eigenschap van de order zelf in Exact.
  *
- * 2 stappen, beide bevestigd (via /stauff/db-test.php's kolomnaam-
+ * 2 stappen, beide bevestigd (via de (inmiddels verwijderde) diagnosepagina stauff/db-test.php's kolomnaam-
  * zoekoptie): "ordlev" bleek zelf GEEN ordernummer te bevatten - het is
  * een vertaaltabel van levwijze-code naar omschrijving (kolom
  * "levwijze" = code, "oms40_0" = omschrijving zoals op de kaart). De

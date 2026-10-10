@@ -408,7 +408,7 @@ $dataLabel = $loadErrors === []
 </main>
 
 <script>
-window.APP_VERSION = <?= json_encode(APP_VERSION, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+window.APP_VERSION = <?= json_encode(APP_VERSION, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 window.HOSES = <?= json_encode(
     $hoses,
     JSON_UNESCAPED_UNICODE |

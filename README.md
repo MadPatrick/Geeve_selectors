@@ -70,9 +70,8 @@ daarom 1x centraal, niet los per subapp:
 3. **Volledig live** (dit is af): de Stauff-selector haalt al zijn kandidaat-artikelen
    rechtstreeks uit groep 67 (`stauff/api/exact_search.php`, `stauff/api/exact_location_search.php`)
    - er is geen CSV meer (die is verwijderd, was eerder `stauff/data/stauff_selector.csv` +
-   `stauff/api/stauff.php`), zie `stauff/README.md` voor de volledige migratie. `stauff/db-test.php`
-   blijft staan als generiek diagnosehulpmiddel (bijv. voor de nog onbevestigde
-   verkoopprijs-kolom).
+   `stauff/api/stauff.php`), zie `stauff/README.md` voor de volledige migratie. De diagnosepagina
+   `stauff/db-test.php` is om veiligheidsredenen verwijderd (ze toonde willekeurige tabellen).
 
 ## Structuur
 

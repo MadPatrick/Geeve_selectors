@@ -109,7 +109,7 @@ kandidaat-filter.
 
 **Uitrol per locatie (`GROUP_FILTER_ENABLED_FOR` in `assets/selector.js`):** of deze tagfilter
 daadwerkelijk toegepast wordt, staat per locatie los aan/uit - inmiddels voor **alle** locaties
-(1-5) op `true`. Bevestigd (via `/stauff/db-test.php`) dat Borgplaat/Dekplaat/Bout-omschrijvingen
+(1-5) op `true`. Bevestigd (via de (inmiddels verwijderde) diagnosepagina stauff/db-test.php`) dat Borgplaat/Dekplaat/Bout-omschrijvingen
 in Exact, net als bij de beugel zelf, een herkenbare GRx/GRxD-tag dragen.
 
 ## Verkoopprijs + voorraad per locatie (Exact, database 005)

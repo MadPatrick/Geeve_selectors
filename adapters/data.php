@@ -22,6 +22,9 @@ function assetVersion(string $relativePath): string
     return $mtime !== false ? (string) $mtime : APP_VERSION;
 }
 
+require_once __DIR__ . '/../shared/csrf.php';
+$csrfToken = csrfToken();
+
 $uploadStatus = $_GET['upload'] ?? '';
 $uploadMessage = $_GET['msg'] ?? '';
 ?>
@@ -87,6 +90,7 @@ $uploadMessage = $_GET['msg'] ?? '';
                     bestandsnaam &mdash; laat die dus ongewijzigd (bijv. <code>artikelnummers_adapters.csv</code>).
                     Er wordt automatisch een backup van het huidige bestand bewaard.</p>
                 <form action="upload.php" method="post" enctype="multipart/form-data" class="upload-form">
+                    <input type="hidden" name="csrf" value="<?= h($csrfToken) ?>">
                     <label class="field" for="uploadFile">
                         <span>CSV-bestand</span>
                         <input id="uploadFile" type="file" name="csv_file" accept=".csv,text/csv" required>
