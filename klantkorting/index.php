@@ -24,9 +24,7 @@ $priceList = trim((string) ($_GET['prijslijst'] ?? $_POST['prijslijst'] ?? ''));
 $priceColumn = trim((string) ($_GET['pcol'] ?? ''));
 $customers = [];
 $schema = null;
-$explore = null;
 $error = null;
-$exploreError = null;
 $lines = [];
 $listDescription = null;
 
@@ -82,13 +80,6 @@ try {
     }
 }
 
-if ($error === null) {
-    try {
-        $explore = exploreDiscountSchema($pdo);
-    } catch (Throwable $e) {
-        $exploreError = $e->getMessage();
-    }
-}
 ?>
 <!doctype html>
 <html lang="nl">
@@ -200,24 +191,6 @@ if ($error === null) {
         </section>
         <?php endif; ?>
 
-        <details class="panel">
-            <summary>Database-verkenning (korting-/prijslijsttabellen)</summary>
-            <?php if ($exploreError !== null): ?>
-                <div class="ka-message ka-message--error"><?= h($exploreError) ?></div>
-            <?php elseif ($explore !== null): ?>
-                <h3>Kolommen op cicmpy (debiteuren) die op prijs/korting lijken</h3>
-                <p class="kk-columns"><?= $explore['debtorColumns'] === [] ? '(geen)' : h(implode(', ', $explore['debtorColumns'])) ?></p>
-                <h3>Tabellen met korting/prijslijst in de naam</h3>
-                <div class="ka-table-wrap"><table class="ka-table kk-schema">
-                    <thead><tr><th>Tabel</th><th>Rijen</th><th>Kolommen</th></tr></thead>
-                    <tbody>
-                    <?php foreach ($explore['tables'] as $t): ?>
-                        <tr><td><strong><?= h($t['name']) ?></strong></td><td><?= $t['rows'] === null ? '' : h((string) $t['rows']) ?></td><td class="kk-columns"><?= h(implode(', ', $t['columns'])) ?></td></tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table></div>
-            <?php endif; ?>
-        </details>
     <?php endif; ?>
 
     <p class="page-footer">Geeve Hydraulics</p>
