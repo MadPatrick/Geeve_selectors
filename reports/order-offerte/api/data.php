@@ -89,6 +89,7 @@ reportApi(function (string $nummer): array {
     $data = fillFromItems(reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer, ORDER_OFFERTE_COLUMNS));
     $data['currency'] = ['Price', 'Price nett', 'Total Nett', 'Total incl. VAT']; // bedragen in euro tonen
     $data['percent'] = ['Discount'];
+    $data['text'] = ['Partnumber']; // artikelnummer: celopmaak Tekst in Excel
     // Excel-formules (per rij): {Kolomnaam} wordt de cel van die kolom; percentagekolommen staan in Excel als breuk.
     $data['formulas'] = [
         'Price nett' => '{Price}*(1-{Discount})',

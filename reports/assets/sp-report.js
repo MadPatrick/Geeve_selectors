@@ -103,6 +103,10 @@
                 var addr = XLSX.utils.encode_cell({ r: r, c: c });
                 var cell = ws[addr];
                 if (!cell) { continue; }
+                if ((data.text || []).indexOf(data.columns[c]) !== -1) {
+                    // Artikelnummers altijd als tekst (geen getal, voorloopnullen blijven staan).
+                    cell.t = 's'; cell.v = String(cell.v); cell.z = '@';
+                }
                 if (cell.t === 'n' && isPct(c)) { cell.v = cell.v / 100; cell.z = '0.00%'; }
                 if (cell.t === 'n' && isEuro(c)) { cell.z = ACCOUNTING; }
                 if (cell.t === 's' && ISO_DATE.test(cell.v)) {
