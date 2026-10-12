@@ -12,6 +12,7 @@ require_once __DIR__ . '/../../inc.php';
 const INKOOP_HIDDEN_COLUMNS = [
     'GrossWeight', 'verk_prPSL', 'Tverk_prPSL', 'ink_prPSL', 'Tink_prPSL', 'gewicht_bi', 'Mat', 'serienr',
     'aantal_serienr', 'PakbonNr', 'debnr', 'magcode', 'uitgifte', 'inkordernj', 'ordernummer',
+    'klartnr', 'landbest', 'totaal_bruto_prijs_inclbtw', 'prijslijst',
 ];
 
 reportApi(function (string $nummer): array {
