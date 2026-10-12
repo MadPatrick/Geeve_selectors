@@ -18,7 +18,7 @@ const INKOOP_HIDDEN_COLUMNS = [
 /** Kolommen die niet in de tabel maar in de kop van de pagina staan: kolom => label. */
 const INKOOP_HEADER_FIELDS = ['orderdatum' => 'Orderdatum', 'fiattering' => 'Fiattering'];
 
-const INKOOP_RENAME = ['totaal_netto_prijs' => 'Totaal netto', 'Aant_Back' => 'Backorder', 'aantal_besteld' => 'Besteld', 'aantal_te_leveren' => 'Te leveren'];
+const INKOOP_RENAME = ['totaal_netto_prijs' => 'Totaal netto', 'Aant_Back' => 'Backorder', 'aantal_besteld' => 'Besteld', 'aantal_te_leveren' => 'Geleverd'];
 
 /** Unieke, gevulde waarden van een kolom (in volgorde van voorkomen), datums als dd-mm-jjjj. */
 function inkoopDistinct(array $data, string $column): array
