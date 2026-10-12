@@ -34,19 +34,15 @@
     function render() {
         var cols = data.columns, rows = data.rows;
         var idx = function (name) { return cols.indexOf(name); };
-        var qty = idx('qty'), price = idx('Invoice Price'), inv = idx('Invoice Number');
-        var totalQty = 0, totalPrice = 0, invoices = {};
+        var inv = idx('Invoice Number');
+        var invoices = {};
         rows.forEach(function (r) {
-            if (qty !== -1) { totalQty += Number(r[qty]) || 0; }
-            if (price !== -1) { totalPrice += Number(r[price]) || 0; }
             if (inv !== -1 && r[inv] !== null) { invoices[r[inv]] = true; }
         });
         summary.innerHTML =
             '<span class="msp-pill">Factuurmaand <strong>' + MONTHS[period.month - 1] + ' ' + period.year + '</strong></span>' +
             '<span class="msp-pill"><strong>' + nl(rows.length, 0) + '</strong> regels</span>' +
-            (inv !== -1 ? '<span class="msp-pill"><strong>' + nl(Object.keys(invoices).length, 0) + '</strong> facturen</span>' : '') +
-            (qty !== -1 ? '<span class="msp-pill">Totaal aantal <strong>' + nl(totalQty, null) + '</strong></span>' : '') +
-            (price !== -1 ? '<span class="msp-pill">Totaal factuurbedrag <strong>' + nl(totalPrice, 2) + '</strong></span>' : '');
+            (inv !== -1 ? '<span class="msp-pill"><strong>' + nl(Object.keys(invoices).length, 0) + '</strong> facturen</span>' : '');
 
         var html = '<thead><tr>' + cols.map(function (c) { return '<th>' + esc(c.trim()) + '</th>'; }).join('') + '</tr></thead><tbody>';
         rows.forEach(function (r) {
