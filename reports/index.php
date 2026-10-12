@@ -53,6 +53,31 @@ function assetVersion(string $relativePath): string
             <p>Parker MSP claim report voor de afgelopen maand</p>
             <span class="tile-cta">Open rapport &rarr;</span>
         </a>
+        <a class="tile" href="inkooporder/index.php">
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"></path>
+                </svg>
+            </div>
+            <h2>Inkooporder naar Excel</h2>
+            <p>Inkooporder met regels uit Exact ophalen en als Excel downloaden</p>
+            <span class="tile-cta">Open rapport &rarr;</span>
+        </a>
+        <a class="tile" href="order-offerte/index.php">
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="8" y1="13" x2="16" y2="13"></line>
+                    <line x1="8" y1="17" x2="16" y2="17"></line>
+                </svg>
+            </div>
+            <h2>Order of Offerte naar Excel</h2>
+            <p>Order- of offerteregels uit Exact ophalen en als Excel downloaden</p>
+            <span class="tile-cta">Open rapport &rarr;</span>
+        </a>
     </div>
 
     <p class="page-footer">Geeve Hydraulics</p>
