@@ -1,12 +1,10 @@
 -- MSP-factuurregels: dezelfde berekening als dbo.SP_MSP (stappen 01 t/m 05), maar als één lees-query
 -- (CTE's) zonder tijdelijke of vaste tabellen. Draait in database 005 (Exact); er wordt niets weggeschreven.
--- Peildatum: vandaag; geselecteerd worden de facturen van de VORIGE maand (zoals in de procedure).
+-- De maand waarvoor de facturen worden opgehaald komt van de app: {{JAAR}} en {{MAAND}} worden vervangen door
+-- gecontroleerde getallen (standaard de vorige maand, zoals in de procedure).
 WITH inv AS (
     -- 02 INPUT
-    SELECT
-        'P' AS inv_Type,
-        CASE WHEN MONTH(CAST(GETDATE() AS date)) = 1 THEN YEAR(CAST(GETDATE() AS date)) - 1 ELSE YEAR(CAST(GETDATE() AS date)) END AS inv_jaar,
-        CASE WHEN MONTH(CAST(GETDATE() AS date)) = 1 THEN MONTH(CAST(GETDATE() AS date)) + 12 ELSE MONTH(CAST(GETDATE() AS date)) END AS inv_maand
+    SELECT 'P' AS inv_Type, {{JAAR}} AS inv_jaar, {{MAAND}} AS inv_maand
 ),
 bron AS (
     -- 03 Bron
@@ -54,7 +52,7 @@ bron AS (
     WHERE 1 = 1
       AND ar_soort <> inv.inv_Type
       AND YEAR(fhs.fakdat) = inv.inv_jaar
-      AND MONTH(fhs.fakdat) = (inv.inv_maand - 1)
+      AND MONTH(fhs.fakdat) = inv.inv_maand
       AND c.TextField11 IS NOT NULL
       AND LTRIM(ISNULL(fhs.artcode, '')) <> 'PORTO'
       AND LTRIM(ISNULL(fhs.artcode, '')) NOT LIKE 'CERTIFICAAT%'

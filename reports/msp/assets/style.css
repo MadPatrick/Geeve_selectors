@@ -8,3 +8,7 @@
 #mspTable thead th { position: sticky; top: 0; background: var(--soft, #f4f7fa); z-index: 1; }
 #mspTable td.num { text-align: right; font-variant-numeric: tabular-nums; }
 #mspTable td:nth-child(2) { white-space: nowrap; }
+
+.msp-field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; }
+.msp-field select { min-width: 12ch; }
+#mspActions { align-items: flex-end; flex-wrap: wrap; }

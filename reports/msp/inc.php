@@ -35,16 +35,23 @@ function mspConnection(): PDO
 }
 
 /**
- * Voert de MSP-query uit en geeft kolomnamen en rijen terug.
+ * Voert de MSP-query uit voor de gevraagde factuurmaand en geeft kolomnamen en rijen terug.
  *
  * @return array{columns: list<string>, rows: list<list<string|int|float|null>>}
  */
-function mspFetch(): array
+function mspFetch(int $year, int $month): array
 {
+    if ($year < 2000 || $year > 2100 || $month < 1 || $month > 12) {
+        throw new RuntimeException('Ongeldige maand of jaar.');
+    }
+
     $sql = @file_get_contents(__DIR__ . '/sql/msp_query.sql');
     if ($sql === false || trim($sql) === '') {
         throw new RuntimeException('De MSP-query (sql/msp_query.sql) kon niet worden gelezen.');
     }
+
+    // Alleen gecontroleerde gehele getallen worden in de query gezet.
+    $sql = str_replace(['{{JAAR}}', '{{MAAND}}'], [(string) $year, (string) $month], $sql);
 
     $pdo = mspConnection();
     $stmt = $pdo->query("SET NOCOUNT ON;\n" . $sql);

@@ -22,7 +22,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !csrfValid($_POST['csrf'] ?
 @set_time_limit(300);
 
 try {
-    $data = mspFetch();
+    $year = filter_var($_POST['jaar'] ?? null, FILTER_VALIDATE_INT);
+    $month = filter_var($_POST['maand'] ?? null, FILTER_VALIDATE_INT);
+    if ($year === false || $month === false) {
+        throw new RuntimeException('Kies een maand en een jaar.');
+    }
+    $data = mspFetch($year, $month);
     echo json_encode(['ok' => true] + $data, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRESERVE_ZERO_FRACTION);
 } catch (Throwable $e) {
     http_response_code(500);

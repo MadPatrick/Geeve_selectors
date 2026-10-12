@@ -8,6 +8,10 @@
     var summary = document.getElementById('mspSummary');
     var table = document.getElementById('mspTable');
     var data = null;
+    var monthSel = document.getElementById('mspMonth');
+    var yearSel = document.getElementById('mspYear');
+    var period = null; // gekozen factuurmaand van de opgehaalde gegevens
+    var MONTHS = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
 
     var NUMERIC = { 'qty': null, 'FINartgrp': 0, 'Invoice Price': 2 };
     var ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -38,6 +42,7 @@
             if (inv !== -1 && r[inv] !== null) { invoices[r[inv]] = true; }
         });
         summary.innerHTML =
+            '<span class="msp-pill">Factuurmaand <strong>' + MONTHS[period.month - 1] + ' ' + period.year + '</strong></span>' +
             '<span class="msp-pill"><strong>' + nl(rows.length, 0) + '</strong> regels</span>' +
             (inv !== -1 ? '<span class="msp-pill"><strong>' + nl(Object.keys(invoices).length, 0) + '</strong> facturen</span>' : '') +
             (qty !== -1 ? '<span class="msp-pill">Totaal aantal <strong>' + nl(totalQty, null) + '</strong></span>' : '') +
@@ -64,14 +69,18 @@
         status.textContent = 'Bezig met ophalen… dit kan even duren.';
         var body = new URLSearchParams();
         body.set('csrf', box.getAttribute('data-csrf'));
+        body.set('maand', monthSel.value);
+        body.set('jaar', yearSel.value);
+        var asked = { month: +monthSel.value, year: +yearSel.value };
         fetch(box.getAttribute('data-endpoint'), { method: 'POST', body: body })
             .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
             .then(function (json) {
                 if (!json.ok) { throw new Error(json.error || 'Ophalen mislukt.'); }
                 data = json;
+                period = asked;
                 render();
                 downloadBtn.disabled = data.rows.length === 0;
-                status.textContent = 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + '.';
+                status.textContent = 'Opgehaald voor ' + MONTHS[period.month - 1] + ' ' + period.year + ' om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + '.';
             })
             .catch(function (err) {
                 status.textContent = '';
@@ -121,8 +130,8 @@
         });
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Temp_Export_MSP_factuurregels');
-        var d = new Date();
-        var stamp = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+        // Bestandsnaam met de factuurmaand, bijv. MSP_report_2026-09.xlsx
+        var stamp = period.year + '-' + ('0' + period.month).slice(-2);
         XLSX.writeFile(wb, 'MSP_report_' + stamp + '.xlsx');
     });
 })();

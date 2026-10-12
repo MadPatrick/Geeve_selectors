@@ -21,6 +21,13 @@ function assetVersion(string $relativePath): string
 }
 
 $csrf = csrfToken();
+
+// Standaard de vorige maand; te kiezen: de laatste 4 jaar tot en met de huidige maand.
+$months = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
+$previous = new DateTimeImmutable('first day of last month');
+$defaultMonth = (int) $previous->format('n');
+$defaultYear = (int) $previous->format('Y');
+$thisYear = (int) date('Y');
 ?>
 <!doctype html>
 <html lang="nl">
@@ -48,8 +55,24 @@ $csrf = csrfToken();
 
     <section class="panel">
         <h2>MSP claim - factuurregels</h2>
-        <p class="ka-empty">Haalt de MSP-factuurregels op uit Exact (dezelfde gegevens als het Excel-bestand "MSP CLAIM") en toont ze hieronder. Daarna kun je ze downloaden als Excel-bestand.</p>
+        <p class="ka-empty">Parker MSP claim report: de factuurregels van de gekozen maand uit Exact (dezelfde gegevens als het Excel-bestand "MSP CLAIM"). Kies de maand, haal de gegevens op en download ze daarna als Excel-bestand.</p>
         <div class="ka-actions" id="mspActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
+            <label class="msp-field">
+                <span>Maand</span>
+                <select id="mspMonth" class="ka-input">
+                    <?php foreach ($months as $i => $name): ?>
+                        <option value="<?= $i + 1 ?>"<?= $i + 1 === $defaultMonth ? ' selected' : '' ?>><?= h($name) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label class="msp-field">
+                <span>Jaar</span>
+                <select id="mspYear" class="ka-input">
+                    <?php for ($y = $thisYear; $y >= $thisYear - 3; $y--): ?>
+                        <option value="<?= $y ?>"<?= $y === $defaultYear ? ' selected' : '' ?>><?= $y ?></option>
+                    <?php endfor; ?>
+                </select>
+            </label>
             <button type="button" id="mspFetch" class="ka-button">Gegevens ophalen</button>
             <button type="button" id="mspDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
             <span id="mspStatus" class="msp-status"></span>

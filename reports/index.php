@@ -50,7 +50,7 @@ function assetVersion(string $relativePath): string
                 </svg>
             </div>
             <h2>MSP report</h2>
-            <p>Rapportage voor MSP. De inhoud volgt later.</p>
+            <p>Parker MSP claim report voor de afgelopen maand</p>
             <span class="tile-cta">Open rapport &rarr;</span>
         </a>
     </div>
