@@ -1,0 +1,10 @@
+.msp-status { font-size: 13px; color: var(--muted); }
+.msp-summary { display: flex; flex-wrap: wrap; gap: var(--btn-gap); margin-bottom: 12px; }
+.msp-pill {
+    display: inline-flex; gap: 6px; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px;
+    font-size: 13px; border: 1px solid var(--accent-line, #f47896); color: var(--ink);
+}
+.msp-scroll { max-height: 70vh; overflow: auto; }
+#mspTable thead th { position: sticky; top: 0; background: var(--soft, #f4f7fa); z-index: 1; }
+#mspTable td.num { text-align: right; font-variant-numeric: tabular-nums; }
+#mspTable td:nth-child(2) { white-space: nowrap; }

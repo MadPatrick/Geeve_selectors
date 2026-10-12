@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Haalt de MSP-gegevens op (stored procedure dbo.SP_MSP in 005_Data_Geeve).
+ * POST met csrf-sleutel; antwoord: {"ok":true,"columns":[...],"rows":[[...]]} of {"ok":false,"error":"..."}.
+ */
+
+require_once __DIR__ . '/../../../shared/csrf.php';
+require_once __DIR__ . '/../inc.php';
+
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store');
+
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !csrfValid($_POST['csrf'] ?? null)) {
+    http_response_code(400);
+    echo json_encode(['ok' => false, 'error' => 'Ongeldig verzoek (sessie verlopen). Laad de pagina opnieuw.']);
+    exit;
+}
+
+@set_time_limit(300);
+
+try {
+    $data = mspFetch();
+    echo json_encode(['ok' => true] + $data, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRESERVE_ZERO_FRACTION);
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+}
