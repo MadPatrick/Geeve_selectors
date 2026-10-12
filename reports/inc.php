@@ -157,3 +157,30 @@ function reportDropColumns(array $data, array $names): array
     $data['rows'] = array_map(fn ($row) => array_map(fn ($i) => $row[$i], $keep), $data['rows']);
     return $data;
 }
+
+/**
+ * Zet de genoemde kolommen vooraan (in de opgegeven volgorde); de rest volgt in de oorspronkelijke volgorde.
+ *
+ * @param array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>} $data
+ * @param list<string> $first
+ * @return array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>}
+ */
+function reportMoveFirst(array $data, array $first): array
+{
+    $order = [];
+    foreach ($first as $name) {
+        $at = array_search($name, $data['columns'], true);
+        if ($at !== false) {
+            $order[] = $at;
+        }
+    }
+    foreach (array_keys($data['columns']) as $i) {
+        if (!in_array($i, $order, true)) {
+            $order[] = $i;
+        }
+    }
+    $data['columns'] = array_map(fn ($i) => $data['columns'][$i], $order);
+    $data['numeric'] = array_map(fn ($i) => $data['numeric'][$i], $order);
+    $data['rows'] = array_map(fn ($row) => array_map(fn ($i) => $row[$i], $order), $data['rows']);
+    return $data;
+}
