@@ -22,7 +22,7 @@ const ORDER_OFFERTE_COLUMNS = [
     'rgls_statistnr' => 'rgls_statistnr',
     'rgls_landoorspr' => 'Country of Origin',
     'rgls_bdr_ev_ed_val' => 'Total Nett',
-    'rgls_bdr_vat_val' => 'rgls_bdr_vat_val',
+    'rgls_bdr_vat_val' => 'VAT',
     'rgls_bdr_val' => 'Total incl. VAT',
     'rgls_gewicht_bi' => 'Weight',
 ];
