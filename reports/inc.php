@@ -8,6 +8,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../stauff/inc/config.php';
 
 const SP_NUMERIC_TYPES = ['int', 'bigint', 'smallint', 'tinyint', 'decimal', 'numeric', 'float', 'real', 'money', 'smallmoney'];
+const SP_DATE_TYPES = ['date', 'datetime', 'datetime2', 'smalldatetime'];
 
 function reportConnection(): PDO
 {
@@ -49,7 +50,7 @@ function reportOrderNumber(mixed $value): string
  * $map (optioneel): bron-kolom => nieuwe naam; alleen deze kolommen, in deze volgorde.
  *
  * @param array<string,string>|null $map
- * @return array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>}
+ * @return array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>}
  */
 function reportCallProcedure(string $procedure, string $param, string $value, ?array $map = null): array
 {
@@ -63,10 +64,13 @@ function reportCallProcedure(string $procedure, string $param, string $value, ?a
 
     $names = [];
     $isNumeric = [];
+    $isDate = [];
     for ($i = 0; $i < $stmt->columnCount(); $i++) {
         $meta = $stmt->getColumnMeta($i);
         $names[] = (string) ($meta['name'] ?? '');
-        $isNumeric[] = in_array(strtolower((string) ($meta['sqlsrv:decl_type'] ?? '')), SP_NUMERIC_TYPES, true);
+        $type = strtolower((string) ($meta['sqlsrv:decl_type'] ?? ''));
+        $isNumeric[] = in_array($type, SP_NUMERIC_TYPES, true);
+        $isDate[] = in_array($type, SP_DATE_TYPES, true);
     }
 
     $pick = array_keys($names);
@@ -88,15 +92,15 @@ function reportCallProcedure(string $procedure, string $param, string $value, ?a
     while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
         $out = [];
         foreach ($pick as $i) {
-            $out[] = reportNormalizeValue($row[$i], $isNumeric[$i]);
+            $out[] = reportNormalizeValue($row[$i], $isNumeric[$i], $isDate[$i]);
         }
         $rows[] = $out;
     }
 
-    return ['columns' => $outNames, 'numeric' => array_map(fn ($i) => $isNumeric[$i], $pick), 'rows' => $rows];
+    return ['columns' => $outNames, 'numeric' => array_map(fn ($i) => $isNumeric[$i], $pick), 'dates' => array_map(fn ($i) => $isDate[$i], $pick), 'rows' => $rows];
 }
 
-function reportNormalizeValue(mixed $value, bool $numeric): string|int|float|null
+function reportNormalizeValue(mixed $value, bool $numeric, bool $date = false): string|int|float|null
 {
     if ($value === null) {
         return null;
@@ -108,8 +112,12 @@ function reportNormalizeValue(mixed $value, bool $numeric): string|int|float|nul
         return $value->format('Y-m-d');
     }
     $text = rtrim((string) $value); // char-kolommen komen met opvulspaties
-    // Datum-tijd uit SQL Server ("2026-07-31 00:00:00.000") alleen als datum tonen.
-    return preg_match('/^\d{4}-\d{2}-\d{2} 00:00:00(\.0+)?$/', $text) === 1 ? substr($text, 0, 10) : $text;
+    // Alleen echte datumkolommen: datum-tijd uit SQL Server ("2026-07-31 00:00:00.000") als jjjj-mm-dd tonen.
+    // Tekstkolommen (bijv. artikelnummers als "2213-04-06") blijven ongewijzigd.
+    if ($date && preg_match('/^(\d{4}-\d{2}-\d{2})( \d{2}:\d{2}:\d{2}(\.\d+)?)?$/', $text, $m) === 1) {
+        return $m[1];
+    }
+    return $text;
 }
 
 /** Gedeelde API-afhandeling: POST + CSRF, roept $fetch(string $nummer) aan en geeft JSON terug. */
@@ -140,9 +148,9 @@ function reportApi(callable $fetch): void
 /**
  * Haalt kolommen (op exacte naam) uit het resultaat.
  *
- * @param array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>} $data
+ * @param array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>} $data
  * @param list<string> $names
- * @return array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>}
+ * @return array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>}
  */
 function reportDropColumns(array $data, array $names): array
 {
@@ -154,6 +162,7 @@ function reportDropColumns(array $data, array $names): array
     }
     $data['columns'] = array_map(fn ($i) => $data['columns'][$i], $keep);
     $data['numeric'] = array_map(fn ($i) => $data['numeric'][$i], $keep);
+    $data['dates'] = array_map(fn ($i) => $data['dates'][$i] ?? false, $keep);
     $data['rows'] = array_map(fn ($row) => array_map(fn ($i) => $row[$i], $keep), $data['rows']);
     return $data;
 }
@@ -161,9 +170,9 @@ function reportDropColumns(array $data, array $names): array
 /**
  * Zet de genoemde kolommen vooraan (in de opgegeven volgorde); de rest volgt in de oorspronkelijke volgorde.
  *
- * @param array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>} $data
+ * @param array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>} $data
  * @param list<string> $first
- * @return array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>}
+ * @return array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>}
  */
 function reportMoveFirst(array $data, array $first): array
 {
@@ -181,6 +190,7 @@ function reportMoveFirst(array $data, array $first): array
     }
     $data['columns'] = array_map(fn ($i) => $data['columns'][$i], $order);
     $data['numeric'] = array_map(fn ($i) => $data['numeric'][$i], $order);
+    $data['dates'] = array_map(fn ($i) => $data['dates'][$i] ?? false, $order);
     $data['rows'] = array_map(fn ($row) => array_map(fn ($i) => $row[$i], $order), $data['rows']);
     return $data;
 }

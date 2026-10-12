@@ -31,8 +31,8 @@ const ORDER_OFFERTE_COLUMNS = [
  * Vult lege velden van de orderregel aan met de artikelgegevens in database 005: statistisch nummer en nettogewicht
  * (Items) en land van herkomst (vrij veld UserField_03, label "Land van herkomst"). Bij jullie staan deze vaak alleen op het artikel en niet op de orderregel.
  *
- * @param array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>} $data
- * @return array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>}
+ * @param array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>} $data
+ * @return array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>}
  */
 function fillFromItems(array $data): array
 {

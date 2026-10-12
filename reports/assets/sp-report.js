@@ -17,6 +17,7 @@
     }
     function nl(n) { return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 4 }); }
     function isEuro(i) { return (data.currency || []).indexOf(data.columns[i]) !== -1; }
+    function isDate(i) { return !!(data.dates && data.dates[i]); }
     function isPct(i) { return (data.percent || []).indexOf(data.columns[i]) !== -1; }
     function pct(n) { return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %'; }
     function euro(n) { return '€ ' + Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -38,7 +39,7 @@
                 if (isPct(i) && typeof v === 'number') { return '<td class="num">' + pct(v) + '</td>'; }
                 if (isEuro(i) && typeof v === 'number') { return '<td class="num">' + euro(v) + '</td>'; }
                 if (data.numeric[i] && typeof v === 'number') { return '<td class="num">' + nl(v) + '</td>'; }
-                if (typeof v === 'string' && ISO_DATE.test(v)) { return '<td>' + dmy(v) + '</td>'; }
+                if (isDate(i) && typeof v === 'string' && ISO_DATE.test(v)) { return '<td>' + dmy(v) + '</td>'; }
                 return '<td>' + esc(v) + '</td>';
             }).join('') + '</tr>';
         });
@@ -109,7 +110,7 @@
                 }
                 if (cell.t === 'n' && isPct(c)) { cell.v = cell.v / 100; cell.z = '0.00%'; }
                 if (cell.t === 'n' && isEuro(c)) { cell.z = ACCOUNTING; }
-                if (cell.t === 's' && ISO_DATE.test(cell.v)) {
+                if (cell.t === 's' && isDate(c) && ISO_DATE.test(cell.v)) {
                     var p = cell.v.split('-');
                     ws[addr] = { t: 'n', v: Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000) + 25569, z: 'dd-mm-yyyy' };
                 }

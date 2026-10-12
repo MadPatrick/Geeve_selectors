@@ -33,7 +33,7 @@ function inkoopDistinct(array $data, string $column): array
         if ($v === '') {
             continue;
         }
-        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $v, $m) === 1) {
+        if (($data['dates'][$at] ?? false) && preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $v, $m) === 1) {
             $v = "{$m[3]}-{$m[2]}-{$m[1]}";
         }
         $out[$v] = true;
