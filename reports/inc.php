@@ -136,3 +136,24 @@ function reportApi(callable $fetch): void
         echo json_encode(['ok' => false, 'error' => $e->getMessage()], $flags);
     }
 }
+
+/**
+ * Haalt kolommen (op exacte naam) uit het resultaat.
+ *
+ * @param array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>} $data
+ * @param list<string> $names
+ * @return array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>}
+ */
+function reportDropColumns(array $data, array $names): array
+{
+    $keep = [];
+    foreach ($data['columns'] as $i => $name) {
+        if (!in_array($name, $names, true)) {
+            $keep[] = $i;
+        }
+    }
+    $data['columns'] = array_map(fn ($i) => $data['columns'][$i], $keep);
+    $data['numeric'] = array_map(fn ($i) => $data['numeric'][$i], $keep);
+    $data['rows'] = array_map(fn ($row) => array_map(fn ($i) => $row[$i], $keep), $data['rows']);
+    return $data;
+}
