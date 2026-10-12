@@ -626,7 +626,7 @@ function renderKrimpmatenTable(array $card, string $slangType): string
  * databaserondes (1 voor locatie, 1 voor voorraad - niet 1 per artikel),
  * in de Exact-database "005" - zelfde database als /stauff gebruikt voor
  * artikelgroep 67, maar een eigen verbinding (zie
- * getExactPdoConnection()/EXACT_DB_* in .env).
+ * getExactPdoConnection()/EXACT_DB_* in Config).
  *
  * Locatie: tabel GRV_StockpositionsPerDay (kolom "Warehouse Location").
  * CSPickITItemLocations (de oorspronkelijke kandidaat) bleek leeg te
@@ -647,7 +647,7 @@ function renderKrimpmatenTable(array $card, string $slangType): string
  * rapport erbij doet.
  *
  * Geeft voor elk artikel dat niet gevonden wordt (of bij een
- * connectiefout/lege .env) lege strings terug (streepjes op de
+ * connectiefout/lege Config) lege strings terug (streepjes op de
  * picklijst), nooit een foutmelding op de kaart/pagina.
  *
  * @param string[] $artikelen
@@ -777,7 +777,7 @@ function findLeveringswijze(string $ordernummer): string
             $result = preg_replace('/^delivery\s+by\s+/i', '', $result) ?? $result;
         }
     } catch (Throwable $exception) {
-        // Leveringswijze blijft leeg (geen .env, connectiefout, o.i.d.).
+        // Leveringswijze blijft leeg (geen Config-gegevens, connectiefout, o.i.d.).
     }
 
     $cache[$ordernummer] = $result;

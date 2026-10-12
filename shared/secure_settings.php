@@ -23,6 +23,9 @@ const SECURE_SETTINGS_KEYS = [
     'EXACT_DB_USER',
     'EXACT_DB_PASSWORD',
     'EXACT_DB_TRUST_SERVER_CERT',
+    // Eigen database van /slangkaarten (database "Slangkaarten"); server en certificaat volgen de Exact-instellingen.
+    'DB_USER',
+    'DB_PASSWORD',
 ];
 
 function secureSettingsKeyPath(): string
@@ -142,8 +145,7 @@ function secureSettingsWrite(array $values): bool
 
 /**
  * Zet de opgeslagen instellingen als omgevingsvariabelen (alleen sleutels
- * die nog niet gezet zijn). Moet vóór de .env-loader draaien, zodat wat in
- * Config is ingevuld voorrang heeft op .env.
+ * die nog niet gezet zijn, dus echte omgevingsvariabelen op de server gaan voor).
  */
 function loadSecureSettings(): void
 {

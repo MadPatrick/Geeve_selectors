@@ -60,8 +60,8 @@ function getPdoConnection(): PDO
 
     return $pdo = connectSqlServer(
         appConfig()['db'],
-        'Database-inloggegevens ontbreken. Zet DB_USER en DB_PASSWORD ' .
-        '(zie slangkaarten/README.md) voor de read-only SQL-login van deze webapp.'
+        'Database-inloggegevens ontbreken. Vul de gebruiker en het wachtwoord van de Slangkaarten-database in via Config in het hoofdmenu ' .
+        '(zie slangkaarten/README.md voor de read-only SQL-login van deze webapp).'
     );
 }
 

@@ -45,9 +45,9 @@ versienummer) - dat is dan ook geen ondersteunde manier van deployen; deze porta
 plek waar deze code leeft en gedraaid wordt.
 
 `/slangkaarten` en `/stauff` hebben, in tegenstelling tot de andere tegels, database-inloggegevens
-nodig - deels eigen (`slangkaarten/.env`, voor de "Slangkaarten"-database), deels gedeeld (de
-root-`.env` hier, voor de Exact-database "005" - zie `slangkaarten/README.md` resp. "Database-
-koppeling Exact (database 005)" hieronder). Zonder ingevulde `.env` toont die tegel/pagina (of
+nodig - deels eigen (voor de "Slangkaarten"-database), deels gedeeld (voor de Exact-database "005") -
+beide in te vullen via **Config** in het hoofdmenu, zie `slangkaarten/README.md` resp. "Database-
+koppeling Exact (database 005)" hieronder. `.env`-bestanden worden niet meer gebruikt. Zonder ingevulde Config toont die tegel/pagina (of
 alleen de Locatie-kolom op de picklijst) een foutmelding/streepje i.p.v. te crashen; de rest van de
 portal blijft gewoon werken.
 
@@ -61,9 +61,8 @@ daarom 1x centraal, niet los per subapp:
 1. **Verbinding opgezet** (dit is af): vul via Config in het hoofdmenu (versleuteld opgeslagen, `.settings.enc`)
    `EXACT_DB_USER`/`EXACT_DB_PASSWORD` in van een bestaand SQL-account dat database "005"
    mag lezen. Zowel `stauff/inc/config.php` als `slangkaarten/inc/config.php` laden deze
-   root-`.env` automatisch mee (naast hun eigen subapp-`.env` voor overige instellingen) - er is
-   dus maar 1 plek om deze inloggegevens te zetten of te wijzigen. De root-`.htaccess` blokkeert
-   browsertoegang tot dotfiles (dus ook deze `.env`).
+   instellingen automatisch - er is dus maar 1 plek om deze inloggegevens te zetten of te wijzigen.
+   De root-`.htaccess` blokkeert browsertoegang tot dotfiles (dus ook `.settings.enc`/`.settings.key`).
 2. **Tabel/kolom voor groep 67 gevonden** (dit is af): `GRV_SalesItems` (kolommen `ItemCode`,
    `Item Description`, `Item Unit`, `Item Group`) koppelt elk artikel aan zijn groepscode;
    `Item Group = 67` geeft precies de Stauff-beugelartikelen. `GRV_ItemGroups` (`Item Group`,
@@ -96,12 +95,12 @@ hoses/                  Volledige Slangen fitting Selector-app (eigen assets/dat
 adapters/               Volledige Adapters Selector-app (eigen assets/data + eigen
                         images/ met alleen de productfoto's per adapterfamilie)
 stauff/                 Volledige Stauff Selector-app (eigen assets/data/api/etc.) - db-verbinding
-                        naar Exact "005" leest EXACT_DB_* uit de root-.env hierboven
+                        naar Exact "005" leest EXACT_DB_* uit Config
 configurator/           Volledige Slang configurator-app (eigen assets/data/etc.) - bestanden
                         staan er nog, momenteel geen tegel op de startpagina
-slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc. + eigen .env/.htaccess
-                        voor de "Slangkaarten"-database; de Locatie-lookup op de picklijst leest
-                        EXACT_DB_* uit de root-.env hierboven, zie slangkaarten/README.md)
+slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc.; account voor de
+                        "Slangkaarten"-database en voor de Locatie-lookup op de picklijst uit Config,
+                        zie slangkaarten/README.md)
 stickers/               Eigen scherm met 3 tegels (nog niet functioneel - "Binnenkort
                         beschikbaar") - bestanden staan er nog, momenteel geen tegel op de
                         startpagina

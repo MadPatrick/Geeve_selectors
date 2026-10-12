@@ -274,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 $posted = $posted === 'yes' ? 'yes' : 'no';
             }
             // Wachtwoord leeg laten = ongewijzigd laten.
-            if ($settingKey === 'EXACT_DB_PASSWORD' && $posted === '') {
+            if (in_array($settingKey, ['EXACT_DB_PASSWORD', 'DB_PASSWORD'], true) && $posted === '') {
                 continue;
             }
             if ($posted === '') {
@@ -323,7 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
 
     <section class="update-panel">
         <h2>Database-instellingen</h2>
-        <p>Inloggegevens voor de Exact-database (gedeeld door Stauff en Slangkaarten). Ze worden versleuteld opgeslagen, niet als leesbaar bestand. Staan ze nog in <code>.env</code>, dan hebben deze instellingen voorrang. Wachtwoord leeg laten = ongewijzigd.</p>
+        <p>Inloggegevens voor de Exact-database (gedeeld door Stauff, Klant Artikelnummers, Kortingstructuur, MSP report en Slangkaarten) en voor de eigen Slangkaarten-database. Ze worden versleuteld opgeslagen, niet als leesbaar bestand. Een <code>.env</code>-bestand wordt niet meer gelezen en mag worden verwijderd. Wachtwoord leeg laten = ongewijzigd.</p>
 
         <?php if ($settingsMessage !== null): ?>
             <div class="update-message <?= $settingsMessage['ok'] ? 'ok' : 'error' ?>"><?= h($settingsMessage['text']) ?></div>
@@ -336,6 +336,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
             $val = static fn (string $k): string => $storedSettings[$k] ?? '';
             $trustOn = strtolower($val('EXACT_DB_TRUST_SERVER_CERT') ?: 'yes') !== 'no';
             $hasPassword = isset($storedSettings['EXACT_DB_PASSWORD']);
+            $hasSlangPassword = isset($storedSettings['DB_PASSWORD']);
             ?>
             <div class="settings-row">
                 <label class="update-code-field">
@@ -368,6 +369,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
                     <input type="checkbox" name="EXACT_DB_TRUST_SERVER_CERT" value="yes"<?= $trustOn ? ' checked' : '' ?>>
                     <span class="settings-switch-track"></span>
                     <span>Server-certificaat vertrouwen</span>
+                </label>
+            </div>
+            <h3 class="settings-subtitle">Slangkaarten-database</h3>
+            <p class="settings-help">Eigen account voor de database <code>Slangkaarten</code> (slangkaarten, orders en kaartgegevens). Server, poort en certificaat zijn dezelfde als hierboven.</p>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Gebruiker</span>
+                    <input type="text" name="DB_USER" value="<?= h($val('DB_USER')) ?>" size="20" autocomplete="off">
+                </label>
+                <label class="update-code-field">
+                    <span>Wachtwoord</span>
+                    <input type="password" name="DB_PASSWORD" value="" placeholder="<?= $hasSlangPassword ? 'Opgeslagen' : '' ?>" size="20" autocomplete="new-password">
                 </label>
             </div>
             <button type="submit" class="update-submit">Opslaan</button>

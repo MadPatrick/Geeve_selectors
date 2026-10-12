@@ -413,7 +413,7 @@ function findRecentOrders(PDO $pdo, int $limit = 10): array
             return $orders;
         }
     } catch (Throwable $exception) {
-        // Geen Exact-koppeling/.env: terugval hieronder.
+        // Geen Exact-koppeling (Config leeg): terugval hieronder.
     }
 
     return findRecentOrdersLocal($pdo, $limit);
@@ -558,7 +558,7 @@ function findRecentOrdersLocal(PDO $pdo, int $limit): array
  * (zie portal-README, "Database-koppeling Exact") - hier gebruikt om
  * artikelgroep 0 (slangen) te herkennen.
  *
- * Geeft bij een connectiefout (of lege root-.env) een lege array terug -
+ * Geeft bij een connectiefout (of lege Config) een lege array terug -
  * de aanroeper filtert dan niets weg, zodat een ontbrekende
  * Exact-koppeling de rest van de zoekfunctie niet blokkeert.
  *

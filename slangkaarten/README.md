@@ -50,15 +50,14 @@ moet worden. Bij een order met meerdere verschillende slangtypen worden er dus m
 
 ## Configuratie
 
-1. `cp .env.example .env` (in deze map, `slangkaarten/.env`).
-2. Vul `.env` met de SQL Server-gegevens (zie "SQL-toegang" hieronder).
-3. Een eigen `.htaccess` in deze map blokkeert browsertoegang tot `.env` — de portal-root's
-   `.htaccess` regelt alleen IP-restrictie, geen dotfile-bescherming.
+1. Open **Config** in het hoofdmenu en vul bij "Slangkaarten-database" de gebruiker en het wachtwoord in
+   (zie "SQL-toegang" hieronder). Server, poort en certificaat-instelling zijn die van het Exact-deel hierboven.
+2. De gegevens worden versleuteld opgeslagen (`.settings.enc`); `.env`-bestanden worden niet meer gebruikt.
 
 ## SQL-toegang
 
 Heb je al een SQL Server-account (login) dat de database `Slangkaarten` mag lezen? Vul die
-gebruikersnaam en dat wachtwoord dan direct in `.env` in bij `DB_USER`/`DB_PASSWORD` - er hoeft
+gebruikersnaam en dat wachtwoord dan in Config in bij "Slangkaarten-database" - er hoeft
 dan verder niets aangemaakt te worden, mits het account minimaal `SELECT` mag doen op:
 
 - `[dbo].[2500 Slangkaarten bij order]`
@@ -92,9 +91,9 @@ SQL-account nooit.
 **Foutmelding met "self-signed certificate" of "certificate verify failed"?** ODBC Driver 18
 valideert sinds kort standaard het SSL-certificaat van de server, en vrijwel elke on-prem SQL
 Server gebruikt een zelfondertekend certificaat. De app zet daarom standaard
-`TrustServerCertificate=yes` (zie `DB_TRUST_SERVER_CERT` in `.env.example`) - dat is binnen een
+`TrustServerCertificate=yes` (de schakelaar "Server-certificaat vertrouwen" in Config) - dat is binnen een
 intern/vertrouwd netwerk gebruikelijk. Heeft de server een echt (CA-ondertekend) certificaat en
-wil je wel strikt valideren, zet dan `DB_TRUST_SERVER_CERT=no` in `.env`.
+wil je wel strikt valideren, zet die schakelaar dan uit.
 
 ## Database-schema
 
@@ -117,9 +116,8 @@ rijen, geen 1-op-1 locatie-/voorraadtabel), dus wordt de meest recente rij per a
 leeg - géén databasekolom, puur ruimte om met de hand op de uitgeprinte picklijst in te vullen.
 
 Dit is een **losse, optionele** tweede databaseverbinding (`getExactPdoConnection()` in
-`inc/db.php`). De `EXACT_DB_*`-inloggegevens staan niet in de eigen `.env` van deze map, maar
-centraal in de portal-root `.env` (in te vullen via Config in het hoofdmenu) - hetzelfde SQL-account als `/stauff`
-gebruikt voor artikelgroep 67, dus 1x instellen voor beide subapps. Zonder ingevulde root-`.env`
+`inc/db.php`). De `EXACT_DB_*`-inloggegevens staan in Config (apart van het Slangkaarten-account hierboven) - hetzelfde SQL-account als `/stauff`
+gebruikt voor artikelgroep 67, dus 1x instellen voor beide subapps. Zonder ingevulde Config
 (of bij een connectiefout) toont de Locatie-kolom gewoon een streepje - de rest van de
 app/picklijst blijft normaal werken.
 
@@ -167,7 +165,7 @@ zoekterm niet ook koppelingen/andere artikelen laat matchen die toevallig hetzel
 bevatten. `findArtikelItemGroepenBatch()` (`inc/queries.php`) zoekt de artikelgroep op in
 `GRV_SalesItems` (`ItemCode` → `[Item Group]`) - dezelfde tabel die `/stauff` gebruikt voor
 artikelgroep 67 (zie portal-README, "Database-koppeling Exact"), 1 databaseronde voor alle
-gevonden artikelen samen. Is de Exact-koppeling niet beschikbaar (lege root-`.env` of een
+gevonden artikelen samen. Is de Exact-koppeling niet beschikbaar (lege Config of een
 connectiefout), dan wordt er niet gefilterd - de zoekfunctie blijft dan werken zoals vóór deze
 filter, met mogelijk ook niet-slangartikelen in de resultaten.
 
@@ -197,7 +195,7 @@ Exact op in de slangkaart-tabel en deed daar 5 resp. 33 seconden over - gemeten 
 Beperking: een order die vandaag is aangemaakt maar een oude orderdatum heeft (teruggedateerd) valt
 buiten de selectie in stap 1.
 
-Lukt Exact niet (geen `EXACT_DB_*` in de `.env`, connectiefout), dan terugval op de slangkaart-
+Lukt Exact niet (geen `EXACT_DB_*` in Config, connectiefout), dan terugval op de slangkaart-
 tabel zelf: `findRecentOrdersLocal()`, op `MAX(orddat)` - dan zonder kolom "Order aangemaakt". Een
 databasefout laat de lijst alleen weg; de zoekformulieren blijven gewoon werken.
 
@@ -266,9 +264,8 @@ Waarde: DWORD `PrintPreviewDisabled` = `1`.
 ```
 index.php            Formulier + resultaatweergave + printlayout
 assets/style.css      Vormgeving (gedeelde brand-panel/paneel-stijl, zie portal-README)
-inc/config.php         .env-loader + configuratie (appConfig())
+inc/config.php         configuratie (appConfig()), leest Config-instellingen
 inc/db.php              PDO/SQL Server verbinding
 inc/queries.php          Alle SQL-queries
-.env.example              Voorbeeld-configuratie
-.htaccess                 Blokkeert browsertoegang tot .env (portal-root doet dit niet)
+.htaccess                 Blokkeert browsertoegang tot dotfiles
 ```

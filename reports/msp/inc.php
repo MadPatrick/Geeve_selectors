@@ -5,7 +5,7 @@ declare(strict_types=1);
 // Zelfde SQL Server, inloggegevens (via Config) en verbindingsinstellingen als /stauff, maar een andere
 // database: het MSP-rapport draait de stored procedure dbo.SP_MSP in "005_Data_Geeve" (net als de Excel
 // "MSP CLAIM", die daar via Power Query "EXECUTE DBO.SP_MSP" uitleest). Database en procedure zijn te
-// overschrijven met MSP_DB_NAME / MSP_PROCEDURE in .env of Config-omgeving.
+// overschrijven met MSP_DB_NAME / MSP_PROCEDURE als omgevingsvariabele op de server.
 require_once __DIR__ . '/../../stauff/inc/config.php';
 
 const MSP_DEFAULT_DATABASE = '005_Data_Geeve';
