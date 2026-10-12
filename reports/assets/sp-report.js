@@ -24,7 +24,9 @@
     function render() {
         summary.innerHTML =
             '<span class="msp-pill">' + esc(box.getAttribute('data-label')) + ' <strong>' + esc(asked) + '</strong></span>' +
-            (data.kop ? '<span class="msp-pill"><strong>' + esc(data.kop) + '</strong></span>' : '') +
+            (data.kop || []).map(function (k) {
+                return '<span class="msp-pill">' + (k.label ? esc(k.label) + ' ' : '') + '<strong>' + esc(k.value) + '</strong></span>';
+            }).join('') +
             '<span class="msp-pill"><strong>' + nl(data.rows.length) + '</strong> regels</span>';
         var html = '<thead><tr>' + data.columns.map(function (c) { return '<th>' + esc(c.trim()) + '</th>'; }).join('') + '</tr></thead><tbody>';
         data.rows.forEach(function (r) {

@@ -15,22 +15,50 @@ const INKOOP_HIDDEN_COLUMNS = [
     'klartnr', 'landbest', 'totaal_bruto_prijs_inclbtw', 'prijslijst', 'besteld_door', 'del_City', 'totaal_bruto_prijs',
 ];
 
+/** Kolommen die niet in de tabel maar in de kop van de pagina staan: kolom => label. */
+const INKOOP_HEADER_FIELDS = ['orderdatum' => 'Orderdatum', 'fiattering' => 'Fiattering', 'afl_week' => 'Afl. week'];
+
+const INKOOP_RENAME = ['Aant_Back' => 'Backorder', 'aantal_besteld' => 'Besteld', 'aantal_te_leveren' => 'Te leveren'];
+
+/** Unieke, gevulde waarden van een kolom (in volgorde van voorkomen), datums als dd-mm-jjjj. */
+function inkoopDistinct(array $data, string $column): array
+{
+    $at = array_search($column, $data['columns'], true);
+    $out = [];
+    if ($at === false) {
+        return $out;
+    }
+    foreach ($data['rows'] as $row) {
+        $v = trim((string) $row[$at]);
+        if ($v === '') {
+            continue;
+        }
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $v, $m) === 1) {
+            $v = "{$m[3]}-{$m[2]}-{$m[1]}";
+        }
+        $out[$v] = true;
+    }
+    return array_map('strval', array_keys($out));
+}
+
 reportApi(function (string $nummer): array {
     $data = reportCallProcedure('[Exactrapportage].[dbo].[SP_Alle_Orders_met_regelsplus_inkoop]', '@ordernummer', $nummer);
 
-    $kop = null;
-    $at = array_search('debiteurnaam', $data['columns'], true);
-    if ($at !== false) {
-        foreach ($data['rows'] as $row) {
-            if (trim((string) $row[$at]) !== '') {
-                $kop = trim((string) $row[$at]);
-                break;
-            }
+    $kop = [];
+    $names = inkoopDistinct($data, 'debiteurnaam');
+    if ($names !== []) {
+        $kop[] = ['label' => '', 'value' => implode(', ', $names)];
+    }
+    foreach (INKOOP_HEADER_FIELDS as $column => $label) {
+        $values = inkoopDistinct($data, $column);
+        if ($values !== []) {
+            $kop[] = ['label' => $label, 'value' => implode(', ', $values)];
         }
     }
 
-    $data = reportDropColumns($data, array_merge(INKOOP_HIDDEN_COLUMNS, ['debiteurnaam']));
+    $data = reportDropColumns($data, array_merge(INKOOP_HIDDEN_COLUMNS, ['debiteurnaam', 'UwReferentie', 'aantal_te_factureren', 'aantal_gefactureerd', 'pakbon_afg'], array_keys(INKOOP_HEADER_FIELDS)));
     $data = reportMoveFirst($data, ['regel', 'artnr', 'artnm', 'levartnr']);
+    $data['columns'] = array_map(fn ($c) => INKOOP_RENAME[$c] ?? $c, $data['columns']);
     $data['kop'] = $kop;
     return $data;
 });
