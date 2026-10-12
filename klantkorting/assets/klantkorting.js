@@ -119,7 +119,6 @@
         if (!quiet) { tr.querySelector('.kk-group').focus(); }
         return tr;
     }
-    document.getElementById('kkAdd').addEventListener('click', function () { addRow(); });
 
     form.addEventListener('submit', function (e) {
         var problems = [];

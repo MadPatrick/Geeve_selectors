@@ -142,7 +142,6 @@ try {
                     <p class="ka-empty">Meestal één staffel: aantal <code>1</code>, korting <code>25</code>. Meerdere staffels zet je in beide velden achter elkaar, gescheiden door <code>;</code> (aantal <code>1; 10</code>, korting <code>25; 30</code>). De XML bevat alleen gewijzigde en nieuwe regels.</p>
                     <div class="ka-actions">
                         <button type="button" id="kkTemplate" class="ka-button ka-button--secondary">Download Excel</button>
-                        <button type="button" id="kkAdd" class="ka-add" title="Regel toevoegen" aria-label="Regel toevoegen">+</button>
                         <button type="submit" class="ka-button ka-button--secondary">Exporteer XML</button>
                         <strong class="kk-hint">Importen in Exact via XML\Logistieke import\Artikelprijzen</strong>
                     </div>
