@@ -3,13 +3,15 @@
 declare(strict_types=1);
 
 // Zelfde SQL Server, inloggegevens (via Config) en verbindingsinstellingen als /stauff, maar een andere
-// database: het MSP-rapport draait de stored procedure dbo.SP_MSP in "005_Data_Geeve" (net als de Excel
-// "MSP CLAIM", die daar via Power Query "EXECUTE DBO.SP_MSP" uitleest). Database en procedure zijn te
+// database: het MSP-rapport draait een stored procedure in "005_Data_Geeve" (de Excel "MSP CLAIM"
+// leest daar dbo.SP_MSP uit via Power Query; de app gebruikt de variant dbo.SP_MSP_App, zie hieronder). Database en procedure zijn te
 // overschrijven met MSP_DB_NAME / MSP_PROCEDURE als omgevingsvariabele op de server.
 require_once __DIR__ . '/../../stauff/inc/config.php';
 
 const MSP_DEFAULT_DATABASE = '005_Data_Geeve';
-const MSP_DEFAULT_PROCEDURE = 'dbo.SP_MSP';
+// SP_MSP_App is dbo.SP_MSP zonder het wegschrijven van een vaste tabel (zie sql/SP_MSP_App.sql); het app-account
+// heeft geen CREATE TABLE-recht en dbo.SP_MSP faalt daarom.
+const MSP_DEFAULT_PROCEDURE = 'dbo.SP_MSP_App';
 
 /** Kolommen waarvan de waarde als getal wordt teruggegeven (rest blijft tekst). */
 const MSP_NUMERIC_COLUMNS = ['qty', 'FINartgrp', 'Invoice Price'];
