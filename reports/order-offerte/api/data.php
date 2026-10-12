@@ -20,9 +20,7 @@ const ORDER_OFFERTE_COLUMNS = [
     'rgls_aant_gelev' => 'Delivered',
     'rgls_aant_fakt' => 'Invoiced',
     'rgls_statistnr' => 'rgls_statistnr',
-    'rgls_taric' => 'rgls_taric',
     'rgls_landoorspr' => 'Country of Origin',
-    'rgls_IntrastatEnabled' => 'rgls_IntrastatEnabled',
     'rgls_bdr_ev_ed_val' => 'Total Netto VAT',
     'rgls_bdr_vat_val' => 'rgls_bdr_vat_val',
     'rgls_bdr_val' => 'Total Nett',
@@ -30,8 +28,7 @@ const ORDER_OFFERTE_COLUMNS = [
 ];
 
 /**
- * Vult lege velden van de orderregel aan met de artikelkaart (Items in database 005): statistisch nummer, TARIC-code
- * en Intrastat. In Exact staan deze bij jullie vaak alleen op het artikel en niet op de orderregel.
+ * Vult lege velden van de orderregel aan met de artikelkaart (Items in database 005): statistisch nummer. In Exact staan deze bij jullie vaak alleen op het artikel en niet op de orderregel.
  *
  * @param array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>} $data
  * @return array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>}
@@ -39,7 +36,7 @@ const ORDER_OFFERTE_COLUMNS = [
 function fillFromItems(array $data): array
 {
     $col = array_flip($data['columns']);
-    foreach (['Partnumber', 'rgls_statistnr', 'rgls_taric', 'rgls_IntrastatEnabled'] as $need) {
+    foreach (['Partnumber', 'rgls_statistnr'] as $need) {
         if (!isset($col[$need])) {
             return $data;
         }
@@ -59,7 +56,7 @@ function fillFromItems(array $data): array
     $pdo = reportConnection();
     $items = [];
     foreach (array_chunk(array_keys($codes), 500) as $chunk) {
-        $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(StatisticalNumber) AS s, RTRIM(TariffCode) AS t, IntrastatEnabled AS i FROM Items WHERE ItemCode IN (' . implode(',', array_fill(0, count($chunk), '?')) . ')');
+        $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(StatisticalNumber) AS s FROM Items WHERE ItemCode IN (' . implode(',', array_fill(0, count($chunk), '?')) . ')');
         $stmt->execute($chunk);
         foreach ($stmt->fetchAll() as $r) {
             $items[(string) $r['c']] = $r;
@@ -73,12 +70,6 @@ function fillFromItems(array $data): array
         }
         if (trim((string) $row[$col['rgls_statistnr']]) === '' && trim((string) $item['s']) !== '') {
             $row[$col['rgls_statistnr']] = trim((string) $item['s']);
-        }
-        if (trim((string) $row[$col['rgls_taric']]) === '' && trim((string) $item['t']) !== '') {
-            $row[$col['rgls_taric']] = trim((string) $item['t']);
-        }
-        if ($row[$col['rgls_IntrastatEnabled']] === null && $item['i'] !== null) {
-            $row[$col['rgls_IntrastatEnabled']] = is_numeric($item['i']) ? $item['i'] + 0 : $item['i'];
         }
     }
     unset($row);
