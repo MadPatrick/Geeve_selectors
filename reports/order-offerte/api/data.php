@@ -28,7 +28,8 @@ const ORDER_OFFERTE_COLUMNS = [
 ];
 
 /**
- * Vult lege velden van de orderregel aan met de artikelkaart (Items in database 005): statistisch nummer. In Exact staan deze bij jullie vaak alleen op het artikel en niet op de orderregel.
+ * Vult lege velden van de orderregel aan met de artikelgegevens in database 005: statistisch nummer en nettogewicht
+ * (Items) en land van herkomst (ItemAccounts). Bij jullie staan deze vaak alleen op het artikel en niet op de orderregel.
  *
  * @param array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>} $data
  * @return array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>}
@@ -36,7 +37,7 @@ const ORDER_OFFERTE_COLUMNS = [
 function fillFromItems(array $data): array
 {
     $col = array_flip($data['columns']);
-    foreach (['Partnumber', 'rgls_statistnr'] as $need) {
+    foreach (['Partnumber', 'rgls_statistnr', 'rgls_landoorspr', 'Weight'] as $need) {
         if (!isset($col[$need])) {
             return $data;
         }
@@ -54,22 +55,35 @@ function fillFromItems(array $data): array
     }
 
     $pdo = reportConnection();
+    $hasWeight = (int) $pdo->query("SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('Items') AND name = 'NetWeight'")->fetchColumn() > 0;
+    $weightSql = $hasWeight ? 'NetWeight' : 'NULL';
     $items = [];
+    $origin = [];
     foreach (array_chunk(array_keys($codes), 500) as $chunk) {
-        $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(StatisticalNumber) AS s FROM Items WHERE ItemCode IN (' . implode(',', array_fill(0, count($chunk), '?')) . ')');
+        $in = implode(',', array_fill(0, count($chunk), '?'));
+        $stmt = $pdo->prepare("SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(StatisticalNumber) AS s, {$weightSql} AS w FROM Items WHERE ItemCode IN ({$in})");
         $stmt->execute($chunk);
         foreach ($stmt->fetchAll() as $r) {
             $items[(string) $r['c']] = $r;
         }
+        $stmt = $pdo->prepare("SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, MAX(RTRIM(CountryOfOrigin)) AS l FROM ItemAccounts WHERE ItemCode IN ({$in}) AND CountryOfOrigin IS NOT NULL AND RTRIM(CountryOfOrigin) <> '' GROUP BY RTRIM(ItemCode)");
+        $stmt->execute($chunk);
+        foreach ($stmt->fetchAll() as $r) {
+            $origin[(string) $r['c']] = trim((string) $r['l']);
+        }
     }
 
     foreach ($data['rows'] as &$row) {
-        $item = $items[trim((string) $row[$col['Partnumber']])] ?? null;
-        if ($item === null) {
-            continue;
-        }
-        if (trim((string) $row[$col['rgls_statistnr']]) === '' && trim((string) $item['s']) !== '') {
+        $code = trim((string) $row[$col['Partnumber']]);
+        $item = $items[$code] ?? null;
+        if ($item !== null && trim((string) $row[$col['rgls_statistnr']]) === '' && trim((string) $item['s']) !== '') {
             $row[$col['rgls_statistnr']] = trim((string) $item['s']);
+        }
+        if ($item !== null && (float) $row[$col['Weight']] == 0.0 && is_numeric($item['w']) && (float) $item['w'] > 0) {
+            $row[$col['Weight']] = $item['w'] + 0;
+        }
+        if (trim((string) $row[$col['rgls_landoorspr']]) === '' && isset($origin[$code])) {
+            $row[$col['rgls_landoorspr']] = $origin[$code];
         }
     }
     unset($row);
