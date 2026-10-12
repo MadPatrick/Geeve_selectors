@@ -29,4 +29,61 @@ const ORDER_OFFERTE_COLUMNS = [
     'rgls_gewicht_bi' => 'Weight',
 ];
 
-reportApi(fn (string $nummer) => reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer, ORDER_OFFERTE_COLUMNS));
+/**
+ * Vult lege velden van de orderregel aan met de artikelkaart (Items in database 005): statistisch nummer, TARIC-code
+ * en Intrastat. In Exact staan deze bij jullie vaak alleen op het artikel en niet op de orderregel.
+ *
+ * @param array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>} $data
+ * @return array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>}
+ */
+function fillFromItems(array $data): array
+{
+    $col = array_flip($data['columns']);
+    foreach (['Partnumber', 'rgls_statistnr', 'rgls_taric', 'rgls_IntrastatEnabled'] as $need) {
+        if (!isset($col[$need])) {
+            return $data;
+        }
+    }
+
+    $codes = [];
+    foreach ($data['rows'] as $row) {
+        $code = trim((string) $row[$col['Partnumber']]);
+        if ($code !== '') {
+            $codes[$code] = true;
+        }
+    }
+    if ($codes === []) {
+        return $data;
+    }
+
+    $pdo = reportConnection();
+    $items = [];
+    foreach (array_chunk(array_keys($codes), 500) as $chunk) {
+        $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(StatisticalNumber) AS s, RTRIM(TariffCode) AS t, IntrastatEnabled AS i FROM Items WHERE ItemCode IN (' . implode(',', array_fill(0, count($chunk), '?')) . ')');
+        $stmt->execute($chunk);
+        foreach ($stmt->fetchAll() as $r) {
+            $items[(string) $r['c']] = $r;
+        }
+    }
+
+    foreach ($data['rows'] as &$row) {
+        $item = $items[trim((string) $row[$col['Partnumber']])] ?? null;
+        if ($item === null) {
+            continue;
+        }
+        if (trim((string) $row[$col['rgls_statistnr']]) === '' && trim((string) $item['s']) !== '') {
+            $row[$col['rgls_statistnr']] = trim((string) $item['s']);
+        }
+        if (trim((string) $row[$col['rgls_taric']]) === '' && trim((string) $item['t']) !== '') {
+            $row[$col['rgls_taric']] = trim((string) $item['t']);
+        }
+        if ($row[$col['rgls_IntrastatEnabled']] === null && $item['i'] !== null) {
+            $row[$col['rgls_IntrastatEnabled']] = is_numeric($item['i']) ? $item['i'] + 0 : $item['i'];
+        }
+    }
+    unset($row);
+
+    return $data;
+}
+
+reportApi(fn (string $nummer) => fillFromItems(reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer, ORDER_OFFERTE_COLUMNS)));
