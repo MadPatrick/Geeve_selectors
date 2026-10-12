@@ -84,17 +84,34 @@
         var aoa = [data.columns];
         data.rows.forEach(function (r) { aoa.push(r.map(function (v) { return v === null ? '' : v; })); });
         var ws = XLSX.utils.aoa_to_sheet(aoa);
-        // Datumkolommen (ISO-tekst) als echte Excel-datum.
+        var ACCOUNTING = '_-€ * #,##0.00_-;-€ * #,##0.00_-;_-€ * "-"??_-;_-@_-'; // Excel-opmaak "Financieel"
+        var colIndex = {};
+        data.columns.forEach(function (name, i) { colIndex[name] = i; });
+        var formulas = data.formulas || {};
         var range = XLSX.utils.decode_range(ws['!ref']);
         for (var c = range.s.c; c <= range.e.c; c++) {
+            // Kopteksten vet.
+            var head = ws[XLSX.utils.encode_cell({ r: 0, c: c })];
+            if (head) { head.s = { font: { bold: true } }; }
+            var template = formulas[data.columns[c]];
+            if (template) {
+                var missing = false;
+                template.replace(/\{([^}]+)\}/g, function (m, name) { if (!(name in colIndex)) { missing = true; } });
+                if (missing) { template = null; }
+            }
             for (var r = 1; r <= range.e.r; r++) {
                 var addr = XLSX.utils.encode_cell({ r: r, c: c });
                 var cell = ws[addr];
-                if (cell && cell.t === 'n' && isPct(c)) { cell.z = '0.00"%"'; }
-                if (cell && cell.t === 'n' && isEuro(c)) { cell.z = '"€" #,##0.00'; }
-                if (cell && cell.t === 's' && ISO_DATE.test(cell.v)) {
+                if (!cell) { continue; }
+                if (cell.t === 'n' && isPct(c)) { cell.v = cell.v / 100; cell.z = '0.00%'; }
+                if (cell.t === 'n' && isEuro(c)) { cell.z = ACCOUNTING; }
+                if (cell.t === 's' && ISO_DATE.test(cell.v)) {
                     var p = cell.v.split('-');
                     ws[addr] = { t: 'n', v: Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000) + 25569, z: 'dd-mm-yyyy' };
+                }
+                if (template && cell.t === 'n') {
+                    // Formule op dezelfde rij; de opgehaalde waarde blijft als berekende waarde staan.
+                    cell.f = template.replace(/\{([^}]+)\}/g, function (m, name) { return XLSX.utils.encode_col(colIndex[name]) + (r + 1); });
                 }
             }
         }

@@ -68,7 +68,7 @@ $csrf = csrfToken();
 
     <p class="page-footer">Geeve Hydraulics</p>
 </main>
-<script src="../../klantartikel/assets/vendor/xlsx.core.min.js"></script>
+<script src="../assets/vendor/xlsx-style.min.js"></script>
 <script src="../assets/sp-report.js?v=<?= h(assetVersion('../assets/sp-report.js')) ?>"></script>
 </body>
 </html>

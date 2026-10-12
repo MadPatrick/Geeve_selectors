@@ -75,6 +75,8 @@ reportApi(function (string $nummer): array {
     $data = reportMoveFirst($data, ['regel', 'artnr', 'artnm', 'levartnr', 'valuta', 'bruto_prijs', 'korting', 'netto_prijs']);
     $data['currency'] = ['bruto_prijs', 'netto_prijs', 'Totaal netto']; // bedragen met euroteken
     $data['percent'] = ['korting'];
+    // Excel-formules (per rij): {Kolomnaam} wordt de cel van die kolom; percentagekolommen staan in Excel als breuk.
+    $data['formulas'] = ['netto_prijs' => '{bruto_prijs}*(1-{korting})', 'Totaal netto' => '{netto_prijs}*{Besteld}'];
     $data['nowrap'] = ['artnr']; // artikelnummer op één regel
     $data['columns'] = array_map(fn ($c) => INKOOP_RENAME[$c] ?? $c, $data['columns']);
     $data['kop'] = $kop;

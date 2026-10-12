@@ -19,7 +19,7 @@ const ORDER_OFFERTE_COLUMNS = [
     'rgls_prijs_n' => 'Price nett',
     'rgls_aant_gelev' => 'Delivered',
     'rgls_aant_fakt' => 'Invoiced',
-    'rgls_statistnr' => 'rgls_statistnr',
+    'rgls_statistnr' => 'HS code',
     'rgls_landoorspr' => 'Country of Origin',
     'rgls_bdr_ev_ed_val' => 'Total Nett',
     'rgls_bdr_vat_val' => 'VAT',
@@ -37,7 +37,7 @@ const ORDER_OFFERTE_COLUMNS = [
 function fillFromItems(array $data): array
 {
     $col = array_flip($data['columns']);
-    foreach (['Partnumber', 'rgls_statistnr', 'Country of Origin', 'Weight'] as $need) {
+    foreach (['Partnumber', 'HS code', 'Country of Origin', 'Weight'] as $need) {
         if (!isset($col[$need])) {
             return $data;
         }
@@ -70,8 +70,8 @@ function fillFromItems(array $data): array
     foreach ($data['rows'] as &$row) {
         $code = trim((string) $row[$col['Partnumber']]);
         $item = $items[$code] ?? null;
-        if ($item !== null && trim((string) $row[$col['rgls_statistnr']]) === '' && trim((string) $item['s']) !== '') {
-            $row[$col['rgls_statistnr']] = trim((string) $item['s']);
+        if ($item !== null && trim((string) $row[$col['HS code']]) === '' && trim((string) $item['s']) !== '') {
+            $row[$col['HS code']] = trim((string) $item['s']);
         }
         if ($item !== null && (float) $row[$col['Weight']] == 0.0 && is_numeric($item['w']) && (float) $item['w'] > 0) {
             $row[$col['Weight']] = $item['w'] + 0;
@@ -88,5 +88,12 @@ function fillFromItems(array $data): array
 reportApi(function (string $nummer): array {
     $data = fillFromItems(reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer, ORDER_OFFERTE_COLUMNS));
     $data['currency'] = ['Price', 'Price nett', 'Total Nett', 'Total incl. VAT']; // bedragen in euro tonen
+    $data['percent'] = ['Discount'];
+    // Excel-formules (per rij): {Kolomnaam} wordt de cel van die kolom; percentagekolommen staan in Excel als breuk.
+    $data['formulas'] = [
+        'Price nett' => '{Price}*(1-{Discount})',
+        'Total Nett' => '{Price nett}*{Amount}',
+        'Total incl. VAT' => '{Total Nett}*(1+{VAT}/100)',
+    ];
     return $data;
 });
