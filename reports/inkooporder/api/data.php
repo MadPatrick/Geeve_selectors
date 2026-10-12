@@ -18,7 +18,7 @@ const INKOOP_HIDDEN_COLUMNS = [
 /** Kolommen die niet in de tabel maar in de kop van de pagina staan: kolom => label. */
 const INKOOP_HEADER_FIELDS = ['orderdatum' => 'Orderdatum', 'fiattering' => 'Fiattering'];
 
-const INKOOP_RENAME = ['Aant_Back' => 'Backorder', 'aantal_besteld' => 'Besteld', 'aantal_te_leveren' => 'Te leveren'];
+const INKOOP_RENAME = ['totaal_netto_prijs' => 'Totaal netto', 'Aant_Back' => 'Backorder', 'aantal_besteld' => 'Besteld', 'aantal_te_leveren' => 'Te leveren'];
 
 /** Unieke, gevulde waarden van een kolom (in volgorde van voorkomen), datums als dd-mm-jjjj. */
 function inkoopDistinct(array $data, string $column): array
@@ -69,11 +69,11 @@ reportApi(function (string $nummer): array {
 
     $data = reportDropColumns($data, array_merge(
         INKOOP_HIDDEN_COLUMNS,
-        ['debiteurnaam', 'UwReferentie', 'aantal_te_factureren', 'aantal_gefactureerd', 'pakbon_afg', 'afl_week', 'Totaalorderbedrag', 'Totaalorderbedrag_incl btw'],
+        ['debiteurnaam', 'UwReferentie', 'aantal_te_factureren', 'aantal_gefactureerd', 'pakbon_afg', 'afl_week', 'Totaalorderbedrag', 'Totaalorderbedrag_incl btw', 'totaal_netto_prijs_inclbtw', 'btw_code', 'inkoopprijs'],
         array_keys(INKOOP_HEADER_FIELDS)
     ));
     $data = reportMoveFirst($data, ['regel', 'artnr', 'artnm', 'levartnr', 'valuta', 'bruto_prijs', 'korting', 'netto_prijs']);
-    $data['currency'] = ['bruto_prijs', 'netto_prijs']; // bedragen met euroteken
+    $data['currency'] = ['bruto_prijs', 'netto_prijs', 'Totaal netto']; // bedragen met euroteken
     $data['percent'] = ['korting'];
     $data['columns'] = array_map(fn ($c) => INKOOP_RENAME[$c] ?? $c, $data['columns']);
     $data['kop'] = $kop;
