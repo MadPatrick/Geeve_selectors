@@ -35,7 +35,11 @@ function mspConnection(): PDO
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
     } catch (PDOException $e) {
-        throw new RuntimeException('Kan geen verbinding maken met database ' . $name . ': ' . $e->getMessage(), 0, $e);
+        $hint = stripos($e->getMessage(), 'Cannot open database') !== false
+            ? ' | Het SQL-account uit Config (' . $db['user'] . ') heeft geen toegang tot deze database. Laat een beheerder in database ' . $name .
+              ' een gebruiker voor dat account aanmaken en EXECUTE op ' . env('MSP_PROCEDURE', MSP_DEFAULT_PROCEDURE) . ' geven, of controleer of de databasenaam klopt.'
+            : '';
+        throw new RuntimeException('Kan geen verbinding maken met database ' . $name . ': ' . $e->getMessage() . $hint, 0, $e);
     }
 }
 
