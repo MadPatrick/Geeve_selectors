@@ -10,6 +10,7 @@ Startpagina met tegels naar de Geeve-selectors:
   Met Excel-sjabloon (download) en Excel-import (slepen of kiezen; SheetJS lokaal in `klantartikel/assets/vendor`) en XML-export (DEBTORS.xml) in het Exact-importformaat (eExact, zoals de Excel-template "Geeve Import debiteuren").
 - **`/klantkorting`** — Kortingstructuur: per prijslijst de klanten en hun kortingstructuur bekijken/aanpassen (basis = `/klantartikel`).
   Eerste versie toont klanten en een verkenning van de korting-/prijslijsttabellen in Exact; de eigenlijke structuur volgt.
+- **`/reports`** — Reports: overzichtsscherm (zelfde tegel-layout als het hoofdscherm) met rapporten als tegel; nu `reports/msp` ("MSP report", inhoud volgt).
 - **`/stauff`** — Stauff Selector / beugelconfigurator, zelfde brand-panel/paneel-stijl als `/hoses`
   en `/adapters`. Heeft ook een databaseverbinding naar de Exact-database "005" (artikelgroep 67),
   zie "Database-koppeling Exact (database 005)" hieronder. Tegel op de startpagina is weer actief
