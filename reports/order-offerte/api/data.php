@@ -21,9 +21,9 @@ const ORDER_OFFERTE_COLUMNS = [
     'rgls_aant_fakt' => 'Invoiced',
     'rgls_statistnr' => 'rgls_statistnr',
     'rgls_landoorspr' => 'Country of Origin',
-    'rgls_bdr_ev_ed_val' => 'Total Netto VAT',
+    'rgls_bdr_ev_ed_val' => 'Total Nett',
     'rgls_bdr_vat_val' => 'rgls_bdr_vat_val',
-    'rgls_bdr_val' => 'Total Nett',
+    'rgls_bdr_val' => 'Total incl. VAT',
     'rgls_gewicht_bi' => 'Weight',
 ];
 
@@ -37,7 +37,7 @@ const ORDER_OFFERTE_COLUMNS = [
 function fillFromItems(array $data): array
 {
     $col = array_flip($data['columns']);
-    foreach (['Partnumber', 'rgls_statistnr', 'rgls_landoorspr', 'Weight'] as $need) {
+    foreach (['Partnumber', 'rgls_statistnr', 'Country of Origin', 'Weight'] as $need) {
         if (!isset($col[$need])) {
             return $data;
         }
@@ -82,8 +82,8 @@ function fillFromItems(array $data): array
         if ($item !== null && (float) $row[$col['Weight']] == 0.0 && is_numeric($item['w']) && (float) $item['w'] > 0) {
             $row[$col['Weight']] = $item['w'] + 0;
         }
-        if (trim((string) $row[$col['rgls_landoorspr']]) === '' && isset($origin[$code])) {
-            $row[$col['rgls_landoorspr']] = $origin[$code];
+        if (trim((string) $row[$col['Country of Origin']]) === '' && isset($origin[$code])) {
+            $row[$col['Country of Origin']] = $origin[$code];
         }
     }
     unset($row);
@@ -91,4 +91,8 @@ function fillFromItems(array $data): array
     return $data;
 }
 
-reportApi(fn (string $nummer) => fillFromItems(reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer, ORDER_OFFERTE_COLUMNS)));
+reportApi(function (string $nummer): array {
+    $data = fillFromItems(reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer, ORDER_OFFERTE_COLUMNS));
+    $data['currency'] = ['Price', 'Price nett', 'Total Nett', 'Total incl. VAT']; // bedragen in euro tonen
+    return $data;
+});

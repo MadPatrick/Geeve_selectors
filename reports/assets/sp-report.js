@@ -16,6 +16,8 @@
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
     function nl(n) { return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 4 }); }
+    function isEuro(i) { return (data.currency || []).indexOf(data.columns[i]) !== -1; }
+    function euro(n) { return '€ ' + Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
     function dmy(iso) { return iso.split('-').reverse().join('-'); }
     function fail(text) { message.textContent = text; message.hidden = false; }
 
@@ -27,6 +29,7 @@
         data.rows.forEach(function (r) {
             html += '<tr>' + r.map(function (v, i) {
                 if (v === null) { return '<td></td>'; }
+                if (isEuro(i) && typeof v === 'number') { return '<td class="num">' + euro(v) + '</td>'; }
                 if (data.numeric[i] && typeof v === 'number') { return '<td class="num">' + nl(v) + '</td>'; }
                 if (typeof v === 'string' && ISO_DATE.test(v)) { return '<td>' + dmy(v) + '</td>'; }
                 return '<td>' + esc(v) + '</td>';
@@ -80,6 +83,7 @@
             for (var r = 1; r <= range.e.r; r++) {
                 var addr = XLSX.utils.encode_cell({ r: r, c: c });
                 var cell = ws[addr];
+                if (cell && cell.t === 'n' && isEuro(c)) { cell.z = '"€" #,##0.00'; }
                 if (cell && cell.t === 's' && ISO_DATE.test(cell.v)) {
                     var p = cell.v.split('-');
                     ws[addr] = { t: 'n', v: Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000) + 25569, z: 'dd-mm-yyyy' };
