@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../inc.php';
 
+/** Debiteurnummer waarop het land van herkomst per artikel is vastgelegd. */
+const ORIGIN_DEBTOR = '35';
+
 const ORDER_OFFERTE_COLUMNS = [
     'rgls_regel' => 'Line',
     'rgls_esr_aantal' => 'Amount',
@@ -29,7 +32,7 @@ const ORDER_OFFERTE_COLUMNS = [
 
 /**
  * Vult lege velden van de orderregel aan met de artikelgegevens in database 005: statistisch nummer en nettogewicht
- * (Items) en land van herkomst (ItemAccounts). Bij jullie staan deze vaak alleen op het artikel en niet op de orderregel.
+ * (Items) en land van herkomst (ItemAccounts van debiteur 35). Bij jullie staan deze vaak alleen op het artikel en niet op de orderregel.
  *
  * @param array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>} $data
  * @return array{columns: list<string>, numeric: list<bool>, rows: list<list<string|int|float|null>>}
@@ -66,7 +69,8 @@ function fillFromItems(array $data): array
         foreach ($stmt->fetchAll() as $r) {
             $items[(string) $r['c']] = $r;
         }
-        $stmt = $pdo->prepare("SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, MAX(RTRIM(CountryOfOrigin)) AS l FROM ItemAccounts WHERE ItemCode IN ({$in}) AND CountryOfOrigin IS NOT NULL AND RTRIM(CountryOfOrigin) <> '' GROUP BY RTRIM(ItemCode)");
+        // Land van herkomst staat op de artikelregel van debiteur 35 ("Debiteur-slangkaart") in Exact.
+        $stmt = $pdo->prepare("SET NOCOUNT ON; SELECT RTRIM(ia.ItemCode) AS c, MAX(RTRIM(ia.CountryOfOrigin)) AS l FROM ItemAccounts ia INNER JOIN cicmpy cm ON cm.cmp_wwn = ia.AccountCode WHERE ia.ItemCode IN ({$in}) AND LTRIM(RTRIM(cm.debcode)) = '" . ORIGIN_DEBTOR . "' AND ia.CountryOfOrigin IS NOT NULL AND RTRIM(ia.CountryOfOrigin) <> '' GROUP BY RTRIM(ia.ItemCode)");
         $stmt->execute($chunk);
         foreach ($stmt->fetchAll() as $r) {
             $origin[(string) $r['c']] = trim((string) $r['l']);
@@ -82,7 +86,7 @@ function fillFromItems(array $data): array
         if ($item !== null && (float) $row[$col['Weight']] == 0.0 && is_numeric($item['w']) && (float) $item['w'] > 0) {
             $row[$col['Weight']] = $item['w'] + 0;
         }
-        if (trim((string) $row[$col['Country of Origin']]) === '' && isset($origin[$code])) {
+        if (isset($origin[$code])) {
             $row[$col['Country of Origin']] = $origin[$code];
         }
     }
