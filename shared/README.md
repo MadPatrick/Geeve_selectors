@@ -251,9 +251,9 @@ bestanden.
 ## Versienummer
 
 Alle apps tonen hetzelfde versienummer uit `version.php` (root), al geladen via de
-`APP_VERSION`-constante in stap 2 hierboven. Een versie-ophoging na een wijziging in een subapp
-betekent dus: pas `return '...'` in `version.php` (root) aan - niet een eigen, losse constante per
-app.
+`APP_VERSION`-constante in stap 2 hierboven. Een versie-ophoging betekent: pas `return '...'` in `version.php` (root)
+aan - niet een eigen, losse constante per app. Doe dat alleen als de gebruiker erom vraagt; het
+versienummer wordt niet bij elke wijziging opgehoogd.
 
 ## Checklist
 

@@ -18,9 +18,9 @@ het oppervlakkig op wat een andere app heeft.
 ## Versienummer (alle apps)
 
 Eén gedeeld versienummer in `version.php` (root) voor het hoofdscherm en alle subapps - zie
-`shared/README.md`, "Versienummer". Hoog dit **maximaal ~1x per feature/fix-commit** op (niet bij
-elke losse kleine wijziging binnen dezelfde taak), tenzij de gebruiker expliciet om een andere
-frequentie vraagt.
+`shared/README.md`, "Versienummer". **Hoog het versienummer nooit uit jezelf op**: alleen als de
+gebruiker daar expliciet om vraagt (de gebruiker geeft zelf aan wanneer). Wijzig `version.php` dus
+niet bij een gewone feature/fix-commit.
 
 ## Git
 
