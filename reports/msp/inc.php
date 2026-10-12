@@ -2,16 +2,10 @@
 
 declare(strict_types=1);
 
-// Zelfde SQL Server, inloggegevens (via Config) en verbindingsinstellingen als /stauff, maar een andere
-// database: het MSP-rapport draait een stored procedure in "005_Data_Geeve" (de Excel "MSP CLAIM"
-// leest daar dbo.SP_MSP uit via Power Query; de app gebruikt de variant dbo.SP_MSP_App, zie hieronder). Database en procedure zijn te
-// overschrijven met MSP_DB_NAME / MSP_PROCEDURE als omgevingsvariabele op de server.
+// Zelfde SQL Server, database "005" en inloggegevens (via Config) als /stauff. De berekening is die van de
+// stored procedure dbo.SP_MSP (de Excel "MSP CLAIM"), maar dan als één lees-query (sql/msp_query.sql) die in
+// "005" draait en niets in de database aanmaakt of wegschrijft: het app-account heeft dus alleen leesrechten nodig.
 require_once __DIR__ . '/../../stauff/inc/config.php';
-
-const MSP_DEFAULT_DATABASE = '005_Data_Geeve';
-// SP_MSP_App is dbo.SP_MSP zonder het wegschrijven van een vaste tabel (zie sql/SP_MSP_App.sql); het app-account
-// heeft geen CREATE TABLE-recht en dbo.SP_MSP faalt daarom.
-const MSP_DEFAULT_PROCEDURE = 'dbo.SP_MSP_App';
 
 /** Kolommen waarvan de waarde als getal wordt teruggegeven (rest blijft tekst). */
 const MSP_NUMERIC_COLUMNS = ['qty', 'FINartgrp', 'Invoice Price'];
@@ -27,9 +21,8 @@ function mspConnection(): PDO
         throw new RuntimeException('Database-inloggegevens ontbreken: vul ze in via Config in het hoofdmenu.');
     }
 
-    $name = env('MSP_DB_NAME', MSP_DEFAULT_DATABASE);
     $server = $db['host'] . ($db['port'] !== null ? ',' . $db['port'] : '');
-    $dsn = "sqlsrv:Server={$server};Database={$name};Encrypt=yes;TrustServerCertificate={$db['trustServerCertificate']};LoginTimeout=15";
+    $dsn = "sqlsrv:Server={$server};Database={$db['name']};Encrypt=yes;TrustServerCertificate={$db['trustServerCertificate']};LoginTimeout=15";
 
     try {
         return new PDO($dsn, $db['user'], $db['password'], [
@@ -37,37 +30,24 @@ function mspConnection(): PDO
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
     } catch (PDOException $e) {
-        $hint = stripos($e->getMessage(), 'Cannot open database') !== false
-            ? ' | Het SQL-account uit Config (' . $db['user'] . ') heeft geen toegang tot deze database. Laat een beheerder in database ' . $name .
-              ' een gebruiker voor dat account aanmaken en EXECUTE op ' . env('MSP_PROCEDURE', MSP_DEFAULT_PROCEDURE) . ' geven, of controleer of de databasenaam klopt.'
-            : '';
-        throw new RuntimeException('Kan geen verbinding maken met database ' . $name . ': ' . $e->getMessage() . $hint, 0, $e);
+        throw new RuntimeException('Kan geen verbinding maken met database ' . $db['name'] . ': ' . $e->getMessage(), 0, $e);
     }
 }
 
 /**
- * Voert de MSP-procedure uit en geeft kolomnamen en rijen terug.
+ * Voert de MSP-query uit en geeft kolomnamen en rijen terug.
  *
  * @return array{columns: list<string>, rows: list<list<string|int|float|null>>}
  */
 function mspFetch(): array
 {
-    $procedure = env('MSP_PROCEDURE', MSP_DEFAULT_PROCEDURE);
-    if (preg_match('/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)?$/', (string) $procedure) !== 1) {
-        throw new RuntimeException('Ongeldige procedurenaam.');
+    $sql = @file_get_contents(__DIR__ . '/sql/msp_query.sql');
+    if ($sql === false || trim($sql) === '') {
+        throw new RuntimeException('De MSP-query (sql/msp_query.sql) kon niet worden gelezen.');
     }
 
     $pdo = mspConnection();
-    $stmt = $pdo->query('SET NOCOUNT ON; EXECUTE ' . $procedure);
-
-    // De procedure kan eerst resultaatloze statements geven; neem de eerste set mét kolommen.
-    $guard = 0;
-    while ($stmt->columnCount() === 0 && $stmt->nextRowset() && ++$guard < 10) {
-        // volgende set
-    }
-    if ($stmt->columnCount() === 0) {
-        throw new RuntimeException('De procedure gaf geen resultaat terug.');
-    }
+    $stmt = $pdo->query("SET NOCOUNT ON;\n" . $sql);
 
     $columns = [];
     for ($i = 0; $i < $stmt->columnCount(); $i++) {

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Haalt de MSP-gegevens op (stored procedure dbo.SP_MSP in 005_Data_Geeve).
+ * Haalt de MSP-gegevens op met een lees-query in database 005 (zelfde berekening als dbo.SP_MSP; zie ../sql/msp_query.sql).
  * POST met csrf-sleutel; antwoord: {"ok":true,"columns":[...],"rows":[[...]]} of {"ok":false,"error":"..."}.
  */
 
