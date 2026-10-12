@@ -17,6 +17,8 @@
     }
     function nl(n) { return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 4 }); }
     function isEuro(i) { return (data.currency || []).indexOf(data.columns[i]) !== -1; }
+    function isPct(i) { return (data.percent || []).indexOf(data.columns[i]) !== -1; }
+    function pct(n) { return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %'; }
     function euro(n) { return '€ ' + Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
     function dmy(iso) { return iso.split('-').reverse().join('-'); }
     function fail(text) { message.textContent = text; message.hidden = false; }
@@ -25,13 +27,14 @@
         summary.innerHTML =
             '<span class="msp-pill">' + esc(box.getAttribute('data-label')) + ' <strong>' + esc(asked) + '</strong></span>' +
             (data.kop || []).map(function (k) {
-                return '<span class="msp-pill">' + (k.label ? esc(k.label) + ' ' : '') + '<strong>' + esc(k.value) + '</strong></span>';
+                return '<span class="msp-pill">' + (k.label ? esc(k.label) + ' ' : '') + '<strong>' + esc(k.type === 'euro' ? euro(k.value) : k.value) + '</strong></span>';
             }).join('') +
             '<span class="msp-pill"><strong>' + nl(data.rows.length) + '</strong> regels</span>';
         var html = '<thead><tr>' + data.columns.map(function (c) { return '<th>' + esc(c.trim()) + '</th>'; }).join('') + '</tr></thead><tbody>';
         data.rows.forEach(function (r) {
             html += '<tr>' + r.map(function (v, i) {
                 if (v === null) { return '<td></td>'; }
+                if (isPct(i) && typeof v === 'number') { return '<td class="num">' + pct(v) + '</td>'; }
                 if (isEuro(i) && typeof v === 'number') { return '<td class="num">' + euro(v) + '</td>'; }
                 if (data.numeric[i] && typeof v === 'number') { return '<td class="num">' + nl(v) + '</td>'; }
                 if (typeof v === 'string' && ISO_DATE.test(v)) { return '<td>' + dmy(v) + '</td>'; }
@@ -86,6 +89,7 @@
             for (var r = 1; r <= range.e.r; r++) {
                 var addr = XLSX.utils.encode_cell({ r: r, c: c });
                 var cell = ws[addr];
+                if (cell && cell.t === 'n' && isPct(c)) { cell.z = '0.00"%"'; }
                 if (cell && cell.t === 'n' && isEuro(c)) { cell.z = '"€" #,##0.00'; }
                 if (cell && cell.t === 's' && ISO_DATE.test(cell.v)) {
                     var p = cell.v.split('-');

@@ -16,7 +16,7 @@ const INKOOP_HIDDEN_COLUMNS = [
 ];
 
 /** Kolommen die niet in de tabel maar in de kop van de pagina staan: kolom => label. */
-const INKOOP_HEADER_FIELDS = ['orderdatum' => 'Orderdatum', 'fiattering' => 'Fiattering', 'afl_week' => 'Afl. week'];
+const INKOOP_HEADER_FIELDS = ['orderdatum' => 'Orderdatum', 'fiattering' => 'Fiattering'];
 
 const INKOOP_RENAME = ['Aant_Back' => 'Backorder', 'aantal_besteld' => 'Besteld', 'aantal_te_leveren' => 'Te leveren'];
 
@@ -56,8 +56,25 @@ reportApi(function (string $nummer): array {
         }
     }
 
-    $data = reportDropColumns($data, array_merge(INKOOP_HIDDEN_COLUMNS, ['debiteurnaam', 'UwReferentie', 'aantal_te_factureren', 'aantal_gefactureerd', 'pakbon_afg'], array_keys(INKOOP_HEADER_FIELDS)));
-    $data = reportMoveFirst($data, ['regel', 'artnr', 'artnm', 'levartnr']);
+    // Totaalorderbedrag staat als bedrag in euro in de kop (waarde van de eerste gevulde regel).
+    $at = array_search('Totaalorderbedrag', $data['columns'], true);
+    if ($at !== false) {
+        foreach ($data['rows'] as $row) {
+            if (is_numeric($row[$at])) {
+                $kop[] = ['label' => 'Totaalorderbedrag', 'value' => $row[$at] + 0, 'type' => 'euro'];
+                break;
+            }
+        }
+    }
+
+    $data = reportDropColumns($data, array_merge(
+        INKOOP_HIDDEN_COLUMNS,
+        ['debiteurnaam', 'UwReferentie', 'aantal_te_factureren', 'aantal_gefactureerd', 'pakbon_afg', 'afl_week', 'Totaalorderbedrag', 'Totaalorderbedrag_incl btw'],
+        array_keys(INKOOP_HEADER_FIELDS)
+    ));
+    $data = reportMoveFirst($data, ['regel', 'artnr', 'artnm', 'levartnr', 'valuta', 'bruto_prijs', 'korting', 'netto_prijs']);
+    $data['currency'] = ['bruto_prijs', 'netto_prijs']; // bedragen met euroteken
+    $data['percent'] = ['korting'];
     $data['columns'] = array_map(fn ($c) => INKOOP_RENAME[$c] ?? $c, $data['columns']);
     $data['kop'] = $kop;
     return $data;
