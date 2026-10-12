@@ -52,7 +52,6 @@ function assetVersion(string $relativePath): string
     require __DIR__ . '/shared/header.php';
     ?>
 
-    <p class="intro">Kies een selector om het juiste artikel te vinden op basis van maat, draadsoort en aansluiteigenschappen.</p>
 
     <div class="tile-grid">
         <a class="tile" href="hoses/index.php">
