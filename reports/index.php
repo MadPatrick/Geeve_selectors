@@ -38,7 +38,6 @@ function assetVersion(string $relativePath): string
     require __DIR__ . '/../shared/header.php';
     ?>
 
-    <p class="intro">Kies een rapport.</p>
 
     <div class="tile-grid">
         <a class="tile" href="msp/index.php">
