@@ -34,6 +34,7 @@
         data.rows.forEach(function (r) {
             html += '<tr>' + r.map(function (v, i) {
                 if (v === null) { return '<td></td>'; }
+                if ((data.nowrap || []).indexOf(data.columns[i]) !== -1) { return '<td class="nowrap">' + esc(v) + '</td>'; }
                 if (isPct(i) && typeof v === 'number') { return '<td class="num">' + pct(v) + '</td>'; }
                 if (isEuro(i) && typeof v === 'number') { return '<td class="num">' + euro(v) + '</td>'; }
                 if (data.numeric[i] && typeof v === 'number') { return '<td class="num">' + nl(v) + '</td>'; }
