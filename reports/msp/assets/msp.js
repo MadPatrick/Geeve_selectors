@@ -89,20 +89,29 @@
             aoa.push(r.map(function (v, i) {
                 if (v === null) { return ''; }
                 if (cols[i] === 'fakdat' && typeof v === 'string' && ISO_DATE.test(v)) {
+                    // Excel-serienummer (hele dag, geen tijdsdeel): dagen sinds 30-12-1899.
                     var p = v.split('-');
-                    return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
+                    return { __serial: Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000) + 25569 };
                 }
                 return v;
             }));
         });
-        var ws = XLSX.utils.aoa_to_sheet(aoa, { cellDates: true });
+        var serials = [];
+        aoa.forEach(function (row, r) {
+            row.forEach(function (v, c) {
+                if (v && typeof v === 'object' && '__serial' in v) { serials.push([r, c, v.__serial]); row[c] = ''; }
+            });
+        });
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+        serials.forEach(function (x) {
+            ws[XLSX.utils.encode_cell({ r: x[0], c: x[1] })] = { t: 'n', v: x[2], z: 'dd-mm-yyyy' };
+        });
         // Opmaak zoals in het bronbestand: datum als datum, prijs met 2 decimalen, tekst als tekst.
         var range = XLSX.utils.decode_range(ws['!ref']);
         for (var c = range.s.c; c <= range.e.c; c++) {
             for (var r = 1; r <= range.e.r; r++) {
                 var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })];
                 if (!cell) { continue; }
-                if (cols[c] === 'fakdat' && cell.t === 'd') { cell.z = 'dd-mm-yyyy'; }
                 if (cols[c] === 'Invoice Price' && cell.t === 'n') { cell.z = '0.00'; }
             }
         }
