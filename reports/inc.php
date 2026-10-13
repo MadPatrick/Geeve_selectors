@@ -55,7 +55,8 @@ function reportOrderNumber(mixed $value): string
 function reportCallProcedure(string $procedure, string $param, string $value, ?array $map = null): array
 {
     $pdo = reportConnection();
-    $stmt = $pdo->prepare("SET NOCOUNT ON;\nEXEC {$procedure} {$param} = ?;");
+    // Lege $param: de waarde positioneel doorgeven (zoals Excel/Power Query), zonder de parameternaam te kennen.
+    $stmt = $pdo->prepare($param === '' ? "SET NOCOUNT ON;\nEXEC {$procedure} ?;" : "SET NOCOUNT ON;\nEXEC {$procedure} {$param} = ?;");
     $stmt->execute([$value]);
 
     // Eerste resultaatset met kolommen (eventuele "rows affected"-sets overslaan).
