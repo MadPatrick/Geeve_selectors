@@ -238,54 +238,58 @@
         XLSX.writeFile(wb, box.getAttribute('data-file') + '_' + asked + (measure ? '_' + measure : '') + '.xlsx');
     });
 
-    // Details: klik op een getal in de regel van een medewerker -> de orders (of pakbonnen) erachter.
-    var detailBox = document.getElementById('rpDetail');
-    if (detailBox) {
-        var detailTitle = document.getElementById('rpDetailTitle');
-        var detailTable = document.getElementById('rpDetailTable');
-        var detailMsg = document.getElementById('rpDetailMessage');
-        document.getElementById('rpDetailClose').addEventListener('click', function () { detailBox.hidden = true; });
-        table.addEventListener('click', function (e) {
-            var td = e.target.closest ? e.target.closest('td.rp-click') : null;
-            if (!td || !data || !data.colRanges) { return; }
-            var tr = td.parentNode;
-            var range = data.colRanges[+td.getAttribute('data-col')];
-            if (!range) { return; }
-            detailBox.hidden = false;
-            detailMsg.hidden = true;
-            detailTitle.textContent = 'Bezig met ophalen…';
-            detailTable.innerHTML = '';
-            var body = new URLSearchParams();
-            body.set('csrf', box.getAttribute('data-csrf'));
-            body.set('modus', modeInput ? modeInput.value : '');
-            body.set('detail', tr.getAttribute('data-emp'));
-            body.set('dvan', range[0]);
-            body.set('dtot', range[1]);
-            fetch(box.getAttribute('data-endpoint'), { method: 'POST', body: body })
-                .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
-                .then(function (json) {
-                    if (!json.ok || !json.detail) { throw new Error(json.error || 'Ophalen mislukt.'); }
-                    var d = json.detail;
-                    detailTitle.textContent = d.title + ' (' + nl(d.rows.length) + (d.truncated ? '+' : '') + ')';
-                    var h = '<thead><tr>' + d.columns.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
-                    d.rows.forEach(function (row) {
-                        h += '<tr>' + row.map(function (v, i) {
-                            if (v === null || v === '') { return '<td></td>'; }
-                            if (d.columns[i] === 'Datum' && ISO_DATE.test(v)) { return '<td>' + dmy(v) + '</td>'; }
-                            if (typeof v === 'number') { return '<td class="num">' + nl(v) + '</td>'; }
-                            return '<td>' + esc(v) + '</td>';
-                        }).join('') + '</tr>';
-                    });
-                    detailTable.innerHTML = h + '</tbody>';
-                    if (d.truncated) { detailMsg.textContent = 'Alleen de eerste 500 worden getoond.'; detailMsg.className = 'ka-message'; detailMsg.hidden = false; }
-                    detailBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                })
-                .catch(function (err) {
-                    detailTitle.textContent = 'Details';
-                    detailMsg.textContent = err.message;
-                    detailMsg.className = 'ka-message ka-message--error';
-                    detailMsg.hidden = false;
-                });
-        });
+    // Details: klik op een getal in de regel van een medewerker -> de orders (of pakbonnen) erachter, direct onder die regel.
+    // Nog een klik op hetzelfde getal klapt ze weer dicht; een klik op een ander getal verplaatst ze.
+    function closeDetail() {
+        var open = table.querySelector('tr.rp-detail-row');
+        if (open) { open.parentNode.removeChild(open); }
+        Array.prototype.forEach.call(table.querySelectorAll('td.rp-active'), function (c) { c.classList.remove('rp-active'); });
     }
+    function detailHtml(d) {
+        var h = '<div class="rp-detail-title">' + esc(d.title) + ' (' + nl(d.rows.length) + (d.truncated ? '+' : '') + ')</div>';
+        if (d.truncated) { h += '<div class="rp-detail-note">Alleen de eerste 500 worden getoond.</div>'; }
+        h += '<table class="ka-table rp-detail-table"><thead><tr>' + d.columns.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
+        d.rows.forEach(function (row) {
+            h += '<tr>' + row.map(function (v, i) {
+                if (v === null || v === '') { return '<td></td>'; }
+                if (d.columns[i] === 'Datum' && ISO_DATE.test(v)) { return '<td>' + dmy(v) + '</td>'; }
+                if (typeof v === 'number') { return '<td class="num">' + nl(v) + '</td>'; }
+                return '<td>' + esc(v) + '</td>';
+            }).join('') + '</tr>';
+        });
+        return h + '</tbody></table>';
+    }
+    table.addEventListener('click', function (e) {
+        var td = e.target.closest ? e.target.closest('td.rp-click') : null;
+        if (!td || !data || !data.colRanges) { return; }
+        var tr = td.parentNode;
+        var wasActive = td.classList.contains('rp-active');
+        closeDetail();
+        if (wasActive) { return; }
+        var range = data.colRanges[+td.getAttribute('data-col')];
+        if (!range) { return; }
+        td.classList.add('rp-active');
+        var row = document.createElement('tr');
+        row.className = 'rp-detail-row';
+        var cell = document.createElement('td');
+        cell.colSpan = tr.children.length;
+        cell.innerHTML = '<div class="rp-detail-title">Bezig met ophalen…</div>';
+        row.appendChild(cell);
+        tr.parentNode.insertBefore(row, tr.nextSibling);
+        var body = new URLSearchParams();
+        body.set('csrf', box.getAttribute('data-csrf'));
+        body.set('modus', modeInput ? modeInput.value : '');
+        body.set('detail', tr.getAttribute('data-emp'));
+        body.set('dvan', range[0]);
+        body.set('dtot', range[1]);
+        fetch(box.getAttribute('data-endpoint'), { method: 'POST', body: body })
+            .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
+            .then(function (json) {
+                if (!json.ok || !json.detail) { throw new Error(json.error || 'Ophalen mislukt.'); }
+                if (row.parentNode) { cell.innerHTML = detailHtml(json.detail); }
+            })
+            .catch(function (err) {
+                if (row.parentNode) { cell.innerHTML = '<div class="ka-message ka-message--error">' + esc(err.message) + '</div>'; }
+            });
+    });
 })();
