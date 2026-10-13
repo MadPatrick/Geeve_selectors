@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Controleert de velden van een offerte- of inkooporder-import tegen Exact: verkoper/inkoper (humres.res_id), debiteur- of
- * crediteurnummer (cicmpy) en artikelcodes (Items). POST met csrf, verkoper, debiteur (het nummer van de debiteur of crediteur),
+ * crediteurnummer (cicmpy) en artikelcodes (Items; bij inkoop met minimale bestelhoeveelheid `minOrder` van de leverancier). POST met csrf, verkoper, debiteur (het nummer van de debiteur of crediteur),
  * soort (debiteur of crediteur) en items[]; antwoord:
  * {"ok":true,"verkoper":{"found":bool,"name":"..."},"partij":{...},"debiteur":{...},"items":{"CODE":{"found":true,"description":"..."}}}
  * Alleen lezen; niets wordt in Exact gewijzigd.
@@ -43,15 +43,17 @@ try {
     $creditor = (string) ($_POST['soort'] ?? 'debiteur') === 'crediteur';
     $party = trim((string) ($_POST['debiteur'] ?? ''));
     $out['partij'] = ['found' => false, 'name' => ''];
+    $partyKeys = [];
     if ($party !== '' && strlen($party) <= 20) {
         $sql = $creditor
-            ? 'SET NOCOUNT ON; SELECT TOP 1 RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(crdnr)) = ? OR LTRIM(RTRIM(crdcode)) = ?'
-            : 'SET NOCOUNT ON; SELECT TOP 1 RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(debnr)) = ? OR LTRIM(RTRIM(debcode)) = ?';
+            ? 'SET NOCOUNT ON; SELECT TOP 1 RTRIM(cmp_name) AS naam, LTRIM(RTRIM(crdnr)) AS nr, LTRIM(RTRIM(crdcode)) AS code FROM cicmpy WHERE LTRIM(RTRIM(crdnr)) = ? OR LTRIM(RTRIM(crdcode)) = ?'
+            : 'SET NOCOUNT ON; SELECT TOP 1 RTRIM(cmp_name) AS naam, LTRIM(RTRIM(debnr)) AS nr, LTRIM(RTRIM(debcode)) AS code FROM cicmpy WHERE LTRIM(RTRIM(debnr)) = ? OR LTRIM(RTRIM(debcode)) = ?';
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$party, $party]);
         $row = $stmt->fetch();
         if ($row !== false) {
             $out['partij'] = ['found' => true, 'name' => trim((string) $row['naam'])];
+            $partyKeys = array_values(array_unique(array_filter([trim((string) $row['nr']), trim((string) $row['code'])], static fn ($v) => $v !== '')));
         }
     }
     $out['debiteur'] = $out['partij']; // oude naam, voor de zekerheid
@@ -73,6 +75,25 @@ try {
         $stmt->execute($chunk);
         foreach ($stmt->fetchAll() as $row) {
             $items[strtoupper(trim((string) $row['c']))] = ['found' => true, 'description' => trim((string) $row['d'])];
+        }
+    }
+    // Inkoop: minimale bestelhoeveelheid van de leverancier (ItemAccounts.PurchaseOrderSize) per artikel.
+    if ($creditor && $partyKeys !== [] && $items !== []) {
+        $found = array_keys($items);
+        foreach (array_chunk($found, 400) as $chunk) {
+            $itemMarks = implode(',', array_fill(0, count($chunk), '?'));
+            $keyMarks = implode(',', array_fill(0, count($partyKeys), '?'));
+            $stmt = $pdo->prepare(
+                'SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, MAX(PurchaseOrderSize) AS m FROM ItemAccounts WHERE ItemCode IN (' . $itemMarks . ')'
+                . ' AND (LTRIM(RTRIM(crdnr)) IN (' . $keyMarks . ') OR LTRIM(RTRIM(AccountCode)) IN (' . $keyMarks . ')) GROUP BY RTRIM(ItemCode)'
+            );
+            $stmt->execute(array_merge($chunk, $partyKeys, $partyKeys));
+            foreach ($stmt->fetchAll() as $row) {
+                $key = strtoupper(trim((string) $row['c']));
+                if (isset($items[$key]) && (float) $row['m'] > 0) {
+                    $items[$key]['minOrder'] = (float) $row['m'];
+                }
+            }
         }
     }
     $out['items'] = (object) $items;

@@ -29,3 +29,5 @@
 .oi-suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; margin: 2px 0 0; padding: 4px 0; list-style: none; background: var(--surface, #fff); border: 1px solid var(--border, #cfd6dd); border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.15); max-height: 280px; overflow-y: auto; }
 .oi-suggest li { padding: 6px 10px; cursor: pointer; font-size: 13px; font-weight: 400; }
 .oi-suggest li:hover, .oi-suggest li.is-active { background: rgba(0,0,0,.07); }
+#oiTable tr.is-minorder td { background: #fff3d6; color: #8a5a00; }
+#oiTable tr.is-minorder input.oi-qty { border: 1px solid #e0b04a; background: #fffbf0; font-weight: 700; }

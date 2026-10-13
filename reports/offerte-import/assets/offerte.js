@@ -158,7 +158,7 @@
     }
 
     // ---- Controle met Exact ----
-    function validate(withItems) {
+    function validate(withItems, quiet) {
         var body = new URLSearchParams();
         body.set('csrf', csrf);
         body.set('verkoper', sellerEl.value.trim());
@@ -179,7 +179,7 @@
                 if (withItems) {
                     itemInfo = json.items || {};
                     lines.forEach(function (l) { if (cv(l) !== '') { checked[ck(l)] = true; } });
-                    if (lines.length) { showInfo('Geïmporteerd: ' + importedName + ' (' + lines.length + ' regels), gecontroleerd met Exact.'); }
+                    if (lines.length && !quiet) { showInfo('Geïmporteerd: ' + importedName + ' (' + lines.length + ' regels), gecontroleerd met Exact.'); }
                 }
                 render();
             })
@@ -194,6 +194,8 @@
         var body = new URLSearchParams();
         body.set('csrf', csrf);
         body.append('items[]', code);
+        body.set('debiteur', debtorEl.value.trim());
+        body.set('soort', T.soort);
         fetch(endpoint, { method: 'POST', body: body })
             .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
             .then(function (json) {
@@ -208,7 +210,7 @@
     }
     function scheduleValidate() {
         clearTimeout(timer);
-        timer = setTimeout(function () { validate(false); }, 400);
+        timer = setTimeout(function () { validate(purchase && lines.length > 0, true); }, 400);
     }
 
     // ---- Tonen en beoordelen ----
@@ -219,6 +221,10 @@
         if (!checked[ck(l)]) { return { cls: '', label: 'Wordt gecontroleerd…', ok: false, export: false, pending: true }; }
         var info = itemInfo[ck(l)];
         if (!info || !info.found) { return { cls: 'is-missing', label: 'Niet in Exact', ok: false, export: false }; }
+        var q = qtyOf(l.qty);
+        if (purchase && info.minOrder > 0 && q < info.minOrder) {
+            return { cls: 'is-minorder', label: 'Ja, maar minimale bestelhoeveelheid is ' + info.minOrder, ok: true, export: true, info: info, minorder: true };
+        }
         return { cls: '', label: 'Ja', ok: true, export: true, info: info };
     }
 
@@ -266,10 +272,12 @@
         var missing = states.filter(function (s) { return s.cls === 'is-missing'; }).length;
         var incomplete = states.filter(function (s) { return s.cls === 'is-incomplete'; }).length;
         var empty = states.filter(function (s) { return s.cls === 'is-empty'; }).length;
+        var minOrder = states.filter(function (s) { return s.minorder; }).length;
         var pending = states.some(function (s) { return s.pending; });
         summaryEl.innerHTML =
             '<span class="msp-pill"><strong>' + lines.length + '</strong> regels</span>' +
             (missing ? '<span class="msp-pill oi-pill-bad"><strong>' + missing + '</strong> niet in Exact</span>' : '') +
+            (minOrder ? '<span class="msp-pill oi-pill-warn"><strong>' + minOrder + '</strong> onder minimale bestelhoeveelheid</span>' : '') +
             (incomplete ? '<span class="msp-pill oi-pill-warn"><strong>' + incomplete + '</strong> onvolledig (aantal of artikelcode)</span>' : '');
 
         // Export alleen als alles klopt
