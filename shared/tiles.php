@@ -18,7 +18,6 @@ const TILE_REGISTRY = [
     'hoses' => ['home', 'Slangen fitting Selector', 'hoses/index.php', true, false, false],
     'adapters' => ['home', 'Adapters Selector', 'adapters/index.php', true, false, false],
     'slangkaarten' => ['home', 'Slangkaarten Printen', 'slangkaarten/index.php', true, false, false],
-    'stickers' => ['home', 'Stickers', 'stickers/index.php', true, false, false],
     'stauff' => ['home', 'Stauff Selector', 'stauff/index.php', true, false, true],
     'reports' => ['home', 'Reports', 'reports/index.php', true, false, false],
     'klantartikel' => ['home', 'Klant Artikelnummers', 'klantartikel/index.php', true, false, false],
