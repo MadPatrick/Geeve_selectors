@@ -49,7 +49,7 @@ $csrf = csrfToken();
 
     <section class="panel" id="oiApp" data-validate="api/validate.php" data-csrf="<?= h($csrf) ?>">
         <h2>Offerte importeren via Excel</h2>
-        <p class="ka-empty">Download de lege template, vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). De kop en de artikelen worden gecontroleerd met Exact; artikelen die niet bestaan staan rood. Is alles in orde, dan maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Logistieke import</strong>).</p>
+        <p class="ka-empty">Download de lege template (Regelnr, Aantal, Artikelcode), vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). Verkoper, debiteurnummer, omschrijving en datum vul je hieronder in. De velden en artikelen worden gecontroleerd met Exact: de artikelomschrijving komt uit Exact, en artikelen die niet bestaan staan rood. Is alles in orde, dan maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Logistieke import</strong>).</p>
         <div class="ka-actions">
             <button type="button" id="oiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
             <button type="button" id="oiExport" class="ka-button" disabled>Exporteer XML</button>
@@ -94,8 +94,8 @@ $csrf = csrfToken();
             <table class="ka-table" id="oiTable">
                 <thead>
                     <tr>
-                        <th>Regelnr</th><th>Tekstomschrijving</th><th>Artikelregelomschrijving</th><th>Artikelcode</th><th>Aantal</th>
-                        <th>Artikel in Exact</th><th>Omschrijving in Exact</th><th>Status</th>
+                        <th>Regelnr</th><th>Aantal</th><th>Artikelcode</th><th>Artikelregelomschrijving</th>
+                        <th>Artikel in Exact</th><th>Status</th>
                     </tr>
                 </thead>
                 <tbody></tbody>

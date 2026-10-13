@@ -62,29 +62,21 @@
         el.className = 'oi-check' + (text ? (ok ? ' is-ok' : ' is-bad') : '');
     }
 
-    // ---- Template (lege Excel in dezelfde opzet als de bestaande offerte-template) ----
+    // ---- Template: alleen de regels (Regelnr, Aantal, Artikelcode); de kopvelden vul je in op het dashboard ----
     function downloadTemplate() {
-        var rows = [];
-        for (var r = 0; r < 111; r++) { rows.push(['', '', '', '', '']); }
-        rows[3][0] = 'Valuta'; rows[3][1] = 'EUR';
-        rows[5][0] = 'Verkoper';
-        rows[7] = ['Debiteurnummer', 'Omschrijving', 'Datum', 'Naam', ''];
-        rows[10] = ['Regelnr', 'Tekstomschrijving', 'Artikelregelomschrijving', 'Artikelcode', 'Aantal'];
-        for (var i = 1; i <= 100; i++) { rows[10 + i][0] = i; }
+        var rows = [['Regelnr', 'Aantal', 'Artikelcode']];
+        for (var i = 1; i <= 100; i++) { rows.push([i, '', '']); }
         var ws = XLSX.utils.aoa_to_sheet(rows);
-        var bold = { font: { bold: true } };
         var head = { font: { bold: true, color: { rgb: 'FFFFFFFF' } }, fill: { patternType: 'solid', fgColor: { rgb: 'FF1F4E78' } }, alignment: { horizontal: 'center' } };
-        ['A4', 'A6'].forEach(function (a) { ws[a].s = bold; });
-        ['A8', 'B8', 'C8', 'D8', 'A11', 'B11', 'C11', 'D11', 'E11'].forEach(function (a) { ws[a].s = head; });
-        var now = new Date();
-        ws['C9'] = { t: 'n', v: Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000) + 25569), z: 'dd-mm-yyyy' };
-        ws['!cols'] = [{ wch: 16 }, { wch: 34 }, { wch: 34 }, { wch: 24 }, { wch: 10 }];
-        ws['!ref'] = 'A1:E111';
+        ['A1', 'B1', 'C1'].forEach(function (a) { ws[a].s = head; });
+        for (var r = 2; r <= 101; r++) { ws['C' + r] = { t: 's', v: '', z: '@' }; } // artikelcodes altijd als tekst
+        ws['!cols'] = [{ wch: 10 }, { wch: 10 }, { wch: 28 }];
+        ws['!ref'] = 'A1:C101';
         var help = XLSX.utils.aoa_to_sheet([
-            [1, 'Geef het verkopernummer (cel B6) en het debiteurnummer (cel A9) in'],
-            [2, 'Geef een omschrijving (cel B9) en eventueel een andere datum (cel C9) in'],
-            [3, 'Geef vanaf regel 12 de artikelcode en het aantal in (maximaal 100 regels, meer mag door regelnummers door te nummeren)'],
-            [4, 'Importeer het bestand in Offerte Import; de velden en artikelen worden gecontroleerd met Exact']
+            [1, 'Geef per regel het aantal (kolom B) en de artikelcode (kolom C) in'],
+            [2, 'Meer dan 100 regels? Nummer de regelnummers gewoon door'],
+            [3, 'Verkoper, debiteurnummer, omschrijving en datum vul je in op het dashboard (Offerte Import)'],
+            [4, 'Importeer het bestand in Offerte Import; de artikelen worden gecontroleerd met Exact en de artikelomschrijving wordt opgehaald']
         ]);
         help['!cols'] = [{ wch: 4 }, { wch: 110 }];
         var wb = XLSX.utils.book_new();
@@ -104,16 +96,40 @@
                 var name = wb.SheetNames.indexOf('Order') !== -1 ? 'Order' : wb.SheetNames[0];
                 var ws = wb.Sheets[name];
                 var val = function (a) { return ws[a] ? ws[a].v : null; };
-                sellerEl.value = cellText(val('B6'));
-                debtorEl.value = cellText(val('A9'));
-                descEl.value = cellText(val('B9'));
-                dateEl.value = parseDate(val('C9')) || todayIso();
-                lines = [];
                 var range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
                 var last = Math.min(range.e.r + 1, 2000);
-                for (var row = 12; row <= last; row++) {
-                    var line = { nr: cellText(val('A' + row)), text: cellText(val('B' + row)), desc: cellText(val('C' + row)), code: cellText(val('D' + row)), qty: val('E' + row) };
-                    if (line.code === '' && line.text === '' && line.desc === '' && (line.qty === null || line.qty === '')) { continue; }
+
+                // De kop met Artikelcode zoeken (nieuwe template: rij 1; oude template: rij 11) en de kolommen op naam bepalen.
+                var headRow = 0, cols = {};
+                for (var hr = 1; hr <= Math.min(last, 40) && !headRow; hr++) {
+                    for (var c = 0; c <= Math.min(range.e.c, 15); c++) {
+                        var addr = XLSX.utils.encode_col(c) + hr;
+                        if (String(val(addr) || '').trim().toLowerCase() === 'artikelcode') { headRow = hr; }
+                    }
+                }
+                if (!headRow) { throw new Error('Geen kolom "Artikelcode" gevonden. Gebruik de template (Regelnr, Aantal, Artikelcode).'); }
+                for (var cc = 0; cc <= Math.min(range.e.c, 15); cc++) {
+                    var colName = String(val(XLSX.utils.encode_col(cc) + headRow) || '').trim().toLowerCase();
+                    if (colName) { cols[colName] = XLSX.utils.encode_col(cc); }
+                }
+                if (!cols['aantal']) { throw new Error('Geen kolom "Aantal" gevonden. Gebruik de template (Regelnr, Aantal, Artikelcode).'); }
+
+                // Oude template (met kopvelden bovenin): die velden worden ook overgenomen als ze erin staan.
+                if (String(val('A8') || '').trim().toLowerCase() === 'debiteurnummer') {
+                    sellerEl.value = cellText(val('B6'));
+                    debtorEl.value = cellText(val('A9'));
+                    descEl.value = cellText(val('B9'));
+                    dateEl.value = parseDate(val('C9')) || dateEl.value || todayIso();
+                }
+
+                lines = [];
+                for (var row = headRow + 1; row <= last; row++) {
+                    var line = {
+                        nr: cols['regelnr'] ? cellText(val(cols['regelnr'] + row)) : '',
+                        qty: val(cols['aantal'] + row),
+                        code: cellText(val(cols['artikelcode'] + row))
+                    };
+                    if (line.code === '' && (line.qty === null || line.qty === '')) { continue; }
                     lines.push(line);
                 }
                 itemInfo = {};
@@ -121,7 +137,7 @@
                 importedName = file.name;
                 render();
                 showInfo(lines.length ? 'Geïmporteerd: ' + file.name + ' (' + lines.length + ' regels). De gegevens worden gecontroleerd met Exact…' : '');
-                if (!lines.length) { showMessage('Geen regels gevonden in ' + file.name + '. Vul vanaf regel 12 de artikelcode en het aantal in (kolom D en E).'); }
+                if (!lines.length) { showMessage('Geen regels gevonden in ' + file.name + '. Vul in de template het aantal (kolom B) en de artikelcode (kolom C) in.'); }
                 validate(true);
             } catch (err) {
                 showMessage('Het bestand kon niet worden gelezen: ' + err.message);
@@ -168,7 +184,7 @@
 
     // ---- Tonen en beoordelen ----
     function lineState(l) {
-        if (l.code === '') { return { cls: 'is-text', label: 'Tekstregel (niet geëxporteerd)', ok: true, export: false }; }
+        if (l.code === '') { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
         if (qtyOf(l.qty) === null) { return { cls: 'is-incomplete', label: 'Aantal ontbreekt of is ongeldig', ok: false, export: false }; }
         if (!itemsChecked) { return { cls: '', label: 'Wordt gecontroleerd…', ok: false, export: false, pending: true }; }
         var info = itemInfo[l.code.toUpperCase()];
@@ -197,22 +213,21 @@
             var st = states[i];
             var info = st.info || itemInfo[l.code.toUpperCase()] || null;
             html += '<tr class="' + st.cls + '">' +
-                '<td>' + esc(l.nr) + '</td><td>' + esc(l.text) + '</td><td>' + esc(l.desc) + '</td><td>' + esc(l.code) + '</td>' +
-                '<td class="num">' + esc(l.qty === null ? '' : l.qty) + '</td>' +
-                '<td>' + esc(st.label) + '</td><td>' + esc(info && info.found ? info.description : '') + '</td><td>' + esc(info && info.found ? info.condition : '') + '</td></tr>';
+                '<td>' + esc(l.nr) + '</td><td class="num">' + esc(l.qty === null ? '' : l.qty) + '</td><td>' + esc(l.code) + '</td>' +
+                '<td>' + esc(info && info.found ? info.description : '') + '</td>' +
+                '<td>' + esc(st.label) + '</td><td>' + esc(info && info.found ? info.condition : '') + '</td></tr>';
         });
         tbody.innerHTML = html;
         resultEl.hidden = lines.length === 0;
 
-        var articles = states.filter(function (s) { return s.cls !== 'is-text'; }).length;
+        var articles = states.length;
         var missing = states.filter(function (s) { return s.cls === 'is-missing'; }).length;
         var incomplete = states.filter(function (s) { return s.cls === 'is-incomplete'; }).length;
         var pending = states.some(function (s) { return s.pending; });
         summaryEl.innerHTML =
             '<span class="msp-pill"><strong>' + lines.length + '</strong> regels</span>' +
-            '<span class="msp-pill"><strong>' + articles + '</strong> artikelregels</span>' +
             (missing ? '<span class="msp-pill oi-pill-bad"><strong>' + missing + '</strong> niet in Exact</span>' : '') +
-            (incomplete ? '<span class="msp-pill oi-pill-warn"><strong>' + incomplete + '</strong> zonder geldig aantal</span>' : '');
+            (incomplete ? '<span class="msp-pill oi-pill-warn"><strong>' + incomplete + '</strong> onvolledig (aantal of artikelcode)</span>' : '');
 
         // Export alleen als alles klopt
         var problems = [];
@@ -222,7 +237,7 @@
         if (!dateOk) { problems.push('datum'); }
         if (!states.some(function (s) { return s.export; })) { problems.push('artikelregels'); }
         if (missing) { problems.push(missing + ' artikel(en) die niet in Exact bestaan'); }
-        if (incomplete) { problems.push(incomplete + ' regel(s) zonder geldig aantal'); }
+        if (incomplete) { problems.push(incomplete + ' onvolledige regel(s) (aantal of artikelcode)'); }
         var ready = lines.length > 0 && problems.length === 0 && !pending;
         exportBtn.disabled = !ready;
         exportBtn.title = ready || !lines.length ? '' : 'Eerst oplossen: ' + problems.join(', ');
