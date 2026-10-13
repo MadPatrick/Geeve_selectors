@@ -56,6 +56,28 @@ function productiviteitFirstId(callable $probe, string $timestamp, int $maxId): 
     return $lo;
 }
 
+/**
+ * ID-bereik [eerste, einde) van een grote tabel voor de gekozen periode (zie productiviteitFirstId). $table is een vaste
+ * tabelnaam uit de code (nooit gebruikersinvoer).
+ *
+ * @return array{0: int, 1: int}
+ */
+function productiviteitIdRange(PDO $pdo, string $table, DateTimeImmutable $from, DateTimeImmutable $to): array
+{
+    $probeStmt = $pdo->prepare("SET NOCOUNT ON; SELECT TOP 1 CONVERT(char(19), syscreated, 120) AS t FROM {$table} WITH (NOLOCK) WHERE ID >= ? ORDER BY ID");
+    $probe = function (int $id) use ($probeStmt): ?string {
+        $probeStmt->execute([$id]);
+        $row = $probeStmt->fetch(PDO::FETCH_NUM);
+        $probeStmt->closeCursor();
+        return $row === false || $row[0] === null ? null : (string) $row[0];
+    };
+    $maxId = (int) $pdo->query("SET NOCOUNT ON; SELECT MAX(ID) FROM {$table} WITH (NOLOCK)")->fetchColumn();
+    return [
+        productiviteitFirstId($probe, $from->format('Y-m-d') . ' 00:00:00', $maxId),
+        productiviteitFirstId($probe, $to->modify('+1 day')->format('Y-m-d') . ' 00:00:00', $maxId), // eerste ID ná de periode
+    ];
+}
+
 /** Productie: afgehandelde (geleverde) verkooporders. @return list<list<mixed>> rijen [meting, medewerker, dag, aantal] */
 function productiviteitProductie(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
@@ -63,16 +85,7 @@ function productiviteitProductie(PDO $pdo, DateTimeImmutable $from, DateTimeImmu
     $endParam = $to->format('Y-m-d');
 
     // Periode -> ID-bereik van amutas (zie productiviteitFirstId); de datumfilter in de query blijft staan voor de precisie.
-    $probeStmt = $pdo->prepare('SET NOCOUNT ON; SELECT TOP 1 CONVERT(char(19), syscreated, 120) AS t FROM amutas WITH (NOLOCK) WHERE ID >= ? ORDER BY ID');
-    $probe = function (int $id) use ($probeStmt): ?string {
-        $probeStmt->execute([$id]);
-        $row = $probeStmt->fetch(PDO::FETCH_NUM);
-        $probeStmt->closeCursor();
-        return $row === false || $row[0] === null ? null : (string) $row[0];
-    };
-    $maxId = (int) $pdo->query('SET NOCOUNT ON; SELECT MAX(ID) FROM amutas WITH (NOLOCK)')->fetchColumn();
-    $firstId = productiviteitFirstId($probe, $startParam . ' 00:00:00', $maxId);
-    $endId = productiviteitFirstId($probe, $to->modify('+1 day')->format('Y-m-d') . ' 00:00:00', $maxId); // eerste ID ná de periode
+    [$firstId, $endId] = productiviteitIdRange($pdo, 'amutas', $from, $to);
 
     $base = "FROM amutas s WITH (NOLOCK) WHERE s.ID >= {$firstId} AND s.ID < {$endId} AND LTRIM(RTRIM(s.dagbknr)) = '90' AND s.CSPickITCWOrsrgIDCWDB <> 0 " .
         "AND ISNULL(RTRIM(s.CSPickITCWDeliveryNoteCWDB), '') <> '' AND s.syscreated >= ? AND s.syscreated < DATEADD(day, 1, ?) " .
@@ -90,10 +103,13 @@ function productiviteitProductie(PDO $pdo, DateTimeImmutable $from, DateTimeImmu
 /**
  * Verkoop: ingevoerde verkooporders (ord_soort V). @return list<list<mixed>> rijen [meting, medewerker, dag, aantal]
  *
- * Alleen de lopende orders (orkrg/orsrg): daar is syscreator/syscreated echt degene die de order invoerde. In de
- * orderhistorie (orhkrg/orhsrg) staat de medewerker die de order heeft verplaatst/afgehandeld, dus die telt hier niet mee.
- * Orderregels worden geteld bij de medewerker die de orderkop heeft aangemaakt (op de dag waarop de regel is aangemaakt):
- * ook als een collega de regels invoert, blijft het werk bij de verkoper; wie geen orderkop aanmaakt, komt er niet in voor.
+ * Alleen de lopende orders (orkrg/orsrg): daar is syscreator echt degene die de order invoerde. In de orderhistorie
+ * (orhkrg/orhsrg) staat de medewerker die de order heeft verplaatst/afgehandeld, dus die telt hier niet mee.
+ *
+ * Dag = de latere van orderdatum (orddat) en aanmaakdatum (syscreated). Wordt een offerte tot order verwerkt, dan houdt
+ * Exact de oorspronkelijke aanmaakdatum aan en zet de orderdatum op de dag van verwerken; die dag telt dan. Bij een
+ * rechtstreeks ingevoerde order zijn beide gelijk. Omgezette offertes tot 90 dagen oud worden gevonden.
+ * Orderregels tellen op dezelfde dag en bij dezelfde medewerker als de orderkop.
  */
 function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
@@ -101,16 +117,17 @@ function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmuta
     $endParam = $to->format('Y-m-d');
 
     $exclude = implode(',', array_map('intval', PRODUCTIVITEIT_VERKOOP_EXCLUDE));
-    $sql = 'SET NOCOUNT ON; ' .
-        "SELECT 'O' AS meting, k.syscreator AS medewerker, CONVERT(char(10), k.syscreated, 23) AS dag, COUNT(DISTINCT k.ordernr) AS aantal " .
-        "FROM orkrg k WITH (NOLOCK) WHERE k.ord_soort = 'V' AND k.syscreator NOT IN ({$exclude}) AND k.syscreated >= ? AND k.syscreated < DATEADD(day, 1, ?) " .
-        'GROUP BY k.syscreator, CONVERT(char(10), k.syscreated, 23) ' .
+    // orkrg heeft geen index op de datum: de periode wordt omgezet naar een ID-bereik (een omgezette offerte heeft een
+    // ouder ID, vandaar 90 dagen extra aan de voorkant).
+    [$kFirst, $kEnd] = productiviteitIdRange($pdo, 'orkrg', $from->modify('-90 days'), $to);
+
+    $orders = 'WITH o AS (SELECT k.ordernr, k.syscreator, CONVERT(char(10), CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN k.orddat ELSE k.syscreated END, 23) AS dag ' .
+        "FROM orkrg k WITH (NOLOCK) WHERE k.ID >= {$kFirst} AND k.ID < {$kEnd} AND k.ord_soort = 'V' AND k.syscreator NOT IN ({$exclude})) ";
+    $sql = 'SET NOCOUNT ON; ' . $orders .
+        "SELECT 'O' AS meting, o.syscreator AS medewerker, o.dag AS dag, COUNT(*) AS aantal FROM o WHERE o.dag >= ? AND o.dag <= ? GROUP BY o.syscreator, o.dag " .
         'UNION ALL ' .
-        "SELECT 'L', k.syscreator, CONVERT(char(10), r.syscreated, 23), COUNT(*) " .
-        'FROM orsrg r WITH (NOLOCK) INNER JOIN orkrg k WITH (NOLOCK) ON k.ordernr = r.ordernr ' .
-        "WHERE k.ord_soort = 'V' AND k.syscreator NOT IN ({$exclude}) AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' " .
-        'AND r.syscreated >= ? AND r.syscreated < DATEADD(day, 1, ?) ' .
-        'GROUP BY k.syscreator, CONVERT(char(10), r.syscreated, 23)';
+        "SELECT 'L', o.syscreator, o.dag, COUNT(*) FROM o INNER JOIN orsrg r WITH (NOLOCK) ON r.ordernr = o.ordernr " .
+        "WHERE o.dag >= ? AND o.dag <= ? AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' GROUP BY o.syscreator, o.dag";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$startParam, $endParam, $startParam, $endParam]);
