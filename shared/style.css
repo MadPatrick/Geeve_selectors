@@ -107,7 +107,7 @@ button, input, select { font: inherit; }
     align-items: center;
     gap: var(--btn-gap);
     flex-wrap: wrap;
-    min-height: 16px;
+    min-height: 30px; /* = hoogte van de icoon-knoppen, zodat de topbalk op elke pagina even hoog is */
     margin-bottom: 4px;
 }
 .version-inline {

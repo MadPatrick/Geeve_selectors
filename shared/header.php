@@ -62,9 +62,8 @@ $headerTopline = $headerTopline ?? '';
         </a>
         <?php endif; ?>
         <div class="header-content">
-            <?php if ($headerTopline !== ''): ?>
-                <div class="header-topline"><?= $headerTopline ?></div>
-            <?php endif; ?>
+            <?php /* Altijd renderen (ook leeg): de rij heeft een vaste minimumhoogte, zodat de topbalk op elke pagina even hoog is. */ ?>
+            <div class="header-topline"><?= $headerTopline ?></div>
             <h1><?= h($headerTitle) ?></h1>
         </div>
     </div>
