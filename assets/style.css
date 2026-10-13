@@ -13,7 +13,7 @@
     flex-direction: column;
     gap: 10px;
     align-items: flex-start;
-    background: var(--panel);
+    background: rgba(255, 255, 255, .8); /* iets transparant, zodat de achtergrond zacht doorschemert */
     border: 1px solid var(--line);
     border-radius: 18px;
     box-shadow: var(--shadow);
@@ -172,7 +172,7 @@
 .settings-switch input:focus-visible + .settings-switch-track { box-shadow: 0 0 0 3px rgba(238, 48, 93, .25); }
 
 /* Tegel van een app die nog in ontwikkeling is: lichter, met een schuine tekst. Blijft gewoon klikbaar. */
-.tile--wip { background: var(--soft, #f4f7fa); border-style: dashed; }
+.tile--wip { background: rgba(244, 247, 250, .75); border-style: dashed; }
 .tile--wip > * { opacity: .5; }
 .tile--wip::before {
     content: "In progress";
