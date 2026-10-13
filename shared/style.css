@@ -45,6 +45,17 @@
 * { box-sizing: border-box; }
 html { min-height: 100%; }
 body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); }
+/* Vervaagde foto van het pand als vaste achtergrond achter alle pagina's (de panelen en tegels blijven wit). */
+body::before {
+    content: "";
+    position: fixed;
+    inset: -12px;
+    z-index: -1;
+    background: url("../images/achtergrond.jpg") center / cover no-repeat;
+    opacity: .2;
+    filter: blur(5px);
+    pointer-events: none;
+}
 button, input, select { font: inherit; }
 
 .page-shell { width: min(1400px, calc(100% - 28px)); margin: 16px auto 40px; }
