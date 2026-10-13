@@ -74,7 +74,7 @@ $csrf = csrfToken();
         <div class="ka-table-wrap msp-scroll"><table class="ka-table" id="eiTable"></table></div>
     </section>
 
-    <p class="page-footer">Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
 </main>
 <script src="../assets/vendor/xlsx-style.min.js"></script>
 <script src="assets/export-info.js?v=<?= h(assetVersion('assets/export-info.js')) ?>"></script>

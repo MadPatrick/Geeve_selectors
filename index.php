@@ -135,7 +135,7 @@ function assetVersion(string $relativePath): string
         </a>
     </div>
 
-    <p class="page-footer">Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
 </main>
 
 </body>

@@ -85,7 +85,7 @@ $thisYear = (int) date('Y');
         <div class="ka-table-wrap msp-scroll"><table class="ka-table" id="mspTable"></table></div>
     </section>
 
-    <p class="page-footer">Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
 </main>
 <script src="../../klantartikel/assets/vendor/xlsx.core.min.js"></script>
 <script src="assets/msp.js?v=<?= h(assetVersion('assets/msp.js')) ?>"></script>

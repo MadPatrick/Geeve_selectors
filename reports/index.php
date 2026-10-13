@@ -149,7 +149,7 @@ $csrf = csrfToken();
         </a>
     </div>
 
-    <p class="page-footer">Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
 </main>
 
 <div class="lock-modal" id="lockModal" hidden role="dialog" aria-modal="true" aria-labelledby="lockTitle">

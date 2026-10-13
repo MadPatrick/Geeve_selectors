@@ -105,7 +105,7 @@ $csrf = csrfToken();
         </div>
     </section>
 
-    <p class="page-footer">Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
 </main>
 <script src="../assets/vendor/xlsx-style.min.js"></script>
 <script src="assets/offerte.js?v=<?= h(assetVersion('assets/offerte.js')) ?>"></script>

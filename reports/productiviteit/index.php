@@ -131,7 +131,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
 
     <?php endif; ?>
 
-    <p class="page-footer">Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
 </main>
 <?php if (!$locked): ?>
 <script src="../assets/vendor/xlsx-style.min.js"></script>
