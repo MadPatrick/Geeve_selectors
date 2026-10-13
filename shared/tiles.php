@@ -89,6 +89,16 @@ function tileLocked(string $id): bool
     return tileFlagsAll()[$id]['locked'] ?? false;
 }
 
+/** Eigen tegelnaam opschonen: spaties weg, maximaal 60 tekens (werkt ook zonder PHP-extensie mbstring). */
+function tileCleanTitle(string $title): string
+{
+    $title = trim($title);
+    if (function_exists('mb_substr')) {
+        return mb_substr($title, 0, 60);
+    }
+    return preg_match('/^.{0,60}/su', $title, $m) === 1 ? $m[0] : substr($title, 0, 60);
+}
+
 /** Naam van de tegel zoals die op het overzicht staat. */
 function tileTitle(string $id): string
 {

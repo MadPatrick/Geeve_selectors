@@ -306,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 'locked' => isset($row['locked']),
                 'wip' => isset($row['wip']),
                 // Eigen naam; leeg of gelijk aan de standaardnaam = standaard gebruiken.
-                'title' => ($t = mb_substr(trim((string) ($row['title'] ?? '')), 0, 60)) !== TILE_REGISTRY[$tileId][1] ? $t : '',
+                'title' => ($t = tileCleanTitle((string) ($row['title'] ?? ''))) !== TILE_REGISTRY[$tileId][1] ? $t : '',
             ];
         }
         // Volgorde (slepen): per groep de id's in de volgorde van de formulier-rijen; onbekende id's worden genegeerd.
