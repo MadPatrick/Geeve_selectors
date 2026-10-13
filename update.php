@@ -307,6 +307,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 'wip' => isset($row['wip']),
             ];
         }
+        // Volgorde (slepen): per groep de id's in de volgorde van de formulier-rijen; onbekende id's worden genegeerd.
+        $flags['_order'] = [];
+        foreach (['home', 'reports'] as $orderGroup) {
+            $posted = $_POST['order'][$orderGroup] ?? [];
+            $flags['_order'][$orderGroup] = is_array($posted)
+                ? array_values(array_filter(array_map('strval', $posted), static fn ($id) => isset(TILE_REGISTRY[$id]) && TILE_REGISTRY[$id][0] === $orderGroup))
+                : [];
+        }
         $values = secureSettingsRead();
         $values['TILE_FLAGS'] = (string) json_encode($flags);
         $tilesMessage = secureSettingsWrite($values)
@@ -450,7 +458,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
 
     <section class="update-panel">
         <h2>Tegels</h2>
-        <p>Alle tegels van het hoofdscherm en van Reports. <strong>Zichtbaar</strong>: uit = de tegel staat niet op het overzicht. <strong>Beveiligd</strong>: een klik op de tegel vraagt om de toegangscode (de pagina is dan ook niet rechtstreeks te openen). <strong>In progress</strong>: de tegel krijgt de stempel "IN PROGRESS".</p>
+        <p>Alle tegels van het hoofdscherm en van Reports. <strong>Zichtbaar</strong>: uit = de tegel staat niet op het overzicht. <strong>Beveiligd</strong>: een klik op de tegel vraagt om de toegangscode (de pagina is dan ook niet rechtstreeks te openen). <strong>In progress</strong>: de tegel krijgt de stempel "IN PROGRESS". Sleep een tegel aan het blokje links om de volgorde te wijzigen (binnen Hoofdscherm of binnen Reports) en klik op Opslaan.</p>
 
         <?php if ($tilesMessage !== null): ?>
             <div class="update-message <?= $tilesMessage['ok'] ? 'ok' : 'error' ?>"><?= h($tilesMessage['text']) ?></div>
@@ -472,9 +480,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
                 foreach ($tileGroups as $groupId => $groupTitle):
                 ?>
                     <div class="tiles-group" role="row"><?= h($groupTitle) ?></div>
-                    <?php foreach (TILE_REGISTRY as $tileId => $tile): if ($tile[0] !== $groupId) { continue; } ?>
-                        <div class="tiles-row" role="row">
-                            <span role="cell" class="tiles-name"><?= h($tile[1]) ?></span>
+                    <div class="tiles-list" data-group="<?= h($groupId) ?>">
+                    <?php foreach (tileOrder($groupId) as $tileId): $tile = TILE_REGISTRY[$tileId]; ?>
+                        <div class="tiles-row" role="row" data-id="<?= h($tileId) ?>">
+                            <span role="cell" class="tiles-name">
+                                <span class="tiles-handle" title="Sleep om de volgorde te wijzigen" aria-label="Sleep om de volgorde te wijzigen">&#8942;&#8942;</span>
+                                <?= h($tile[1]) ?>
+                                <input type="hidden" name="order[<?= h($groupId) ?>][]" value="<?= h($tileId) ?>">
+                            </span>
                             <?php foreach (['visible' => 'Zichtbaar', 'locked' => 'Beveiligd', 'wip' => 'In progress'] as $flag => $flagLabel): ?>
                                 <label role="cell" class="settings-switch tiles-switch" title="<?= h($tile[1] . ': ' . $flagLabel) ?>">
                                     <input type="checkbox" name="tile[<?= h($tileId) ?>][<?= h($flag) ?>]" value="1"<?= $tileFlags[$tileId][$flag] ? ' checked' : '' ?>>
@@ -483,6 +496,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
                             <?php endforeach; ?>
                         </div>
                     <?php endforeach; ?>
+                    </div>
                 <?php endforeach; ?>
             </div>
             <button type="submit" class="update-submit">Opslaan</button>
@@ -491,5 +505,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
 </main>
+<script src="assets/tiles-sort.js?v=<?= h(assetVersion('assets/tiles-sort.js')) ?>"></script>
 </body>
 </html>

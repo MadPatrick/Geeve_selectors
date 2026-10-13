@@ -58,6 +58,25 @@ function tileFlagsAll(): array
     return $cache;
 }
 
+/** Opgeslagen volgorde van de tegels van een groep ("home"/"reports"); nieuwe tegels komen achteraan, in registry-volgorde. @return list<string> */
+function tileOrder(string $group): array
+{
+    $ids = [];
+    foreach (TILE_REGISTRY as $id => $tile) {
+        if ($tile[0] === $group) {
+            $ids[] = $id;
+        }
+    }
+    $saved = [];
+    $settings = secureSettingsRead();
+    if (isset($settings['TILE_FLAGS'])) {
+        $decoded = json_decode((string) $settings['TILE_FLAGS'], true);
+        $list = is_array($decoded) ? ($decoded['_order'][$group] ?? []) : [];
+        $saved = is_array($list) ? array_values(array_filter($list, static fn ($id) => is_string($id) && in_array($id, $ids, true))) : [];
+    }
+    return array_values(array_unique(array_merge($saved, $ids)));
+}
+
 function tileVisible(string $id): bool
 {
     return tileFlagsAll()[$id]['visible'] ?? true;

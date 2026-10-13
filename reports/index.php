@@ -50,7 +50,7 @@ $csrf = csrfToken();
 
 
     <div class="tile-grid">
-        <?php if (tileVisible('msp')): ?>
+        <?php ob_start(); if (tileVisible('msp')): ?>
         <a class="<?= tileClass('msp') ?>" href="msp/index.php"<?= tileAttrs('msp') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -63,8 +63,8 @@ $csrf = csrfToken();
             <p>Parker MSP claim report voor de afgelopen maand</p>
             <?= tileLockIcon('msp') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('inkooporder')): ?>
+        <?php endif; $tileHtml['msp'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('inkooporder')): ?>
         <a class="<?= tileClass('inkooporder') ?>" href="inkooporder/index.php"<?= tileAttrs('inkooporder') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -77,8 +77,8 @@ $csrf = csrfToken();
             <p>Inkooporder met regels uit Exact ophalen en als Excel downloaden</p>
             <?= tileLockIcon('inkooporder') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('order-offerte')): ?>
+        <?php endif; $tileHtml['inkooporder'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('order-offerte')): ?>
         <a class="<?= tileClass('order-offerte') ?>" href="order-offerte/index.php"<?= tileAttrs('order-offerte') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -92,8 +92,8 @@ $csrf = csrfToken();
             <p>Order- of offerteregels uit Exact ophalen en als Excel downloaden</p>
             <?= tileLockIcon('order-offerte') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('inkoop-groep')): ?>
+        <?php endif; $tileHtml['order-offerte'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('inkoop-groep')): ?>
         <a class="<?= tileClass('inkoop-groep') ?>" href="inkoop-groep/index.php"<?= tileAttrs('inkoop-groep') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -107,8 +107,8 @@ $csrf = csrfToken();
             <p>Ingekochte aantallen per artikel van een artikelgroep in een periode</p>
             <?= tileLockIcon('inkoop-groep') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('productiviteit')): ?>
+        <?php endif; $tileHtml['inkoop-groep'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('productiviteit')): ?>
         <a class="<?= tileClass('productiviteit') ?>" href="productiviteit/index.php"<?= tileAttrs('productiviteit') ?>>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -122,8 +122,8 @@ $csrf = csrfToken();
             <p>Afgehandelde orders en orderregels per medewerker per dag</p>
             <?= tileLockIcon('productiviteit') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('offerte-import')): ?>
+        <?php endif; $tileHtml['productiviteit'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('offerte-import')): ?>
         <a class="<?= tileClass('offerte-import') ?>" href="offerte-import/index.php"<?= tileAttrs('offerte-import') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -137,8 +137,8 @@ $csrf = csrfToken();
             <p>Offerte via Excel importeren, controleren met Exact en als XML klaarzetten</p>
             <?= tileLockIcon('offerte-import') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('inkooporder-import')): ?>
+        <?php endif; $tileHtml['offerte-import'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('inkooporder-import')): ?>
         <a class="<?= tileClass('inkooporder-import') ?>" href="inkooporder-import/index.php"<?= tileAttrs('inkooporder-import') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -152,8 +152,8 @@ $csrf = csrfToken();
             <p>Inkooporder via Excel importeren, controleren met Exact en als XML klaarzetten</p>
             <?= tileLockIcon('inkooporder-import') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('export-info')): ?>
+        <?php endif; $tileHtml['inkooporder-import'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('export-info')): ?>
         <a class="<?= tileClass('export-info') ?>" href="export-info/index.php"<?= tileAttrs('export-info') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -166,7 +166,8 @@ $csrf = csrfToken();
             <p>Orderregels met collo, gewicht en afmetingen voor de exportdocumenten</p>
             <?= tileLockIcon('export-info') ?>
         </a>
-        <?php endif; ?>
+        <?php endif; $tileHtml['export-info'] = ob_get_clean(); ?>
+        <?php foreach (tileOrder('reports') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>

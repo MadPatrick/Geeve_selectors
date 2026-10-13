@@ -61,7 +61,7 @@ $lockRoot = '';
 
 
     <div class="tile-grid">
-        <?php if (tileVisible('hoses')): ?>
+        <?php ob_start(); if (tileVisible('hoses')): ?>
         <a class="<?= tileClass('hoses') ?>" href="hoses/index.php"<?= tileAttrs('hoses') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -73,9 +73,9 @@ $lockRoot = '';
             <p>Zoek de juiste koppeling op basis van slangartikelnummer, maat en werkdruk &mdash; voor Staal, RVS en accessoires.</p>
             <?= tileLockIcon('hoses') ?>
         </a>
-        <?php endif; ?>
+        <?php endif; $tileHtml['hoses'] = ob_get_clean(); ?>
 
-        <?php if (tileVisible('adapters')): ?>
+        <?php ob_start(); if (tileVisible('adapters')): ?>
         <a class="<?= tileClass('adapters') ?>" href="adapters/index.php"<?= tileAttrs('adapters') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -87,9 +87,9 @@ $lockRoot = '';
             <p>Zoek de juiste adapter op basis van draadsoort, draadmaat, hoek en connectietype (buiten/binnen/wartelend).</p>
             <?= tileLockIcon('adapters') ?>
         </a>
-        <?php endif; ?>
+        <?php endif; $tileHtml['adapters'] = ob_get_clean(); ?>
 
-        <?php if (tileVisible('slangkaarten')): ?>
+        <?php ob_start(); if (tileVisible('slangkaarten')): ?>
         <a class="<?= tileClass('slangkaarten') ?>" href="slangkaarten/index.php"<?= tileAttrs('slangkaarten') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -101,9 +101,9 @@ $lockRoot = '';
             <p>Zoek een order of klant op en print de slangkaarten (labels) van de geselecteerde slangregels.</p>
             <?= tileLockIcon('slangkaarten') ?>
         </a>
-        <?php endif; ?>
+        <?php endif; $tileHtml['slangkaarten'] = ob_get_clean(); ?>
 
-        <?php if (tileVisible('stickers')): ?>
+        <?php ob_start(); if (tileVisible('stickers')): ?>
         <a class="<?= tileClass('stickers') ?>" href="stickers/index.php"<?= tileAttrs('stickers') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -115,8 +115,8 @@ $lockRoot = '';
             <p>Stickers printen op artikelnummer of zakje.</p>
             <?= tileLockIcon('stickers') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('stauff')): ?>
+        <?php endif; $tileHtml['stickers'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('stauff')): ?>
         <a class="<?= tileClass('stauff') ?>" href="stauff/index.php"<?= tileAttrs('stauff') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -130,8 +130,8 @@ $lockRoot = '';
             <p>Stel de juiste beugelsamenstelling samen op basis van diameter, serie, uitvoering en materiaal.</p>
             <?= tileLockIcon('stauff') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('reports')): ?>
+        <?php endif; $tileHtml['stauff'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('reports')): ?>
         <a class="<?= tileClass('reports') ?>" href="reports/index.php"<?= tileAttrs('reports') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -146,8 +146,8 @@ $lockRoot = '';
             <p>Rapportages en overzichten.</p>
             <?= tileLockIcon('reports') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('klantartikel')): ?>
+        <?php endif; $tileHtml['reports'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('klantartikel')): ?>
         <a class="<?= tileClass('klantartikel') ?>" href="klantartikel/index.php"<?= tileAttrs('klantartikel') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -159,8 +159,8 @@ $lockRoot = '';
             <p>Zoek op prijslijstnummer de gekoppelde klanten en hun artikelen met klantartikelnummer uit Exact.</p>
             <?= tileLockIcon('klantartikel') ?>
         </a>
-        <?php endif; ?>
-        <?php if (tileVisible('klantkorting')): ?>
+        <?php endif; $tileHtml['klantartikel'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('klantkorting')): ?>
         <a class="<?= tileClass('klantkorting') ?>" href="klantkorting/index.php"<?= tileAttrs('klantkorting') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -173,7 +173,8 @@ $lockRoot = '';
             <p>Bekijk en pas de kortingstructuur van klanten aan op basis van hun prijslijst.</p>
             <?= tileLockIcon('klantkorting') ?>
         </a>
-        <?php endif; ?>
+        <?php endif; $tileHtml['klantkorting'] = ob_get_clean(); ?>
+        <?php foreach (tileOrder('home') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>

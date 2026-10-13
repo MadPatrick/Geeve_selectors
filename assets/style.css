@@ -240,3 +240,9 @@
 .config-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
 .config-bar .back-link { margin: 0; }
 .config-update-form { margin: 0; }
+
+.tiles-list { display: flex; flex-direction: column; }
+.tiles-name { display: flex; align-items: center; gap: 8px; }
+.tiles-handle { cursor: grab; color: var(--muted); font-size: 16px; letter-spacing: -2px; line-height: 1; padding: 4px 6px; border-radius: 6px; user-select: none; }
+.tiles-handle:hover { background: rgba(0, 0, 0, .07); color: var(--ink); }
+.tiles-row.is-dragging { opacity: .45; background: rgba(238, 48, 93, .08); }
