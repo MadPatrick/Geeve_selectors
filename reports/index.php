@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
+require_once __DIR__ . '/../shared/access.php';
+
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
 
 function h(string $value): string
@@ -17,6 +19,10 @@ function assetVersion(string $relativePath): string
     $mtime = @filemtime($full);
     return $mtime !== false ? (string) $mtime : APP_VERSION;
 }
+
+// Beveiligde tegel: alleen als dit onderdeel nog niet is ontgrendeld vraagt een klik om de code (popup).
+$productiviteitLocked = !accessUnlocked('productiviteit');
+$csrf = csrfToken();
 ?>
 <!doctype html>
 <html lang="nl">
@@ -90,7 +96,7 @@ function assetVersion(string $relativePath): string
             <p>Ingekochte aantallen per artikel van een artikelgroep in een periode</p>
             <span class="tile-cta">Open rapport &rarr;</span>
         </a>
-        <a class="tile" href="productiviteit/index.php">
+        <a class="tile" href="productiviteit/index.php"<?= $productiviteitLocked ? ' data-lock="productiviteit"' : '' ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -114,5 +120,19 @@ function assetVersion(string $relativePath): string
 
     <p class="page-footer">Geeve Hydraulics</p>
 </main>
+
+<div class="lock-modal" id="lockModal" hidden role="dialog" aria-modal="true" aria-labelledby="lockTitle">
+    <form class="lock-dialog" id="lockForm" data-csrf="<?= h($csrf) ?>" autocomplete="off">
+        <h2 id="lockTitle">Toegangscode</h2>
+        <p>Dit rapport is beveiligd. Vul de code in om het te openen.</p>
+        <input type="password" id="lockCode" class="lock-input" inputmode="numeric" autocomplete="off" aria-label="Toegangscode" required>
+        <div class="lock-error" id="lockError" hidden></div>
+        <div class="lock-actions">
+            <button type="button" id="lockCancel" class="lock-button lock-button--secondary">Annuleren</button>
+            <button type="submit" class="lock-button">Openen</button>
+        </div>
+    </form>
+</div>
+<script src="assets/lock.js?v=<?= h(assetVersion('assets/lock.js')) ?>"></script>
 </body>
 </html>
