@@ -229,11 +229,12 @@ reportApi(function (array $in): array {
     }
     $overview = (string) ($in['weergave'] ?? 'overzicht') === 'overzicht';
     if ($overview) {
-        // Vaste kolommen ten opzichte van vandaag: werkdagen van deze week, deze week, weken van deze maand, deze maand.
+        // Vaste kolommen ten opzichte van vandaag: werkdagen van deze week, deze week, weken van deze maand, deze maand, dit jaar.
         $to = new DateTimeImmutable('today');
         $monthStart = $to->modify('first day of this month');
         $monday = $to->modify('monday this week');
-        $from = min($monthStart, $monday);
+        $yearStart = $to->modify('first day of january this year');
+        $from = min($yearStart, $monthStart, $monday);
     } else {
         $from = productiviteitDate($in['van'] ?? '', 'van');
         $to = productiviteitDate($in['tot'] ?? '', 'tot');
@@ -256,7 +257,7 @@ reportApi(function (array $in): array {
         }
         $detailFrom = productiviteitDate($in['dvan'] ?? '', 'van');
         $detailTo = productiviteitDate($in['dtot'] ?? '', 'tot');
-        if ($detailFrom > $detailTo || (int) $detailFrom->diff($detailTo)->days + 1 > PRODUCTIVITEIT_MAX_DAYS) {
+        if ($detailFrom > $detailTo || (int) $detailFrom->diff($detailTo)->days + 1 > 366) {
             throw new RuntimeException('Ongeldige periode.');
         }
         $name = 'Onbekend';
@@ -308,6 +309,7 @@ reportApi(function (array $in): array {
             $specs[] = ['Week ' . $weekStart->format('W'), max($weekStart, $monthStart), min($weekStart->modify('+6 days'), $to), true];
         }
         $specs[] = ['Deze maand', $monthStart, $to, true];
+        $specs[] = ['Dit jaar', $yearStart, $to, true];
     } else {
         for ($d = $from; $d <= $to; $d = $d->modify('+1 day')) {
             $specs[] = [$weekdays[(int) $d->format('w')] . ' ' . $d->format('d-m'), $d, $d, false];
@@ -355,7 +357,11 @@ reportApi(function (array $in): array {
             }
         }
         // Totaal van de hele periode: laatste som-kolom (Totaal / Deze maand).
-        $lastSum = array_key_last(array_filter($specs, fn ($sp) => $sp[3]));
+        $sumSpecs = array_filter($specs, fn ($sp) => $sp[3]);
+        $lastSum = array_key_last($sumSpecs);
+        if ($overview) { // in het overzicht toont de samenvatting de maand, niet het hele jaar
+            $lastSum = array_search('Deze maand', array_map(fn ($sp) => $sp[0], $specs), true);
+        }
         $grand[$m] = $colTotals[$lastSum] ?? 0;
         if ($rows !== []) {
             $rows[] = array_merge(['Totaal'], array_map(fn ($n) => $n > 0 ? $n : null, $colTotals));
@@ -374,7 +380,7 @@ reportApi(function (array $in): array {
     $kop = [
         ['label' => 'Periode', 'value' => $period],
         ['label' => 'Medewerkers', 'value' => (string) count($employees)],
-        ['label' => 'Totaal', 'value' => number_format($grand['O'], 0, ',', '.') . ' orders / ' . number_format($grand['L'], 0, ',', '.') . ' regels'],
+        ['label' => $overview ? 'Deze maand' : 'Totaal', 'value' => number_format($grand['O'], 0, ',', '.') . ' orders / ' . number_format($grand['L'], 0, ',', '.') . ' regels'],
     ];
 
     $count = count($columns);
