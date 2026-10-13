@@ -77,6 +77,19 @@ function assetVersion(string $relativePath): string
             <p>Order- of offerteregels uit Exact ophalen en als Excel downloaden</p>
             <span class="tile-cta">Open rapport &rarr;</span>
         </a>
+        <a class="tile" href="inkoop-groep/index.php">
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                    <path d="M14 17.5h7M17.5 14v7"></path>
+                </svg>
+            </div>
+            <h2>Inkoop per groep</h2>
+            <p>Ingekochte aantallen per artikel van een artikelgroep in een periode</p>
+            <span class="tile-cta">Open rapport &rarr;</span>
+        </a>
     </div>
 
     <p class="page-footer">Geeve Hydraulics</p>

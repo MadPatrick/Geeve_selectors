@@ -1,6 +1,8 @@
 (function () {
     var box = document.getElementById('rpActions');
     var input = document.getElementById('rpNumber');
+    // Rapporten met meerdere invoervelden (bijv. groep + periode) gebruiken [data-field]; anders het ene nummerveld.
+    var fields = Array.prototype.slice.call(box.querySelectorAll('[data-field]'));
     var fetchBtn = document.getElementById('rpFetch');
     var downloadBtn = document.getElementById('rpDownload');
     var status = document.getElementById('rpStatus');
@@ -26,7 +28,7 @@
 
     function render() {
         summary.innerHTML =
-            '<span class="msp-pill">' + esc(box.getAttribute('data-label')) + ' <strong>' + esc(asked) + '</strong></span>' +
+            (box.getAttribute('data-label') ? '<span class="msp-pill">' + esc(box.getAttribute('data-label')) + ' <strong>' + esc(asked) + '</strong></span>' : '') +
             (data.kop || []).map(function (k) {
                 return '<span class="msp-pill">' + (k.label ? esc(k.label) + ' ' : '') + '<strong>' + esc(k.type === 'euro' ? euro(k.value) : k.value) + '</strong></span>';
             }).join('') +
@@ -49,24 +51,35 @@
 
     function fetchData() {
         message.hidden = true;
-        var number = input.value.trim();
-        if (!/^\d{1,18}$/.test(number)) { fail('Vul een geldig nummer in (alleen cijfers).'); return; }
+        var number = '';
+        var params = [];
+        if (fields.length) {
+            for (var f = 0; f < fields.length; f++) {
+                var val = fields[f].value.trim();
+                if (val === '') { fail('Vul ' + (fields[f].getAttribute('data-name') || 'alle velden') + ' in.'); return; }
+                params.push([fields[f].getAttribute('data-field'), val]);
+            }
+        } else {
+            number = input.value.trim();
+            if (!/^\d{1,18}$/.test(number)) { fail('Vul een geldig nummer in (alleen cijfers).'); return; }
+            params.push(['nummer', number]);
+        }
         fetchBtn.disabled = true;
         downloadBtn.disabled = true;
         status.textContent = 'Bezig met ophalen…';
         var body = new URLSearchParams();
         body.set('csrf', box.getAttribute('data-csrf'));
-        body.set('nummer', number);
+        params.forEach(function (p) { body.set(p[0], p[1]); });
         fetch(box.getAttribute('data-endpoint'), { method: 'POST', body: body })
             .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
             .then(function (json) {
                 if (!json.ok) { throw new Error(json.error || 'Ophalen mislukt.'); }
                 data = json;
-                asked = number;
+                asked = json.fileTag || number;
                 render();
                 downloadBtn.disabled = data.rows.length === 0;
                 status.textContent = data.rows.length === 0
-                    ? 'Geen regels gevonden voor ' + number + '.'
+                    ? 'Geen regels gevonden.'
                     : 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + '.';
             })
             .catch(function (err) {
@@ -78,7 +91,9 @@
     }
 
     fetchBtn.addEventListener('click', fetchData);
-    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); fetchData(); } });
+    (fields.length ? fields : [input]).forEach(function (el) {
+        el.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); fetchData(); } });
+    });
 
     downloadBtn.addEventListener('click', function () {
         if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return; }

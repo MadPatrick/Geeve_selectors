@@ -120,8 +120,8 @@ function reportNormalizeValue(mixed $value, bool $numeric, bool $date = false): 
     return $text;
 }
 
-/** Gedeelde API-afhandeling: POST + CSRF, roept $fetch(string $nummer) aan en geeft JSON terug. */
-function reportApi(callable $fetch): void
+/** Gedeelde API-afhandeling: POST + CSRF, roept $fetch aan (met het nummer, of met de POST-velden) en geeft JSON terug. */
+function reportApi(callable $fetch, bool $numberOnly = true): void
 {
     require_once __DIR__ . '/../shared/csrf.php';
 
@@ -137,7 +137,8 @@ function reportApi(callable $fetch): void
     @set_time_limit(300);
     $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRESERVE_ZERO_FRACTION;
     try {
-        $data = $fetch(reportOrderNumber($_POST['nummer'] ?? ''));
+        // $numberOnly: één ordernummer (cijfers); anders krijgt $fetch de hele POST (eigen validatie).
+        $data = $fetch($numberOnly ? reportOrderNumber($_POST['nummer'] ?? '') : $_POST);
         echo json_encode(['ok' => true] + $data, $flags);
     } catch (Throwable $e) {
         http_response_code(500);
