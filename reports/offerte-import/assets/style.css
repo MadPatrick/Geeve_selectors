@@ -8,7 +8,7 @@
 #oiTable tr.is-incomplete td { background: #fff3d6; color: #8a5a00; }
 #oiTable tr.is-text td { color: var(--muted); font-style: italic; }
 #oiTable td.oi-desc { white-space: normal; min-width: 18ch; }
-#oiTable th.oi-min, #oiTable td.oi-min { text-align: center; }
+#oiTable th.oi-min, #oiTable td.oi-min { text-align: center; width: 1%; white-space: normal; min-width: 16ch; max-width: 16ch; padding-left: 8px; padding-right: 8px; }
 #oiTable tr.is-minorder td.oi-min { font-weight: 700; }
 #oiTable th:nth-child(2), #oiTable td:nth-child(2) { text-align: center; }
 #oiTable input.oi-qty { width: 9ch; box-sizing: border-box; text-align: center; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong, #c9d4de); border-radius: 8px; background: #fff; color: var(--ink); font-weight: 400; }
