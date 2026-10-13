@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 /**
- * Controleert de velden van een offerte-import tegen Exact: verkoper (humres.res_id), debiteurnummer (cicmpy) en artikelcodes
- * (Items). POST met csrf, verkoper, debiteur en items[]; antwoord:
- * {"ok":true,"verkoper":{"found":bool,"name":"..."},"debiteur":{...},"items":{"CODE":{"found":true,"description":"..."}}}
+ * Controleert de velden van een offerte- of inkooporder-import tegen Exact: verkoper/inkoper (humres.res_id), debiteur- of
+ * crediteurnummer (cicmpy) en artikelcodes (Items). POST met csrf, verkoper, debiteur (het nummer van de debiteur of crediteur),
+ * soort (debiteur of crediteur) en items[]; antwoord:
+ * {"ok":true,"verkoper":{"found":bool,"name":"..."},"partij":{...},"debiteur":{...},"items":{"CODE":{"found":true,"description":"..."}}}
  * Alleen lezen; niets wordt in Exact gewijzigd.
  */
 
@@ -38,17 +39,22 @@ try {
         }
     }
 
-    // Debiteur: debiteurnummer of -code in cicmpy.
-    $debtor = trim((string) ($_POST['debiteur'] ?? ''));
-    $out['debiteur'] = ['found' => false, 'name' => ''];
-    if ($debtor !== '' && strlen($debtor) <= 20) {
-        $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT TOP 1 RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(debnr)) = ? OR LTRIM(RTRIM(debcode)) = ?');
-        $stmt->execute([$debtor, $debtor]);
+    // Debiteur of crediteur (leverancier): nummer of code in cicmpy.
+    $creditor = (string) ($_POST['soort'] ?? 'debiteur') === 'crediteur';
+    $party = trim((string) ($_POST['debiteur'] ?? ''));
+    $out['partij'] = ['found' => false, 'name' => ''];
+    if ($party !== '' && strlen($party) <= 20) {
+        $sql = $creditor
+            ? 'SET NOCOUNT ON; SELECT TOP 1 RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(crdnr)) = ? OR LTRIM(RTRIM(crdcode)) = ?'
+            : 'SET NOCOUNT ON; SELECT TOP 1 RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(debnr)) = ? OR LTRIM(RTRIM(debcode)) = ?';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$party, $party]);
         $row = $stmt->fetch();
         if ($row !== false) {
-            $out['debiteur'] = ['found' => true, 'name' => trim((string) $row['naam'])];
+            $out['partij'] = ['found' => true, 'name' => trim((string) $row['naam'])];
         }
     }
+    $out['debiteur'] = $out['partij']; // oude naam, voor de zekerheid
 
     // Artikelen: bestaan ze in Exact, met omschrijving.
     $codes = [];

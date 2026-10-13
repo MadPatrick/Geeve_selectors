@@ -47,7 +47,7 @@ $csrf = csrfToken();
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel" id="oiApp" data-validate="api/validate.php" data-csrf="<?= h($csrf) ?>">
+    <section class="panel" id="oiApp" data-validate="api/validate.php" data-kind="offerte" data-csrf="<?= h($csrf) ?>">
         <h2>Offerte importeren via Excel</h2>
         <p class="ka-empty">Download de lege template (Regelnr, Aantal, Artikelcode), vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). Verkoper, debiteurnummer, omschrijving en datum vul je hieronder in. De velden en artikelen worden gecontroleerd met Exact: de artikelomschrijving komt uit Exact, en artikelen die niet bestaan staan rood. Is alles in orde, dan maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Logistieke import</strong>).</p>
         <div class="ka-actions">

@@ -1,6 +1,11 @@
 (function () {
     var app = document.getElementById('oiApp');
     var endpoint = app.getAttribute('data-validate');
+    // Dezelfde pagina voor offertes (debiteur) en inkooporders (leverancier): alleen teksten en de XML verschillen.
+    var purchase = app.getAttribute('data-kind') === 'inkoop';
+    var T = purchase
+        ? { page: 'Inkooporder Import', seller: 'inkoper', Seller: 'Inkoper', party: 'leverancier', Party: 'Leverancier', partyNr: 'leveranciernummer', soort: 'crediteur', orderType: 'B', partyTag: 'Creditor', filePrefix: 'Inkooporder', template: 'Inkooporder_import_template.xlsx' }
+        : { page: 'Offerte Import', seller: 'verkoper', Seller: 'Verkoper', party: 'debiteur', Party: 'Debiteur', partyNr: 'debiteurnummer', soort: 'debiteur', orderType: 'Q', partyTag: 'Debtor', filePrefix: 'Offerte', template: 'Offerte_import_template.xlsx' };
     var csrf = app.getAttribute('data-csrf');
     var sellerEl = document.getElementById('oiSeller');
     var debtorEl = document.getElementById('oiDebtor');
@@ -80,14 +85,14 @@
         var help = XLSX.utils.aoa_to_sheet([
             [1, 'Geef per regel het aantal (kolom B) en de artikelcode (kolom C) in'],
             [2, 'Meer dan 100 regels? Nummer de regelnummers gewoon door'],
-            [3, 'Verkoper, debiteurnummer, omschrijving en datum vul je in op het dashboard (Offerte Import)'],
-            [4, 'Importeer het bestand in Offerte Import; de artikelen worden gecontroleerd met Exact en de artikelomschrijving wordt opgehaald']
+            [3, T.Seller + ', ' + T.partyNr + ', omschrijving en datum vul je in op het dashboard (' + T.page + ')'],
+            [4, 'Importeer het bestand in ' + T.page + '; de artikelen worden gecontroleerd met Exact en de artikelomschrijving wordt opgehaald']
         ]);
         help['!cols'] = [{ wch: 4 }, { wch: 110 }];
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Order');
         XLSX.utils.book_append_sheet(wb, help, 'Uitleg');
-        XLSX.writeFile(wb, 'Offerte_import_template.xlsx');
+        XLSX.writeFile(wb, T.template);
     }
 
     // ---- Excel inlezen ----
@@ -120,7 +125,7 @@
                 if (!cols['aantal']) { throw new Error('Geen kolom "Aantal" gevonden. Gebruik de template (Regelnr, Aantal, Artikelcode).'); }
 
                 // Oude template (met kopvelden bovenin): die velden worden ook overgenomen als ze erin staan.
-                if (String(val('A8') || '').trim().toLowerCase() === 'debiteurnummer') {
+                if (!purchase && String(val('A8') || '').trim().toLowerCase() === 'debiteurnummer') {
                     sellerEl.value = cellText(val('B6'));
                     debtorEl.value = cellText(val('A9'));
                     descEl.value = cellText(val('B9'));
@@ -158,6 +163,7 @@
         body.set('csrf', csrf);
         body.set('verkoper', sellerEl.value.trim());
         body.set('debiteur', debtorEl.value.trim());
+        body.set('soort', T.soort);
         if (withItems) {
             var seen = {};
             lines.forEach(function (l) { if (cv(l) !== '' && !seen[ck(l)]) { seen[ck(l)] = true; body.append('items[]', cv(l)); } });
@@ -169,7 +175,7 @@
                 if (ticket !== validating) { return; }
                 if (!json.ok) { throw new Error(json.error || 'Controle mislukt.'); }
                 sellerInfo = json.verkoper;
-                debtorInfo = json.debiteur;
+                debtorInfo = json.partij || json.debiteur;
                 if (withItems) {
                     itemInfo = json.items || {};
                     lines.forEach(function (l) { if (cv(l) !== '') { checked[ck(l)] = true; } });
@@ -182,7 +188,7 @@
                 showMessage('Controle met Exact mislukt: ' + err.message);
             });
     }
-    // Eén artikelcode (na een wijziging in de tabel) opnieuw controleren; verkoper en debiteur blijven ongemoeid.
+    // Eén artikelcode (na een wijziging in de tabel) opnieuw controleren; verkoper/inkoper en debiteur/leverancier blijven ongemoeid.
     function validateItem(code) {
         var key = code.toUpperCase();
         var body = new URLSearchParams();
@@ -221,11 +227,11 @@
         var seller = sellerEl.value.trim();
         if (seller === '') { setCheck(checks.seller, '', true); }
         else if (!sellerInfo) { setCheck(checks.seller, 'Wordt gecontroleerd…', true); checks.seller.className = 'oi-check'; }
-        else { setCheck(checks.seller, sellerInfo.found ? '✓ ' + sellerInfo.name : '✗ Verkoper niet gevonden', sellerInfo.found); }
+        else { setCheck(checks.seller, sellerInfo.found ? '✓ ' + sellerInfo.name : '✗ ' + T.Seller + ' niet gevonden', sellerInfo.found); }
         var debtor = debtorEl.value.trim();
         if (debtor === '') { setCheck(checks.debtor, '', true); }
         else if (!debtorInfo) { setCheck(checks.debtor, 'Wordt gecontroleerd…', true); checks.debtor.className = 'oi-check'; }
-        else { setCheck(checks.debtor, debtorInfo.found ? '✓ ' + debtorInfo.name : '✗ Debiteur niet gevonden', debtorInfo.found); }
+        else { setCheck(checks.debtor, debtorInfo.found ? '✓ ' + debtorInfo.name : '✗ ' + T.Party + ' niet gevonden', debtorInfo.found); }
         setCheck(checks.desc, descEl.value.trim() === '' ? (lines.length ? '✗ Omschrijving ontbreekt' : '') : '', descEl.value.trim() !== '');
         var dateOk = /^\d{4}-\d{2}-\d{2}$/.test(dateEl.value);
         setCheck(checks.date, dateOk || !lines.length ? '' : '✗ Datum ontbreekt', dateOk);
@@ -268,8 +274,8 @@
 
         // Export alleen als alles klopt
         var problems = [];
-        if (seller === '') { problems.push('verkoper invullen'); } else if (!sellerInfo) { problems.push('verkoper wordt gecontroleerd'); } else if (!sellerInfo.found) { problems.push('verkoper bestaat niet in Exact'); }
-        if (debtor === '') { problems.push('debiteurnummer invullen'); } else if (!debtorInfo) { problems.push('debiteurnummer wordt gecontroleerd'); } else if (!debtorInfo.found) { problems.push('debiteurnummer bestaat niet in Exact'); }
+        if (seller === '') { problems.push(T.seller + ' invullen'); } else if (!sellerInfo) { problems.push(T.seller + ' wordt gecontroleerd'); } else if (!sellerInfo.found) { problems.push(T.seller + ' bestaat niet in Exact'); }
+        if (debtor === '') { problems.push(T.partyNr + ' invullen'); } else if (!debtorInfo) { problems.push(T.partyNr + ' wordt gecontroleerd'); } else if (!debtorInfo.found) { problems.push(T.partyNr + ' bestaat niet in Exact'); }
         if (descEl.value.trim() === '') { problems.push('omschrijving invullen'); }
         if (!dateOk) { problems.push('datum invullen'); }
         if (!states.some(function (s) { return s.export; })) { problems.push('minstens één artikelregel met artikelcode en aantal'); }
@@ -294,23 +300,27 @@
     function buildXml() {
         var debtor = xmlEsc(debtorEl.value.trim());
         var date = dateEl.value;
+        var party = '<' + T.partyTag + ' code="' + debtor + '"  Number="' + debtor + '"></' + T.partyTag + '>';
         var out = [];
         out.push('<?xml version="1.0" encoding="UTF-8"?>');
         out.push('<eExact xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="eExact-Schema.xsd">');
         out.push('<Orders>');
-        out.push(' <Order type="Q">');
+        out.push(' <Order type="' + T.orderType + '">');
         out.push('   <Description>' + xmlEsc(descEl.value.trim()) + '</Description>');
         out.push('   <OrderedBy>');
-        out.push('      <Debtor code="' + debtor + '"  Number="' + debtor + '"></Debtor>');
+        out.push('      ' + party);
         out.push('      <Date>' + date + '</Date>');
         out.push('   </OrderedBy>');
-        out.push('   <DeliverTo>');
-        out.push('      <Debtor code="' + debtor + '"  Number="' + debtor + '"></Debtor>');
-        out.push('      <Date>' + date + '</Date>');
-        out.push('   </DeliverTo>');
-        out.push('   <InvoiceTo>');
-        out.push('      <Debtor code="' + debtor + '"  Number="' + debtor + '"></Debtor>');
-        out.push('   </InvoiceTo>');
+        if (!purchase) {
+            // Offerte (zoals de macro in de Excel-template): ook afleveradres en factuuradres.
+            out.push('   <DeliverTo>');
+            out.push('      ' + party);
+            out.push('      <Date>' + date + '</Date>');
+            out.push('   </DeliverTo>');
+            out.push('   <InvoiceTo>');
+            out.push('      ' + party);
+            out.push('   </InvoiceTo>');
+        }
         var n = 0;
         lines.forEach(function (l) {
             var st = lineState(l);
@@ -331,7 +341,7 @@
         var blob = new Blob([buildXml()], { type: 'application/xml;charset=utf-8' });
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'Offerte-' + debtorEl.value.trim().replace(/[^A-Za-z0-9._-]+/g, '_') + '.xml';
+        a.download = T.filePrefix + '-' + debtorEl.value.trim().replace(/[^A-Za-z0-9._-]+/g, '_') + '.xml';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
