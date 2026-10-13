@@ -15,7 +15,7 @@ h3 { margin: 4px 0 0; font-size: 19px; }
     background: #e7edf2;
     color: var(--muted);
 }
-.status-pill.ready { color: var(--ok); background: #e8f4ed; }
+.status-pill.ready { color: var(--ok); background: #e8f4ed; border: 1px solid var(--ok-soft-line); padding: 9px 14px; } /* padding -1px: de rand telt mee, pil blijft even groot */
 .status-pill.error { color: var(--danger); background: #f7eaea; }
 
 .section-heading, .subsection-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
