@@ -1,6 +1,6 @@
 .oi-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
 .oi-fields .oi-wide { grid-column: span 2; }
-.oi-fields input { width: 100%; box-sizing: border-box; }
+.oi-fields input { width: 100%; box-sizing: border-box; text-align: left; direction: ltr; }
 .oi-check { min-height: 1.2em; font-size: 12px; font-weight: 600; color: var(--muted); }
 .oi-check.is-ok { color: var(--ok, #237447); }
 .oi-check.is-bad { color: var(--danger, #a03636); }
