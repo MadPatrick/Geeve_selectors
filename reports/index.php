@@ -109,7 +109,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['inkoop-groep'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('productiviteit')): ?>
-        <a class="<?= tileClass('productiviteit') ?>" href="productiviteit/index.php"<?= tileAttrs('productiviteit') ?>>>
+        <a class="<?= tileClass('productiviteit') ?>" href="productiviteit/index.php"<?= tileAttrs('productiviteit') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
