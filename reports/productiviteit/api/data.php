@@ -222,6 +222,84 @@ function productiviteitDetail(PDO $pdo, string $mode, int $emp, DateTimeImmutabl
     return ['columns' => $columns, 'rows' => $rows, 'truncated' => count($rows) >= $limit];
 }
 
+/** Dagen van de afgelopen week worden altijd opnieuw opgehaald; oudere dagen veranderen niet meer en worden onthouden. */
+const PRODUCTIVITEIT_RECENT_DAYS = 7;
+
+/** @return array<string, list<array{0: string, 1: int, 2: int}>> dag => lijst van [meting, medewerker, aantal] */
+function productiviteitCacheRead(string $mode): array
+{
+    $raw = @file_get_contents(sys_get_temp_dir() . '/geeve_productiviteit_v1_' . $mode . '.json');
+    $data = $raw === false ? null : json_decode($raw, true);
+    return is_array($data) ? $data : [];
+}
+
+function productiviteitCacheWrite(string $mode, array $days): void
+{
+    $file = sys_get_temp_dir() . '/geeve_productiviteit_v1_' . $mode . '.json';
+    $tmp = $file . '.' . bin2hex(random_bytes(4));
+    if (@file_put_contents($tmp, json_encode($days)) !== false) {
+        @rename($tmp, $file);
+    }
+    @unlink($tmp); // blijft alleen bestaan als hernoemen mislukte
+}
+
+/**
+ * Haalt de tellingen op voor [from, to] met een cache op de server voor dagen ouder dan een week (die veranderen niet meer),
+ * zodat bij een grote periode (bijv. dit jaar) alleen de laatste week nog uit Exact komt. Ontbrekende oude dagen worden in
+ * een keer opgehaald en onthouden. Zonder schrijfrechten op de tijdelijke map werkt alles gewoon, maar zonder cache.
+ *
+ * @return list<list<mixed>> rijen [meting, medewerker, dag, aantal]
+ */
+function productiviteitFetchCached(PDO $pdo, string $mode, DateTimeImmutable $from, DateTimeImmutable $to): array
+{
+    $fetch = fn (DateTimeImmutable $f, DateTimeImmutable $t): array => match ($mode) {
+        'productie' => productiviteitProductie($pdo, $f, $t),
+        'verkoop' => productiviteitVerkoop($pdo, $f, $t),
+        default => productiviteitOfferte($pdo, $f, $t),
+    };
+
+    $today = new DateTimeImmutable('today');
+    $recentStart = $today->modify('-' . PRODUCTIVITEIT_RECENT_DAYS . ' days');
+    $oldEnd = min($to, $recentStart->modify('-1 day'));
+    $out = [];
+
+    if ($from <= $oldEnd) {
+        $cache = productiviteitCacheRead($mode);
+        $missing = [];
+        for ($d = $from; $d <= $oldEnd; $d = $d->modify('+1 day')) {
+            if (!isset($cache[$d->format('Y-m-d')])) {
+                $missing[] = $d;
+            }
+        }
+        if ($missing !== []) {
+            $mFrom = $missing[0];
+            $mTo = $missing[count($missing) - 1];
+            $perDay = [];
+            foreach ($fetch($mFrom, $mTo) as $r) {
+                $perDay[(string) $r[2]][] = [(string) $r[0], (int) $r[1], (int) $r[3]];
+            }
+            for ($d = $mFrom; $d <= $mTo; $d = $d->modify('+1 day')) {
+                $key = $d->format('Y-m-d');
+                $cache[$key] = $perDay[$key] ?? [];
+            }
+            productiviteitCacheWrite($mode, $cache);
+        }
+        for ($d = $from; $d <= $oldEnd; $d = $d->modify('+1 day')) {
+            $key = $d->format('Y-m-d');
+            foreach ($cache[$key] ?? [] as $c) {
+                $out[] = [$c[0], $c[1], $key, $c[2]];
+            }
+        }
+    }
+
+    if ($to >= $recentStart) {
+        foreach ($fetch(max($from, $recentStart), $to) as $r) {
+            $out[] = $r;
+        }
+    }
+    return $out;
+}
+
 reportApi(function (array $in): array {
     $mode = (string) ($in['modus'] ?? 'productie');
     if (!in_array($mode, ['productie', 'verkoop', 'offerte'], true)) {
@@ -234,7 +312,7 @@ reportApi(function (array $in): array {
         $monthStart = $to->modify('first day of this month');
         $monday = $to->modify('monday this week');
         $yearStart = $to->modify('first day of january this year');
-        $from = min($yearStart, $monthStart, $monday);
+        $from = min($monthStart, $monday); // "Dit jaar" wordt apart (en gecachet) opgehaald, zie hieronder
     } else {
         $from = productiviteitDate($in['van'] ?? '', 'van');
         $to = productiviteitDate($in['tot'] ?? '', 'tot');
@@ -271,11 +349,20 @@ reportApi(function (array $in): array {
         return ['detail' => ['title' => $name . ' - ' . $range] + productiviteitDetail($pdo, $mode, $emp, $detailFrom, $detailTo)];
     }
 
-    $result = match ($mode) {
-        'productie' => productiviteitProductie($pdo, $from, $to),
-        'verkoop' => productiviteitVerkoop($pdo, $from, $to),
-        default => productiviteitOfferte($pdo, $from, $to),
-    };
+    // Dit jaar apart: totaal per medewerker voor 1 januari t/m vandaag (voor de kolom die de pagina daarna aanvult).
+    if (isset($in['jaar'])) {
+        $yFrom = $to->modify('first day of january this year');
+        $year = ['Orders' => [], 'Orderregels' => []];
+        $totals = ['Orders' => 0, 'Orderregels' => 0];
+        foreach (productiviteitFetchCached($pdo, $mode, $yFrom, $to) as $r) {
+            $set = $r[0] === 'O' ? 'Orders' : 'Orderregels';
+            $year[$set][(int) $r[1]] = ($year[$set][(int) $r[1]] ?? 0) + (int) $r[3];
+            $totals[$set] += (int) $r[3];
+        }
+        return ['year' => $year, 'yearTotals' => $totals];
+    }
+
+    $result = productiviteitFetchCached($pdo, $mode, $from, $to);
 
     // [medewerker][meting][dag] = aantal
     $counts = [];
@@ -309,7 +396,7 @@ reportApi(function (array $in): array {
             $specs[] = ['Week ' . $weekStart->format('W'), max($weekStart, $monthStart), min($weekStart->modify('+6 days'), $to), true];
         }
         $specs[] = ['Deze maand', $monthStart, $to, true];
-        $specs[] = ['Dit jaar', $yearStart, $to, true];
+        $specs[] = ['Dit jaar', $yearStart, $to, true, true]; // wordt door de pagina aangevuld (zie 'jaar')
     } else {
         for ($d = $from; $d <= $to; $d = $d->modify('+1 day')) {
             $specs[] = [$weekdays[(int) $d->format('w')] . ' ' . $d->format('d-m'), $d, $d, false];
@@ -346,6 +433,10 @@ reportApi(function (array $in): array {
             $row = [$names[$emp] ?? ($emp === 0 ? 'Onbekend' : 'Medewerker ' . $emp)];
             $hasValue = false;
             foreach ($specs as $i => $sp) {
+                if (!empty($sp[4])) { // nog op te halen: leeg
+                    $row[] = null;
+                    continue;
+                }
                 $n = $sumRange($perDay, $sp[1], $sp[2]);
                 $colTotals[$i] += $n;
                 $row[] = $n > 0 ? $n : null;
@@ -396,6 +487,7 @@ reportApi(function (array $in): array {
         'kop' => $kop,
         'hideRowCount' => true,
         'sumColumns' => $sumColumns,
+        'yearPending' => $overview,
         'titles' => ['Productiviteit per medewerker - ' . $modeLabel, '{meting}, ' . $period],
         'fileTag' => $mode . '_' . ($overview ? 'overzicht_' . $to->format('Y-m-d') : $from->format('Y-m-d') . '_' . $to->format('Y-m-d')),
     ];

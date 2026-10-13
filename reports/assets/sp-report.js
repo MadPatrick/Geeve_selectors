@@ -49,7 +49,7 @@
         data.rows.forEach(function (r, ri) {
             var emp = data.rowIds ? data.rowIds[ri] : null;
             html += '<tr' + (data.sets && r[0] === 'Totaal' ? ' class="rp-total"' : '') + (emp !== null && emp !== undefined ? ' data-emp="' + emp + '"' : '') + '>' + r.map(function (v, i) { return withSum((function () {
-                if (v === null) { return '<td></td>'; }
+                if (v === null) { return data.yearPending && data.columns[i] === 'Dit jaar' ? '<td class="num">…</td>' : '<td></td>'; }
                 if ((data.nowrap || []).indexOf(data.columns[i]) !== -1) { return '<td class="nowrap">' + esc(v) + '</td>'; }
                 if (isPct(i) && typeof v === 'number') { return '<td class="num">' + pct(v) + '</td>'; }
                 if (isEuro(i) && typeof v === 'number') { return '<td class="num">' + euro(v) + '</td>'; }
@@ -78,7 +78,7 @@
             });
         }
         render();
-        downloadBtn.disabled = data.rows.length === 0;
+        downloadBtn.disabled = data.rows.length === 0 || !!data.yearPending;
     }
     if (measureBox) {
         Array.prototype.forEach.call(measureBox.querySelectorAll('[data-measure]'), function (b) {
@@ -96,6 +96,47 @@
             });
         });
     }
+    // "Dit jaar" is zwaar en wordt daarom apart opgehaald, nadat het overzicht al getoond wordt; daarna vult de kolom zich aan.
+    function loadYear(forData, params) {
+        var body = new URLSearchParams();
+        body.set('csrf', box.getAttribute('data-csrf'));
+        params.forEach(function (p) { body.set(p[0], p[1]); });
+        body.set('jaar', '1');
+        status.textContent = 'Dit jaar wordt aangevuld…';
+        fetch(box.getAttribute('data-endpoint'), { method: 'POST', body: body })
+            .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
+            .then(function (json) {
+                if (!json.ok || !json.year) { throw new Error(json.error || 'Ophalen mislukt.'); }
+                if (data !== forData) { return; }
+                var last = data.columns.length - 1;
+                Object.keys(data.sets).forEach(function (name) {
+                    var rows = data.sets[name], ids = data.setIds[name];
+                    rows.forEach(function (row, i) {
+                        if (ids[i] !== null && ids[i] !== undefined) {
+                            var n = (json.year[name] || {})[ids[i]];
+                            row[last] = n > 0 ? n : null;
+                        } else if (row[0] === 'Totaal') {
+                            var tot = (json.yearTotals || {})[name];
+                            row[last] = tot > 0 ? tot : null;
+                        }
+                    });
+                });
+                data.yearPending = false;
+                data.rows = data.sets[measure];
+                render();
+                downloadBtn.disabled = data.rows.length === 0;
+                status.textContent = 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + '.';
+            })
+            .catch(function (err) {
+                if (data !== forData) { return; }
+                data.yearPending = false;
+                render();
+                downloadBtn.disabled = data.rows.length === 0;
+                status.textContent = '';
+                fail('Dit jaar kon niet worden opgehaald: ' + err.message);
+            });
+    }
+
     // Schakelaar Productie / Verkoop: andere gegevens, dus (als er al iets getoond wordt) opnieuw ophalen.
     Array.prototype.forEach.call(box.querySelectorAll('[data-mode]'), function (b) {
         b.addEventListener('click', function () {
@@ -138,10 +179,11 @@
                     selectMeasure(measure);
                 }
                 render();
-                downloadBtn.disabled = data.rows.length === 0;
+                downloadBtn.disabled = data.rows.length === 0 || !!data.yearPending;
                 status.textContent = data.rows.length === 0
                     ? 'Geen regels gevonden.'
                     : 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + '.';
+                if (data.yearPending) { loadYear(data, params); }
             })
             .catch(function (err) {
                 status.textContent = '';
