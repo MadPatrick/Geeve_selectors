@@ -14,7 +14,7 @@
     gap: 10px;
     align-items: flex-start;
     background: rgba(255, 255, 255, .8); /* iets transparant, zodat de achtergrond zacht doorschemert */
-    border: 1px solid var(--line);
+    border: 2px solid #fff; /* duidelijke rand rond de tegel */
     border-radius: 18px;
     box-shadow: var(--shadow);
     padding: 28px 26px;
