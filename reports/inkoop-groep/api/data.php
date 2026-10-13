@@ -42,16 +42,16 @@ reportApi(function (array $in): array {
     }
     $description = trim((string) $row['d']);
 
-    // Periode: orderdatum van "van" tot en met "tot".
+    // Periode: orderdatum van "van" tot en met "tot". Eenheid: verkoopeenheid, anders "meet eenheid" (vrij veld 4), anders de verpakking.
     $stmt = $pdo->prepare(
         'SET NOCOUNT ON; ' .
-        'SELECT RTRIM(i.ItemCode) AS [Artikelnummer], RTRIM(i.Description) AS [Omschrijving], RTRIM(i.eenh_verk) AS [Eenheid], ' .
+        'SELECT RTRIM(i.ItemCode) AS [Artikelnummer], RTRIM(i.Description) AS [Omschrijving], COALESCE(NULLIF(LTRIM(RTRIM(i.eenh_verk)), \'\'), NULLIF(LTRIM(RTRIM(i.UserField_04)), \'\'), NULLIF(LTRIM(RTRIM(i.PackageDescription)), \'\'), \'\') AS [Eenheid], ' .
         'SUM(ISNULL(r.esr_aantal, 0)) AS [Besteld], COUNT(DISTINCT k.ordernr) AS [Aantal orders] ' .
         'FROM orkrg k WITH (NOLOCK) ' .
         'INNER JOIN orsrg r WITH (NOLOCK) ON r.ordernr = k.ordernr ' .
         'INNER JOIN Items i WITH (NOLOCK) ON i.ItemCode = r.artcode ' .
         'WHERE k.ord_soort = ? AND LTRIM(RTRIM(i.Assortment)) = ? AND k.orddat >= ? AND k.orddat < DATEADD(day, 1, ?) ' .
-        'GROUP BY i.ItemCode, i.Description, i.eenh_verk ORDER BY i.ItemCode'
+        'GROUP BY i.ItemCode, i.Description, i.eenh_verk, i.UserField_04, i.PackageDescription ORDER BY i.ItemCode'
     );
     $stmt->execute([PURCHASE_ORDER_TYPE, $group, $from->format('Y-m-d'), $to->format('Y-m-d')]);
 
