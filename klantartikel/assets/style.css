@@ -8,7 +8,8 @@
 }
 /* "Gegevens ophalen" in de rapporten: groen, zoals de andere groene knoppen (donkergroene rand). */
 #rpFetch, #eiFetch, #mspFetch { background: var(--ok-fill, #58c67c); border-color: var(--ok-line, #14532d); color: var(--ok-ink, #0f3d22); }
-.ka-button--secondary { color: var(--accent, #c8102e); background: transparent; }
+/* Tweede-keuzeknoppen (Download Excel, template, Regel toevoegen, ...): blauw, zoals de gekozen keuzeschakelaar. */
+.ka-button--secondary, #eiExport { color: #fff; background: #087fff; border-color: #0a5fc2; }
 .ka-button:hover { opacity: .9; }
 .panel h2 small { color: var(--muted); font-weight: 600; }
 .ka-table-wrap { overflow-x: auto; }
