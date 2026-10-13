@@ -20,6 +20,9 @@ const PRODUCTIVITEIT_MAX_DAYS = 62;
 /** Gebruikers (syscreator) die geen medewerker zijn maar een systeemaccount ('d ADMINISTRATOR', 'D4D Gebruiker'); tellen niet mee bij Verkoop. */
 const PRODUCTIVITEIT_VERKOOP_EXCLUDE = [14, 64];
 
+/** Medewerkers die geen verkooporders invoeren: hoofdletterongevoelig deel van de naam (humres.fullname); tellen niet mee bij Verkoop. */
+const PRODUCTIVITEIT_VERKOOP_EXCLUDE_NAMES = ['Anton Steenland', 'Geert Steenland', 'Monteiro Rodrigues', 'Jerzy van den Bosch'];
+
 function productiviteitDate(mixed $value, string $label): DateTimeImmutable
 {
     $d = DateTimeImmutable::createFromFormat('!Y-m-d', trim((string) $value));
@@ -89,8 +92,8 @@ function productiviteitProductie(PDO $pdo, DateTimeImmutable $from, DateTimeImmu
  *
  * Alleen de lopende orders (orkrg/orsrg): daar is syscreator/syscreated echt degene die de order invoerde. In de
  * orderhistorie (orhkrg/orhsrg) staat de medewerker die de order heeft verplaatst/afgehandeld, dus die telt hier niet mee.
- * Orderregels tellen alleen als ze zijn aangemaakt door dezelfde medewerker als de orderkop, zodat regels die het magazijn
- * later toevoegt of splitst (bijv. bij een deellevering) niet als verkoop-invoer meetellen.
+ * Orderregels worden geteld bij de medewerker die de orderkop heeft aangemaakt (op de dag waarop de regel is aangemaakt):
+ * ook als een collega de regels invoert, blijft het werk bij de verkoper; wie geen orderkop aanmaakt, komt er niet in voor.
  */
 function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
@@ -103,11 +106,11 @@ function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmuta
         "FROM orkrg k WITH (NOLOCK) WHERE k.ord_soort = 'V' AND k.syscreator NOT IN ({$exclude}) AND k.syscreated >= ? AND k.syscreated < DATEADD(day, 1, ?) " .
         'GROUP BY k.syscreator, CONVERT(char(10), k.syscreated, 23) ' .
         'UNION ALL ' .
-        "SELECT 'L', r.syscreator, CONVERT(char(10), r.syscreated, 23), COUNT(*) " .
+        "SELECT 'L', k.syscreator, CONVERT(char(10), r.syscreated, 23), COUNT(*) " .
         'FROM orsrg r WITH (NOLOCK) INNER JOIN orkrg k WITH (NOLOCK) ON k.ordernr = r.ordernr ' .
-        "WHERE k.ord_soort = 'V' AND r.syscreator = k.syscreator AND r.syscreator NOT IN ({$exclude}) AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' " .
+        "WHERE k.ord_soort = 'V' AND k.syscreator NOT IN ({$exclude}) AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' " .
         'AND r.syscreated >= ? AND r.syscreated < DATEADD(day, 1, ?) ' .
-        'GROUP BY r.syscreator, CONVERT(char(10), r.syscreated, 23)';
+        'GROUP BY k.syscreator, CONVERT(char(10), r.syscreated, 23)';
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$startParam, $endParam, $startParam, $endParam]);
@@ -156,6 +159,18 @@ reportApi(function (array $in): array {
         $nm->execute($ids);
         foreach ($nm->fetchAll() as $row) {
             $names[(int) $row['res_id']] = trim((string) $row['naam']);
+        }
+    }
+
+    // Verkoop: medewerkers die geen verkooporders invoeren (op naam) overslaan.
+    if ($mode === 'verkoop') {
+        foreach ($names as $id => $fullName) {
+            foreach (PRODUCTIVITEIT_VERKOOP_EXCLUDE_NAMES as $part) {
+                if (stripos($fullName, $part) !== false) {
+                    unset($counts[$id]);
+                    break;
+                }
+            }
         }
     }
 
