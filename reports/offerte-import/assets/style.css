@@ -21,3 +21,6 @@
 .oi-pill-bad { border-color: #c17c7c; background: #fde2e2; color: #a03636; }
 .oi-pill-warn { border-color: #e0b04a; background: #fff3d6; color: #8a5a00; }
 .oi-problems { color: #8a5a00; background: #fff3d6; }
+#oiTable th:first-child, #oiTable td:first-child { width: 1%; padding-left: 8px; padding-right: 8px; text-align: center; }
+#oiTable th:last-child, #oiTable td:last-child { width: 1%; padding-left: 4px; padding-right: 4px; }
+#oiExport:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(.5); }
