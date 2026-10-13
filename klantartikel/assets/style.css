@@ -4,7 +4,7 @@
 .ka-button {
     min-height: 44px; padding: 0 20px; border-radius: 999px; font: inherit; font-weight: 750; font-size: 13px;
     cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
-    color: #fff; background: var(--accent, #c8102e); border: 1px solid var(--accent-line, #e0516a);
+    color: #fff; background: rgba(238, 48, 93, .9); border: 1px solid var(--accent-line, #e0516a); /* iets transparant */
 }
 .ka-button--secondary { color: var(--accent, #c8102e); background: transparent; }
 .ka-button:hover { opacity: .9; }
