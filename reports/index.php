@@ -117,6 +117,19 @@ $csrf = csrfToken();
                 </svg>
             </span>
         </a>
+        <a class="tile" href="offerte-import/index.php">
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <polyline points="9 15 12 12 15 15"></polyline>
+                </svg>
+            </div>
+            <h2>Offerte Import</h2>
+            <p>Offerte via Excel importeren, controleren met Exact en als XML klaarzetten</p>
+            <span class="tile-cta">Open import &rarr;</span>
+        </a>
     </div>
 
     <p class="page-footer">Geeve Hydraulics</p>
