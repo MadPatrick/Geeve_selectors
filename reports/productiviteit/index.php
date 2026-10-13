@@ -52,7 +52,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
 
     <section class="panel">
         <h2>Productiviteit per medewerker</h2>
-        <p class="ka-empty">Toont per medewerker en per dag hoeveel verkooporders en orderregels logistiek zijn afgehandeld (geleverd, op basis van de leveringsboekingen in Exact). Productieorders zijn nog niet opgenomen. Kies de periode (maximaal 62 dagen), haal de gegevens op en download ze daarna als Excel-bestand.</p>
+        <p class="ka-empty">Toont per medewerker en per dag het aantal orders of orderregels. <strong>Productie</strong> telt de logistiek afgehandelde (geleverde) verkooporders, <strong>Verkoop</strong> telt de ingevoerde verkooporders. Kies de periode (maximaal 62 dagen), haal de gegevens op en schakel daarna tussen Orders en Orderregels. Productieorders (werkorders) zijn nog niet opgenomen.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="Productiviteit" data-file="Productiviteit">
             <label class="msp-field">
                 <span>Datum van</span>
@@ -62,6 +62,11 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
                 <span>Datum tot</span>
                 <input type="date" class="ka-input" data-field="tot" data-name="de datum tot" value="<?= h($defaultTo) ?>">
             </label>
+            <input type="hidden" id="rpModus" data-field="modus" value="productie">
+            <div class="rp-toggle" role="group" aria-label="Soort">
+                <button type="button" data-mode="productie" class="is-active">Productie</button>
+                <button type="button" data-mode="verkoop">Verkoop</button>
+            </div>
             <button type="button" id="rpFetch" class="ka-button">Gegevens ophalen</button>
             <button type="button" id="rpDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
             <span id="rpStatus" class="msp-status"></span>
@@ -70,6 +75,12 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
     </section>
 
     <section class="panel" id="rpResult" hidden>
+        <div class="rp-bar">
+            <div class="rp-toggle" id="rpMeasure" role="group" aria-label="Telling" hidden>
+                <button type="button" data-measure="Orders" class="is-active">Orders</button>
+                <button type="button" data-measure="Orderregels">Orderregels</button>
+            </div>
+        </div>
         <div class="msp-summary" id="rpSummary"></div>
         <div class="ka-table-wrap msp-scroll"><table class="ka-table" id="rpTable"></table></div>
     </section>

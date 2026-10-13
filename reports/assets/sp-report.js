@@ -11,6 +11,9 @@
     var summary = document.getElementById('rpSummary');
     var table = document.getElementById('rpTable');
     var data = null;
+    var measure = null;      // gekozen telling bij rapporten met meerdere reeksen (data.sets)
+    var measureBox = document.getElementById('rpMeasure');
+    var modeInput = document.getElementById('rpModus');
     var asked = '';
     var ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -32,10 +35,10 @@
             (data.kop || []).map(function (k) {
                 return '<span class="msp-pill">' + (k.label ? esc(k.label) + ' ' : '') + '<strong>' + esc(k.type === 'euro' ? euro(k.value) : k.value) + '</strong></span>';
             }).join('') +
-            '<span class="msp-pill"><strong>' + nl(data.rows.length) + '</strong> regels</span>';
+            (data.hideRowCount ? '' : '<span class="msp-pill"><strong>' + nl(data.rows.length) + '</strong> regels</span>');
         var html = '<thead><tr>' + data.columns.map(function (c) { return '<th>' + esc(c.trim()) + '</th>'; }).join('') + '</tr></thead><tbody>';
         data.rows.forEach(function (r) {
-            html += '<tr>' + r.map(function (v, i) {
+            html += '<tr' + (data.sets && r[0] === 'Totaal' ? ' class="rp-total"' : '') + '>' + r.map(function (v, i) {
                 if (v === null) { return '<td></td>'; }
                 if ((data.nowrap || []).indexOf(data.columns[i]) !== -1) { return '<td class="nowrap">' + esc(v) + '</td>'; }
                 if (isPct(i) && typeof v === 'number') { return '<td class="num">' + pct(v) + '</td>'; }
@@ -48,6 +51,33 @@
         table.innerHTML = html + '</tbody>';
         result.hidden = false;
     }
+
+    // Schakelaar Orders / Orderregels: wisselt de getoonde reeks zonder opnieuw op te halen.
+    function selectMeasure(name) {
+        measure = name;
+        data.rows = data.sets[name];
+        if (measureBox) {
+            measureBox.hidden = false;
+            Array.prototype.forEach.call(measureBox.querySelectorAll('[data-measure]'), function (b) {
+                b.classList.toggle('is-active', b.getAttribute('data-measure') === name);
+            });
+        }
+        render();
+        downloadBtn.disabled = data.rows.length === 0;
+    }
+    if (measureBox) {
+        Array.prototype.forEach.call(measureBox.querySelectorAll('[data-measure]'), function (b) {
+            b.addEventListener('click', function () { if (data && data.sets) { selectMeasure(b.getAttribute('data-measure')); } });
+        });
+    }
+    // Schakelaar Productie / Verkoop: andere gegevens, dus (als er al iets getoond wordt) opnieuw ophalen.
+    Array.prototype.forEach.call(box.querySelectorAll('[data-mode]'), function (b) {
+        b.addEventListener('click', function () {
+            modeInput.value = b.getAttribute('data-mode');
+            Array.prototype.forEach.call(box.querySelectorAll('[data-mode]'), function (x) { x.classList.toggle('is-active', x === b); });
+            if (data) { fetchData(); }
+        });
+    });
 
     function fetchData() {
         message.hidden = true;
@@ -76,6 +106,11 @@
                 if (!json.ok) { throw new Error(json.error || 'Ophalen mislukt.'); }
                 data = json;
                 asked = json.fileTag || number;
+                if (data.sets) {
+                    var keys = Object.keys(data.sets);
+                    if (!measure || !(measure in data.sets)) { measure = keys[0]; }
+                    selectMeasure(measure);
+                }
                 render();
                 downloadBtn.disabled = data.rows.length === 0;
                 status.textContent = data.rows.length === 0
@@ -97,7 +132,7 @@
 
     downloadBtn.addEventListener('click', function () {
         if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return; }
-        var titles = data.titles || [];
+        var titles = (data.titles || []).map(function (line) { return line.replace('{meting}', measure || ''); });
         // Bovenaan de titelregels (nummer en naam), dan een lege regel en daarna de tabelkop op rij HR+1.
         var HR = titles.length ? titles.length + 1 : 0;
         var aoa = [];
@@ -173,7 +208,7 @@
             return { wch: w };
         });
         var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, box.getAttribute('data-sheet'));
-        XLSX.writeFile(wb, box.getAttribute('data-file') + '_' + asked + '.xlsx');
+        XLSX.utils.book_append_sheet(wb, ws, box.getAttribute('data-sheet') + (measure ? ' ' + measure : ''));
+        XLSX.writeFile(wb, box.getAttribute('data-file') + '_' + asked + (measure ? '_' + measure : '') + '.xlsx');
     });
 })();
