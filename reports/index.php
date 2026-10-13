@@ -145,7 +145,7 @@ $csrf = csrfToken();
                 </svg>
             </div>
             <h2>Export info</h2>
-            <p>Orderregels met collo, gewicht en afmetingen voor de exportdocumenten (Orders, Deme, NOV)</p>
+            <p>Orderregels met collo, gewicht en afmetingen voor de exportdocumenten</p>
         </a>
     </div>
 
