@@ -136,6 +136,17 @@ $csrf = csrfToken();
             <h2>Inkooporder Import</h2>
             <p>Inkooporder via Excel importeren, controleren met Exact en als XML klaarzetten</p>
         </a>
+        <a class="tile" href="export-info/index.php">
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            </div>
+            <h2>Export info</h2>
+            <p>Orderregels met collo, gewicht en afmetingen voor de exportdocumenten (Orders, Deme, NOV)</p>
+        </a>
     </div>
 
     <p class="page-footer">Geeve Hydraulics</p>
@@ -150,18 +161,7 @@ $csrf = csrfToken();
         <div class="lock-actions">
             <button type="button" id="lockCancel" class="lock-button lock-button--secondary">Annuleren</button>
             <button type="submit" class="lock-button">Openen</button>
-            <a class="tile" href="export-info/index.php">
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                </svg>
-            </div>
-            <h2>Export info</h2>
-            <p>Orderregels met collo, gewicht en afmetingen voor de exportdocumenten (Orders, Deme, NOV)</p>
-        </a>
-    </div>
+        </div>
     </form>
 </div>
 <script src="assets/lock.js?v=<?= h(assetVersion('assets/lock.js')) ?>"></script>
