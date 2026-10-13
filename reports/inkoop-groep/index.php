@@ -32,7 +32,7 @@ $defaultFrom = date('Y-m-d', strtotime('-1 year +1 day'));
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Inkoop per groep | Geeve Hydraulics</title>
+    <title>Inkoop per Artikelgroep | Geeve Hydraulics</title>
     <link rel="icon" href="../../favicon.ico?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
     <link rel="stylesheet" href="../../shared/style.css?v=<?= h(assetVersion('../../shared/style.css')) ?>">
     <link rel="stylesheet" href="../../assets/style.css?v=<?= h(assetVersion('../../assets/style.css')) ?>">
@@ -43,7 +43,7 @@ $defaultFrom = date('Y-m-d', strtotime('-1 year +1 day'));
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Inkoop per groep';
+    $headerTitle = 'Inkoop per Artikelgroep';
     $headerImagesPath = '../../images/';
     $headerHomeHref = '../index.php';
     $headerTopline = '<span class="version-inline">Versie ' . h(APP_VERSION) . '</span>';
@@ -51,9 +51,9 @@ $defaultFrom = date('Y-m-d', strtotime('-1 year +1 day'));
     ?>
 
     <section class="panel">
-        <h2>Inkoop per groep</h2>
+        <h2>Inkoop per Artikelgroep</h2>
         <p class="ka-empty">Toont per artikel van een artikelgroep het aantal dat in de gekozen periode op inkooporders is besteld (orderdatum van de inkooporder). Vul de groep en de periode in, haal de gegevens op en download ze daarna als Excel-bestand.</p>
-        <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="Inkoop per groep" data-file="Inkoop_groep">
+        <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="Inkoop per Artikelgroep" data-file="Inkoop_groep">
             <label class="msp-field">
                 <span>Artikelgroep</span>
                 <input type="text" class="ka-input" data-field="groep" data-name="de artikelgroep" maxlength="20" autocomplete="off" autofocus>

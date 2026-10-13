@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Inkoop per groep: per artikel van een artikelgroep (Items.Assortment, zoals bij Kortingstructuur) het aantal dat in de
+ * Inkoop per Artikelgroep: per artikel van een artikelgroep (Items.Assortment, zoals bij Kortingstructuur) het aantal dat in de
  * gekozen periode op inkooporders is besteld. Lees-query op orkrg (orderkop) + orsrg (orderregels) + Items in database 005,
  * dezelfde tabellen als de view 1655 VW_Alle_Ordersplus_verkoop_inkoop in Exactrapportage.
  */
@@ -78,7 +78,7 @@ reportApi(function (array $in): array {
         'rows' => $rows,
         'text' => ['Artikelnummer'],
         'kop' => $kop,
-        'titles' => ['Inkoop per groep ' . $group . ($description !== '' ? ' - ' . $description : ''), 'Periode ' . $period],
+        'titles' => ['Inkoop per Artikelgroep ' . $group . ($description !== '' ? ' - ' . $description : ''), 'Periode ' . $period],
         'fileTag' => preg_replace('/[^A-Za-z0-9._-]+/', '_', $group) . '_' . $from->format('Y-m-d') . '_' . $to->format('Y-m-d'),
     ];
 }, false);

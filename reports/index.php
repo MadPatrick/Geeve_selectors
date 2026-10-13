@@ -90,7 +90,7 @@ $csrf = csrfToken();
                     <path d="M14 17.5h7M17.5 14v7"></path>
                 </svg>
             </div>
-            <h2>Inkoop per groep</h2>
+            <h2>Inkoop per Artikelgroep</h2>
             <p>Ingekochte aantallen per artikel van een artikelgroep in een periode</p>
         </a>
         <a class="tile" href="productiviteit/index.php"<?= $productiviteitLocked ? ' data-lock="productiviteit"' : '' ?>>
