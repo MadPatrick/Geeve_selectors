@@ -26,3 +26,6 @@
 /* Alles ingevuld en gecontroleerd: de Exporteer-knop is groen. */
 #oiExport:not(:disabled) { background: var(--ok, #237447); border-color: var(--ok-line, #70a587); color: #fff; }
 #oiExport:not(:disabled):hover { opacity: 1; filter: brightness(1.1); }
+.oi-suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; margin: 2px 0 0; padding: 4px 0; list-style: none; background: var(--surface, #fff); border: 1px solid var(--border, #cfd6dd); border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.15); max-height: 280px; overflow-y: auto; }
+.oi-suggest li { padding: 6px 10px; cursor: pointer; font-size: 13px; font-weight: 400; }
+.oi-suggest li:hover, .oi-suggest li.is-active { background: rgba(0,0,0,.07); }

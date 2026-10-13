@@ -74,7 +74,7 @@ $csrf = csrfToken();
             </label>
             <label class="msp-field">
                 <span>Leveranciernummer</span>
-                <input type="text" id="oiDebtor" class="ka-input" maxlength="20" autocomplete="off">
+                <input type="text" id="oiDebtor" class="ka-input" maxlength="60" autocomplete="off" placeholder="Nummer of naam">
                 <small id="oiDebtorCheck" class="oi-check"></small>
             </label>
             <label class="msp-field oi-wide">

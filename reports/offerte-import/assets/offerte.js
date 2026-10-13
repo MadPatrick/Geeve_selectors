@@ -405,6 +405,57 @@
     [sellerEl, debtorEl].forEach(function (el) {
         el.addEventListener('input', function () { if (el === sellerEl) { sellerInfo = null; } else { debtorInfo = null; } render(); scheduleValidate(); });
     });
+    // ---- Zoeken op naam (fuzzy) in het nummerveld ----
+    (function () {
+        var box = document.createElement('ul');
+        box.className = 'oi-suggest';
+        box.hidden = true;
+        debtorEl.parentNode.style.position = 'relative';
+        debtorEl.parentNode.appendChild(box);
+        var results = [], active = -1, timer = null, seq = 0;
+        function close() { box.hidden = true; active = -1; }
+        function mark() {
+            Array.prototype.forEach.call(box.children, function (li, i) { li.classList.toggle('is-active', i === active); });
+        }
+        function pick(i) {
+            if (!results[i]) { return; }
+            debtorEl.value = results[i].nummer;
+            close();
+            debtorInfo = null; render(); scheduleValidate();
+        }
+        function show() {
+            box.innerHTML = '';
+            results.forEach(function (r, i) {
+                var li = document.createElement('li');
+                var n = document.createElement('strong'); n.textContent = r.nummer;
+                li.appendChild(n); li.appendChild(document.createTextNode(' \u2013 ' + r.naam));
+                li.addEventListener('mousedown', function (e) { e.preventDefault(); pick(i); });
+                box.appendChild(li);
+            });
+            active = -1;
+            box.hidden = results.length === 0;
+        }
+        function search() {
+            var q = debtorEl.value.trim();
+            if (q.length < 2) { results = []; show(); return; }
+            var my = ++seq;
+            var body = new URLSearchParams();
+            body.set('csrf', csrf); body.set('q', q); body.set('soort', T.soort);
+            fetch(endpoint.replace('validate.php', 'search.php'), { method: 'POST', body: body, credentials: 'same-origin' })
+                .then(function (r) { return r.json(); })
+                .then(function (j) { if (my === seq && j.ok) { results = j.results || []; show(); } })
+                .catch(function () {});
+        }
+        debtorEl.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 250); });
+        debtorEl.addEventListener('keydown', function (e) {
+            if (box.hidden) { return; }
+            if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, results.length - 1); mark(); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); mark(); }
+            else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); pick(active); }
+            else if (e.key === 'Escape') { close(); }
+        });
+        debtorEl.addEventListener('blur', function () { setTimeout(close, 100); });
+    })();
     [descEl, dateEl].forEach(function (el) { el.addEventListener('input', render); });
     dateEl.value = todayIso();
     render();
