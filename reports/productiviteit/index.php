@@ -52,13 +52,18 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
 
     <section class="panel">
         <h2>Productiviteit per medewerker</h2>
-        <p class="ka-empty">Toont per medewerker en per dag het aantal orders of orderregels. <strong>Productie</strong> telt de logistiek afgehandelde (geleverde) verkooporders, <strong>Verkoop</strong> telt de ingevoerde verkooporders (alleen lopende orders; orders die al zijn afgehandeld staan in de orderhistorie en tellen hier niet mee). Kies de periode (maximaal 62 dagen), haal de gegevens op en schakel daarna tussen Orders en Orderregels. Productieorders (werkorders) zijn nog niet opgenomen.</p>
+        <p class="ka-empty">Toont per medewerker het aantal orders of orderregels. <strong>Productie</strong> telt de logistiek afgehandelde (geleverde) verkooporders, <strong>Verkoop</strong> telt de ingevoerde verkooporders (alleen lopende orders; afgehandelde orders staan in de orderhistorie en tellen hier niet mee). Het <strong>Overzicht</strong> toont de werkdagen van deze week, deze week, de weken van deze maand en de hele maand; bij <strong>Eigen periode</strong> kies je zelf de datums (maximaal 62 dagen, een kolom per dag). Productieorders (werkorders) zijn nog niet opgenomen.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="Productiviteit" data-file="Productiviteit">
-            <label class="msp-field">
+            <input type="hidden" id="rpWeergave" data-field="weergave" value="overzicht">
+            <div class="rp-toggle" id="rpView" role="group" aria-label="Weergave">
+                <button type="button" data-view="overzicht" class="is-active">Overzicht</button>
+                <button type="button" data-view="periode">Eigen periode</button>
+            </div>
+            <label class="msp-field rp-dates" hidden>
                 <span>Datum van</span>
                 <input type="date" class="ka-input" data-field="van" data-name="de datum van" value="<?= h($defaultFrom) ?>">
             </label>
-            <label class="msp-field">
+            <label class="msp-field rp-dates" hidden>
                 <span>Datum tot</span>
                 <input type="date" class="ka-input" data-field="tot" data-name="de datum tot" value="<?= h($defaultTo) ?>">
             </label>

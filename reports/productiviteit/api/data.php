@@ -17,6 +17,9 @@ require_once __DIR__ . '/../../inc.php';
 
 const PRODUCTIVITEIT_MAX_DAYS = 62;
 
+/** Gebruikers (syscreator) die geen medewerker zijn maar een systeemaccount ('d ADMINISTRATOR', 'D4D Gebruiker'); tellen niet mee bij Verkoop. */
+const PRODUCTIVITEIT_VERKOOP_EXCLUDE = [14, 64];
+
 function productiviteitDate(mixed $value, string $label): DateTimeImmutable
 {
     $d = DateTimeImmutable::createFromFormat('!Y-m-d', trim((string) $value));
@@ -94,14 +97,15 @@ function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmuta
     $startParam = $from->format('Y-m-d');
     $endParam = $to->format('Y-m-d');
 
+    $exclude = implode(',', array_map('intval', PRODUCTIVITEIT_VERKOOP_EXCLUDE));
     $sql = 'SET NOCOUNT ON; ' .
         "SELECT 'O' AS meting, k.syscreator AS medewerker, CONVERT(char(10), k.syscreated, 23) AS dag, COUNT(DISTINCT k.ordernr) AS aantal " .
-        "FROM orkrg k WITH (NOLOCK) WHERE k.ord_soort = 'V' AND k.syscreated >= ? AND k.syscreated < DATEADD(day, 1, ?) " .
+        "FROM orkrg k WITH (NOLOCK) WHERE k.ord_soort = 'V' AND k.syscreator NOT IN ({$exclude}) AND k.syscreated >= ? AND k.syscreated < DATEADD(day, 1, ?) " .
         'GROUP BY k.syscreator, CONVERT(char(10), k.syscreated, 23) ' .
         'UNION ALL ' .
         "SELECT 'L', r.syscreator, CONVERT(char(10), r.syscreated, 23), COUNT(*) " .
         'FROM orsrg r WITH (NOLOCK) INNER JOIN orkrg k WITH (NOLOCK) ON k.ordernr = r.ordernr ' .
-        "WHERE k.ord_soort = 'V' AND r.syscreator = k.syscreator AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' " .
+        "WHERE k.ord_soort = 'V' AND r.syscreator = k.syscreator AND r.syscreator NOT IN ({$exclude}) AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' " .
         'AND r.syscreated >= ? AND r.syscreated < DATEADD(day, 1, ?) ' .
         'GROUP BY r.syscreator, CONVERT(char(10), r.syscreated, 23)';
 
@@ -115,14 +119,23 @@ reportApi(function (array $in): array {
     if (!in_array($mode, ['productie', 'verkoop'], true)) {
         throw new RuntimeException('Onbekende keuze.');
     }
-    $from = productiviteitDate($in['van'] ?? '', 'van');
-    $to = productiviteitDate($in['tot'] ?? '', 'tot');
-    if ($from > $to) {
-        throw new RuntimeException('De datum "van" ligt na de datum "tot".');
-    }
-    $days = (int) $from->diff($to)->days + 1;
-    if ($days > PRODUCTIVITEIT_MAX_DAYS) {
-        throw new RuntimeException('Kies een periode van maximaal ' . PRODUCTIVITEIT_MAX_DAYS . ' dagen.');
+    $overview = (string) ($in['weergave'] ?? 'overzicht') === 'overzicht';
+    if ($overview) {
+        // Vaste kolommen ten opzichte van vandaag: werkdagen van deze week, deze week, weken van deze maand, deze maand.
+        $to = new DateTimeImmutable('today');
+        $monthStart = $to->modify('first day of this month');
+        $monday = $to->modify('monday this week');
+        $from = min($monthStart, $monday);
+    } else {
+        $from = productiviteitDate($in['van'] ?? '', 'van');
+        $to = productiviteitDate($in['tot'] ?? '', 'tot');
+        if ($from > $to) {
+            throw new RuntimeException('De datum "van" ligt na de datum "tot".');
+        }
+        $days = (int) $from->diff($to)->days + 1;
+        if ($days > PRODUCTIVITEIT_MAX_DAYS) {
+            throw new RuntimeException('Kies een periode van maximaal ' . PRODUCTIVITEIT_MAX_DAYS . ' dagen.');
+        }
     }
 
     $pdo = reportConnection();
@@ -146,15 +159,36 @@ reportApi(function (array $in): array {
         }
     }
 
-    // Kolommen: Medewerker, een kolom per dag, Totaal.
+    // Kolomspecificaties: [label, van, tot, is_som]. Een som-kolom telt de dagen in dat bereik op.
     $weekdays = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'];
-    $dayKeys = [];
-    $columns = ['Medewerker'];
-    for ($d = $from; $d <= $to; $d = $d->modify('+1 day')) {
-        $dayKeys[] = $d->format('Y-m-d');
-        $columns[] = $weekdays[(int) $d->format('w')] . ' ' . $d->format('d-m');
+    $specs = [];
+    if ($overview) {
+        for ($d = $monday; $d <= $to; $d = $d->modify('+1 day')) {
+            if ((int) $d->format('N') <= 5) {
+                $specs[] = [$weekdays[(int) $d->format('w')] . ' ' . $d->format('d-m'), $d, $d, false];
+            }
+        }
+        $specs[] = ['Deze week', $monday, $to, true];
+        for ($weekStart = $monthStart->modify('monday this week'); $weekStart <= $to; $weekStart = $weekStart->modify('+7 days')) {
+            $specs[] = ['Week ' . $weekStart->format('W'), max($weekStart, $monthStart), min($weekStart->modify('+6 days'), $to), true];
+        }
+        $specs[] = ['Deze maand', $monthStart, $to, true];
+    } else {
+        for ($d = $from; $d <= $to; $d = $d->modify('+1 day')) {
+            $specs[] = [$weekdays[(int) $d->format('w')] . ' ' . $d->format('d-m'), $d, $d, false];
+        }
+        $specs[] = ['Totaal', $from, $to, true];
     }
-    $columns[] = 'Totaal';
+    $columns = array_merge(['Medewerker'], array_map(fn ($sp) => $sp[0], $specs));
+    $sumColumns = array_values(array_map(fn ($sp) => $sp[0], array_filter($specs, fn ($sp) => $sp[3])));
+
+    $sumRange = function (array $perDay, DateTimeImmutable $a, DateTimeImmutable $b): int {
+        $n = 0;
+        for ($d = $a; $d <= $b; $d = $d->modify('+1 day')) {
+            $n += $perDay[$d->format('Y-m-d')] ?? 0;
+        }
+        return $n;
+    };
 
     $employees = array_keys($counts);
     usort($employees, fn ($a, $b) => strcasecmp($names[$a] ?? ('Medewerker ' . $a), $names[$b] ?? ('Medewerker ' . $b)));
@@ -164,33 +198,34 @@ reportApi(function (array $in): array {
     $grand = [];
     foreach (['O' => 'Orders', 'L' => 'Orderregels'] as $m => $setLabel) {
         $rows = [];
-        $dayTotals = array_fill(0, count($dayKeys), 0);
+        $colTotals = array_fill(0, count($specs), 0);
         foreach ($employees as $emp) {
             $perDay = $counts[$emp][$m] ?? [];
             if ($perDay === []) {
                 continue;
             }
             $row = [$names[$emp] ?? ('Medewerker ' . $emp)];
-            $total = 0;
-            foreach ($dayKeys as $i => $key) {
-                $n = $perDay[$key] ?? 0;
-                $total += $n;
-                $dayTotals[$i] += $n;
+            $hasValue = false;
+            foreach ($specs as $i => $sp) {
+                $n = $sumRange($perDay, $sp[1], $sp[2]);
+                $colTotals[$i] += $n;
                 $row[] = $n > 0 ? $n : null;
+                $hasValue = $hasValue || $n > 0;
             }
-            $row[] = $total;
-            $rows[] = $row;
+            if ($hasValue) {
+                $rows[] = $row;
+            }
         }
+        // Totaal van de hele periode: laatste som-kolom (Totaal / Deze maand).
+        $lastSum = array_key_last(array_filter($specs, fn ($sp) => $sp[3]));
+        $grand[$m] = $colTotals[$lastSum] ?? 0;
         if ($rows !== []) {
-            $grand[$m] = array_sum($dayTotals);
-            $rows[] = array_merge(['Totaal'], array_map(fn ($n) => $n > 0 ? $n : null, $dayTotals), [$grand[$m]]);
-        } else {
-            $grand[$m] = 0;
+            $rows[] = array_merge(['Totaal'], array_map(fn ($n) => $n > 0 ? $n : null, $colTotals));
         }
         $sets[$setLabel] = $rows;
     }
 
-    $period = $from->format('d-m-Y') . ' t/m ' . $to->format('d-m-Y');
+    $period = $overview ? 'overzicht t/m ' . $to->format('d-m-Y') : $from->format('d-m-Y') . ' t/m ' . $to->format('d-m-Y');
     $modeLabel = $mode === 'productie' ? 'Productie (afgehandelde orders)' : 'Verkoop (ingevoerde orders)';
     $kop = [
         ['label' => 'Periode', 'value' => $period],
@@ -207,7 +242,8 @@ reportApi(function (array $in): array {
         'sets' => $sets,
         'kop' => $kop,
         'hideRowCount' => true,
+        'sumColumns' => $sumColumns,
         'titles' => ['Productiviteit per medewerker - ' . $modeLabel, '{meting}, ' . $period],
-        'fileTag' => $mode . '_' . $from->format('Y-m-d') . '_' . $to->format('Y-m-d'),
+        'fileTag' => $mode . '_' . ($overview ? 'overzicht_' . $to->format('Y-m-d') : $from->format('Y-m-d') . '_' . $to->format('Y-m-d')),
     ];
 }, false);

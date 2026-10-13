@@ -22,3 +22,5 @@
 .rp-bar { margin-bottom: 12px; }
 .rp-bar:empty { display: none; }
 #rpTable tr.rp-total td { font-weight: 800; border-top: 2px solid var(--line-strong, #c9d4de); }
+.rp-dates[hidden] { display: none; }
+#rpTable th.rp-sum, #rpTable td.rp-sum { font-weight: 800; background: var(--soft, #f4f7fa); }

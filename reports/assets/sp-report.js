@@ -14,6 +14,8 @@
     var measure = null;      // gekozen telling bij rapporten met meerdere reeksen (data.sets)
     var measureBox = document.getElementById('rpMeasure');
     var modeInput = document.getElementById('rpModus');
+    var viewInput = document.getElementById('rpWeergave');
+    var viewBox = document.getElementById('rpView');
     var asked = '';
     var ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -29,6 +31,12 @@
     function dmy(iso) { return iso.split('-').reverse().join('-'); }
     function fail(text) { message.textContent = text; message.hidden = false; }
 
+    // Som-kolommen (Totaal, Deze week, Week x, Deze maand) krijgen een eigen opmaak.
+    function withSum(td, i) {
+        if ((data.sumColumns || []).indexOf(data.columns[i]) === -1) { return td; }
+        return td.indexOf('<td class="') === 0 ? td.replace('<td class="', '<td class="rp-sum ') : td.replace('<td>', '<td class="rp-sum">');
+    }
+
     function render() {
         summary.innerHTML =
             (box.getAttribute('data-label') ? '<span class="msp-pill">' + esc(box.getAttribute('data-label')) + ' <strong>' + esc(asked) + '</strong></span>' : '') +
@@ -36,9 +44,10 @@
                 return '<span class="msp-pill">' + (k.label ? esc(k.label) + ' ' : '') + '<strong>' + esc(k.type === 'euro' ? euro(k.value) : k.value) + '</strong></span>';
             }).join('') +
             (data.hideRowCount ? '' : '<span class="msp-pill"><strong>' + nl(data.rows.length) + '</strong> regels</span>');
-        var html = '<thead><tr>' + data.columns.map(function (c) { return '<th>' + esc(c.trim()) + '</th>'; }).join('') + '</tr></thead><tbody>';
+        function sumClass(i) { return (data.sumColumns || []).indexOf(data.columns[i]) !== -1 ? ' class="rp-sum"' : ''; }
+        var html = '<thead><tr>' + data.columns.map(function (c, i) { return '<th' + sumClass(i) + '>' + esc(c.trim()) + '</th>'; }).join('') + '</tr></thead><tbody>';
         data.rows.forEach(function (r) {
-            html += '<tr' + (data.sets && r[0] === 'Totaal' ? ' class="rp-total"' : '') + '>' + r.map(function (v, i) {
+            html += '<tr' + (data.sets && r[0] === 'Totaal' ? ' class="rp-total"' : '') + '>' + r.map(function (v, i) { return withSum((function () {
                 if (v === null) { return '<td></td>'; }
                 if ((data.nowrap || []).indexOf(data.columns[i]) !== -1) { return '<td class="nowrap">' + esc(v) + '</td>'; }
                 if (isPct(i) && typeof v === 'number') { return '<td class="num">' + pct(v) + '</td>'; }
@@ -46,7 +55,7 @@
                 if (data.numeric[i] && typeof v === 'number') { return '<td class="num">' + nl(v) + '</td>'; }
                 if (isDate(i) && typeof v === 'string' && ISO_DATE.test(v)) { return '<td>' + dmy(v) + '</td>'; }
                 return '<td>' + esc(v) + '</td>';
-            }).join('') + '</tr>';
+            })(), i); }).join('') + '</tr>';
         });
         table.innerHTML = html + '</tbody>';
         result.hidden = false;
@@ -68,6 +77,17 @@
     if (measureBox) {
         Array.prototype.forEach.call(measureBox.querySelectorAll('[data-measure]'), function (b) {
             b.addEventListener('click', function () { if (data && data.sets) { selectMeasure(b.getAttribute('data-measure')); } });
+        });
+    }
+    // Schakelaar Overzicht / Eigen periode: bij een eigen periode verschijnen de datumvelden.
+    if (viewBox) {
+        Array.prototype.forEach.call(viewBox.querySelectorAll('[data-view]'), function (b) {
+            b.addEventListener('click', function () {
+                viewInput.value = b.getAttribute('data-view');
+                Array.prototype.forEach.call(viewBox.querySelectorAll('[data-view]'), function (x) { x.classList.toggle('is-active', x === b); });
+                Array.prototype.forEach.call(box.querySelectorAll('.rp-dates'), function (el) { el.hidden = viewInput.value !== 'periode'; });
+                if (data && viewInput.value === 'overzicht') { fetchData(); }
+            });
         });
     }
     // Schakelaar Productie / Verkoop: andere gegevens, dus (als er al iets getoond wordt) opnieuw ophalen.
