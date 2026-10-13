@@ -291,7 +291,7 @@ input::placeholder { color: #929fac; }
 }
 
 @media (max-width: 700px) {
-    .page-shell { margin-top: 14px; }
+    .page-shell { margin-top: 6px; }
     .brand-panel { padding: 14px 16px 18px; grid-template-columns: 1fr; }
     .brand-logo-img { height: 50px; }
     .brand-rubix-img { height: 25px; }
