@@ -69,7 +69,7 @@ $csrf = csrfToken();
         <div class="oi-fields">
             <label class="msp-field">
                 <span>Inkoper</span>
-                <input type="text" id="oiSeller" class="ka-input" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="Nummer, bijv. 6">
+                <input type="text" id="oiSeller" class="ka-input" maxlength="60" autocomplete="off" placeholder="Nummer of naam">
                 <small id="oiSellerCheck" class="oi-check"></small>
             </label>
             <label class="msp-field">

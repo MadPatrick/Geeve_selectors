@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Zoekt debiteuren of crediteuren op naam (of nummer) met een tolerante (fuzzy) vergelijking, voor het invulveld in de
+ * Zoekt debiteuren, crediteuren of medewerkers (soort medewerker, nummer = res_id) op naam (of nummer) met een tolerante (fuzzy) vergelijking, voor het invulveld in de
  * offerte- en inkooporder-import. POST met csrf, q en soort (debiteur of crediteur); antwoord:
  * {"ok":true,"results":[{"nummer":"4001","naam":"..."}]} (maximaal 8, beste eerst). Alleen lezen.
  */
@@ -58,7 +58,9 @@ function tokenScore(string $token, array $words): float
 $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
 try {
     $query = trim((string) ($_POST['q'] ?? ''));
-    $creditor = (string) ($_POST['soort'] ?? 'debiteur') === 'crediteur';
+    $kind = (string) ($_POST['soort'] ?? 'debiteur');
+    $creditor = $kind === 'crediteur';
+    $employee = $kind === 'medewerker';
     $tokens = searchWords($query);
     if (strlen($query) < 2 || strlen($query) > 60 || $tokens === []) {
         echo json_encode(['ok' => true, 'results' => []], $flags);
@@ -66,9 +68,11 @@ try {
     }
 
     $pdo = reportConnection();
-    $sql = $creditor
+    $sql = $employee
+        ? "SET NOCOUNT ON; SELECT CAST(res_id AS varchar(20)) AS nr, '' AS code, RTRIM(fullname) AS naam FROM humres WHERE res_id IS NOT NULL"
+        : ($creditor
         ? "SET NOCOUNT ON; SELECT RTRIM(crdnr) AS nr, RTRIM(crdcode) AS code, RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(ISNULL(crdnr, ''))) <> '' OR LTRIM(RTRIM(ISNULL(crdcode, ''))) <> ''"
-        : "SET NOCOUNT ON; SELECT RTRIM(debnr) AS nr, RTRIM(debcode) AS code, RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(ISNULL(debnr, ''))) <> '' OR LTRIM(RTRIM(ISNULL(debcode, ''))) <> ''";
+        : "SET NOCOUNT ON; SELECT RTRIM(debnr) AS nr, RTRIM(debcode) AS code, RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(ISNULL(debnr, ''))) <> '' OR LTRIM(RTRIM(ISNULL(debcode, ''))) <> ''");
     $scored = [];
     foreach ($pdo->query($sql)->fetchAll() as $row) {
         $number = trim((string) $row['nr']) !== '' ? trim((string) $row['nr']) : trim((string) $row['code']);

@@ -425,13 +425,13 @@
     [sellerEl, debtorEl].forEach(function (el) {
         el.addEventListener('input', function () { if (el === sellerEl) { sellerInfo = null; } else { debtorInfo = null; } render(); scheduleValidate(); });
     });
-    // ---- Zoeken op naam (fuzzy) in het nummerveld ----
-    (function () {
+    // ---- Zoeken op naam (fuzzy) in een nummerveld ----
+    function attachSuggest(inputEl, kind, noneText, afterPick) {
         var box = document.createElement('ul');
         box.className = 'oi-suggest';
         box.hidden = true;
-        debtorEl.parentNode.style.position = 'relative';
-        debtorEl.parentNode.appendChild(box);
+        inputEl.parentNode.style.position = 'relative';
+        inputEl.parentNode.appendChild(box);
         var results = [], active = -1, timer = null, seq = 0;
         function close() { box.hidden = true; active = -1; }
         function mark() {
@@ -439,9 +439,9 @@
         }
         function pick(i) {
             if (!results[i]) { return; }
-            debtorEl.value = results[i].nummer;
+            inputEl.value = results[i].nummer;
             close();
-            debtorInfo = null; render(); scheduleValidate();
+            afterPick();
         }
         function show() {
             box.innerHTML = '';
@@ -462,33 +462,36 @@
             box.appendChild(li); box.hidden = false;
         }
         function search() {
-            var q = debtorEl.value.trim();
+            var q = inputEl.value.trim();
             if (q.length < 2) { results = []; show(); return; }
             if (/^\d+$/.test(q) && q.length > 6) { results = []; show(); return; }
             var my = ++seq;
             var body = new URLSearchParams();
-            body.set('csrf', csrf); body.set('q', q); body.set('soort', T.soort);
+            body.set('csrf', csrf); body.set('q', q); body.set('soort', kind);
             fetch(endpoint.replace('validate.php', 'search.php'), { method: 'POST', body: body, credentials: 'same-origin' })
                 .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
                 .then(function (j) {
                     if (my !== seq) { return; }
                     if (!j.ok) { note('Zoeken mislukt: ' + (j.error || 'onbekende fout')); return; }
                     results = j.results || [];
-                    if (results.length === 0) { note('Geen ' + T.party + ' gevonden'); } else { show(); }
+                    if (results.length === 0) { note(noneText); } else { show(); }
                 })
                 .catch(function (e) { if (my === seq) { note('Zoeken mislukt: ' + e.message); } });
         }
-        debtorEl.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 250); });
-        debtorEl.addEventListener('keydown', function (e) {
+        inputEl.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 250); });
+        inputEl.addEventListener('keydown', function (e) {
             if (box.hidden) { return; }
             if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, results.length - 1); mark(); }
             else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); mark(); }
             else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); pick(active); }
             else if (e.key === 'Escape') { close(); }
         });
-        debtorEl.addEventListener('blur', function () { setTimeout(close, 100); });
-    })();
+        inputEl.addEventListener('blur', function () { setTimeout(close, 100); });
+    }
+    attachSuggest(debtorEl, T.soort, 'Geen ' + T.party + ' gevonden', function () { debtorInfo = null; render(); scheduleValidate(); });
+    attachSuggest(sellerEl, 'medewerker', 'Geen ' + T.seller + ' gevonden', function () { sellerInfo = null; render(); scheduleValidate(); });
     [descEl, dateEl].forEach(function (el) { el.addEventListener('input', render); });
     dateEl.value = todayIso();
+    descEl.value = 'Import';
     render();
 })();
