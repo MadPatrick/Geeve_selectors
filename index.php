@@ -103,6 +103,19 @@ $lockRoot = '';
         </a>
         <?php endif; ?>
 
+        <?php if (tileVisible('stickers')): ?>
+        <a class="<?= tileClass('stickers') ?>" href="stickers/index.php"<?= tileAttrs('stickers') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 4h12l4 4v12H4Z"></path>
+                    <path d="M16 4v4h4"></path>
+                </svg>
+            </div>
+            <h2>Stickers</h2>
+            <p>Stickers printen op artikelnummer of zakje.</p>
+            <?= tileLockIcon('stickers') ?>
+        </a>
+        <?php endif; ?>
         <?php if (tileVisible('stauff')): ?>
         <a class="<?= tileClass('stauff') ?>" href="stauff/index.php"<?= tileAttrs('stauff') ?>>
             <div class="tile-icon">
