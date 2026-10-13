@@ -55,12 +55,12 @@ body::before {
     left: 50%;
     transform: translateX(-50%);
     width: min(1400px, calc(100% - 28px));
-    height: 480px;
+    height: 640px;
     z-index: -1;
-    background: url("../images/achtergrond.jpg") center top / cover no-repeat;
+    background: url("../images/achtergrond.jpg") center 30% / cover no-repeat;
     opacity: .4;
-    -webkit-mask-image: linear-gradient(to bottom, #000 35%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 35%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
     pointer-events: none;
 }
 @media (max-width: 980px) {
