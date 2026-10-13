@@ -25,7 +25,8 @@
     var itemInfo = {};       // CODE (hoofdletters) -> {found, description, condition}
     var sellerInfo = null;   // {found, name}
     var debtorInfo = null;
-    var itemsChecked = false;
+    var checked = {};        // CODE -> true zodra de controle met Exact klaar is
+    var codeTimers = {};
     var importedName = '';
     var timer = null;
     var validating = 0;
@@ -51,6 +52,9 @@
         if (typeof v === 'number') { return String(v); }
         return String(v).trim();
     }
+    // Artikelcode zoals bedoeld (zonder spaties aan de randen) en als sleutel (hoofdletters); het veld zelf blijft ongemoeid tijdens typen.
+    function cv(l) { return l.code.trim(); }
+    function ck(l) { return l.code.trim().toUpperCase(); }
     function qtyOf(q) {
         var n = Number(String(q === null || q === undefined ? '' : q).replace(',', '.'));
         return isFinite(n) && n > 0 ? n : null;
@@ -127,13 +131,13 @@
                     var line = {
                         nr: cols['regelnr'] ? cellText(val(cols['regelnr'] + row)) : '',
                         qty: val(cols['aantal'] + row),
-                        code: cellText(val(cols['artikelcode'] + row))
+                        code: cellText(val(cols['artikelcode'] + row)).toUpperCase()
                     };
                     if (line.code === '' && (line.qty === null || line.qty === '')) { continue; }
                     lines.push(line);
                 }
                 itemInfo = {};
-                itemsChecked = false;
+                checked = {};
                 importedName = file.name;
                 render();
                 showInfo(lines.length ? 'Geïmporteerd: ' + file.name + ' (' + lines.length + ' regels). De gegevens worden gecontroleerd met Exact…' : '');
@@ -155,7 +159,7 @@
         body.set('debiteur', debtorEl.value.trim());
         if (withItems) {
             var seen = {};
-            lines.forEach(function (l) { if (l.code !== '' && !seen[l.code.toUpperCase()]) { seen[l.code.toUpperCase()] = true; body.append('items[]', l.code); } });
+            lines.forEach(function (l) { if (cv(l) !== '' && !seen[ck(l)]) { seen[ck(l)] = true; body.append('items[]', cv(l)); } });
         }
         var ticket = ++validating;
         fetch(endpoint, { method: 'POST', body: body })
@@ -167,7 +171,7 @@
                 debtorInfo = json.debiteur;
                 if (withItems) {
                     itemInfo = json.items || {};
-                    itemsChecked = true;
+                    lines.forEach(function (l) { if (cv(l) !== '') { checked[ck(l)] = true; } });
                     if (lines.length) { showInfo('Geïmporteerd: ' + importedName + ' (' + lines.length + ' regels), gecontroleerd met Exact.'); }
                 }
                 render();
@@ -177,6 +181,24 @@
                 showMessage('Controle met Exact mislukt: ' + err.message);
             });
     }
+    // Eén artikelcode (na een wijziging in de tabel) opnieuw controleren; verkoper en debiteur blijven ongemoeid.
+    function validateItem(code) {
+        var key = code.toUpperCase();
+        var body = new URLSearchParams();
+        body.set('csrf', csrf);
+        body.append('items[]', code);
+        fetch(endpoint, { method: 'POST', body: body })
+            .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
+            .then(function (json) {
+                if (!json.ok) { throw new Error(json.error || 'Controle mislukt.'); }
+                // Alleen toepassen als de code nog zo in de tabel staat.
+                if (!lines.some(function (l) { return ck(l) === key; })) { return; }
+                if (json.items && json.items[key]) { itemInfo[key] = json.items[key]; } else { delete itemInfo[key]; }
+                checked[key] = true;
+                render();
+            })
+            .catch(function (err) { showMessage('Controle met Exact mislukt: ' + err.message); });
+    }
     function scheduleValidate() {
         clearTimeout(timer);
         timer = setTimeout(function () { validate(false); }, 400);
@@ -184,10 +206,10 @@
 
     // ---- Tonen en beoordelen ----
     function lineState(l) {
-        if (l.code === '') { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
+        if (cv(l) === '') { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
         if (qtyOf(l.qty) === null) { return { cls: 'is-incomplete', label: 'Aantal ontbreekt of is ongeldig', ok: false, export: false }; }
-        if (!itemsChecked) { return { cls: '', label: 'Wordt gecontroleerd…', ok: false, export: false, pending: true }; }
-        var info = itemInfo[l.code.toUpperCase()];
+        if (!checked[ck(l)]) { return { cls: '', label: 'Wordt gecontroleerd…', ok: false, export: false, pending: true }; }
+        var info = itemInfo[ck(l)];
         if (!info || !info.found) { return { cls: 'is-missing', label: 'Niet in Exact', ok: false, export: false }; }
         return { cls: '', label: 'Ja', ok: true, export: true, info: info };
     }
@@ -211,13 +233,22 @@
         var html = '';
         lines.forEach(function (l, i) {
             var st = states[i];
-            var info = st.info || itemInfo[l.code.toUpperCase()] || null;
+            var info = st.info || itemInfo[ck(l)] || null;
             html += '<tr class="' + st.cls + '">' +
-                '<td>' + esc(l.nr) + '</td><td class="num">' + esc(l.qty === null ? '' : l.qty) + '</td><td>' + esc(l.code) + '</td>' +
+                '<td>' + esc(l.nr) + '</td><td class="oi-qty">' + esc(l.qty === null ? '' : l.qty) + '</td>' +
+                '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 '<td>' + esc(info && info.found ? info.description : '') + '</td>' +
                 '<td>' + esc(st.label) + '</td><td>' + esc(info && info.found ? info.condition : '') + '</td></tr>';
         });
+        // Staat de cursor in een artikelcode, dan blijft die daar na het opnieuw tekenen van de tabel.
+        var active = document.activeElement;
+        var focusIdx = active && active.classList && active.classList.contains('oi-code') ? active.getAttribute('data-i') : null;
+        var caret = focusIdx !== null ? active.selectionStart : null;
         tbody.innerHTML = html;
+        if (focusIdx !== null) {
+            var again = tbody.querySelector('input.oi-code[data-i="' + focusIdx + '"]');
+            if (again) { again.focus(); if (caret !== null) { again.setSelectionRange(caret, caret); } }
+        }
         resultEl.hidden = lines.length === 0;
 
         var articles = states.length;
@@ -272,7 +303,7 @@
             n++;
             out.push('   <OrderLine lineNo="' + xmlEsc(l.nr !== '' ? l.nr : n) + '">');
             out.push('     <Quantity>' + qtyOf(l.qty) + '</Quantity>');
-            out.push('     <Item code="' + xmlEsc(l.code) + '"></Item>');
+            out.push('     <Item code="' + xmlEsc(cv(l)) + '"></Item>');
             out.push('  </OrderLine>');
         });
         out.push(' </Order>');
@@ -292,6 +323,24 @@
         setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
         showInfo('XML-bestand gemaakt. Importeer het in Exact via Systeem\\Importeren XML\\Logistieke import.');
     }
+
+    // Artikelcode wijzigen in de tabel: altijd hoofdletters, en na een korte pauze opnieuw controleren met Exact.
+    tbody.addEventListener('input', function (e) {
+        var el = e.target;
+        if (!el.classList || !el.classList.contains('oi-code')) { return; }
+        var i = +el.getAttribute('data-i');
+        var pos = el.selectionStart;
+        el.value = el.value.toUpperCase();
+        if (pos !== null) { el.setSelectionRange(pos, pos); }
+        lines[i].code = el.value; // ruwe invoer (alleen hoofdletters), zodat een spatie midden in de code niet verdwijnt
+        var code = el.value.trim();
+        // Rij direct bijwerken (nog niet gecontroleerd), daarna debounce de controle.
+        render();
+        clearTimeout(codeTimers[i]);
+        if (code !== '' && !checked[code.toUpperCase()]) {
+            codeTimers[i] = setTimeout(function () { validateItem(code); }, 400);
+        }
+    });
 
     // ---- Koppelingen ----
     document.getElementById('oiTemplate').addEventListener('click', function () {

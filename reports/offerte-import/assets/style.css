@@ -8,7 +8,10 @@
 #oiTable tr.is-incomplete td { background: #fff3d6; color: #8a5a00; }
 #oiTable tr.is-text td { color: var(--muted); font-style: italic; }
 #oiTable td:nth-child(4) { white-space: normal; min-width: 18ch; }
-#oiTable td:nth-child(2) { text-align: right; }
+#oiTable th:nth-child(2), #oiTable td:nth-child(2) { text-align: center; }
+#oiTable input.oi-code { width: 100%; min-width: 16ch; box-sizing: border-box; text-transform: uppercase; padding: 4px 8px; font-size: 13px; }
+#oiTable tr.is-missing input.oi-code { border-color: #c17c7c; background: #fff5f5; color: #a03636; font-weight: 700; }
+#oiTable tr.is-incomplete input.oi-code { border-color: #e0b04a; background: #fffbf0; }
 @media (max-width: 640px) { .oi-fields .oi-wide { grid-column: auto; } }
 .oi-pill-bad { border-color: #c17c7c; background: #fde2e2; color: #a03636; }
 .oi-pill-warn { border-color: #e0b04a; background: #fff3d6; color: #8a5a00; }
