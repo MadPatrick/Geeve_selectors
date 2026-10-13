@@ -86,11 +86,11 @@ button, input, select { font: inherit; }
     background-position: 100% 0;
     pointer-events: none;
     z-index: 2;
-    animation: brand-shine 10s infinite;
+    animation: brand-shine 10s 0.4s infinite; /* eerste sweep direct na laden/refresh, daarna elke 10 s */
 }
 @keyframes brand-shine {
-    0%, 85% { background-position: 100% 0; animation-timing-function: ease-out; }
-    100% { background-position: 0% 0; }
+    0% { background-position: 100% 0; animation-timing-function: ease-out; }
+    15%, 100% { background-position: 0% 0; }
 }
 @media (prefers-reduced-motion: reduce) {
     .brand-panel::before { animation: none; }
