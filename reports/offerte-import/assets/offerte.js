@@ -23,7 +23,7 @@
     var tbody = document.querySelector('#oiTable tbody');
 
     var lines = [];          // {nr, text, desc, code, qty}
-    var itemInfo = {};       // CODE (hoofdletters) -> {found, description, condition}
+    var itemInfo = {};       // CODE (hoofdletters) -> {found, description}
     var sellerInfo = null;   // {found, name}
     var debtorInfo = null;
     var checked = {};        // CODE -> true zodra de controle met Exact klaar is
@@ -241,7 +241,7 @@
                 '<td><input type="text" class="ka-input oi-qty" data-i="' + i + '" value="' + esc(l.qty === null ? '' : l.qty) + '" maxlength="12" inputmode="decimal" autocomplete="off" aria-label="Aantal regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 '<td>' + esc(info && info.found ? info.description : '') + '</td>' +
-                '<td>' + esc(st.label) + '</td><td>' + esc(info && info.found ? info.condition : '') + '</td>' +
+                '<td>' + esc(st.label) + '</td>' +
                 '<td><button type="button" class="oi-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
         });
         // Staat de cursor in een artikelcode, dan blijft die daar na het opnieuw tekenen van de tabel.

@@ -97,7 +97,7 @@ $csrf = csrfToken();
                 <thead>
                     <tr>
                         <th>Regelnr</th><th>Aantal</th><th>Artikelcode</th><th>Artikelregelomschrijving</th>
-                        <th>Artikel in Exact</th><th>Status</th><th></th>
+                        <th>Artikel in Exact</th><th></th>
                     </tr>
                 </thead>
                 <tbody></tbody>

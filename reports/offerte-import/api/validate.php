@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Controleert de velden van een offerte-import tegen Exact: verkoper (humres.res_id), debiteurnummer (cicmpy) en artikelcodes
  * (Items). POST met csrf, verkoper, debiteur en items[]; antwoord:
- * {"ok":true,"verkoper":{"found":bool,"name":"..."},"debiteur":{...},"items":{"CODE":{"found":true,"description":"...","condition":"A"}}}
+ * {"ok":true,"verkoper":{"found":bool,"name":"..."},"debiteur":{...},"items":{"CODE":{"found":true,"description":"..."}}}
  * Alleen lezen; niets wordt in Exact gewijzigd.
  */
 
@@ -50,7 +50,7 @@ try {
         }
     }
 
-    // Artikelen: bestaan ze in Exact, met omschrijving en status (Items.Condition).
+    // Artikelen: bestaan ze in Exact, met omschrijving.
     $codes = [];
     foreach ((array) ($_POST['items'] ?? []) as $code) {
         $code = trim((string) $code);
@@ -63,10 +63,10 @@ try {
     }
     $items = [];
     foreach (array_chunk(array_values($codes), 500) as $chunk) {
-        $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(Description) AS d, RTRIM([Condition]) AS s FROM Items WHERE ItemCode IN (' . implode(',', array_fill(0, count($chunk), '?')) . ')');
+        $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(Description) AS d FROM Items WHERE ItemCode IN (' . implode(',', array_fill(0, count($chunk), '?')) . ')');
         $stmt->execute($chunk);
         foreach ($stmt->fetchAll() as $row) {
-            $items[strtoupper(trim((string) $row['c']))] = ['found' => true, 'description' => trim((string) $row['d']), 'condition' => trim((string) $row['s'])];
+            $items[strtoupper(trim((string) $row['c']))] = ['found' => true, 'description' => trim((string) $row['d'])];
         }
     }
     $out['items'] = (object) $items;
