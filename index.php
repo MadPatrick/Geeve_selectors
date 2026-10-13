@@ -87,6 +87,18 @@ function assetVersion(string $relativePath): string
             <p>Zoek een order of klant op en print de slangkaarten (labels) van de geselecteerde slangregels.</p>
         </a>
 
+        <a class="tile tile--wip" href="stauff/index.php">
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="10" width="16" height="7" rx="2"></rect>
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                    <path d="M9 17v2"></path>
+                    <path d="M15 17v2"></path>
+                </svg>
+            </div>
+            <h2>Stauff Selector</h2>
+            <p>Stel de juiste beugelsamenstelling samen op basis van diameter, serie, uitvoering en materiaal.</p>
+        </a>
         <a class="tile" href="reports/index.php">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -99,18 +111,6 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Reports</h2>
             <p>Rapportages en overzichten.</p>
-        </a>
-        <a class="tile tile--wip" href="stauff/index.php">
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="4" y="10" width="16" height="7" rx="2"></rect>
-                    <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
-                    <path d="M9 17v2"></path>
-                    <path d="M15 17v2"></path>
-                </svg>
-            </div>
-            <h2>Stauff Selector</h2>
-            <p>Stel de juiste beugelsamenstelling samen op basis van diameter, serie, uitvoering en materiaal.</p>
         </a>
         <a class="tile tile--wip" href="klantartikel/index.php">
             <div class="tile-icon">
