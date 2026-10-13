@@ -24,3 +24,7 @@
 #rpTable tr.rp-total td { font-weight: 800; border-top: 2px solid var(--line-strong, #c9d4de); }
 .rp-dates[hidden] { display: none; }
 #rpTable th.rp-sum, #rpTable td.rp-sum { font-weight: 800; background: var(--soft, #f4f7fa); }
+#rpTable td.rp-click { cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
+#rpTable td.rp-click:hover { background: #fde6ec; }
+.rp-detail-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.rp-detail-head h2 { margin: 0; }

@@ -122,14 +122,18 @@ function productiviteitOrderCounts(PDO $pdo, string $cte, DateTimeImmutable $fro
  * offerte, sysmodifier de laatste wijziger, vaak het magazijn), dus zulke orders tellen op de verwerkingsdag onder medewerker 0
  * ("Onbekend"). Omgezette offertes tot 90 dagen oud worden gevonden (ouder ID).
  */
-function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
+function productiviteitVerkoopCte(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): string
 {
     [$kFirst, $kEnd] = productiviteitIdRange($pdo, 'orkrg', $from->modify('-90 days'), $to);
-    $cte = 'WITH o AS (SELECT k.ordernr, ' .
+    return 'WITH o AS (SELECT k.ordernr, ' .
         'CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN 0 ELSE k.syscreator END AS medewerker, ' .
         'CONVERT(char(10), CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN k.orddat ELSE k.syscreated END, 23) AS dag ' .
         "FROM orkrg k WITH (NOLOCK) WHERE k.ID >= {$kFirst} AND k.ID < {$kEnd} AND k.ord_soort = 'V') ";
-    return productiviteitOrderCounts($pdo, $cte, $from, $to);
+}
+
+function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
+{
+    return productiviteitOrderCounts($pdo, productiviteitVerkoopCte($pdo, $from, $to), $from, $to);
 }
 
 /**
@@ -137,13 +141,64 @@ function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmuta
  * Dat zijn offertes (ord_soort Q) en offertes die inmiddels tot order zijn verwerkt (ord_soort V met orderdatum later dan de
  * aanmaakdatum). De periode is direct een ID-bereik: een offerte krijgt bij invoer zijn ID.
  */
-function productiviteitOfferte(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
+function productiviteitOfferteCte(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): string
 {
     [$kFirst, $kEnd] = productiviteitIdRange($pdo, 'orkrg', $from, $to);
-    $cte = 'WITH o AS (SELECT k.ordernr, k.syscreator AS medewerker, CONVERT(char(10), k.syscreated, 23) AS dag ' .
+    return 'WITH o AS (SELECT k.ordernr, k.syscreator AS medewerker, CONVERT(char(10), k.syscreated, 23) AS dag ' .
         "FROM orkrg k WITH (NOLOCK) WHERE k.ID >= {$kFirst} AND k.ID < {$kEnd} " .
         "AND (k.ord_soort = 'Q' OR (k.ord_soort = 'V' AND CAST(k.orddat AS date) > CAST(k.syscreated AS date)))) ";
-    return productiviteitOrderCounts($pdo, $cte, $from, $to);
+}
+
+function productiviteitOfferte(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
+{
+    return productiviteitOrderCounts($pdo, productiviteitOfferteCte($pdo, $from, $to), $from, $to);
+}
+
+/**
+ * Details achter een getal: de orders (of pakbonnen) van één medewerker in een periode. $emp 0 = "Onbekend".
+ *
+ * @return array{columns: list<string>, rows: list<list<string|int|null>>, truncated: bool}
+ */
+function productiviteitDetail(PDO $pdo, string $mode, int $emp, DateTimeImmutable $from, DateTimeImmutable $to): array
+{
+    $limit = 500;
+    $startParam = $from->format('Y-m-d');
+    $endParam = $to->format('Y-m-d');
+
+    if ($mode === 'productie') {
+        [$first, $end] = productiviteitIdRange($pdo, 'amutas', $from, $to);
+        // De orderregel wordt via ID gekoppeld; alleen als het artikel overeenkomt, zodat nooit een verkeerd ordernummer verschijnt.
+        $sql = "SET NOCOUNT ON; SELECT TOP {$limit} RTRIM(s.CSPickITCWDeliveryNoteCWDB) AS pakbon, MIN(LTRIM(RTRIM(r.ordernr))) AS ordernr, " .
+            'CONVERT(char(10), MIN(s.syscreated), 23) AS datum, COUNT(DISTINCT s.CSPickITCWOrsrgIDCWDB) AS regels ' .
+            'FROM amutas s WITH (NOLOCK) LEFT JOIN orsrg r WITH (NOLOCK) ON r.ID = s.CSPickITCWOrsrgIDCWDB AND RTRIM(r.artcode) = RTRIM(s.artcode) ' .
+            "WHERE s.ID >= {$first} AND s.ID < {$end} AND LTRIM(RTRIM(s.dagbknr)) = '90' AND s.CSPickITCWOrsrgIDCWDB <> 0 " .
+            "AND ISNULL(RTRIM(s.CSPickITCWDeliveryNoteCWDB), '') <> '' AND s.syscreator = ? AND s.syscreated >= ? AND s.syscreated < DATEADD(day, 1, ?) " .
+            'GROUP BY RTRIM(s.CSPickITCWDeliveryNoteCWDB) ORDER BY MIN(s.syscreated), RTRIM(s.CSPickITCWDeliveryNoteCWDB)';
+        $columns = ['Pakbon', 'Order', 'Datum', 'Regels'];
+    } else {
+        $cte = $mode === 'verkoop' ? productiviteitVerkoopCte($pdo, $from, $to) : productiviteitOfferteCte($pdo, $from, $to);
+        $sql = 'SET NOCOUNT ON; ' . $cte . "SELECT TOP {$limit} LTRIM(RTRIM(o.ordernr)) AS ordernr, o.dag AS datum, " .
+            "LTRIM(RTRIM(ISNULL(k.ord_debtor_name, ''))) AS klant, LTRIM(RTRIM(ISNULL(k.refer, ''))) AS referentie, k.ord_soort AS soort, " .
+            "(SELECT COUNT(*) FROM orsrg r WITH (NOLOCK) WHERE r.ordernr = o.ordernr AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '') AS regels " .
+            'FROM o INNER JOIN orkrg k WITH (NOLOCK) ON k.ordernr = o.ordernr ' .
+            'WHERE o.medewerker = ? AND o.dag >= ? AND o.dag <= ? ORDER BY o.dag, o.ordernr';
+        $columns = $mode === 'verkoop' ? ['Order', 'Datum', 'Klant', 'Referentie', 'Regels'] : ['Offerte/order', 'Datum', 'Klant', 'Referentie', 'Status', 'Regels'];
+    }
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$emp, $startParam, $endParam]);
+    $rows = [];
+    while ($r = $stmt->fetch(PDO::FETCH_NUM)) {
+        $r = array_map(fn ($v) => $v === null ? null : trim((string) $v), $r);
+        if ($mode === 'productie') {
+            $rows[] = [$r[0], $r[1], $r[2], (int) $r[3]];
+        } elseif ($mode === 'verkoop') {
+            $rows[] = [$r[0], $r[1], $r[2], $r[3], (int) $r[5]];
+        } else {
+            $rows[] = [$r[0], $r[1], $r[2], $r[3], $r[4] === 'Q' ? 'Offerte' : 'Verwerkt tot order', (int) $r[5]];
+        }
+    }
+    return ['columns' => $columns, 'rows' => $rows, 'truncated' => count($rows) >= $limit];
 }
 
 reportApi(function (array $in): array {
@@ -171,6 +226,29 @@ reportApi(function (array $in): array {
     }
 
     $pdo = reportConnection();
+
+    // Details achter een getal: de orders van één medewerker in (een deel van) de periode.
+    if (isset($in['detail'])) {
+        $emp = filter_var($in['detail'], FILTER_VALIDATE_INT);
+        if ($emp === false || $emp < 0) {
+            throw new RuntimeException('Ongeldige medewerker.');
+        }
+        $detailFrom = productiviteitDate($in['dvan'] ?? '', 'van');
+        $detailTo = productiviteitDate($in['dtot'] ?? '', 'tot');
+        if ($detailFrom > $detailTo || (int) $detailFrom->diff($detailTo)->days + 1 > PRODUCTIVITEIT_MAX_DAYS) {
+            throw new RuntimeException('Ongeldige periode.');
+        }
+        $name = 'Onbekend (offerte verwerkt)';
+        if ($emp > 0) {
+            $nm = $pdo->prepare('SET NOCOUNT ON; SELECT RTRIM(fullname) AS naam FROM humres WHERE res_id = ?');
+            $nm->execute([$emp]);
+            $row = $nm->fetch();
+            $name = $row ? trim((string) $row['naam']) : 'Medewerker ' . $emp;
+        }
+        $range = $detailFrom == $detailTo ? $detailFrom->format('d-m-Y') : $detailFrom->format('d-m-Y') . ' t/m ' . $detailTo->format('d-m-Y');
+        return ['detail' => ['title' => $name . ' - ' . $range] + productiviteitDetail($pdo, $mode, $emp, $detailFrom, $detailTo)];
+    }
+
     $result = match ($mode) {
         'productie' => productiviteitProductie($pdo, $from, $to),
         'verkoop' => productiviteitVerkoop($pdo, $from, $to),
@@ -231,9 +309,11 @@ reportApi(function (array $in): array {
 
     // Per telling een eigen reeks rijen, met onderaan een totaalregel.
     $sets = [];
+    $setIds = [];
     $grand = [];
     foreach (['O' => 'Orders', 'L' => 'Orderregels'] as $m => $setLabel) {
         $rows = [];
+        $ids = [];
         $colTotals = array_fill(0, count($specs), 0);
         foreach ($employees as $emp) {
             $perDay = $counts[$emp][$m] ?? [];
@@ -250,6 +330,7 @@ reportApi(function (array $in): array {
             }
             if ($hasValue) {
                 $rows[] = $row;
+                $ids[] = $emp;
             }
         }
         // Totaal van de hele periode: laatste som-kolom (Totaal / Deze maand).
@@ -257,8 +338,10 @@ reportApi(function (array $in): array {
         $grand[$m] = $colTotals[$lastSum] ?? 0;
         if ($rows !== []) {
             $rows[] = array_merge(['Totaal'], array_map(fn ($n) => $n > 0 ? $n : null, $colTotals));
+            $ids[] = null; // de totaalregel heeft geen details
         }
         $sets[$setLabel] = $rows;
+        $setIds[$setLabel] = $ids;
     }
 
     $period = $overview ? 'overzicht t/m ' . $to->format('d-m-Y') : $from->format('d-m-Y') . ' t/m ' . $to->format('d-m-Y');
@@ -280,6 +363,9 @@ reportApi(function (array $in): array {
         'dates' => array_fill(0, $count, false),
         'rows' => $sets['Orders'],
         'sets' => $sets,
+        'setIds' => $setIds,
+        // Periode per kolom (voor de details bij een klik op een getal); de eerste kolom (naam) heeft er geen.
+        'colRanges' => array_merge([null], array_map(fn ($sp) => [$sp[1]->format('Y-m-d'), $sp[2]->format('Y-m-d')], $specs)),
         'kop' => $kop,
         'hideRowCount' => true,
         'sumColumns' => $sumColumns,

@@ -46,13 +46,18 @@
             (data.hideRowCount ? '' : '<span class="msp-pill"><strong>' + nl(data.rows.length) + '</strong> regels</span>');
         function sumClass(i) { return (data.sumColumns || []).indexOf(data.columns[i]) !== -1 ? ' class="rp-sum"' : ''; }
         var html = '<thead><tr>' + data.columns.map(function (c, i) { return '<th' + sumClass(i) + '>' + esc(c.trim()) + '</th>'; }).join('') + '</tr></thead><tbody>';
-        data.rows.forEach(function (r) {
-            html += '<tr' + (data.sets && r[0] === 'Totaal' ? ' class="rp-total"' : '') + '>' + r.map(function (v, i) { return withSum((function () {
+        data.rows.forEach(function (r, ri) {
+            var emp = data.rowIds ? data.rowIds[ri] : null;
+            html += '<tr' + (data.sets && r[0] === 'Totaal' ? ' class="rp-total"' : '') + (emp !== null && emp !== undefined ? ' data-emp="' + emp + '"' : '') + '>' + r.map(function (v, i) { return withSum((function () {
                 if (v === null) { return '<td></td>'; }
                 if ((data.nowrap || []).indexOf(data.columns[i]) !== -1) { return '<td class="nowrap">' + esc(v) + '</td>'; }
                 if (isPct(i) && typeof v === 'number') { return '<td class="num">' + pct(v) + '</td>'; }
                 if (isEuro(i) && typeof v === 'number') { return '<td class="num">' + euro(v) + '</td>'; }
-                if (data.numeric[i] && typeof v === 'number') { return '<td class="num">' + nl(v) + '</td>'; }
+                if (data.numeric[i] && typeof v === 'number') {
+                    // Bij rapporten met details (colRanges) is een getal in de regel van een medewerker klikbaar.
+                    var clickable = data.colRanges && data.colRanges[i] && emp !== null && emp !== undefined;
+                    return '<td class="num' + (clickable ? ' rp-click' : '') + '"' + (clickable ? ' data-col="' + i + '" title="Toon de orders"' : '') + '>' + nl(v) + '</td>';
+                }
                 if (isDate(i) && typeof v === 'string' && ISO_DATE.test(v)) { return '<td>' + dmy(v) + '</td>'; }
                 return '<td>' + esc(v) + '</td>';
             })(), i); }).join('') + '</tr>';
@@ -65,6 +70,7 @@
     function selectMeasure(name) {
         measure = name;
         data.rows = data.sets[name];
+        data.rowIds = data.setIds ? data.setIds[name] : null;
         if (measureBox) {
             measureBox.hidden = false;
             Array.prototype.forEach.call(measureBox.querySelectorAll('[data-measure]'), function (b) {
@@ -231,4 +237,55 @@
         XLSX.utils.book_append_sheet(wb, ws, box.getAttribute('data-sheet') + (measure ? ' ' + measure : ''));
         XLSX.writeFile(wb, box.getAttribute('data-file') + '_' + asked + (measure ? '_' + measure : '') + '.xlsx');
     });
+
+    // Details: klik op een getal in de regel van een medewerker -> de orders (of pakbonnen) erachter.
+    var detailBox = document.getElementById('rpDetail');
+    if (detailBox) {
+        var detailTitle = document.getElementById('rpDetailTitle');
+        var detailTable = document.getElementById('rpDetailTable');
+        var detailMsg = document.getElementById('rpDetailMessage');
+        document.getElementById('rpDetailClose').addEventListener('click', function () { detailBox.hidden = true; });
+        table.addEventListener('click', function (e) {
+            var td = e.target.closest ? e.target.closest('td.rp-click') : null;
+            if (!td || !data || !data.colRanges) { return; }
+            var tr = td.parentNode;
+            var range = data.colRanges[+td.getAttribute('data-col')];
+            if (!range) { return; }
+            detailBox.hidden = false;
+            detailMsg.hidden = true;
+            detailTitle.textContent = 'Bezig met ophalen…';
+            detailTable.innerHTML = '';
+            var body = new URLSearchParams();
+            body.set('csrf', box.getAttribute('data-csrf'));
+            body.set('modus', modeInput ? modeInput.value : '');
+            body.set('detail', tr.getAttribute('data-emp'));
+            body.set('dvan', range[0]);
+            body.set('dtot', range[1]);
+            fetch(box.getAttribute('data-endpoint'), { method: 'POST', body: body })
+                .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
+                .then(function (json) {
+                    if (!json.ok || !json.detail) { throw new Error(json.error || 'Ophalen mislukt.'); }
+                    var d = json.detail;
+                    detailTitle.textContent = d.title + ' (' + nl(d.rows.length) + (d.truncated ? '+' : '') + ')';
+                    var h = '<thead><tr>' + d.columns.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
+                    d.rows.forEach(function (row) {
+                        h += '<tr>' + row.map(function (v, i) {
+                            if (v === null || v === '') { return '<td></td>'; }
+                            if (d.columns[i] === 'Datum' && ISO_DATE.test(v)) { return '<td>' + dmy(v) + '</td>'; }
+                            if (typeof v === 'number') { return '<td class="num">' + nl(v) + '</td>'; }
+                            return '<td>' + esc(v) + '</td>';
+                        }).join('') + '</tr>';
+                    });
+                    detailTable.innerHTML = h + '</tbody>';
+                    if (d.truncated) { detailMsg.textContent = 'Alleen de eerste 500 worden getoond.'; detailMsg.className = 'ka-message'; detailMsg.hidden = false; }
+                    detailBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                })
+                .catch(function (err) {
+                    detailTitle.textContent = 'Details';
+                    detailMsg.textContent = err.message;
+                    detailMsg.className = 'ka-message ka-message--error';
+                    detailMsg.hidden = false;
+                });
+        });
+    }
 })();

@@ -91,6 +91,15 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
         <div class="ka-table-wrap msp-scroll"><table class="ka-table" id="rpTable"></table></div>
     </section>
 
+    <section class="panel" id="rpDetail" hidden>
+        <div class="rp-detail-head">
+            <h2 id="rpDetailTitle"></h2>
+            <button type="button" id="rpDetailClose" class="ka-button ka-button--secondary">Sluiten</button>
+        </div>
+        <div id="rpDetailMessage" class="ka-message ka-message--error" hidden></div>
+        <div class="ka-table-wrap msp-scroll"><table class="ka-table" id="rpDetailTable"></table></div>
+    </section>
+
     <p class="page-footer">Geeve Hydraulics</p>
 </main>
 <script src="../assets/vendor/xlsx-style.min.js"></script>
