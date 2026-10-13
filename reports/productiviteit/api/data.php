@@ -7,8 +7,8 @@ declare(strict_types=1);
  *  - productie: logistiek afgehandelde (geleverde) verkooporders. Een levering is een regel in het memoriaal (dagboek 90,
  *    tabel amutas) die naar een orderregel verwijst (CSPickITCWOrsrgIDCWDB) en een pakbonnummer heeft
  *    (CSPickITCWDeliveryNoteCWDB). Orders = aantal verschillende pakbonnen, orderregels = aantal verschillende orderregels.
- *  - verkoop: ingevoerde verkooporders (ord_soort V) uit de lopende orders (orkrg/orsrg): wie de order en de orderregels
- *    heeft aangemaakt (zie productiviteitVerkoop).
+ *  - verkoop: verkooporders (ord_soort V) per verkoper uit de lopende orders (orkrg/orsrg): de medewerker in de order of
+ *    offerte (represent_id), zie productiviteitVerkoop.
  * syscreator = medewerker (humres.res_id), syscreated = tijdstip. Het antwoord bevat per telling ("Orders", "Orderregels")
  * een eigen reeks rijen ("sets"); de pagina schakelt daartussen.
  */
@@ -16,22 +16,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../inc.php';
 
 const PRODUCTIVITEIT_MAX_DAYS = 62;
-
-/** Gebruikers (syscreator) die geen medewerker zijn maar een systeemaccount ('d ADMINISTRATOR', 'D4D Gebruiker'); tellen niet mee bij Verkoop. */
-const PRODUCTIVITEIT_VERKOOP_EXCLUDE = [14, 64];
-
-/**
- * Verkopers (humres.res_id): medewerkers die verkooporders invoeren. Bij een offerte die tot order is verwerkt legt Exact niet
- * vast wie dat deed; dan telt de laatste wijziger (sysmodifier) van de order, maar alleen als die in deze lijst staat
- * (anders is het waarschijnlijk het magazijn dat de order daarna aanpast).
- * Voorstel op basis van de medewerkers met de meeste ingevoerde orders: Piet Klip 12, Mark Heijndermans 17, Monika Krotki 146,
- * Patrick Berkhof 136, Thom van der Maas 148, Pieter Meyboom 144, Marco Josen 40, Patrick de Brabander 119, Peter Hameete 132,
- * Maurice Geeve 6.
- */
-const PRODUCTIVITEIT_VERKOPERS = [12, 17, 146, 136, 148, 144, 40, 119, 132, 6];
-
-/** Medewerkers die geen verkooporders invoeren: hoofdletterongevoelig deel van de naam (humres.fullname); tellen niet mee bij Verkoop. */
-const PRODUCTIVITEIT_VERKOOP_EXCLUDE_NAMES = ['Anton Steenland', 'Geert Steenland', 'Monteiro Rodrigues', 'Jerzy van den Bosch'];
 
 function productiviteitDate(mixed $value, string $label): DateTimeImmutable
 {
@@ -111,41 +95,32 @@ function productiviteitProductie(PDO $pdo, DateTimeImmutable $from, DateTimeImmu
 }
 
 /**
- * Verkoop: ingevoerde verkooporders (ord_soort V). @return list<list<mixed>> rijen [meting, medewerker, dag, aantal]
+ * Verkoop: verkooporders per verkoper (ord_soort V). @return list<list<mixed>> rijen [meting, medewerker, dag, aantal]
  *
- * Alleen de lopende orders (orkrg/orsrg): daar is syscreator echt degene die de order invoerde. In de orderhistorie
- * (orhkrg/orhsrg) staat de medewerker die de order heeft verplaatst/afgehandeld, dus die telt hier niet mee.
+ * De verkoper is de medewerker die in de verkooporder of offerte staat (orkrg.represent_id = humres.res_id), niet de
+ * gebruiker die de regel heeft aangemaakt of aangepast. Alleen lopende orders (orkrg/orsrg); de orderhistorie telt niet mee.
  *
  * Dag = de latere van orderdatum (orddat) en aanmaakdatum (syscreated). Wordt een offerte tot order verwerkt, dan houdt
- * Exact de oorspronkelijke aanmaakdatum aan en zet de orderdatum op de dag van verwerken. Exact legt niet vast wie dat doet:
- * bij zo'n omgezette offerte telt de laatste wijziger (sysmodifier), alleen als die in PRODUCTIVITEIT_VERKOPERS staat.
- * Bij een rechtstreeks ingevoerde order telt de aanmaker. Omgezette offertes tot 90 dagen oud worden gevonden.
- * Orderregels tellen op dezelfde dag en bij dezelfde medewerker als de orderkop.
+ * Exact de oorspronkelijke aanmaakdatum aan en zet de orderdatum op de dag van verwerken. Omgezette offertes tot 90 dagen
+ * oud worden gevonden. Orderregels tellen op dezelfde dag en bij dezelfde verkoper als de orderkop.
  */
 function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
     $startParam = $from->format('Y-m-d');
     $endParam = $to->format('Y-m-d');
 
-    $exclude = implode(',', array_map('intval', PRODUCTIVITEIT_VERKOOP_EXCLUDE));
     // orkrg heeft geen index op de datum: de periode wordt omgezet naar een ID-bereik (een omgezette offerte heeft een
     // ouder ID, vandaar 90 dagen extra aan de voorkant).
     [$kFirst, $kEnd] = productiviteitIdRange($pdo, 'orkrg', $from->modify('-90 days'), $to);
 
-    $sellers = implode(',', array_map('intval', PRODUCTIVITEIT_VERKOPERS));
-    // omgezet = offerte die later tot order is verwerkt (orderdatum later dan aanmaakdatum): dan telt de laatste wijziger,
-    // alleen als die een verkoper is; anders telt de aanmaker op de dag van aanmaken.
-    $orders = 'WITH o AS (SELECT k.ordernr, ' .
-        'CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN k.sysmodifier ELSE k.syscreator END AS syscreator, ' .
-        'CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN 1 ELSE 0 END AS omgezet, ' .
+    $orders = 'WITH o AS (SELECT k.ordernr, k.represent_id AS verkoper, ' .
         'CONVERT(char(10), CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN k.orddat ELSE k.syscreated END, 23) AS dag ' .
-        "FROM orkrg k WITH (NOLOCK) WHERE k.ID >= {$kFirst} AND k.ID < {$kEnd} AND k.ord_soort = 'V') ";
-    $filter = "(o.omgezet = 0 OR o.syscreator IN ({$sellers})) AND o.syscreator NOT IN ({$exclude}) AND o.dag >= ? AND o.dag <= ?";
+        "FROM orkrg k WITH (NOLOCK) WHERE k.ID >= {$kFirst} AND k.ID < {$kEnd} AND k.ord_soort = 'V' AND ISNULL(k.represent_id, 0) <> 0) ";
     $sql = 'SET NOCOUNT ON; ' . $orders .
-        "SELECT 'O' AS meting, o.syscreator AS medewerker, o.dag AS dag, COUNT(*) AS aantal FROM o WHERE {$filter} GROUP BY o.syscreator, o.dag " .
+        "SELECT 'O' AS meting, o.verkoper AS medewerker, o.dag AS dag, COUNT(*) AS aantal FROM o WHERE o.dag >= ? AND o.dag <= ? GROUP BY o.verkoper, o.dag " .
         'UNION ALL ' .
-        "SELECT 'L', o.syscreator, o.dag, COUNT(*) FROM o INNER JOIN orsrg r WITH (NOLOCK) ON r.ordernr = o.ordernr " .
-        "WHERE {$filter} AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' GROUP BY o.syscreator, o.dag";
+        "SELECT 'L', o.verkoper, o.dag, COUNT(*) FROM o INNER JOIN orsrg r WITH (NOLOCK) ON r.ordernr = o.ordernr " .
+        "WHERE o.dag >= ? AND o.dag <= ? AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' GROUP BY o.verkoper, o.dag";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$startParam, $endParam, $startParam, $endParam]);
@@ -194,18 +169,6 @@ reportApi(function (array $in): array {
         $nm->execute($ids);
         foreach ($nm->fetchAll() as $row) {
             $names[(int) $row['res_id']] = trim((string) $row['naam']);
-        }
-    }
-
-    // Verkoop: medewerkers die geen verkooporders invoeren (op naam) overslaan.
-    if ($mode === 'verkoop') {
-        foreach ($names as $id => $fullName) {
-            foreach (PRODUCTIVITEIT_VERKOOP_EXCLUDE_NAMES as $part) {
-                if (stripos($fullName, $part) !== false) {
-                    unset($counts[$id]);
-                    break;
-                }
-            }
         }
     }
 
