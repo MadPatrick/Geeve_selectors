@@ -57,7 +57,6 @@ $csrf = csrfToken();
             </div>
             <h2>MSP report</h2>
             <p>Parker MSP claim report voor de afgelopen maand</p>
-            <span class="tile-cta">Open rapport &rarr;</span>
         </a>
         <a class="tile" href="inkooporder/index.php">
             <div class="tile-icon">
@@ -69,7 +68,6 @@ $csrf = csrfToken();
             </div>
             <h2>Inkooporder naar Excel</h2>
             <p>Inkooporder met regels uit Exact ophalen en als Excel downloaden</p>
-            <span class="tile-cta">Open rapport &rarr;</span>
         </a>
         <a class="tile" href="order-offerte/index.php">
             <div class="tile-icon">
@@ -82,7 +80,6 @@ $csrf = csrfToken();
             </div>
             <h2>Order of Offerte naar Excel</h2>
             <p>Order- of offerteregels uit Exact ophalen en als Excel downloaden</p>
-            <span class="tile-cta">Open rapport &rarr;</span>
         </a>
         <a class="tile" href="inkoop-groep/index.php">
             <div class="tile-icon">
@@ -95,7 +92,6 @@ $csrf = csrfToken();
             </div>
             <h2>Inkoop per groep</h2>
             <p>Ingekochte aantallen per artikel van een artikelgroep in een periode</p>
-            <span class="tile-cta">Open rapport &rarr;</span>
         </a>
         <a class="tile" href="productiviteit/index.php"<?= $productiviteitLocked ? ' data-lock="productiviteit"' : '' ?>>
             <div class="tile-icon">
@@ -108,7 +104,6 @@ $csrf = csrfToken();
             </div>
             <h2>Productiviteit</h2>
             <p>Afgehandelde orders en orderregels per medewerker per dag</p>
-            <span class="tile-cta">Open rapport &rarr;</span>
         
             <span class="tile-lock" title="Beveiligd met een code" aria-label="Beveiligd met een code">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -128,7 +123,6 @@ $csrf = csrfToken();
             </div>
             <h2>Offerte Import</h2>
             <p>Offerte via Excel importeren, controleren met Exact en als XML klaarzetten</p>
-            <span class="tile-cta">Open import &rarr;</span>
         </a>
     </div>
 

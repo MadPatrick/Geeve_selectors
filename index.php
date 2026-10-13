@@ -63,7 +63,6 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Slangen fitting Selector</h2>
             <p>Zoek de juiste koppeling op basis van slangartikelnummer, maat en werkdruk &mdash; voor Staal, RVS en accessoires.</p>
-            <span class="tile-cta">Open selector &rarr;</span>
         </a>
 
         <a class="tile" href="adapters/index.php">
@@ -75,7 +74,6 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Adapters Selector</h2>
             <p>Zoek de juiste adapter op basis van draadsoort, draadmaat, hoek en connectietype (buiten/binnen/wartelend).</p>
-            <span class="tile-cta">Open selector &rarr;</span>
         </a>
 
         <a class="tile" href="slangkaarten/index.php">
@@ -87,7 +85,6 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Slangkaarten Printen</h2>
             <p>Zoek een order of klant op en print de slangkaarten (labels) van de geselecteerde slangregels.</p>
-            <span class="tile-cta">Open selector &rarr;</span>
         </a>
 
         <a class="tile" href="reports/index.php">
@@ -102,7 +99,6 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Reports</h2>
             <p>Rapportages en overzichten.</p>
-            <span class="tile-cta">Open reports &rarr;</span>
         </a>
         <a class="tile tile--wip" href="stauff/index.php">
             <div class="tile-icon">
@@ -115,7 +111,6 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Stauff Selector</h2>
             <p>Stel de juiste beugelsamenstelling samen op basis van diameter, serie, uitvoering en materiaal.</p>
-            <span class="tile-cta">Open selector &rarr;</span>
         </a>
         <a class="tile tile--wip" href="klantartikel/index.php">
             <div class="tile-icon">
@@ -126,7 +121,6 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Klant Artikelnummers</h2>
             <p>Zoek op prijslijstnummer de gekoppelde klanten en hun artikelen met klantartikelnummer uit Exact.</p>
-            <span class="tile-cta">Open overzicht &rarr;</span>
         </a>
         <a class="tile tile--wip" href="klantkorting/index.php">
             <div class="tile-icon">
@@ -138,7 +132,6 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Kortingstructuur</h2>
             <p>Bekijk en pas de kortingstructuur van klanten aan op basis van hun prijslijst.</p>
-            <span class="tile-cta">Open overzicht &rarr;</span>
         </a>
     </div>
 

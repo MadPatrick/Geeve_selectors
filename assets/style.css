@@ -213,3 +213,4 @@
 .lock-actions { display: flex; justify-content: flex-end; gap: var(--btn-gap, 5px); margin-top: 18px; }
 .lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--accent-dark-line); background: var(--accent-dark); color: #fff; cursor: pointer; }
 .lock-button--secondary { background: #fff; color: var(--ink); border-color: var(--line-strong); }
+.tile:has(.tile-lock) p { padding-right: 30px; }

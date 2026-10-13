@@ -26,6 +26,7 @@
     var sellerInfo = null;   // {found, name}
     var debtorInfo = null;
     var itemsChecked = false;
+    var importedName = '';
     var timer = null;
     var validating = 0;
 
@@ -117,8 +118,10 @@
                 }
                 itemInfo = {};
                 itemsChecked = false;
+                importedName = file.name;
                 render();
-                showInfo('Geïmporteerd: ' + file.name + ' (' + lines.length + ' regels). De gegevens worden gecontroleerd met Exact…');
+                showInfo(lines.length ? 'Geïmporteerd: ' + file.name + ' (' + lines.length + ' regels). De gegevens worden gecontroleerd met Exact…' : '');
+                if (!lines.length) { showMessage('Geen regels gevonden in ' + file.name + '. Vul vanaf regel 12 de artikelcode en het aantal in (kolom D en E).'); }
                 validate(true);
             } catch (err) {
                 showMessage('Het bestand kon niet worden gelezen: ' + err.message);
@@ -146,7 +149,11 @@
                 if (!json.ok) { throw new Error(json.error || 'Controle mislukt.'); }
                 sellerInfo = json.verkoper;
                 debtorInfo = json.debiteur;
-                if (withItems) { itemInfo = json.items || {}; itemsChecked = true; showInfo(''); }
+                if (withItems) {
+                    itemInfo = json.items || {};
+                    itemsChecked = true;
+                    if (lines.length) { showInfo('Geïmporteerd: ' + importedName + ' (' + lines.length + ' regels), gecontroleerd met Exact.'); }
+                }
                 render();
             })
             .catch(function (err) {
