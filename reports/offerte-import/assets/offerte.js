@@ -85,8 +85,8 @@
         var help = XLSX.utils.aoa_to_sheet([
             [1, 'Geef per regel het aantal (kolom B) en de artikelcode (kolom C) in'],
             [2, 'Meer dan 100 regels? Nummer de regelnummers gewoon door'],
-            [3, T.Seller + ', ' + T.partyNr + ', omschrijving en datum vul je in op het dashboard (' + T.page + ')'],
-            [4, 'Importeer het bestand in ' + T.page + '; de artikelen worden gecontroleerd met Exact en de artikelomschrijving wordt opgehaald']
+            [3, 'Verkoper of inkoper, debiteur- of leveranciernummer, omschrijving en datum vul je in op het dashboard (Offerte Import of Inkooporder Import)'],
+            [4, 'Importeer het bestand in Offerte Import of Inkooporder Import; de artikelen worden gecontroleerd met Exact en de artikelomschrijving wordt opgehaald']
         ]);
         help['!cols'] = [{ wch: 4 }, { wch: 110 }];
         var wb = XLSX.utils.book_new();
