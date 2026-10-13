@@ -47,7 +47,7 @@ html { min-height: 100%; }
 body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); }
 button, input, select { font: inherit; }
 
-.page-shell { width: min(1100px, calc(100% - 28px)); margin: 16px auto 40px; }
+.page-shell { width: min(1400px, calc(100% - 28px)); margin: 16px auto 40px; }
 /* Brede variant voor de selector-apps met veel kolommen (hoses/adapters/stauff/
    slangkaarten): <main class="page-shell page-shell--wide">. Moet VOOR de
    responsive .page-shell-regels onderaan staan, zodat die op mobiel winnen. */
