@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen geen gegevens.
+require_once __DIR__ . '/../../shared/tiles.php';
+tileApiGuard('klantartikel');
+
 /**
  * Controleert of een artikelnummer in Exact bestaat en geeft de omschrijving terug.
  * GET ?code=<artikelnummer>  ->  {"found":bool,"code":"...","description":"..."}

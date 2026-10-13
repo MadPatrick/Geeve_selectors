@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen geen gegevens.
+require_once __DIR__ . '/../../../shared/tiles.php';
+tileApiGuard('order-offerte');
+
 /**
  * Order of Offerte naar Excel: voert dbo.SP_orders_naar_Excel (database 005_Data_Geeve) uit voor één order-/offertenummer
  * en toont dezelfde kolommen (en namen) als de Excel-sjabloon.

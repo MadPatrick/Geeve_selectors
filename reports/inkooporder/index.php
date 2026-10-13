@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
+require_once __DIR__ . '/../../shared/tiles.php';
+tileRequirePage('inkooporder', '../index.php');
+
 require_once __DIR__ . '/../../shared/csrf.php';
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op

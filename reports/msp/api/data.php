@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen geen gegevens.
+require_once __DIR__ . '/../../../shared/tiles.php';
+tileApiGuard('msp');
+
 /**
  * Haalt de MSP-gegevens op met een lees-query in database 005 (zelfde berekening als dbo.SP_MSP; zie ../sql/msp_query.sql).
  * POST met csrf-sleutel; antwoord: {"ok":true,"columns":[...],"rows":[[...]]} of {"ok":false,"error":"..."}.

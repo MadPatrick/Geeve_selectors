@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen geen gegevens.
+require_once __DIR__ . '/../../../shared/tiles.php';
+tileApiGuard('export-info');
+
 /**
  * Export info: voert dbo.SP_orders_naar_Excel_export (database 005_Data_Geeve) uit voor één ordernummer, zoals het Excel-sjabloon
  * "Exact Export info Order" (Power Query "export"). Eén regel per orderregel; de weergaven orders/Deme/NOV worden in de browser opgebouwd.

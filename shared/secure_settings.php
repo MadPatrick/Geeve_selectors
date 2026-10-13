@@ -28,6 +28,8 @@ const SECURE_SETTINGS_KEYS = [
     'DB_PASSWORD',
     // Toegangscode voor beveiligde onderdelen (Productiviteit); zonder waarde geldt 1308 (zie shared/access.php).
     'ACCESS_CODE',
+    // Per tegel: zichtbaar / beveiligd / in progress (JSON, zie shared/tiles.php); ingesteld via Config > Tegels.
+    'TILE_FLAGS',
 ];
 
 function secureSettingsKeyPath(): string

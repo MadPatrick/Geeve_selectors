@@ -8,6 +8,7 @@ session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 require_once __DIR__ . '/shared/secure_settings.php';
+require_once __DIR__ . '/shared/tiles.php';
 
 // Fallback-bron als de map op de server geen git-repository is (bijv. de
 // map is via FTP gekopieerd zonder de verborgen .git-map mee te nemen).
@@ -269,6 +270,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
     } else {
         $values = secureSettingsRead();
         foreach (SECURE_SETTINGS_KEYS as $settingKey) {
+            if ($settingKey === 'TILE_FLAGS') {
+                continue; // wordt apart opgeslagen (formulier Tegels)
+            }
             $posted = trim((string) ($_POST[$settingKey] ?? ''));
             if ($settingKey === 'EXACT_DB_TRUST_SERVER_CERT') {
                 $posted = $posted === 'yes' ? 'yes' : 'no';
@@ -285,6 +289,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         }
         $settingsMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Instellingen versleuteld opgeslagen.']
+            : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
+    }
+}
+
+$tilesMessage = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-tiles') {
+    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+        $requestError = true;
+    } else {
+        $flags = [];
+        foreach (array_keys(TILE_REGISTRY) as $tileId) {
+            $row = $_POST['tile'][$tileId] ?? [];
+            $flags[$tileId] = [
+                'visible' => isset($row['visible']),
+                'locked' => isset($row['locked']),
+                'wip' => isset($row['wip']),
+            ];
+        }
+        $values = secureSettingsRead();
+        $values['TILE_FLAGS'] = (string) json_encode($flags);
+        $tilesMessage = secureSettingsWrite($values)
+            ? ['ok' => true, 'text' => 'Tegel-instellingen opgeslagen.']
             : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
     }
 }
@@ -319,7 +345,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
     require __DIR__ . '/shared/header.php';
     ?>
 
-    <a href="index.php" class="back-link">&larr; Terug naar hoofdmenu</a>
+    <div class="config-bar">
+        <a href="index.php" class="back-link">&larr; Terug naar hoofdmenu</a>
+        <form method="post" class="config-update-form">
+            <input type="hidden" name="action" value="run-update">
+            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <button type="submit" class="update-submit">Update uitvoeren</button>
+        </form>
+    </div>
+
+    <?php if ($requestError): ?>
+        <div class="update-message error">Ongeldig verzoek (sessie verlopen). Laad de pagina opnieuw en probeer het nog eens.</div>
+    <?php endif; ?>
+    <?php if ($result !== null): ?>
+        <section class="update-panel">
+            <div class="update-message <?= $result['ok'] ? 'ok' : 'error' ?>">
+                <?= $result['ok'] ? 'Update voltooid.' : 'Update mislukt.' ?>
+            </div>
+            <pre class="update-output"><?= h($result['output']) ?></pre>
+        </section>
+    <?php endif; ?>
 
     <section class="update-panel">
         <h2>Database-instellingen</h2>
@@ -390,7 +435,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
                 </label>
             </div>
             <h3 class="settings-subtitle">Toegangscode</h3>
-            <p class="settings-help">Code voor de beveiligde tegel <strong>Productiviteit</strong> (Reports). Leeg laten = ongewijzigd.</p>
+            <p class="settings-help">Code voor de beveiligde tegels (zie Tegels hieronder; standaard alleen <strong>Productiviteit</strong>). Leeg laten = ongewijzigd.</p>
             <div class="settings-row">
                 <label class="update-code-field">
                     <span>Code</span>
@@ -404,23 +449,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
     </section>
 
     <section class="update-panel">
-        <h2>Update ophalen</h2>
-        <p>Haalt de laatste wijzigingen op (via <code>git pull</code> als de server een git-checkout is, anders rechtstreeks als download van GitHub) en werkt alle selectors op de server in &eacute;&eacute;n keer bij. Dit kan bij een download-update even duren.</p>
+        <h2>Tegels</h2>
+        <p>Alle tegels van het hoofdscherm en van Reports. <strong>Zichtbaar</strong>: uit = de tegel staat niet op het overzicht. <strong>Beveiligd</strong>: een klik op de tegel vraagt om de toegangscode (de pagina is dan ook niet rechtstreeks te openen). <strong>In progress</strong>: de tegel krijgt de stempel "IN PROGRESS".</p>
 
-        <?php if ($result !== null): ?>
-            <div class="update-message <?= $result['ok'] ? 'ok' : 'error' ?>">
-                <?= $result['ok'] ? 'Update voltooid.' : 'Update mislukt.' ?>
-            </div>
-            <pre class="update-output"><?= h($result['output']) ?></pre>
+        <?php if ($tilesMessage !== null): ?>
+            <div class="update-message <?= $tilesMessage['ok'] ? 'ok' : 'error' ?>"><?= h($tilesMessage['text']) ?></div>
         <?php endif; ?>
 
-        <?php if ($requestError): ?>
-            <div class="update-message error">Ongeldig verzoek (sessie verlopen). Laad de pagina opnieuw en probeer het nog eens.</div>
-        <?php endif; ?>
-        <form method="post" class="update-form">
-            <input type="hidden" name="action" value="run-update">
+        <form method="post" class="update-form tiles-form" autocomplete="off">
+            <input type="hidden" name="action" value="save-tiles">
             <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
-            <button type="submit" class="update-submit">Update uitvoeren</button>
+            <div class="tiles-table" role="table">
+                <div class="tiles-row tiles-head" role="row">
+                    <span role="columnheader">Tegel</span>
+                    <span role="columnheader">Zichtbaar</span>
+                    <span role="columnheader">Beveiligd</span>
+                    <span role="columnheader">In progress</span>
+                </div>
+                <?php
+                $tileGroups = ['home' => 'Hoofdscherm', 'reports' => 'Reports'];
+                $tileFlags = tileFlagsAll();
+                foreach ($tileGroups as $groupId => $groupTitle):
+                ?>
+                    <div class="tiles-group" role="row"><?= h($groupTitle) ?></div>
+                    <?php foreach (TILE_REGISTRY as $tileId => $tile): if ($tile[0] !== $groupId) { continue; } ?>
+                        <div class="tiles-row" role="row">
+                            <span role="cell" class="tiles-name"><?= h($tile[1]) ?></span>
+                            <?php foreach (['visible' => 'Zichtbaar', 'locked' => 'Beveiligd', 'wip' => 'In progress'] as $flag => $flagLabel): ?>
+                                <label role="cell" class="settings-switch tiles-switch" title="<?= h($tile[1] . ': ' . $flagLabel) ?>">
+                                    <input type="checkbox" name="tile[<?= h($tileId) ?>][<?= h($flag) ?>]" value="1"<?= $tileFlags[$tileId][$flag] ? ' checked' : '' ?>>
+                                    <span class="settings-switch-track"></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>
+            </div>
+            <button type="submit" class="update-submit">Opslaan</button>
         </form>
     </section>
 

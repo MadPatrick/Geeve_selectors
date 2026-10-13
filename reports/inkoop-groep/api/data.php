@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen geen gegevens.
+require_once __DIR__ . '/../../../shared/tiles.php';
+tileApiGuard('inkoop-groep');
+
 /**
  * Inkoop per Artikelgroep: per artikel van een artikelgroep (Items.Assortment, zoals bij Kortingstructuur) het aantal dat in de
  * gekozen periode op inkooporders is besteld. Lees-query op orkrg (orderkop) + orsrg (orderregels) + Items in database 005,

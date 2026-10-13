@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen geen gegevens.
+require_once __DIR__ . '/../../../shared/tiles.php';
+tileApiGuard('inkooporder');
+
 /**
  * Inkooporder naar Excel: voert dbo.SP_Alle_Orders_met_regelsplus_inkoop (database Exactrapportage) uit voor één ordernummer.
  * Een aantal kolommen wordt weggelaten; de debiteurnaam gaat naar de kop van de pagina ("kop") in plaats van een kolom.

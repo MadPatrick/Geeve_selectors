@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen geen gegevens.
+require_once __DIR__ . '/../../../shared/tiles.php';
+tileApiGuard('offerte-import', 'inkooporder-import');
+
 /**
  * Zoekt debiteuren, crediteuren of medewerkers (soort medewerker, nummer = res_id) op naam (of nummer) met een tolerante (fuzzy) vergelijking, voor het invulveld in de
  * offerte- en inkooporder-import. POST met csrf, q en soort (debiteur of crediteur); antwoord:

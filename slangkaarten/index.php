@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
+require_once __DIR__ . '/../shared/tiles.php';
+tileRequirePage('slangkaarten', '../index.php');
+
 // Voorkomt dat een browser/proxy een eerder opgehaalde pagina hergebruikt
 // i.p.v. de resultaten van een nieuwe zoekopdracht op te halen.
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');

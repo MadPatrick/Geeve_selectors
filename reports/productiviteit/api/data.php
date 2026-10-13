@@ -16,10 +16,10 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/../../inc.php';
-require_once __DIR__ . '/../../../shared/access.php';
+require_once __DIR__ . '/../../../shared/tiles.php';
 
 // Beveiligd met de toegangscode: zonder ontgrendelde sessie geen gegevens.
-accessApiGuard('productiviteit');
+tileApiGuard('productiviteit'); // beveiligde tegel: zonder ontgrendelen geen gegevens
 
 const PRODUCTIVITEIT_MAX_DAYS = 62;
 

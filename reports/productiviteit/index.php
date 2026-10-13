@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
+require_once __DIR__ . '/../../shared/tiles.php';
+tileRequirePage('productiviteit', '../index.php');
+
 require_once __DIR__ . '/../../shared/csrf.php';
 require_once __DIR__ . '/../../shared/access.php';
 
@@ -27,7 +31,7 @@ $csrf = csrfToken();
 header('Cache-Control: no-store');
 
 // Beveiligd met een toegangscode (zie shared/access.php); een juiste code ontgrendelt dit onderdeel voor de sessie.
-$locked = !accessUnlocked('productiviteit');
+$locked = tileLocked('productiviteit') && !accessUnlocked('productiviteit');
 $codeError = null;
 if ($locked && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'unlock') {
     if (!csrfValid($_POST['csrf'] ?? null)) {

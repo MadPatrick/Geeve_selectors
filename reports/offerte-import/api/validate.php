@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen geen gegevens.
+require_once __DIR__ . '/../../../shared/tiles.php';
+tileApiGuard('offerte-import', 'inkooporder-import');
+
 /**
  * Controleert de velden van een offerte- of inkooporder-import tegen Exact: verkoper/inkoper (humres.res_id), debiteur- of
  * crediteurnummer (cicmpy) en artikelcodes (Items; bij inkoop met minimale bestelhoeveelheid `minOrder` van de leverancier). POST met csrf, verkoper, debiteur (het nummer van de debiteur of crediteur),

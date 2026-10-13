@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
+require_once __DIR__ . '/shared/tiles.php';
+
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 
 function h(string $value): string
@@ -20,6 +22,11 @@ function assetVersion(string $relativePath): string
     $mtime = @filemtime($full);
     return $mtime !== false ? (string) $mtime : APP_VERSION;
 }
+
+// Beveiligde tegels: elke keer dat het hoofdscherm opent, vragen ze opnieuw om de code.
+tilesRelock('home');
+$csrf = csrfToken();
+$lockRoot = '';
 ?>
 <!doctype html>
 <html lang="nl">
@@ -54,7 +61,8 @@ function assetVersion(string $relativePath): string
 
 
     <div class="tile-grid">
-        <a class="tile" href="hoses/index.php">
+        <?php if (tileVisible('hoses')): ?>
+        <a class="<?= tileClass('hoses') ?>" href="hoses/index.php"<?= tileAttrs('hoses') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M3 7c2 0 2 3 4 3s2-3 4-3 2 3 4 3 2-3 4-3 2 3 4 3"></path>
@@ -63,9 +71,12 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Slangen fitting Selector</h2>
             <p>Zoek de juiste koppeling op basis van slangartikelnummer, maat en werkdruk &mdash; voor Staal, RVS en accessoires.</p>
+            <?= tileLockIcon('hoses') ?>
         </a>
+        <?php endif; ?>
 
-        <a class="tile" href="adapters/index.php">
+        <?php if (tileVisible('adapters')): ?>
+        <a class="<?= tileClass('adapters') ?>" href="adapters/index.php"<?= tileAttrs('adapters') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14.7 6.3a1 1 0 0 0 1.4 0l1.6-1.6a1 1 0 0 1 1.4 0l1.2 1.2a1 1 0 0 1 0 1.4l-1.6 1.6a1 1 0 0 0 0 1.4l3.1 3.1a1 1 0 0 1 0 1.4l-1.4 1.4a1 1 0 0 1-1.4 0l-3.1-3.1a1 1 0 0 0-1.4 0l-1.6 1.6a1 1 0 0 1-1.4 0l-1.2-1.2a1 1 0 0 1 0-1.4l1.6-1.6a1 1 0 0 0 0-1.4L9 6.3a1 1 0 0 0-1.4 0L6 7.9a1 1 0 0 1-1.4 0L3.4 6.7a1 1 0 0 1 0-1.4L5 3.7a1 1 0 0 1 1.4 0l1.6 1.6a1 1 0 0 0 1.4 0"></path>
@@ -74,9 +85,12 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Adapters Selector</h2>
             <p>Zoek de juiste adapter op basis van draadsoort, draadmaat, hoek en connectietype (buiten/binnen/wartelend).</p>
+            <?= tileLockIcon('adapters') ?>
         </a>
+        <?php endif; ?>
 
-        <a class="tile" href="slangkaarten/index.php">
+        <?php if (tileVisible('slangkaarten')): ?>
+        <a class="<?= tileClass('slangkaarten') ?>" href="slangkaarten/index.php"<?= tileAttrs('slangkaarten') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
@@ -85,9 +99,12 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Slangkaarten Printen</h2>
             <p>Zoek een order of klant op en print de slangkaarten (labels) van de geselecteerde slangregels.</p>
+            <?= tileLockIcon('slangkaarten') ?>
         </a>
+        <?php endif; ?>
 
-        <a class="tile tile--wip" href="stauff/index.php">
+        <?php if (tileVisible('stauff')): ?>
+        <a class="<?= tileClass('stauff') ?>" href="stauff/index.php"<?= tileAttrs('stauff') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="10" width="16" height="7" rx="2"></rect>
@@ -98,8 +115,11 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Stauff Selector</h2>
             <p>Stel de juiste beugelsamenstelling samen op basis van diameter, serie, uitvoering en materiaal.</p>
+            <?= tileLockIcon('stauff') ?>
         </a>
-        <a class="tile" href="reports/index.php">
+        <?php endif; ?>
+        <?php if (tileVisible('reports')): ?>
+        <a class="<?= tileClass('reports') ?>" href="reports/index.php"<?= tileAttrs('reports') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
@@ -111,8 +131,11 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Reports</h2>
             <p>Rapportages en overzichten.</p>
+            <?= tileLockIcon('reports') ?>
         </a>
-        <a class="tile" href="klantartikel/index.php">
+        <?php endif; ?>
+        <?php if (tileVisible('klantartikel')): ?>
+        <a class="<?= tileClass('klantartikel') ?>" href="klantartikel/index.php"<?= tileAttrs('klantartikel') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path>
@@ -121,8 +144,11 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Klant Artikelnummers</h2>
             <p>Zoek op prijslijstnummer de gekoppelde klanten en hun artikelen met klantartikelnummer uit Exact.</p>
+            <?= tileLockIcon('klantartikel') ?>
         </a>
-        <a class="tile tile--wip" href="klantkorting/index.php">
+        <?php endif; ?>
+        <?php if (tileVisible('klantkorting')): ?>
+        <a class="<?= tileClass('klantkorting') ?>" href="klantkorting/index.php"<?= tileAttrs('klantkorting') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <line x1="19" y1="5" x2="5" y2="19"></line>
@@ -132,11 +158,14 @@ function assetVersion(string $relativePath): string
             </div>
             <h2>Kortingstructuur</h2>
             <p>Bekijk en pas de kortingstructuur van klanten aan op basis van hun prijslijst.</p>
+            <?= tileLockIcon('klantkorting') ?>
         </a>
+        <?php endif; ?>
     </div>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
 </main>
 
+<?php require __DIR__ . '/shared/lock_modal.php'; ?>
 </body>
 </html>

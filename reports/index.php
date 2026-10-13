@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
-require_once __DIR__ . '/../shared/access.php';
+require_once __DIR__ . '/../shared/tiles.php';
+
+// Dit overzicht is zelf ook een tegel (Reports): is die beveiligd, dan eerst de code.
+tileRequirePage('reports', '../index.php');
 
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
 
@@ -20,9 +23,9 @@ function assetVersion(string $relativePath): string
     return $mtime !== false ? (string) $mtime : APP_VERSION;
 }
 
-// Beveiligde tegel: alleen als dit onderdeel nog niet is ontgrendeld vraagt een klik om de code (popup).
-accessLock('productiviteit'); // elke keer dat het Reports-scherm opent, vraagt de tegel opnieuw om de code
-$productiviteitLocked = true;
+// Beveiligde tegels: elke keer dat dit overzicht opent, vragen ze opnieuw om de code.
+tilesRelock('reports');
+$lockRoot = '../';
 $csrf = csrfToken();
 ?>
 <!doctype html>
@@ -47,7 +50,8 @@ $csrf = csrfToken();
 
 
     <div class="tile-grid">
-        <a class="tile" href="msp/index.php">
+        <?php if (tileVisible('msp')): ?>
+        <a class="<?= tileClass('msp') ?>" href="msp/index.php"<?= tileAttrs('msp') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -57,8 +61,11 @@ $csrf = csrfToken();
             </div>
             <h2>MSP report</h2>
             <p>Parker MSP claim report voor de afgelopen maand</p>
+            <?= tileLockIcon('msp') ?>
         </a>
-        <a class="tile" href="inkooporder/index.php">
+        <?php endif; ?>
+        <?php if (tileVisible('inkooporder')): ?>
+        <a class="<?= tileClass('inkooporder') ?>" href="inkooporder/index.php"<?= tileAttrs('inkooporder') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="9" cy="21" r="1"></circle>
@@ -68,8 +75,11 @@ $csrf = csrfToken();
             </div>
             <h2>Inkooporder naar Excel</h2>
             <p>Inkooporder met regels uit Exact ophalen en als Excel downloaden</p>
+            <?= tileLockIcon('inkooporder') ?>
         </a>
-        <a class="tile" href="order-offerte/index.php">
+        <?php endif; ?>
+        <?php if (tileVisible('order-offerte')): ?>
+        <a class="<?= tileClass('order-offerte') ?>" href="order-offerte/index.php"<?= tileAttrs('order-offerte') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -80,8 +90,11 @@ $csrf = csrfToken();
             </div>
             <h2>Order of Offerte naar Excel</h2>
             <p>Order- of offerteregels uit Exact ophalen en als Excel downloaden</p>
+            <?= tileLockIcon('order-offerte') ?>
         </a>
-        <a class="tile" href="inkoop-groep/index.php">
+        <?php endif; ?>
+        <?php if (tileVisible('inkoop-groep')): ?>
+        <a class="<?= tileClass('inkoop-groep') ?>" href="inkoop-groep/index.php"<?= tileAttrs('inkoop-groep') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="3" y="3" width="7" height="7"></rect>
@@ -92,8 +105,11 @@ $csrf = csrfToken();
             </div>
             <h2>Inkoop per Artikelgroep</h2>
             <p>Ingekochte aantallen per artikel van een artikelgroep in een periode</p>
+            <?= tileLockIcon('inkoop-groep') ?>
         </a>
-        <a class="tile" href="productiviteit/index.php"<?= $productiviteitLocked ? ' data-lock="productiviteit"' : '' ?>>
+        <?php endif; ?>
+        <?php if (tileVisible('productiviteit')): ?>
+        <a class="<?= tileClass('productiviteit') ?>" href="productiviteit/index.php"<?= tileAttrs('productiviteit') ?>>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -104,15 +120,11 @@ $csrf = csrfToken();
             </div>
             <h2>Productiviteit</h2>
             <p>Afgehandelde orders en orderregels per medewerker per dag</p>
-        
-            <span class="tile-lock" title="Beveiligd met een code" aria-label="Beveiligd met een code">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-            </span>
+            <?= tileLockIcon('productiviteit') ?>
         </a>
-        <a class="tile" href="offerte-import/index.php">
+        <?php endif; ?>
+        <?php if (tileVisible('offerte-import')): ?>
+        <a class="<?= tileClass('offerte-import') ?>" href="offerte-import/index.php"<?= tileAttrs('offerte-import') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -123,8 +135,11 @@ $csrf = csrfToken();
             </div>
             <h2>Offerte Import</h2>
             <p>Offerte via Excel importeren, controleren met Exact en als XML klaarzetten</p>
+            <?= tileLockIcon('offerte-import') ?>
         </a>
-        <a class="tile" href="inkooporder-import/index.php">
+        <?php endif; ?>
+        <?php if (tileVisible('inkooporder-import')): ?>
+        <a class="<?= tileClass('inkooporder-import') ?>" href="inkooporder-import/index.php"<?= tileAttrs('inkooporder-import') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -135,8 +150,11 @@ $csrf = csrfToken();
             </div>
             <h2>Inkooporder Import</h2>
             <p>Inkooporder via Excel importeren, controleren met Exact en als XML klaarzetten</p>
+            <?= tileLockIcon('inkooporder-import') ?>
         </a>
-        <a class="tile" href="export-info/index.php">
+        <?php endif; ?>
+        <?php if (tileVisible('export-info')): ?>
+        <a class="<?= tileClass('export-info') ?>" href="export-info/index.php"<?= tileAttrs('export-info') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -146,24 +164,14 @@ $csrf = csrfToken();
             </div>
             <h2>Export info</h2>
             <p>Orderregels met collo, gewicht en afmetingen voor de exportdocumenten</p>
+            <?= tileLockIcon('export-info') ?>
         </a>
+        <?php endif; ?>
     </div>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
 </main>
 
-<div class="lock-modal" id="lockModal" hidden role="dialog" aria-modal="true" aria-labelledby="lockTitle">
-    <form class="lock-dialog" id="lockForm" data-csrf="<?= h($csrf) ?>" autocomplete="off">
-        <h2 id="lockTitle">Toegangscode</h2>
-        <p>Dit rapport is beveiligd. Vul de code in om het te openen.</p>
-        <input type="password" id="lockCode" class="lock-input" inputmode="numeric" autocomplete="off" aria-label="Toegangscode" required>
-        <div class="lock-error" id="lockError" hidden></div>
-        <div class="lock-actions">
-            <button type="button" id="lockCancel" class="lock-button lock-button--secondary">Annuleren</button>
-            <button type="submit" class="lock-button">Openen</button>
-        </div>
-    </form>
-</div>
-<script src="assets/lock.js?v=<?= h(assetVersion('assets/lock.js')) ?>"></script>
+<?php require __DIR__ . '/../shared/lock_modal.php'; ?>
 </body>
 </html>

@@ -224,3 +224,19 @@
 .lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--accent-dark-line); background: var(--accent-dark); color: #fff; cursor: pointer; }
 .lock-button--secondary { background: #fff; color: var(--ink); border-color: var(--line-strong); }
 .tile:has(.tile-lock) p { padding-right: 30px; }
+
+/* Config > Tegels: tegels onder elkaar, daarachter per optie een schakelaar. */
+.tiles-form { flex-direction: column; align-items: flex-start; }
+.tiles-table { width: 100%; max-width: 760px; display: flex; flex-direction: column; }
+.tiles-row { display: grid; grid-template-columns: minmax(180px, 1fr) repeat(3, 110px); gap: 12px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--line); }
+.tiles-head { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.tiles-head span:not(:first-child), .tiles-row .tiles-switch { justify-self: center; }
+.tiles-head span:not(:first-child) { text-align: center; }
+.tiles-group { margin-top: 14px; padding: 4px; font-size: 15px; font-weight: 800; border-bottom: 2px solid var(--line-strong, #c9d4de); }
+.tiles-name { font-size: 14px; font-weight: 650; }
+@media (max-width: 560px) { .tiles-row { grid-template-columns: minmax(120px, 1fr) repeat(3, 64px); gap: 6px; } .tiles-head { font-size: 10px; } }
+
+/* Config: bovenste rij met "Terug naar hoofdmenu" (even groot als de tekst) links en "Update uitvoeren" helemaal rechts. */
+.config-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.config-bar .back-link { margin: 0; }
+.config-update-form { margin: 0; }
