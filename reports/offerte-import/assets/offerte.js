@@ -223,7 +223,7 @@
         if (!info || !info.found) { return { cls: 'is-missing', label: 'Niet in Exact', ok: false, export: false }; }
         var q = qtyOf(l.qty);
         if (purchase && info.minOrder > 0 && q < info.minOrder) {
-            return { cls: 'is-minorder', label: 'Ja, maar minimale bestelhoeveelheid is ' + info.minOrder, ok: true, export: true, info: info, minorder: true };
+            return { cls: 'is-minorder', label: 'Ja', ok: true, export: true, info: info, minorder: true };
         }
         return { cls: '', label: 'Ja', ok: true, export: true, info: info };
     }
@@ -251,8 +251,9 @@
             html += '<tr class="' + st.cls + '">' +
                 '<td>' + esc(l.nr) + '</td>' +
                 '<td><input type="text" class="ka-input oi-qty" data-i="' + i + '" value="' + esc(l.qty === null ? '' : l.qty) + '" maxlength="12" inputmode="decimal" autocomplete="off" aria-label="Aantal regel ' + esc(l.nr || (i + 1)) + '"></td>' +
+                (purchase ? '<td class="oi-min">' + (info && info.minOrder > 0 ? esc(info.minOrder) : '') + '</td>' : '') +
                 '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
-                '<td>' + esc(info && info.found ? info.description : '') + '</td>' +
+                '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
                 '<td>' + esc(st.label) + '</td>' +
                 '<td><button type="button" class="oi-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
         });
