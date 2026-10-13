@@ -33,7 +33,7 @@ const TILE_REGISTRY = [
     'export-info' => ['reports', 'Export info', 'reports/export-info/index.php', true, false, false],
 ];
 
-/** @return array<string,array{visible:bool,locked:bool,wip:bool}> */
+/** @return array<string,array{visible:bool,locked:bool,wip:bool,title:string}> */
 function tileFlagsAll(): array
 {
     static $cache = null;
@@ -53,6 +53,8 @@ function tileFlagsAll(): array
             'visible' => array_key_exists('visible', $own) ? (bool) $own['visible'] : $visible,
             'locked' => array_key_exists('locked', $own) ? (bool) $own['locked'] : $locked,
             'wip' => array_key_exists('wip', $own) ? (bool) $own['wip'] : $wip,
+            // Eigen naam van de tegel (Config > Tegels); leeg = de standaardnaam uit TILE_REGISTRY.
+            'title' => isset($own['title']) && is_string($own['title']) && trim($own['title']) !== '' ? trim($own['title']) : TILE_REGISTRY[$id][1],
         ];
     }
     return $cache;
@@ -85,6 +87,12 @@ function tileVisible(string $id): bool
 function tileLocked(string $id): bool
 {
     return tileFlagsAll()[$id]['locked'] ?? false;
+}
+
+/** Naam van de tegel zoals die op het overzicht staat. */
+function tileTitle(string $id): string
+{
+    return tileFlagsAll()[$id]['title'] ?? (TILE_REGISTRY[$id][1] ?? $id);
 }
 
 function tileWip(string $id): bool

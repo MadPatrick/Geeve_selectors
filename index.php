@@ -69,7 +69,7 @@ $lockRoot = '';
                     <path d="M3 17c2 0 2-3 4-3s2 3 4 3 2-3 4-3 2 3 4 3 2-3 4-3"></path>
                 </svg>
             </div>
-            <h2>Slangen fitting Selector</h2>
+            <h2><?= h(tileTitle('hoses')) ?></h2>
             <p>Zoek de juiste koppeling op basis van slangartikelnummer, maat en werkdruk &mdash; voor Staal, RVS en accessoires.</p>
             <?= tileLockIcon('hoses') ?>
         </a>
@@ -83,7 +83,7 @@ $lockRoot = '';
                     <circle cx="18.5" cy="5.5" r="0.1"></circle>
                 </svg>
             </div>
-            <h2>Adapters Selector</h2>
+            <h2><?= h(tileTitle('adapters')) ?></h2>
             <p>Zoek de juiste adapter op basis van draadsoort, draadmaat, hoek en connectietype (buiten/binnen/wartelend).</p>
             <?= tileLockIcon('adapters') ?>
         </a>
@@ -97,7 +97,7 @@ $lockRoot = '';
                     <line x1="7" y1="7" x2="7.01" y2="7"></line>
                 </svg>
             </div>
-            <h2>Slangkaarten Printen</h2>
+            <h2><?= h(tileTitle('slangkaarten')) ?></h2>
             <p>Zoek een order of klant op en print de slangkaarten (labels) van de geselecteerde slangregels.</p>
             <?= tileLockIcon('slangkaarten') ?>
         </a>
@@ -111,7 +111,7 @@ $lockRoot = '';
                     <path d="M16 4v4h4"></path>
                 </svg>
             </div>
-            <h2>Stickers</h2>
+            <h2><?= h(tileTitle('stickers')) ?></h2>
             <p>Stickers printen op artikelnummer of zakje.</p>
             <?= tileLockIcon('stickers') ?>
         </a>
@@ -126,7 +126,7 @@ $lockRoot = '';
                     <path d="M15 17v2"></path>
                 </svg>
             </div>
-            <h2>Stauff Selector</h2>
+            <h2><?= h(tileTitle('stauff')) ?></h2>
             <p>Stel de juiste beugelsamenstelling samen op basis van diameter, serie, uitvoering en materiaal.</p>
             <?= tileLockIcon('stauff') ?>
         </a>
@@ -142,7 +142,7 @@ $lockRoot = '';
                     <line x1="16" y1="17" x2="16" y2="15"></line>
                 </svg>
             </div>
-            <h2>Reports</h2>
+            <h2><?= h(tileTitle('reports')) ?></h2>
             <p>Rapportages en overzichten.</p>
             <?= tileLockIcon('reports') ?>
         </a>
@@ -155,7 +155,7 @@ $lockRoot = '';
                     <circle cx="7.5" cy="7.5" r="1.5"></circle>
                 </svg>
             </div>
-            <h2>Klant Artikelnummers</h2>
+            <h2><?= h(tileTitle('klantartikel')) ?></h2>
             <p>Zoek op prijslijstnummer de gekoppelde klanten en hun artikelen met klantartikelnummer uit Exact.</p>
             <?= tileLockIcon('klantartikel') ?>
         </a>
@@ -169,7 +169,7 @@ $lockRoot = '';
                     <circle cx="17.5" cy="17.5" r="2.5"></circle>
                 </svg>
             </div>
-            <h2>Kortingstructuur</h2>
+            <h2><?= h(tileTitle('klantkorting')) ?></h2>
             <p>Bekijk en pas de kortingstructuur van klanten aan op basis van hun prijslijst.</p>
             <?= tileLockIcon('klantkorting') ?>
         </a>

@@ -59,7 +59,7 @@ $csrf = csrfToken();
                     <line x1="6" y1="20" x2="6" y2="14"></line>
                 </svg>
             </div>
-            <h2>MSP report</h2>
+            <h2><?= h(tileTitle('msp')) ?></h2>
             <p>Parker MSP claim report voor de afgelopen maand</p>
             <?= tileLockIcon('msp') ?>
         </a>
@@ -73,7 +73,7 @@ $csrf = csrfToken();
                     <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"></path>
                 </svg>
             </div>
-            <h2>Inkooporder naar Excel</h2>
+            <h2><?= h(tileTitle('inkooporder')) ?></h2>
             <p>Inkooporder met regels uit Exact ophalen en als Excel downloaden</p>
             <?= tileLockIcon('inkooporder') ?>
         </a>
@@ -88,7 +88,7 @@ $csrf = csrfToken();
                     <line x1="8" y1="17" x2="16" y2="17"></line>
                 </svg>
             </div>
-            <h2>Order of Offerte naar Excel</h2>
+            <h2><?= h(tileTitle('order-offerte')) ?></h2>
             <p>Order- of offerteregels uit Exact ophalen en als Excel downloaden</p>
             <?= tileLockIcon('order-offerte') ?>
         </a>
@@ -103,7 +103,7 @@ $csrf = csrfToken();
                     <path d="M14 17.5h7M17.5 14v7"></path>
                 </svg>
             </div>
-            <h2>Inkoop per Artikelgroep</h2>
+            <h2><?= h(tileTitle('inkoop-groep')) ?></h2>
             <p>Ingekochte aantallen per artikel van een artikelgroep in een periode</p>
             <?= tileLockIcon('inkoop-groep') ?>
         </a>
@@ -118,7 +118,7 @@ $csrf = csrfToken();
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
             </div>
-            <h2>Productiviteit</h2>
+            <h2><?= h(tileTitle('productiviteit')) ?></h2>
             <p>Afgehandelde orders en orderregels per medewerker per dag</p>
             <?= tileLockIcon('productiviteit') ?>
         </a>
@@ -133,7 +133,7 @@ $csrf = csrfToken();
                     <polyline points="9 15 12 12 15 15"></polyline>
                 </svg>
             </div>
-            <h2>Offerte Import</h2>
+            <h2><?= h(tileTitle('offerte-import')) ?></h2>
             <p>Offerte via Excel importeren, controleren met Exact en als XML klaarzetten</p>
             <?= tileLockIcon('offerte-import') ?>
         </a>
@@ -148,7 +148,7 @@ $csrf = csrfToken();
                     <polyline points="9 15 12 12 15 15"></polyline>
                 </svg>
             </div>
-            <h2>Inkooporder Import</h2>
+            <h2><?= h(tileTitle('inkooporder-import')) ?></h2>
             <p>Inkooporder via Excel importeren, controleren met Exact en als XML klaarzetten</p>
             <?= tileLockIcon('inkooporder-import') ?>
         </a>
@@ -162,7 +162,7 @@ $csrf = csrfToken();
                     <line x1="12" y1="22.08" x2="12" y2="12"></line>
                 </svg>
             </div>
-            <h2>Export info</h2>
+            <h2><?= h(tileTitle('export-info')) ?></h2>
             <p>Orderregels met collo, gewicht en afmetingen voor de exportdocumenten</p>
             <?= tileLockIcon('export-info') ?>
         </a>

@@ -305,6 +305,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 'visible' => isset($row['visible']),
                 'locked' => isset($row['locked']),
                 'wip' => isset($row['wip']),
+                // Eigen naam; leeg of gelijk aan de standaardnaam = standaard gebruiken.
+                'title' => ($t = mb_substr(trim((string) ($row['title'] ?? '')), 0, 60)) !== TILE_REGISTRY[$tileId][1] ? $t : '',
             ];
         }
         // Volgorde (slepen): per groep de id's in de volgorde van de formulier-rijen; onbekende id's worden genegeerd.
@@ -458,7 +460,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
 
     <section class="update-panel">
         <h2>Tegels</h2>
-        <p>Alle tegels van het hoofdscherm en van Reports. <strong>Zichtbaar</strong>: uit = de tegel staat niet op het overzicht. <strong>Beveiligd</strong>: een klik op de tegel vraagt om de toegangscode (de pagina is dan ook niet rechtstreeks te openen). <strong>In progress</strong>: de tegel krijgt de stempel "IN PROGRESS". Sleep een tegel aan het blokje links om de volgorde te wijzigen (binnen Hoofdscherm of binnen Reports) en klik op Opslaan.</p>
+        <p>Alle tegels van het hoofdscherm en van Reports. <strong>Zichtbaar</strong>: uit = de tegel staat niet op het overzicht. <strong>Beveiligd</strong>: een klik op de tegel vraagt om de toegangscode (de pagina is dan ook niet rechtstreeks te openen). <strong>In progress</strong>: de tegel krijgt de stempel "IN PROGRESS". Pas de naam aan in het tekstveld (leeg laten = standaardnaam). Sleep een tegel aan het blokje links om de volgorde te wijzigen (binnen Hoofdscherm of binnen Reports) en klik op Opslaan.</p>
 
         <?php if ($tilesMessage !== null): ?>
             <div class="update-message <?= $tilesMessage['ok'] ? 'ok' : 'error' ?>"><?= h($tilesMessage['text']) ?></div>
@@ -485,7 +487,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
                         <div class="tiles-row" role="row" data-id="<?= h($tileId) ?>">
                             <span role="cell" class="tiles-name">
                                 <span class="tiles-handle" title="Sleep om de volgorde te wijzigen" aria-label="Sleep om de volgorde te wijzigen">&#8942;&#8942;</span>
-                                <?= h($tile[1]) ?>
+                                <input type="text" class="tiles-title" name="tile[<?= h($tileId) ?>][title]" value="<?= h($tileFlags[$tileId]['title']) ?>" placeholder="<?= h($tile[1]) ?>" maxlength="60" aria-label="Naam van de tegel (<?= h($tile[1]) ?>)" autocomplete="off">
                                 <input type="hidden" name="order[<?= h($groupId) ?>][]" value="<?= h($tileId) ?>">
                             </span>
                             <?php foreach (['visible' => 'Zichtbaar', 'locked' => 'Beveiligd', 'wip' => 'In progress'] as $flag => $flagLabel): ?>
