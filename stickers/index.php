@@ -45,19 +45,21 @@ function assetVersion(string $relativePath): string
     <p class="intro">Kies wat je wilt printen.</p>
 
     <div class="tile-grid">
-        <div class="tile tile-disabled" aria-disabled="true">
+        <?php ob_start(); if (tileVisible('stickers-artikel')): ?>
+        <div class="<?= tileClass('stickers-artikel') ?> tile-disabled" aria-disabled="true">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
                     <line x1="7" y1="7" x2="7.01" y2="7"></line>
                 </svg>
             </div>
-            <h2>Stickers op Artikelnummer</h2>
+            <h2><?= h(tileTitle('stickers-artikel')) ?></h2>
             <p>Sticker printen op basis van een artikelnummer.</p>
             <span class="tile-cta">Binnenkort beschikbaar</span>
         </div>
-
-        <div class="tile tile-disabled" aria-disabled="true">
+        <?php endif; $tileHtml['stickers-artikel'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('stickers-artikel-groot')): ?>
+        <div class="<?= tileClass('stickers-artikel-groot') ?> tile-disabled" aria-disabled="true">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
@@ -65,22 +67,25 @@ function assetVersion(string $relativePath): string
                     <path d="M14 4h6v6M20 4l-5 5"></path>
                 </svg>
             </div>
-            <h2>Stickers op Artikelnummer (groot)</h2>
+            <h2><?= h(tileTitle('stickers-artikel-groot')) ?></h2>
             <p>Zelfde sticker op artikelnummer, in een groter formaat.</p>
             <span class="tile-cta">Binnenkort beschikbaar</span>
         </div>
-
-        <div class="tile tile-disabled" aria-disabled="true">
+        <?php endif; $tileHtml['stickers-artikel-groot'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('stickers-zakjes')): ?>
+        <div class="<?= tileClass('stickers-zakjes') ?> tile-disabled" aria-disabled="true">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M6 8h12l-1.2 12.2a1 1 0 0 1-1 .8H8.2a1 1 0 0 1-1-.8Z"></path>
                     <path d="M9 8V6a3 3 0 0 1 6 0v2"></path>
                 </svg>
             </div>
-            <h2>Stickers op Zakjes</h2>
+            <h2><?= h(tileTitle('stickers-zakjes')) ?></h2>
             <p>Sticker printen voor op een zakje.</p>
             <span class="tile-cta">Binnenkort beschikbaar</span>
         </div>
+        <?php endif; $tileHtml['stickers-zakjes'] = ob_get_clean(); ?>
+        <?php foreach (tileOrder('stickers') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>

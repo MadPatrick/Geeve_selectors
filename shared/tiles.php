@@ -31,6 +31,10 @@ const TILE_REGISTRY = [
     'offerte-import' => ['reports', 'Offerte Import', 'reports/offerte-import/index.php', true, false, false],
     'inkooporder-import' => ['reports', 'Inkooporder Import', 'reports/inkooporder-import/index.php', true, false, false],
     'export-info' => ['reports', 'Export info', 'reports/export-info/index.php', true, false, false],
+    // Onderdelen van het Stickers-scherm (nu nog plaatshouders zonder eigen pagina; instelbaar in Config > Tegels).
+    'stickers-artikel' => ['stickers', 'Stickers op Artikelnummer', '', true, false, false],
+    'stickers-artikel-groot' => ['stickers', 'Stickers op Artikelnummer (groot)', '', true, false, false],
+    'stickers-zakjes' => ['stickers', 'Stickers op Zakjes', '', true, false, false],
 ];
 
 /** @return array<string,array{visible:bool,locked:bool,wip:bool,title:string}> */
