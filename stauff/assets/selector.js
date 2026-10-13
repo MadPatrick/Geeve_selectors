@@ -1451,20 +1451,36 @@
                 delete locationFilterRequests[requestKey];
                 artikelSelect.disabled = true;
                 artikelSelect.innerHTML = '<option value="">Kies eerst een soort</option>';
-                refreshLocationPrices();
+                updateAssemblyCode();
                 return;
             }
             populateExtraArticleSelect(pos, artikelSelect, requestKey);
-            refreshLocationPrices();
+            updateAssemblyCode();
         });
-        artikelSelect.addEventListener('change', refreshLocationPrices);
+        artikelSelect.addEventListener('change', updateAssemblyCode);
         aantalInput.addEventListener('input', recomputeTotal);
         addButton.addEventListener('click', () => addExtraItemRow(card));
         removeButton.addEventListener('click', () => {
             delete locationFilterRequests[requestKey];
             card.remove();
-            refreshLocationPrices();
+            updateAssemblyCode();
         });
+    }
+
+    /**
+     * Codegedeelte van een vrij toegevoegde extra regel (zie addExtraItemRow())
+     * in de samenstellingscode: zelfde opbouw als bij de vaste locatie van
+     * dezelfde soort (Beugel = de volledige artikelcode, Bout = voorvoegsel +
+     * eventueel montagetype, de rest het eerste codedeel). Leeg zolang er nog
+     * geen artikel gekozen is.
+     */
+    function extraItemCodePart(card) {
+        const pos = card.querySelector('.extra-item-soort').value;
+        const article = norm(card.querySelector('.extra-item-artikel').value);
+        if (!pos || !article) return '';
+        if (pos === '2') return article;
+        if (pos === '5') return boutCodePart(article);
+        return firstCodePart(article);
     }
 
     function updateAssemblyCode() {
@@ -1482,18 +1498,25 @@
         }
 
         // Alleen daadwerkelijk gekozen locaties worden in de code opgenomen.
-        // De volgorde blijft altijd locatie 1 → 6. select.value werkt voor
-        // zowel CSV-gedreven als live Exact-gefilterde locaties (zie
-        // applyLocationFilterSelect()) - beide zetten daar gewoon het
-        // artikelnummer in.
-        const parts = [
-            ui.loc1.value ? firstCodePart(ui.loc1.value) : '',
-            clampCodePart(clamp),
-            ui.loc3.value ? firstCodePart(ui.loc3.value) : '',
-            ui.loc4.value ? firstCodePart(ui.loc4.value) : '',
-            ui.loc5.value ? boutCodePart(ui.loc5.value) : '',
-            wcode || '',
-        ].filter(Boolean);
+        // De volgorde is die van de kaarten op het scherm: locatie 1 → 6 en
+        // daartussen de vrij toegevoegde extra artikelen op de plek waar ze
+        // staan (een extra regel direct onder locatie 3 komt dus in de code
+        // na locatie 3). select.value werkt voor zowel CSV-gedreven als live
+        // Exact-gefilterde locaties (zie applyLocationFilterSelect()) - beide
+        // zetten daar gewoon het artikelnummer in.
+        const fixedPart = {
+            '1': () => (ui.loc1.value ? firstCodePart(ui.loc1.value) : ''),
+            '2': () => clampCodePart(clamp),
+            '3': () => (ui.loc3.value ? firstCodePart(ui.loc3.value) : ''),
+            '4': () => (ui.loc4.value ? firstCodePart(ui.loc4.value) : ''),
+            '5': () => (ui.loc5.value ? boutCodePart(ui.loc5.value) : ''),
+            '6': () => wcode || '',
+        };
+        const parts = [...ui.assemblyList.querySelectorAll(':scope > .location-card')].map(card => {
+            if (card.classList.contains('extra-item-card')) return extraItemCodePart(card);
+            const part = fixedPart[card.dataset.location];
+            return part ? part() : '';
+        }).filter(Boolean);
 
         const code = parts.join('-');
         ui.assemblyCode.textContent = code;
