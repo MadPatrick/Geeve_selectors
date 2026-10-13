@@ -108,7 +108,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
                 <dt>Eigen periode</dt>
                 <dd>Kies zelf de datums (maximaal 62 dagen, een kolom per dag).</dd>
             </dl>
-            <p class="rp-help-note">Heeft een order een productieorder (werkorder), dan tellen de regels daarvan bij Logistiek en Verkoop mee bij de orderregels.</p>
+            <p class="rp-help-note">Heeft een order een productieorder (werkorder), dan tellen de regels daarvan alleen bij Logistiek mee bij de orderregels, niet bij Verkoop.</p>
         </div>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="Productiviteit" data-file="Productiviteit">
             <input type="hidden" id="rpWeergave" data-field="weergave" value="overzicht">

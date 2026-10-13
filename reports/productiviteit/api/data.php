@@ -6,7 +6,8 @@ declare(strict_types=1);
  * Productiviteit per medewerker, per dag. Drie soorten (parameter "modus"):
  *  - productie (in de pagina "Logistiek"): logistiek afgehandelde (geleverde) verkooporders. Een levering is een regel in het memoriaal (dagboek 90,
  *    tabel amutas) die naar een orderregel verwijst (CSPickITCWOrsrgIDCWDB) en een pakbonnummer heeft
- *    (CSPickITCWDeliveryNoteCWDB). Orders = aantal verschillende pakbonnen, orderregels = aantal verschillende orderregels.
+ *    (CSPickITCWDeliveryNoteCWDB). Orders = aantal verschillende pakbonnen, orderregels = aantal verschillende orderregels. Heeft de verkooporder een
+ *    productieorder (werkorder), dan tellen de regels daarvan hier bij de orderregels mee (niet bij Verkoop).
  *  - verkoop: verwerkte verkooporders. Een order is verwerkt op het moment dat de eerste orderbevestiging (document type 11 in
  *    BacoDiscussions, het tabblad Bijlage van de order) is gemaakt, door degene die dat document heeft aangemaakt.
  *  - offerte: ingevoerde offertes per vertegenwoordiger (orkrg.represent_id, zoals in het orderscherm), op de dag dat de offerte is
@@ -136,28 +137,19 @@ function productiviteitProductie(PDO $pdo, DateTimeImmutable $from, DateTimeImmu
  * Gemeenschappelijke query voor Verkoop en Offertes: telt orders of regels per medewerker per dag op basis van een CTE "o"
  * (ordernr, medewerker, dag, CmpWwn, yourref). Orderregels staan in orsrg (lopende orders) of orhsrg (afgehandelde orders). @return list<list<mixed>> rijen [meting, medewerker, dag, aantal]
  */
-function productiviteitOrderCounts(PDO $pdo, string $cte, DateTimeImmutable $from, DateTimeImmutable $to, bool $withProduction = false): array
+function productiviteitOrderCounts(PDO $pdo, string $cte, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
     $startParam = $from->format('Y-m-d');
     $endParam = $to->format('Y-m-d');
     $range = 'o.dag >= ? AND o.dag <= ?';
     $notEmpty = "LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> ''";
-    $sql = 'SET NOCOUNT ON; ' . $cte . ($withProduction ? ', ' . productiviteitProductionCte($pdo) . ' ' : '') .
+    $sql = 'SET NOCOUNT ON; ' . $cte . ' ' .
         "SELECT 'O' AS meting, o.medewerker AS medewerker, o.dag AS dag, COUNT(*) AS aantal FROM o WHERE {$range} GROUP BY o.medewerker, o.dag " .
         'UNION ALL ' .
         "SELECT 'L', o.medewerker, o.dag, COUNT(*) FROM o INNER JOIN orsrg r WITH (NOLOCK) ON r.ordernr = o.ordernr WHERE {$range} AND {$notEmpty} GROUP BY o.medewerker, o.dag " .
         'UNION ALL ' .
         "SELECT 'L', o.medewerker, o.dag, COUNT(*) FROM o INNER JOIN orhsrg r WITH (NOLOCK) ON r.ordernr = o.ordernr WHERE {$range} AND {$notEmpty} GROUP BY o.medewerker, o.dag";
     $params = [$startParam, $endParam, $startParam, $endParam, $startParam, $endParam];
-    if ($withProduction) {
-        // Regels van productieorders die bij de verkooporder horen, tellen bij de orderregels mee.
-        foreach (['orsrg', 'orhsrg'] as $table) {
-            $sql .= ' UNION ALL ' .
-                "SELECT 'L', o.medewerker, o.dag, COUNT(*) FROM o INNER JOIN p ON p.verkoop = o.ordernr INNER JOIN {$table} r WITH (NOLOCK) ON r.ordernr = p.prodnr " .
-                "WHERE {$range} AND {$notEmpty} GROUP BY o.medewerker, o.dag";
-            array_push($params, $startParam, $endParam);
-        }
-    }
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_NUM);
@@ -188,7 +180,7 @@ function productiviteitDocCte(PDO $pdo, int $type, DateTimeImmutable $from, Date
  */
 function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
-    return productiviteitOrderCounts($pdo, productiviteitDocCte($pdo, PRODUCTIVITEIT_DOC_ORDERBEVESTIGING, $from, $to), $from, $to, true);
+    return productiviteitOrderCounts($pdo, productiviteitDocCte($pdo, PRODUCTIVITEIT_DOC_ORDERBEVESTIGING, $from, $to), $from, $to);
 }
 
 /**
@@ -246,14 +238,9 @@ function productiviteitDetail(PDO $pdo, string $mode, int $emp, DateTimeImmutabl
             $klant = 'o.klant';
             $join = '';
         }
-        $prodSelect = '';
-        if ($mode === 'verkoop') {
-            $cte .= ', ' . productiviteitProductionCte($pdo) . ' ';
-            $prodSelect = ', (' . productiviteitProductionLinesSql('o.ordernr') . ') AS prodregels';
-        }
-        $sql = 'SET NOCOUNT ON; ' . $cte . "SELECT TOP {$limit} o.ordernr, o.dag AS datum, {$klant} AS klant, ISNULL(o.yourref, '') AS referentie, {$lineCount} AS regels{$prodSelect} " .
+        $sql = 'SET NOCOUNT ON; ' . $cte . "SELECT TOP {$limit} o.ordernr, o.dag AS datum, {$klant} AS klant, ISNULL(o.yourref, '') AS referentie, {$lineCount} AS regels " .
             "FROM o {$join}WHERE o.medewerker = ? AND o.dag >= ? AND o.dag <= ? ORDER BY o.dag, o.ordernr";
-        $columns = $mode === 'verkoop' ? ['Order', 'Datum', 'Klant', 'Referentie', 'Regels', 'Productieregels'] : ['Offerte', 'Datum', 'Klant', 'Referentie', 'Regels'];
+        $columns = $mode === 'verkoop' ? ['Order', 'Datum', 'Klant', 'Referentie', 'Regels'] : ['Offerte', 'Datum', 'Klant', 'Referentie', 'Regels'];
     }
 
     $stmt = $pdo->prepare($sql);
@@ -263,8 +250,6 @@ function productiviteitDetail(PDO $pdo, string $mode, int $emp, DateTimeImmutabl
         $r = array_map(fn ($v) => $v === null ? null : trim((string) $v), $r);
         if ($mode === 'productie') {
             $rows[] = [$r[0], $r[1], $r[2], (int) $r[3], (int) $r[4]];
-        } elseif ($mode === 'verkoop') {
-            $rows[] = [$r[0], $r[1], $r[2], $r[3], (int) $r[4], (int) $r[5]];
         } else {
             $rows[] = [$r[0], $r[1], $r[2], $r[3], (int) $r[4]];
         }
@@ -278,14 +263,14 @@ const PRODUCTIVITEIT_RECENT_DAYS = 7;
 /** @return array<string, list<array{0: string, 1: int, 2: int}>> dag => lijst van [meting, medewerker, aantal] */
 function productiviteitCacheRead(string $mode): array
 {
-    $raw = @file_get_contents(sys_get_temp_dir() . '/geeve_productiviteit_v2_' . $mode . '.json');
+    $raw = @file_get_contents(sys_get_temp_dir() . '/geeve_productiviteit_v3_' . $mode . '.json');
     $data = $raw === false ? null : json_decode($raw, true);
     return is_array($data) ? $data : [];
 }
 
 function productiviteitCacheWrite(string $mode, array $days): void
 {
-    $file = sys_get_temp_dir() . '/geeve_productiviteit_v2_' . $mode . '.json';
+    $file = sys_get_temp_dir() . '/geeve_productiviteit_v3_' . $mode . '.json';
     $tmp = $file . '.' . bin2hex(random_bytes(4));
     if (@file_put_contents($tmp, json_encode($days)) !== false) {
         @rename($tmp, $file);
