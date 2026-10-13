@@ -221,9 +221,6 @@ input::placeholder { color: #929fac; }
 .picklist-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; border-bottom: 2px solid var(--accent-dark); padding-bottom: 12px; margin-bottom: 16px; }
 .picklist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .picklist-table th, .picklist-table td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; }
-/* Bij een lange picklijst over meerdere pagina's: rijen niet doormidden breken, kop herhalen. */
-.picklist-table tr { break-inside: avoid; page-break-inside: avoid; }
-.picklist-table thead { display: table-header-group; }
 .picklist-table thead th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; }
 
 #printSheet { display: none; }

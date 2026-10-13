@@ -800,26 +800,17 @@ function buildPicklist(array $hoseCards): array
     $items = [];
 
     $addItem = static function (array &$items, string $artikel, string $aantalRaw, float $aantalSlangen): void {
-        $artikel = trim($artikel);
         if ($artikel === '') {
             return;
         }
 
-        // Groeperen op een genormaliseerde sleutel (hoofdletterongevoelig, dubbele spaties samengevoegd), zodat
-        // "10217-48-48RVS" en "10217-48-48rvs" 1 regel op de picklijst zijn; de eerst geziene schrijfwijze wordt getoond.
-        $key = strtoupper((string) preg_replace('/\s+/', ' ', $artikel));
-
-        if (!isset($items[$key])) {
-            $items[$key] = ['artikel' => $artikel, 'aantal' => 0.0, 'onbekend' => false, 'locatie' => '', 'voorraad' => ''];
-        }
-
-        // Een ontbrekend of niet-numeriek aantal telt niet als 0 mee, maar wordt gemarkeerd (zie renderPicklist()).
         $normalized = str_replace(',', '.', trim($aantalRaw));
-        if (!is_numeric($normalized)) {
-            $items[$key]['onbekend'] = true;
-            return;
+        $aantal = is_numeric($normalized) ? (float) $normalized : 0.0;
+
+        if (!isset($items[$artikel])) {
+            $items[$artikel] = ['artikel' => $artikel, 'aantal' => 0.0, 'locatie' => '', 'voorraad' => ''];
         }
-        $items[$key]['aantal'] += (float) $normalized * $aantalSlangen;
+        $items[$artikel]['aantal'] += $aantal * $aantalSlangen;
     };
 
     foreach ($hoseCards as $card) {
@@ -848,10 +839,10 @@ function buildPicklist(array $hoseCards): array
     // Locatie + voorraad voor alle artikelen in 1 keer opzoeken (zie
     // findArtikelExactDataBatch()) i.p.v. tijdens het optellen hierboven
     // per artikel apart - dat laatste was de trage stap bij het printen.
-    $exactData = findArtikelExactDataBatch(array_column($items, 'artikel'));
-    foreach ($items as &$item) {
-        $item['locatie'] = $exactData[$item['artikel']]['locatie'] ?? '';
-        $item['voorraad'] = $exactData[$item['artikel']]['voorraad'] ?? '';
+    $exactData = findArtikelExactDataBatch(array_keys($items));
+    foreach ($items as $artikel => &$item) {
+        $item['locatie'] = $exactData[$artikel]['locatie'] ?? '';
+        $item['voorraad'] = $exactData[$artikel]['voorraad'] ?? '';
     }
     unset($item);
 
@@ -892,14 +883,7 @@ function renderPicklist(array $items, string $orderNumber, string $klant): strin
                         <tr>
                             <td><?= h($item['artikel']) ?></td>
                             <td><?= $item['locatie'] !== '' ? h($item['locatie']) : '&mdash;' ?></td>
-                            <td><?php
-                                // Aantal onbekend voor (een deel van) de regels: niets verzwijgen als 0.
-                                if ($item['onbekend'] && $item['aantal'] <= 0) {
-                                    echo '&mdash;';
-                                } else {
-                                    echo h(formatQuantity((string) $item['aantal'])), $item['onbekend'] ? ' +?' : '';
-                                }
-                            ?></td>
+                            <td><?= h(formatQuantity((string) $item['aantal'])) ?></td>
                             <td><?= $item['voorraad'] !== '' ? h(formatQuantity($item['voorraad'], 1)) : '&mdash;' ?></td>
                             <td></td>
                         </tr>
@@ -1676,18 +1660,7 @@ if ($selectedKeys !== []) {
     <?php foreach ($hoseCards as $card): ?>
         <?= renderHoseCard($card) ?>
     <?php endforeach; ?>
-    <?php
-    // Ordernummer op de picklijst: dat van het verzoek, anders die van de kaarten zelf (kunnen er meer zijn).
-    $picklistOrders = $orderNumber !== '' ? [$orderNumber] : array_values(array_unique(array_filter(array_map(
-        static fn(array $card): string => pick($card['row'], ORDER_NUMBER_COLUMNS),
-        $hoseCards
-    ), static fn(string $nr): bool => $nr !== '')));
-    // Geen losse artikelen: geen (lege) picklijstpagina afdrukken.
-    $picklistItems = buildPicklist($hoseCards);
-    if ($picklistItems !== []) {
-        echo renderPicklist($picklistItems, implode(', ', $picklistOrders), pick($hoseCards[0]['row'], KLANT_CANDIDATES));
-    }
-    ?>
+    <?= renderPicklist(buildPicklist($hoseCards), $orderNumber, pick($hoseCards[0]['row'], KLANT_CANDIDATES)) ?>
 </div>
 <?php endif; ?>
 </body>
