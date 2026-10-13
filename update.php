@@ -337,7 +337,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
             $trustOn = strtolower($val('EXACT_DB_TRUST_SERVER_CERT') ?: 'yes') !== 'no';
             $hasPassword = isset($storedSettings['EXACT_DB_PASSWORD']);
             $hasSlangPassword = isset($storedSettings['DB_PASSWORD']);
-            $hasAccessCode = isset($storedSettings['ACCESS_CODE']);
             ?>
             <div class="settings-row">
                 <label class="update-code-field">
@@ -385,11 +384,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
                 </label>
             </div>
             <h3 class="settings-subtitle">Toegangscode</h3>
-            <p class="settings-help">Code voor de beveiligde tegel <strong>Productiviteit</strong> (Reports). Is er geen code opgeslagen, dan geldt <code>1308</code>. Leeg laten = ongewijzigd.</p>
+            <p class="settings-help">Code voor de beveiligde tegel <strong>Productiviteit</strong> (Reports). Leeg laten = ongewijzigd.</p>
             <div class="settings-row">
                 <label class="update-code-field">
                     <span>Code</span>
-                    <input type="password" name="ACCESS_CODE" value="" placeholder="<?= $hasAccessCode ? 'Opgeslagen' : '1308 (standaard)' ?>" size="20" autocomplete="new-password">
+                    <input type="password" name="ACCESS_CODE" value="" placeholder="Opgeslagen" size="20" autocomplete="new-password">
                 </label>
             </div>
             <button type="submit" class="update-submit">Opslaan</button>

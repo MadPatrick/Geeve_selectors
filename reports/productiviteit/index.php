@@ -90,7 +90,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
     <?php else: ?>
     <section class="panel">
         <h2>Productiviteit per medewerker</h2>
-        <p class="ka-empty">Toont per medewerker het aantal orders of orderregels. <strong>Productie</strong> telt de logistiek afgehandelde (geleverde) verkooporders, <strong>Verkoop</strong> telt de verwerkte verkooporders: een order is verwerkt op het moment dat de eerste orderbevestiging is gemaakt (tabblad Bijlage van de order), door degene die die heeft aangemaakt. <strong>Offertes</strong> telt de ingevoerde offertes op de dag van invoer, bij de vertegenwoordiger die in de offerte staat (ook offertes die inmiddels tot order zijn verwerkt). Het <strong>Overzicht</strong> toont de werkdagen van deze week, deze week, de weken van deze maand, de hele maand en het hele jaar; bij <strong>Eigen periode</strong> kies je zelf de datums (maximaal 62 dagen, een kolom per dag). Productieorders (werkorders) zijn nog niet opgenomen.</p>
+        <p class="ka-empty">Toont per medewerker het aantal orders of orderregels. <strong>Logistiek</strong> telt de logistiek afgehandelde (geleverde) verkooporders, <strong>Verkoop</strong> telt de verwerkte verkooporders: een order is verwerkt op het moment dat de eerste orderbevestiging is gemaakt (tabblad Bijlage van de order), door degene die die heeft aangemaakt. <strong>Offertes</strong> telt de ingevoerde offertes op de dag van invoer, bij de vertegenwoordiger die in de offerte staat (ook offertes die inmiddels tot order zijn verwerkt). Het <strong>Overzicht</strong> toont de werkdagen van deze week, deze week, de weken van deze maand, de hele maand en het hele jaar; bij <strong>Eigen periode</strong> kies je zelf de datums (maximaal 62 dagen, een kolom per dag). Heeft een order een productieorder (werkorder), dan tellen de regels daarvan bij Logistiek en Verkoop mee bij de orderregels.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="Productiviteit" data-file="Productiviteit">
             <input type="hidden" id="rpWeergave" data-field="weergave" value="overzicht">
             <div class="rp-toggle" id="rpView" role="group" aria-label="Weergave">
@@ -107,7 +107,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
             </label>
             <input type="hidden" id="rpModus" data-field="modus" value="productie">
             <div class="rp-toggle" role="group" aria-label="Soort">
-                <button type="button" data-mode="productie" class="is-active">Productie</button>
+                <button type="button" data-mode="productie" class="is-active">Logistiek</button>
                 <button type="button" data-mode="verkoop">Verkoop</button>
                 <button type="button" data-mode="offerte">Offertes</button>
             </div>
