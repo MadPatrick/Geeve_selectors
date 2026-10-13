@@ -52,6 +52,7 @@ $csrf = csrfToken();
         <p class="ka-empty">Download de lege template (Regelnr, Aantal, Artikelcode), vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). Verkoper, debiteurnummer, omschrijving en datum vul je hieronder in. De velden en artikelen worden gecontroleerd met Exact: de artikelomschrijving komt uit Exact, en artikelen die niet bestaan staan rood. Is alles in orde, dan maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Logistieke import</strong>).</p>
         <div class="ka-actions">
             <button type="button" id="oiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
+            <button type="button" id="oiAdd" class="ka-button ka-button--secondary">Regel toevoegen</button>
             <button type="button" id="oiExport" class="ka-button" disabled>Exporteer XML</button>
         </div>
         <div id="oiDrop" class="ka-drop" tabindex="0" role="button">
@@ -60,6 +61,7 @@ $csrf = csrfToken();
         </div>
         <div id="oiMessage" class="ka-message ka-message--error" hidden></div>
         <div id="oiInfo" class="ka-message ka-message--ok" hidden></div>
+        <div id="oiProblems" class="ka-message oi-problems" hidden></div>
     </section>
 
     <section class="panel">
@@ -95,7 +97,7 @@ $csrf = csrfToken();
                 <thead>
                     <tr>
                         <th>Regelnr</th><th>Aantal</th><th>Artikelcode</th><th>Artikelregelomschrijving</th>
-                        <th>Artikel in Exact</th><th>Status</th>
+                        <th>Artikel in Exact</th><th>Status</th><th></th>
                     </tr>
                 </thead>
                 <tbody></tbody>

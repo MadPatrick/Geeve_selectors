@@ -17,6 +17,7 @@
     var messageEl = document.getElementById('oiMessage');
     var infoEl = document.getElementById('oiInfo');
     var exportBtn = document.getElementById('oiExport');
+    var problemsEl = document.getElementById('oiProblems');
     var resultEl = document.getElementById('oiResult');
     var summaryEl = document.getElementById('oiSummary');
     var tbody = document.querySelector('#oiTable tbody');
@@ -206,6 +207,7 @@
 
     // ---- Tonen en beoordelen ----
     function lineState(l) {
+        if (cv(l) === '' && (l.qty === null || String(l.qty).trim() === '')) { return { cls: 'is-empty', label: 'Nog leeg: vul aan of verwijder', ok: false, export: false }; }
         if (cv(l) === '') { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
         if (qtyOf(l.qty) === null) { return { cls: 'is-incomplete', label: 'Aantal ontbreekt of is ongeldig', ok: false, export: false }; }
         if (!checked[ck(l)]) { return { cls: '', label: 'Wordt gecontroleerd…', ok: false, export: false, pending: true }; }
@@ -235,18 +237,21 @@
             var st = states[i];
             var info = st.info || itemInfo[ck(l)] || null;
             html += '<tr class="' + st.cls + '">' +
-                '<td>' + esc(l.nr) + '</td><td class="oi-qty">' + esc(l.qty === null ? '' : l.qty) + '</td>' +
+                '<td>' + esc(l.nr) + '</td>' +
+                '<td><input type="text" class="ka-input oi-qty" data-i="' + i + '" value="' + esc(l.qty === null ? '' : l.qty) + '" maxlength="12" inputmode="decimal" autocomplete="off" aria-label="Aantal regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 '<td>' + esc(info && info.found ? info.description : '') + '</td>' +
-                '<td>' + esc(st.label) + '</td><td>' + esc(info && info.found ? info.condition : '') + '</td></tr>';
+                '<td>' + esc(st.label) + '</td><td>' + esc(info && info.found ? info.condition : '') + '</td>' +
+                '<td><button type="button" class="oi-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
         });
         // Staat de cursor in een artikelcode, dan blijft die daar na het opnieuw tekenen van de tabel.
         var active = document.activeElement;
-        var focusIdx = active && active.classList && active.classList.contains('oi-code') ? active.getAttribute('data-i') : null;
-        var caret = focusIdx !== null ? active.selectionStart : null;
+        var focusCls = active && active.classList ? (active.classList.contains('oi-code') ? 'oi-code' : (active.classList.contains('oi-qty') ? 'oi-qty' : null)) : null;
+        var focusIdx = focusCls ? active.getAttribute('data-i') : null;
+        var caret = focusCls ? active.selectionStart : null;
         tbody.innerHTML = html;
         if (focusIdx !== null) {
-            var again = tbody.querySelector('input.oi-code[data-i="' + focusIdx + '"]');
+            var again = tbody.querySelector('input.' + focusCls + '[data-i="' + focusIdx + '"]');
             if (again) { again.focus(); if (caret !== null) { again.setSelectionRange(caret, caret); } }
         }
         resultEl.hidden = lines.length === 0;
@@ -254,6 +259,7 @@
         var articles = states.length;
         var missing = states.filter(function (s) { return s.cls === 'is-missing'; }).length;
         var incomplete = states.filter(function (s) { return s.cls === 'is-incomplete'; }).length;
+        var empty = states.filter(function (s) { return s.cls === 'is-empty'; }).length;
         var pending = states.some(function (s) { return s.pending; });
         summaryEl.innerHTML =
             '<span class="msp-pill"><strong>' + lines.length + '</strong> regels</span>' +
@@ -262,16 +268,25 @@
 
         // Export alleen als alles klopt
         var problems = [];
-        if (!sellerInfo || !sellerInfo.found) { problems.push('verkoper'); }
-        if (!debtorInfo || !debtorInfo.found) { problems.push('debiteurnummer'); }
-        if (descEl.value.trim() === '') { problems.push('omschrijving'); }
-        if (!dateOk) { problems.push('datum'); }
-        if (!states.some(function (s) { return s.export; })) { problems.push('artikelregels'); }
-        if (missing) { problems.push(missing + ' artikel(en) die niet in Exact bestaan'); }
-        if (incomplete) { problems.push(incomplete + ' onvolledige regel(s) (aantal of artikelcode)'); }
-        var ready = lines.length > 0 && problems.length === 0 && !pending;
+        if (seller === '') { problems.push('verkoper invullen'); } else if (!sellerInfo) { problems.push('verkoper wordt gecontroleerd'); } else if (!sellerInfo.found) { problems.push('verkoper bestaat niet in Exact'); }
+        if (debtor === '') { problems.push('debiteurnummer invullen'); } else if (!debtorInfo) { problems.push('debiteurnummer wordt gecontroleerd'); } else if (!debtorInfo.found) { problems.push('debiteurnummer bestaat niet in Exact'); }
+        if (descEl.value.trim() === '') { problems.push('omschrijving invullen'); }
+        if (!dateOk) { problems.push('datum invullen'); }
+        if (!states.some(function (s) { return s.export; })) { problems.push('minstens één artikelregel met artikelcode en aantal'); }
+        if (missing) { problems.push(missing + ' artikel(en) die niet in Exact bestaan (rood) aanpassen of verwijderen'); }
+        if (incomplete) { problems.push(incomplete + ' regel(s) zonder geldig aantal of artikelcode (oranje) aanvullen of verwijderen'); }
+        if (empty) { problems.push(empty + ' lege regel(s) invullen of verwijderen'); }
+        if (pending) { problems.push('artikelen worden nog gecontroleerd'); }
+        var ready = lines.length > 0 && problems.length === 0;
         exportBtn.disabled = !ready;
         exportBtn.title = ready || !lines.length ? '' : 'Eerst oplossen: ' + problems.join(', ');
+        // Zichtbaar wat er nog ontbreekt zolang er regels zijn en de export nog niet kan.
+        if (lines.length && !ready) {
+            problemsEl.innerHTML = '<strong>Exporteren kan pas als alles klopt en is ingevuld.</strong> Nog nodig: ' + problems.map(esc).join('; ') + '.';
+            problemsEl.hidden = false;
+        } else {
+            problemsEl.hidden = true;
+        }
     }
 
     // ---- XML (zelfde opbouw als de macro in de Excel-template) ----
@@ -327,6 +342,11 @@
     // Artikelcode wijzigen in de tabel: altijd hoofdletters, en na een korte pauze opnieuw controleren met Exact.
     tbody.addEventListener('input', function (e) {
         var el = e.target;
+        if (el.classList && el.classList.contains('oi-qty')) {
+            lines[+el.getAttribute('data-i')].qty = el.value;
+            render();
+            return;
+        }
         if (!el.classList || !el.classList.contains('oi-code')) { return; }
         var i = +el.getAttribute('data-i');
         var pos = el.selectionStart;
@@ -340,6 +360,24 @@
         if (code !== '' && !checked[code.toUpperCase()]) {
             codeTimers[i] = setTimeout(function () { validateItem(code); }, 400);
         }
+    });
+
+    // Regel verwijderen.
+    tbody.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('button.oi-del') : null;
+        if (!btn) { return; }
+        lines.splice(+btn.getAttribute('data-i'), 1);
+        render();
+    });
+    // Regel toevoegen: nieuw regelnummer (hoogste + 1) en de cursor in de artikelcode.
+    document.getElementById('oiAdd').addEventListener('click', function () {
+        var max = 0;
+        lines.forEach(function (l) { var n = parseInt(l.nr, 10); if (isFinite(n) && n > max) { max = n; } });
+        lines.push({ nr: String(max + 1), qty: '', code: '' });
+        render();
+        var inputs = tbody.querySelectorAll('input.oi-code');
+        if (inputs.length) { inputs[inputs.length - 1].focus(); }
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
     // ---- Koppelingen ----
