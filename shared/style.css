@@ -74,6 +74,11 @@ button, input, select { font: inherit; }
    responsive .page-shell-regels onderaan staan, zodat die op mobiel winnen. */
 .page-shell--wide { width: min(1400px, calc(100% - 28px)); }
 .page-header { margin-bottom: 18px; }
+/* Voettekst ("(c) 2026 PdB - Geeve Hydraulics") altijd onderaan de pagina: bij weinig inhoud staat hij onderaan het scherm,
+   bij veel inhoud gewoon onder de inhoud. 56px = marges boven (16px) en onder (40px) van .page-shell. */
+.page-shell:has(> .page-footer) { min-height: calc(100vh - 56px); display: flex; flex-direction: column; }
+.page-footer { margin: auto 4px 0; padding-top: 30px; color: var(--muted); font-size: 12px; text-align: center; }
+
 .brand-panel {
     background: #000;
     color: #fff;

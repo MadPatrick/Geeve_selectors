@@ -69,7 +69,6 @@
 .tile-disabled .tile-cta { color: var(--muted); }
 .tile-disabled::after { display: none; }
 
-.page-footer { margin: 30px 4px 0; color: var(--muted); font-size: 12px; text-align: center; }
 
 .update-button svg { display: block; }
 
