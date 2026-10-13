@@ -100,7 +100,7 @@ function assetVersion(string $relativePath): string
                 </svg>
             </div>
             <h2>Productiviteit</h2>
-            <p>Aangemaakte orders en orderregels per medewerker per dag</p>
+            <p>Afgehandelde orders en orderregels per medewerker per dag</p>
             <span class="tile-cta">Open rapport &rarr;</span>
         </a>
     </div>

@@ -3,14 +3,15 @@
 declare(strict_types=1);
 
 /**
- * Productiviteit per medewerker: per medewerker en dag het aantal orders en orderregels dat is aangemaakt, voor
- * verkoop (ord_soort V) en inkoop (ord_soort B) apart. Lees-query op orkrg/orsrg (open orders) en orhkrg/orhsrg
- * (afgehandelde orders, de historie) in database 005. syscreator = medewerker (humres.res_id), syscreated = tijdstip.
+ * Productiviteit per medewerker: per medewerker en dag het aantal verkooporders en orderregels dat logistiek is afgehandeld
+ * (geleverd). Een levering is een regel in het memoriaal (dagboek 90, tabel amutas) die naar een orderregel verwijst
+ * (CSPickITCWOrsrgIDCWDB) en een pakbonnummer heeft (CSPickITCWDeliveryNoteCWDB). syscreator = medewerker (humres.res_id),
+ * syscreated = tijdstip van de levering. Orders = aantal verschillende pakbonnen, orderregels = aantal verschillende orderregels.
+ * Lees-query in database 005; productieorders (ord_soort A) zijn nog niet opgenomen.
  */
 
 require_once __DIR__ . '/../../inc.php';
 
-const PRODUCTIVITEIT_TYPES = ['V' => 'Verkoop', 'B' => 'Inkoop'];
 const PRODUCTIVITEIT_MAX_DAYS = 62;
 
 function productiviteitDate(mixed $value, string $label): DateTimeImmutable
@@ -34,32 +35,24 @@ reportApi(function (array $in): array {
     }
 
     $pdo = reportConnection();
-    $types = array_keys(PRODUCTIVITEIT_TYPES);
-    $in2 = implode(',', array_fill(0, count($types), '?'));
     $startParam = $from->format('Y-m-d');
     $endParam = $to->format('Y-m-d');
 
-    // Open orders (orkrg/orsrg) en afgehandelde orders (orhkrg/orhsrg) samen.
-    $headers = "SELECT ordernr, ord_soort, syscreator, syscreated FROM orkrg WITH (NOLOCK) UNION ALL SELECT ordernr, ord_soort, syscreator, syscreated FROM orhkrg WITH (NOLOCK)";
-    $lines = "SELECT ordernr, artcode, syscreator, syscreated FROM orsrg WITH (NOLOCK) UNION ALL SELECT ordernr, artcode, syscreator, syscreated FROM orhsrg WITH (NOLOCK)";
-
+    $base = "FROM amutas s WITH (NOLOCK) WHERE LTRIM(RTRIM(s.dagbknr)) = '90' AND s.CSPickITCWOrsrgIDCWDB <> 0 " .
+        "AND ISNULL(RTRIM(s.CSPickITCWDeliveryNoteCWDB), '') <> '' AND s.syscreated >= ? AND s.syscreated < DATEADD(day, 1, ?) " .
+        'GROUP BY s.syscreator, CONVERT(char(10), s.syscreated, 23)';
     $sql = 'SET NOCOUNT ON; ' .
-        "SELECT 'O' AS meting, k.ord_soort AS soort, k.syscreator AS medewerker, CONVERT(char(10), k.syscreated, 23) AS dag, COUNT(DISTINCT k.ordernr) AS aantal " .
-        "FROM ({$headers}) k WHERE k.ord_soort IN ({$in2}) AND k.syscreated >= ? AND k.syscreated < DATEADD(day, 1, ?) " .
-        'GROUP BY k.ord_soort, k.syscreator, CONVERT(char(10), k.syscreated, 23) ' .
+        "SELECT 'O' AS meting, s.syscreator AS medewerker, CONVERT(char(10), s.syscreated, 23) AS dag, COUNT(DISTINCT RTRIM(s.CSPickITCWDeliveryNoteCWDB)) AS aantal {$base} " .
         'UNION ALL ' .
-        "SELECT 'L', k.ord_soort, r.syscreator, CONVERT(char(10), r.syscreated, 23), COUNT(*) " .
-        "FROM ({$lines}) r INNER JOIN ({$headers}) k ON k.ordernr = r.ordernr " .
-        "WHERE k.ord_soort IN ({$in2}) AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' AND r.syscreated >= ? AND r.syscreated < DATEADD(day, 1, ?) " .
-        'GROUP BY k.ord_soort, r.syscreator, CONVERT(char(10), r.syscreated, 23)';
+        "SELECT 'L', s.syscreator, CONVERT(char(10), s.syscreated, 23), COUNT(DISTINCT s.CSPickITCWOrsrgIDCWDB) {$base}";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute(array_merge($types, [$startParam, $endParam], $types, [$startParam, $endParam]));
+    $stmt->execute([$startParam, $endParam, $startParam, $endParam]);
 
-    // [medewerker][soort][meting][dag] = aantal
+    // [medewerker][meting][dag] = aantal
     $counts = [];
     while ($r = $stmt->fetch(PDO::FETCH_NUM)) {
-        $counts[(int) $r[2]][(string) $r[1]][(string) $r[0]][(string) $r[3]] = (int) $r[4];
+        $counts[(int) $r[1]][(string) $r[0]][(string) $r[2]] = (int) $r[3];
     }
 
     // Namen van de medewerkers.
@@ -77,7 +70,7 @@ reportApi(function (array $in): array {
     // Kolommen: Medewerker, Type, Meting, een kolom per dag, Totaal.
     $weekdays = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'];
     $dayKeys = [];
-    $columns = ['Medewerker', 'Type', 'Meting'];
+    $columns = ['Medewerker', 'Meting'];
     for ($d = $from; $d <= $to; $d = $d->modify('+1 day')) {
         $dayKeys[] = $d->format('Y-m-d');
         $columns[] = $weekdays[(int) $d->format('w')] . ' ' . $d->format('d-m');
@@ -88,43 +81,42 @@ reportApi(function (array $in): array {
     usort($employees, fn ($a, $b) => strcasecmp($names[$a] ?? ('Medewerker ' . $a), $names[$b] ?? ('Medewerker ' . $b)));
 
     $rows = [];
-    $grand = ['V' => ['O' => 0, 'L' => 0], 'B' => ['O' => 0, 'L' => 0]];
+    $grand = ['O' => 0, 'L' => 0];
     foreach ($employees as $emp) {
         $label = $names[$emp] ?? ('Medewerker ' . $emp);
-        foreach (PRODUCTIVITEIT_TYPES as $code => $typeLabel) {
-            foreach (['O' => 'Orders', 'L' => 'Orderregels'] as $m => $mLabel) {
-                $perDay = $counts[$emp][$code][$m] ?? [];
-                if ($perDay === []) {
-                    continue;
-                }
-                $row = [$label, $typeLabel, $mLabel];
-                $total = 0;
-                foreach ($dayKeys as $key) {
-                    $n = $perDay[$key] ?? 0;
-                    $total += $n;
-                    $row[] = $n > 0 ? $n : null;
-                }
-                $row[] = $total;
-                $grand[$code][$m] += $total;
-                $rows[] = $row;
+        foreach (['O' => 'Orders', 'L' => 'Orderregels'] as $m => $mLabel) {
+            $perDay = $counts[$emp][$m] ?? [];
+            if ($perDay === []) {
+                continue;
             }
+            $row = [$label, $mLabel];
+            $total = 0;
+            foreach ($dayKeys as $key) {
+                $n = $perDay[$key] ?? 0;
+                $total += $n;
+                $row[] = $n > 0 ? $n : null;
+            }
+            $row[] = $total;
+            $grand[$m] += $total;
+            $rows[] = $row;
         }
     }
 
     $period = $from->format('d-m-Y') . ' t/m ' . $to->format('d-m-Y');
-    $kop = [['label' => 'Periode', 'value' => $period], ['label' => 'Medewerkers', 'value' => (string) count($employees)]];
-    foreach (PRODUCTIVITEIT_TYPES as $code => $typeLabel) {
-        $kop[] = ['label' => $typeLabel, 'value' => number_format($grand[$code]['O'], 0, ',', '.') . ' orders / ' . number_format($grand[$code]['L'], 0, ',', '.') . ' regels'];
-    }
+    $kop = [
+        ['label' => 'Periode', 'value' => $period],
+        ['label' => 'Medewerkers', 'value' => (string) count($employees)],
+        ['label' => 'Totaal', 'value' => number_format($grand['O'], 0, ',', '.') . ' orders / ' . number_format($grand['L'], 0, ',', '.') . ' regels'],
+    ];
 
     $count = count($columns);
     return [
         'columns' => $columns,
-        'numeric' => array_merge([false, false, false], array_fill(0, $count - 3, true)),
+        'numeric' => array_merge([false, false], array_fill(0, $count - 2, true)),
         'dates' => array_fill(0, $count, false),
         'rows' => $rows,
         'kop' => $kop,
-        'titles' => ['Productiviteit per medewerker', 'Orders en orderregels aangemaakt, ' . $period],
+        'titles' => ['Productiviteit per medewerker', 'Afgehandelde (geleverde) orders en orderregels, ' . $period],
         'fileTag' => $from->format('Y-m-d') . '_' . $to->format('Y-m-d'),
     ];
 }, false);

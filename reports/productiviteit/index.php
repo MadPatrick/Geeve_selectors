@@ -52,7 +52,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
 
     <section class="panel">
         <h2>Productiviteit per medewerker</h2>
-        <p class="ka-empty">Toont per medewerker en per dag hoeveel orders en orderregels zijn aangemaakt, voor verkoop en inkoop apart (op basis van wie de order heeft ingevoerd in Exact). Kies de periode (maximaal 62 dagen), haal de gegevens op en download ze daarna als Excel-bestand.</p>
+        <p class="ka-empty">Toont per medewerker en per dag hoeveel verkooporders en orderregels logistiek zijn afgehandeld (geleverd, op basis van de leveringsboekingen in Exact). Productieorders zijn nog niet opgenomen. Kies de periode (maximaal 62 dagen), haal de gegevens op en download ze daarna als Excel-bestand.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="Productiviteit" data-file="Productiviteit">
             <label class="msp-field">
                 <span>Datum van</span>
