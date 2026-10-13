@@ -125,7 +125,7 @@
     appearance: none;
     border: 1px solid var(--accent-dark-line);
     border-radius: 999px;
-    background: var(--accent-dark);
+    background: rgba(185, 13, 50, .85);
     color: #fff;
     font-weight: 700;
     font-size: 13px;
@@ -221,7 +221,7 @@
 .lock-error { margin-top: 10px; color: var(--danger); font-size: 13px; font-weight: 700; }
 .lock-error[hidden] { display: none; }
 .lock-actions { display: flex; justify-content: flex-end; gap: var(--btn-gap, 5px); margin-top: 18px; }
-.lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--accent-dark-line); background: var(--accent-dark); color: #fff; cursor: pointer; }
+.lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--accent-dark-line); background: rgba(185, 13, 50, .85); color: #fff; cursor: pointer; }
 .lock-button--secondary { background: #fff; color: var(--ink); border-color: var(--line-strong); }
 .tile:has(.tile-lock) p { padding-right: 30px; }
 

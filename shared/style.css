@@ -37,7 +37,7 @@
     --ok-soft-line: #14532d;     /* rand van lichtgroene knop (#e8f4ed): donkergroen */
     --accent-line: #f47896;      /* donkere accentkleur (--accent) */
     --accent-dark-line: #d2627a; /* donkerrode knop (--accent-dark) */
-    --ok-fill: #58c67c;          /* vulling van groene knoppen (rgb 88, 198, 124) */
+    --ok-fill: rgba(88, 198, 124, .85); /* vulling van groene knoppen (rgb 88, 198, 124, iets transparant) */
     --ok-ink: #0f3d22;           /* tekst op groene knoppen (donkergroen voor goed contrast) */
     --ok-line: #14532d;          /* rand van donkergroene knop (--ok): donkergroen */
     --danger-line: #c17c7c;      /* donkerrode knop (--danger) */
