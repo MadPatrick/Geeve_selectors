@@ -113,20 +113,31 @@ function productiviteitOrderCounts(PDO $pdo, string $cte, DateTimeImmutable $fro
     return $stmt->fetchAll(PDO::FETCH_NUM);
 }
 
+/** Aantal zelf ingevoerde offertes/orders in 60 dagen waarmee iemand als verkoper geldt (zie productiviteitVerkoopCte). */
+const PRODUCTIVITEIT_MIN_INVOER = 10;
+
 /**
  * Verkoop: verkooporders (ord_soort V) op de dag dat ze zijn verwerkt, alleen lopende orders (orkrg/orsrg).
  *
  * Een rechtstreeks ingevoerde order telt op de aanmaakdag bij degene die hem heeft ingevoerd (die verwerkt hem dan ook).
  * Een offerte die tot order is verwerkt houdt de oorspronkelijke aanmaakdatum en krijgt als orderdatum de dag van verwerken
  * (orddat later dan syscreated). Exact legt niet vast wie dat deed (user_id, represent_id en syscreator zijn de maker van de
- * offerte, sysmodifier de laatste wijziger, vaak het magazijn), dus zulke orders tellen op de verwerkingsdag onder medewerker 0
- * ("Onbekend"). Omgezette offertes tot 90 dagen oud worden gevonden (ouder ID).
+ * offerte). Als beste benadering telt de laatste wijziger (sysmodifier), maar alleen als die zelf een verkoper is: iemand die in
+ * de 60 dagen voor de periode minstens PRODUCTIVITEIT_MIN_INVOER offertes of orders zelf heeft ingevoerd. Het magazijn, dat
+ * orders daarna aanpast, valt zo af; zulke orders tellen op de verwerkingsdag onder medewerker 0 ("Onbekend"). Omgezette
+ * offertes tot 90 dagen oud worden gevonden (ouder ID).
  */
 function productiviteitVerkoopCte(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): string
 {
     [$kFirst, $kEnd] = productiviteitIdRange($pdo, 'orkrg', $from->modify('-90 days'), $to);
-    return 'WITH o AS (SELECT k.ordernr, ' .
-        'CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN 0 ELSE k.syscreator END AS medewerker, ' .
+    // Verkopers: wie recent zelf offertes of orders heeft ingevoerd (syscreator, niet omgezet).
+    [$sFirst, $sEnd] = productiviteitIdRange($pdo, 'orkrg', $from->modify('-60 days'), $to);
+    $min = (int) PRODUCTIVITEIT_MIN_INVOER;
+    return 'WITH s AS (SELECT k2.syscreator AS medewerker FROM orkrg k2 WITH (NOLOCK) ' .
+        "WHERE k2.ID >= {$sFirst} AND k2.ID < {$sEnd} AND (k2.ord_soort = 'Q' OR (k2.ord_soort = 'V' AND CAST(k2.orddat AS date) <= CAST(k2.syscreated AS date))) " .
+        "GROUP BY k2.syscreator HAVING COUNT(*) >= {$min}), " .
+        'o AS (SELECT k.ordernr, ' .
+        'CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN CASE WHEN k.sysmodifier IN (SELECT medewerker FROM s) THEN k.sysmodifier ELSE 0 END ELSE k.syscreator END AS medewerker, ' .
         'CONVERT(char(10), CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN k.orddat ELSE k.syscreated END, 23) AS dag ' .
         "FROM orkrg k WITH (NOLOCK) WHERE k.ID >= {$kFirst} AND k.ID < {$kEnd} AND k.ord_soort = 'V') ";
 }
