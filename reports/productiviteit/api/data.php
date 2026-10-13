@@ -7,11 +7,11 @@ declare(strict_types=1);
  *  - productie: logistiek afgehandelde (geleverde) verkooporders. Een levering is een regel in het memoriaal (dagboek 90,
  *    tabel amutas) die naar een orderregel verwijst (CSPickITCWOrsrgIDCWDB) en een pakbonnummer heeft
  *    (CSPickITCWDeliveryNoteCWDB). Orders = aantal verschillende pakbonnen, orderregels = aantal verschillende orderregels.
- *  - verkoop: verkooporders (ord_soort V) uit de lopende orders (orkrg/orsrg) op de dag dat ze zijn verwerkt, zie
- *    productiviteitVerkoop.
- *  - offerte: offertes op de dag dat ze zijn ingevoerd, bij degene die ze heeft ingevoerd, zie productiviteitOfferte.
- * syscreator = medewerker (humres.res_id), syscreated = tijdstip. Het antwoord bevat per telling ("Orders", "Orderregels")
- * een eigen reeks rijen ("sets"); de pagina schakelt daartussen.
+ *  - verkoop: verwerkte verkooporders. Een order is verwerkt op het moment dat de eerste orderbevestiging (document type 11 in
+ *    BacoDiscussions, het tabblad Bijlage van de order) is gemaakt, door degene die dat document heeft aangemaakt.
+ *  - offerte: ingevoerde offertes: het eerste offertedocument (type 13) per order, door degene die dat heeft aangemaakt.
+ * De medewerker is BacoDiscussions.CreatedBy (humres.res_id). Het antwoord bevat per telling ("Orders", "Orderregels") een eigen
+ * reeks rijen ("sets"); de pagina schakelt daartussen.
  */
 
 require_once __DIR__ . '/../../inc.php';
@@ -52,21 +52,21 @@ function productiviteitFirstId(callable $probe, string $timestamp, int $maxId): 
 }
 
 /**
- * ID-bereik [eerste, einde) van een grote tabel voor de gekozen periode (zie productiviteitFirstId). $table is een vaste
- * tabelnaam uit de code (nooit gebruikersinvoer).
+ * ID-bereik [eerste, einde) van een grote tabel voor de gekozen periode (zie productiviteitFirstId). $table, $idCol en $dateCol
+ * zijn vaste namen uit de code (nooit gebruikersinvoer).
  *
  * @return array{0: int, 1: int}
  */
-function productiviteitIdRange(PDO $pdo, string $table, DateTimeImmutable $from, DateTimeImmutable $to): array
+function productiviteitIdRange(PDO $pdo, string $table, DateTimeImmutable $from, DateTimeImmutable $to, string $idCol = 'ID', string $dateCol = 'syscreated'): array
 {
-    $probeStmt = $pdo->prepare("SET NOCOUNT ON; SELECT TOP 1 CONVERT(char(19), syscreated, 120) AS t FROM {$table} WITH (NOLOCK) WHERE ID >= ? ORDER BY ID");
+    $probeStmt = $pdo->prepare("SET NOCOUNT ON; SELECT TOP 1 CONVERT(char(19), {$dateCol}, 120) AS t FROM {$table} WITH (NOLOCK) WHERE {$idCol} >= ? ORDER BY {$idCol}");
     $probe = function (int $id) use ($probeStmt): ?string {
         $probeStmt->execute([$id]);
         $row = $probeStmt->fetch(PDO::FETCH_NUM);
         $probeStmt->closeCursor();
         return $row === false || $row[0] === null ? null : (string) $row[0];
     };
-    $maxId = (int) $pdo->query("SET NOCOUNT ON; SELECT MAX(ID) FROM {$table} WITH (NOLOCK)")->fetchColumn();
+    $maxId = (int) $pdo->query("SET NOCOUNT ON; SELECT MAX({$idCol}) FROM {$table} WITH (NOLOCK)")->fetchColumn();
     return [
         productiviteitFirstId($probe, $from->format('Y-m-d') . ' 00:00:00', $maxId),
         productiviteitFirstId($probe, $to->modify('+1 day')->format('Y-m-d') . ' 00:00:00', $maxId), // eerste ID ná de periode
@@ -97,7 +97,7 @@ function productiviteitProductie(PDO $pdo, DateTimeImmutable $from, DateTimeImmu
 
 /**
  * Gemeenschappelijke query voor Verkoop en Offertes: telt orders of regels per medewerker per dag op basis van een CTE "o"
- * (ordernr, medewerker, dag). @return list<list<mixed>> rijen [meting, medewerker, dag, aantal]
+ * (ordernr, medewerker, dag, CmpWwn, yourref). Orderregels staan in orsrg (lopende orders) of orhsrg (afgehandelde orders). @return list<list<mixed>> rijen [meting, medewerker, dag, aantal]
  */
 function productiviteitOrderCounts(PDO $pdo, string $cte, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
@@ -107,62 +107,48 @@ function productiviteitOrderCounts(PDO $pdo, string $cte, DateTimeImmutable $fro
         "SELECT 'O' AS meting, o.medewerker AS medewerker, o.dag AS dag, COUNT(*) AS aantal FROM o WHERE o.dag >= ? AND o.dag <= ? GROUP BY o.medewerker, o.dag " .
         'UNION ALL ' .
         "SELECT 'L', o.medewerker, o.dag, COUNT(*) FROM o INNER JOIN orsrg r WITH (NOLOCK) ON r.ordernr = o.ordernr " .
+        "WHERE o.dag >= ? AND o.dag <= ? AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' GROUP BY o.medewerker, o.dag " .
+        'UNION ALL ' .
+        "SELECT 'L', o.medewerker, o.dag, COUNT(*) FROM o INNER JOIN orhsrg r WITH (NOLOCK) ON r.ordernr = o.ordernr " .
         "WHERE o.dag >= ? AND o.dag <= ? AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' GROUP BY o.medewerker, o.dag";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$startParam, $endParam, $startParam, $endParam]);
+    $stmt->execute([$startParam, $endParam, $startParam, $endParam, $startParam, $endParam]);
     return $stmt->fetchAll(PDO::FETCH_NUM);
 }
 
-/** Aantal zelf ingevoerde offertes/orders in 60 dagen waarmee iemand als verkoper geldt (zie productiviteitVerkoopCte). */
-const PRODUCTIVITEIT_MIN_INVOER = 10;
+/** BacoDiscussions.Type van de documenten waar Verkoop en Offertes op rusten (tabblad Bijlage van de order). */
+const PRODUCTIVITEIT_DOC_ORDERBEVESTIGING = 11;
+const PRODUCTIVITEIT_DOC_OFFERTE = 13;
 
 /**
- * Verkoop: verkooporders (ord_soort V) op de dag dat ze zijn verwerkt, alleen lopende orders (orkrg/orsrg).
- *
- * Een rechtstreeks ingevoerde order telt op de aanmaakdag bij degene die hem heeft ingevoerd (die verwerkt hem dan ook).
- * Een offerte die tot order is verwerkt houdt de oorspronkelijke aanmaakdatum en krijgt als orderdatum de dag van verwerken
- * (orddat later dan syscreated). Exact legt niet vast wie dat deed (user_id, represent_id en syscreator zijn de maker van de
- * offerte). Als beste benadering telt de laatste wijziger (sysmodifier), maar alleen als die zelf een verkoper is: iemand die in
- * de 60 dagen voor de periode minstens PRODUCTIVITEIT_MIN_INVOER offertes of orders zelf heeft ingevoerd. Het magazijn, dat
- * orders daarna aanpast, valt zo af; zulke orders tellen op de verwerkingsdag onder medewerker 0 ("Onbekend"). Omgezette
- * offertes tot 90 dagen oud worden gevonden (ouder ID).
+ * CTE "o" met per order het eerste document van een soort (BacoDiscussions, tabblad Bijlage): de medewerker die het heeft
+ * aangemaakt (CreatedBy) en de dag (CreatedDate). Het eerste document per order wordt bepaald binnen de periode plus 90 dagen
+ * ervoor, zodat een opnieuw verstuurde bevestiging of offerte niet nog eens meetelt. De periode wordt omgezet naar een
+ * bereik van het volgnummer (HID), omdat de tabel groot is.
  */
-function productiviteitVerkoopCte(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): string
+function productiviteitDocCte(PDO $pdo, int $type, DateTimeImmutable $from, DateTimeImmutable $to): string
 {
-    [$kFirst, $kEnd] = productiviteitIdRange($pdo, 'orkrg', $from->modify('-90 days'), $to);
-    // Verkopers: wie recent zelf offertes of orders heeft ingevoerd (syscreator, niet omgezet).
-    [$sFirst, $sEnd] = productiviteitIdRange($pdo, 'orkrg', $from->modify('-60 days'), $to);
-    $min = (int) PRODUCTIVITEIT_MIN_INVOER;
-    return 'WITH s AS (SELECT k2.syscreator AS medewerker FROM orkrg k2 WITH (NOLOCK) ' .
-        "WHERE k2.ID >= {$sFirst} AND k2.ID < {$sEnd} AND (k2.ord_soort = 'Q' OR (k2.ord_soort = 'V' AND CAST(k2.orddat AS date) <= CAST(k2.syscreated AS date))) " .
-        "GROUP BY k2.syscreator HAVING COUNT(*) >= {$min}), " .
-        'o AS (SELECT k.ordernr, ' .
-        'CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN CASE WHEN k.sysmodifier IN (SELECT medewerker FROM s) THEN k.sysmodifier ELSE 0 END ELSE k.syscreator END AS medewerker, ' .
-        'CONVERT(char(10), CASE WHEN CAST(k.orddat AS date) > CAST(k.syscreated AS date) THEN k.orddat ELSE k.syscreated END, 23) AS dag ' .
-        "FROM orkrg k WITH (NOLOCK) WHERE k.ID >= {$kFirst} AND k.ID < {$kEnd} AND k.ord_soort = 'V') ";
+    [$first, $end] = productiviteitIdRange($pdo, 'BacoDiscussions', $from->modify('-90 days'), $to, 'HID', 'CreatedDate');
+    return 'WITH c AS (SELECT LTRIM(RTRIM(OrderNumber)) AS ordernr, CreatedBy, CreatedDate, CmpWwn, RTRIM(YourRef) AS yourref, ' .
+        'ROW_NUMBER() OVER (PARTITION BY LTRIM(RTRIM(OrderNumber)) ORDER BY CreatedDate, HID) AS rn ' .
+        "FROM BacoDiscussions WITH (NOLOCK) WHERE HID >= {$first} AND HID < {$end} AND Type = " . (int) $type . " AND ISNULL(RTRIM(OrderNumber), '') <> ''), " .
+        'o AS (SELECT ordernr, CreatedBy AS medewerker, CONVERT(char(10), CreatedDate, 23) AS dag, CmpWwn, yourref FROM c WHERE rn = 1) ';
 }
 
+/**
+ * Verkoop: verwerkte verkooporders. Een order is verwerkt op het moment dat de eerste orderbevestiging is gemaakt (document
+ * type 11, tabblad Bijlage), door degene die dat document heeft aangemaakt. Bij een offerte die tot order wordt verwerkt is dat
+ * degene die de order heeft verwerkt, niet degene die de offerte maakte.
+ */
 function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
-    return productiviteitOrderCounts($pdo, productiviteitVerkoopCte($pdo, $from, $to), $from, $to);
+    return productiviteitOrderCounts($pdo, productiviteitDocCte($pdo, PRODUCTIVITEIT_DOC_ORDERBEVESTIGING, $from, $to), $from, $to);
 }
 
-/**
- * Offertes: een offerte telt op de dag dat hij is ingevoerd (syscreated), bij degene die hem heeft ingevoerd (syscreator).
- * Dat zijn offertes (ord_soort Q) en offertes die inmiddels tot order zijn verwerkt (ord_soort V met orderdatum later dan de
- * aanmaakdatum). De periode is direct een ID-bereik: een offerte krijgt bij invoer zijn ID.
- */
-function productiviteitOfferteCte(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): string
-{
-    [$kFirst, $kEnd] = productiviteitIdRange($pdo, 'orkrg', $from, $to);
-    return 'WITH o AS (SELECT k.ordernr, k.syscreator AS medewerker, CONVERT(char(10), k.syscreated, 23) AS dag ' .
-        "FROM orkrg k WITH (NOLOCK) WHERE k.ID >= {$kFirst} AND k.ID < {$kEnd} " .
-        "AND (k.ord_soort = 'Q' OR (k.ord_soort = 'V' AND CAST(k.orddat AS date) > CAST(k.syscreated AS date)))) ";
-}
-
+/** Offertes: het eerste offertedocument (type 13) per order, op de dag en door degene die het heeft aangemaakt. */
 function productiviteitOfferte(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
-    return productiviteitOrderCounts($pdo, productiviteitOfferteCte($pdo, $from, $to), $from, $to);
+    return productiviteitOrderCounts($pdo, productiviteitDocCte($pdo, PRODUCTIVITEIT_DOC_OFFERTE, $from, $to), $from, $to);
 }
 
 /**
@@ -187,13 +173,14 @@ function productiviteitDetail(PDO $pdo, string $mode, int $emp, DateTimeImmutabl
             'GROUP BY RTRIM(s.CSPickITCWDeliveryNoteCWDB) ORDER BY MIN(s.syscreated), RTRIM(s.CSPickITCWDeliveryNoteCWDB)';
         $columns = ['Pakbon', 'Order', 'Datum', 'Regels'];
     } else {
-        $cte = $mode === 'verkoop' ? productiviteitVerkoopCte($pdo, $from, $to) : productiviteitOfferteCte($pdo, $from, $to);
-        $sql = 'SET NOCOUNT ON; ' . $cte . "SELECT TOP {$limit} LTRIM(RTRIM(o.ordernr)) AS ordernr, o.dag AS datum, " .
-            "LTRIM(RTRIM(ISNULL(k.ord_debtor_name, ''))) AS klant, LTRIM(RTRIM(ISNULL(k.refer, ''))) AS referentie, k.ord_soort AS soort, " .
-            "(SELECT COUNT(*) FROM orsrg r WITH (NOLOCK) WHERE r.ordernr = o.ordernr AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '') AS regels " .
-            'FROM o INNER JOIN orkrg k WITH (NOLOCK) ON k.ordernr = o.ordernr ' .
+        $type = $mode === 'verkoop' ? PRODUCTIVITEIT_DOC_ORDERBEVESTIGING : PRODUCTIVITEIT_DOC_OFFERTE;
+        $lineCount = "(SELECT COUNT(*) FROM orsrg r WITH (NOLOCK) WHERE r.ordernr = o.ordernr AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '') + " .
+            "(SELECT COUNT(*) FROM orhsrg r WITH (NOLOCK) WHERE r.ordernr = o.ordernr AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '')";
+        $sql = 'SET NOCOUNT ON; ' . productiviteitDocCte($pdo, $type, $from, $to) . "SELECT TOP {$limit} o.ordernr, o.dag AS datum, " .
+            "ISNULL(RTRIM(cm.cmp_name), '') AS klant, ISNULL(o.yourref, '') AS referentie, {$lineCount} AS regels " .
+            'FROM o LEFT JOIN cicmpy cm WITH (NOLOCK) ON cm.cmp_wwn = o.CmpWwn ' .
             'WHERE o.medewerker = ? AND o.dag >= ? AND o.dag <= ? ORDER BY o.dag, o.ordernr';
-        $columns = $mode === 'verkoop' ? ['Order', 'Datum', 'Klant', 'Referentie', 'Regels'] : ['Offerte/order', 'Datum', 'Klant', 'Referentie', 'Status', 'Regels'];
+        $columns = [$mode === 'verkoop' ? 'Order' : 'Offerte', 'Datum', 'Klant', 'Referentie', 'Regels'];
     }
 
     $stmt = $pdo->prepare($sql);
@@ -203,10 +190,8 @@ function productiviteitDetail(PDO $pdo, string $mode, int $emp, DateTimeImmutabl
         $r = array_map(fn ($v) => $v === null ? null : trim((string) $v), $r);
         if ($mode === 'productie') {
             $rows[] = [$r[0], $r[1], $r[2], (int) $r[3]];
-        } elseif ($mode === 'verkoop') {
-            $rows[] = [$r[0], $r[1], $r[2], $r[3], (int) $r[5]];
         } else {
-            $rows[] = [$r[0], $r[1], $r[2], $r[3], $r[4] === 'Q' ? 'Offerte' : 'Verwerkt tot order', (int) $r[5]];
+            $rows[] = [$r[0], $r[1], $r[2], $r[3], (int) $r[4]];
         }
     }
     return ['columns' => $columns, 'rows' => $rows, 'truncated' => count($rows) >= $limit];
@@ -249,7 +234,7 @@ reportApi(function (array $in): array {
         if ($detailFrom > $detailTo || (int) $detailFrom->diff($detailTo)->days + 1 > PRODUCTIVITEIT_MAX_DAYS) {
             throw new RuntimeException('Ongeldige periode.');
         }
-        $name = 'Onbekend (offerte verwerkt)';
+        $name = 'Onbekend';
         if ($emp > 0) {
             $nm = $pdo->prepare('SET NOCOUNT ON; SELECT RTRIM(fullname) AS naam FROM humres WHERE res_id = ?');
             $nm->execute([$emp]);
@@ -269,7 +254,7 @@ reportApi(function (array $in): array {
     // [medewerker][meting][dag] = aantal
     $counts = [];
     foreach ($result as $r) {
-        $counts[(int) $r[1]][(string) $r[0]][(string) $r[2]] = (int) $r[3];
+        $counts[(int) $r[1]][(string) $r[0]][(string) $r[2]] = ($counts[(int) $r[1]][(string) $r[0]][(string) $r[2]] ?? 0) + (int) $r[3];
     }
 
     // Namen van de medewerkers.
@@ -331,7 +316,7 @@ reportApi(function (array $in): array {
             if ($perDay === []) {
                 continue;
             }
-            $row = [$names[$emp] ?? ($emp === 0 ? 'Onbekend (offerte verwerkt)' : 'Medewerker ' . $emp)];
+            $row = [$names[$emp] ?? ($emp === 0 ? 'Onbekend' : 'Medewerker ' . $emp)];
             $hasValue = false;
             foreach ($specs as $i => $sp) {
                 $n = $sumRange($perDay, $sp[1], $sp[2]);
