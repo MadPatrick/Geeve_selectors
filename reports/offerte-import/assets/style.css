@@ -31,3 +31,5 @@
 .oi-suggest li:hover, .oi-suggest li.is-active { background: rgba(0,0,0,.07); }
 #oiTable tr.is-minorder td { background: #fff3d6; color: #8a5a00; }
 #oiTable tr.is-minorder input.oi-qty { border: 1px solid #e0b04a; background: #fffbf0; font-weight: 700; }
+.oi-suggest li.is-note { color: var(--muted); cursor: default; font-style: italic; }
+.oi-suggest li.is-note:hover { background: transparent; }

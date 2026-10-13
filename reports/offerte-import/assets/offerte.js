@@ -454,16 +454,28 @@
             active = -1;
             box.hidden = results.length === 0;
         }
+        function note(text) {
+            results = []; active = -1;
+            box.innerHTML = '';
+            var li = document.createElement('li'); li.className = 'is-note'; li.textContent = text;
+            box.appendChild(li); box.hidden = false;
+        }
         function search() {
             var q = debtorEl.value.trim();
             if (q.length < 2) { results = []; show(); return; }
+            if (/^\d+$/.test(q) && q.length > 6) { results = []; show(); return; }
             var my = ++seq;
             var body = new URLSearchParams();
             body.set('csrf', csrf); body.set('q', q); body.set('soort', T.soort);
             fetch(endpoint.replace('validate.php', 'search.php'), { method: 'POST', body: body, credentials: 'same-origin' })
-                .then(function (r) { return r.json(); })
-                .then(function (j) { if (my === seq && j.ok) { results = j.results || []; show(); } })
-                .catch(function () {});
+                .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
+                .then(function (j) {
+                    if (my !== seq) { return; }
+                    if (!j.ok) { note('Zoeken mislukt: ' + (j.error || 'onbekende fout')); return; }
+                    results = j.results || [];
+                    if (results.length === 0) { note('Geen ' + T.party + ' gevonden'); } else { show(); }
+                })
+                .catch(function (e) { if (my === seq) { note('Zoeken mislukt: ' + e.message); } });
         }
         debtorEl.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 250); });
         debtorEl.addEventListener('keydown', function (e) {

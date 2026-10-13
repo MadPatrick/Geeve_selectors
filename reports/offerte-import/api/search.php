@@ -23,11 +23,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !csrfValid($_POST['csrf'] ?
 /** Kleine letters, zonder accenten en leestekens, als losse woorden. */
 function searchWords(string $text): array
 {
-    $text = mb_strtolower($text, 'UTF-8');
-    $ascii = function_exists('iconv') ? @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text) : false;
-    if (is_string($ascii) && $ascii !== '') {
-        $text = $ascii;
-    }
+    $text = function_exists('mb_strtolower') ? mb_strtolower($text, 'UTF-8') : strtolower($text);
+    // Veelvoorkomende letters met accent zonder iconv (die werkt niet overal).
+    $text = strtr($text, ['é' => 'e', 'è' => 'e', 'ë' => 'e', 'ê' => 'e', 'á' => 'a', 'à' => 'a', 'ä' => 'a', 'â' => 'a', 'í' => 'i', 'ï' => 'i', 'ó' => 'o', 'ö' => 'o', 'ô' => 'o', 'ú' => 'u', 'ü' => 'u', 'û' => 'u', 'ç' => 'c', 'ñ' => 'n', 'ß' => 'ss', 'É' => 'e', 'Ë' => 'e', 'Ö' => 'o', 'Ü' => 'u']);
     $text = preg_replace('/[^a-z0-9]+/', ' ', $text) ?? '';
     return array_values(array_filter(explode(' ', trim($text)), static fn ($w) => $w !== ''));
 }
