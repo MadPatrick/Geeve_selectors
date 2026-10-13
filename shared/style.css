@@ -202,7 +202,7 @@ h1 {
 /* Panelen/velden - basisopmaak voor formulier-/overzichtspagina's. Een
    app zonder formulieren (bijv. het hoofdportaal) gebruikt deze klassen
    gewoon niet - geen nadeel om ze hier toch beschikbaar te hebben. */
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 24px; margin-top: 18px; }
+.panel { background: rgba(242, 242, 242, .88); /* #F2F2F2, iets transparant */ border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 24px; margin-top: 18px; }
 /* Kop direct in een paneel: weinig marge (de browserstandaard van ~20px boven en onder was te veel). */
 .panel > h2 { margin: 0 0 8px; }
 .panel > small { display: block; color: var(--muted); font-size: 12px; line-height: 1.4; margin-top: 4px; }
