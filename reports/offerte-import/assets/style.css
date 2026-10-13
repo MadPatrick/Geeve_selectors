@@ -26,7 +26,7 @@
 #oiTable th:last-child, #oiTable td:last-child { width: 1%; padding-left: 4px; padding-right: 4px; }
 #oiExport:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(.5); }
 /* Alles ingevuld en gecontroleerd: de Exporteer-knop is groen. */
-#oiExport:not(:disabled) { background: var(--ok, #237447); border-color: var(--ok-line, #14532d); color: #fff; }
+#oiExport:not(:disabled) { background: var(--ok-fill, #58c67c); border-color: var(--ok-line, #14532d); color: var(--ok-ink, #0f3d22); }
 #oiExport:not(:disabled):hover { opacity: 1; filter: brightness(1.1); }
 .oi-suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; margin: 2px 0 0; padding: 4px 0; list-style: none; background: var(--surface, #fff); border: 1px solid var(--border, #cfd6dd); border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.15); max-height: 280px; overflow-y: auto; }
 .oi-suggest li { padding: 6px 10px; cursor: pointer; font-size: 13px; font-weight: 400; }

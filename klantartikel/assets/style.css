@@ -7,7 +7,7 @@
     color: #fff; background: rgba(238, 48, 93, .9); border: 1px solid var(--accent-line, #e0516a); /* iets transparant */
 }
 /* "Gegevens ophalen" in de rapporten: groen, zoals de andere groene knoppen (donkergroene rand). */
-#rpFetch, #eiFetch, #mspFetch { background: var(--ok, #237447); border-color: var(--ok-line, #14532d); color: #fff; }
+#rpFetch, #eiFetch, #mspFetch { background: var(--ok-fill, #58c67c); border-color: var(--ok-line, #14532d); color: var(--ok-ink, #0f3d22); }
 .ka-button--secondary { color: var(--accent, #c8102e); background: transparent; }
 .ka-button:hover { opacity: .9; }
 .panel h2 small { color: var(--muted); font-weight: 600; }
