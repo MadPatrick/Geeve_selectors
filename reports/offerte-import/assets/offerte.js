@@ -300,17 +300,27 @@
     function buildXml() {
         var debtor = xmlEsc(debtorEl.value.trim());
         var date = dateEl.value;
-        var party = '<' + T.partyTag + ' code="' + debtor + '"  Number="' + debtor + '"></' + T.partyTag + '>';
+        var party = '<' + T.partyTag + ' code="' + debtor + '" ' + (purchase ? 'number' : ' Number') + '="' + debtor + '"></' + T.partyTag + '>';
         var out = [];
         out.push('<?xml version="1.0" encoding="UTF-8"?>');
         out.push('<eExact xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="eExact-Schema.xsd">');
         out.push('<Orders>');
         out.push(' <Order type="' + T.orderType + '">');
         out.push('   <Description>' + xmlEsc(descEl.value.trim()) + '</Description>');
-        out.push('   <OrderedBy>');
-        out.push('      ' + party);
-        out.push('      <Date>' + date + '</Date>');
-        out.push('   </OrderedBy>');
+        var resource = '<Resource number="' + xmlEsc(sellerEl.value.trim()) + '"></Resource>';
+        if (purchase) {
+            // Inkooporder (opbouw van een Exact-export): inkoper als Resource, leverancier in OrderedAt.
+            out.push('   ' + resource);
+            out.push('   <OrderedAt>');
+            out.push('      ' + party);
+            out.push('      <Date>' + date + '</Date>');
+            out.push('   </OrderedAt>');
+        } else {
+            out.push('   <OrderedBy>');
+            out.push('      ' + party);
+            out.push('      <Date>' + date + '</Date>');
+            out.push('   </OrderedBy>');
+        }
         if (!purchase) {
             // Offerte (zoals de macro in de Excel-template): ook afleveradres en factuuradres.
             out.push('   <DeliverTo>');
@@ -329,6 +339,7 @@
             out.push('   <OrderLine lineNo="' + xmlEsc(l.nr !== '' ? l.nr : n) + '">');
             out.push('     <Quantity>' + qtyOf(l.qty) + '</Quantity>');
             out.push('     <Item code="' + xmlEsc(cv(l)) + '"></Item>');
+            if (purchase) { out.push('     ' + resource); }
             out.push('  </OrderLine>');
         });
         out.push(' </Order>');
