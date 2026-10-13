@@ -47,6 +47,7 @@
     height: 52px;
     border-radius: 14px;
     background: #fdeaee;
+    border: 1.5px solid rgba(238, 48, 93, .35); /* lichtrode rand om het icoonkader */
     color: var(--accent-dark);
     display: flex;
     align-items: center;
