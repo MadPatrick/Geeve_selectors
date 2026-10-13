@@ -14,11 +14,12 @@
 #mspActions { align-items: flex-end; flex-wrap: wrap; }
 #rpTable td.nowrap { white-space: nowrap; }
 
-.rp-toggle { display: inline-flex; border: 1px solid var(--accent-line, #f47896); border-radius: 999px; overflow: hidden; min-height: 36px; }
+/* Keuzeschakelaars (Overzicht/Eigen periode, Logistiek/Verkoop/Offertes, ...): blauw, even hoog als de knoppen (44px). */
+.rp-toggle { display: inline-flex; border: 1px solid #1d4373; border-radius: 999px; overflow: hidden; min-height: 44px; }
 .rp-toggle[hidden] { display: none; }
 .rp-toggle button { border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 13px; font-weight: 700; padding: 0 16px; cursor: pointer; }
-.rp-toggle button + button { border-left: 1px solid var(--accent-line, #f47896); }
-.rp-toggle button.is-active { background: rgba(238, 48, 93, .9); color: #fff; }
+.rp-toggle button + button { border-left: 1px solid #1d4373; }
+.rp-toggle button.is-active { background: #2b5fa5; color: #fff; }
 .rp-bar { margin-bottom: 12px; }
 .rp-bar:empty { display: none; }
 #rpTable tr.rp-total td { font-weight: 800; border-top: 2px solid var(--line-strong, #c9d4de); }
