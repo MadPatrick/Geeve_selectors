@@ -74,27 +74,26 @@ button, input, select { font: inherit; }
     height: 4px;
     background: var(--accent);
 }
-/* Shine sweep: bij hover glijdt een lichte, schuine band van links naar rechts over de topbalk. Bij het verlaten springt
-   hij onzichtbaar terug (de overgang staat alleen op :hover), zodat hij bij de volgende hover opnieuw begint. */
+/* Shine sweep: elke 10 seconden schuift een lichte, schuine band in 0,9 s van links naar rechts door de topbalk
+   (background-position van 100% naar 0% op een verloop dat 2,5x zo breed is als het blok; zie ook het hover-effect in Dashticz). */
 .brand-panel { overflow: hidden; }
 .brand-panel::before {
     content: "";
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 28%;
-    background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .22) 50%, rgba(255, 255, 255, 0) 100%);
-    transform: translateX(-130%) skewX(-18deg);
+    inset: 0;
+    background: linear-gradient(100deg, rgba(255, 255, 255, 0) 42%, rgba(255, 255, 255, .22) 50%, rgba(255, 255, 255, 0) 58%) no-repeat;
+    background-size: 250% 100%;
+    background-position: 100% 0;
     pointer-events: none;
     z-index: 2;
+    animation: brand-shine 10s infinite;
 }
-.brand-panel:hover::before {
-    transform: translateX(480%) skewX(-18deg);
-    transition: transform .9s ease-in-out;
+@keyframes brand-shine {
+    0%, 91% { background-position: 100% 0; animation-timing-function: ease-out; }
+    100% { background-position: 0% 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .brand-panel:hover::before { transition: none; transform: translateX(-130%) skewX(-18deg); }
+    .brand-panel::before { animation: none; }
 }
 .brand-copy { display: flex; flex-direction: column; align-items: flex-start; }
 .brand-logo-row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
