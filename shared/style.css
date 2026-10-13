@@ -16,7 +16,7 @@
  */
 
 :root {
-    --bg: #ececec;
+    --bg: rgb(209, 212, 222);
     --panel: #ffffff;
     --ink: #1f2328;
     --muted: #687383;
