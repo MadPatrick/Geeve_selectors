@@ -290,7 +290,7 @@
     function detailHtml(d) {
         var h = '<div class="rp-detail-title">' + esc(d.title) + ' (' + nl(d.rows.length) + (d.truncated ? '+' : '') + ')</div>';
         if (d.truncated) { h += '<div class="rp-detail-note">Alleen de eerste 500 worden getoond.</div>'; }
-        h += '<table class="ka-table rp-detail-table"><thead><tr>' + d.columns.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
+        h += '<table class="ka-table rp-detail-table"><thead><tr>' + d.columns.map(function (c) { return '<th' + (/^(Regels|Productieregels)$/.test(c) ? ' class="rp-center"' : '') + '>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
         d.rows.forEach(function (row) {
             h += '<tr>' + row.map(function (v, i) {
                 if (v === null || v === '') { return '<td></td>'; }

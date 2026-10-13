@@ -31,4 +31,4 @@
 .rp-detail-title { font-weight: 800; margin-bottom: 6px; }
 .rp-detail-note { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
 .rp-detail-table { background: #fff; }
-.rp-detail-table td.num { text-align: right; }
+.rp-detail-table td.num, .rp-detail-table th.rp-center { text-align: center; }
