@@ -52,7 +52,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
 
     <section class="panel">
         <h2>Productiviteit per medewerker</h2>
-        <p class="ka-empty">Toont per medewerker het aantal orders of orderregels. <strong>Productie</strong> telt de logistiek afgehandelde (geleverde) verkooporders, <strong>Verkoop</strong> telt de verkooporders per verkoper: de medewerker die in de verkooporder of offerte staat (alleen lopende orders; op de dag dat de order is ingevoerd of uit een offerte is verwerkt). Het <strong>Overzicht</strong> toont de werkdagen van deze week, deze week, de weken van deze maand en de hele maand; bij <strong>Eigen periode</strong> kies je zelf de datums (maximaal 62 dagen, een kolom per dag). Productieorders (werkorders) zijn nog niet opgenomen.</p>
+        <p class="ka-empty">Toont per medewerker het aantal orders of orderregels. <strong>Productie</strong> telt de logistiek afgehandelde (geleverde) verkooporders, <strong>Verkoop</strong> telt de verwerkte verkooporders op de verwerkingsdag (alleen lopende orders): rechtstreeks ingevoerde orders bij degene die ze invoert; orders die uit een offerte zijn verwerkt staan onder "Onbekend", omdat Exact niet vastlegt wie dat heeft gedaan. <strong>Offertes</strong> telt de offertes op de dag dat ze zijn ingevoerd, bij degene die ze invoert. Het <strong>Overzicht</strong> toont de werkdagen van deze week, deze week, de weken van deze maand en de hele maand; bij <strong>Eigen periode</strong> kies je zelf de datums (maximaal 62 dagen, een kolom per dag). Productieorders (werkorders) zijn nog niet opgenomen.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="Productiviteit" data-file="Productiviteit">
             <input type="hidden" id="rpWeergave" data-field="weergave" value="overzicht">
             <div class="rp-toggle" id="rpView" role="group" aria-label="Weergave">
@@ -71,6 +71,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
             <div class="rp-toggle" role="group" aria-label="Soort">
                 <button type="button" data-mode="productie" class="is-active">Productie</button>
                 <button type="button" data-mode="verkoop">Verkoop</button>
+                <button type="button" data-mode="offerte">Offertes</button>
             </div>
             <button type="button" id="rpFetch" class="ka-button">Gegevens ophalen</button>
             <button type="button" id="rpDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
