@@ -338,6 +338,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
             $hasPassword = isset($storedSettings['EXACT_DB_PASSWORD']);
             $hasSlangPassword = isset($storedSettings['DB_PASSWORD']);
             ?>
+            <div class="settings-cols">
+                <div class="settings-col">
+            <h3 class="settings-subtitle">Exact-database</h3>
+            <p class="settings-help">Server, poort en certificaat gelden ook voor de Slangkaarten-database.</p>
             <div class="settings-row">
                 <label class="update-code-field">
                     <span>Server</span>
@@ -371,6 +375,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
                     <span>Server-certificaat vertrouwen</span>
                 </label>
             </div>
+                </div>
+                <div class="settings-col">
             <h3 class="settings-subtitle">Slangkaarten-database</h3>
             <p class="settings-help">Eigen account voor de database <code>Slangkaarten</code> (slangkaarten, orders en kaartgegevens). Server, poort en certificaat zijn dezelfde als hierboven.</p>
             <div class="settings-row">
@@ -390,6 +396,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
                     <span>Code</span>
                     <input type="password" name="ACCESS_CODE" value="" placeholder="Opgeslagen" size="20" autocomplete="new-password">
                 </label>
+            </div>
+                </div>
             </div>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>

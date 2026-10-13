@@ -194,6 +194,12 @@
 }
 
 .settings-subtitle { margin: 18px 0 2px; font-size: 15px; }
+/* Instellingen in 2 kolommen: links de Exact-database, rechts de Slangkaarten-database (en de toegangscode); op smalle schermen onder elkaar. */
+.settings-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 48px; width: 100%; align-items: start; }
+.settings-col { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; min-width: 0; }
+.settings-col > .settings-subtitle:first-child { margin-top: 0; }
+.settings-col > .settings-help { margin-bottom: 0; }
+@media (max-width: 800px) { .settings-cols { grid-template-columns: 1fr; } }
 .settings-help { margin: 0 0 8px; color: var(--muted); font-size: 12px; }
 
 /* Slotje rechtsonder op een met een code beveiligde tegel. */
