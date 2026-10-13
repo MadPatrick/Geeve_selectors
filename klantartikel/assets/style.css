@@ -40,6 +40,11 @@
 .ka-table tr[hidden] { display: none; }
 
 .ka-actions { display: flex; gap: var(--btn-gap); align-items: center; }
+/* Met invulvelden (label boven het veld): velden en knoppen zijn even hoog (44px) en onderaan uitgelijnd, dus de knop staat
+   verticaal precies naast het veld (niet naast label + veld). Statustekst staat ook op die hoogte. */
+.ka-actions:has(.msp-field) { align-items: flex-end; flex-wrap: wrap; }
+.ka-actions:has(.msp-field) .msp-field :is(input, select) { min-height: 44px; }
+.ka-actions:has(.msp-field) > .msp-status { min-height: 44px; display: flex; align-items: center; }
 .ka-add { margin: 0; flex: none; }
 .ka-itemtext { font-weight: 600; }
 .ka-table tr.is-found .ka-itemtext { color: var(--ink); }
