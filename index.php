@@ -112,7 +112,7 @@ function assetVersion(string $relativePath): string
             <h2>Reports</h2>
             <p>Rapportages en overzichten.</p>
         </a>
-        <a class="tile tile--wip" href="klantartikel/index.php">
+        <a class="tile" href="klantartikel/index.php">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path>
