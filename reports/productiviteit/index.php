@@ -23,6 +23,9 @@ function assetVersion(string $relativePath): string
 
 $csrf = csrfToken();
 
+// Niet laten bewaren door de browser (terugknop): de inhoud is alleen voor wie net de code heeft ingevuld.
+header('Cache-Control: no-store');
+
 // Beveiligd met een toegangscode (zie shared/access.php); een juiste code ontgrendelt dit onderdeel voor de sessie.
 $locked = !accessUnlocked('productiviteit');
 $codeError = null;

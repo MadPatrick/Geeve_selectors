@@ -21,7 +21,8 @@ function assetVersion(string $relativePath): string
 }
 
 // Beveiligde tegel: alleen als dit onderdeel nog niet is ontgrendeld vraagt een klik om de code (popup).
-$productiviteitLocked = !accessUnlocked('productiviteit');
+accessLock('productiviteit'); // elke keer dat het Reports-scherm opent, vraagt de tegel opnieuw om de code
+$productiviteitLocked = true;
 $csrf = csrfToken();
 ?>
 <!doctype html>
