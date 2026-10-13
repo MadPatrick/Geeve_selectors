@@ -9,8 +9,9 @@ declare(strict_types=1);
  *    (CSPickITCWDeliveryNoteCWDB). Orders = aantal verschillende pakbonnen, orderregels = aantal verschillende orderregels.
  *  - verkoop: verwerkte verkooporders. Een order is verwerkt op het moment dat de eerste orderbevestiging (document type 11 in
  *    BacoDiscussions, het tabblad Bijlage van de order) is gemaakt, door degene die dat document heeft aangemaakt.
- *  - offerte: ingevoerde offertes: het eerste offertedocument (type 13) per order, door degene die dat heeft aangemaakt.
- * De medewerker is BacoDiscussions.CreatedBy (humres.res_id). Het antwoord bevat per telling ("Orders", "Orderregels") een eigen
+ *  - offerte: ingevoerde offertes per vertegenwoordiger (orkrg.represent_id, zoals in het orderscherm), op de dag dat de offerte is
+ *    ingevoerd (syscreated). Dat zijn offertes (ord_soort Q) en offertes die inmiddels tot order zijn verwerkt.
+ * Bij verkoop is de medewerker BacoDiscussions.CreatedBy (humres.res_id); bij offertes is het de vertegenwoordiger. Het antwoord bevat per telling ("Orders", "Orderregels") een eigen
  * reeks rijen ("sets"); de pagina schakelt daartussen.
  */
 
@@ -120,9 +121,8 @@ function productiviteitOrderCounts(PDO $pdo, string $cte, DateTimeImmutable $fro
     return $stmt->fetchAll(PDO::FETCH_NUM);
 }
 
-/** BacoDiscussions.Type van de documenten waar Verkoop en Offertes op rusten (tabblad Bijlage van de order). */
+/** BacoDiscussions.Type van de orderbevestiging (tabblad Bijlage van de order), waar Verkoop op rust. */
 const PRODUCTIVITEIT_DOC_ORDERBEVESTIGING = 11;
-const PRODUCTIVITEIT_DOC_OFFERTE = 13;
 
 /**
  * CTE "o" met per order het eerste document van een soort (BacoDiscussions, tabblad Bijlage): de medewerker die het heeft
@@ -149,10 +149,25 @@ function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmuta
     return productiviteitOrderCounts($pdo, productiviteitDocCte($pdo, PRODUCTIVITEIT_DOC_ORDERBEVESTIGING, $from, $to), $from, $to);
 }
 
-/** Offertes: het eerste offertedocument (type 13) per order, op de dag en door degene die het heeft aangemaakt. */
+/**
+ * CTE "o" voor Offertes: een offerte telt op de dag dat hij is ingevoerd (syscreated), bij de vertegenwoordiger die in de offerte
+ * staat (represent_id), niet bij wie het offertedocument heeft gemaakt of de offerte heeft ingetypt. Dat zijn offertes (ord_soort
+ * Q) en offertes die inmiddels tot order zijn verwerkt (ord_soort V met orderdatum later dan de aanmaakdatum). Een offerte krijgt
+ * bij invoer zijn ID, dus de periode is direct een ID-bereik. Kolommen: ordernr, medewerker, dag, klant, yourref.
+ */
+function productiviteitOfferteCte(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): string
+{
+    [$first, $end] = productiviteitIdRange($pdo, 'orkrg', $from, $to);
+    return 'WITH o AS (SELECT LTRIM(RTRIM(k.ordernr)) AS ordernr, k.represent_id AS medewerker, CONVERT(char(10), k.syscreated, 23) AS dag, ' .
+        "LTRIM(RTRIM(ISNULL(k.ord_debtor_name, ''))) AS klant, LTRIM(RTRIM(ISNULL(k.refer, ''))) AS yourref " .
+        "FROM orkrg k WITH (NOLOCK) WHERE k.ID >= {$first} AND k.ID < {$end} AND ISNULL(k.represent_id, 0) <> 0 " .
+        "AND (k.ord_soort = 'Q' OR (k.ord_soort = 'V' AND CAST(k.orddat AS date) > CAST(k.syscreated AS date)))) ";
+}
+
+/** Offertes: zie productiviteitOfferteCte. */
 function productiviteitOfferte(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
-    return productiviteitOrderCounts($pdo, productiviteitDocCte($pdo, PRODUCTIVITEIT_DOC_OFFERTE, $from, $to), $from, $to);
+    return productiviteitOrderCounts($pdo, productiviteitOfferteCte($pdo, $from, $to), $from, $to);
 }
 
 /**
@@ -177,13 +192,19 @@ function productiviteitDetail(PDO $pdo, string $mode, int $emp, DateTimeImmutabl
             'GROUP BY RTRIM(s.CSPickITCWDeliveryNoteCWDB) ORDER BY MIN(s.syscreated), RTRIM(s.CSPickITCWDeliveryNoteCWDB)';
         $columns = ['Pakbon', 'Order', 'Datum', 'Regels'];
     } else {
-        $type = $mode === 'verkoop' ? PRODUCTIVITEIT_DOC_ORDERBEVESTIGING : PRODUCTIVITEIT_DOC_OFFERTE;
         $lineCount = "(SELECT COUNT(*) FROM orsrg r WITH (NOLOCK) WHERE r.ordernr = o.ordernr AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '') + " .
             "(SELECT COUNT(*) FROM orhsrg r WITH (NOLOCK) WHERE r.ordernr = o.ordernr AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '')";
-        $sql = 'SET NOCOUNT ON; ' . productiviteitDocCte($pdo, $type, $from, $to) . "SELECT TOP {$limit} o.ordernr, o.dag AS datum, " .
-            "ISNULL(RTRIM(cm.cmp_name), '') AS klant, ISNULL(o.yourref, '') AS referentie, {$lineCount} AS regels " .
-            'FROM o LEFT JOIN cicmpy cm WITH (NOLOCK) ON cm.cmp_wwn = o.CmpWwn ' .
-            'WHERE o.medewerker = ? AND o.dag >= ? AND o.dag <= ? ORDER BY o.dag, o.ordernr';
+        if ($mode === 'verkoop') {
+            $cte = productiviteitDocCte($pdo, PRODUCTIVITEIT_DOC_ORDERBEVESTIGING, $from, $to);
+            $klant = "ISNULL(RTRIM(cm.cmp_name), '')";
+            $join = 'LEFT JOIN cicmpy cm WITH (NOLOCK) ON cm.cmp_wwn = o.CmpWwn ';
+        } else {
+            $cte = productiviteitOfferteCte($pdo, $from, $to);
+            $klant = 'o.klant';
+            $join = '';
+        }
+        $sql = 'SET NOCOUNT ON; ' . $cte . "SELECT TOP {$limit} o.ordernr, o.dag AS datum, {$klant} AS klant, ISNULL(o.yourref, '') AS referentie, {$lineCount} AS regels " .
+            "FROM o {$join}WHERE o.medewerker = ? AND o.dag >= ? AND o.dag <= ? ORDER BY o.dag, o.ordernr";
         $columns = [$mode === 'verkoop' ? 'Order' : 'Offerte', 'Datum', 'Klant', 'Referentie', 'Regels'];
     }
 
