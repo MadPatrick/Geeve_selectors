@@ -72,8 +72,8 @@
 
 .update-button svg { display: block; }
 
-/* Config-knop (tandwiel in de topbalk van het hoofdscherm): lichtgrijs, bij hover wit. */
-#configButton { color: #c8c8c8; border-color: rgba(200, 200, 200, .45); }
+/* Config-knop (tandwiel in de topbalk van het hoofdscherm): grijs #696969, bij hover wit. */
+#configButton { color: #696969; border-color: rgba(105, 105, 105, .7); }
 #configButton:hover, #configButton:focus-visible { color: #fff; }
 
 .back-link {
