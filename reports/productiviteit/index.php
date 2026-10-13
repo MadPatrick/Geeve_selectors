@@ -52,7 +52,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
 
     <section class="panel">
         <h2>Productiviteit per medewerker</h2>
-        <p class="ka-empty">Toont per medewerker en per dag het aantal orders of orderregels. <strong>Productie</strong> telt de logistiek afgehandelde (geleverde) verkooporders, <strong>Verkoop</strong> telt de ingevoerde verkooporders. Kies de periode (maximaal 62 dagen), haal de gegevens op en schakel daarna tussen Orders en Orderregels. Productieorders (werkorders) zijn nog niet opgenomen.</p>
+        <p class="ka-empty">Toont per medewerker en per dag het aantal orders of orderregels. <strong>Productie</strong> telt de logistiek afgehandelde (geleverde) verkooporders, <strong>Verkoop</strong> telt de ingevoerde verkooporders (alleen lopende orders; orders die al zijn afgehandeld staan in de orderhistorie en tellen hier niet mee). Kies de periode (maximaal 62 dagen), haal de gegevens op en schakel daarna tussen Orders en Orderregels. Productieorders (werkorders) zijn nog niet opgenomen.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="Productiviteit" data-file="Productiviteit">
             <label class="msp-field">
                 <span>Datum van</span>

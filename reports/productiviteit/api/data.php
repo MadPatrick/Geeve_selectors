@@ -7,8 +7,8 @@ declare(strict_types=1);
  *  - productie: logistiek afgehandelde (geleverde) verkooporders. Een levering is een regel in het memoriaal (dagboek 90,
  *    tabel amutas) die naar een orderregel verwijst (CSPickITCWOrsrgIDCWDB) en een pakbonnummer heeft
  *    (CSPickITCWDeliveryNoteCWDB). Orders = aantal verschillende pakbonnen, orderregels = aantal verschillende orderregels.
- *  - verkoop: ingevoerde verkooporders (ord_soort V) uit orkrg/orsrg (open) en orhkrg/orhsrg (afgehandeld): wie de order en
- *    de orderregels heeft aangemaakt.
+ *  - verkoop: ingevoerde verkooporders (ord_soort V) uit de lopende orders (orkrg/orsrg): wie de order en de orderregels
+ *    heeft aangemaakt (zie productiviteitVerkoop).
  * syscreator = medewerker (humres.res_id), syscreated = tijdstip. Het antwoord bevat per telling ("Orders", "Orderregels")
  * een eigen reeks rijen ("sets"); de pagina schakelt daartussen.
  */
@@ -81,33 +81,32 @@ function productiviteitProductie(PDO $pdo, DateTimeImmutable $from, DateTimeImmu
     return $stmt->fetchAll(PDO::FETCH_NUM);
 }
 
-/** Verkoop: ingevoerde verkooporders (ord_soort V). @return list<list<mixed>> rijen [meting, medewerker, dag, aantal] */
+/**
+ * Verkoop: ingevoerde verkooporders (ord_soort V). @return list<list<mixed>> rijen [meting, medewerker, dag, aantal]
+ *
+ * Alleen de lopende orders (orkrg/orsrg): daar is syscreator/syscreated echt degene die de order invoerde. In de
+ * orderhistorie (orhkrg/orhsrg) staat de medewerker die de order heeft verplaatst/afgehandeld, dus die telt hier niet mee.
+ * Orderregels tellen alleen als ze zijn aangemaakt door dezelfde medewerker als de orderkop, zodat regels die het magazijn
+ * later toevoegt of splitst (bijv. bij een deellevering) niet als verkoop-invoer meetellen.
+ */
 function productiviteitVerkoop(PDO $pdo, DateTimeImmutable $from, DateTimeImmutable $to): array
 {
     $startParam = $from->format('Y-m-d');
     $endParam = $to->format('Y-m-d');
 
-    // De orderhistorie (orhkrg) heeft mogelijk geen ord_soort; dan telt elke historieorder mee.
-    $hasType = (int) $pdo->query("SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('orhkrg') AND name = 'ord_soort'")->fetchColumn() > 0;
-    $histType = $hasType ? 'ord_soort' : "'V'";
-
-    $headers = "SELECT ordernr, ord_soort, syscreator, syscreated FROM orkrg WITH (NOLOCK) UNION ALL SELECT ordernr, {$histType}, syscreator, syscreated FROM orhkrg WITH (NOLOCK)";
-    $range = 'syscreated >= ? AND syscreated < DATEADD(day, 1, ?)';
-    $lines = "SELECT ordernr, artcode, syscreator, syscreated FROM orsrg WITH (NOLOCK) WHERE {$range} " .
-        "UNION ALL SELECT ordernr, artcode, syscreator, syscreated FROM orhsrg WITH (NOLOCK) WHERE {$range}";
-
     $sql = 'SET NOCOUNT ON; ' .
         "SELECT 'O' AS meting, k.syscreator AS medewerker, CONVERT(char(10), k.syscreated, 23) AS dag, COUNT(DISTINCT k.ordernr) AS aantal " .
-        "FROM ({$headers}) k WHERE k.ord_soort = 'V' AND k.syscreated >= ? AND k.syscreated < DATEADD(day, 1, ?) " .
+        "FROM orkrg k WITH (NOLOCK) WHERE k.ord_soort = 'V' AND k.syscreated >= ? AND k.syscreated < DATEADD(day, 1, ?) " .
         'GROUP BY k.syscreator, CONVERT(char(10), k.syscreated, 23) ' .
         'UNION ALL ' .
         "SELECT 'L', r.syscreator, CONVERT(char(10), r.syscreated, 23), COUNT(*) " .
-        "FROM ({$lines}) r INNER JOIN ({$headers}) k ON k.ordernr = r.ordernr " .
-        "WHERE k.ord_soort = 'V' AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' " .
+        'FROM orsrg r WITH (NOLOCK) INNER JOIN orkrg k WITH (NOLOCK) ON k.ordernr = r.ordernr ' .
+        "WHERE k.ord_soort = 'V' AND r.syscreator = k.syscreator AND LTRIM(RTRIM(ISNULL(r.artcode, ''))) <> '' " .
+        'AND r.syscreated >= ? AND r.syscreated < DATEADD(day, 1, ?) ' .
         'GROUP BY r.syscreator, CONVERT(char(10), r.syscreated, 23)';
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$startParam, $endParam, $startParam, $endParam, $startParam, $endParam]);
+    $stmt->execute([$startParam, $endParam, $startParam, $endParam]);
     return $stmt->fetchAll(PDO::FETCH_NUM);
 }
 
