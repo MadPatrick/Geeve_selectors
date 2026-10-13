@@ -74,7 +74,7 @@ button, input, select { font: inherit; }
     height: 4px;
     background: var(--accent);
 }
-/* Shine sweep: elke 10 seconden schuift een lichte, schuine band in 1,5 s van links naar rechts door de topbalk
+/* Shine sweep: elke 10 seconden schuift een lichte, schuine band in 2 s van links naar rechts door de topbalk
    (background-position van 100% naar 0% op een verloop dat 2,5x zo breed is als het blok; zie ook het hover-effect in Dashticz). */
 .brand-panel { overflow: hidden; }
 .brand-panel::before {
@@ -90,7 +90,7 @@ button, input, select { font: inherit; }
 }
 @keyframes brand-shine {
     0% { background-position: 100% 0; animation-timing-function: ease-out; }
-    15%, 100% { background-position: 0% 0; }
+    20%, 100% { background-position: 0% 0; }
 }
 @media (prefers-reduced-motion: reduce) {
     .brand-panel::before { animation: none; }
