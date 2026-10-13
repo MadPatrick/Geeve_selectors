@@ -11,7 +11,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../inc.php';
 
 /** orkrg.ord_soort van een inkooporder. */
-const PURCHASE_ORDER_TYPE = 'K';
+const PURCHASE_ORDER_TYPE = 'B';
 
 function inkoopGroepDate(mixed $value, string $label): DateTimeImmutable
 {
