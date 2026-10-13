@@ -23,6 +23,30 @@ function productiviteitDate(mixed $value, string $label): DateTimeImmutable
     return $d;
 }
 
+/**
+ * Kleinste ID in amutas waarvan de boeking op of na $timestamp is gemaakt (binaire zoekopdracht op de primaire sleutel).
+ * amutas is erg groot en heeft geen index op syscreated; het ID loopt op met de tijd en is wel geïndexeerd, zodat de
+ * periode zo snel naar een ID-bereik wordt omgezet. $probe(int $id) geeft het tijdstip (jjjj-mm-dd uu:mm:ss) van de eerste
+ * boeking met ID >= $id, of null als die er niet is.
+ *
+ * @param callable(int): ?string $probe
+ */
+function productiviteitFirstId(callable $probe, string $timestamp, int $maxId): int
+{
+    $lo = 1;
+    $hi = $maxId + 1;
+    while ($lo < $hi) {
+        $mid = intdiv($lo + $hi, 2);
+        $time = $probe($mid);
+        if ($time === null || $time >= $timestamp) {
+            $hi = $mid;
+        } else {
+            $lo = $mid + 1;
+        }
+    }
+    return $lo;
+}
+
 reportApi(function (array $in): array {
     $from = productiviteitDate($in['van'] ?? '', 'van');
     $to = productiviteitDate($in['tot'] ?? '', 'tot');
@@ -38,7 +62,19 @@ reportApi(function (array $in): array {
     $startParam = $from->format('Y-m-d');
     $endParam = $to->format('Y-m-d');
 
-    $base = "FROM amutas s WITH (NOLOCK) WHERE LTRIM(RTRIM(s.dagbknr)) = '90' AND s.CSPickITCWOrsrgIDCWDB <> 0 " .
+    // Periode -> ID-bereik van amutas (zie productiviteitFirstId); de datumfilter in de query blijft staan voor de precisie.
+    $probeStmt = $pdo->prepare('SET NOCOUNT ON; SELECT TOP 1 CONVERT(char(19), syscreated, 120) AS t FROM amutas WITH (NOLOCK) WHERE ID >= ? ORDER BY ID');
+    $probe = function (int $id) use ($probeStmt): ?string {
+        $probeStmt->execute([$id]);
+        $row = $probeStmt->fetch(PDO::FETCH_NUM);
+        $probeStmt->closeCursor();
+        return $row === false || $row[0] === null ? null : (string) $row[0];
+    };
+    $maxId = (int) $pdo->query('SET NOCOUNT ON; SELECT MAX(ID) FROM amutas WITH (NOLOCK)')->fetchColumn();
+    $firstId = productiviteitFirstId($probe, $startParam . ' 00:00:00', $maxId);
+    $endId = productiviteitFirstId($probe, $to->modify('+1 day')->format('Y-m-d') . ' 00:00:00', $maxId); // eerste ID ná de periode
+
+    $base = "FROM amutas s WITH (NOLOCK) WHERE s.ID >= {$firstId} AND s.ID < {$endId} AND LTRIM(RTRIM(s.dagbknr)) = '90' AND s.CSPickITCWOrsrgIDCWDB <> 0 " .
         "AND ISNULL(RTRIM(s.CSPickITCWDeliveryNoteCWDB), '') <> '' AND s.syscreated >= ? AND s.syscreated < DATEADD(day, 1, ?) " .
         'GROUP BY s.syscreator, CONVERT(char(10), s.syscreated, 23)';
     $sql = 'SET NOCOUNT ON; ' .
