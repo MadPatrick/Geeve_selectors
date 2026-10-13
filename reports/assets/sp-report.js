@@ -82,46 +82,76 @@
 
     downloadBtn.addEventListener('click', function () {
         if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return; }
-        var aoa = [data.columns];
+        var titles = data.titles || [];
+        // Bovenaan de titelregels (nummer en naam), dan een lege regel en daarna de tabelkop op rij HR+1.
+        var HR = titles.length ? titles.length + 1 : 0;
+        var aoa = [];
+        titles.forEach(function (line) { aoa.push([line]); });
+        if (titles.length) { aoa.push([]); }
+        aoa.push(data.columns);
         data.rows.forEach(function (r) { aoa.push(r.map(function (v) { return v === null ? '' : v; })); });
         var ws = XLSX.utils.aoa_to_sheet(aoa);
         var ACCOUNTING = '_-€ * #,##0.00_-;-€ * #,##0.00_-;_-€ * "-"??_-;_-@_-'; // Excel-opmaak "Financieel"
+        var LINE = { style: 'thin', color: { rgb: 'FFBFBFBF' } };
+        var BORDER = { top: LINE, bottom: LINE, left: LINE, right: LINE };
         var colIndex = {};
         data.columns.forEach(function (name, i) { colIndex[name] = i; });
         var formulas = data.formulas || {};
-        var range = XLSX.utils.decode_range(ws['!ref']);
-        for (var c = range.s.c; c <= range.e.c; c++) {
-            // Kopteksten vet.
-            var head = ws[XLSX.utils.encode_cell({ r: 0, c: c })];
-            if (head) { head.s = { font: { bold: true } }; }
+        var lastCol = data.columns.length - 1;
+
+        titles.forEach(function (line, i) {
+            ws[XLSX.utils.encode_cell({ r: i, c: 0 })].s = { font: { bold: true, sz: 18 } };
+        });
+
+        for (var c = 0; c <= lastCol; c++) {
+            // Tabelkop: donkerblauw met witte vette tekst.
+            var head = ws[XLSX.utils.encode_cell({ r: HR, c: c })];
+            if (head) {
+                head.s = {
+                    font: { bold: true, color: { rgb: 'FFFFFFFF' } },
+                    fill: { patternType: 'solid', fgColor: { rgb: 'FF1F4E78' } },
+                    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                    border: BORDER
+                };
+            }
             var template = formulas[data.columns[c]];
             if (template) {
                 var missing = false;
                 template.replace(/\{([^}]+)\}/g, function (m, name) { if (!(name in colIndex)) { missing = true; } });
                 if (missing) { template = null; }
             }
-            for (var r = 1; r <= range.e.r; r++) {
+            // Percentage zonder decimalen als alle waarden hele getallen zijn.
+            var wholePct = true;
+            if (isPct(c)) { data.rows.forEach(function (row) { if (row[c] !== null && Number(row[c]) % 1 !== 0) { wholePct = false; } }); }
+            for (var r = HR + 1; r < aoa.length; r++) {
                 var addr = XLSX.utils.encode_cell({ r: r, c: c });
                 var cell = ws[addr];
-                if (!cell) { continue; }
+                if (!cell) { cell = ws[addr] = { t: 's', v: '' }; }
                 if ((data.text || []).indexOf(data.columns[c]) !== -1) {
                     // Artikelnummers altijd als tekst (geen getal, voorloopnullen blijven staan).
                     cell.t = 's'; cell.v = String(cell.v); cell.z = '@';
                 }
-                if (cell.t === 'n' && isPct(c)) { cell.v = cell.v / 100; cell.z = '0.00%'; }
+                if (cell.t === 'n' && isPct(c)) { cell.v = cell.v / 100; cell.z = wholePct ? '0%' : '0.00%'; }
                 if (cell.t === 'n' && isEuro(c)) { cell.z = ACCOUNTING; }
                 if (cell.t === 's' && isDate(c) && ISO_DATE.test(cell.v)) {
                     var p = cell.v.split('-');
-                    ws[addr] = { t: 'n', v: Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000) + 25569, z: 'dd-mm-yyyy' };
+                    cell = ws[addr] = { t: 'n', v: Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000) + 25569, z: 'dd-mm-yyyy' };
                 }
                 if (template && cell.t === 'n') {
                     // Formule op dezelfde rij; de opgehaalde waarde blijft als berekende waarde staan.
                     cell.f = template.replace(/\{([^}]+)\}/g, function (m, name) { return XLSX.utils.encode_col(colIndex[name]) + (r + 1); });
                 }
+                cell.s = { border: BORDER, alignment: { vertical: 'center' } };
             }
         }
+
+        ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: aoa.length - 1, c: lastCol } });
+        ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: HR, c: 0 }, e: { r: aoa.length - 1, c: lastCol } }) };
+        ws['!rows'] = [];
+        titles.forEach(function (line, i) { ws['!rows'][i] = { hpt: 24 }; });
+        ws['!rows'][HR] = { hpt: 36 };
         ws['!cols'] = data.columns.map(function (name, c) {
-            var w = name.length + 2;
+            var w = Math.min(name.length + 4, 18);
             data.rows.slice(0, 200).forEach(function (row) {
                 if (row[c] !== null) { w = Math.max(w, Math.min(String(row[c]).length + 2, 50)); }
             });

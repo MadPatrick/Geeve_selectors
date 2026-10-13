@@ -86,7 +86,24 @@ function fillFromItems(array $data): array
 }
 
 reportApi(function (string $nummer): array {
-    $data = fillFromItems(reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer, ORDER_OFFERTE_COLUMNS));
+    $raw = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer);
+
+    // Titelregels voor de Excel: "Offerte 198572" / "Order 35020024" en de naam van de klant.
+    $soort = strtoupper((string) reportFirstValue($raw, 'kop_ord_soort'));
+    $label = match (true) {
+        $soort === '' => 'Order/Offerte',
+        str_starts_with($soort, 'Q'), str_starts_with($soort, 'OFF') => 'Offerte',
+        default => 'Order',
+    };
+    $titles = [$label . ' ' . $nummer];
+    $klant = reportFirstValue($raw, 'kop_ord_debtor_name');
+    if ($klant !== null) {
+        $titles[] = $klant;
+    }
+
+    $data = fillFromItems(reportSelect($raw, ORDER_OFFERTE_COLUMNS));
+    $data['titles'] = $titles;
+    $data['soort'] = $soort;
     $data['currency'] = ['Price', 'Price nett', 'Total Nett', 'Total incl. VAT']; // bedragen in euro tonen
     $data['percent'] = ['Discount'];
     $data['text'] = ['Partnumber']; // artikelnummer: celopmaak Tekst in Excel

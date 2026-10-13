@@ -194,3 +194,46 @@ function reportMoveFirst(array $data, array $first): array
     $data['rows'] = array_map(fn ($row) => array_map(fn ($i) => $row[$i], $order), $data['rows']);
     return $data;
 }
+
+/** Eerste gevulde waarde van een kolom, of null. */
+function reportFirstValue(array $data, string $column): ?string
+{
+    $at = array_search($column, $data['columns'], true);
+    if ($at === false) {
+        return null;
+    }
+    foreach ($data['rows'] as $row) {
+        $v = trim((string) $row[$at]);
+        if ($v !== '') {
+            return $v;
+        }
+    }
+    return null;
+}
+
+/**
+ * Houdt alleen de kolommen uit $map over (in die volgorde) en geeft ze de nieuwe naam.
+ *
+ * @param array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>} $data
+ * @param array<string,string> $map bron-kolom => nieuwe naam
+ * @return array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>}
+ */
+function reportSelect(array $data, array $map): array
+{
+    $pick = [];
+    $names = [];
+    foreach ($map as $source => $target) {
+        $at = array_search($source, $data['columns'], true);
+        if ($at === false) {
+            throw new RuntimeException('De stored procedure geeft de kolom "' . $source . '" niet terug.');
+        }
+        $pick[] = $at;
+        $names[] = $target;
+    }
+    return [
+        'columns' => $names,
+        'numeric' => array_map(fn ($i) => $data['numeric'][$i], $pick),
+        'dates' => array_map(fn ($i) => $data['dates'][$i] ?? false, $pick),
+        'rows' => array_map(fn ($row) => array_map(fn ($i) => $row[$i], $pick), $data['rows']),
+    ];
+}

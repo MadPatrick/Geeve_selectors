@@ -81,5 +81,6 @@ reportApi(function (string $nummer): array {
     $data['nowrap'] = ['artnr']; // artikelnummer op één regel
     $data['columns'] = array_map(fn ($c) => INKOOP_RENAME[$c] ?? $c, $data['columns']);
     $data['kop'] = $kop;
+    $data['titles'] = array_values(array_filter(['Inkooporder ' . $nummer, $names[0] ?? null]));
     return $data;
 });
