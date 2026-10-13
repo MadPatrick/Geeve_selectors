@@ -46,6 +46,36 @@ reportApi(function (string $nummer): array {
         $rows[] = $row;
     }
     $data['rows'] = $rows;
+
+    // Land van herkomst: staat bij jullie op het artikel (Items.UserField_03, label "Land van herkomst"); de waarde op de
+    // orderregel is vaak leeg of niet goed. Artikelwaarde gaat voor, de waarde uit de procedure is de terugval.
+    $art = array_search('Artcode', $data['columns'], true);
+    $coo = array_search('Country of Origin', $data['columns'], true);
+    $codes = [];
+    foreach ($data['rows'] as $row) {
+        $code = trim((string) $row[$art]);
+        if ($code !== '') {
+            $codes[$code] = true;
+        }
+    }
+    $origin = [];
+    if ($codes !== []) {
+        $pdo = reportConnection();
+        foreach (array_chunk(array_keys($codes), 500) as $chunk) {
+            $in = implode(',', array_fill(0, count($chunk), '?'));
+            $stmt = $pdo->prepare("SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(UserField_03) AS l FROM Items WHERE ItemCode IN ({$in})");
+            $stmt->execute($chunk);
+            foreach ($stmt->fetchAll() as $r) {
+                $origin[trim((string) $r['c'])] = trim((string) $r['l']);
+            }
+        }
+    }
+    foreach ($data['rows'] as &$row) {
+        $fromItem = $origin[trim((string) $row[$art])] ?? '';
+        $row[$coo] = $fromItem !== '' ? $fromItem : trim((string) $row[$coo]);
+    }
+    unset($row);
+
     $data['customer'] = $customer;
     return $data;
 });
