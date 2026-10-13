@@ -58,7 +58,7 @@ body::before {
     height: 640px;
     z-index: -1;
     background: url("../images/achtergrond.jpg") center 30% / cover no-repeat;
-    opacity: .2;
+    opacity: .15;
     -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
     mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
     pointer-events: none;
