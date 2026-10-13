@@ -97,7 +97,7 @@ if ($priceList !== '') {
 <main class="page-shell page-shell--wide">
     <?php
     $headerTitle = 'Klant Artikelnummers';
-    $headerTopline = '<span class="version-inline">Versie ' . h(APP_VERSION) . '</span>';
+    $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../shared/header.php';
     ?>
 
@@ -192,7 +192,7 @@ if ($priceList !== '') {
         <script src="assets/klantartikel.js?v=<?= h(assetVersion('assets/klantartikel.js')) ?>"></script>
     <?php endif; ?>
 
-    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 </body>
 </html>

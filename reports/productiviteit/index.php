@@ -70,7 +70,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
     $headerTitle = 'Productiviteit per medewerker';
     $headerImagesPath = '../../images/';
     $headerHomeHref = '../index.php';
-    $headerTopline = '<span class="version-inline">Versie ' . h(APP_VERSION) . '</span>';
+    $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
 
@@ -135,7 +135,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
 
     <?php endif; ?>
 
-    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 <?php if (!$locked): ?>
 <script src="../assets/vendor/xlsx-style.min.js"></script>

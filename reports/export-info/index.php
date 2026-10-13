@@ -47,7 +47,7 @@ $csrf = csrfToken();
     $headerTitle = 'Export info';
     $headerImagesPath = '../../images/';
     $headerHomeHref = '../index.php';
-    $headerTopline = '<span class="version-inline">Versie ' . h(APP_VERSION) . '</span>';
+    $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
 
@@ -78,7 +78,7 @@ $csrf = csrfToken();
         <div class="ka-table-wrap msp-scroll"><table class="ka-table" id="eiTable"></table></div>
     </section>
 
-    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 <script src="../assets/vendor/xlsx-style.min.js"></script>
 <script src="assets/export-info.js?v=<?= h(assetVersion('assets/export-info.js')) ?>"></script>

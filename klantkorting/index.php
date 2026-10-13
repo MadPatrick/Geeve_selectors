@@ -101,7 +101,7 @@ try {
 <main class="page-shell page-shell--wide">
     <?php
     $headerTitle = 'Kortingstructuur';
-    $headerTopline = '<span class="version-inline">Versie ' . h(APP_VERSION) . '</span>';
+    $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../shared/header.php';
     ?>
 
@@ -196,7 +196,7 @@ try {
 
     <?php endif; ?>
 
-    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 </body>
 </html>

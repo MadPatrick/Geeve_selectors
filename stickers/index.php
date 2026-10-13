@@ -38,7 +38,7 @@ function assetVersion(string $relativePath): string
 <main class="page-shell">
     <?php
     $headerTitle = 'Stickers';
-    $headerTopline = '<span class="version-inline">Versie ' . h(APP_VERSION) . '</span>';
+    $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../shared/header.php';
     ?>
 
@@ -83,7 +83,7 @@ function assetVersion(string $relativePath): string
         </div>
     </div>
 
-    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 </body>
 </html>

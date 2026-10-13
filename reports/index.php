@@ -44,7 +44,7 @@ $csrf = csrfToken();
 <main class="page-shell">
     <?php
     $headerTitle = 'Reports';
-    $headerTopline = '<span class="version-inline">Versie ' . h(APP_VERSION) . '</span>';
+    $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../shared/header.php';
     ?>
 
@@ -170,7 +170,7 @@ $csrf = csrfToken();
         <?php foreach (tileOrder('reports') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 
-    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 
 <?php require __DIR__ . '/../shared/lock_modal.php'; ?>

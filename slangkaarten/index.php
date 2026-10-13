@@ -1460,7 +1460,7 @@ if ($selectedKeys !== []) {
 <main class="page-shell page-shell--wide">
     <?php
     $headerTitle = 'Slangkaarten bij order';
-    $headerTopline = '<span class="version-inline">Versie ' . h(APP_VERSION) . '</span>';
+    $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../shared/header.php';
     ?>
 

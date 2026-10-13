@@ -47,7 +47,7 @@ $csrf = csrfToken();
     $headerTitle = 'Offerte Import';
     $headerImagesPath = '../../images/';
     $headerHomeHref = '../index.php';
-    $headerTopline = '<span class="version-inline">Versie ' . h(APP_VERSION) . '</span>';
+    $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
 
@@ -109,7 +109,7 @@ $csrf = csrfToken();
         </div>
     </section>
 
-    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics</p>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 <script src="../assets/vendor/xlsx-style.min.js"></script>
 <script src="assets/offerte.js?v=<?= h(assetVersion('assets/offerte.js')) ?>"></script>
