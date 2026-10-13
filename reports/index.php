@@ -102,6 +102,13 @@ function assetVersion(string $relativePath): string
             <h2>Productiviteit</h2>
             <p>Afgehandelde orders en orderregels per medewerker per dag</p>
             <span class="tile-cta">Open rapport &rarr;</span>
+        
+            <span class="tile-lock" title="Beveiligd met een code" aria-label="Beveiligd met een code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </span>
         </a>
     </div>
 

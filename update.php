@@ -274,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 $posted = $posted === 'yes' ? 'yes' : 'no';
             }
             // Wachtwoord leeg laten = ongewijzigd laten.
-            if (in_array($settingKey, ['EXACT_DB_PASSWORD', 'DB_PASSWORD'], true) && $posted === '') {
+            if (in_array($settingKey, ['EXACT_DB_PASSWORD', 'DB_PASSWORD', 'ACCESS_CODE'], true) && $posted === '') {
                 continue;
             }
             if ($posted === '') {
@@ -337,6 +337,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
             $trustOn = strtolower($val('EXACT_DB_TRUST_SERVER_CERT') ?: 'yes') !== 'no';
             $hasPassword = isset($storedSettings['EXACT_DB_PASSWORD']);
             $hasSlangPassword = isset($storedSettings['DB_PASSWORD']);
+            $hasAccessCode = isset($storedSettings['ACCESS_CODE']);
             ?>
             <div class="settings-row">
                 <label class="update-code-field">
@@ -381,6 +382,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
                 <label class="update-code-field">
                     <span>Wachtwoord</span>
                     <input type="password" name="DB_PASSWORD" value="" placeholder="<?= $hasSlangPassword ? 'Opgeslagen' : '' ?>" size="20" autocomplete="new-password">
+                </label>
+            </div>
+            <h3 class="settings-subtitle">Toegangscode</h3>
+            <p class="settings-help">Code voor de beveiligde tegel <strong>Productiviteit</strong> (Reports). Is er geen code opgeslagen, dan geldt <code>1308</code>. Leeg laten = ongewijzigd.</p>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Code</span>
+                    <input type="password" name="ACCESS_CODE" value="" placeholder="<?= $hasAccessCode ? 'Opgeslagen' : '1308 (standaard)' ?>" size="20" autocomplete="new-password">
                 </label>
             </div>
             <button type="submit" class="update-submit">Opslaan</button>

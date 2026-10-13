@@ -15,6 +15,10 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/../../inc.php';
+require_once __DIR__ . '/../../../shared/access.php';
+
+// Beveiligd met de toegangscode: zonder ontgrendelde sessie geen gegevens.
+accessApiGuard('productiviteit');
 
 const PRODUCTIVITEIT_MAX_DAYS = 62;
 

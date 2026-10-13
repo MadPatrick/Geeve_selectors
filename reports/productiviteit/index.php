@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../shared/csrf.php';
+require_once __DIR__ . '/../../shared/access.php';
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
@@ -21,6 +22,22 @@ function assetVersion(string $relativePath): string
 }
 
 $csrf = csrfToken();
+
+// Beveiligd met een toegangscode (zie shared/access.php); een juiste code ontgrendelt dit onderdeel voor de sessie.
+$locked = !accessUnlocked('productiviteit');
+$codeError = null;
+if ($locked && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'unlock') {
+    if (!csrfValid($_POST['csrf'] ?? null)) {
+        $codeError = 'Sessie verlopen. Probeer het opnieuw.';
+    } else {
+        $outcome = accessTryUnlock('productiviteit', (string) ($_POST['code'] ?? ''));
+        if ($outcome === 'ok') {
+            header('Location: index.php');
+            exit;
+        }
+        $codeError = $outcome === 'wacht' ? 'Te veel foute pogingen. Wacht een minuut en probeer het opnieuw.' : 'Onjuiste code.';
+    }
+}
 
 // Standaard de huidige maand tot vandaag.
 $defaultTo = date('Y-m-d');
@@ -50,6 +67,24 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
     require __DIR__ . '/../../shared/header.php';
     ?>
 
+    <?php if ($locked): ?>
+    <section class="panel">
+        <h2>Productiviteit per medewerker</h2>
+        <p class="ka-empty">Dit onderdeel is beveiligd. Vul de toegangscode in om het rapport te openen.</p>
+        <form method="post" class="ka-actions rp-lock-form" autocomplete="off">
+            <input type="hidden" name="action" value="unlock">
+            <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
+            <label class="msp-field">
+                <span>Toegangscode</span>
+                <input type="password" name="code" class="ka-input" inputmode="numeric" autocomplete="off" autofocus required>
+            </label>
+            <button type="submit" class="ka-button">Openen</button>
+        </form>
+        <?php if ($codeError !== null): ?>
+            <div class="ka-message ka-message--error"><?= h($codeError) ?></div>
+        <?php endif; ?>
+    </section>
+    <?php else: ?>
     <section class="panel">
         <h2>Productiviteit per medewerker</h2>
         <p class="ka-empty">Toont per medewerker het aantal orders of orderregels. <strong>Productie</strong> telt de logistiek afgehandelde (geleverde) verkooporders, <strong>Verkoop</strong> telt de verwerkte verkooporders: een order is verwerkt op het moment dat de eerste orderbevestiging is gemaakt (tabblad Bijlage van de order), door degene die die heeft aangemaakt. <strong>Offertes</strong> telt de offertes op de dag dat het eerste offertedocument is gemaakt, door degene die dat heeft gedaan. Het <strong>Overzicht</strong> toont de werkdagen van deze week, deze week, de weken van deze maand en de hele maand; bij <strong>Eigen periode</strong> kies je zelf de datums (maximaal 62 dagen, een kolom per dag). Productieorders (werkorders) zijn nog niet opgenomen.</p>
@@ -91,9 +126,13 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
         <div class="ka-table-wrap msp-scroll"><table class="ka-table" id="rpTable"></table></div>
     </section>
 
+    <?php endif; ?>
+
     <p class="page-footer">Geeve Hydraulics</p>
 </main>
+<?php if (!$locked): ?>
 <script src="../assets/vendor/xlsx-style.min.js"></script>
 <script src="../assets/sp-report.js?v=<?= h(assetVersion('../assets/sp-report.js')) ?>"></script>
+<?php endif; ?>
 </body>
 </html>
