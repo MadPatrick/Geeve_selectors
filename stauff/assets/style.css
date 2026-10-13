@@ -208,16 +208,16 @@ button.location-number { cursor: pointer; }
 .link-button {
     display: inline-block;
     appearance: none;
-    border: 1px solid var(--ok-soft-line);
+    border: 1px solid var(--ok-line);
     border-radius: 999px;
-    background: #e8f4ed;
-    color: var(--ok);
+    background: var(--ok);
+    color: #fff;
     font-weight: 700;
     font-size: 13px;
     padding: 10px 16px;
     cursor: pointer;
 }
-.link-button:hover { background: #c9e6d5; border-color: #9cc7b0; }
+.link-button:hover { opacity: .9; }
 
 .modal-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15, 23, 33, .55); }
 .modal-overlay[hidden] { display: none; }
