@@ -167,6 +167,33 @@ $csrf = csrfToken();
             <?= tileLockIcon('export-info') ?>
         </a>
         <?php endif; $tileHtml['export-info'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('klantartikel')): ?>
+        <a class="<?= tileClass('klantartikel') ?>" href="../klantartikel/index.php"<?= tileAttrs('klantartikel') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path>
+                    <circle cx="7.5" cy="7.5" r="1.5"></circle>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('klantartikel')) ?></h2>
+            <p>Zoek op prijslijstnummer de gekoppelde klanten en hun artikelen met klantartikelnummer uit Exact.</p>
+            <?= tileLockIcon('klantartikel') ?>
+        </a>
+        <?php endif; $tileHtml['klantartikel'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('klantkorting')): ?>
+        <a class="<?= tileClass('klantkorting') ?>" href="../klantkorting/index.php"<?= tileAttrs('klantkorting') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="19" y1="5" x2="5" y2="19"></line>
+                    <circle cx="6.5" cy="6.5" r="2.5"></circle>
+                    <circle cx="17.5" cy="17.5" r="2.5"></circle>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('klantkorting')) ?></h2>
+            <p>Bekijk en pas de kortingstructuur van klanten aan op basis van hun prijslijst.</p>
+            <?= tileLockIcon('klantkorting') ?>
+        </a>
+        <?php endif; $tileHtml['klantkorting'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('reports') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 

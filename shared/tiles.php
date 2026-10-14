@@ -21,8 +21,6 @@ const TILE_REGISTRY = [
     'stickers' => ['home', 'Stickers', 'stickers/index.php', true, false, false],
     'stauff' => ['home', 'Stauff Selector', 'stauff/index.php', true, false, true],
     'reports' => ['home', 'Reports', 'reports/index.php', true, false, false],
-    'klantartikel' => ['home', 'Klant Artikelnummers', 'klantartikel/index.php', true, false, false],
-    'klantkorting' => ['home', 'Kortingstructuur', 'klantkorting/index.php', true, false, true],
     'msp' => ['reports', 'MSP report', 'reports/msp/index.php', true, false, false],
     'inkooporder' => ['reports', 'Inkooporder naar Excel', 'reports/inkooporder/index.php', true, false, false],
     'order-offerte' => ['reports', 'Order of Offerte naar Excel', 'reports/order-offerte/index.php', true, false, false],
@@ -31,6 +29,8 @@ const TILE_REGISTRY = [
     'offerte-import' => ['reports', 'Offerte Import', 'reports/offerte-import/index.php', true, false, false],
     'inkooporder-import' => ['reports', 'Inkooporder Import', 'reports/inkooporder-import/index.php', true, false, false],
     'export-info' => ['reports', 'Export info', 'reports/export-info/index.php', true, false, false],
+    'klantartikel' => ['reports', 'Klant Artikelnummers', 'klantartikel/index.php', true, false, false],
+    'klantkorting' => ['reports', 'Kortingstructuur', 'klantkorting/index.php', true, false, true],
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
     'stickers-order' => ['stickers', 'Artikelen per Verkooporder', 'stickers/order/index.php', true, false, true],
     'stickers-productie' => ['stickers', 'Artikelen per Productieorder', 'stickers/productie/index.php', true, false, true],

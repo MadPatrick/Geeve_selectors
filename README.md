@@ -4,11 +4,11 @@ Startpagina met tegels naar de Geeve-selectors:
 
 - **`/hoses`** — Slangen fitting Selector
 - **`/adapters`** — Adapters Selector
-- **`/klantartikel`** — Klant Artikelnummers: voer een prijslijstnummer in, krijg de debiteuren op die prijslijst en hun
+- **`/klantartikel`** — Klant Artikelnummers (tegel onder Reports): voer een prijslijstnummer in, krijg de debiteuren op die prijslijst en hun
   artikelen met een klantartikelnummer (`ItemAccounts.ItemCodeAccount`) uit Exact (database 005, zelfde
   inloggegevens als `/stauff`). Kolomnamen worden uit `INFORMATION_SCHEMA` afgeleid, zie `klantartikel/inc/queries.php`.
   Met Excel-sjabloon (download) en Excel-import (slepen of kiezen; SheetJS lokaal in `klantartikel/assets/vendor`) en XML-export (DEBTORS.xml) in het Exact-importformaat (eExact, zoals de Excel-template "Geeve Import debiteuren").
-- **`/klantkorting`** — Kortingstructuur: per prijslijst de klanten en hun kortingstructuur bekijken/aanpassen (basis = `/klantartikel`).
+- **`/klantkorting`** — Kortingstructuur (tegel onder Reports): per prijslijst de klanten en hun kortingstructuur bekijken/aanpassen (basis = `/klantartikel`).
   Eerste versie toont klanten en een verkenning van de korting-/prijslijsttabellen in Exact; de eigenlijke structuur volgt.
 - **`/reports`** — Reports: overzichtsscherm (zelfde tegel-layout als het hoofdscherm) met rapporten als tegel; `reports/msp` ("MSP report"): haalt de MSP-factuurregels van een te kiezen maand op (standaard de vorige maand; lees-query in database `005` met dezelfde berekening als de procedure `dbo.SP_MSP` van het Excel-bestand "MSP CLAIM"; maakt niets aan in de database), toont ze en geeft ze als Excel-download (blad `Temp_Export_MSP_factuurregels`).
 - **`/stauff`** — Stauff Selector / beugelconfigurator, zelfde brand-panel/paneel-stijl als `/hoses`
