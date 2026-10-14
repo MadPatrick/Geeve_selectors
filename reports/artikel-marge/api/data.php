@@ -28,12 +28,10 @@ const MARGE_COLUMNS = [
 const MARGE_NUMERIC = ['Vrk prijs', 'ink_pr per st', 'toeslag % V/I', 'marge I/V', 'aant_lev', 'IE_i_VE'];
 /** Kolomkop op het scherm en in de Excel (view-kolom => kop). */
 const MARGE_HEADERS = [
-    'Artnr' => 'Artikelnummer', 'artnm' => 'Omschrijving', 'artgrp' => 'Artikelgroep', 'Vrk prijs' => 'Verkoopprijs',
-    'verk_eenh' => 'Verkoopeenheid', 'ink_pr per st' => 'Inkoopprijs per stuk', 'toeslag % V/I' => 'Toeslag % (V/I)',
-    'marge I/V' => 'Marge % (I/V)', 'aant_lev' => 'Aantal leveranciers', 'ArtGrpnm_NL' => 'Omschrijving artikelgroep',
-    'parkergroepennr' => 'Parker groepnummer', 'kortingsgroep parker' => 'Kortingsgroep Parker',
-    'finartgrp' => 'Financiële artikelgroep', 'IE_i_VE' => 'Inkoopeenh. per verkoopeenh.',
-    'artnr_lev' => 'Artikelnummer leverancier', 'crdnr' => 'Crediteurnummer',
+    'Artnr' => 'Artikel', 'artnm' => 'Omschrijving', 'artgrp' => 'Groep', 'Vrk prijs' => 'Verkoop', 'verk_eenh' => 'Eenheid',
+    'ink_pr per st' => 'Inkoop', 'toeslag % V/I' => 'Toeslag %', 'marge I/V' => 'Marge %', 'aant_lev' => 'Aant. lev.',
+    'ArtGrpnm_NL' => 'Groepnaam', 'parkergroepennr' => 'Parker groep', 'kortingsgroep parker' => 'Parker korting',
+    'finartgrp' => 'Fin. groep', 'IE_i_VE' => 'IE per VE', 'artnr_lev' => 'Art. lev.', 'crdnr' => 'Crediteur',
 ];
 
 /** @param list<string> $names view-kolommen @return list<string> koppen */
