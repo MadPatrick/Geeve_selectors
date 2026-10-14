@@ -15,6 +15,12 @@
     var prevBtn = document.getElementById('soPrev');
     var nextBtn = document.getElementById('soNext');
     var current = 0;      // welke sticker het voorbeeld toont
+    var PAGE_SIZE = 10;   // regels per pagina in de tabel
+    var page = 0;
+    var pager = document.getElementById('soPager');
+    var pageInfo = document.getElementById('soPageInfo');
+    var pagePrev = document.getElementById('soPagePrev');
+    var pageNext = document.getElementById('soPageNext');
     var rows = [];
     var asked = '';
 
@@ -109,6 +115,19 @@
         nextBtn.disabled = current >= all.length - 1;
     }
 
+    // Tabel per 10 regels; de andere regels blijven (verborgen) staan, dus hun vinkje telt gewoon mee.
+    function showPage(n) {
+        var pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+        page = Math.max(0, Math.min(n, pages - 1));
+        Array.prototype.forEach.call(tbody.querySelectorAll('tr'), function (tr, i) {
+            tr.hidden = Math.floor(i / PAGE_SIZE) !== page;
+        });
+        pager.hidden = pages <= 1;
+        pageInfo.textContent = 'Pagina ' + (page + 1) + ' van ' + pages;
+        pagePrev.disabled = page <= 0;
+        pageNext.disabled = page >= pages - 1;
+    }
+
     function render(first) {
         summary.innerHTML =
             '<span class="msp-pill">Order <strong>' + esc(asked) + '</strong></span>' +
@@ -122,6 +141,7 @@
                 '<td>' + esc(r.ia_CountryOfOrigin) + '</td></tr>';
         }).join('');
         result.hidden = false;
+        showPage(0);
         current = 0;
         renderPreview();
     }
@@ -157,6 +177,8 @@
     fetchBtn.addEventListener('click', load);
     input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { load(); } });
     tbody.addEventListener('change', renderPreview);
+    pagePrev.addEventListener('click', function () { showPage(page - 1); });
+    pageNext.addEventListener('click', function () { showPage(page + 1); });
     prevBtn.addEventListener('click', function () { show(current - 1); });
     nextBtn.addEventListener('click', function () { show(current + 1); });
     all.addEventListener('change', function () {

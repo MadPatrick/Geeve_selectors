@@ -67,7 +67,7 @@ $csrf = csrfToken();
 
     <section class="panel" id="soResult" hidden>
         <div class="msp-summary" id="soSummary"></div>
-        <div class="ka-table-wrap msp-scroll">
+        <div class="ka-table-wrap">
             <table class="ka-table" id="soTable">
                 <thead>
                 <tr>
@@ -85,6 +85,11 @@ $csrf = csrfToken();
                 </thead>
                 <tbody></tbody>
             </table>
+        </div>
+        <div class="ka-pager" id="soPager" hidden>
+            <button type="button" class="ka-button ka-button--secondary" id="soPagePrev">&larr; Vorige</button>
+            <span id="soPageInfo"></span>
+            <button type="button" class="ka-button ka-button--secondary" id="soPageNext">Volgende &rarr;</button>
         </div>
     </section>
 
