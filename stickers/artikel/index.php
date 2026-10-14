@@ -85,8 +85,6 @@ $csrf = csrfToken();
             <div class="sa-print">
                 <label class="sa-copies"><input type="number" id="saCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
                 <div class="sa-buttons">
-                    <button type="button" class="ka-button sa-btn sa-btn--geel" data-roll="geel">Print Geel</button>
-                    <button type="button" class="ka-button sa-btn sa-btn--zilver" data-roll="zilver">Print Zilver</button>
                     <button type="button" class="ka-button sa-btn sa-btn--geeve" data-roll="geeve">Print Geeve</button>
                 </div>
                 <span id="saPrintInfo" class="msp-status"></span>

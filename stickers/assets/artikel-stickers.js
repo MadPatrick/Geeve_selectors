@@ -158,7 +158,7 @@
     });
     copies.addEventListener('input', update);
 
-    // Geel, Zilver en Geeve printen dezelfde sticker; de rol/printer kies je in het printvenster van de browser.
+    // Print Geeve: de printer kies je in het printvenster van de browser.
     Array.prototype.forEach.call(buttons, function (btn) {
         btn.addEventListener('click', function () {
             var list = toPrint();
