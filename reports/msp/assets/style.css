@@ -15,11 +15,11 @@
 #rpTable td.nowrap { white-space: nowrap; }
 
 /* Keuzeschakelaars (Overzicht/Eigen periode, Logistiek/Verkoop/Offertes, ...): gekozen = blauw (#087FFF), niet gekozen = grijs (#D0D1CC), even hoog als de knoppen (44px). */
-.rp-toggle { display: inline-flex; border: 1px solid #0a5fc2; border-radius: 999px; overflow: hidden; min-height: 44px; background: rgba(208, 209, 204, .7); }
+.rp-toggle { display: inline-flex; border: 1px solid var(--btn-blue-line); border-radius: 999px; overflow: hidden; min-height: 44px; background: var(--btn-grey); }
 .rp-toggle[hidden] { display: none; }
 .rp-toggle button { border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 13px; font-weight: 700; padding: 0 16px; cursor: pointer; }
-.rp-toggle button + button { border-left: 1px solid #0a5fc2; }
-.rp-toggle button.is-active { background: rgba(8, 127, 255, .85); color: #fff; }
+.rp-toggle button + button { border-left: 1px solid var(--btn-blue-line); }
+.rp-toggle button.is-active { background: var(--btn-blue); color: var(--btn-ink-light); }
 .rp-bar { margin-bottom: 12px; }
 .rp-bar:empty { display: none; }
 #rpTable tr.rp-total td { font-weight: 800; border-top: 2px solid var(--line-strong, #c9d4de); }

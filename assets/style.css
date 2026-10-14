@@ -73,16 +73,16 @@
 .update-button svg { display: block; }
 
 /* Config-knop (tandwiel in de topbalk van het hoofdscherm): grijs #525252, bij hover wit. */
-#configButton { color: #525252; border-color: rgba(82, 82, 82, .7); }
-#configButton:hover, #configButton:focus-visible { color: #fff; }
+#configButton { color: var(--btn-config-ink); border-color: var(--btn-config-line); }
+#configButton:hover, #configButton:focus-visible { color: var(--btn-ink-light); }
 
 .back-link {
     display: inline-flex;
     align-items: center;
-    border: 1px solid var(--accent-dark);
+    border: 1px solid var(--btn-red-line);
     border-radius: 999px;
-    background: #fff;
-    color: var(--accent-dark);
+    background: var(--btn-white);
+    color: var(--accent);
     font-weight: 700;
     font-size: 13px;
     padding: 9px 16px;
@@ -90,7 +90,7 @@
     margin: 0 0 18px;
     transition: background .15s, color .15s;
 }
-.back-link:hover { background: var(--accent-dark); color: #fff; }
+.back-link:hover { background: var(--btn-red); color: var(--btn-ink-light); }
 
 .update-panel {
     background: var(--panel);
@@ -123,10 +123,10 @@
 
 .update-submit {
     appearance: none;
-    border: 1px solid var(--accent-dark-line);
+    border: 1px solid var(--btn-red-line);
     border-radius: 999px;
-    background: rgba(185, 13, 50, .85);
-    color: #fff;
+    background: var(--btn-red);
+    color: var(--btn-ink-light);
     font-weight: 700;
     font-size: 13px;
     padding: 10px 18px;
@@ -221,8 +221,8 @@
 .lock-error { margin-top: 10px; color: var(--danger); font-size: 13px; font-weight: 700; }
 .lock-error[hidden] { display: none; }
 .lock-actions { display: flex; justify-content: flex-end; gap: var(--btn-gap, 5px); margin-top: 18px; }
-.lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--accent-dark-line); background: rgba(185, 13, 50, .85); color: #fff; cursor: pointer; }
-.lock-button--secondary { background: #fff; color: var(--ink); border-color: var(--line-strong); }
+.lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--btn-red-line); background: var(--btn-red); color: var(--btn-ink-light); cursor: pointer; }
+.lock-button--secondary { background: var(--btn-white); color: var(--ink); border-color: var(--btn-white-line); }
 .tile:has(.tile-lock) p { padding-right: 30px; }
 
 /* Config > Tegels: tegels onder elkaar, daarachter per optie een schakelaar. */

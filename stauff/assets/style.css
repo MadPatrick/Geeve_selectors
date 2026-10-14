@@ -66,8 +66,8 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 .exact-live-list { flex: 1 1 auto; list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
 .exact-live-list li { border-top: 1px solid var(--line); }
 .exact-live-list li:first-child { border-top: 0; }
-.exact-live-list button { display: block; width: 100%; padding: 10px 15px; border: 0; background: #fff; text-align: left; cursor: pointer; font-size: 16px; font-weight: 800; color: var(--accent-dark); }
-.exact-live-list button:hover { background: var(--soft); }
+.exact-live-list button { display: block; width: 100%; padding: 10px 15px; border: 0; background: var(--btn-white); text-align: left; cursor: pointer; font-size: 16px; font-weight: 800; color: var(--accent); }
+.exact-live-list button:hover { background: var(--btn-white-hover); }
 
 /* Weergave van het gekozen artikel (na klikken op een zoekresultaat) -
    vervangt de lijst in hetzelfde paneel, zie selectExactArticle() in
@@ -158,13 +158,13 @@ button.location-number { cursor: pointer; }
     width: 34px;
     height: 34px;
     border-radius: 999px;
-    border: 1px solid var(--line-strong);
-    background: #fff;
+    border: 1px solid var(--btn-white-line);
+    background: var(--btn-white);
     color: var(--muted);
     cursor: pointer;
     flex: 0 0 auto;
 }
-.location-add-button:hover { background: var(--soft); color: var(--accent-dark); }
+.location-add-button:hover { background: var(--btn-white-hover); color: var(--accent); }
 
 /* Extra, vrij toegevoegde artikelregel (zie addExtraItemRow()) - zelfde
    grid-kolommen als de vaste locaties (.location-content erft dat al,
@@ -195,15 +195,15 @@ button.location-number { cursor: pointer; }
     width: 34px;
     height: 34px;
     border-radius: 999px;
-    border: 1px solid var(--line-strong);
-    background: #fff;
+    border: 1px solid var(--btn-white-line);
+    background: var(--btn-white);
     color: var(--muted);
     cursor: pointer;
     flex: 0 0 auto;
     font-size: 18px;
     line-height: 1;
 }
-.extra-item-remove:hover { background: #f7eaea; color: var(--danger); border-color: #f0c7c7; }
+.extra-item-remove:hover { background: var(--btn-danger-hover); color: var(--danger); border-color: var(--btn-danger-hover-line); }
 
 .link-button {
     display: inline-block;
@@ -273,7 +273,7 @@ button.location-number { cursor: pointer; }
 /* Samenstelling bestaat al in Exact (zie checkAssemblyInErp()/
    setCopyButtonState() in assets/selector.js) - knop wordt dan rood en
    toont "Update prijs" i.p.v. "Kopieer code". */
-.copy-button.is-found { border-color: var(--danger-line); background: var(--danger); }
+.copy-button.is-found { border-color: var(--btn-danger-line); background: var(--btn-danger); }
 .copy-button:hover:not(:disabled) { opacity: .9; }
 .copy-button:disabled { opacity: .45; cursor: default; }
 
@@ -297,10 +297,10 @@ button.location-number { cursor: pointer; }
 
 .submit-button {
     appearance: none;
-    border: 1px solid var(--accent-dark-line);
+    border: 1px solid var(--btn-red-line);
     border-radius: 999px;
-    background: var(--accent-dark);
-    color: #fff;
+    background: var(--btn-red);
+    color: var(--btn-ink-light);
     font-weight: 700;
     font-size: 14px;
     padding: 11px 22px;

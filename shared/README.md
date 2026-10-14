@@ -197,6 +197,11 @@ require __DIR__ . '/../shared/header.php';
 gebruiken - zie Stauff's `.copy-button`/`.assembly-erp-status` voor een voorbeeld van eigen,
 helderdere varianten op zo'n plek (gedocumenteerd in `stauff/README.md`).
 
+### Knopkleuren (`--btn-*`)
+
+Alle knoppen halen hun kleuren uit de `--btn-*`-variabelen in `:root` (groen, rood, grijs, wit, blauw, danger, glass
+voor de header, save/cancel, config, `--btn-ink-light`). Zie `CLAUDE.md`, "Knoppen", voor de afspraken.
+
 ### Resets
 
 `* { box-sizing: border-box; }`, `html { min-height: 100%; }`,

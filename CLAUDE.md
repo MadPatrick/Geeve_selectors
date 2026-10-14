@@ -23,12 +23,19 @@ invoervelden in een cel) uit `klantartikel/assets/style.css`. Die heeft een comp
 verticale padding). Geef nieuwe tabellen dus geen eigen, ruimere celpadding of hogere invoervelden;
 eigen tabelregels per app (kolombreedtes, statuskleuren) mogen wel, de regelafstand blijft gelijk.
 
-## Knoppen: groen = lichtgroen, Print = gedeelde knop (standaard)
+## Knoppen: alle kleuren uit variabelen (standaard)
 
-- **Alle groene knoppen** (Gegevens ophalen, Wissen/Kiezen, Exporteer, Kopieer, ...) krijgen dezelfde lichtgroene
-  achtergrond als de Print-knop: `var(--btn-green)` (`#c6efd2`), hover `var(--btn-green-hover)`, met donkergroene rand en
-  tekst (`--ok-line`/`--ok-soft-line`, `--ok-ink`). Geen eigen groentinten of `--ok-fill` voor knoppen; `--ok-fill` is
-  alleen voor statuspillen ("ready").
+- **Elke knopkleur komt uit een `--btn-*`-variabele** in `shared/style.css` (`:root`): achtergrond, rand, hover en
+  tekst/icoon. Geen losse hex-/rgba-waarden of `--accent-dark`/`--ok-fill` in knopregels; een nieuwe kleur = eerst een
+  nieuwe `--btn-*`-variabele. Overzicht: `--btn-green` (+ `-hover`), `--btn-red` (+ `-line`), `--btn-grey` (+ `-line`),
+  `--btn-white` (+ `-line`, `-hover`), `--btn-blue` (+ `-line`, keuzeschakelaar), `--btn-danger*`, `--btn-glass*`
+  (header-knoppen), `--btn-save*`/`--btn-cancel*`, `--btn-config*`, `--btn-ink-light` (witte tekst op gekleurde knop).
+- **Groen = lichtgroen**: alle groene knoppen (Gegevens ophalen, Wissen/Kiezen, Exporteer, Kopieer, ...) gebruiken
+  `var(--btn-green)` (`#c6efd2`), zelfde als de Print-knop, met donkergroene rand en tekst. `--ok-fill` is alleen voor
+  statuspillen ("ready").
+- **Rood = één rood**: er is geen donkerrode knop meer; rode knoppen (ook de vroegere donkerrode zoals Opzoeken, Upload,
+  Ontgrendelen) gebruiken `var(--btn-red)`; omlijnde knoppen (PDF, Terug, Download) zijn wit met `--btn-red-line` en
+  worden bij hover `--btn-red`.
 - **Elke Print-knop** gebruikt de gedeelde `.print-btn` uit `shared/style.css`: lichtgroen, printer-icoon ervoor, tekst
   "Print" (markup in `shared/README.md`). Geen eigen printknopstijl per app.
 

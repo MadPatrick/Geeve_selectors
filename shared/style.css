@@ -40,6 +40,34 @@
     --ok-fill: rgba(88, 198, 124, .85); /* vulling van groene statuspillen (rgb 88, 198, 124, iets transparant) */
     --btn-green: #c6efd2;        /* achtergrond van ALLE groene knoppen (zelfde als de Print-knop) */
     --btn-green-hover: #b0e6c0;  /* idem, bij hover */
+    /* Knopkleuren: ALLE knoppen halen hun kleuren uit deze variabelen (zie CLAUDE.md, "Knoppen"). */
+    --btn-red: rgba(238, 48, 93, .8);           /* rode knop (hoofdactie); vroegere donkerrode knoppen zijn nu ook rood */
+    --btn-red-line: #e0516a;
+    --btn-ink-light: #fff;                      /* witte tekst/iconen op rode, blauwe en header-knoppen */
+    --btn-grey: rgba(208, 209, 204, .7);        /* grijze tweede-keuzeknop, ook de keuzeschakelaar */
+    --btn-grey-line: #9a9b96;
+    --btn-white: #fff;                          /* witte/lichte knop (+ rode tekst bij de PDF-knop) */
+    --btn-white-line: #c9d4de;
+    --btn-white-hover: #f4f7fa;
+    --btn-blue: rgba(8, 127, 255, .85);         /* gekozen optie in een keuzeschakelaar */
+    --btn-blue-line: #0a5fc2;
+    --btn-danger: #a03636;                      /* "gevonden/fout"-toestand en verwijderknoppen */
+    --btn-danger-line: #c17c7c;
+    --btn-danger-hover: #fbecec;
+    --btn-danger-hover-line: #eec4c4;
+    --btn-accent-hover: #fff3f6;                /* lichte knop met roze hover (toevoegen) */
+    --btn-glass: rgba(255, 255, 255, .08);      /* ronde knoppen op de donkere header */
+    --btn-glass-hover: rgba(255, 255, 255, .18);
+    --btn-glass-line: rgba(255, 255, 255, .35);
+    --btn-glass-line-hover: rgba(255, 255, 255, .55);
+    --btn-save-ink: #baf0cf;                    /* opslaan-icoon in de header (wijzigen-modus) */
+    --btn-save-line: rgba(186, 240, 207, .5);
+    --btn-save-hover: rgba(186, 240, 207, .22);
+    --btn-save-hover-line: rgba(186, 240, 207, .7);
+    --btn-cancel-hover: rgba(255, 141, 169, .22);
+    --btn-cancel-hover-line: rgba(255, 141, 169, .7);
+    --btn-config-ink: #525252;                  /* config-tandwiel op het hoofdscherm */
+    --btn-config-line: rgba(82, 82, 82, .7);
     --ok-ink: #0f3d22;           /* tekst op groene knoppen (donkergroen voor goed contrast) */
     --ok-line: #14532d;          /* rand van donkergroene knop (--ok): donkergroen */
     --danger-line: #c17c7c;      /* donkerrode knop (--danger) */
@@ -162,12 +190,12 @@ button, input, select { font: inherit; }
     width: 60px;
     height: 60px;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, .35);
-    color: #fff;
-    background: rgba(255, 255, 255, .08);
+    border: 1px solid var(--btn-glass-line);
+    color: var(--btn-ink-light);
+    background: var(--btn-glass);
     transition: background .15s, border-color .15s;
 }
-.header-home-button:hover { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .55); }
+.header-home-button:hover { background: var(--btn-glass-hover); border-color: var(--btn-glass-line-hover); }
 .header-home-button svg { display: block; }
 
 /* Kleine icoon-knoppen in de .header-topline (config/data/wijzigen/...). */
@@ -179,12 +207,12 @@ button, input, select { font: inherit; }
     height: 30px;
     flex: 0 0 auto;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, .35);
-    color: #fff;
-    background: rgba(255, 255, 255, .08);
+    border: 1px solid var(--btn-glass-line);
+    color: var(--btn-ink-light);
+    background: var(--btn-glass);
     transition: background .15s, border-color .15s;
 }
-.header-icon-button:hover { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .55); }
+.header-icon-button:hover { background: var(--btn-glass-hover); border-color: var(--btn-glass-line-hover); }
 .header-icon-button svg { display: block; }
 .header-icon-button[hidden] { display: none; }
 .header-icon-button[disabled] { opacity: .35; cursor: default; pointer-events: none; }
