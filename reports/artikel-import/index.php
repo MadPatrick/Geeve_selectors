@@ -73,6 +73,7 @@ $csrf = csrfToken();
         <div class="msp-summary" id="aiSummary"></div>
         <div class="ka-table-wrap msp-scroll">
             <table class="ka-table" id="aiTable">
+                <colgroup><col style="width: 11%"><col style="width: 8%"><col style="width: 17%"><col style="width: 8%"><col style="width: 6%"><col style="width: 7%"><col style="width: 7%"><col style="width: 7%"><col style="width: 11%"><col style="width: 7%"><col style="width: 7%"><col style="width: 4%"></colgroup>
                 <thead>
                     <tr>
                         <th>Artikelcode</th><th>In Exact</th><th>Omschrijving</th><th>Status</th><th>Gewicht</th><th>Verkoopprijs</th>

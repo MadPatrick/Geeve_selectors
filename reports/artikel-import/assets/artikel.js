@@ -247,7 +247,7 @@
         var k = key(l.code);
         var st = { cells: {}, label: '', cls: '' };
         if (k === '') {
-            st.label = 'Artikelcode ontbreekt'; st.cls = 'is-incomplete'; st.problem = 'nocode';
+            st.label = 'Nee'; st.cls = 'is-incomplete'; st.problem = 'nocode';
             return st;
         }
         if (l.code.trim().length > 30) { st.label = 'Artikelcode te lang (max. 30)'; st.cls = 'is-missing'; st.problem = 'long'; return st; }
