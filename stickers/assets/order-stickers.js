@@ -12,6 +12,9 @@
     var previewPanel = document.getElementById('soPreviewPanel');
     var previewCount = document.getElementById('soPreviewCount');
     var sheet = document.getElementById('soSheet');
+    var prevBtn = document.getElementById('soPrev');
+    var nextBtn = document.getElementById('soNext');
+    var current = 0;      // welke sticker het voorbeeld toont
     var rows = [];
     var asked = '';
 
@@ -83,8 +86,10 @@
             }
         });
         previewPanel.hidden = list.length === 0; // eerst zichtbaar maken, anders kan fit() niets meten
+        sheet.classList.add('is-measuring'); // alle stickers even zichtbaar voor fit(), daarna weer één
         Array.prototype.forEach.call(sheet.querySelectorAll('.f'), fit);
-        previewCount.textContent = '(' + list.length + ' van ' + rows.length + ')';
+        sheet.classList.remove('is-measuring');
+        show(current);
         printBtn.disabled = list.length === 0;
         printBtn.textContent = list.length === 0 ? 'Print stickers' : 'Print ' + list.length + (list.length === 1 ? ' sticker' : ' stickers');
         all.checked = list.length === rows.length;
@@ -92,6 +97,16 @@
         Array.prototype.forEach.call(tbody.querySelectorAll('tr'), function (tr) {
             tr.classList.toggle('is-off', !tr.querySelector('input').checked);
         });
+    }
+
+    // Toont sticker i (de rest blijft in de pagina staan voor het printen).
+    function show(i) {
+        var all = sheet.querySelectorAll('.sticker');
+        current = Math.max(0, Math.min(i, all.length - 1));
+        Array.prototype.forEach.call(all, function (el, n) { el.classList.toggle('is-current', n === current); });
+        previewCount.textContent = all.length === 0 ? '' : 'Sticker ' + (current + 1) + ' van ' + all.length;
+        prevBtn.disabled = current <= 0;
+        nextBtn.disabled = current >= all.length - 1;
     }
 
     function render(first) {
@@ -107,6 +122,7 @@
                 '<td>' + esc(r.ia_CountryOfOrigin) + '</td></tr>';
         }).join('');
         result.hidden = false;
+        current = 0;
         renderPreview();
     }
 
@@ -141,6 +157,8 @@
     fetchBtn.addEventListener('click', load);
     input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { load(); } });
     tbody.addEventListener('change', renderPreview);
+    prevBtn.addEventListener('click', function () { show(current - 1); });
+    nextBtn.addEventListener('click', function () { show(current + 1); });
     all.addEventListener('change', function () {
         Array.prototype.forEach.call(tbody.querySelectorAll('input[type="checkbox"]'), function (cb) { cb.checked = all.checked; });
         renderPreview();

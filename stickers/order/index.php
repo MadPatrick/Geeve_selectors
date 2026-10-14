@@ -89,8 +89,13 @@ $csrf = csrfToken();
     </section>
 
     <section class="panel" id="soPreviewPanel" hidden>
-        <h2>Voorbeeld <small id="soPreviewCount"></small></h2>
+        <h2>Voorbeeld</h2>
         <div class="so-preview" id="soSheet"></div>
+        <div class="so-nav" id="soNav">
+            <button type="button" id="soPrev" class="ka-button ka-button--secondary" aria-label="Vorige sticker">&lt;</button>
+            <span id="soPreviewCount" class="msp-status"></span>
+            <button type="button" id="soNext" class="ka-button ka-button--secondary" aria-label="Volgende sticker">&gt;</button>
+        </div>
     </section>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
