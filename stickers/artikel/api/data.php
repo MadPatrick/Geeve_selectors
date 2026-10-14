@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../shared/tiles.php';
 tileApiGuard('stickers-artikel');
 
 /**
- * Stickers op Artikelnummer: artikelen uit [dbo].[1002_Artikellabels] waarvan het artikelnummer de zoekterm bevat
+ * Stickers op Artikelnummer: artikelen uit [005_Data_Geeve].[dbo].[1002_Artikellabels] waarvan het artikelnummer de zoekterm bevat
  * (dezelfde query als de oude rapportbouwer, met % aan beide kanten), gesorteerd op artikel. Zelfde SQL Server en
  * inloggegevens (via Config) als /stauff en de rapporten.
  */
@@ -28,7 +28,7 @@ reportApi(function (array $post): array {
     $like = '%' . strtr($zoek, ['[' => '[[]', '%' => '[%]', '_' => '[_]']) . '%';
 
     $stmt = reportConnection()->prepare(
-        'SET NOCOUNT ON; SELECT TOP ' . (ARTIKEL_MAX_ROWS + 1) . ' [Omschrijving], [artikel] FROM [dbo].[1002_Artikellabels]'
+        'SET NOCOUNT ON; SELECT TOP ' . (ARTIKEL_MAX_ROWS + 1) . ' [Omschrijving], [artikel] FROM [005_Data_Geeve].[dbo].[1002_Artikellabels]'
         . ' WHERE [artikel] LIKE :filter_artikelnr ORDER BY [artikel]'
     );
     $stmt->execute([':filter_artikelnr' => $like]);
