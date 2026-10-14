@@ -13,6 +13,8 @@
 .msp-field select { min-width: 12ch; }
 #mspActions { align-items: flex-end; flex-wrap: wrap; }
 #rpTable td.nowrap { white-space: nowrap; }
+/* Kolomkoppen over max. twee regels (Artikelmarges): smalle kolommen bij lange omschrijvingen. */
+#rpTable.rp-head-wrap th { white-space: normal; min-width: 9ch; max-width: 14ch; vertical-align: bottom; line-height: 1.2; }
 
 /* Keuzeschakelaars (Overzicht/Eigen periode, Logistiek/Verkoop/Offertes, ...): gekozen = blauw (#087FFF), niet gekozen = grijs (#D0D1CC), even hoog als de knoppen (44px). */
 .rp-toggle { display: inline-flex; border: 1px solid var(--btn-blue-line); border-radius: 999px; overflow: hidden; min-height: 44px; background: var(--btn-grey); }

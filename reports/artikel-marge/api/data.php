@@ -26,6 +26,21 @@ const MARGE_COLUMNS = [
 ];
 /** Kolommen die als getal worden doorgegeven (ook als de view ze als tekst levert, zoals ink_pr per st). */
 const MARGE_NUMERIC = ['Vrk prijs', 'ink_pr per st', 'toeslag % V/I', 'marge I/V', 'aant_lev', 'IE_i_VE'];
+/** Kolomkop op het scherm en in de Excel (view-kolom => kop). */
+const MARGE_HEADERS = [
+    'Artnr' => 'Artikelnummer', 'artnm' => 'Omschrijving', 'artgrp' => 'Artikelgroep', 'Vrk prijs' => 'Verkoopprijs',
+    'verk_eenh' => 'Verkoopeenheid', 'ink_pr per st' => 'Inkoopprijs per stuk', 'toeslag % V/I' => 'Toeslag % (V/I)',
+    'marge I/V' => 'Marge % (I/V)', 'aant_lev' => 'Aantal leveranciers', 'ArtGrpnm_NL' => 'Omschrijving artikelgroep',
+    'parkergroepennr' => 'Parker groepnummer', 'kortingsgroep parker' => 'Kortingsgroep Parker',
+    'finartgrp' => 'Financiële artikelgroep', 'IE_i_VE' => 'Inkoopeenh. per verkoopeenh.',
+    'artnr_lev' => 'Artikelnummer leverancier', 'crdnr' => 'Crediteurnummer',
+];
+
+/** @param list<string> $names view-kolommen @return list<string> koppen */
+function margeHeaders(array $names): array
+{
+    return array_map(fn ($c) => MARGE_HEADERS[$c] ?? $c, $names);
+}
 
 reportApi(function (array $in): array {
     $group = trim((string) ($in['groep'] ?? ''));
@@ -92,14 +107,14 @@ reportApi(function (array $in): array {
     $tag = trim(($group !== '' ? $group : 'alle') . ($search !== '' ? '_' . $search : ''));
 
     return [
-        'columns' => MARGE_COLUMNS,
+        'columns' => margeHeaders(MARGE_COLUMNS),
         'numeric' => $numeric,
         'dates' => array_fill(0, count(MARGE_COLUMNS), false),
         'rows' => $rows,
-        'text' => ['Artnr', 'artgrp', 'artnr_lev', 'crdnr', 'parkergroepennr', 'finartgrp'],
-        'currency' => ['Vrk prijs', 'ink_pr per st'],
-        'percent' => ['toeslag % V/I', 'marge I/V'],
-        'nowrap' => ['Artnr'],
+        'text' => margeHeaders(['Artnr', 'artgrp', 'artnr_lev', 'crdnr', 'parkergroepennr', 'finartgrp']),
+        'currency' => margeHeaders(['Vrk prijs', 'ink_pr per st']),
+        'percent' => margeHeaders(['toeslag % V/I', 'marge I/V']),
+        'nowrap' => margeHeaders(['Artnr']),
         'maxShown' => MARGE_MAX_SHOWN,
         'kop' => $kop,
         'titles' => $titles,

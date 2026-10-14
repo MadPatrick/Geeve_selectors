@@ -71,7 +71,7 @@ $csrf = csrfToken();
 
     <section class="panel" id="rpResult" hidden>
         <div class="msp-summary" id="rpSummary"></div>
-        <div class="ka-table-wrap msp-scroll"><table class="ka-table" id="rpTable"></table></div>
+        <div class="ka-table-wrap msp-scroll"><table class="ka-table rp-head-wrap" id="rpTable"></table></div>
     </section>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
