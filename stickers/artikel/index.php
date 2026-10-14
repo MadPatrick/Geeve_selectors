@@ -32,7 +32,7 @@ $csrf = csrfToken();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Stickers op Artikelnummer | Geeve Hydraulics</title>
+    <title>Artikelnummer | Geeve Hydraulics</title>
     <link rel="icon" href="../../favicon.ico?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
     <link rel="stylesheet" href="../../shared/style.css?v=<?= h(assetVersion('../../shared/style.css')) ?>">
     <!-- Knoppen, tabel, invoerveld en meldingen zijn dezelfde als in de rapporten. -->
@@ -44,7 +44,7 @@ $csrf = csrfToken();
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Stickers op Artikelnummer';
+    $headerTitle = 'Artikelnummer';
     $headerImagesPath = '../../images/';
     $headerHomeHref = '../index.php';
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
@@ -53,7 +53,7 @@ $csrf = csrfToken();
 
     <section class="panel sa-top">
         <div class="sa-form">
-            <h2>Stickers op Artikelnummer</h2>
+            <h2>Artikelnummer</h2>
             <p class="ka-empty">Zoek op (een deel van) een artikelnummer. Klik een regel aan voor het voorbeeld; vink regels aan om er meer tegelijk te printen (zonder vinkjes wordt de aangeklikte regel geprint).</p>
             <div class="ka-actions" id="saActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
                 <label class="msp-field">

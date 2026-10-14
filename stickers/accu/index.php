@@ -30,7 +30,7 @@ function assetVersion(string $relativePath): string
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Sticker Accu's | Geeve Hydraulics</title>
+    <title>Accu's | Geeve Hydraulics</title>
     <link rel="icon" href="../../favicon.ico?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
     <link rel="stylesheet" href="../../shared/style.css?v=<?= h(assetVersion('../../shared/style.css')) ?>">
     <!-- Knoppen, invoervelden en meldingen zijn dezelfde als in de rapporten. -->
@@ -41,7 +41,7 @@ function assetVersion(string $relativePath): string
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = "Sticker Accu's";
+    $headerTitle = "Accu's";
     $headerImagesPath = '../../images/';
     $headerHomeHref = '../index.php';
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
@@ -50,7 +50,7 @@ function assetVersion(string $relativePath): string
 
     <section class="panel ac-top">
         <div class="ac-form">
-            <h2>Sticker Accu's</h2>
+            <h2>Accu's</h2>
             <p class="ka-empty">Vul de velden in; het voorbeeld rechts loopt mee. Met Leegmaken begin je opnieuw (bedrijfsnaam en datum van vandaag blijven staan).</p>
             <div class="ac-fields" id="acFields">
                 <label class="msp-field ac-wide"><span>Bedrijfsnaam</span><input type="text" class="ka-input" data-field="bedrijf" maxlength="40" value="GEEVE HYDRAULICS BV"></label>

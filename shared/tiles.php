@@ -32,10 +32,10 @@ const TILE_REGISTRY = [
     'inkooporder-import' => ['reports', 'Inkooporder Import', 'reports/inkooporder-import/index.php', true, false, false],
     'export-info' => ['reports', 'Export info', 'reports/export-info/index.php', true, false, false],
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
-    'stickers-order' => ['stickers', 'Artikelstickers per Verkooporder', 'stickers/order/index.php', true, false, true],
-    'stickers-productie' => ['stickers', 'Artikelstickers per Productieorder', 'stickers/productie/index.php', true, false, true],
-    'stickers-artikel' => ['stickers', 'Stickers op Artikelnummer', 'stickers/artikel/index.php', true, false, true],
-    'stickers-artikel-groot' => ['stickers', "Sticker Accu's", 'stickers/accu/index.php', true, false, true],
+    'stickers-order' => ['stickers', 'Artikelen per Verkooporder', 'stickers/order/index.php', true, false, true],
+    'stickers-productie' => ['stickers', 'Artikelen per Productieorder', 'stickers/productie/index.php', true, false, true],
+    'stickers-artikel' => ['stickers', 'Artikelnummer', 'stickers/artikel/index.php', true, false, true],
+    'stickers-artikel-groot' => ['stickers', "Accu's", 'stickers/accu/index.php', true, false, true],
     'stickers-kabelmerkers' => ['stickers', 'Kabelmerkers Geel', '', true, false, true],
     'stickers-slanglabels' => ['stickers', 'Slanglabels', 'stickers/slanglabels/index.php', true, false, true],
 ];

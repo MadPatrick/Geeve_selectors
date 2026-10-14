@@ -22,20 +22,20 @@ Startpagina met tegels naar de Geeve-selectors:
   database "Slangkaarten", zie `slangkaarten/README.md`). Voor de Locatie-kolom op de picklijst
   gebruikt deze subapp ook dezelfde Exact-database "005" als `/stauff`, met dezelfde (centraal
   opgeslagen) inloggegevens.
-- **`/stickers`** — eigen scherm met tegels. **`/stickers/order`** ("Artikelstickers per Verkooporder"): voer een
+- **`/stickers`** — eigen scherm met tegels. **`/stickers/order`** ("Artikelen per Verkooporder"): voer een
   ordernummer in en print per orderregel een sticker van 102 × 54 mm (op volgorde van `ord_rgl`), nagemaakt van de
   NiceLabel-template. Gegevens uit `[005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order]` (zelfde inloggegevens als
   `/stauff`, via `reports/inc.php`); aantal = `besteld`, barcode = Code 128 van het artikelnummer (JsBarcode, lokaal in
   `stickers/assets/vendor`), rechtsonder de `looplocatie`, datum = printdatum. Printen via de browser (`@page` 102 × 54 mm,
   één sticker per pagina); posities/lettergroottes staan in `stickers/assets/order-stickers.css`.
-  **`/stickers/artikel`** ("Stickers op Artikelnummer"): zoeken in `[Exactrapportage].[dbo].[1002_Artikellabels]`.
-  **`/stickers/productie`** ("Artikelstickers per Productieorder"): voer een verkoopordernummer in en print per productieorderregel
+  **`/stickers/artikel`** ("Artikelnummer"): zoeken in `[Exactrapportage].[dbo].[1002_Artikellabels]`.
+  **`/stickers/productie`** ("Artikelen per Productieorder"): voer een verkoopordernummer in en print per productieorderregel
   een sticker van 102 × 54 mm, gegevens uit de stored procedure `[005_Data_Geeve].[dbo].[SP_productie_label] @ordernr`
   (de app-gebruiker heeft daar EXECUTE-recht op nodig); barcode = Code 128 van het artikelnummer, datum = printdatum,
   posities in `stickers/assets/productie-stickers.css`.
   **`/stickers/slanglabels`** ("Slanglabels"): voer een ordernummer in, gegevens uit `[Exactrapportage].[dbo].[1655 VW_Alle_OrdersGH]`;
   velden zijn aan te passen voor het printen, label 50 × 50 mm (aanname), posities in `stickers/assets/slanglabels.css`.
-  **`/stickers/accu`** ("Sticker Accu's", tegel-id `stickers-artikel-groot`): invulsticker zonder database (bedrijfsnaam, datum,
+  **`/stickers/accu`** ("Accu's", tegel-id `stickers-artikel-groot`): invulsticker zonder database (bedrijfsnaam, datum,
   voorvuldruk, vrij veld), 80 × 30 mm (aanname), posities in `stickers/assets/accu.css`.
   "Kabelmerkers Geel" is nog niet functioneel ("Binnenkort beschikbaar").
 
