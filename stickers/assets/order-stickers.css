@@ -16,7 +16,9 @@
 
 /* Voorbeeld op het scherm: één sticker tegelijk (iets vergroot), met < en > eronder; printen doet ze allemaal. */
 .so-preview { zoom: 1.25; }
-.so-preview .sticker { outline: 1px solid #e0516a; background: #fff; }
+/* Afgeronde hoeken alleen op het scherm (box-shadow volgt de ronding, outline niet overal); overflow zichtbaar zodat tekst
+   vlak bij een hoek niet wordt afgeknipt. */
+.so-preview .sticker { box-shadow: 0 0 0 1px #e0516a; border-radius: 2.5mm; overflow: visible; background: #fff; }
 .so-preview:not(.is-measuring) .sticker:not(.is-current) { display: none; }
 .so-nav { display: flex; gap: var(--btn-gap); align-items: center; margin-top: 14px; }
 .so-nav .ka-button { min-width: 44px; justify-content: center; font-size: 18px; padding: 0 14px; }
@@ -78,6 +80,6 @@
     body > main, .so-top, #soPreviewPanel { all: unset; display: block; }
     .so-preview { display: block; zoom: 1; }
     .so-preview:not(.is-measuring) .sticker:not(.is-current) { display: block; }
-    .so-preview .sticker { outline: 0; break-after: page; page-break-after: always; }
+    .so-preview .sticker { box-shadow: none; border-radius: 0; overflow: hidden; break-after: page; page-break-after: always; }
     .so-preview .sticker:last-child { break-after: auto; page-break-after: auto; }
 }
