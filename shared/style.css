@@ -37,7 +37,9 @@
     --ok-soft-line: #14532d;     /* rand van lichtgroene knop (#e8f4ed): donkergroen */
     --accent-line: #f47896;      /* donkere accentkleur (--accent) */
     --accent-dark-line: #d2627a; /* donkerrode knop (--accent-dark) */
-    --ok-fill: rgba(88, 198, 124, .85); /* vulling van groene knoppen (rgb 88, 198, 124, iets transparant) */
+    --ok-fill: rgba(88, 198, 124, .85); /* vulling van groene statuspillen (rgb 88, 198, 124, iets transparant) */
+    --btn-green: #c6efd2;        /* achtergrond van ALLE groene knoppen (zelfde als de Print-knop) */
+    --btn-green-hover: #b0e6c0;  /* idem, bij hover */
     --ok-ink: #0f3d22;           /* tekst op groene knoppen (donkergroen voor goed contrast) */
     --ok-line: #14532d;          /* rand van donkergroene knop (--ok): donkergroen */
     --danger-line: #c17c7c;      /* donkerrode knop (--danger) */
@@ -242,7 +244,7 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
     padding: 0 20px;
     border: 1px solid var(--ok-soft-line);
     border-radius: 999px;
-    background: #c6efd2;
+    background: var(--btn-green);
     color: var(--ok-ink);
     font: inherit;
     font-size: 13px;
@@ -251,7 +253,7 @@ select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
     cursor: pointer;
     transition: background .15s;
 }
-.print-btn:hover { background: #b0e6c0; }
+.print-btn:hover { background: var(--btn-green-hover); }
 .print-btn:disabled { opacity: .5; cursor: default; }
 .print-btn > svg { position: relative; z-index: 1; width: 18px; height: 18px; flex: none; }
 

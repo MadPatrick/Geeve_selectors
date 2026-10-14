@@ -23,6 +23,15 @@ invoervelden in een cel) uit `klantartikel/assets/style.css`. Die heeft een comp
 verticale padding). Geef nieuwe tabellen dus geen eigen, ruimere celpadding of hogere invoervelden;
 eigen tabelregels per app (kolombreedtes, statuskleuren) mogen wel, de regelafstand blijft gelijk.
 
+## Knoppen: groen = lichtgroen, Print = gedeelde knop (standaard)
+
+- **Alle groene knoppen** (Gegevens ophalen, Wissen/Kiezen, Exporteer, Kopieer, ...) krijgen dezelfde lichtgroene
+  achtergrond als de Print-knop: `var(--btn-green)` (`#c6efd2`), hover `var(--btn-green-hover)`, met donkergroene rand en
+  tekst (`--ok-line`/`--ok-soft-line`, `--ok-ink`). Geen eigen groentinten of `--ok-fill` voor knoppen; `--ok-fill` is
+  alleen voor statuspillen ("ready").
+- **Elke Print-knop** gebruikt de gedeelde `.print-btn` uit `shared/style.css`: lichtgroen, printer-icoon ervoor, tekst
+  "Print" (markup in `shared/README.md`). Geen eigen printknopstijl per app.
+
 ## Versienummer (alle apps)
 
 Eén gedeeld versienummer in `version.php` (root) voor het hoofdscherm en alle subapps - zie

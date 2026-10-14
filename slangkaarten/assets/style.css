@@ -88,7 +88,7 @@ input::placeholder { color: #929fac; }
     text-decoration: none;
     border: 1px solid var(--ok-line);
     border-radius: 999px;
-    background: var(--ok-fill);
+    background: var(--btn-green);
     color: var(--ok-ink);
     font-weight: 700;
     font-size: 13px;

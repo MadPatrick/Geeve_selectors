@@ -90,7 +90,7 @@ h3 { margin: 4px 0 0; font-size: 19px; }
     flex: 0 0 auto;
     border: 1px solid var(--ok-line);
     border-radius: 999px;
-    background: var(--ok-fill);
+    background: var(--btn-green);
     color: var(--ok-ink);
     font-weight: 700;
     font-size: 13px;
@@ -99,7 +99,7 @@ h3 { margin: 4px 0 0; font-size: 19px; }
     white-space: nowrap;
     transition: background .15s, color .15s, border-color .15s;
 }
-.clear-filter-button:hover { background: #d7ecdf; border-color: #9cc7b0; }
+.clear-filter-button:hover { background: var(--btn-green-hover); }
 
 .pdf-dropdown { position: relative; flex: 0 0 auto; }
 .pdf-menu {
