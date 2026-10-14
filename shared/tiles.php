@@ -34,7 +34,7 @@ const TILE_REGISTRY = [
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
     'stickers-order' => ['stickers', 'Artikelstickers per order', 'stickers/order/index.php', true, false, true],
     'stickers-artikel' => ['stickers', 'Stickers op Artikelnummer', 'stickers/artikel/index.php', true, false, true],
-    'stickers-productie' => ['stickers', 'Stickers per Productieorder', 'stickers/productie/index.php', true, false, true],
+    'stickers-productie' => ['stickers', 'Artikelstickers per Productieorder', 'stickers/productie/index.php', true, false, true],
     'stickers-artikel-groot' => ['stickers', "Sticker Accu's", '', true, false, false],
     'stickers-zakjes' => ['stickers', 'Stickers op Zakjes', '', true, false, false],
     'stickers-kabelmerkers' => ['stickers', 'Kabelmerkers Geel', '', true, false, true],
