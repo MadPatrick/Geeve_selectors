@@ -29,7 +29,7 @@ Startpagina met tegels naar de Geeve-selectors:
   `stickers/assets/vendor`), rechtsonder de `looplocatie`, datum = printdatum. Printen via de browser (`@page` 102 × 54 mm,
   één sticker per pagina); posities/lettergroottes staan in `stickers/assets/order-stickers.css`.
   **`/stickers/artikel`** ("Stickers op Artikelnummer"): zoeken in `[Exactrapportage].[dbo].[1002_Artikellabels]`.
-  **`/stickers/productie`** ("Productiestickers per order"): voer een verkoopordernummer in en print per productieorderregel
+  **`/stickers/productie`** ("Stickers per Productieorder"): voer een verkoopordernummer in en print per productieorderregel
   een sticker van 102 × 54 mm, gegevens uit de stored procedure `[005_Data_Geeve].[dbo].[SP_productie_label] @ordernr`
   (de app-gebruiker heeft daar EXECUTE-recht op nodig); barcode = Code 128 van het artikelnummer, datum = printdatum,
   posities in `stickers/assets/productie-stickers.css`.

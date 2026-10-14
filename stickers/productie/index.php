@@ -32,7 +32,7 @@ $csrf = csrfToken();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Productiestickers per order | Geeve Hydraulics</title>
+    <title>Stickers per Productieorder | Geeve Hydraulics</title>
     <link rel="icon" href="../../favicon.ico?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
     <link rel="stylesheet" href="../../shared/style.css?v=<?= h(assetVersion('../../shared/style.css')) ?>">
     <!-- Knoppen, tabel, invoerveld en meldingen zijn dezelfde als in de rapporten. -->
@@ -43,7 +43,7 @@ $csrf = csrfToken();
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Productiestickers per order';
+    $headerTitle = 'Stickers per Productieorder';
     $headerImagesPath = '../../images/';
     $headerHomeHref = '../index.php';
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
@@ -52,7 +52,7 @@ $csrf = csrfToken();
 
     <section class="panel ps-top">
         <div class="ps-form">
-            <h2>Productiestickers per order</h2>
+            <h2>Stickers per Productieorder</h2>
             <p class="ka-empty">Vul een verkoopordernummer in: je krijgt per productieorderregel een sticker (102 × 54 mm). Vink regels uit die je niet wilt printen.</p>
             <div class="ka-actions" id="psActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
                 <label class="msp-field">
