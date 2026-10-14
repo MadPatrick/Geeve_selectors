@@ -72,6 +72,8 @@ reportApi(function (array $in): array {
     $stmt->execute($params);
 
     $numeric = array_map(fn ($c) => in_array($c, MARGE_NUMERIC, true), MARGE_COLUMNS);
+    $iToeslag = array_search('toeslag % V/I', MARGE_COLUMNS, true);
+    $iMarge = array_search('marge I/V', MARGE_COLUMNS, true);
     $rows = [];
     while ($r = $stmt->fetch(PDO::FETCH_NUM)) {
         foreach ($r as $i => $v) {
@@ -83,6 +85,15 @@ reportApi(function (array $in): array {
                 $v = is_numeric($v) ? $v + 0 : ($v === '' ? null : $v);
             }
             $r[$i] = $v;
+        }
+        // De view levert verhoudingen: "toeslag" = verkoop / inkoop x 100 en "marge" = inkoop / verkoop x 100 (bijv. 384,62 en
+        // 26,00 bij inkoop 26 en verkoop 100). Omgerekend naar de echte toeslag (verkoop - inkoop) / inkoop en marge
+        // (verkoop - inkoop) / verkoop, met de eenheidsomrekening van de view.
+        if (is_int($r[$iToeslag]) || is_float($r[$iToeslag])) {
+            $r[$iToeslag] = round($r[$iToeslag] - 100, 2);
+        }
+        if (is_int($r[$iMarge]) || is_float($r[$iMarge])) {
+            $r[$iMarge] = round(100 - $r[$iMarge], 2);
         }
         $rows[] = $r;
     }
