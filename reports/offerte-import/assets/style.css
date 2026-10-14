@@ -35,7 +35,6 @@
 #oiTable tr.is-minorder input.oi-qty { border: 1px solid #e0b04a; background: #fffbf0; font-weight: 700; }
 .oi-suggest li.is-note { color: var(--muted); cursor: default; font-style: italic; }
 .oi-suggest li.is-note:hover { background: transparent; }
-/* Compacte regels: minder celpadding en lagere invoervelden in de tabel. */
-#oiTable td { padding-top: 3px; padding-bottom: 3px; }
+/* Compacte regels: celpadding staat op .ka-table; hier alleen de eigen invoervelden. */
 #oiTable input.oi-qty, #oiTable input.oi-code { min-height: 28px; padding-top: 2px; padding-bottom: 2px; }
 .oi-del { padding: 0 8px; }

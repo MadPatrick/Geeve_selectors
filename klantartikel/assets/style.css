@@ -15,6 +15,9 @@
 .ka-table-wrap { overflow-x: auto; }
 .ka-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .ka-table th, .ka-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3e9ee; white-space: nowrap; }
+/* Compacte regels (zelfde regelafstand als de offerte-import): weinig verticale celpadding en lagere invoervelden. */
+.ka-table td { padding-top: 3px; padding-bottom: 3px; }
+.ka-table .ka-input { min-height: 28px; padding-top: 2px; padding-bottom: 2px; }
 .ka-table td:nth-child(2) { white-space: normal; }
 .ka-table th { font-weight: 750; background: var(--soft, #f4f7fa); }
 .ka-empty { color: var(--muted); font-size: 13px; }
