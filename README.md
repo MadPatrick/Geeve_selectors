@@ -33,7 +33,7 @@ Startpagina met tegels naar de Geeve-selectors:
   een sticker van 102 × 54 mm, gegevens uit de stored procedure `[005_Data_Geeve].[dbo].[SP_productie_label] @ordernr`
   (de app-gebruiker heeft daar EXECUTE-recht op nodig); barcode = Code 128 van het artikelnummer, datum = printdatum,
   posities in `stickers/assets/productie-stickers.css`.
-  "... (groot)" en "Stickers op Zakjes" zijn nog niet functioneel ("Binnenkort beschikbaar").
+  "Sticker Accu's", "Kabelmerkers Geel" en "Slanglabels" zijn nog niet functioneel ("Binnenkort beschikbaar").
 
 `Geeve_selectors` is de enige/canonieke plek voor al deze subapps — er zijn geen losse bronrepo's
 meer waar wijzigingen vandaan gekopieerd worden of naartoe teruggezet moeten worden. Wijzigingen

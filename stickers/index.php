@@ -107,19 +107,6 @@ $csrf = csrfToken();
             <span class="tile-cta">Binnenkort beschikbaar</span>
         </div>
         <?php endif; $tileHtml['stickers-artikel-groot'] = ob_get_clean(); ?>
-        <?php ob_start(); if (tileVisible('stickers-zakjes')): ?>
-        <div class="<?= tileClass('stickers-zakjes') ?> tile-disabled" aria-disabled="true">
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M6 8h12l-1.2 12.2a1 1 0 0 1-1 .8H8.2a1 1 0 0 1-1-.8Z"></path>
-                    <path d="M9 8V6a3 3 0 0 1 6 0v2"></path>
-                </svg>
-            </div>
-            <h2><?= h(tileTitle('stickers-zakjes')) ?></h2>
-            <p>Sticker printen voor op een zakje.</p>
-            <span class="tile-cta">Binnenkort beschikbaar</span>
-        </div>
-        <?php endif; $tileHtml['stickers-zakjes'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-kabelmerkers')): ?>
         <div class="<?= tileClass('stickers-kabelmerkers') ?> tile-disabled" aria-disabled="true">
             <div class="tile-icon">
