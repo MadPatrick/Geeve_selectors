@@ -24,6 +24,7 @@ const TILE_REGISTRY = [
     'msp' => ['reports', 'MSP report', 'reports/msp/index.php', true, false, false],
     'inkoop-groep' => ['reports', 'Inkoop per Artikelgroep', 'reports/inkoop-groep/index.php', true, false, false],
     'productiviteit' => ['reports', 'Productiviteit', 'reports/productiviteit/index.php', true, true, false],
+    'artikel-marge' => ['reports', 'Artikelmarges', 'reports/artikel-marge/index.php', true, true, true],
     'templates' => ['home', 'Templates', 'templates/index.php', true, false, false],
     'klantartikel' => ['templates', 'Klant Artikelnummers', 'klantartikel/index.php', true, false, false],
     'klantkorting' => ['templates', 'Kortingstructuur', 'klantkorting/index.php', true, false, true],

@@ -46,7 +46,8 @@
             (data.hideRowCount ? '' : '<span class="msp-pill"><strong>' + nl(data.rows.length) + '</strong> regels</span>');
         function sumClass(i) { return (data.sumColumns || []).indexOf(data.columns[i]) !== -1 ? ' class="rp-sum"' : ''; }
         var html = '<thead><tr>' + data.columns.map(function (c, i) { return '<th' + sumClass(i) + '>' + esc(c.trim()) + '</th>'; }).join('') + '</tr></thead><tbody>';
-        data.rows.forEach(function (r, ri) {
+        // maxShown: grote rapporten tonen alleen de eerste regels op het scherm; de download bevat alles.
+        (data.maxShown ? data.rows.slice(0, data.maxShown) : data.rows).forEach(function (r, ri) {
             var emp = data.rowIds ? data.rowIds[ri] : null;
             html += '<tr' + (data.sets && r[0] === 'Totaal' ? ' class="rp-total"' : '') + (emp !== null && emp !== undefined ? ' data-emp="' + emp + '"' : '') + '>' + r.map(function (v, i) { return withSum((function () {
                 if (v === null) { return data.yearPending && data.columns[i] === 'Dit jaar' ? '<td class="num">…</td>' : '<td></td>'; }
@@ -153,7 +154,8 @@
         if (fields.length) {
             for (var f = 0; f < fields.length; f++) {
                 var val = fields[f].value.trim();
-                if (val === '') { fail('Vul ' + (fields[f].getAttribute('data-name') || 'alle velden') + ' in.'); return; }
+                // data-optional: leeg mag (bijv. Artikelmarges: geen filter = alle artikelen).
+                if (val === '' && !fields[f].hasAttribute('data-optional')) { fail('Vul ' + (fields[f].getAttribute('data-name') || 'alle velden') + ' in.'); return; }
                 params.push([fields[f].getAttribute('data-field'), val]);
             }
         } else {
