@@ -4,6 +4,9 @@
 
 #soTable td.num { text-align: right; font-variant-numeric: tabular-nums; }
 #soTable tr.is-off td { color: var(--muted); }
+/* Vinkjes even hoog als de tekst (13px), niet de 48px van de gedeelde input-regel. */
+#soTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
+#soTable th:first-child, #soTable td:first-child { width: 1%; }
 
 /* Voorbeeld op het scherm: de echte stickers, iets vergroot. */
 .so-preview { display: flex; flex-wrap: wrap; gap: 14px; zoom: 1.4; }
