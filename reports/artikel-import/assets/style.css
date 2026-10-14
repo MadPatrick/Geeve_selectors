@@ -1,0 +1,29 @@
+/* Artikelgegevens Import: eigen tabelregels; knoppen, tabel (.ka-table, compacte regels) en meldingen komen uit klantartikel. */
+#aiTable thead th { position: sticky; top: 0; background: var(--soft, #f4f7fa); z-index: 1; white-space: normal; vertical-align: bottom; }
+#aiTable td { vertical-align: middle; }
+#aiTable td:nth-child(2) { white-space: nowrap; font-weight: 600; }
+#aiTable .ka-input { min-width: 0; min-height: 28px; padding: 2px 8px; font-size: 13px; }
+#aiTable input.ai-code { width: 16ch; }
+#aiTable input.ai-desc { width: 28ch; }
+#aiTable input.ai-short { width: 11ch; }
+#aiTable input.ai-mid { width: 18ch; }
+#aiTable input.ai-num { width: 10ch; text-align: right; }
+#aiTable select.ai-status { width: 13ch; padding-right: 2px; }
+#aiTable .ka-input::placeholder { color: #8c99a6; opacity: 1; }
+/* Gewijzigd t.o.v. Exact: geel; fout: rood. */
+#aiTable .ka-input.is-changed { background: #fff8d6; border-color: #e0b04a; }
+#aiTable .ka-input.is-bad { background: #fff5f5; border-color: #c17c7c; color: #a03636; font-weight: 700; }
+#aiTable tr.is-new td:nth-child(2) { color: #0a5fc2; }
+#aiTable tr.is-incomplete td:nth-child(2) { color: #8a5a00; }
+#aiTable tr.is-missing td:nth-child(2) { color: #a03636; }
+#aiTable th:last-child, #aiTable td:last-child { width: 1%; padding-left: 4px; padding-right: 4px; }
+.ai-del { border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; padding: 0 8px; border-radius: 6px; }
+.ai-del:hover { color: var(--btn-danger); background: var(--btn-danger-hover); }
+.ai-problems { color: #8a5a00; background: #fff3d6; }
+.ai-pill-bad { border-color: #c17c7c; background: #fde2e2; color: #a03636; }
+.ai-pill-new { border-color: #0a5fc2; background: #e6f0fd; color: #0a5fc2; }
+.ai-pill-changed { border-color: #e0b04a; background: #fff8d6; color: #8a5a00; }
+#aiExport:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(.5); }
+/* Alles ingevuld en gecontroleerd: de Exporteer-knop is lichtgroen (zelfde als de Print-knop). */
+#aiExport:not(:disabled) { background: var(--btn-green); border-color: var(--ok-soft-line); color: var(--ok-ink); }
+#aiExport:not(:disabled):hover { background: var(--btn-green-hover); }

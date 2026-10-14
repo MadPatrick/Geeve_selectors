@@ -31,6 +31,7 @@ const TILE_REGISTRY = [
     'export-info' => ['reports', 'Export info', 'reports/export-info/index.php', true, false, false],
     'klantartikel' => ['reports', 'Klant Artikelnummers', 'klantartikel/index.php', true, false, false],
     'klantkorting' => ['reports', 'Kortingstructuur', 'klantkorting/index.php', true, false, true],
+    'artikel-import' => ['reports', 'Artikelgegevens Import', 'reports/artikel-import/index.php', true, false, true],
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
     'stickers-order' => ['stickers', 'Artikelen per Verkooporder', 'stickers/order/index.php', true, false, true],
     'stickers-productie' => ['stickers', 'Artikelen per Productieorder', 'stickers/productie/index.php', true, false, true],
