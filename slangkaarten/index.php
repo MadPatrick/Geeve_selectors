@@ -1540,7 +1540,7 @@ if ($selectedKeys !== []) {
                     <span class="step">Stap 3</span>
                     <h2><?= count($hoseCards) ?> slangkaart<?= count($hoseCards) === 1 ? '' : 'en' ?> wordt geprint&hellip;</h2>
                 </div>
-                <button type="button" class="print-button" onclick="window.print()">Opnieuw printen</button>
+                <button type="button" class="print-btn" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Opnieuw printen</span></button>
             </div>
             <p class="print-status">Het printvenster wordt automatisch geopend. Zie je het niet, klik dan op "Opnieuw printen".</p>
         </section>
@@ -1562,8 +1562,9 @@ if ($selectedKeys !== []) {
                     </div>
                     <h2><?= count($hoseLines) ?> slangregel<?= count($hoseLines) === 1 ? '' : 'en' ?> gevonden</h2>
                 </div>
-                <button type="submit" form="hoseLinesForm" class="submit-button" id="printSelectedButton">
+                <button type="submit" form="hoseLinesForm" class="print-btn" id="printSelectedButton">
                     <span class="button-fill" aria-hidden="true"></span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     <span class="button-label">Print geselecteerde slangkaarten</span>
                 </button>
             </div>

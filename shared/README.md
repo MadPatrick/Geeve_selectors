@@ -226,6 +226,7 @@ helderdere varianten op zo'n plek (gedocumenteerd in `stauff/README.md`).
 | `.field` (+ `> span`, `small`) | Verticale label+input-groep. |
 | `.compact-field` | Variant zonder vaste minimumbreedte. |
 | `input, select` (+ `:focus`, `:disabled`) | Basisopmaak voor formuliervelden. |
+| `.print-btn` | De Print-knop van alle apps: lichtgroen met printer-icoon. Markup: `<button type="button" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>`. |
 
 ### Responsive
 

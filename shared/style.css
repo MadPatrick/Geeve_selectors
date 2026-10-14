@@ -228,6 +228,33 @@ input, select {
 input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(238, 48, 93, .14); }
 select:disabled, input:disabled { background: #f5f7f9; color: #97a3af; }
 
+/* Print-knop, voor alle apps hetzelfde: lichtgroene pil met printer-icoon ervoor (markup: zie shared/README.md). */
+.print-btn {
+    appearance: none;
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 120px;
+    min-height: 44px;
+    padding: 0 20px;
+    border: 1px solid var(--ok-soft-line);
+    border-radius: 999px;
+    background: #c6efd2;
+    color: var(--ok-ink);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 750;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .15s;
+}
+.print-btn:hover { background: #b0e6c0; }
+.print-btn:disabled { opacity: .5; cursor: default; }
+.print-btn > svg { position: relative; z-index: 1; width: 18px; height: 18px; flex: none; }
+
 @media (max-width: 980px) {
     .brand-panel { grid-template-columns: 1fr; }
     .header-content { text-align: left; }
