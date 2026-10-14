@@ -27,3 +27,5 @@
 /* Alles ingevuld en gecontroleerd: de Exporteer-knop is lichtgroen (zelfde als de Print-knop). */
 #aiExport:not(:disabled) { background: var(--btn-green); border-color: var(--ok-soft-line); color: var(--ok-ink); }
 #aiExport:not(:disabled):hover { background: var(--btn-green-hover); }
+/* Regel toevoegen staat onder de tabel; het tabelblok is altijd zichtbaar, zodat je ook zonder Excel regels kunt invoeren. */
+.ai-table-actions { margin-top: 10px; margin-bottom: 0; }

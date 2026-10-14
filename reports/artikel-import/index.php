@@ -56,7 +56,6 @@ $csrf = csrfToken();
         <p class="ka-empty">Download de lege template, vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak); de oude template (Artikelgegevens_Import_Ramon) kan ook. Elk artikel wordt gecontroleerd met Exact: bestaat het, dan staan de huidige waarden uit Exact grijs in de lege velden en zijn gewijzigde velden geel. Een artikel dat nog niet bestaat wordt bij de import aangemaakt. Alle velden zijn hier aan te passen; een leeg veld laat de waarde in Exact ongewijzigd. Is alles in orde, dan maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML</strong>).</p>
         <div class="ka-actions">
             <button type="button" id="aiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
-            <button type="button" id="aiAdd" class="ka-button ka-button--secondary">Regel toevoegen</button>
             <button type="button" id="aiExport" class="ka-button" disabled>Exporteer XML</button>
         </div>
         <div id="aiDrop" class="ka-drop" tabindex="0" role="button">
@@ -69,7 +68,7 @@ $csrf = csrfToken();
         <div id="aiProblems" class="ka-message ai-problems" hidden></div>
     </section>
 
-    <section class="panel" id="aiResult" hidden>
+    <section class="panel" id="aiResult">
         <div class="msp-summary" id="aiSummary"></div>
         <div class="ka-table-wrap msp-scroll">
             <table class="ka-table" id="aiTable">
@@ -83,6 +82,9 @@ $csrf = csrfToken();
                 </thead>
                 <tbody></tbody>
             </table>
+        </div>
+        <div class="ka-actions ai-table-actions">
+            <button type="button" id="aiAdd" class="ka-button ka-button--secondary">Regel toevoegen</button>
         </div>
     </section>
 

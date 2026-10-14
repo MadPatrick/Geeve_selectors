@@ -307,7 +307,6 @@
             html += '<td><button type="button" class="ai-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
         });
         tbody.innerHTML = html;
-        resultEl.hidden = lines.length === 0;
         refresh();
     }
 
