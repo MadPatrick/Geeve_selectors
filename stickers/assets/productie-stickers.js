@@ -173,7 +173,7 @@
         renderPreview();
     });
 
-    // Print Geeve: de printer kies je in het printvenster van de browser. De datum is de printdatum.
+    // Print: de printer kies je in het printvenster van de browser. De datum is de printdatum.
     printBtn.addEventListener('click', function () {
         var list = selected();
         if (list.length === 0) { return; }

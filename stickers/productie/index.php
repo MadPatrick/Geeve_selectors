@@ -62,21 +62,22 @@ $csrf = csrfToken();
                 <button type="button" id="psFetch" class="ka-button">Gegevens ophalen</button>
                 <span id="psStatus" class="msp-status"></span>
             </div>
+            <!-- Aantal en printknop onder het ordernummer. -->
+            <div class="ps-print">
+                <label class="ps-copies"><input type="number" id="psCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
+                <button type="button" id="psPrint" class="ka-button ps-btn" disabled>Print</button>
+                <span id="psPrintInfo" class="msp-status"></span>
+            </div>
             <div id="psMessage" class="ka-message ka-message--error" hidden></div>
         </div>
 
-        <!-- Voorbeeld: één sticker tegelijk, met daaronder < > en aantal + printknop. -->
+        <!-- Voorbeeld: één sticker tegelijk, met daaronder < >. -->
         <div class="ps-side" id="psSide" hidden>
             <div class="ps-preview" id="psSheet"></div>
             <div class="ps-nav">
                 <button type="button" id="psPrev" class="ka-button ka-button--secondary" aria-label="Vorige sticker">&lt;</button>
                 <span id="psPreviewCount" class="msp-status"></span>
                 <button type="button" id="psNext" class="ka-button ka-button--secondary" aria-label="Volgende sticker">&gt;</button>
-            </div>
-            <div class="ps-print">
-                <label class="ps-copies"><input type="number" id="psCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
-                <button type="button" id="psPrint" class="ka-button ps-btn" disabled>Print Geeve</button>
-                <span id="psPrintInfo" class="msp-status"></span>
             </div>
         </div>
     </section>
