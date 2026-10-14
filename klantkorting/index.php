@@ -62,7 +62,10 @@ try {
                     'tiers' => $tiers,
                 ];
             }
-            $xml = buildDiscountXml($priceList, $rows, (string) $listDescription);
+            // Omschrijving van de prijslijst uit het scherm (max. 30 tekens, kolom oms30_0); leeg = de huidige uit Exact.
+            $description = preg_replace('/\s+/u', ' ', trim((string) ($_POST['oms'] ?? ''))) ?? '';
+            $description = function_exists('mb_substr') ? mb_substr($description, 0, 30) : substr($description, 0, 30);
+            $xml = buildDiscountXml($priceList, $rows, $description !== '' ? $description : (string) $listDescription);
             while (ob_get_level() > 0) {
                 ob_end_clean();
             }
@@ -144,6 +147,16 @@ try {
             <form method="post" id="kkForm" data-lookup="api/group_lookup.php" data-pricelist="<?= h($priceList) ?>">
                 <input type="hidden" name="action" value="export">
                 <input type="hidden" name="prijslijst" value="<?= h($priceList) ?>">
+                <?php
+                // Voorstel voor de omschrijving: de klantnaam als er precies één klant op deze prijslijst staat, anders de huidige.
+                $suggestedDescription = count($customers) === 1 ? trim((string) $customers[0]['naam']) : (string) $listDescription;
+                $suggestedDescription = function_exists('mb_substr') ? mb_substr($suggestedDescription, 0, 30) : substr($suggestedDescription, 0, 30);
+                ?>
+                <label class="field kk-desc-field">
+                    <span>Omschrijving prijslijst <small>(nu in Exact: <?= h($listDescription !== '' ? $listDescription : '(leeg)') ?>)</small></span>
+                    <input type="text" name="oms" id="kkDesc" maxlength="30" value="<?= h($suggestedDescription) ?>" data-orig="<?= h((string) $listDescription) ?>" autocomplete="off">
+                    <small>Gaat mee in de XML-export. Is deze anders dan in Exact, dan gaan alle regels mee in de XML, zodat de nieuwe omschrijving bij de import wordt overgenomen.</small>
+                </label>
                 <div class="ka-heading">
                     <p class="ka-empty">Meestal één staffel: aantal <code>1</code>, korting <code>25</code>. Meerdere staffels zet je in beide velden achter elkaar, gescheiden door <code>;</code> (aantal <code>1; 10</code>, korting <code>25; 30</code>). De XML bevat alleen gewijzigde en nieuwe regels.</p>
                     <div class="ka-actions">
