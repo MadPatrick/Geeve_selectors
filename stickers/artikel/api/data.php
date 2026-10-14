@@ -8,7 +8,7 @@ tileApiGuard('stickers-artikel');
 
 /**
  * Stickers op Artikelnummer: artikelen uit [Exactrapportage].[dbo].[1002_Artikellabels] waarvan het artikelnummer de zoekterm bevat
- * (dezelfde query als de oude rapportbouwer, met % aan beide kanten), gesorteerd op artikel. Zelfde SQL Server en
+ * (dezelfde query als de oude rapportbouwer, met % aan beide kanten), eerst wat met de zoekterm begint. Zelfde SQL Server en
  * inloggegevens (via Config) als /stauff en de rapporten.
  */
 
@@ -25,13 +25,15 @@ reportApi(function (array $post): array {
         throw new RuntimeException('Zoekterm is te lang.');
     }
     // [ % _ in de zoekterm letterlijk nemen, niet als LIKE-jokertekens.
-    $like = '%' . strtr($zoek, ['[' => '[[]', '%' => '[%]', '_' => '[_]']) . '%';
+    $esc = strtr($zoek, ['[' => '[[]', '%' => '[%]', '_' => '[_]']);
 
     $stmt = reportConnection()->prepare(
         'SET NOCOUNT ON; SELECT TOP ' . (ARTIKEL_MAX_ROWS + 1) . ' [Omschrijving], [artikel] FROM [Exactrapportage].[dbo].[1002_Artikellabels]'
-        . ' WHERE [artikel] LIKE :filter_artikelnr ORDER BY [artikel]'
+        . ' WHERE [artikel] LIKE :filter_artikelnr'
+        // Eerst het exacte artikelnummer, dan wat ermee begint, daarna waar het ergens anders in voorkomt; binnen elke groep op artikel.
+        . ' ORDER BY CASE WHEN [artikel] = :exact THEN 0 WHEN [artikel] LIKE :begin THEN 1 ELSE 2 END, [artikel]'
     );
-    $stmt->execute([':filter_artikelnr' => $like]);
+    $stmt->execute([':filter_artikelnr' => '%' . $esc . '%', ':exact' => $zoek, ':begin' => $esc . '%']);
 
     $rows = [];
     foreach ($stmt->fetchAll() as $row) {
