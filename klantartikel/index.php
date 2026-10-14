@@ -115,21 +115,15 @@ if ($priceList !== '') {
         <section class="panel"><div class="ka-message ka-message--error"><?= h($error) ?></div></section>
     <?php elseif ($priceList !== ''): ?>
         <section class="panel">
-            <div class="ka-heading">
-                <h2>Klanten op prijslijst <?= h($priceList) ?> <small id="kaCustCount">(<?= count($customers) ?>)</small></h2>
-                <?php if ($customers !== []): ?>
-                    <input type="search" class="ka-input ka-chip-search" placeholder="Zoek op naam of nummer" autocomplete="off" aria-label="Zoek klant op naam of nummer" data-chip-filter="kaCustomers" data-chip-count="kaCustCount">
-                <?php endif; ?>
-            </div>
+            <h2>Klanten op prijslijst <?= h($priceList) ?> <small>(<?= count($customers) ?>)</small></h2>
             <?php if ($customers === []): ?>
                 <p class="ka-empty">Geen klanten gevonden op deze prijslijst (kolom <code><?= h($schema['pricelist']) ?></code>).</p>
             <?php else: ?>
-                <div class="ka-chips" id="kaCustomers">
+                <div class="ka-chips">
                     <?php foreach ($customers as $c): ?>
                         <span class="ka-chip"><strong><?= h(trim((string) $c['debnr'])) ?></strong> <?= h((string) $c['naam']) ?></span>
                     <?php endforeach; ?>
                 </div>
-                <script src="assets/customer-filter.js?v=<?= h(assetVersion('assets/customer-filter.js')) ?>"></script>
             <?php endif; ?>
         </section>
 
