@@ -111,7 +111,7 @@ try {
     <section class="panel">
         <form method="get" class="ka-form">
             <label class="field kk-pl-field">
-                <span>Prijslijstnummer</span>
+                <span>Prijslijst</span>
                 <input type="text" name="prijslijst" id="kkPriceList" value="<?= h($priceList) ?>" placeholder="Nummer of naam, bijv. 100" autocomplete="off" autofocus required
                        role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="kkPriceListHits" data-lists="api/pricelists.php">
                 <ul class="kk-pl-hits" id="kkPriceListHits" role="listbox" hidden></ul>
