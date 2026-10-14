@@ -53,12 +53,16 @@ $csrf = csrfToken();
     <section class="panel so-top">
         <div class="so-form">
         <h2>Artikelstickers per order</h2>
-        <p class="ka-empty">Vul een ordernummer in: je krijgt per orderregel een sticker (102 × 54 mm), in de volgorde van de order. Vink regels uit die je niet wilt printen.</p>
+        <p class="ka-empty">Vul een ordernummer in: je krijgt per orderregel een sticker (102 × 54 mm), in de volgorde van de order of van de looplocatie. Vink regels uit die je niet wilt printen.</p>
         <div class="ka-actions" id="soActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
             <label class="msp-field">
                 <span>Ordernummer</span>
                 <input type="text" id="soNumber" class="ka-input" inputmode="numeric" maxlength="18" autocomplete="off" autofocus>
             </label>
+            <div class="rp-toggle" id="soSort" role="group" aria-label="Volgorde">
+                <button type="button" data-sort="regel" class="is-active">Orderregel</button>
+                <button type="button" data-sort="loop">Looplocatie</button>
+            </div>
             <button type="button" id="soFetch" class="ka-button">Gegevens ophalen</button>
             <button type="button" id="soPrint" class="ka-button ka-button--secondary" disabled>Print stickers</button>
             <span id="soStatus" class="msp-status"></span>

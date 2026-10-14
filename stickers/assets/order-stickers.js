@@ -23,6 +23,8 @@
     var pageNext = document.getElementById('soPageNext');
     var rows = [];
     var asked = '';
+    var sortBy = 'regel'; // 'regel' (orderregelnummer) of 'loop' (looplocatie)
+    var sortToggle = document.getElementById('soSort');
 
     var DAYS = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'];
     var MONTHS = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
@@ -128,23 +130,59 @@
         pageNext.disabled = page >= pages - 1;
     }
 
+    // Natuurlijke volgorde ("2" voor "10"); lege looplocaties achteraan, daarbinnen op orderregel.
+    function natural(a, b) { return String(a).localeCompare(String(b), 'nl', { numeric: true, sensitivity: 'base' }); }
+    function sortRows() {
+        rows.sort(function (a, b) {
+            if (sortBy === 'loop') {
+                if ((a.looplocatie === '') !== (b.looplocatie === '')) { return a.looplocatie === '' ? 1 : -1; }
+                var c = natural(a.looplocatie, b.looplocatie);
+                if (c !== 0) { return c; }
+            }
+            return natural(a.ord_rgl, b.ord_rgl);
+        });
+    }
+
     function render(first) {
         summary.innerHTML =
             '<span class="msp-pill">Order <strong>' + esc(asked) + '</strong></span>' +
             (first.debnm ? '<span class="msp-pill">' + esc(first.debnr) + ' <strong>' + esc(first.debnm) + '</strong></span>' : '') +
             '<span class="msp-pill"><strong>' + rows.length + '</strong> regels</span>';
-        tbody.innerHTML = rows.map(function (r, i) {
-            return '<tr><td><input type="checkbox" data-i="' + i + '" checked aria-label="Regel ' + esc(r.ord_rgl) + '"></td>' +
-                '<td>' + esc(r.ord_rgl) + '</td><td>' + esc(r.artikelnummer) + '</td><td class="ka-desc">' + esc(r.artikelnaam) + '</td>' +
-                '<td class="num">' + esc(qty(r.besteld)) + '</td><td class="num">' + esc(qty(r.geleverd)) + '</td>' +
-                '<td>' + esc(r.locatie) + '</td><td>' + esc(r.looplocatie) + '</td><td>' + esc(r.uw_artikelnummer) + '</td>' +
-                '<td>' + esc(r.ia_CountryOfOrigin) + '</td></tr>';
-        }).join('');
+        sortRows();
+        renderTable();
         result.hidden = false;
         showPage(0);
         current = 0;
         renderPreview();
     }
+
+    function renderTable() {
+        tbody.innerHTML = rows.map(function (r, i) {
+            return '<tr><td><input type="checkbox" data-i="' + i + '"' + (r.off ? '' : ' checked') + ' aria-label="Regel ' + esc(r.ord_rgl) + '"></td>' +
+                '<td>' + esc(r.ord_rgl) + '</td><td>' + esc(r.artikelnummer) + '</td><td class="ka-desc">' + esc(r.artikelnaam) + '</td>' +
+                '<td class="num">' + esc(qty(r.besteld)) + '</td><td class="num">' + esc(qty(r.geleverd)) + '</td>' +
+                '<td>' + esc(r.locatie) + '</td><td>' + esc(r.looplocatie) + '</td><td>' + esc(r.uw_artikelnummer) + '</td>' +
+                '<td>' + esc(r.ia_CountryOfOrigin) + '</td></tr>';
+        }).join('');
+    }
+
+    // Andere volgorde kiezen: uitgevinkte regels blijven uitgevinkt.
+    sortToggle.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-sort]');
+        if (!btn || btn.getAttribute('data-sort') === sortBy) { return; }
+        sortBy = btn.getAttribute('data-sort');
+        Array.prototype.forEach.call(sortToggle.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b === btn); });
+        if (rows.length === 0) { return; }
+        rows.forEach(function (r, i) {
+            var cb = tbody.querySelector('input[data-i="' + i + '"]');
+            r.off = cb ? !cb.checked : false;
+        });
+        sortRows();
+        renderTable();
+        showPage(0);
+        current = 0;
+        renderPreview();
+    });
 
     function load() {
         var nummer = input.value.trim();
