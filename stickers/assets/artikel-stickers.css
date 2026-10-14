@@ -20,7 +20,8 @@
 .sa-preview { zoom: 1.25; }
 .sa-preview .sticker { box-shadow: 0 0 0 1px #e0516a; border-radius: 2.5mm; background: #fff; }
 
-.sa-print { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.sa-print { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 16px; }
+.sa-print > .msp-status { flex-basis: 100%; text-align: right; }
 .sa-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
 .sa-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
 .sa-buttons { display: flex; gap: var(--btn-gap); flex-wrap: wrap; justify-content: flex-end; }
