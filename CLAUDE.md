@@ -15,6 +15,14 @@ Wat wél per app hoort (zie `shared/README.md`, "Wat hoort in je eigen `assets/s
 secties/kaarten, stappenindicatoren, statuspillen e.d. - dat blijft bewust ongedeeld, ook al lijkt
 het oppervlakkig op wat een andere app heeft.
 
+## Tabellen: compacte regelafstand (standaard)
+
+Datatabellen in tegels gebruiken **standaard** de gedeelde tabelopmaak `.ka-table` (met `.ka-input` voor
+invoervelden in een cel) uit `klantartikel/assets/style.css`. Die heeft een compacte regelafstand:
+`td` met 3px verticale padding en invoervelden in de tabel van 28px hoog (`min-height: 28px`, 2px
+verticale padding). Geef nieuwe tabellen dus geen eigen, ruimere celpadding of hogere invoervelden;
+eigen tabelregels per app (kolombreedtes, statuskleuren) mogen wel, de regelafstand blijft gelijk.
+
 ## Versienummer (alle apps)
 
 Eén gedeeld versienummer in `version.php` (root) voor het hoofdscherm en alle subapps - zie
