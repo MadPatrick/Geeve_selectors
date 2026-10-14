@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../shared/tiles.php';
 tileApiGuard('stickers-order');
 
 /**
- * Artikelstickers per order: de regels van één order uit [005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order]
+ * Artikelstickers per Verkooporder: de regels van één order uit [005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order]
  * (dezelfde query als de NiceLabel-template), gesorteerd op orderregel. Zelfde SQL Server en inloggegevens (via Config)
  * als /stauff en de rapporten.
  */

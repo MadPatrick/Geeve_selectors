@@ -22,7 +22,7 @@ Startpagina met tegels naar de Geeve-selectors:
   database "Slangkaarten", zie `slangkaarten/README.md`). Voor de Locatie-kolom op de picklijst
   gebruikt deze subapp ook dezelfde Exact-database "005" als `/stauff`, met dezelfde (centraal
   opgeslagen) inloggegevens.
-- **`/stickers`** — eigen scherm met tegels. **`/stickers/order`** ("Artikelstickers per order"): voer een
+- **`/stickers`** — eigen scherm met tegels. **`/stickers/order`** ("Artikelstickers per Verkooporder"): voer een
   ordernummer in en print per orderregel een sticker van 102 × 54 mm (op volgorde van `ord_rgl`), nagemaakt van de
   NiceLabel-template. Gegevens uit `[005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order]` (zelfde inloggegevens als
   `/stauff`, via `reports/inc.php`); aantal = `besteld`, barcode = Code 128 van het artikelnummer (JsBarcode, lokaal in

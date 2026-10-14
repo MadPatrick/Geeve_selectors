@@ -32,7 +32,7 @@ $csrf = csrfToken();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Artikelstickers per order | Geeve Hydraulics</title>
+    <title>Artikelstickers per Verkooporder | Geeve Hydraulics</title>
     <link rel="icon" href="../../favicon.ico?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
     <link rel="stylesheet" href="../../shared/style.css?v=<?= h(assetVersion('../../shared/style.css')) ?>">
     <!-- Knoppen, tabel, invoerveld en meldingen zijn dezelfde als in de rapporten. -->
@@ -44,7 +44,7 @@ $csrf = csrfToken();
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Artikelstickers per order';
+    $headerTitle = 'Artikelstickers per Verkooporder';
     $headerImagesPath = '../../images/';
     $headerHomeHref = '../index.php';
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
@@ -53,7 +53,7 @@ $csrf = csrfToken();
 
     <section class="panel so-top">
         <div class="so-form">
-        <h2>Artikelstickers per order</h2>
+        <h2>Artikelstickers per Verkooporder</h2>
         <p class="ka-empty">Vul een ordernummer in: je krijgt per orderregel een sticker (102 × 54 mm), in de volgorde van de order of van de looplocatie, of als artikelsticker (omschrijving, barcode en artikelnummer). Vink regels uit die je niet wilt printen.</p>
         <div class="ka-actions" id="soActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
             <label class="msp-field">

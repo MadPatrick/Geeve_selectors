@@ -1,5 +1,5 @@
 /* Artikelsticker (102 × 54 mm): omschrijving (max. 2 regels), Code 128-barcode en artikelnummer groot, gecentreerd.
-   Gedeeld door Stickers op Artikelnummer (stickers/artikel) en de optie "Artikelsticker" van Artikelstickers per order
+   Gedeeld door Stickers op Artikelnummer (stickers/artikel) en de optie "Artikelsticker" van Artikelstickers per Verkooporder
    (stickers/order). Selectors met .sticker.sticker--art, zodat ze winnen van de orderstickerregels (.sticker .f). */
 
 .sticker.sticker--art {
