@@ -104,7 +104,7 @@ if ($priceList !== '') {
     <section class="panel">
         <form method="get" class="ka-form">
             <label class="field pl-field">
-                <span>Prijslijstnummer</span>
+                <span>Prijslijst</span>
                 <input type="text" name="prijslijst" id="plSearch" value="<?= h($priceList) ?>" placeholder="Nummer of naam, bijv. 100" autocomplete="off" autofocus required
                        role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="plSearchHits" data-lists="api/pricelists.php">
                 <ul class="pl-hits" id="plSearchHits" role="listbox" hidden></ul>
