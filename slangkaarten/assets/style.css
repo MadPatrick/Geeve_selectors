@@ -237,7 +237,7 @@ input::placeholder { color: #929fac; }
        geen page-break-after meer nodig - dat zou een lege pagina erachter
        toevoegen. */
     #printSheet .picklist-sheet {
-        min-height: 269mm;
+        min-height: 268mm;
         border: none;
         padding: 0;
         margin: 0;
@@ -254,7 +254,7 @@ input::placeholder { color: #929fac; }
            ertussen opvult (zie flex: 1 1 auto hieronder). Elke slangkaart
            krijgt altijd een break erna (ook de laatste), want de
            picklijst volgt er nog op. */
-        min-height: 269mm;
+        min-height: 268mm; /* 1mm speling: Firefox rondt mm->px anders af en maakte bij precies 269mm een lege pagina */
         border: none;
         border-radius: 0;
         padding: 0;
@@ -276,7 +276,12 @@ input::placeholder { color: #929fac; }
     .card-flag, .coupling-table th, .coupling-table td { font-size: 11px; }
 }
 
-@media (max-width: 700px) {
+/* Alleen op scherm: de bedrukbare A4-breedte (210mm - 2x12mm = 186mm =
+   ~703px) ligt maar net boven deze grens. Firefox rekent de printbreedte
+   net anders uit dan Chrome/Edge en kwam er soms onder, waardoor de
+   mobiele 1-koloms opmaak in de print belandde (kaart ~2x zo hoog, over
+   meerdere pagina's verspreid). */
+@media screen and (max-width: 700px) {
     .page-shell { margin-top: 6px; }
     .brand-panel { padding: 14px 16px 18px; grid-template-columns: 1fr; }
     .brand-logo-img { height: 50px; }
