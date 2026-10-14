@@ -17,56 +17,16 @@
     var timer = null;
     var seq = 0;        // alleen het antwoord op de laatste zoekopdracht tonen
 
-    var MODULE_MM = 0.38; // breedte van één streepje in de barcode
-    var MAX_BC_MM = 94;   // past binnen de 102 mm met 4 mm marge
-
     function esc(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
     function fail(text) { message.textContent = text; message.hidden = false; }
 
-    function sticker(r) {
-        return '<div class="sticker">' +
-            '<div class="f desc">' + esc(r.omschrijving) + '</div>' +
-            '<div class="bc"><svg data-code="' + esc(r.artikel) + '"></svg></div>' +
-            '<div class="f art">' + esc(r.artikel) + '</div>' +
-            '</div>';
-    }
-
-    // Tekst die niet past wordt kleiner gezet (in stapjes), zodat niets wordt afgeknipt.
-    function fit(el) {
-        var size = parseFloat(getComputedStyle(el).fontSize);
-        var min = size * 0.4;
-        while (el.scrollWidth > el.clientWidth && size > min) {
-            size *= 0.95;
-            el.style.fontSize = size + 'px';
-        }
-    }
-
-    // Code 128 van het artikelnummer; breedte volgt het aantal streepjes (max. de breedte van de sticker).
-    function barcodes(container) {
-        Array.prototype.forEach.call(container.querySelectorAll('svg[data-code]'), function (svg) {
-            var code = svg.getAttribute('data-code');
-            if (code === '') { return; }
-            try {
-                JsBarcode(svg, code, { format: 'CODE128', displayValue: false, margin: 0, width: 1, height: 100 });
-                var modules = parseFloat(svg.getAttribute('width')) || 0;
-                svg.setAttribute('viewBox', '0 0 ' + modules + ' 100');
-                svg.setAttribute('preserveAspectRatio', 'none');
-                svg.removeAttribute('style');
-                svg.removeAttribute('height');
-                svg.setAttribute('width', Math.min(modules * MODULE_MM, MAX_BC_MM) + 'mm');
-            } catch (e) {
-                svg.outerHTML = '<span>Geen barcode mogelijk</span>';
-            }
-        });
-    }
-
     function build(container, list, times) {
         var html = '';
-        list.forEach(function (r) { for (var n = 0; n < times; n++) { html += sticker(r); } });
+        list.forEach(function (r) { for (var n = 0; n < times; n++) { html += ArtSticker.html(r.omschrijving, r.artikel); } });
         container.innerHTML = html;
-        barcodes(container);
+        ArtSticker.barcodes(container);
     }
 
     function checked() {
@@ -103,7 +63,7 @@
         if (i < 0) { side.hidden = true; sheet.innerHTML = ''; update(); return; }
         side.hidden = false; // eerst zichtbaar maken, anders kan fit() niets meten
         build(sheet, [rows[i]], 1);
-        Array.prototype.forEach.call(sheet.querySelectorAll('.f'), fit);
+        ArtSticker.fit(sheet);
         update();
     }
 
@@ -165,7 +125,7 @@
             if (list.length === 0) { return; }
             build(printSheet, list, times());
             printSheet.style.display = 'block'; // even zichtbaar voor fit(), daarna weer alleen bij het printen
-            Array.prototype.forEach.call(printSheet.querySelectorAll('.f'), fit);
+            ArtSticker.fit(printSheet);
             printSheet.style.display = '';
             document.title = 'Stickers ' + btn.getAttribute('data-roll');
             window.print();

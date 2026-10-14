@@ -23,7 +23,7 @@
     var pageNext = document.getElementById('soPageNext');
     var rows = [];
     var asked = '';
-    var sortBy = 'regel'; // 'regel' (orderregelnummer) of 'loop' (looplocatie)
+    var sortBy = 'regel'; // 'regel' (orderregelnummer), 'loop' (looplocatie) of 'artikel' (artikelsticker, op orderregel)
     var sortToggle = document.getElementById('soSort');
 
     var DAYS = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'];
@@ -47,6 +47,7 @@
     function field(cls, text) { return '<div class="f ' + cls + '">' + esc(text) + '</div>'; }
 
     function sticker(r, date) {
+        if (sortBy === 'artikel') { return ArtSticker.html(r.artikelnaam, r.artikelnummer); }
         return '<div class="sticker"><div class="sticker-in">' +
             field('r1 b c-l1', 'Bonnr.:') + field('r1 b c-bonnr', r.bonnr) + field('r1 b c-debnm', r.debnm) +
             field('r2 c-l2', 'Uw referentie:') + field('r2 c-ref', r.uw_ref) +
@@ -93,9 +94,11 @@
                 svg.outerHTML = '<span class="so-nobarcode">Geen barcode mogelijk</span>';
             }
         });
+        ArtSticker.barcodes(sheet);
         previewPanel.hidden = list.length === 0; // eerst zichtbaar maken, anders kan fit() niets meten
         sheet.classList.add('is-measuring'); // alle stickers even zichtbaar voor fit(), daarna weer één
-        Array.prototype.forEach.call(sheet.querySelectorAll('.f'), fit);
+        Array.prototype.forEach.call(sheet.querySelectorAll('.sticker:not(.sticker--art) .f'), fit);
+        ArtSticker.fit(sheet);
         sheet.classList.remove('is-measuring');
         show(current);
         printBtn.disabled = list.length === 0;

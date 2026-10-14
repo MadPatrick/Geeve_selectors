@@ -38,6 +38,7 @@ $csrf = csrfToken();
     <!-- Knoppen, tabel, invoerveld en meldingen zijn dezelfde als in de rapporten. -->
     <link rel="stylesheet" href="../../klantartikel/assets/style.css?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
     <link rel="stylesheet" href="../../reports/msp/assets/style.css?v=<?= h(assetVersion('../../reports/msp/assets/style.css')) ?>">
+    <link rel="stylesheet" href="../assets/art-sticker.css?v=<?= h(assetVersion('../assets/art-sticker.css')) ?>">
     <link rel="stylesheet" href="../assets/order-stickers.css?v=<?= h(assetVersion('../assets/order-stickers.css')) ?>">
 </head>
 <body>
@@ -53,7 +54,7 @@ $csrf = csrfToken();
     <section class="panel so-top">
         <div class="so-form">
         <h2>Artikelstickers per order</h2>
-        <p class="ka-empty">Vul een ordernummer in: je krijgt per orderregel een sticker (102 × 54 mm), in de volgorde van de order of van de looplocatie. Vink regels uit die je niet wilt printen.</p>
+        <p class="ka-empty">Vul een ordernummer in: je krijgt per orderregel een sticker (102 × 54 mm), in de volgorde van de order of van de looplocatie, of als artikelsticker (omschrijving, barcode en artikelnummer). Vink regels uit die je niet wilt printen.</p>
         <div class="ka-actions" id="soActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
             <label class="msp-field">
                 <span>Ordernummer</span>
@@ -62,10 +63,11 @@ $csrf = csrfToken();
             <div class="rp-toggle" id="soSort" role="group" aria-label="Volgorde">
                 <button type="button" data-sort="regel" class="is-active">Orderregel</button>
                 <button type="button" data-sort="loop">Looplocatie</button>
+                <button type="button" data-sort="artikel">Artikelsticker</button>
             </div>
             <button type="button" id="soFetch" class="ka-button">Gegevens ophalen</button>
-            <button type="button" id="soPrint" class="ka-button ka-button--secondary" disabled>Print stickers</button>
             <span id="soStatus" class="msp-status"></span>
+            <button type="button" id="soPrint" class="ka-button ka-button--secondary so-print" disabled>Print stickers</button>
         </div>
         <div id="soMessage" class="ka-message ka-message--error" hidden></div>
         </div>
@@ -112,6 +114,7 @@ $csrf = csrfToken();
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 <script src="../assets/vendor/JsBarcode.code128.min.js"></script>
+<script src="../assets/art-sticker.js?v=<?= h(assetVersion('../assets/art-sticker.js')) ?>"></script>
 <script src="../assets/order-stickers.js?v=<?= h(assetVersion('../assets/order-stickers.js')) ?>"></script>
 </body>
 </html>

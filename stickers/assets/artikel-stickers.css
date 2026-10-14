@@ -1,5 +1,4 @@
-/* Stickers op Artikelnummer (stickers/artikel): de sticker zelf (102 × 54 mm, zelfde formaat als Artikelstickers per order)
-   en de printinstellingen. Knoppen/tabel/velden komen uit klantartikel/ en reports/msp/ (zie stickers/artikel/index.php).
+/* Stickers op Artikelnummer (stickers/artikel): scherm en printinstellingen; de sticker zelf staat in art-sticker.css. Knoppen/tabel/velden komen uit klantartikel/ en reports/msp/ (zie stickers/artikel/index.php).
    Posities en lettergroottes in mm, nagemaakt van de NiceLabel-template; bijstellen na een proefprint. */
 
 /* Invoer + tabel links, voorbeeld en printknoppen rechts (op smalle schermen eronder). */
@@ -29,31 +28,6 @@
 .sa-btn--geeve { background: #fff; }
 .sa-btn:hover { filter: brightness(.95); }
 .sa-btn:disabled { opacity: .5; cursor: default; }
-
-.sticker {
-    position: relative;
-    width: 102mm;
-    height: 54mm;
-    overflow: hidden;
-    color: #000;
-    font-family: Arial, Helvetica, sans-serif;
-    line-height: 1;
-}
-.sticker .f {
-    position: absolute;
-    left: 4mm;
-    right: 4mm;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    overflow: hidden;
-    font-weight: 700;
-}
-.sticker .desc { top: 8mm; height: 6mm; font-size: 4.4mm; }
-.sticker .art { top: 32.5mm; height: 11mm; font-size: 10mm; }
-.sticker .bc { position: absolute; left: 4mm; right: 4mm; top: 17mm; height: 15mm; display: flex; justify-content: center; }
-.sticker .bc svg { display: block; height: 100%; shape-rendering: crispEdges; }
 
 .sa-printsheet { display: none; }
 

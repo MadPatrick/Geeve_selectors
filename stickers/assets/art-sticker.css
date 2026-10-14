@@ -1,0 +1,28 @@
+/* Artikelsticker (102 × 54 mm): omschrijving (max. 2 regels), Code 128-barcode en artikelnummer groot, gecentreerd.
+   Gedeeld door Stickers op Artikelnummer (stickers/artikel) en de optie "Artikelsticker" van Artikelstickers per order
+   (stickers/order). Selectors met .sticker.sticker--art, zodat ze winnen van de orderstickerregels (.sticker .f). */
+
+.sticker.sticker--art {
+    position: relative;
+    width: 102mm;
+    height: 54mm;
+    overflow: hidden;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1;
+}
+.sticker.sticker--art .f {
+    position: absolute;
+    left: 4mm;
+    right: 4mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    font-weight: 700;
+}
+.sticker.sticker--art .desc { top: 3.5mm; height: 11.5mm; font-size: 4.4mm; line-height: 1.15; white-space: normal; }
+.sticker.sticker--art .art { top: 33mm; height: 12mm; font-size: 10mm; white-space: nowrap; }
+.sticker.sticker--art .bc { position: absolute; left: 4mm; right: 4mm; top: 16.5mm; width: auto; height: 15.5mm; display: flex; justify-content: center; }
+.sticker.sticker--art .bc svg { display: block; height: 100%; shape-rendering: crispEdges; }

@@ -38,6 +38,7 @@ $csrf = csrfToken();
     <!-- Knoppen, tabel, invoerveld en meldingen zijn dezelfde als in de rapporten. -->
     <link rel="stylesheet" href="../../klantartikel/assets/style.css?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
     <link rel="stylesheet" href="../../reports/msp/assets/style.css?v=<?= h(assetVersion('../../reports/msp/assets/style.css')) ?>">
+    <link rel="stylesheet" href="../assets/art-sticker.css?v=<?= h(assetVersion('../assets/art-sticker.css')) ?>">
     <link rel="stylesheet" href="../assets/artikel-stickers.css?v=<?= h(assetVersion('../assets/artikel-stickers.css')) ?>">
 </head>
 <body>
@@ -97,6 +98,7 @@ $csrf = csrfToken();
 <!-- Alleen voor het printen: hier komen de stickers (elk aantal keer) vlak voor window.print(). -->
 <div id="saPrintSheet" class="sa-printsheet" aria-hidden="true"></div>
 <script src="../assets/vendor/JsBarcode.code128.min.js"></script>
+<script src="../assets/art-sticker.js?v=<?= h(assetVersion('../assets/art-sticker.js')) ?>"></script>
 <script src="../assets/artikel-stickers.js?v=<?= h(assetVersion('../assets/artikel-stickers.js')) ?>"></script>
 </body>
 </html>
