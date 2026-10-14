@@ -9,7 +9,8 @@ tileApiGuard('artikel-marge');
 /**
  * Artikelmarges: per artikel de standaard verkoop- en inkoopprijs, toeslag en marge. Leest de view
  * [Exactrapportage].[dbo].[1000 artikelen + standaard verk_pr + standaard ink_pr], dezelfde bron als de dataverbinding in de
- * Excel "Artikel met verkoopprijs inkoopprijs en marge", met dezelfde kolommen in dezelfde volgorde.
+ * Excel "Artikel met verkoopprijs inkoopprijs en marge", met dezelfde kolommen in dezelfde volgorde
+ * (zonder verkinink, ink_pr per verp, ink_eenh en ArtGrpnm_EN).
  * Beide filters zijn optioneel (leeg = alle artikelen, ca. 70.000 regels); het scherm toont alleen de eerste MARGE_MAX_SHOWN.
  */
 
@@ -19,12 +20,12 @@ const MARGE_MAX_SHOWN = 500;
 
 /** Kolommen uit de view (volgorde van de Excel). */
 const MARGE_COLUMNS = [
-    'Artnr', 'artnm', 'artgrp', 'Vrk prijs', 'verk_eenh', 'ink_pr per st', 'verkinink', 'ink_pr per verp', 'ink_eenh',
-    'toeslag % V/I', 'marge I/V', 'aant_lev', 'ArtGrpnm_NL', 'ArtGrpnm_EN', 'parkergroepennr', 'kortingsgroep parker',
+    'Artnr', 'artnm', 'artgrp', 'Vrk prijs', 'verk_eenh', 'ink_pr per st', 'toeslag % V/I', 'marge I/V', 'aant_lev',
+    'ArtGrpnm_NL', 'parkergroepennr', 'kortingsgroep parker',
     'finartgrp', 'IE_i_VE', 'artnr_lev', 'crdnr',
 ];
 /** Kolommen die als getal worden doorgegeven (ook als de view ze als tekst levert, zoals ink_pr per st). */
-const MARGE_NUMERIC = ['Vrk prijs', 'ink_pr per st', 'ink_pr per verp', 'toeslag % V/I', 'marge I/V', 'aant_lev', 'IE_i_VE'];
+const MARGE_NUMERIC = ['Vrk prijs', 'ink_pr per st', 'toeslag % V/I', 'marge I/V', 'aant_lev', 'IE_i_VE'];
 
 reportApi(function (array $in): array {
     $group = trim((string) ($in['groep'] ?? ''));
@@ -96,7 +97,7 @@ reportApi(function (array $in): array {
         'dates' => array_fill(0, count(MARGE_COLUMNS), false),
         'rows' => $rows,
         'text' => ['Artnr', 'artgrp', 'artnr_lev', 'crdnr', 'parkergroepennr', 'finartgrp'],
-        'currency' => ['Vrk prijs', 'ink_pr per st', 'ink_pr per verp'],
+        'currency' => ['Vrk prijs', 'ink_pr per st'],
         'percent' => ['toeslag % V/I', 'marge I/V'],
         'nowrap' => ['Artnr'],
         'maxShown' => MARGE_MAX_SHOWN,
