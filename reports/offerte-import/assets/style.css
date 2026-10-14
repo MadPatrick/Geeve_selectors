@@ -38,3 +38,6 @@
 /* Compacte regels: celpadding staat op .ka-table; hier alleen de eigen invoervelden. */
 #oiTable input.oi-qty, #oiTable input.oi-code { min-height: 28px; padding-top: 2px; padding-bottom: 2px; }
 .oi-del { padding: 0 8px; }
+/* Regel toevoegen staat naast de tellingen boven de tabel; het tabelblok is altijd zichtbaar, zodat je ook zonder Excel regels kunt invoeren. */
+.oi-summary-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--btn-gap); margin-bottom: 12px; }
+.oi-summary-bar .msp-summary { margin-bottom: 0; }

@@ -65,6 +65,8 @@
         var n = Number(String(q === null || q === undefined ? '' : q).replace(',', '.'));
         return isFinite(n) && n > 0 ? n : null;
     }
+    // Aantal met enkelvoud of meervoud: pl(1, 'regel', 'regels') = '1 regel'.
+    function pl(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
     function showMessage(text) { messageEl.textContent = text; messageEl.hidden = !text; }
     function showInfo(text) { infoEl.textContent = text; infoEl.hidden = !text; }
     function setCheck(el, text, ok) {
@@ -146,7 +148,7 @@
                 checked = {};
                 importedName = file.name;
                 render();
-                showInfo(lines.length ? 'Geïmporteerd: ' + file.name + ' (' + lines.length + ' regels). De gegevens worden gecontroleerd met Exact…' : '');
+                showInfo(lines.length ? 'Geïmporteerd: ' + file.name + ' (' + pl(lines.length, 'regel', 'regels') + '). De gegevens worden gecontroleerd met Exact…' : '');
                 if (!lines.length) { showMessage('Geen regels gevonden in ' + file.name + '. Vul in de template het aantal (kolom B) en de artikelcode (kolom C) in.'); }
                 validate(true);
             } catch (err) {
@@ -179,7 +181,7 @@
                 if (withItems) {
                     itemInfo = json.items || {};
                     lines.forEach(function (l) { if (cv(l) !== '') { checked[ck(l)] = true; } });
-                    if (lines.length && !quiet) { showInfo('Geïmporteerd: ' + importedName + ' (' + lines.length + ' regels), gecontroleerd met Exact.'); }
+                    if (lines.length && !quiet) { showInfo('Geïmporteerd: ' + importedName + ' (' + pl(lines.length, 'regel', 'regels') + '), gecontroleerd met Exact.'); }
                 }
                 render();
             })
@@ -267,7 +269,6 @@
             var again = tbody.querySelector('input.' + focusCls + '[data-i="' + focusIdx + '"]');
             if (again) { again.focus(); if (caret !== null) { again.setSelectionRange(caret, caret); } }
         }
-        resultEl.hidden = lines.length === 0;
 
         var articles = states.length;
         var missing = states.filter(function (s) { return s.cls === 'is-missing'; }).length;
@@ -276,7 +277,7 @@
         var minOrder = states.filter(function (s) { return s.minorder; }).length;
         var pending = states.some(function (s) { return s.pending; });
         summaryEl.innerHTML =
-            '<span class="msp-pill"><strong>' + lines.length + '</strong> regels</span>' +
+            '<span class="msp-pill"><strong>' + lines.length + '</strong> ' + (lines.length === 1 ? 'regel' : 'regels') + '</span>' +
             (missing ? '<span class="msp-pill oi-pill-bad"><strong>' + missing + '</strong> niet in Exact</span>' : '') +
             (minOrder ? '<span class="msp-pill oi-pill-warn"><strong>' + minOrder + '</strong> onder minimale bestelhoeveelheid</span>' : '') +
             (incomplete ? '<span class="msp-pill oi-pill-warn"><strong>' + incomplete + '</strong> onvolledig (aantal of artikelcode)</span>' : '');
@@ -288,9 +289,9 @@
         if (descEl.value.trim() === '') { problems.push('omschrijving invullen'); }
         if (!dateOk) { problems.push('datum invullen'); }
         if (!states.some(function (s) { return s.export; })) { problems.push('minstens één artikelregel met artikelcode en aantal'); }
-        if (missing) { problems.push(missing + ' artikel(en) die niet in Exact bestaan (rood) aanpassen of verwijderen'); }
-        if (incomplete) { problems.push(incomplete + ' regel(s) zonder geldig aantal of artikelcode (oranje) aanvullen of verwijderen'); }
-        if (empty) { problems.push(empty + ' lege regel(s) invullen of verwijderen'); }
+        if (missing) { problems.push(pl(missing, 'artikel', 'artikelen') + ' die niet in Exact bestaan (rood) aanpassen of verwijderen'); }
+        if (incomplete) { problems.push(pl(incomplete, 'regel', 'regels') + ' zonder geldig aantal of artikelcode (oranje) aanvullen of verwijderen'); }
+        if (empty) { problems.push(pl(empty, 'lege regel', 'lege regels') + ' invullen of verwijderen'); }
         if (pending) { problems.push('artikelen worden nog gecontroleerd'); }
         var ready = lines.length > 0 && problems.length === 0;
         exportBtn.disabled = !ready;
