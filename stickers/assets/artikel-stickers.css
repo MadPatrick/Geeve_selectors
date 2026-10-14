@@ -24,10 +24,6 @@
 .sa-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
 .sa-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
 .sa-buttons { display: flex; gap: var(--btn-gap); flex-wrap: wrap; justify-content: flex-end; }
-.sa-btn { min-width: 130px; justify-content: center; border: 1px solid #b9bab4; color: #000; }
-.sa-btn--geeve { background: #fff; }
-.sa-btn:hover { filter: brightness(.95); }
-.sa-btn:disabled { opacity: .5; cursor: default; }
 
 .sa-printsheet { display: none; }
 

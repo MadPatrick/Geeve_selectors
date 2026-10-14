@@ -37,6 +37,7 @@ function assetVersion(string $relativePath): string
     <link rel="stylesheet" href="../../klantartikel/assets/style.css?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
     <link rel="stylesheet" href="../../reports/msp/assets/style.css?v=<?= h(assetVersion('../../reports/msp/assets/style.css')) ?>">
     <link rel="stylesheet" href="../assets/accu.css?v=<?= h(assetVersion('../assets/accu.css')) ?>">
+    <link rel="stylesheet" href="../assets/print-button.css?v=<?= h(assetVersion('../assets/print-button.css')) ?>">
 </head>
 <body>
 <main class="page-shell page-shell--wide">
@@ -66,7 +67,7 @@ function assetVersion(string $relativePath): string
             <div class="ac-print">
                 <label class="ac-copies"><input type="number" id="acCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
                 <button type="button" id="acClear" class="ka-button ka-button--secondary">Leegmaken</button>
-                <button type="button" id="acPrint" class="ka-button">Print</button>
+                <button type="button" id="acPrint" class="ka-button ka-button--secondary st-print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
             </div>
         </div>
     </section>

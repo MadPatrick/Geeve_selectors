@@ -27,9 +27,6 @@
 .ps-print { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 14px; }
 .ps-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
 .ps-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
-.ps-btn { min-width: 130px; justify-content: center; border: 1px solid #b9bab4; color: #000; background: #fff; }
-.ps-btn:hover { filter: brightness(.95); }
-.ps-btn:disabled { opacity: .5; cursor: default; }
 
 /* De sticker */
 .sticker {

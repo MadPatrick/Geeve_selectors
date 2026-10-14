@@ -1,0 +1,4 @@
+/* Eén Print-knop voor alle stickertegels: grijze ka-button--secondary met printer-icoon ervoor. */
+.st-print { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 120px; }
+.st-print svg { width: 18px; height: 18px; flex: none; }
+.st-print:disabled { opacity: .5; cursor: default; }

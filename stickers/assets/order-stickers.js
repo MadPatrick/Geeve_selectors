@@ -102,7 +102,6 @@
         sheet.classList.remove('is-measuring');
         show(current);
         printBtn.disabled = list.length === 0;
-        printBtn.textContent = list.length === 0 ? 'Print stickers' : 'Print ' + list.length + (list.length === 1 ? ' sticker' : ' stickers');
         all.checked = list.length === rows.length;
         all.indeterminate = list.length > 0 && list.length < rows.length;
         Array.prototype.forEach.call(tbody.querySelectorAll('tr'), function (tr) {
