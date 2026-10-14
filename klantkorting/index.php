@@ -107,9 +107,11 @@ try {
 
     <section class="panel">
         <form method="get" class="ka-form">
-            <label class="field">
+            <label class="field kk-pl-field">
                 <span>Prijslijstnummer</span>
-                <input type="text" name="prijslijst" value="<?= h($priceList) ?>" placeholder="bijv. 100" autocomplete="off" autofocus required>
+                <input type="text" name="prijslijst" id="kkPriceList" value="<?= h($priceList) ?>" placeholder="Nummer of naam, bijv. 100" autocomplete="off" autofocus required
+                       role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="kkPriceListHits" data-lists="api/pricelists.php">
+                <ul class="kk-pl-hits" id="kkPriceListHits" role="listbox" hidden></ul>
             </label>
             <button type="submit" class="ka-button">Zoeken</button>
         </form>
@@ -198,5 +200,6 @@ try {
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
+<script src="assets/pricelist-search.js?v=<?= h(assetVersion('assets/pricelist-search.js')) ?>"></script>
 </body>
 </html>
