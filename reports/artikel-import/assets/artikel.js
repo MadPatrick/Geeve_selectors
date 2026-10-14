@@ -40,6 +40,8 @@
     function esc(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
+    // Aantal met enkelvoud of meervoud: pl(1, 'regel', 'regels') = '1 regel'.
+    function pl(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
     function showMessage(text) { messageEl.textContent = text; messageEl.hidden = !text; }
     function showInfo(text) { infoEl.textContent = text; infoEl.hidden = !text; }
     function key(v) { return String(v || '').trim().toUpperCase(); }
@@ -147,7 +149,7 @@
                 importedName = file.name;
                 buildTable();
                 if (lines.length) {
-                    showInfo('Geïmporteerd: ' + file.name + ' (' + lines.length + ' regels). De gegevens worden gecontroleerd met Exact…');
+                    showInfo('Geïmporteerd: ' + file.name + ' (' + pl(lines.length, 'regel', 'regels') + '). De gegevens worden gecontroleerd met Exact…');
                 } else {
                     showMessage('Geen regels gevonden in ' + file.name + '.');
                 }
@@ -188,7 +190,7 @@
                 sent.suppliers.forEach(function (k) { supplierInfo[k] = (json.suppliers && json.suppliers[k]) || { found: false }; });
                 sent.groups.forEach(function (k) { groupInfo[k] = (json.groups && json.groups[k]) || { found: false }; });
                 (json.warnings || []).forEach(function (w) { if (warnings.indexOf(w) === -1) { warnings.push(w); } });
-                if (importedName && sent.items.length) { showInfo('Geïmporteerd: ' + importedName + ' (' + lines.length + ' regels), gecontroleerd met Exact.'); }
+                if (importedName && sent.items.length) { showInfo('Geïmporteerd: ' + importedName + ' (' + pl(lines.length, 'regel', 'regels') + '), gecontroleerd met Exact.'); }
             })
             .catch(function (err) { showMessage('Controle met Exact mislukt: ' + err.message); })
             .then(function () {
@@ -345,18 +347,18 @@
         var badRows = states.filter(function (s) { return s.bad || s.problem; }).length;
         var pending = states.some(function (s) { return s.pending; });
         summaryEl.innerHTML =
-            '<span class="msp-pill"><strong>' + total + '</strong> regels</span>' +
+            '<span class="msp-pill"><strong>' + total + '</strong> ' + (total === 1 ? 'regel' : 'regels') + '</span>' +
             (existing ? '<span class="msp-pill"><strong>' + existing + '</strong> bestaand</span>' : '') +
             (created ? '<span class="msp-pill ai-pill-new"><strong>' + created + '</strong> nieuw (wordt aangemaakt)</span>' : '') +
-            (changed ? '<span class="msp-pill ai-pill-changed"><strong>' + changed + '</strong> gewijzigde velden</span>' : '') +
+            (changed ? '<span class="msp-pill ai-pill-changed"><strong>' + changed + '</strong> ' + (changed === 1 ? 'gewijzigd veld' : 'gewijzigde velden') + '</span>' : '') +
             (badRows ? '<span class="msp-pill ai-pill-bad"><strong>' + badRows + '</strong> met fouten</span>' : '');
 
         var problems = [];
         var n = function (test) { return states.filter(test).length; };
         var c;
-        if ((c = n(function (s) { return s.problem === 'nocode'; }))) { problems.push(c + ' regel(s) zonder artikelcode'); }
-        if ((c = n(function (s) { return s.problem === 'long'; }))) { problems.push(c + ' artikelcode(s) langer dan 30 tekens'); }
-        if ((c = n(function (s) { return s.problem === 'double'; }))) { problems.push(c + ' regels met een dubbele artikelcode'); }
+        if ((c = n(function (s) { return s.problem === 'nocode'; }))) { problems.push(pl(c, 'regel', 'regels') + ' zonder artikelcode'); }
+        if ((c = n(function (s) { return s.problem === 'long'; }))) { problems.push(pl(c, 'artikelcode', 'artikelcodes') + ' langer dan 30 tekens'); }
+        if ((c = n(function (s) { return s.problem === 'double'; }))) { problems.push(pl(c, 'regel', 'regels') + ' met een dubbele artikelcode'); }
         var byReason = {};
         states.forEach(function (s) { FIELDS.forEach(function (f) { var b = s.cells[f.key] && s.cells[f.key].bad; if (b) { var r = f.col + ': ' + b.charAt(0).toLowerCase() + b.slice(1); byReason[r] = (byReason[r] || 0) + 1; } }); });
         Object.keys(byReason).forEach(function (r) { problems.push(r + ' (' + byReason[r] + 'x)'); });
@@ -436,7 +438,7 @@
         a.click();
         document.body.removeChild(a);
         setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
-        showInfo('XML-bestand gemaakt (' + lines.length + ' artikelen). Importeer het in Exact via Systeem\\Importeren XML.');
+        showInfo('XML-bestand gemaakt (' + pl(lines.length, 'artikel', 'artikelen') + '). Importeer het in Exact via Systeem\\Importeren XML.');
     }
 
     // ---- Wijzigen in de tabel ----
