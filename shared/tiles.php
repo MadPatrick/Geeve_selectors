@@ -31,12 +31,14 @@ const TILE_REGISTRY = [
     'offerte-import' => ['reports', 'Offerte Import', 'reports/offerte-import/index.php', true, false, false],
     'inkooporder-import' => ['reports', 'Inkooporder Import', 'reports/inkooporder-import/index.php', true, false, false],
     'export-info' => ['reports', 'Export info', 'reports/export-info/index.php', true, false, false],
-    // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); de laatste twee zijn nog plaatshouders zonder eigen pagina.
+    // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
     'stickers-order' => ['stickers', 'Artikelstickers per order', 'stickers/order/index.php', true, false, true],
     'stickers-artikel' => ['stickers', 'Stickers op Artikelnummer', 'stickers/artikel/index.php', true, false, true],
     'stickers-productie' => ['stickers', 'Productiestickers per order', 'stickers/productie/index.php', true, false, true],
-    'stickers-artikel-groot' => ['stickers', 'Stickers op Artikelnummer (groot)', '', true, false, false],
+    'stickers-artikel-groot' => ['stickers', "Sticker Accu's", '', true, false, false],
     'stickers-zakjes' => ['stickers', 'Stickers op Zakjes', '', true, false, false],
+    'stickers-kabelmerkers' => ['stickers', 'Kabelmerkers Geel', '', true, false, true],
+    'stickers-slanglabels' => ['stickers', 'Slanglabels', '', true, false, true],
 ];
 
 /** @return array<string,array{visible:bool,locked:bool,wip:bool,title:string}> */
