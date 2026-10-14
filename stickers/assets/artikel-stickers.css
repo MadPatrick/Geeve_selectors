@@ -1,0 +1,69 @@
+/* Stickers op Artikelnummer (stickers/artikel): de sticker zelf (102 × 54 mm, zelfde formaat als Artikelstickers per order)
+   en de printinstellingen. Knoppen/tabel/velden komen uit klantartikel/ en reports/msp/ (zie stickers/artikel/index.php).
+   Posities en lettergroottes in mm, nagemaakt van de NiceLabel-template; bijstellen na een proefprint. */
+
+/* Invoer + tabel links, voorbeeld en printknoppen rechts (op smalle schermen eronder). */
+.sa-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.sa-form { flex: 1 1 420px; min-width: 0; }
+.sa-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 18px; }
+.sa-side[hidden] { display: none; }
+
+.sa-table-wrap { max-height: 480px; overflow-y: auto; margin-top: 14px; }
+#saTable thead th { position: sticky; top: 0; z-index: 1; }
+#saTable tbody tr { cursor: pointer; }
+#saTable tbody tr.is-current td { background: #cfe3fa; }
+/* Vinkjes even hoog als de tekst (13px), niet de 48px van de gedeelde input-regel. */
+#saTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
+#saTable th:first-child, #saTable td:first-child { width: 1%; }
+#saTable td:nth-child(2) { white-space: nowrap; }
+
+.sa-preview { zoom: 1.25; }
+.sa-preview .sticker { box-shadow: 0 0 0 1px #e0516a; border-radius: 2.5mm; background: #fff; }
+
+.sa-print { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.sa-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.sa-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
+.sa-buttons { display: flex; gap: var(--btn-gap); flex-wrap: wrap; justify-content: flex-end; }
+.sa-btn { min-width: 130px; justify-content: center; border: 1px solid #b9bab4; color: #000; }
+.sa-btn--geel { background: #ffef00; border-color: #d9c900; }
+.sa-btn--zilver { background: #dcdcdc; }
+.sa-btn--geeve { background: #fff; }
+.sa-btn:hover { filter: brightness(.95); }
+.sa-btn:disabled { opacity: .5; cursor: default; }
+
+.sticker {
+    position: relative;
+    width: 102mm;
+    height: 54mm;
+    overflow: hidden;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1;
+}
+.sticker .f {
+    position: absolute;
+    left: 4mm;
+    right: 4mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: 700;
+}
+.sticker .desc { top: 8mm; height: 6mm; font-size: 4.4mm; }
+.sticker .art { top: 32.5mm; height: 11mm; font-size: 10mm; }
+.sticker .bc { position: absolute; left: 4mm; right: 4mm; top: 17mm; height: 15mm; display: flex; justify-content: center; }
+.sticker .bc svg { display: block; height: 100%; shape-rendering: crispEdges; }
+
+.sa-printsheet { display: none; }
+
+@page { size: 102mm 54mm; margin: 0; }
+
+@media print {
+    html, body { background: #fff !important; margin: 0; padding: 0; }
+    body > *:not(.sa-printsheet) { display: none !important; }
+    .sa-printsheet { display: block; }
+    .sa-printsheet .sticker { break-after: page; page-break-after: always; }
+    .sa-printsheet .sticker:last-child { break-after: auto; page-break-after: auto; }
+}
