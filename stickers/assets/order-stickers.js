@@ -45,7 +45,7 @@
     function field(cls, text) { return '<div class="f ' + cls + '">' + esc(text) + '</div>'; }
 
     function sticker(r, date) {
-        return '<div class="sticker">' +
+        return '<div class="sticker"><div class="sticker-in">' +
             field('r1 b c-l1', 'Bonnr.:') + field('r1 b c-bonnr', r.bonnr) + field('r1 b c-debnm', r.debnm) +
             field('r2 c-l2', 'Uw referentie:') + field('r2 c-ref', r.uw_ref) +
             field('r3 c-l3', 'Aantal:') + field('r3 b big c-val3', qty(r.besteld)) +
@@ -56,7 +56,7 @@
             '<div class="bc"><svg data-code="' + esc(r.artikelnummer) + '"></svg></div>' +
             field('r6 c-l6', 'rgl:') + field('r6 c-rgl', r.ord_rgl) +
             field('r6 c-date', date) + field('r6 c-loop', r.looplocatie) +
-            '</div>';
+            '</div></div>';
     }
 
     // Tekst die niet past wordt kleiner gezet (in stapjes), zodat niets wordt afgeknipt.

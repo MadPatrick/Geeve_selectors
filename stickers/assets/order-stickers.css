@@ -35,6 +35,9 @@
     font-size: 3.2mm;
     line-height: 1;
 }
+/* Marge van 10px (2,65 mm) aan alle kanten: de velden hieronder staan in mm op de volle 102 × 54 mm en worden als geheel
+   iets verkleind en verschoven, zodat alles tussen 2,65 en 99,35 mm (breed) / 51,35 mm (hoog) valt. */
+.sticker-in { position: absolute; left: 0; top: 0; width: 102mm; height: 54mm; transform-origin: 0 0; transform: translate(2.15mm, 2.08mm) scale(.964, .934); }
 .sticker .f {
     position: absolute;
     display: flex;
@@ -78,6 +81,8 @@
     html, body { background: #fff !important; margin: 0; padding: 0; }
     body > main > *:not(.so-top), .so-form, .so-nav { display: none !important; }
     body > main, .so-top, #soPreviewPanel { all: unset; display: block; }
+    /* .page-shell (shared) heeft marges; die moeten weg, anders schuift elke sticker 14px naar rechts en 6px omlaag. */
+    body > main.page-shell { margin: 0 !important; width: auto !important; }
     .so-preview { display: block; zoom: 1; }
     .so-preview:not(.is-measuring) .sticker:not(.is-current) { display: block; }
     .so-preview .sticker { box-shadow: none; border-radius: 0; overflow: hidden; break-after: page; page-break-after: always; }
