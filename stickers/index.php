@@ -122,7 +122,7 @@ $csrf = csrfToken();
         </div>
         <?php endif; $tileHtml['stickers-kabelmerkers'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-slanglabels')): ?>
-        <div class="<?= tileClass('stickers-slanglabels') ?> tile-disabled" aria-disabled="true">
+        <a class="<?= tileClass('stickers-slanglabels') ?>" href="slanglabels/index.php"<?= tileAttrs('stickers-slanglabels') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M3 17c4 0 4-10 9-10s5 10 9 10"></path>
@@ -130,9 +130,10 @@ $csrf = csrfToken();
                 </svg>
             </div>
             <h2><?= h(tileTitle('stickers-slanglabels')) ?></h2>
-            <p>Labels printen voor op een slang.</p>
-            <span class="tile-cta">Binnenkort beschikbaar</span>
-        </div>
+            <p>Labels voor op een slang, per order op te halen en aan te passen.</p>
+            <span class="tile-cta">Openen</span>
+            <?= tileLockIcon('stickers-slanglabels') ?>
+        </a>
         <?php endif; $tileHtml['stickers-slanglabels'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('stickers') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
