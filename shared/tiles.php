@@ -34,6 +34,7 @@ const TILE_REGISTRY = [
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); de laatste twee zijn nog plaatshouders zonder eigen pagina.
     'stickers-order' => ['stickers', 'Artikelstickers per order', 'stickers/order/index.php', true, false, true],
     'stickers-artikel' => ['stickers', 'Stickers op Artikelnummer', 'stickers/artikel/index.php', true, false, true],
+    'stickers-productie' => ['stickers', 'Productiestickers per order', 'stickers/productie/index.php', true, false, true],
     'stickers-artikel-groot' => ['stickers', 'Stickers op Artikelnummer (groot)', '', true, false, false],
     'stickers-zakjes' => ['stickers', 'Stickers op Zakjes', '', true, false, false],
 ];

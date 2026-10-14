@@ -1,0 +1,83 @@
+/* Productiestickers per order (stickers/productie): scherm, de sticker zelf (102 × 54 mm) en de printinstellingen.
+   Knoppen/tabel/velden komen uit klantartikel/ en reports/msp/ (zie stickers/productie/index.php).
+   Posities en lettergroottes in mm, nagemaakt van het voorbeeld uit de oude rapportbouwer; bijstellen na een proefprint. */
+
+#psTable td.num { text-align: right; font-variant-numeric: tabular-nums; }
+#psTable tr.is-off td { color: var(--muted); }
+/* Vinkjes even hoog als de tekst (13px), niet de 48px van de gedeelde input-regel. */
+#psTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
+#psTable th:first-child, #psTable td:first-child { width: 1%; }
+
+/* Eerste blok: invoer links, voorbeeld + printen helemaal rechts (op smalle schermen eronder). */
+.ps-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.ps-form { flex: 1 1 420px; min-width: 0; }
+.ps-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
+.ps-side[hidden] { display: none; }
+
+/* Voorbeeld op het scherm: één sticker tegelijk (iets vergroot); printen doet ze allemaal. */
+.ps-preview { zoom: 1.25; }
+.ps-preview .sticker { box-shadow: 0 0 0 1px #e0516a; border-radius: 2.5mm; background: #fff; }
+.ps-preview:not(.is-measuring) .sticker:not(.is-current) { display: none; }
+.ps-nav { display: flex; gap: var(--btn-gap); align-items: center; }
+.ps-nav .ka-button { min-width: 44px; justify-content: center; font-size: 18px; padding: 0 14px; }
+.ps-nav .ka-button:disabled { opacity: .4; cursor: default; }
+.ps-nav .msp-status { min-width: 12ch; text-align: center; }
+
+/* Aantal en printknop naast elkaar. */
+.ps-print { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 16px; }
+.ps-print > .msp-status { flex-basis: 100%; text-align: right; }
+.ps-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.ps-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
+.ps-btn { min-width: 130px; justify-content: center; border: 1px solid #b9bab4; color: #000; background: #fff; }
+.ps-btn:hover { filter: brightness(.95); }
+.ps-btn:disabled { opacity: .5; cursor: default; }
+
+/* De sticker */
+.sticker {
+    position: relative;
+    width: 102mm;
+    height: 54mm;
+    overflow: hidden;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 3.2mm;
+    line-height: 1;
+}
+/* Marge rondom: de velden staan in mm op de volle 102 × 54 mm en worden als geheel iets verkleind en verschoven. */
+.sticker-in { position: absolute; left: 0; top: 0; width: 102mm; height: 54mm; transform-origin: 0 0; transform: translate(2.15mm, 2.08mm) scale(.964, .934); }
+.sticker .f { position: absolute; display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
+.sticker .b { font-weight: 700; }
+.sticker .big { font-size: 4.6mm; }
+/* Barcode (Code 128 van het artikelnummer) gecentreerd; de breedte volgt het aantal streepjes (zie art-sticker.js). */
+.sticker .bc { position: absolute; left: 1.5mm; top: 29.5mm; width: 96.7mm; height: 11mm; display: flex; justify-content: center; }
+.sticker .bc svg { display: block; height: 100%; shape-rendering: crispEdges; }
+
+.sticker .r1 { top: 1.5mm; height: 4.5mm; }
+.sticker .r2 { top: 6.5mm; height: 5mm; }
+.sticker .r3 { top: 13mm; height: 6mm; }
+.sticker .r4 { top: 22.5mm; height: 5.5mm; }
+.sticker .r6 { top: 43mm; height: 5.3mm; }
+
+.sticker .c-l1 { left: .5mm; width: 13mm; }        /* "Bonnr.:" */
+.sticker .c-bonnr { left: 14.3mm; width: 22mm; }
+.sticker .c-debnm { left: 37.5mm; width: 63mm; }
+.sticker .c-l2 { left: .5mm; width: 25.5mm; }      /* "Uw referentie:" */
+.sticker .c-ref { left: 26.3mm; width: 74mm; }
+.sticker .c-l3 { left: .5mm; width: 21mm; }        /* "Aantal:" / "Locatie:" */
+.sticker .c-val3 { left: 22.6mm; width: 13.5mm; }  /* aantal / locatie */
+.sticker .c-l4 { left: 37.2mm; width: 17mm; }      /* "Artikelnr:" */
+.sticker .c-val4 { left: 54.5mm; width: 46mm; }    /* artikelnummer */
+.sticker .c-date { left: 24mm; width: 48mm; justify-content: flex-end; }
+.sticker .c-loop { left: 74mm; width: 26mm; }
+
+.ps-printsheet { display: none; }
+
+@page { size: 102mm 54mm; margin: 0; }
+
+@media print {
+    html, body { background: #fff !important; margin: 0; padding: 0; }
+    body > *:not(.ps-printsheet) { display: none !important; }
+    .ps-printsheet { display: block; }
+    .ps-printsheet .sticker { break-after: page; page-break-after: always; }
+    .ps-printsheet .sticker:last-child { break-after: auto; page-break-after: auto; }
+}
