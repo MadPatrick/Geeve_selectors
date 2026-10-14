@@ -10,7 +10,7 @@ tileApiGuard('artikel-marge');
  * Artikelmarges: per artikel de standaard verkoop- en inkoopprijs, toeslag en marge. Leest de view
  * [Exactrapportage].[dbo].[1000 artikelen + standaard verk_pr + standaard ink_pr], dezelfde bron als de dataverbinding in de
  * Excel "Artikel met verkoopprijs inkoopprijs en marge", met dezelfde kolommen in dezelfde volgorde
- * (zonder verkinink, ink_pr per verp, ink_eenh en ArtGrpnm_EN).
+ * (zonder verkinink, ink_pr per verp, ink_eenh, ArtGrpnm_EN en finartgrp).
  * Beide filters zijn optioneel (leeg = alle artikelen, ca. 70.000 regels); het scherm toont alleen de eerste MARGE_MAX_SHOWN.
  */
 
@@ -22,16 +22,16 @@ const MARGE_MAX_SHOWN = 500;
 const MARGE_COLUMNS = [
     'Artnr', 'artnm', 'artgrp', 'Vrk prijs', 'verk_eenh', 'ink_pr per st', 'toeslag % V/I', 'marge I/V', 'aant_lev',
     'ArtGrpnm_NL', 'parkergroepennr', 'kortingsgroep parker',
-    'finartgrp', 'IE_i_VE', 'artnr_lev', 'crdnr',
+    'IE_i_VE', 'artnr_lev', 'crdnr',
 ];
 /** Kolommen die als getal worden doorgegeven (ook als de view ze als tekst levert, zoals ink_pr per st). */
 const MARGE_NUMERIC = ['Vrk prijs', 'ink_pr per st', 'toeslag % V/I', 'marge I/V', 'aant_lev', 'IE_i_VE'];
 /** Kolomkop op het scherm en in de Excel (view-kolom => kop). */
 const MARGE_HEADERS = [
     'Artnr' => 'Artikel', 'artnm' => 'Omschrijving', 'artgrp' => 'Groep', 'Vrk prijs' => 'Verkoop', 'verk_eenh' => 'Eenheid',
-    'ink_pr per st' => 'Inkoop', 'toeslag % V/I' => 'Toeslag %', 'marge I/V' => 'Marge %', 'aant_lev' => 'Aant. lev.',
+    'ink_pr per st' => 'Inkoop', 'toeslag % V/I' => "Toeslag\u{00A0}%", 'marge I/V' => "Marge\u{00A0}%", 'aant_lev' => 'Aant. lev.',
     'ArtGrpnm_NL' => 'Groepnaam', 'parkergroepennr' => 'Parker groep', 'kortingsgroep parker' => 'Parker korting',
-    'finartgrp' => 'Fin. groep', 'IE_i_VE' => 'IE per VE', 'artnr_lev' => 'Art. lev.', 'crdnr' => 'Crediteur',
+    'IE_i_VE' => 'IE per VE', 'artnr_lev' => 'Art. lev.', 'crdnr' => 'Crediteur',
 ];
 
 /** @param list<string> $names view-kolommen @return list<string> koppen */
@@ -120,7 +120,7 @@ reportApi(function (array $in): array {
         'numeric' => $numeric,
         'dates' => array_fill(0, count(MARGE_COLUMNS), false),
         'rows' => $rows,
-        'text' => margeHeaders(['Artnr', 'artgrp', 'artnr_lev', 'crdnr', 'parkergroepennr', 'finartgrp']),
+        'text' => margeHeaders(['Artnr', 'artgrp', 'artnr_lev', 'crdnr', 'parkergroepennr']),
         'currency' => margeHeaders(['Vrk prijs', 'ink_pr per st']),
         'percent' => margeHeaders(['toeslag % V/I', 'marge I/V']),
         'nowrap' => margeHeaders(['Artnr']),
