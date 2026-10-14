@@ -13,19 +13,6 @@ details.panel > summary { cursor: pointer; font-weight: 750; }
 .kk-hint { font-size: 13px; color: var(--ink); }
 .ka-actions { flex-wrap: wrap; }
 
-/* Veld Prijslijstnummer: zoeken op nummer of naam, met een lijst suggesties eronder (zie pricelist-search.js). */
-.kk-pl-field { position: relative; }
-.ka-form .kk-pl-field input { width: calc(36ch + 26px); }
-.kk-pl-hits {
-    position: absolute; top: 100%; left: 0; right: 0; z-index: 20; margin: 4px 0 0; padding: 4px 0; list-style: none;
-    background: #fff; border: 1px solid var(--line-strong, #c9d4de); border-radius: 10px; box-shadow: var(--shadow);
-    max-height: 360px; overflow-y: auto; font-size: 13px; font-weight: 400;
-}
-.kk-pl-hits[hidden] { display: none; }
-.kk-pl-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.kk-pl-hits li strong { display: inline-block; min-width: 6ch; }
-.kk-pl-hits li:hover, .kk-pl-hits li.is-active { background: #fde6ec; }
-
 /* Omschrijving van de prijslijst (gaat mee in de XML-export). */
 .kk-desc-field { max-width: 46ch; margin: 0 0 12px; }
 .kk-desc-field > span small { font-weight: 600; }

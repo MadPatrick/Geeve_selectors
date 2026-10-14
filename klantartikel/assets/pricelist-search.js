@@ -1,9 +1,10 @@
-// Veld Prijslijstnummer: zoeken op nummer of omschrijving van de prijslijst (stfoms, type S), met suggesties terwijl je
+// Veld Prijslijst (Klant Artikelnummers en Kortingstructuur): zoeken op nummer of omschrijving van de prijslijst (stfoms;
+// welke prijslijsten bepaalt het endpoint in data-lists), met suggesties terwijl je
 // typt. Fuzzy: hoofdletters, spaties, punten, koppeltekens en accenten tellen niet mee en de woorden mogen in elke volgorde.
 // Een keuze vult het nummer in en zoekt meteen. Een getypt nummer met Enter werkt zoals voorheen.
 (function () {
-    var input = document.getElementById('kkPriceList');
-    var list = document.getElementById('kkPriceListHits');
+    var input = document.getElementById('plSearch');
+    var list = document.getElementById('plSearchHits');
     if (!input || !list) { return; }
     var form = input.form;
     var lists = null;   // [{nr, oms, key}] na het laden

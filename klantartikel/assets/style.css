@@ -59,3 +59,16 @@
 .ka-drop { margin: 12px 0; padding: 18px; border: 2px dashed var(--accent-line, #f47896); border-radius: 12px; text-align: center; font-size: 13px; color: var(--muted); cursor: pointer; }
 .ka-drop:hover, .ka-drop:focus-visible, .ka-drop.is-over { background: var(--soft, #f4f7fa); border-color: var(--accent); outline: none; }
 .ka-message--ok { color: #237447; background: #e8f4ed; }
+
+/* Veld Prijslijst (ook gebruikt door Kortingstructuur): zoeken op nummer of naam, met een lijst suggesties eronder (zie pricelist-search.js). */
+.pl-field { position: relative; }
+.ka-form .pl-field input { width: calc(36ch + 26px); }
+.pl-hits {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 20; margin: 4px 0 0; padding: 4px 0; list-style: none;
+    background: #fff; border: 1px solid var(--line-strong, #c9d4de); border-radius: 10px; box-shadow: var(--shadow);
+    max-height: 360px; overflow-y: auto; font-size: 13px; font-weight: 400;
+}
+.pl-hits[hidden] { display: none; }
+.pl-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl-hits li strong { display: inline-block; min-width: 6ch; }
+.pl-hits li:hover, .pl-hits li.is-active { background: #fde6ec; }
