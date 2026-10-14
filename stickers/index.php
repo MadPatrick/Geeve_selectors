@@ -22,6 +22,11 @@ function assetVersion(string $relativePath): string
     $mtime = @filemtime($full);
     return $mtime !== false ? (string) $mtime : APP_VERSION;
 }
+
+// Beveiligde tegels: elke keer dat dit overzicht opent, vragen ze opnieuw om de code.
+tilesRelock('stickers');
+$lockRoot = '../';
+$csrf = csrfToken();
 ?>
 <!doctype html>
 <html lang="nl">
@@ -32,6 +37,8 @@ function assetVersion(string $relativePath): string
     <title>Stickers | Geeve Hydraulics</title>
     <link rel="icon" href="../favicon.ico?v=<?= h(assetVersion('../favicon.ico')) ?>" type="image/x-icon">
     <link rel="stylesheet" href="../shared/style.css?v=<?= h(assetVersion('../shared/style.css')) ?>">
+    <!-- Popup voor beveiligde tegels en de "IN PROGRESS"-stempel komen uit de stijl van het hoofdscherm. -->
+    <link rel="stylesheet" href="../assets/style.css?v=<?= h(assetVersion('../assets/style.css')) ?>">
     <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
 </head>
 <body>
@@ -45,6 +52,19 @@ function assetVersion(string $relativePath): string
     <p class="intro">Kies wat je wilt printen.</p>
 
     <div class="tile-grid">
+        <?php ob_start(); if (tileVisible('stickers-order')): ?>
+        <a class="<?= tileClass('stickers-order') ?>" href="order/index.php"<?= tileAttrs('stickers-order') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 5v14M7 5v14M10 5v14M14 5v14M17 5v14M21 5v14"></path>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('stickers-order')) ?></h2>
+            <p>Per orderregel een artikelsticker, in de volgorde van de order.</p>
+            <span class="tile-cta">Openen</span>
+            <?= tileLockIcon('stickers-order') ?>
+        </a>
+        <?php endif; $tileHtml['stickers-order'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-artikel')): ?>
         <div class="<?= tileClass('stickers-artikel') ?> tile-disabled" aria-disabled="true">
             <div class="tile-icon">
@@ -90,5 +110,7 @@ function assetVersion(string $relativePath): string
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
+
+<?php require __DIR__ . '/../shared/lock_modal.php'; ?>
 </body>
 </html>
