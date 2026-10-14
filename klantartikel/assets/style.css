@@ -59,3 +59,8 @@
 .ka-drop { margin: 12px 0; padding: 18px; border: 2px dashed var(--accent-line, #f47896); border-radius: 12px; text-align: center; font-size: 13px; color: var(--muted); cursor: pointer; }
 .ka-drop:hover, .ka-drop:focus-visible, .ka-drop.is-over { background: var(--soft, #f4f7fa); border-color: var(--accent); outline: none; }
 .ka-message--ok { color: #237447; background: #e8f4ed; }
+
+/* Zoekveld bij "Klanten op prijslijst" (filtert de klant-chips, zie customer-filter.js). */
+.ka-chip-search { width: 28ch; min-width: 0; }
+.ka-chip[hidden] { display: none; }
+.panel > .ka-heading:has(.ka-chip-search) { margin-bottom: 12px; }
