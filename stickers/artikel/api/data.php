@@ -21,7 +21,7 @@ reportApi(function (array $post): array {
     if ($zoek === '') {
         throw new RuntimeException('Vul (een deel van) een artikelnummer in.');
     }
-    if (mb_strlen($zoek) > 60) {
+    if (strlen($zoek) > 60) {
         throw new RuntimeException('Zoekterm is te lang.');
     }
     // [ % _ in de zoekterm letterlijk nemen, niet als LIKE-jokertekens.
