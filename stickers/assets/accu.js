@@ -6,11 +6,11 @@
     var dateInput = document.querySelector('[data-field="datum"]');
 
     // Waarschuwingsdriehoek en accu-symbool (blaasaccumulator), als lijnen zodat ze scherp printen.
-    var WARN = '<svg class="warn" viewBox="0 0 38 34" aria-hidden="true"><path d="M19 2.5 36 32H2Z" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>' +
+    var WARN = '<svg class="warn" viewBox="0 0 38 34" aria-hidden="true"><path d="M19 2 36.5 31.7H1.5Z" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>' +
         '<path d="M19 11v12" stroke="#000" stroke-width="3.4" stroke-linecap="round"/><circle cx="19" cy="27.6" r="1.9"/></svg>';
     var ACC = '<svg class="acc" viewBox="0 0 13 34" aria-hidden="true"><rect x="1" y="1" width="11" height="28" rx="5.5" fill="none" stroke="#000" stroke-width="1"/>' +
         '<path d="M1 10.5h11" stroke="#000" stroke-width=".8"/><path d="M3.8 5h5.4L6.5 9.2Z" fill="none" stroke="#000" stroke-width=".8"/>' +
-        '<path d="M6.5 29v4.5" stroke="#000" stroke-width="1"/></svg>';
+        '<path d="M6.5 29v4" stroke="#000" stroke-width="1"/></svg>';
 
     function esc(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

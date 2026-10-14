@@ -25,11 +25,12 @@
     line-height: 1;
 }
 .accu svg { position: absolute; }
-.accu .warn { left: 2mm; top: 5mm; width: 19mm; height: 17mm; }
-.accu .acc { left: 21.5mm; top: 3mm; width: 6.5mm; height: 17mm; }
+/* Beide symbolen even hoog (18 mm) op dezelfde boven- en onderlijn; viewBoxen zijn allebei 34 hoog. */
+.accu .warn { left: 2mm; top: 5mm; width: 20.1mm; height: 18mm; }
+.accu .acc { left: 23.5mm; top: 5mm; width: 6.9mm; height: 18mm; }
 .accu .f { position: absolute; display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
-/* Alle tekst even groot en links uitgelijnd, 10px (2,65 mm) rechts van het accu-symbool (dat eindigt op 28 mm). */
-.accu .r { left: 30.65mm; right: 2mm; height: 5mm; font-size: 3.2mm; }
+/* Alle tekst even groot en links uitgelijnd, 10px (2,65 mm) rechts van het accu-symbool (dat eindigt op 30,4 mm). */
+.accu .r { left: 33.05mm; right: 2mm; height: 5mm; font-size: 3.2mm; }
 .accu .r1 { top: 2.5mm; }
 .accu .r2 { top: 8.5mm; }
 .accu .r3 { top: 14.5mm; }
