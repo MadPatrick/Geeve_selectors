@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Overzicht van alle tegels (hoofdscherm en Reports) met per tegel drie opties die in Config worden ingesteld:
+ * Overzicht van alle tegels (hoofdscherm, Reports, Templates en Stickers) met per tegel drie opties die in Config worden ingesteld:
  *  - zichtbaar: uit = de tegel staat niet op het overzicht (de pagina zelf blijft via de directe link bereikbaar);
  *  - beveiligd: een klik op de tegel vraagt om de toegangscode (zie shared/access.php); de pagina en de bijbehorende API's
  *    zijn zonder ontgrendelen ook niet te openen;
@@ -22,16 +22,17 @@ const TILE_REGISTRY = [
     'stauff' => ['home', 'Stauff Selector', 'stauff/index.php', true, false, true],
     'reports' => ['home', 'Reports', 'reports/index.php', true, false, false],
     'msp' => ['reports', 'MSP report', 'reports/msp/index.php', true, false, false],
-    'inkooporder' => ['reports', 'Inkooporder naar Excel', 'reports/inkooporder/index.php', true, false, false],
-    'order-offerte' => ['reports', 'Order of Offerte naar Excel', 'reports/order-offerte/index.php', true, false, false],
     'inkoop-groep' => ['reports', 'Inkoop per Artikelgroep', 'reports/inkoop-groep/index.php', true, false, false],
     'productiviteit' => ['reports', 'Productiviteit', 'reports/productiviteit/index.php', true, true, false],
-    'offerte-import' => ['reports', 'Offerte Import', 'reports/offerte-import/index.php', true, false, false],
-    'inkooporder-import' => ['reports', 'Inkooporder Import', 'reports/inkooporder-import/index.php', true, false, false],
-    'export-info' => ['reports', 'Export info', 'reports/export-info/index.php', true, false, false],
-    'klantartikel' => ['reports', 'Klant Artikelnummers', 'klantartikel/index.php', true, false, false],
-    'klantkorting' => ['reports', 'Kortingstructuur', 'klantkorting/index.php', true, false, true],
     'artikel-import' => ['reports', 'Artikelgegevens Import', 'reports/artikel-import/index.php', true, false, true],
+    'templates' => ['home', 'Templates', 'templates/index.php', true, false, false],
+    'klantartikel' => ['templates', 'Klant Artikelnummers', 'klantartikel/index.php', true, false, false],
+    'klantkorting' => ['templates', 'Kortingstructuur', 'klantkorting/index.php', true, false, true],
+    'inkooporder' => ['templates', 'Inkooporder naar Excel', 'reports/inkooporder/index.php', true, false, false],
+    'order-offerte' => ['templates', 'Order of Offerte naar Excel', 'reports/order-offerte/index.php', true, false, false],
+    'offerte-import' => ['templates', 'Offerte Import', 'reports/offerte-import/index.php', true, false, false],
+    'inkooporder-import' => ['templates', 'Inkooporder Import', 'reports/inkooporder-import/index.php', true, false, false],
+    'export-info' => ['templates', 'Export info', 'reports/export-info/index.php', true, false, false],
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
     'stickers-order' => ['stickers', 'Artikelen per Verkooporder', 'stickers/order/index.php', true, false, true],
     'stickers-productie' => ['stickers', 'Artikelen per Productieorder', 'stickers/productie/index.php', true, false, true],
@@ -68,7 +69,7 @@ function tileFlagsAll(): array
     return $cache;
 }
 
-/** Opgeslagen volgorde van de tegels van een groep ("home"/"reports"); nieuwe tegels komen achteraan, in registry-volgorde. @return list<string> */
+/** Opgeslagen volgorde van de tegels van een groep ("home"/"reports"/"templates"/"stickers"); nieuwe tegels komen achteraan, in registry-volgorde. @return list<string> */
 function tileOrder(string $group): array
 {
     $ids = [];

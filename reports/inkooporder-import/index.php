@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
-tileRequirePage('inkooporder-import', '../index.php');
+tileRequirePage('inkooporder-import', '../../templates/index.php');
 
 require_once __DIR__ . '/../../shared/csrf.php';
 
@@ -46,7 +46,7 @@ $csrf = csrfToken();
     <?php
     $headerTitle = 'Inkooporder Import';
     $headerImagesPath = '../../images/';
-    $headerHomeHref = '../index.php';
+    $headerHomeHref = '../../templates/index.php'; // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>

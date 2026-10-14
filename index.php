@@ -146,6 +146,20 @@ $lockRoot = '';
             <?= tileLockIcon('reports') ?>
         </a>
         <?php endif; $tileHtml['reports'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('templates')): ?>
+        <a class="<?= tileClass('templates') ?>" href="templates/index.php"<?= tileAttrs('templates') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('templates')) ?></h2>
+            <p>Excel-exports, imports en klantgegevens.</p>
+            <?= tileLockIcon('templates') ?>
+        </a>
+        <?php endif; $tileHtml['templates'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('home') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 

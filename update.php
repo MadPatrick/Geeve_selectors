@@ -311,7 +311,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         }
         // Volgorde (slepen): per groep de id's in de volgorde van de formulier-rijen; onbekende id's worden genegeerd.
         $flags['_order'] = [];
-        foreach (['home', 'reports', 'stickers'] as $orderGroup) {
+        foreach (['home', 'reports', 'templates', 'stickers'] as $orderGroup) {
             $posted = $_POST['order'][$orderGroup] ?? [];
             $flags['_order'][$orderGroup] = is_array($posted)
                 ? array_values(array_filter(array_map('strval', $posted), static fn ($id) => isset(TILE_REGISTRY[$id]) && TILE_REGISTRY[$id][0] === $orderGroup))
@@ -477,7 +477,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
                     <span role="columnheader">In progress</span>
                 </div>
                 <?php
-                $tileGroups = ['home' => 'Hoofdscherm', 'reports' => 'Reports', 'stickers' => 'Stickers (tegels op het Stickers-scherm)'];
+                $tileGroups = ['home' => 'Hoofdscherm', 'reports' => 'Reports', 'templates' => 'Templates', 'stickers' => 'Stickers (tegels op het Stickers-scherm)'];
                 $tileFlags = tileFlagsAll();
                 foreach ($tileGroups as $groupId => $groupTitle):
                 ?>
