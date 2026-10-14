@@ -12,6 +12,7 @@
     var printBtn = document.getElementById('slPrint');
     var printInfo = document.getElementById('slPrintInfo');
     var fields = document.querySelectorAll('#slFields [data-field]');
+    var withDate = document.getElementById('slWithDate'); // met of zonder datum op het label (geldt voor alle labels)
     var FIELDS = ['slangnummer', 'referentie', 'lengte', 'datum', 'klantnaam', 'aantal'];
     var rows = [];
     var current = -1;  // aangeklikte regel; -1 = handmatig ingevuld (zonder order)
@@ -38,7 +39,7 @@
             '<div class="f nr">' + esc(r.slangnummer) + '</div>' +
             '<div class="f ref">' + esc(r.referentie) + '</div>' +
             '<div class="f len">' + esc(lengte(r.lengte)) + '</div>' +
-            '<div class="f dat">' + esc(r.datum) + '</div>' +
+            (withDate.checked ? '<div class="f dat">' + esc(r.datum) + '</div>' : '') +
             '<div class="f kl">' + esc(r.klantnaam) + '</div>' +
             '</div>';
     }
@@ -86,7 +87,7 @@
     }
 
     function rowHtml(r, i) {
-        return '<td><input type="checkbox" data-i="' + i + '" aria-label="' + esc(r.slangnummer) + '"></td>' +
+        return '<td><input type="checkbox" data-i="' + i + '" checked aria-label="' + esc(r.slangnummer) + '"></td>' +
             '<td>' + esc(r.slangnummer) + '</td><td>' + esc(r.referentie) + '</td><td>' + esc(r.datum) + '</td>' +
             '<td class="ka-desc">' + esc(r.klantnaam) + '</td><td class="num">' + esc(r.aantal) + '</td>' +
             '<td>' + esc(lengte(r.lengte)) + '</td><td>' + esc(r.artnr_kl) + '</td>';
@@ -145,6 +146,10 @@
         select(parseInt(tr.getAttribute('data-row'), 10));
     });
     tbody.addEventListener('change', preview);
+    withDate.addEventListener('change', function () {
+        document.querySelector('[data-field="datum"]').disabled = !withDate.checked;
+        preview();
+    });
     all.addEventListener('change', function () {
         Array.prototype.forEach.call(tbody.querySelectorAll('input[type="checkbox"]'), function (cb) { cb.checked = all.checked; });
         preview();

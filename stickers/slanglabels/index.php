@@ -53,7 +53,7 @@ $csrf = csrfToken();
     <section class="panel sl-top">
         <div class="sl-form">
             <h2>Slanglabels</h2>
-            <p class="ka-empty">Vul een ordernummer in en haal de slangen op. Klik een regel aan om de velden te vullen; je kunt ze daarna nog aanpassen. Vink regels aan om er meer tegelijk te printen (elk met het eigen aantal); zonder vinkjes wordt de aangeklikte regel geprint.</p>
+            <p class="ka-empty">Vul een ordernummer in en haal de slangen op. Klik een regel aan om de velden te vullen; je kunt ze daarna nog aanpassen. Alle regels staan aangevinkt en worden geprint (elk met het eigen aantal); vink uit wat je niet wilt. Zonder vinkjes wordt de aangeklikte regel geprint. Met het vinkje bij Datum kies je met of zonder datum op het label.</p>
             <div class="ka-actions" id="slActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
                 <label class="msp-field">
                     <span>Ordernummer</span>
@@ -68,7 +68,7 @@ $csrf = csrfToken();
                 <label class="msp-field"><span>Slangnummer</span><input type="text" class="ka-input" data-field="slangnummer" maxlength="40"></label>
                 <label class="msp-field"><span>Uw referentie</span><input type="text" class="ka-input" data-field="referentie" maxlength="60"></label>
                 <label class="msp-field"><span>Lengte</span><input type="text" class="ka-input" data-field="lengte" maxlength="20"></label>
-                <label class="msp-field"><span>Datum</span><input type="text" class="ka-input" data-field="datum" maxlength="20"></label>
+                <div class="msp-field"><span class="sl-datehead">Datum <label class="sl-check"><input type="checkbox" id="slWithDate" checked> printen</label></span><input type="text" class="ka-input" data-field="datum" maxlength="20" aria-label="Datum"></div>
                 <label class="msp-field sl-wide"><span>Klantnaam</span><input type="text" class="ka-input" data-field="klantnaam" maxlength="80"></label>
                 <label class="msp-field"><span>Aantal</span><input type="number" class="ka-input" data-field="aantal" min="1" max="99"></label>
             </div>
