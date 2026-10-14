@@ -35,7 +35,9 @@ Startpagina met tegels naar de Geeve-selectors:
   posities in `stickers/assets/productie-stickers.css`.
   **`/stickers/slanglabels`** ("Slanglabels"): voer een ordernummer in, gegevens uit `[Exactrapportage].[dbo].[1655 VW_Alle_OrdersGH]`;
   velden zijn aan te passen voor het printen, label 50 × 50 mm (aanname), posities in `stickers/assets/slanglabels.css`.
-  "Sticker Accu's" en "Kabelmerkers Geel" zijn nog niet functioneel ("Binnenkort beschikbaar").
+  **`/stickers/accu`** ("Sticker Accu's", tegel-id `stickers-artikel-groot`): invulsticker zonder database (bedrijfsnaam, datum,
+  voorvuldruk, vrij veld), 80 × 30 mm (aanname), posities in `stickers/assets/accu.css`.
+  "Kabelmerkers Geel" is nog niet functioneel ("Binnenkort beschikbaar").
 
 `Geeve_selectors` is de enige/canonieke plek voor al deze subapps — er zijn geen losse bronrepo's
 meer waar wijzigingen vandaan gekopieerd worden of naartoe teruggezet moeten worden. Wijzigingen

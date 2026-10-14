@@ -94,7 +94,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['stickers-productie'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-artikel-groot')): ?>
-        <div class="<?= tileClass('stickers-artikel-groot') ?> tile-disabled" aria-disabled="true">
+        <a class="<?= tileClass('stickers-artikel-groot') ?>" href="accu/index.php"<?= tileAttrs('stickers-artikel-groot') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
@@ -103,9 +103,10 @@ $csrf = csrfToken();
                 </svg>
             </div>
             <h2><?= h(tileTitle('stickers-artikel-groot')) ?></h2>
-            <p>Sticker printen voor op een accu.</p>
-            <span class="tile-cta">Binnenkort beschikbaar</span>
-        </div>
+            <p>Sticker voor op een accu: bedrijfsnaam, datum, voorvuldruk en een vrij veld.</p>
+            <span class="tile-cta">Openen</span>
+            <?= tileLockIcon('stickers-artikel-groot') ?>
+        </a>
         <?php endif; $tileHtml['stickers-artikel-groot'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-kabelmerkers')): ?>
         <div class="<?= tileClass('stickers-kabelmerkers') ?> tile-disabled" aria-disabled="true">

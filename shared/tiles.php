@@ -35,7 +35,7 @@ const TILE_REGISTRY = [
     'stickers-order' => ['stickers', 'Artikelstickers per order', 'stickers/order/index.php', true, false, true],
     'stickers-artikel' => ['stickers', 'Stickers op Artikelnummer', 'stickers/artikel/index.php', true, false, true],
     'stickers-productie' => ['stickers', 'Artikelstickers per Productieorder', 'stickers/productie/index.php', true, false, true],
-    'stickers-artikel-groot' => ['stickers', "Sticker Accu's", '', true, false, false],
+    'stickers-artikel-groot' => ['stickers', "Sticker Accu's", 'stickers/accu/index.php', true, false, true],
     'stickers-kabelmerkers' => ['stickers', 'Kabelmerkers Geel', '', true, false, true],
     'stickers-slanglabels' => ['stickers', 'Slanglabels', 'stickers/slanglabels/index.php', true, false, true],
 ];

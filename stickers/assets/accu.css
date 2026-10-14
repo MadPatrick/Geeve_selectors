@@ -1,0 +1,48 @@
+/* Sticker Accu's (stickers/accu): scherm, de sticker zelf en de printinstellingen.
+   Stickerformaat 80 × 30 mm (aanname, nagemaakt van de oude app); posities in mm, bijstellen na een proefprint. */
+
+.ac-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.ac-form { flex: 1 1 420px; min-width: 0; }
+.ac-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 16px; }
+.ac-fields { display: grid; grid-template-columns: repeat(2, minmax(160px, 1fr)); gap: 12px 16px; margin-top: 18px; max-width: 560px; }
+.ac-fields .ac-wide { grid-column: span 2; }
+.ac-fields .ka-input { width: 100%; }
+
+.ac-preview { zoom: 1.8; }
+.ac-preview .accu { box-shadow: 0 0 0 1px #e0516a; border-radius: 1.5mm; background: #fff; }
+.ac-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+.ac-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.ac-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
+
+.accu {
+    position: relative;
+    width: 80mm;
+    height: 30mm;
+    overflow: hidden;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    line-height: 1;
+}
+.accu svg { position: absolute; }
+.accu .warn { left: 2mm; top: 5mm; width: 19mm; height: 17mm; }
+.accu .acc { left: 21.5mm; top: 3mm; width: 6.5mm; height: 17mm; }
+.accu .f { position: absolute; display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
+.accu .bedrijf { left: 30mm; width: 48mm; top: 2.5mm; height: 4.5mm; font-size: 3.4mm; }
+.accu .l-date { left: 30mm; width: 18mm; top: 8.5mm; height: 5mm; font-size: 3.8mm; }
+.accu .date { left: 50mm; width: 28mm; top: 8.5mm; height: 5mm; font-size: 3.4mm; justify-content: center; }
+.accu .l-druk { left: 30mm; width: 28mm; top: 14.5mm; height: 3.5mm; font-size: 2mm; }
+.accu .druk { left: 58mm; width: 18mm; top: 13.8mm; height: 5mm; font-size: 3.6mm; justify-content: center; }
+.accu .vrij { left: 30mm; width: 48mm; top: 19.5mm; height: 4.5mm; font-size: 3mm; padding-left: 2mm; }
+
+.ac-printsheet { display: none; }
+
+@page { size: 80mm 30mm; margin: 0; }
+
+@media print {
+    html, body { background: #fff !important; margin: 0; padding: 0; }
+    body > *:not(.ac-printsheet) { display: none !important; }
+    .ac-printsheet { display: block; }
+    .ac-printsheet .accu { break-after: page; page-break-after: always; }
+    .ac-printsheet .accu:last-child { break-after: auto; page-break-after: auto; }
+}
