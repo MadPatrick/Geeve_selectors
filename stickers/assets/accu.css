@@ -28,12 +28,12 @@
 .accu .warn { left: 2mm; top: 5mm; width: 19mm; height: 17mm; }
 .accu .acc { left: 21.5mm; top: 3mm; width: 6.5mm; height: 17mm; }
 .accu .f { position: absolute; display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
-.accu .bedrijf { left: 30mm; width: 48mm; top: 2.5mm; height: 4.5mm; font-size: 3.4mm; }
-.accu .l-date { left: 30mm; width: 18mm; top: 8.5mm; height: 5mm; font-size: 3.8mm; }
-.accu .date { left: 50mm; width: 28mm; top: 8.5mm; height: 5mm; font-size: 3.4mm; justify-content: center; }
-.accu .l-druk { left: 30mm; width: 28mm; top: 14.5mm; height: 3.5mm; font-size: 2mm; }
-.accu .druk { left: 58mm; width: 18mm; top: 13.8mm; height: 5mm; font-size: 3.6mm; justify-content: center; }
-.accu .vrij { left: 30mm; width: 48mm; top: 19.5mm; height: 4.5mm; font-size: 3mm; padding-left: 2mm; }
+/* Alle tekst even groot en links uitgelijnd, 10px (2,65 mm) rechts van het accu-symbool (dat eindigt op 28 mm). */
+.accu .r { left: 30.65mm; right: 2mm; height: 5mm; font-size: 3.2mm; }
+.accu .r1 { top: 2.5mm; }
+.accu .r2 { top: 8.5mm; }
+.accu .r3 { top: 14.5mm; }
+.accu .r4 { top: 20.5mm; }
 
 .ac-printsheet { display: none; }
 

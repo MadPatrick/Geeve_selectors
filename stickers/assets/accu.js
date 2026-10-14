@@ -20,6 +20,9 @@
     // Datumveld (jjjj-mm-dd) zoals op de sticker: dd-mm-jjjj.
     function nlDate(v) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v); return m ? m[3] + '-' + m[2] + '-' + m[1] : v; }
 
+    // Voorvuldruk standaard in bar: alleen een getal krijgt " BAR" erachter.
+    function druk(v) { return /^\d+([.,]\d+)?$/.test(v) ? v + ' BAR' : v; }
+
     function values() {
         var v = {};
         Array.prototype.forEach.call(fields, function (el) { v[el.getAttribute('data-field')] = el.value.trim(); });
@@ -28,10 +31,10 @@
 
     function sticker(v) {
         return '<div class="accu">' + WARN + ACC +
-            '<div class="f bedrijf">' + esc(v.bedrijf) + '</div>' +
-            '<div class="f l-date">DATE :</div><div class="f date">' + esc(nlDate(v.datum)) + '</div>' +
-            '<div class="f l-druk">PRE-FILL PRESSURE :</div><div class="f druk">' + esc(v.druk) + '</div>' +
-            '<div class="f vrij">' + esc(v.vrij) + '</div>' +
+            '<div class="f r r1">' + esc(v.bedrijf) + '</div>' +
+            '<div class="f r r2">DATE :&nbsp;' + esc(nlDate(v.datum)) + '</div>' +
+            '<div class="f r r3">PRE-FILL PRESSURE :&nbsp;' + esc(druk(v.druk)) + '</div>' +
+            '<div class="f r r4">' + esc(v.vrij) + '</div>' +
             '</div>';
     }
 
