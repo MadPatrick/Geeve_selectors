@@ -50,7 +50,8 @@ $csrf = csrfToken();
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel">
+    <section class="panel so-top">
+        <div class="so-form">
         <h2>Artikelstickers per order</h2>
         <p class="ka-empty">Vul een ordernummer in: je krijgt per orderregel een sticker (102 × 54 mm), in de volgorde van de order. Vink regels uit die je niet wilt printen.</p>
         <div class="ka-actions" id="soActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
@@ -63,6 +64,17 @@ $csrf = csrfToken();
             <span id="soStatus" class="msp-status"></span>
         </div>
         <div id="soMessage" class="ka-message ka-message--error" hidden></div>
+        </div>
+
+        <!-- Voorbeeld: rechts in dit blok, één sticker tegelijk. -->
+        <div class="so-side" id="soPreviewPanel" hidden>
+            <div class="so-preview" id="soSheet"></div>
+            <div class="so-nav" id="soNav">
+                <button type="button" id="soPrev" class="ka-button ka-button--secondary" aria-label="Vorige sticker">&lt;</button>
+                <span id="soPreviewCount" class="msp-status"></span>
+                <button type="button" id="soNext" class="ka-button ka-button--secondary" aria-label="Volgende sticker">&gt;</button>
+            </div>
+        </div>
     </section>
 
     <section class="panel" id="soResult" hidden>
@@ -90,16 +102,6 @@ $csrf = csrfToken();
             <button type="button" class="ka-button ka-button--secondary" id="soPagePrev">&larr; Vorige</button>
             <span id="soPageInfo"></span>
             <button type="button" class="ka-button ka-button--secondary" id="soPageNext">Volgende &rarr;</button>
-        </div>
-    </section>
-
-    <section class="panel" id="soPreviewPanel" hidden>
-        <h2>Voorbeeld</h2>
-        <div class="so-preview" id="soSheet"></div>
-        <div class="so-nav" id="soNav">
-            <button type="button" id="soPrev" class="ka-button ka-button--secondary" aria-label="Vorige sticker">&lt;</button>
-            <span id="soPreviewCount" class="msp-status"></span>
-            <button type="button" id="soNext" class="ka-button ka-button--secondary" aria-label="Volgende sticker">&gt;</button>
         </div>
     </section>
 

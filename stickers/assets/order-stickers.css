@@ -8,8 +8,14 @@
 #soTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
 #soTable th:first-child, #soTable td:first-child { width: 1%; }
 
+/* Eerste blok: invoer links, voorbeeld helemaal rechts (op smalle schermen eronder). */
+.so-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.so-form { flex: 1 1 420px; min-width: 0; }
+.so-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; }
+.so-side[hidden] { display: none; }
+
 /* Voorbeeld op het scherm: één sticker tegelijk (iets vergroot), met < en > eronder; printen doet ze allemaal. */
-.so-preview { zoom: 1.4; }
+.so-preview { zoom: 1.25; }
 .so-preview .sticker { outline: 1px solid #e0516a; background: #fff; }
 .so-preview:not(.is-measuring) .sticker:not(.is-current) { display: none; }
 .so-nav { display: flex; gap: var(--btn-gap); align-items: center; margin-top: 14px; }
@@ -68,8 +74,8 @@
 
 @media print {
     html, body { background: #fff !important; margin: 0; padding: 0; }
-    body > main > *:not(#soPreviewPanel), #soPreviewPanel > h2, .so-nav { display: none !important; }
-    body > main, #soPreviewPanel { all: unset; display: block; }
+    body > main > *:not(.so-top), .so-form, .so-nav { display: none !important; }
+    body > main, .so-top, #soPreviewPanel { all: unset; display: block; }
     .so-preview { display: block; zoom: 1; }
     .so-preview:not(.is-measuring) .sticker:not(.is-current) { display: block; }
     .so-preview .sticker { outline: 0; break-after: page; page-break-after: always; }
