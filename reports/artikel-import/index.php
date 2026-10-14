@@ -69,7 +69,10 @@ $csrf = csrfToken();
     </section>
 
     <section class="panel" id="aiResult">
-        <div class="msp-summary" id="aiSummary"></div>
+        <div class="ai-summary-bar">
+            <div class="msp-summary" id="aiSummary"></div>
+            <button type="button" id="aiAdd" class="ka-button ka-button--secondary">Regel toevoegen</button>
+        </div>
         <div class="ka-table-wrap msp-scroll">
             <table class="ka-table" id="aiTable">
                 <colgroup><col style="width: 11%"><col style="width: 8%"><col style="width: 17%"><col style="width: 8%"><col style="width: 6%"><col style="width: 7%"><col style="width: 7%"><col style="width: 7%"><col style="width: 11%"><col style="width: 7%"><col style="width: 7%"><col style="width: 4%"></colgroup>
@@ -82,9 +85,6 @@ $csrf = csrfToken();
                 </thead>
                 <tbody></tbody>
             </table>
-        </div>
-        <div class="ka-actions ai-table-actions">
-            <button type="button" id="aiAdd" class="ka-button ka-button--secondary">Regel toevoegen</button>
         </div>
     </section>
 
