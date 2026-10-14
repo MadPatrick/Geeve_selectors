@@ -60,7 +60,7 @@ $csrf = csrfToken();
                 </svg>
             </div>
             <h2><?= h(tileTitle('stickers-order')) ?></h2>
-            <p>Per orderregel een artikelsticker, in de volgorde van de order.</p>
+            <p>Per orderregel een artikelsticker, op volgorde van orderregel of looplocatie.</p>
             <span class="tile-cta">Openen</span>
             <?= tileLockIcon('stickers-order') ?>
         </a>
