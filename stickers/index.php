@@ -49,8 +49,6 @@ $csrf = csrfToken();
     require __DIR__ . '/../shared/header.php';
     ?>
 
-    <p class="intro">Kies wat je wilt printen.</p>
-
     <div class="tile-grid">
         <?php ob_start(); if (tileVisible('stickers-order')): ?>
         <a class="<?= tileClass('stickers-order') ?>" href="order/index.php"<?= tileAttrs('stickers-order') ?>>
