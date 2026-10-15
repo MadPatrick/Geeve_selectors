@@ -72,15 +72,37 @@ function getPdoConnection(): PDO
 function getExactPdoConnection(): PDO
 {
     static $pdo = null;
+    static $failure = null;
 
     if ($pdo instanceof PDO) {
         return $pdo;
     }
+    // Mislukte verbinding onthouden: elke poging kan tot LoginTimeout (15s)
+    // duren, en deze verbinding wordt per slangkaart opnieuw gevraagd
+    // (leveringswijze/picklijst) - anders liep het printen bij een
+    // onbereikbare Exact-database uit tot voorbij de PHP-tijdslimiet.
+    if ($failure instanceof Throwable) {
+        throw $failure;
+    }
 
-    return $pdo = connectSqlServer(
-        appConfig()['exactDb'],
-        'Exact-database-inloggegevens ontbreken. Zet EXACT_DB_USER en ' .
-        'EXACT_DB_PASSWORD via Config in het hoofdmenu ' .
-        'voor de read-only SQL-login op database "005".'
-    );
+    try {
+        $pdo = connectSqlServer(
+            appConfig()['exactDb'],
+            'Exact-database-inloggegevens ontbreken. Zet EXACT_DB_USER en ' .
+            'EXACT_DB_PASSWORD via Config in het hoofdmenu ' .
+            'voor de read-only SQL-login op database "005".'
+        );
+    } catch (Throwable $exception) {
+        $failure = $exception;
+        throw $exception;
+    }
+
+    // De Exact-gegevens (verzendwijze, locatie/voorraad op de picklijst) zijn
+    // aanvullend: een trage query mag het printen niet laten hangen, dan
+    // blijft dat veld gewoon leeg.
+    if (defined('PDO::SQLSRV_ATTR_QUERY_TIMEOUT')) {
+        $pdo->setAttribute(PDO::SQLSRV_ATTR_QUERY_TIMEOUT, 8);
+    }
+
+    return $pdo;
 }
