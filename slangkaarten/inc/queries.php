@@ -336,6 +336,40 @@ function fetchCustomerOrderSummaryRows(PDO $pdo, string $customerName): array
 }
 
 /**
+ * Alle klantnamen (kolom nm) met een slangregel in de afgelopen 2 jaar -
+ * dezelfde grens als findOrdersByCustomer() - voor de suggesties tijdens
+ * het typen in het veld Klant. Valt terug op alle namen zonder datumfilter
+ * als de orddat-kolom om wat voor reden dan ook niet bruikbaar is.
+ *
+ * @return string[]
+ */
+function findCustomerNames(PDO $pdo): array
+{
+    $queries = [
+        'SELECT DISTINCT [nm] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] IS NOT NULL AND [orddat] >= DATEADD(year, -2, GETDATE())',
+        'SELECT DISTINCT [nm] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] IS NOT NULL',
+    ];
+    foreach ($queries as $sql) {
+        try {
+            $names = [];
+            foreach ($pdo->query($sql)->fetchAll(PDO::FETCH_COLUMN) as $name) {
+                $name = trim((string) $name);
+                if ($name !== '') {
+                    $names[$name] = true;
+                }
+            }
+            $names = array_keys($names);
+            natcasesort($names);
+            return array_values(array_map('strval', $names));
+        } catch (PDOException $exception) {
+            continue;
+        }
+    }
+
+    return [];
+}
+
+/**
  * Zoekt alle orders van een klant, op basis van alle slangregels die bij
  * die klant horen. Gededupliceerd tot 1 rij per order (met het aantal
  * slangregels van die order erbij), orders met een orderdatum van meer

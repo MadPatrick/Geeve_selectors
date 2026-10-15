@@ -1382,6 +1382,32 @@ function renderRecentOrdersFragment(bool $fresh, bool $debug): string
     return $html;
 }
 
+// Klantnamen voor de suggesties in het veld Klant (zie assets/klant-search.js),
+// 1 uur in een bestandscache: de lijst verandert zelden en de DISTINCT over
+// de hele slangkaart-tabel hoeft niet bij elke paginaweergave.
+if (isset($_GET['klanten'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    $cacheFile = sys_get_temp_dir() . '/geeve_slangkaarten_klanten.json';
+    $names = null;
+    if (is_file($cacheFile) && time() - (int) @filemtime($cacheFile) < 3600) {
+        $cached = json_decode((string) @file_get_contents($cacheFile), true);
+        $names = is_array($cached) && $cached !== [] ? $cached : null;
+    }
+    if ($names === null) {
+        try {
+            $names = findCustomerNames(getPdoConnection());
+        } catch (Throwable $exception) {
+            $names = [];
+        }
+        if ($names !== []) {
+            @file_put_contents($cacheFile, json_encode($names, JSON_UNESCAPED_UNICODE), LOCK_EX);
+        }
+    }
+    echo json_encode(['ok' => $names !== [], 'klanten' => $names], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if (isset($_GET['recent'])) {
     header('Content-Type: text/html; charset=utf-8');
     header('Cache-Control: no-store');
@@ -1484,6 +1510,7 @@ if ($selectedKeys !== []) {
     <link rel="icon" href="../favicon.ico?v=<?= h(assetVersion('../favicon.ico')) ?>" type="image/x-icon">
     <link rel="stylesheet" href="../shared/style.css?v=<?= h(assetVersion('../shared/style.css')) ?>">
     <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
+    <script src="assets/klant-search.js?v=<?= h(assetVersion('assets/klant-search.js')) ?>" defer></script>
 </head>
 <body>
 <main class="page-shell page-shell--wide">
@@ -1526,7 +1553,7 @@ if ($selectedKeys !== []) {
                     value="<?= h($hoseNumberSearch) ?>"
                 >
             </label>
-            <label class="field" for="klant">
+            <label class="field klant-field" for="klant">
                 <span>Klant</span>
                 <input
                     id="klant"
@@ -1534,8 +1561,14 @@ if ($selectedKeys !== []) {
                     type="text"
                     placeholder="bijv. Palfinger"
                     autocomplete="off"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded="false"
+                    aria-controls="klantHits"
+                    data-klanten="index.php?klanten=1"
                     value="<?= h($customerName) ?>"
                 >
+                <ul class="klant-hits" id="klantHits" role="listbox" hidden></ul>
             </label>
             <button type="submit" class="submit-button" id="searchSubmitButton">
                 <span class="button-fill" aria-hidden="true"></span>

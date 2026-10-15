@@ -38,6 +38,18 @@ h2 { margin: 4px 0 0; font-size: 20px; }
 
 input::placeholder { color: #929fac; }
 
+/* Veld Klant: suggesties tijdens het typen (zie assets/klant-search.js) -
+   zelfde opmaak als het prijslijstveld in Klant Artikelnummers. */
+.klant-field { position: relative; }
+.klant-hits {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 20; margin: 4px 0 0; padding: 4px 0; list-style: none;
+    background: #fff; border: 1px solid var(--line-strong, #c9d4de); border-radius: 10px; box-shadow: var(--shadow);
+    max-height: 360px; overflow-y: auto; font-size: 13px; font-weight: 400;
+}
+.klant-hits[hidden] { display: none; }
+.klant-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.klant-hits li:hover, .klant-hits li.is-active { background: #fde6ec; }
+
 .submit-button {
     appearance: none;
     position: relative;
