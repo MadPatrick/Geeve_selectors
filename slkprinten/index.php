@@ -1385,6 +1385,86 @@ function renderRecentOrdersFragment(bool $fresh, bool $debug): string
 // Klantnamen voor de suggesties in het veld Klant (zie assets/klant-search.js),
 // 1 uur in een bestandscache: de lijst verandert zelden en de DISTINCT over
 // de hele slangkaart-tabel hoeft niet bij elke paginaweergave.
+// Controlepagina (alleen lezen): index.php?diagnose=<slangnummer> toont per bron wat de database voor dit
+// slangnummer teruggeeft - om uit te zoeken waarom een kaart geen koppelingen toont. Doorzoekt daarna ook alle
+// tabellen/views met "slang", "koppel" of "onderdeel" in de naam die een slangnummer-kolom hebben.
+if (isset($_GET['diagnose'])) {
+    header('Content-Type: text/html; charset=utf-8');
+    $needle = trim((string) $_GET['diagnose']);
+    $out = '<!doctype html><meta charset="utf-8"><title>Diagnose ' . h($needle) . '</title>'
+        . '<style>body{font:13px Arial,sans-serif;margin:20px}table{border-collapse:collapse;margin:6px 0 18px}'
+        . 'td,th{border:1px solid #ccc;padding:3px 6px;text-align:left;white-space:nowrap}h2{font-size:15px;margin:18px 0 4px}</style>'
+        . '<h1>Diagnose slangnummer &quot;' . h($needle) . '&quot;</h1>';
+    $renderRows = static function (array $rows): string {
+        if ($rows === []) {
+            return '<p><em>Geen rijen.</em></p>';
+        }
+        $html = '<table><tr>';
+        foreach (array_keys($rows[0]) as $column) {
+            $html .= '<th>' . h((string) $column) . '</th>';
+        }
+        $html .= '</tr>';
+        foreach ($rows as $row) {
+            $html .= '<tr>';
+            foreach ($row as $value) {
+                $html .= '<td>' . ($value === null ? '<em>NULL</em>' : h((string) $value)) . '</td>';
+            }
+            $html .= '</tr>';
+        }
+        return $html . '</table>';
+    };
+    try {
+        $pdo = getPdoConnection();
+        $like = '%' . preg_replace('/\s+/', '%', $needle) . '%';
+        $sources = [
+            ['2500 Slangkaarten bij order', 'GHnr'],
+            ['2500 Slangkaarten', 'Nummer'],
+            ['93004 hv 3001 Slangonderdelen Zijde A', 'Nummer'],
+            ['93004 hv 3001 Slangonderdelen Zijde B', 'Nummer'],
+            ['Details slangen', 'GHnr'],
+        ];
+        foreach ($sources as [$table, $column]) {
+            $out .= '<h2>' . h($table) . ' (' . h($column) . ' LIKE ' . h($like) . ')</h2>';
+            try {
+                $stmt = $pdo->prepare("SELECT TOP 50 * FROM [dbo].[{$table}] WHERE [{$column}] LIKE :v");
+                $stmt->execute(['v' => $like]);
+                $out .= $renderRows($stmt->fetchAll());
+            } catch (Throwable $exception) {
+                $out .= '<p>Fout: ' . h($exception->getMessage()) . '</p>';
+            }
+        }
+
+        $out .= '<h2>Andere tabellen/views met dit slangnummer</h2>';
+        $candidates = $pdo->query(
+            "SELECT c.TABLE_NAME, c.COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS c "
+            . "WHERE c.TABLE_SCHEMA = 'dbo' AND c.COLUMN_NAME IN ('GHnr', 'Nummer', 'Slangnummer', 'SlangNr', 'artcode', 'GH_Slang') "
+            . "AND (c.TABLE_NAME LIKE '%slang%' OR c.TABLE_NAME LIKE '%koppel%' OR c.TABLE_NAME LIKE '%onderde%') "
+            . "AND c.DATA_TYPE IN ('varchar', 'nvarchar', 'char', 'nchar') ORDER BY c.TABLE_NAME"
+        )->fetchAll();
+        $listed = array_map(static fn(array $s): string => strtolower($s[0]), $sources);
+        $found = [];
+        foreach ($candidates as $candidate) {
+            if (in_array(strtolower((string) $candidate['TABLE_NAME']), $listed, true)) {
+                continue;
+            }
+            try {
+                $stmt = $pdo->prepare('SELECT COUNT(*) FROM [dbo].[' . str_replace(']', ']]', (string) $candidate['TABLE_NAME']) . '] WHERE ['
+                    . str_replace(']', ']]', (string) $candidate['COLUMN_NAME']) . '] LIKE :v');
+                $stmt->execute(['v' => $like]);
+                $count = (int) $stmt->fetchColumn();
+                $found[] = ['tabel' => $candidate['TABLE_NAME'], 'kolom' => $candidate['COLUMN_NAME'], 'rijen' => $count];
+            } catch (Throwable $exception) {
+                $found[] = ['tabel' => $candidate['TABLE_NAME'], 'kolom' => $candidate['COLUMN_NAME'], 'rijen' => 'fout: ' . $exception->getMessage()];
+            }
+        }
+        $out .= $renderRows($found);
+    } catch (Throwable $exception) {
+        $out .= '<p>Fout: ' . h($exception->getMessage()) . '</p>';
+    }
+    echo $out;
+    exit;
+}
+
 if (isset($_GET['klanten'])) {
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
