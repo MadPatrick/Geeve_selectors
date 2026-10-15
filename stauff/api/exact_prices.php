@@ -17,9 +17,9 @@ require_once dirname(__DIR__) . '/inc/db.php';
  * databaserondes (niet 1 per artikel).
  *
  * De kolomnaam voor verkoopprijs is nog niet bevestigd (in tegenstelling
- * tot Voorraad, die al is uitgezocht voor /slangkaarten - zie
- * findArtikelExactDataBatch() in slangkaarten/index.php). Daarom wordt
- * hier, net als tryColumnsQuery() in slangkaarten/inc/queries.php, een
+ * tot Voorraad, die al is uitgezocht voor /slkprinten - zie
+ * findArtikelExactDataBatch() in slkprinten/index.php). Daarom wordt
+ * hier, net als tryColumnsQuery() in slkprinten/inc/queries.php, een
  * lijst kandidaat-kolomnamen geprobeerd totdat er 1 zonder SQL-fout
  * teruggeeft; welke dat was staat in de response ("column"), zodat dat
  * bevestigd/aangepast kan worden. Lukt geen van de kandidaten, dan blijft
@@ -27,7 +27,7 @@ require_once dirname(__DIR__) . '/inc/db.php';
  * normaal werken.
  *
  * Voorraad gebruikt dezelfde, al bevestigde formule als
- * findArtikelExactDataBatch() in slangkaarten/index.php: StockBalances is
+ * findArtikelExactDataBatch() in slkprinten/index.php: StockBalances is
  * een mutatielog, de vrije voorraad is het laagste van de FreeStock-som en
  * de Quantity-som t/m vandaag, met een vloer op 0.
  */

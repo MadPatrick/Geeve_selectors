@@ -2,7 +2,7 @@
 
 Dit document is de complete referentie om een **nieuwe subapp** aan de Geeve Selectors-portal toe
 te voegen met dezelfde huisstijl als alle andere apps, zonder iets te kopiëren. Het hoofdscherm en
-elke subapp (`hoses`, `adapters`, `configurator`, `stauff`, `slangkaarten`, `stickers`) gebruiken
+elke subapp (`hoses`, `adapters`, `configurator`, `stauff`, `slkprinten`, `stickers`) gebruiken
 dit al. Zie ook de korte samenvatting in de root-`README.md` ("Gedeelde layout") - dit document
 gaat dieper en is bedoeld als checklist/kopieersjabloon.
 
@@ -154,7 +154,7 @@ require __DIR__ . '/../shared/header.php';
 ?>
 ```
 
-Een eenvoudige topline met alleen versietekst (naar `slangkaarten`/`stickers`):
+Een eenvoudige topline met alleen versietekst (naar `slkprinten`/`stickers`):
 
 ```php
 <?php
@@ -213,7 +213,7 @@ voor de header, save/cancel, config, `--btn-ink-light`). Zie `CLAUDE.md`, "Knopp
 | Klasse | Omschrijving |
 |---|---|
 | `.page-shell` | De centrale contentkolom (`width: min(1100px, calc(100% - 28px))`, gecentreerd) - de standaard voor o.a. het hoofdscherm. |
-| `.page-shell--wide` | Standaard brede variant (1400px) voor selector-apps met veel kolommen: `<main class="page-shell page-shell--wide">`. Gebruikt door hoses/adapters/stauff/slangkaarten - geen eigen breedte-override meer nodig. |
+| `.page-shell--wide` | Standaard brede variant (1400px) voor selector-apps met veel kolommen: `<main class="page-shell page-shell--wide">`. Gebruikt door hoses/adapters/stauff/slkprinten - geen eigen breedte-override meer nodig. |
 | `.page-header` | Wrapper om `shared/header.php`'s `<header>`. |
 | `.brand-panel` + `::after` | De zwarte header-balk met logo's/titel + de accentstreep onderaan. |
 | `.brand-copy`, `.brand-logo-row`, `.brand-logo-img`, `.brand-rubix-img` | Logo-opmaak binnen de brand-panel. |

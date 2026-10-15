@@ -17,9 +17,9 @@ Startpagina met tegels naar de Geeve-selectors:
   (was tijdelijk uitgeschakeld tijdens de opbouw).
 - **`/configurator`** — Slang configurator, zelfde brand-panel/paneel-stijl. Bestanden staan er nog,
   maar er is momenteel geen tegel op de startpagina die hierheen linkt.
-- **`/slangkaarten`** — Slangkaarten bij order - zoekt een order of klant op en print
+- **`/slkprinten`** — Slangkaarten bij order - zoekt een order of klant op en print
   slangkaarten/labels van de geselecteerde regels. Heeft een eigen database nodig (SQL Server,
-  database "Slangkaarten", zie `slangkaarten/README.md`). Voor de Locatie-kolom op de picklijst
+  database "Slangkaarten", zie `slkprinten/README.md`). Voor de Locatie-kolom op de picklijst
   gebruikt deze subapp ook dezelfde Exact-database "005" als `/stauff`, met dezelfde (centraal
   opgeslagen) inloggegevens.
 - **`/stickers`** — eigen scherm met tegels. **`/stickers/order`** ("Artikelen per Verkooporder"): voer een
@@ -56,23 +56,23 @@ die drie dingen zelf te regelen (een eigen "terug"-link, eigen logo's, een hardc
 versienummer) - dat is dan ook geen ondersteunde manier van deployen; deze portal-map is de enige
 plek waar deze code leeft en gedraaid wordt.
 
-`/slangkaarten` en `/stauff` hebben, in tegenstelling tot de andere tegels, database-inloggegevens
+`/slkprinten` en `/stauff` hebben, in tegenstelling tot de andere tegels, database-inloggegevens
 nodig - deels eigen (voor de "Slangkaarten"-database), deels gedeeld (voor de Exact-database "005") -
-beide in te vullen via **Config** in het hoofdmenu, zie `slangkaarten/README.md` resp. "Database-
+beide in te vullen via **Config** in het hoofdmenu, zie `slkprinten/README.md` resp. "Database-
 koppeling Exact (database 005)" hieronder. `.env`-bestanden worden niet meer gebruikt. Zonder ingevulde Config toont die tegel/pagina (of
 alleen de Locatie-kolom op de picklijst) een foutmelding/streepje i.p.v. te crashen; de rest van de
 portal blijft gewoon werken.
 
-## Database-koppeling Exact (database 005) - gedeeld door /stauff en /slangkaarten
+## Database-koppeling Exact (database 005) - gedeeld door /stauff en /slkprinten
 
-`/stauff` (artikelgroep 67) en `/slangkaarten` (Locatie op de picklijst, zie
-`slangkaarten/README.md`) praten allebei met dezelfde Exact-database "005" (zelfde server als de
+`/stauff` (artikelgroep 67) en `/slkprinten` (Locatie op de picklijst, zie
+`slkprinten/README.md`) praten allebei met dezelfde Exact-database "005" (zelfde server als de
 "Slangkaarten"-database, `GEEVE-SQL-2019`), met **hetzelfde SQL-account**. Die inloggegevens staan
 daarom 1x centraal, niet los per subapp:
 
 1. **Verbinding opgezet** (dit is af): vul via Config in het hoofdmenu (versleuteld opgeslagen, `.settings.enc`)
    `EXACT_DB_USER`/`EXACT_DB_PASSWORD` in van een bestaand SQL-account dat database "005"
-   mag lezen. Zowel `stauff/inc/config.php` als `slangkaarten/inc/config.php` laden deze
+   mag lezen. Zowel `stauff/inc/config.php` als `slkprinten/inc/config.php` laden deze
    instellingen automatisch - er is dus maar 1 plek om deze inloggegevens te zetten of te wijzigen.
    De root-`.htaccess` blokkeert browsertoegang tot dotfiles (dus ook `.settings.enc`/`.settings.key`).
 2. **Tabel/kolom voor groep 67 gevonden** (dit is af): `GRV_SalesItems` (kolommen `ItemCode`,
@@ -94,7 +94,7 @@ shared/style.css        Gedeelde basisopmaak (tokens, header/brand-panel-chrome,
                         primitieven) voor hoofdscherm + alle subapps, zie "Gedeelde layout"
 shared/header.php       Gedeelde header/brand-panel-include, zie "Gedeelde layout"
 shared/secure_settings.php  Versleutelde opslag van de Exact-database "005"-inloggegevens (EXACT_DB_*),
-                        ingevuld via Config; gebruikt door /stauff en /slangkaarten
+                        ingevuld via Config; gebruikt door /stauff en /slkprinten
 assets/style.css        Styling van alleen de startpagina (bovenop shared/style.css)
 images/                 Gedeeld Geeve/Rubix-merklogo (geeve.jpg, rubix.jpg) - door alle
                         subapps gebruikt via ../images/..., één plek om bij te werken
@@ -110,9 +110,9 @@ stauff/                 Volledige Stauff Selector-app (eigen assets/data/api/etc
                         naar Exact "005" leest EXACT_DB_* uit Config
 configurator/           Volledige Slang configurator-app (eigen assets/data/etc.) - bestanden
                         staan er nog, momenteel geen tegel op de startpagina
-slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc.; account voor de
+slkprinten/             Volledige Slangkaarten-app (eigen assets/inc/etc.; account voor de
                         "Slangkaarten"-database en voor de Locatie-lookup op de picklijst uit Config,
-                        zie slangkaarten/README.md)
+                        zie slkprinten/README.md)
 stickers/               Eigen scherm met 3 tegels (nog niet functioneel - "Binnenkort
                         beschikbaar") - bestanden staan er nog, momenteel geen tegel op de
                         startpagina
@@ -175,7 +175,7 @@ heeft de nieuwe app meteen dezelfde huisstijl, zonder iets te kopiëren.
 
 ## Eén gedeeld versienummer
 
-Het hoofdscherm en alle subapps (`hoses`, `adapters`, `configurator`, `stauff`, `slangkaarten`,
+Het hoofdscherm en alle subapps (`hoses`, `adapters`, `configurator`, `stauff`, `slkprinten`,
 `stickers`) tonen/gebruiken hetzelfde versienummer, uit `version.php` op rootniveau
 (`return '0.3.0';`). Elke pagina
 laadt dit via `is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '...'`

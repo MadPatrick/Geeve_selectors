@@ -13,7 +13,7 @@ const SP_DATE_TYPES = ['date', 'datetime', 'datetime2', 'smalldatetime'];
 function reportConnection(): PDO
 {
     if (!in_array('sqlsrv', PDO::getAvailableDrivers(), true)) {
-        throw new RuntimeException('De PDO_SQLSRV driver is niet geinstalleerd op deze PHP-omgeving (zie slangkaarten/README.md).');
+        throw new RuntimeException('De PDO_SQLSRV driver is niet geinstalleerd op deze PHP-omgeving (zie slkprinten/README.md).');
     }
 
     $db = appConfig()['db'];

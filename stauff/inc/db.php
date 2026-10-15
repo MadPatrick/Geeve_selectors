@@ -12,7 +12,7 @@ final class DatabaseConfigException extends RuntimeException
  * Maakt (en hergebruikt) een PDO-verbinding met SQL Server via de
  * Microsoft PDO_SQLSRV-driver (ODBC Driver 17/18 for SQL Server). Praat
  * met de Exact-database "005" (zie inc/config.php), niet met de
- * Slangkaarten-database van /slangkaarten - andere database, zelfde
+ * Slangkaarten-database van /slkprinten - andere database, zelfde
  * server en dezelfde verbindingslogica.
  */
 function getPdoConnection(): PDO
@@ -26,7 +26,7 @@ function getPdoConnection(): PDO
     if (!in_array('sqlsrv', PDO::getAvailableDrivers(), true)) {
         throw new DatabaseConfigException(
             'De PDO_SQLSRV driver is niet geinstalleerd op deze PHP-omgeving. ' .
-            'Zie slangkaarten/README.md, sectie "SQL Server driver installeren" (zelfde driver).'
+            'Zie slkprinten/README.md, sectie "SQL Server driver installeren" (zelfde driver).'
         );
     }
 

@@ -23,7 +23,7 @@ const SECURE_SETTINGS_KEYS = [
     'EXACT_DB_USER',
     'EXACT_DB_PASSWORD',
     'EXACT_DB_TRUST_SERVER_CERT',
-    // Eigen database van /slangkaarten (database "Slangkaarten"); server en certificaat volgen de Exact-instellingen.
+    // Eigen database van /slkprinten (database "Slangkaarten"); server en certificaat volgen de Exact-instellingen.
     'DB_USER',
     'DB_PASSWORD',
     // Toegangscode voor beveiligde onderdelen (Productiviteit); zonder waarde geldt 1308 (zie shared/access.php).

@@ -102,7 +102,7 @@ button, input, select { font: inherit; }
 
 .page-shell { width: min(1400px, calc(100% - 28px)); margin: 6px auto 40px; }
 /* Brede variant voor de selector-apps met veel kolommen (hoses/adapters/stauff/
-   slangkaarten): <main class="page-shell page-shell--wide">. Moet VOOR de
+   slkprinten): <main class="page-shell page-shell--wide">. Moet VOOR de
    responsive .page-shell-regels onderaan staan, zodat die op mobiel winnen. */
 .page-shell--wide { width: min(1400px, calc(100% - 28px)); }
 .page-header { margin-bottom: 18px; }

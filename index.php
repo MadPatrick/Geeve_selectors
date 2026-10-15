@@ -89,7 +89,7 @@ $lockRoot = '';
         <?php endif; $tileHtml['adapters'] = ob_get_clean(); ?>
 
         <?php ob_start(); if (tileVisible('slangkaarten')): ?>
-        <a class="<?= tileClass('slangkaarten') ?>" href="slangkaarten/index.php"<?= tileAttrs('slangkaarten') ?>>
+        <a class="<?= tileClass('slangkaarten') ?>" href="slkprinten/index.php"<?= tileAttrs('slangkaarten') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>

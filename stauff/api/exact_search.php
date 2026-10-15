@@ -22,7 +22,7 @@ require_once dirname(__DIR__) . '/inc/db.php';
  * "Fuzzy": koppeltekens/spaties/punten/komma's/underscores worden zowel
  * uit de zoekterm als uit ItemCode verwijderd vóór het vergelijken -
  * zelfde patroon als tryColumnsFuzzyLikeQuery() in
- * slangkaarten/inc/queries.php, zodat bijv. "1680" ook "10168-0" vindt.
+ * slkprinten/inc/queries.php, zodat bijv. "1680" ook "10168-0" vindt.
  *
  * Uitgesloten: artikelen waarvan het artikelnummer niet met een cijfer
  * begint (bijv. lasplaat/dekplaat-codes als "SP...", "GD...", "DPAS...")

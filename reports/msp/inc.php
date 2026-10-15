@@ -13,7 +13,7 @@ const MSP_NUMERIC_COLUMNS = ['qty', 'FINartgrp', 'Invoice Price'];
 function mspConnection(): PDO
 {
     if (!in_array('sqlsrv', PDO::getAvailableDrivers(), true)) {
-        throw new RuntimeException('De PDO_SQLSRV driver is niet geinstalleerd op deze PHP-omgeving (zie slangkaarten/README.md).');
+        throw new RuntimeException('De PDO_SQLSRV driver is niet geinstalleerd op deze PHP-omgeving (zie slkprinten/README.md).');
     }
 
     $db = appConfig()['db'];
