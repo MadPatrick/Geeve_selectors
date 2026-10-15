@@ -1651,7 +1651,7 @@
     }
 
     /**
-     * "Naar Exact": de samenstelling als artikel (artikelgroep 55, STAUFF SET) met stuklijst naar Exact schrijven.
+     * "Naar Exact": de samenstelling als artikel (artikelgroep 67, STAUFF SET) met stuklijst naar Exact schrijven.
      * Het schrijven zelf doet de slangkaart-app (Slangkaart.Web, POST /slangkaarten/api/stauff/naar-exact), met
      * dezelfde schrijver en beveiliging als de slangkaarten. Eerst altijd een proef: de app geeft terug wat er naar
      * Exact zou gaan en of schrijven aan staat; pas na "Schrijven naar Exact" wordt er echt geschreven.
@@ -1726,7 +1726,7 @@
         const missing = result.ontbreekt || [];
         const artikel = result.artikel || {};
         let html = `<p class="exact-code">${escapeHtml(code)}</p>` +
-            `<p class="exact-note">${escapeHtml(artikel.Description0 || 'STAUFF SET')}, artikelgroep ${escapeHtml(artikel.Assortment || '55')}, HS-code ${escapeHtml(artikel.StatisticalNumber || '')}. Kostprijs volgens de stuklijst: € ${escapeHtml(artikel.CostPriceStandard || '0')}.</p>` +
+            `<p class="exact-note">${escapeHtml(artikel.Description0 || 'STAUFF SET')}, artikelgroep ${escapeHtml(artikel.Assortment || '67')}, HS-code ${escapeHtml(artikel.StatisticalNumber || '')}. Kostprijs volgens de stuklijst: € ${escapeHtml(artikel.CostPriceStandard || '0')}.</p>` +
             exactLinesHtml(result.stuklijst || [], missing);
         if (missing.length) {
             html += `<p class="exact-note is-error">Niet in Exact: ${missing.map(escapeHtml).join(', ')}. Zo kan de set niet naar Exact.</p>`;
