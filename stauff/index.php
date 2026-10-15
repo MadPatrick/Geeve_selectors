@@ -237,7 +237,10 @@ function assetVersion(string $relativePath): string
             <div id="assemblyErpStatus" class="assembly-erp-status" hidden></div>
             <div id="codeHint" class="code-hint">Lasplaat en Dekplaat worden standaard gekozen. Borgplaat en Bout blijven optioneel. Locatie 2 gebruikt de beugelcode, bijvoorbeeld <strong>215 PP</strong> of <strong>3015 PP</strong>.</div>
         </div>
-        <button id="copyButton" type="button" class="copy-button" disabled>Kopieer code</button>
+        <div class="code-actions">
+            <button id="copyButton" type="button" class="copy-button" disabled>Kopieer code</button>
+            <button id="exactWriteButton" type="button" class="exact-write-button" disabled>Naar Exact</button>
+        </div>
     </section>
 
     <section id="warningBox" class="warning-box" hidden></section>
@@ -259,6 +262,19 @@ function assetVersion(string $relativePath): string
             <button type="button" id="locationFilterClear" class="link-button">Wissen</button>
             <button type="button" id="locationFilterCancel" class="segment">Annuleren</button>
             <button type="button" id="locationFilterApply" class="submit-button">Toepassen</button>
+        </div>
+    </div>
+</div>
+
+<div id="exactOverlay" class="modal-overlay" hidden>
+    <div class="modal exact-modal" role="dialog" aria-modal="true" aria-labelledby="exactTitle">
+        <div class="modal-header">
+            <h2 id="exactTitle">Naar Exact</h2>
+        </div>
+        <div id="exactBody" class="exact-body"></div>
+        <div class="modal-actions">
+            <button type="button" id="exactCancel" class="segment">Sluiten</button>
+            <button type="button" id="exactConfirm" class="submit-button" hidden>Schrijven naar Exact</button>
         </div>
     </div>
 </div>

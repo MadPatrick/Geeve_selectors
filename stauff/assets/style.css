@@ -279,6 +279,33 @@ button.location-number { cursor: pointer; }
 /* Samenstelling bestaat al in Exact (zie checkAssemblyInErp()/
    setCopyButtonState() in assets/selector.js) - knop wordt dan rood en
    toont "Update prijs" i.p.v. "Kopieer code". */
+/* Kopieer code en Naar Exact naast elkaar rechts in het codepaneel. */
+.code-actions { display: flex; gap: var(--btn-gap); flex-wrap: wrap; justify-content: flex-end; }
+/* Naar Exact: rode hoofdactie (zie shared/style.css, --btn-red). */
+.exact-write-button {
+    appearance: none;
+    border: 1px solid var(--btn-red-line);
+    border-radius: 999px;
+    background: var(--btn-red);
+    color: var(--btn-ink-light);
+    font-weight: 800;
+    min-height: 44px;
+    padding: 10px 18px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.exact-write-button:hover:not(:disabled) { opacity: .9; }
+.exact-write-button:disabled { opacity: .45; cursor: default; }
+/* Venster "Naar Exact" (zie openExactModal() in assets/selector.js). */
+.exact-modal { width: min(560px, 100%); }
+.exact-code { margin: 0 0 6px; font-size: 18px; font-weight: 850; overflow-wrap: anywhere; }
+.exact-note { margin: 8px 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.exact-note.is-error { color: #a03636; font-weight: 700; }
+.exact-note.is-ok { color: #1f7a3a; font-weight: 700; }
+.exact-lines { width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0; }
+.exact-lines th, .exact-lines td { text-align: left; padding: 3px 8px; border-bottom: 1px solid var(--line-strong); }
+.exact-lines td:last-child, .exact-lines th:last-child { text-align: right; width: 70px; }
+.exact-lines tr.is-missing td { color: #a03636; font-weight: 700; }
 .copy-button.is-found { border-color: var(--btn-danger-line); background: var(--btn-danger); }
 .copy-button:hover:not(:disabled) { opacity: .9; }
 .copy-button:disabled { opacity: .45; cursor: default; }
@@ -290,7 +317,8 @@ button.location-number { cursor: pointer; }
     .filter-grid { flex-wrap: wrap; }
     .location-content { grid-template-columns: 1fr; gap: 8px; }
     .code-panel { align-items: stretch; flex-direction: column; }
-    .copy-button { width: 100%; }
+    .code-actions { justify-content: stretch; }
+    .copy-button, .exact-write-button { flex: 1 1 auto; }
 }
 
 @media (max-width: 620px) {
