@@ -1,3 +1,5 @@
 .env
 .settings.enc
 .settings.key
+# Lokfiles van de SentinelOne-agent (ransomware-detectie) op de server
+.aaa.*
