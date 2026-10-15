@@ -102,6 +102,22 @@ $lockRoot = '';
         </a>
         <?php endif; $tileHtml['slangkaarten'] = ob_get_clean(); ?>
 
+        <?php ob_start(); if (tileVisible('slangkaarten-app')): ?>
+        <a class="<?= tileClass('slangkaarten-app') ?>" href="slangkaarten/index.php"<?= tileAttrs('slangkaarten-app') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+                    <path d="M8 8h8"></path>
+                    <path d="M8 12h8"></path>
+                    <path d="M8 16h5"></path>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('slangkaarten-app')) ?></h2>
+            <p>In voorbereiding.</p>
+            <?= tileLockIcon('slangkaarten-app') ?>
+        </a>
+        <?php endif; $tileHtml['slangkaarten-app'] = ob_get_clean(); ?>
+
         <?php ob_start(); if (tileVisible('stickers')): ?>
         <a class="<?= tileClass('stickers') ?>" href="stickers/index.php"<?= tileAttrs('stickers') ?>>
             <div class="tile-icon">

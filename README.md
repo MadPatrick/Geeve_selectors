@@ -113,6 +113,8 @@ configurator/           Volledige Slang configurator-app (eigen assets/data/etc.
 slkprinten/             Volledige Slangkaarten-app (eigen assets/inc/etc.; account voor de
                         "Slangkaarten"-database en voor de Locatie-lookup op de picklijst uit Config,
                         zie slkprinten/README.md)
+slangkaarten/           Nieuwe app Slangkaarten (in voorbereiding, nog alleen een lege pagina);
+                        tegel-id 'slangkaarten-app' - 'slangkaarten' is de tegel van slkprinten/
 stickers/               Eigen scherm met 3 tegels (nog niet functioneel - "Binnenkort
                         beschikbaar") - bestanden staan er nog, momenteel geen tegel op de
                         startpagina
