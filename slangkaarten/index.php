@@ -17,6 +17,21 @@ header('Pragma: no-cache');
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
 
 require_once __DIR__ . '/inc/db.php';
+
+// Loopt het opbouwen van de pagina vast op een PHP-fout (bv. tijdslimiet of
+// een onverwachte waarde in de slangkaartgegevens), dan liet de server
+// alleen een lege/onafgemaakte pagina zien en bleef de printknop "laden".
+// Toon de foutmelding dan zichtbaar onderaan, zodat duidelijk is wat er misgaat.
+register_shutdown_function(static function (): void {
+    $error = error_get_last();
+    if ($error === null || !in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
+        return;
+    }
+    echo '<div style="margin:16px;padding:15px 18px;border:1px solid #e8b1b1;border-radius:12px;background:#fff1f1;color:#7d2f2f;font:14px Arial,sans-serif">'
+        . '<strong>Fout bij het opbouwen van de slangkaarten:</strong><br>'
+        . htmlspecialchars($error['message'] . ' (' . basename($error['file']) . ':' . $error['line'] . ')', ENT_QUOTES)
+        . '</div>';
+});
 require_once __DIR__ . '/inc/queries.php';
 
 function h(string $value): string
@@ -1387,6 +1402,7 @@ $hoseCards = [];
 $customerOrders = [];
 $hoseNumberResults = [];
 $hoseCardsWithoutOrder = [];
+$printSheetHtml = '';
 $showRecentOrders = false;
 $errorMessage = null;
 
@@ -1394,8 +1410,21 @@ if ($selectedKeys !== []) {
     try {
         $pdo = getPdoConnection();
         $hoseCards = findHoseCardsByKeys($pdo, $selectedKeys, $orderNumber);
-    } catch (DatabaseConfigException $exception) {
-        $errorMessage = $exception->getMessage();
+        // Kaarten + picklijst hier al opbouwen (niet pas onderaan in de HTML),
+        // zodat een fout in de gegevens van een slangkaart een nette melding
+        // geeft i.p.v. een half geladen pagina zonder printvenster.
+        $printSheetHtml = '';
+        foreach ($hoseCards as $card) {
+            $printSheetHtml .= renderHoseCard($card);
+        }
+        if ($hoseCards !== []) {
+            $printSheetHtml .= renderPicklist(buildPicklist($hoseCards), $orderNumber, pick($hoseCards[0]['row'], KLANT_CANDIDATES));
+        }
+    } catch (Throwable $exception) {
+        $hoseCards = [];
+        $errorMessage = $exception instanceof DatabaseConfigException
+            ? $exception->getMessage()
+            : 'De slangkaarten konden niet worden opgebouwd, daarom is er niet geprint. Foutmelding: ' . $exception->getMessage();
     }
 } elseif ($orderNumber !== '') {
     try {
@@ -1591,6 +1620,13 @@ if ($selectedKeys !== []) {
                     button.classList.add('loading');
                     button.disabled = true;
                     label.textContent = 'Slangkaarten worden opgehaald…';
+                    // Geeft de server na een minuut nog steeds niets terug,
+                    // dan niet eindeloos blijven "laden" maar het melden.
+                    window.setTimeout(function () {
+                        button.classList.remove('loading');
+                        button.disabled = false;
+                        label.textContent = 'Geen antwoord van de server - opnieuw proberen';
+                    }, 60000);
                 });
                 // Zie de zoekknop hierboven: knop resetten als Firefox de
                 // pagina via Terug uit zijn cache herstelt.
@@ -1675,10 +1711,7 @@ if ($selectedKeys !== []) {
 
 <?php if ($hoseCards !== []): ?>
 <div id="printSheet" aria-hidden="true">
-    <?php foreach ($hoseCards as $card): ?>
-        <?= renderHoseCard($card) ?>
-    <?php endforeach; ?>
-    <?= renderPicklist(buildPicklist($hoseCards), $orderNumber, pick($hoseCards[0]['row'], KLANT_CANDIDATES)) ?>
+    <?= $printSheetHtml ?>
 </div>
 <?php endif; ?>
 </body>
