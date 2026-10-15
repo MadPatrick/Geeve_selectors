@@ -1413,8 +1413,22 @@ if (isset($_GET['diagnose'])) {
         }
         return $html . '</table>';
     };
+    // Per stap meteen naar de browser sturen, zodat je ziet hoe ver hij is.
+    @set_time_limit(300);
+    while (ob_get_level() > 0) {
+        ob_end_flush();
+    }
+    $flush = static function (string &$out): void {
+        echo $out;
+        $out = '';
+        flush();
+    };
     try {
         $pdo = getPdoConnection();
+        // Elke query max. 15 seconden: sommige views zijn traag, die mogen de rest niet ophouden.
+        if (defined('PDO::SQLSRV_ATTR_QUERY_TIMEOUT')) {
+            $pdo->setAttribute(PDO::SQLSRV_ATTR_QUERY_TIMEOUT, 15);
+        }
         $like = '%' . preg_replace('/\s+/', '%', $needle) . '%';
         $sources = [
             ['2500 Slangkaarten bij order', 'GHnr'],
@@ -1432,9 +1446,11 @@ if (isset($_GET['diagnose'])) {
             } catch (Throwable $exception) {
                 $out .= '<p>Fout: ' . h($exception->getMessage()) . '</p>';
             }
+            $flush($out);
         }
 
-        $out .= '<h2>Andere tabellen/views met dit slangnummer</h2>';
+        $out .= '<h2>Andere tabellen/views met dit slangnummer</h2><p>Bezig met doorzoeken&hellip; (max. 15 s per tabel)</p>';
+        $flush($out);
         $candidates = $pdo->query(
             "SELECT c.TABLE_NAME, c.COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS c "
             . "WHERE c.TABLE_SCHEMA = 'dbo' AND c.COLUMN_NAME IN ('GHnr', 'Nummer', 'Slangnummer', 'SlangNr', 'artcode', 'GH_Slang') "
@@ -1447,6 +1463,8 @@ if (isset($_GET['diagnose'])) {
             if (in_array(strtolower((string) $candidate['TABLE_NAME']), $listed, true)) {
                 continue;
             }
+            echo ' ';
+            flush();
             try {
                 $stmt = $pdo->prepare('SELECT COUNT(*) FROM [dbo].[' . str_replace(']', ']]', (string) $candidate['TABLE_NAME']) . '] WHERE ['
                     . str_replace(']', ']]', (string) $candidate['COLUMN_NAME']) . '] LIKE :v');
