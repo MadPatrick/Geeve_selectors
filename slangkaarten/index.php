@@ -1523,10 +1523,19 @@ if ($selectedKeys !== []) {
             var label = button ? button.querySelector('.button-label') : null;
             if (!form || !button || !label) { return; }
 
+            var originalLabel = label.textContent;
             form.addEventListener('submit', function () {
                 button.classList.add('loading');
                 button.disabled = true;
                 label.textContent = 'Bezig met zoeken…';
+            });
+            // Terug naar deze pagina (bv. met de Terug-knop na het printen):
+            // Firefox zet de pagina uit zijn cache terug mét de knop nog in
+            // laadtoestand (uitgeschakeld) - dan deed de knop niets meer.
+            window.addEventListener('pageshow', function () {
+                button.classList.remove('loading');
+                button.disabled = false;
+                label.textContent = originalLabel;
             });
         })();
     </script>
@@ -1577,10 +1586,18 @@ if ($selectedKeys !== []) {
                 var label = button ? button.querySelector('.button-label') : null;
                 if (!form || !button || !label) { return; }
 
+                var originalLabel = label.textContent;
                 form.addEventListener('submit', function () {
                     button.classList.add('loading');
                     button.disabled = true;
                     label.textContent = 'Slangkaarten worden opgehaald…';
+                });
+                // Zie de zoekknop hierboven: knop resetten als Firefox de
+                // pagina via Terug uit zijn cache herstelt.
+                window.addEventListener('pageshow', function () {
+                    button.classList.remove('loading');
+                    button.disabled = false;
+                    label.textContent = originalLabel;
                 });
             })();
         </script>
