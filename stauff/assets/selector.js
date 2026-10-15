@@ -1677,6 +1677,18 @@
         }).filter(([artikel]) => artikel).map(([artikel, aantal]) => ({ artikel, aantal }));
     }
 
+    // De totaalprijs zoals de selector hem toont (som van verkoopprijs x aantal), alleen als die van elk onderdeel
+    // bekend is; anders null en gaat er geen verkoopprijs naar Exact.
+    function assemblySalesPrice(lines) {
+        let total = 0;
+        for (const { artikel, aantal } of lines) {
+            const price = state.lastPrices[artikel];
+            if (typeof price !== 'number' || !Number.isFinite(price)) return null;
+            total += price * aantal;
+        }
+        return lines.length ? Math.round(total * 100) / 100 : null;
+    }
+
     async function postExact(body) {
         let response;
         try {
@@ -1711,7 +1723,8 @@
     async function openExactModal() {
         const code = ui.assemblyCode.textContent;
         if (!code || ui.exactWriteButton.disabled) return;
-        exactRequest = { code, regels: assemblyLines() };
+        const regels = assemblyLines();
+        exactRequest = { code, regels, verkoopprijs: assemblySalesPrice(regels) };
         ui.exactConfirm.hidden = true;
         ui.exactConfirm.disabled = false;
         ui.exactCancel.textContent = 'Sluiten';
@@ -1726,7 +1739,8 @@
         const missing = result.ontbreekt || [];
         const artikel = result.artikel || {};
         let html = `<p class="exact-code">${escapeHtml(code)}</p>` +
-            `<p class="exact-note">${escapeHtml(artikel.Description0 || 'STAUFF SET')}, artikelgroep ${escapeHtml(artikel.Assortment || '67')}, HS-code ${escapeHtml(artikel.StatisticalNumber || '')}. Kostprijs volgens de stuklijst: € ${escapeHtml(artikel.CostPriceStandard || '0')}.</p>` +
+            `<p class="exact-note">${escapeHtml(artikel.Description0 || 'STAUFF SET')}, artikelgroep ${escapeHtml(artikel.Assortment || '67')}, HS-code ${escapeHtml(artikel.StatisticalNumber || '')}. Kostprijs volgens de stuklijst: € ${escapeHtml(artikel.CostPriceStandard || '0')}. ` +
+            (artikel.SalesPrice ? `Verkoopprijs: € ${escapeHtml(artikel.SalesPrice)}.` : 'Geen verkoopprijs: die is niet van alle onderdelen bekend.') + '</p>' +
             exactLinesHtml(result.stuklijst || [], missing);
         if (missing.length) {
             html += `<p class="exact-note is-error">Niet in Exact: ${missing.map(escapeHtml).join(', ')}. Zo kan de set niet naar Exact.</p>`;
