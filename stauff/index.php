@@ -224,6 +224,7 @@ function assetVersion(string $relativePath): string
     <section class="code-panel">
         <div>
             <span class="code-label">SAMENSTELLINGSCODE</span>
+            <span id="assemblyCodeLength" class="code-length" hidden></span>
             <div id="assemblyCode" class="assembly-code">Selecteer eerst een beugel</div>
             <div class="assembly-totals">
                 <div id="assemblyTotalPriceRow" class="assembly-totals-row is-empty">

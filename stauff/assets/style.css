@@ -233,6 +233,12 @@ button.location-number { cursor: pointer; }
 
 .code-panel { margin-top: 22px; border-radius: 18px; padding: 25px 26px; background: linear-gradient(105deg, var(--dark-1) 0%, var(--dark-2) 70%, var(--dark-1) 100%); color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 24px; box-shadow: var(--shadow); }
 .code-label { color: #f0819f; }
+/* Teller "26/30" naast SAMENSTELLINGSCODE: Exact staat maximaal 30 tekens
+   toe voor een artikelnummer (zie updateCodeLength() in assets/selector.js).
+   Rood (.is-over) als de code te lang is. */
+.code-length { margin-left: 10px; padding: 1px 8px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .25); color: #c7c7c7; font-size: 12px; font-weight: 700; }
+.code-length[hidden] { display: none; }
+.code-length.is-over { border-color: #f0819f; background: rgba(240, 129, 159, .18); color: #f0819f; }
 .assembly-code { font-size: clamp(20px, 3vw, 30px); font-weight: 850; letter-spacing: .01em; margin: 6px 0 5px; overflow-wrap: anywhere; }
 /* Totaalprijs (som van verkoopprijs x aantal) + totaal beschikbaar (het
    laagste van floor(voorraad / aantal) over alle gekozen onderdelen - de

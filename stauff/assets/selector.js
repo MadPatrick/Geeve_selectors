@@ -75,6 +75,7 @@
         assemblyErpStatus: el('assemblyErpStatus'),
         copyButton: el('copyButton'),
         codeHint: el('codeHint'),
+        assemblyCodeLength: el('assemblyCodeLength'),
         warningBox: el('warningBox'),
         shapeImg1: el('shapeImg1'),
         shapeImg2: el('shapeImg2'),
@@ -1483,6 +1484,39 @@
         return firstCodePart(article);
     }
 
+    // Exact staat voor een artikelnummer (ItemCode) maximaal 30 tekens toe.
+    // Een langere samenstellingscode kan dus nooit als artikel in Exact
+    // bestaan: de selector toont dan een rode teller, schakelt "Kopieer code"
+    // uit en zegt vanaf welk codedeel het niet meer past. Bewust niet stil
+    // inkorten - dan kunnen 2 verschillende sets hetzelfde nummer krijgen.
+    const EXACT_CODE_MAX_LENGTH = 30;
+
+    function updateCodeLength(parts) {
+        const counter = ui.assemblyCodeLength;
+        const code = parts.join('-');
+        if (counter) {
+            counter.hidden = !code;
+            counter.textContent = `${code.length}/${EXACT_CODE_MAX_LENGTH}`;
+            counter.classList.toggle('is-over', code.length > EXACT_CODE_MAX_LENGTH);
+        }
+        if (code.length <= EXACT_CODE_MAX_LENGTH) return false;
+
+        // Eerste codedeel dat (inclusief koppelteken ervoor) niet meer binnen
+        // de 30 tekens past.
+        let length = 0;
+        let firstOver = parts[parts.length - 1];
+        for (let i = 0; i < parts.length; i += 1) {
+            length += (i > 0 ? 1 : 0) + parts[i].length;
+            if (length > EXACT_CODE_MAX_LENGTH) {
+                firstOver = parts[i];
+                break;
+            }
+        }
+        ui.codeHint.innerHTML = `De code is ${code.length} tekens; Exact staat maximaal ${EXACT_CODE_MAX_LENGTH} tekens toe. ` +
+            `Vanaf <strong>${escapeHtml(firstOver)}</strong> past het niet meer: haal een extra regel weg of kies een korter onderdeel.`;
+        return true;
+    }
+
     function updateAssemblyCode() {
         const clamp = state.selectedClamp;
         const wcode = computeLocation6Code(currentMaterialByRole());
@@ -1493,6 +1527,7 @@
             ui.assemblyCode.textContent = 'Selecteer eerst een beugel';
             ui.copyButton.disabled = true;
             ui.codeHint.innerHTML = 'Locaties 1, 3, 4 en 5 zijn optioneel; locatie 6 wordt automatisch bepaald. Locatie 2 gebruikt de beugelcode, bijvoorbeeld <strong>215 PP</strong> of <strong>3015 PP</strong>.';
+            updateCodeLength([]);
             checkAssemblyInErp('');
             return;
         }
@@ -1520,9 +1555,11 @@
 
         const code = parts.join('-');
         ui.assemblyCode.textContent = code;
-        ui.copyButton.disabled = !code;
         ui.codeHint.textContent = '';
-        checkAssemblyInErp(code);
+        const tooLong = updateCodeLength(parts);
+        ui.copyButton.disabled = !code || tooLong;
+        // Een te lange code kan niet in Exact bestaan - niet laten controleren.
+        checkAssemblyInErp(tooLong ? '' : code);
     }
 
     /**
