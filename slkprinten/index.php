@@ -647,10 +647,10 @@ function renderKrimpmatenTable(array $card, string $slangType): string
  * artikelgroep 67, maar een eigen verbinding (zie
  * getExactPdoConnection()/EXACT_DB_* in Config).
  *
- * Locatie: tabel GRV_StockpositionsPerDay (kolom "Warehouse Location").
- * CSPickITItemLocations (de oorspronkelijke kandidaat) bleek leeg te
- * zijn. ROW_NUMBER() OVER (PARTITION BY ItemCode ...) pakt de meest
- * recente rij per artikel.
+ * Locatie: tabel voorrd, kolom maglok (vaste locatie per artikel, magazijn 1).
+ * Sinds 15-10-2026; daarvoor GRV_StockpositionsPerDay (meest recente rij per
+ * artikel), die per print ~6 s kostte en bij grote orders op de time-out liep.
+ * CSPickITItemLocations bleek leeg en Items.WareHouseLocation ook.
  *
  * Voorraad: eerst geprobeerd met GRV_StockpositionsPerDay's "Free Stock"
  * (bleek voor geen enkel artikel te kloppen) en StockBalances' laatste
@@ -702,13 +702,13 @@ function findArtikelExactDataBatch(array $artikelen): array
     }
 
     try {
+        // voorrd.maglok: de vaste locatie per artikel in magazijn 1, via de clustered index (magcode, artcode) - ~0,03 s
+        // voor 45 artikelen. Voorheen GRV_StockpositionsPerDay (meest recente rij per artikel): ~6 s voor 10
+        // artikelen en de querytimeout (8 s) bij grotere orders, en bij een verplaatsing op dezelfde dag soms de oude
+        // locatie (gemeten 15-10-2026). artcode is char(30), vandaar RTRIM.
         $stmt = $pdo->prepare(
-            'WITH ranked AS (' .
-            'SELECT ItemCode, [Warehouse Location], ' .
-            'ROW_NUMBER() OVER (PARTITION BY ItemCode ORDER BY [Transaction Date] DESC) AS rn ' .
-            'FROM GRV_StockpositionsPerDay ' .
-            "WHERE ItemCode IN ({$inClause})" .
-            ') SELECT ItemCode, [Warehouse Location] FROM ranked WHERE rn = 1'
+            'SELECT RTRIM(artcode) AS ItemCode, RTRIM(maglok) AS [Warehouse Location] ' .
+            "FROM voorrd WITH (NOLOCK) WHERE magcode = '1' AND artcode IN ({$inClause})"
         );
         $stmt->execute($params);
         while (($row = $stmt->fetch()) !== false) {
