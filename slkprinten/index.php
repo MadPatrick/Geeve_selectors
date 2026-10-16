@@ -416,50 +416,30 @@ function csvGetColumn(array $row, string $columnName): string
 }
 
 /**
- * Vergelijkt het volledige artikelnummer van de order (bv. "10171-12-12" of
- * "48-12S-20S") met een kort koppelingtype uit de CSV (bv. "10", "48",
- * "V4", "V6" - géén volledig artikelnummer maar een serie-aanduiding). Het
- * type staat óf vooraan het artikelnummer, óf als los token midden in de
- * code (zie "V4"/"V6").
+ * Hoe goed een koppelartikel ($needleKoppeling, al uppercased) past bij een
+ * CSV-veld (Huls, Pilaar of 1delig_N). Die velden bevatten óf korte seriecodes
+ * ("10", "48", "V4", max 3 tekens) óf volledige artikelnummers (7+ tekens, moeten
+ * exact gelijk zijn - anders matcht "13002-04RVS" op "13002-04MM").
+ * Score: 3 = volledig artikelnummer, 2 = seriecode aan het begin van het artikel,
+ * 1 = seriecode als los woord in het artikel ("10217-48-48RVS"), 0 = geen match.
+ * Nodig om bij meerdere onderdelen per zijde (koppeling + huls/pilaar) de
+ * krimpmaat van de best passende te kiezen, zie renderKrimpmatenTable().
  */
-function matchesKoppelingType(string $artikelnummer, string $type): bool
-{
-    if ($type === '') {
-        return false;
-    }
-
-    if (stripos($artikelnummer, $type) === 0) {
-        return true;
-    }
-
-    return preg_match('/\b' . preg_quote($type, '/') . '\b/i', $artikelnummer) === 1;
-}
-
-/**
- * Vergelijkt een CSV-koppelveld (Huls, Pilaar of 1delig_N) met het
- * werkelijke order-artikelnummer ($needleKoppeling, al uppercased). Deze
- * velden bevatten 2 heel verschillende soorten waarden (geverifieerd over
- * alle rijen in beide CSV's: lengte 1-3 of 7+, nooit ertussenin):
- * - Korte seriecodes ("10", "48", "VS", "V4", max 3 tekens) - matchen los
- *   via matchesKoppelingType() (prefix/los-woord), want het order-
- *   artikelnummer is dan een langere, specifiekere code die ermee begint
- *   of 'm als los token bevat (zie de docblock daarboven).
- * - Volledige, specifieke artikelnummers ("1300P9-04RVS", "13002-04MM",
- *   7+ tekens) - moeten exact overeenkomen. Los matchen zou hier per
- *   ongeluk "13002-04RVS" laten matchen op het kortere "13002-04" (ander
- *   materiaal, toevallig dezelfde eerste tekens).
- */
-function matchesKoppelingField(string $needleKoppeling, string $fieldValue): bool
+function koppelingMatchScore(string $needleKoppeling, string $fieldValue): int
 {
     if ($fieldValue === '') {
-        return false;
+        return 0;
     }
 
+    $type = strtoupper($fieldValue);
     if (strlen($fieldValue) <= 3) {
-        return matchesKoppelingType($needleKoppeling, strtoupper($fieldValue));
+        if (stripos($needleKoppeling, $type) === 0) {
+            return 2;
+        }
+        return preg_match('/\b' . preg_quote($type, '/') . '\b/i', $needleKoppeling) === 1 ? 1 : 0;
     }
 
-    return strtoupper($fieldValue) === $needleKoppeling;
+    return $type === $needleKoppeling ? 3 : 0;
 }
 
 /**
@@ -530,32 +510,34 @@ function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelin
     $row = $index[$needleSlang];
     $needleKoppeling = strtoupper($koppelingArtikel);
 
+    // Alle varianten langs en de best passende nemen (bij gelijke score de eerste,
+    // 2delig vóór 1delig zoals voorheen) - een korte typecode als "10" of "48"
+    // kan anders op meerdere varianten tegelijk passen.
+    $best = null;
+    $candidates = [];
     foreach ([1, 2] as $number) {
         $prefix = "2delig_{$number}";
-        $huls = csvGetColumn($row, "{$prefix} - Huls");
-        $pilaar = csvGetColumn($row, "{$prefix} - Pilaar");
-        if (matchesKoppelingField($needleKoppeling, $huls) || matchesKoppelingField($needleKoppeling, $pilaar)) {
-            return [
-                'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
-                'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
-                'schilExtern' => csvGetColumn($row, "{$prefix} - Schilmaat extern (mm)"),
-            ];
-        }
+        $candidates[] = [$prefix, max(
+            koppelingMatchScore($needleKoppeling, csvGetColumn($row, "{$prefix} - Huls")),
+            koppelingMatchScore($needleKoppeling, csvGetColumn($row, "{$prefix} - Pilaar"))
+        )];
     }
-
     foreach ([1, 2, 3] as $number) {
         $prefix = "1delig_{$number}";
-        $koppelArtikel = csvGetColumn($row, $prefix);
-        if (matchesKoppelingField($needleKoppeling, $koppelArtikel)) {
-            return [
+        $candidates[] = [$prefix, koppelingMatchScore($needleKoppeling, csvGetColumn($row, $prefix))];
+    }
+    foreach ($candidates as [$prefix, $score]) {
+        if ($score > 0 && ($best === null || $score > $best['score'])) {
+            $best = [
                 'persmaat'    => csvGetColumn($row, "{$prefix} - Persmaat (mm)"),
                 'schilIntern' => csvGetColumn($row, "{$prefix} - Schilmaat intern (mm)"),
                 'schilExtern' => csvGetColumn($row, "{$prefix} - Schilmaat extern (mm)"),
+                'score'       => $score,
             ];
         }
     }
 
-    return null;
+    return $best;
 }
 
 /** Zoekt de krimpmaat (Persmaat) op in beide materiaal-CSV's, zie boven. */
@@ -595,34 +577,24 @@ function renderKrimpmatenTable(array $card, string $slangType): string
     $rows = [];
 
     foreach ($sideLabels as $side => $label) {
-        $seen = [];
-        $persmaten = [];
-        $schilInterns = [];
-        $schilExterns = [];
-
+        // Per zijde is er maar 1 krimpmaat. Passen meerdere onderdelen van deze
+        // zijde (bv. koppeling + huls/pilaar) op een variant, dan telt de best
+        // passende (zie koppelingMatchScore()), bij gelijke score de eerste.
+        $best = null;
         foreach ($card[$side] as $componentRow) {
             $artikel = pick($componentRow, ARTIKELNUMMER_CANDIDATES);
-            if ($artikel === '' || isset($seen[$artikel])) {
+            if ($artikel === '') {
                 continue;
             }
-            $seen[$artikel] = true;
-
             $krimpmaat = findKrimpmaat($slangType, $artikel);
-            if ($krimpmaat === null) {
-                continue;
-            }
-            if ($krimpmaat['persmaat'] !== '' && !in_array($krimpmaat['persmaat'], $persmaten, true)) {
-                $persmaten[] = ensureLeadingZero($krimpmaat['persmaat']);
-            }
-            if ($krimpmaat['schilIntern'] !== '' && !in_array($krimpmaat['schilIntern'], $schilInterns, true)) {
-                $schilInterns[] = ensureLeadingZero($krimpmaat['schilIntern']);
-            }
-            if ($krimpmaat['schilExtern'] !== '' && !in_array($krimpmaat['schilExtern'], $schilExterns, true)) {
-                $schilExterns[] = ensureLeadingZero($krimpmaat['schilExtern']);
+            if ($krimpmaat !== null && ($best === null || $krimpmaat['score'] > $best['score'])) {
+                $best = $krimpmaat;
             }
         }
 
-        $rows[] = [$label, implode(', ', $persmaten), implode(', ', $schilInterns), implode(', ', $schilExterns)];
+        $rows[] = $best === null
+            ? [$label, '', '', '']
+            : [$label, ensureLeadingZero($best['persmaat']), ensureLeadingZero($best['schilIntern']), ensureLeadingZero($best['schilExtern'])];
     }
 
     $html = '<div class="coupling-block krimpmaten-block"><h4>Krimpmaten</h4>';
