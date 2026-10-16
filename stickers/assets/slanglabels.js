@@ -35,13 +35,13 @@
     function lengte(v) { v = String(v).trim(); return /^\d+([.,]\d+)?$/.test(v) ? v + ' MM' : v; }
 
     function label(r) {
-        return '<div class="slanglabel">' +
+        return '<div class="slanglabel"><div class="area">' +
             '<div class="f nr">' + esc(r.slangnummer) + '</div>' +
             '<div class="f ref">' + esc(r.referentie) + '</div>' +
             '<div class="f len">' + esc(lengte(r.lengte)) + '</div>' +
             (withDate.checked ? '<div class="f dat">' + esc(r.datum) + '</div>' : '') +
             '<div class="f kl">' + esc(r.klantnaam) + '</div>' +
-            '</div>';
+            '</div></div>';
     }
 
     // Tekst die niet past wordt kleiner gezet (in stapjes), zodat niets wordt afgeknipt.

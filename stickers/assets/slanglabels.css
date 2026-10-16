@@ -1,6 +1,6 @@
 /* Slanglabels (stickers/slanglabels): scherm, het label zelf en de printinstellingen.
    Knoppen/tabel/velden komen uit klantartikel/ en reports/msp/ (zie stickers/slanglabels/index.php).
-   Labelformaat 50 × 50 mm (aanname, nagemaakt van de oude app); bijstellen na een proefprint. */
+   Label ALTEC 53000145 (25 × 95 mm, printvlak 25 × 25 mm); posities bijstellen na een proefprint. */
 
 .sl-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
 .sl-form { flex: 1 1 520px; min-width: 0; }
@@ -20,39 +20,67 @@
 #slTable th:first-child, #slTable td:first-child { width: 1%; }
 #slTable td.num { text-align: right; }
 
-.sl-preview { zoom: 1.6; }
-.sl-preview .slanglabel { box-shadow: 0 0 0 1px #e0516a; border-radius: 2mm; background: #fff; }
+.sl-preview { zoom: 1.4; }
+.sl-preview .slanglabel { box-shadow: 0 0 0 1px #e0516a; border-radius: 1mm; background: #fff; }
+/* In het voorbeeld de doorzichtige plakrand gearceerd, zodat duidelijk is waar niet geprint wordt. */
+.sl-preview .slanglabel::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--sl-tail-top);
+    height: calc(var(--sl-h) - var(--sl-area));
+    background: repeating-linear-gradient(45deg, #f3f3f3 0 2mm, #fff 2mm 4mm);
+}
 .sl-print { display: flex; align-items: center; gap: 12px; }
 
+/* ALTEC 53000145: 25 mm breed, 95 mm lang. Alleen een vlak van 25 × 25 mm wordt bedrukt, de rest is een
+   doorzichtige plakrand die om de slang wordt gewikkeld. De tekst staat 90° gedraaid in dat vlak.
+   Aanname: het printvlak zit aan het begin (bovenkant) van het label. Zit het aan de andere kant, zet dan
+   --sl-area-top op calc(var(--sl-h) - var(--sl-area)) en --sl-tail-top op 0. Andere draairichting: --sl-rotate. */
 .slanglabel {
+    --sl-w: 25mm;
+    --sl-h: 95mm;
+    --sl-area: 25mm;
+    --sl-area-top: 0mm;
+    --sl-tail-top: var(--sl-area);
+    --sl-rotate: 90deg;
     position: relative;
-    width: 50mm;
-    height: 50mm;
+    width: var(--sl-w);
+    height: var(--sl-h);
     overflow: hidden;
     color: #000;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: 700;
     line-height: 1.1;
 }
+.slanglabel .area {
+    position: absolute;
+    left: 0;
+    top: var(--sl-area-top);
+    width: var(--sl-area);
+    height: var(--sl-area);
+    transform: rotate(var(--sl-rotate));
+}
 .slanglabel .f {
     position: absolute;
-    left: 2mm;
-    right: 2mm;
+    left: 1mm;
+    right: 1mm;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     overflow: hidden;
 }
-.slanglabel .nr { top: 3mm; height: 7mm; font-size: 5.6mm; white-space: nowrap; }
-.slanglabel .ref { top: 11mm; height: 5mm; font-size: 3.2mm; white-space: nowrap; }
-.slanglabel .len { top: 17.5mm; height: 7mm; font-size: 5.6mm; white-space: nowrap; }
-.slanglabel .dat { top: 24.5mm; height: 7mm; font-size: 5.6mm; white-space: nowrap; }
-.slanglabel .kl { top: 34mm; height: 9mm; font-size: 2.9mm; white-space: normal; }
+.slanglabel .nr { top: 1.5mm; height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
+.slanglabel .ref { top: 5.5mm; height: 2.5mm; font-size: 1.6mm; white-space: nowrap; }
+.slanglabel .len { top: 8.75mm; height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
+.slanglabel .dat { top: 12.25mm; height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
+.slanglabel .kl { top: 17mm; height: 6mm; font-size: 1.5mm; white-space: normal; }
 
 .sl-printsheet { display: none; }
 
-@page { size: 50mm 50mm; margin: 0; }
+@page { size: 25mm 95mm; margin: 0; }
 
 @media print {
     html, body { background: #fff !important; margin: 0; padding: 0; }
