@@ -35,7 +35,7 @@
 .sl-print { display: flex; align-items: center; gap: 12px; }
 
 /* ALTEC 53000145: 25 mm breed, 95 mm lang. Alleen een vlak van 25 × 25 mm wordt bedrukt, de rest is een
-   doorzichtige plakrand die om de slang wordt gewikkeld. De tekst staat 90° tegen de klok in gedraaid in dat vlak (bevestigd na proefprint).
+   doorzichtige plakrand die om de slang wordt gewikkeld. De tekst staat recht (0°) in dat vlak; de printer draait het label zelf (bevestigd na proefprint).
    Het printvlak zit aan het begin (bovenkant) van het label (bevestigd na proefprint). Zit het aan de andere kant, zet dan
    --sl-area-top op calc(var(--sl-h) - var(--sl-area)) en --sl-tail-top op 0. Andere draairichting: --sl-rotate. */
 .slanglabel {
@@ -44,7 +44,7 @@
     --sl-area: 25mm;
     --sl-area-top: 0mm;
     --sl-tail-top: var(--sl-area);
-    --sl-rotate: -90deg;
+    --sl-rotate: 0deg;
     position: relative;
     width: var(--sl-w);
     height: var(--sl-h);
