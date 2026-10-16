@@ -9,8 +9,9 @@ tileApiGuard('offerte-import', 'inkooporder-import');
 /**
  * Controleert de velden van een offerte- of inkooporder-import tegen Exact: verkoper/inkoper (humres.res_id), debiteur- of
  * crediteurnummer (cicmpy) en artikelcodes (Items; bij inkoop met minimale bestelhoeveelheid `minOrder` van de leverancier). POST met csrf, verkoper, debiteur (het nummer van de debiteur of crediteur),
- * soort (debiteur of crediteur) en items[]; antwoord:
- * {"ok":true,"verkoper":{"found":bool,"name":"..."},"partij":{...},"debiteur":{...},"items":{"CODE":{"found":true,"description":"..."}}}
+ * soort (debiteur of crediteur), items[] en (offerte) suppliers[] met leveranciersnummers; antwoord:
+ * {"ok":true,"verkoper":{"found":bool,"name":"..."},"partij":{...},"debiteur":{...},"items":{"CODE":{"found":true,"description":"..."}},
+ *  "suppliers":{"LEVNR":{"item":"CODE of leeg","matches":["CODE",...]}}}
  * Alleen lezen; niets wordt in Exact gewijzigd.
  */
 
@@ -62,12 +63,51 @@ try {
     }
     $out['debiteur'] = $out['partij']; // oude naam, voor de zekerheid
 
-    // Artikelen: bestaan ze in Exact, met omschrijving.
+    // Leveranciersnummers (artikelcode van de leverancier, ItemAccounts.ItemCodeAccount bij een crediteur) -> ons artikelnummer.
+    // Eén artikel gevonden: dat artikel; geen of meerdere verschillende artikelen: geen artikel (bij meerdere de kandidaten).
+    $suppliers = [];
+    foreach ((array) ($_POST['suppliers'] ?? []) as $code) {
+        $code = trim((string) $code);
+        if ($code !== '' && strlen($code) <= 60) {
+            $suppliers[strtoupper($code)] = $code;
+        }
+    }
+    if (count($suppliers) > 2000) {
+        throw new RuntimeException('Te veel leveranciersnummers in één controle (maximaal 2000).');
+    }
+    $supplierHits = [];
+    foreach (array_chunk(array_values($suppliers), 500) as $chunk) {
+        $stmt = $pdo->prepare(
+            'SET NOCOUNT ON; SELECT DISTINCT LTRIM(RTRIM(ItemCodeAccount)) AS s, RTRIM(ItemCode) AS c FROM ItemAccounts'
+            . " WHERE LTRIM(RTRIM(ISNULL(crdnr, ''))) <> '' AND LTRIM(RTRIM(ItemCodeAccount)) IN (" . implode(',', array_fill(0, count($chunk), '?')) . ')'
+        );
+        $stmt->execute($chunk);
+        foreach ($stmt->fetchAll() as $row) {
+            $item = trim((string) $row['c']);
+            if ($item !== '') {
+                $supplierHits[strtoupper(trim((string) $row['s']))][strtoupper($item)] = $item;
+            }
+        }
+    }
+    $supplierOut = [];
+    foreach (array_keys($suppliers) as $key) {
+        $hits = array_values($supplierHits[$key] ?? []);
+        sort($hits);
+        $supplierOut[$key] = ['item' => count($hits) === 1 ? $hits[0] : '', 'matches' => $hits];
+    }
+    $out['suppliers'] = (object) $supplierOut;
+
+    // Artikelen: bestaan ze in Exact, met omschrijving (ook de artikelen die bij een leveranciersnummer zijn gevonden).
     $codes = [];
     foreach ((array) ($_POST['items'] ?? []) as $code) {
         $code = trim((string) $code);
         if ($code !== '' && strlen($code) <= 30) {
             $codes[strtoupper($code)] = $code;
+        }
+    }
+    foreach ($supplierOut as $hit) {
+        if ($hit['item'] !== '' && strlen($hit['item']) <= 30) {
+            $codes[strtoupper($hit['item'])] = $hit['item'];
         }
     }
     if (count($codes) > 2000) {
