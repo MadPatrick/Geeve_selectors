@@ -26,10 +26,12 @@ require_once dirname(__DIR__) . '/inc/db.php';
  * de prijs leeg (geen foutmelding) - de rest van de configurator blijft
  * normaal werken.
  *
- * Voorraad gebruikt dezelfde, al bevestigde formule als
- * findArtikelExactDataBatch() in slkprinten/index.php: StockBalances is
- * een mutatielog, de vrije voorraad is het laagste van de FreeStock-som en
- * de Quantity-som t/m vandaag, met een vloer op 0.
+ * Voorraad = beschikbare voorraad (Patrick, 16-10-2026): de voorraad
+ * (som van Quantity in StockBalances t/m vandaag, alle magazijnen) min het
+ * nog niet geleverde deel van open verkooporders (orkrg.ord_soort = 'V').
+ * Mag negatief zijn: 320 AL had 12 op voorraad en 22 in order, dus -10.
+ * FreeStock in StockBalances is gelijk aan Quantity en trekt orders niet
+ * af; offertes (soort Q) en inkooporders tellen niet mee.
  */
 const STAUFF_ITEM_GROUP = '67';
 
@@ -96,23 +98,31 @@ foreach (PRICE_COLUMN_CANDIDATES as $column) {
 
 $stock = [];
 try {
+    // Tweede set parameters: pdo_sqlsrv staat hergebruik van een benoemde parameter niet toe.
+    $orderPlaceholders = [];
+    $orderParams = [];
+    foreach ($codes as $index => $code) {
+        $orderPlaceholders[] = ":ocode{$index}";
+        $orderParams["ocode{$index}"] = $code;
+    }
+    $orderInClause = implode(', ', $orderPlaceholders);
     $stmt = $pdo->prepare(
-        'WITH agg AS (' .
-        'SELECT ItemCode, ' .
-        'SUM(CASE WHEN [Date] <= GETDATE() THEN Quantity END) AS CurrentQuantity, ' .
-        'SUM(CASE WHEN [Date] <= GETDATE() THEN FreeStock END) AS FreeQuantity ' .
+        'WITH st AS (' .
+        'SELECT ItemCode, SUM(CASE WHEN [Date] <= GETDATE() THEN Quantity END) AS Voorraad ' .
         'FROM StockBalances WITH (NOLOCK) ' .
         "WHERE ItemCode IN ({$inClause}) " .
         'GROUP BY ItemCode' .
-        ') SELECT ItemCode, ' .
-        'CASE WHEN FreeQuantity > CurrentQuantity ' .
-        'THEN (CASE WHEN CurrentQuantity < 0 THEN 0 ELSE CurrentQuantity END) ' .
-        'ELSE (CASE WHEN FreeQuantity < 0 THEN 0 ELSE FreeQuantity END) END AS VrijeVoorraad ' .
-        'FROM agg'
+        '), oo AS (' .
+        'SELECT s.artcode AS ItemCode, SUM(s.esr_aantal - s.aant_gelev) AS OpenOrders ' .
+        'FROM orsrg s WITH (NOLOCK) JOIN orkrg k WITH (NOLOCK) ON k.ordernr = s.ordernr ' .
+        "WHERE k.ord_soort = 'V' AND s.esr_aantal > s.aant_gelev AND s.artcode IN ({$orderInClause}) " .
+        'GROUP BY s.artcode' .
+        ') SELECT st.ItemCode, ISNULL(st.Voorraad, 0) - ISNULL(oo.OpenOrders, 0) AS Beschikbaar ' .
+        'FROM st LEFT JOIN oo ON oo.ItemCode = st.ItemCode'
     );
-    $stmt->execute($codeParams);
+    $stmt->execute($codeParams + $orderParams);
     while (($row = $stmt->fetch()) !== false) {
-        $stock[(string) $row['ItemCode']] = $row['VrijeVoorraad'] !== null ? trim((string) $row['VrijeVoorraad']) : '';
+        $stock[trim((string) $row['ItemCode'])] = $row['Beschikbaar'] !== null ? trim((string) $row['Beschikbaar']) : '';
     }
 } catch (Throwable $exception) {
     // Voorraad blijft leeg (geen foutmelding) - prijs werkt gewoon door.
