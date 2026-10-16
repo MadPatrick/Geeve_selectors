@@ -10,11 +10,6 @@ define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR
 require_once __DIR__ . '/shared/secure_settings.php';
 require_once __DIR__ . '/shared/tiles.php';
 
-// Fallback-bron als de map op de server geen git-repository is (bijv. de
-// map is via FTP gekopieerd zonder de verborgen .git-map mee te nemen).
-// Haalt in dat geval de laatste stand rechtstreeks van GitHub op als zip.
-const UPDATE_REPO_ZIP_URL = 'https://codeload.github.com/MadPatrick/Geeve_selectors/zip/refs/heads/main';
-
 function h(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -30,233 +25,6 @@ function assetVersion(string $relativePath): string
     return $mtime !== false ? (string) $mtime : APP_VERSION;
 }
 
-/**
- * @return array{ok: bool, output: string}
- */
-function runUpdate(): array
-{
-    $repoRoot = __DIR__;
-
-    // Een echte git-checkout (bijv. via SSH gekloond) wordt bijgewerkt met
-    // git pull. Is er geen .git-map (bijv. de map is via FTP gekopieerd
-    // zonder verborgen bestanden), dan is er geen SSH/git nodig - dan wordt
-    // de laatste versie gewoon als zip van GitHub gedownload en uitgepakt.
-    if (is_dir($repoRoot . '/.git')) {
-        return runGitPull($repoRoot);
-    }
-
-    return runHttpUpdate($repoRoot);
-}
-
-/**
- * @return array{ok: bool, output: string}
- */
-function runGitPull(string $repoRoot): array
-{
-    if (!function_exists('proc_open')) {
-        return ['ok' => false, 'output' => 'De functie proc_open is uitgeschakeld op deze server. Vraag de hostingbeheerder dit in te schakelen, of voer "git pull" handmatig uit via SSH.'];
-    }
-
-    $descriptorSpec = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w'],
-    ];
-
-    // De webserver-gebruiker is vaak niet de eigenaar van de bestanden op de
-    // server (bijv. root bij het uitrollen, www-data die PHP draait). Git
-    // weigert dan met "detected dubious ownership" - dit vertrouwt expliciet
-    // en alleen voor dit ene commando de map waarin dit script zelf staat,
-    // zodat er geen handmatige "git config --global" op de server nodig is.
-    $process = @proc_open(
-        ['git', '-c', 'safe.directory=' . $repoRoot, 'pull'],
-        $descriptorSpec,
-        $pipes,
-        $repoRoot
-    );
-
-    if (!is_resource($process)) {
-        return ['ok' => false, 'output' => 'Kon het git-commando niet starten op de server.'];
-    }
-
-    fclose($pipes[0]);
-    $stdout = stream_get_contents($pipes[1]);
-    $stderr = stream_get_contents($pipes[2]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    $exitCode = proc_close($process);
-
-    $output = trim(($stdout !== false ? $stdout : '') . (($stderr !== false && $stderr !== '') ? "\n" . $stderr : ''));
-
-    // "cannot open '.git/FETCH_HEAD': Permission denied": de gebruiker waaronder
-    // PHP draait mag niet in .git schrijven (de map is bijv. als root of via
-    // een andere gebruiker gekloond). Geef direct de oplossing mee.
-    if ($exitCode !== 0 && stripos($output, 'Permission denied') !== false) {
-        $phpUser = function_exists('posix_getpwuid') && function_exists('posix_geteuid')
-            ? (posix_getpwuid(posix_geteuid())['name'] ?? get_current_user())
-            : get_current_user();
-        $output .= "\n\nOplossing: PHP draait als gebruiker \"{$phpUser}\", maar die mag niet schrijven in "
-            . $repoRoot . "/.git. Draai eenmalig op de server:\n"
-            . "  sudo chown -R {$phpUser}: " . $repoRoot;
-    }
-
-    return [
-        'ok'     => $exitCode === 0,
-        'output' => $output !== '' ? $output : '(geen uitvoer)',
-    ];
-}
-
-/**
- * @return array{ok: bool, output: string}
- */
-function runHttpUpdate(string $repoRoot): array
-{
-    if (!function_exists('curl_init')) {
-        return ['ok' => false, 'output' => 'De PHP curl-extensie ontbreekt op deze server. Nodig om de update zonder git te downloaden.'];
-    }
-
-    if (!class_exists('ZipArchive')) {
-        return ['ok' => false, 'output' => 'De PHP zip-extensie ontbreekt op deze server. Nodig om de gedownloade update uit te pakken.'];
-    }
-
-    if (!is_writable($repoRoot)) {
-        return ['ok' => false, 'output' => "De map {$repoRoot} is niet schrijfbaar voor de webserver. Vraag de hostingbeheerder om schrijfrechten te geven."];
-    }
-
-    @set_time_limit(180);
-
-    $tmpZip = tempnam(sys_get_temp_dir(), 'geeve_update_');
-    if ($tmpZip === false) {
-        return ['ok' => false, 'output' => 'Kon geen tijdelijk bestand aanmaken op de server.'];
-    }
-
-    $download = downloadFile(UPDATE_REPO_ZIP_URL, $tmpZip);
-    if (!$download['ok']) {
-        @unlink($tmpZip);
-        return $download;
-    }
-
-    $zip = new ZipArchive();
-    if ($zip->open($tmpZip) !== true) {
-        @unlink($tmpZip);
-        return ['ok' => false, 'output' => 'Het gedownloade bestand kon niet als zip-archief worden geopend.'];
-    }
-
-    $tmpExtractDir = $tmpZip . '_uitgepakt';
-    if (!@mkdir($tmpExtractDir, 0775, true)) {
-        $zip->close();
-        @unlink($tmpZip);
-        return ['ok' => false, 'output' => 'Kon geen tijdelijke map aanmaken op de server om de update uit te pakken.'];
-    }
-
-    $zip->extractTo($tmpExtractDir);
-    $zip->close();
-    @unlink($tmpZip);
-
-    // GitHub-zips bevatten altijd precies één map op het hoogste niveau,
-    // bijv. "Geeve_selectors-main" - de daadwerkelijke inhoud staat daarin.
-    $entries = array_values(array_diff((array) @scandir($tmpExtractDir), ['.', '..']));
-    if (count($entries) !== 1 || !is_dir($tmpExtractDir . '/' . $entries[0])) {
-        removeDirectoryRecursive($tmpExtractDir);
-        return ['ok' => false, 'output' => 'Onverwachte inhoud in het gedownloade archief.'];
-    }
-
-    $sourceDir = $tmpExtractDir . '/' . $entries[0];
-    $copiedCount = copyDirectoryOverwrite($sourceDir, $repoRoot);
-
-    removeDirectoryRecursive($tmpExtractDir);
-
-    return [
-        'ok'     => true,
-        'output' => "Geen git gevonden op de server - update rechtstreeks van GitHub gedownload en uitgepakt.\n{$copiedCount} bestand(en) bijgewerkt.\n\nLet op: bestanden die op GitHub zijn verwijderd, worden op deze manier niet automatisch van de server verwijderd.",
-    ];
-}
-
-/**
- * @return array{ok: bool, output: string}
- */
-function downloadFile(string $url, string $destination): array
-{
-    $fp = fopen($destination, 'wb');
-    if ($fp === false) {
-        return ['ok' => false, 'output' => 'Kon het tijdelijke downloadbestand niet openen voor schrijven.'];
-    }
-
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_FILE           => $fp,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_MAXREDIRS      => 5,
-        CURLOPT_CONNECTTIMEOUT => 20,
-        CURLOPT_TIMEOUT        => 150,
-        CURLOPT_USERAGENT      => 'Geeve-Hydraulics-Update',
-        CURLOPT_FAILONERROR    => true,
-    ]);
-
-    $success = curl_exec($ch);
-    $error = curl_error($ch);
-    $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    fclose($fp);
-
-    if ($success !== true) {
-        @unlink($destination);
-        return ['ok' => false, 'output' => "Download van de update is mislukt: {$error} (HTTP {$httpCode})."];
-    }
-
-    return ['ok' => true, 'output' => ''];
-}
-
-function copyDirectoryOverwrite(string $source, string $destination): int
-{
-    $count = 0;
-    $items = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($source, FilesystemIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::SELF_FIRST
-    );
-
-    foreach ($items as $item) {
-        $relative = substr((string) $item->getPathname(), strlen($source) + 1);
-        $target = $destination . '/' . $relative;
-
-        if ($item->isDir()) {
-            if (!is_dir($target)) {
-                @mkdir($target, 0775, true);
-            }
-            continue;
-        }
-
-        if (@copy((string) $item->getPathname(), $target)) {
-            $count++;
-        }
-    }
-
-    return $count;
-}
-
-function removeDirectoryRecursive(string $dir): void
-{
-    if (!is_dir($dir)) {
-        return;
-    }
-
-    $items = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::CHILD_FIRST
-    );
-
-    foreach ($items as $item) {
-        if ($item->isDir()) {
-            @rmdir((string) $item->getPathname());
-        } else {
-            @unlink((string) $item->getPathname());
-        }
-    }
-
-    @rmdir($dir);
-}
-
-$result = null;
 $requestError = false;
 $settingsMessage = null;
 
@@ -326,14 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
 }
 
 $storedSettings = secureSettingsRead();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-update') {
-    if (hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
-        $result = runUpdate();
-    } else {
-        $requestError = true;
-    }
-}
 ?>
 <!doctype html>
 <html lang="nl">
@@ -357,23 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run-u
 
     <div class="config-bar">
         <a href="index.php" class="back-link">&larr; Terug naar hoofdmenu</a>
-        <form method="post" class="config-update-form">
-            <input type="hidden" name="action" value="run-update">
-            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
-            <button type="submit" class="update-submit">Update uitvoeren</button>
-        </form>
     </div>
 
     <?php if ($requestError): ?>
         <div class="update-message error">Ongeldig verzoek (sessie verlopen). Laad de pagina opnieuw en probeer het nog eens.</div>
-    <?php endif; ?>
-    <?php if ($result !== null): ?>
-        <section class="update-panel">
-            <div class="update-message <?= $result['ok'] ? 'ok' : 'error' ?>">
-                <?= $result['ok'] ? 'Update voltooid.' : 'Update mislukt.' ?>
-            </div>
-            <pre class="update-output"><?= h($result['output']) ?></pre>
-        </section>
     <?php endif; ?>
 
     <section class="update-panel">

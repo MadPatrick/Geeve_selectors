@@ -138,20 +138,6 @@
 .update-message.ok { color: #237447; background: #e8f4ed; }
 .update-message.error { color: #a03636; background: #f7eaea; }
 
-.update-output {
-    margin-top: 16px;
-    padding: 14px 16px;
-    background: #16181c;
-    color: #d8e0e8;
-    border-radius: 10px;
-    font-size: 12px;
-    line-height: 1.5;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-
 @media (max-width: 720px) {
     /* .brand-panel/.header-content vallen al bij 980px uit shared op
        1 kolom (zie ../shared/style.css) - hier nog alleen de tegel-
@@ -236,10 +222,9 @@
 .tiles-name { font-size: 14px; font-weight: 650; }
 @media (max-width: 560px) { .tiles-row { grid-template-columns: minmax(120px, 1fr) repeat(3, 64px); gap: 6px; } .tiles-head { font-size: 10px; } }
 
-/* Config: bovenste rij met "Terug naar hoofdmenu" (even groot als de tekst) links en "Update uitvoeren" helemaal rechts. */
+/* Config: bovenste rij met "Terug naar hoofdmenu" (even groot als de tekst). */
 .config-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
 .config-bar .back-link { margin: 0; }
-.config-update-form { margin: 0; }
 
 .tiles-list { display: flex; flex-direction: column; }
 .tiles-name { display: flex; align-items: center; gap: 8px; }
