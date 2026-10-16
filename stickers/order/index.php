@@ -61,8 +61,8 @@ $csrf = csrfToken();
                 <input type="text" id="soNumber" class="ka-input" inputmode="numeric" maxlength="18" autocomplete="off" autofocus>
             </label>
             <div class="rp-toggle" id="soSort" role="group" aria-label="Volgorde">
-                <button type="button" data-sort="regel" class="is-active">Orderregel</button>
-                <button type="button" data-sort="loop">Looplocatie</button>
+                <button type="button" data-sort="regel">Orderregel</button>
+                <button type="button" data-sort="loop" class="is-active">Looplocatie</button>
                 <button type="button" data-sort="artikel">Artikelsticker</button>
             </div>
             <button type="button" id="soFetch" class="ka-button">Gegevens ophalen</button>

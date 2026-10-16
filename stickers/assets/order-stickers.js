@@ -23,7 +23,9 @@
     var pageNext = document.getElementById('soPageNext');
     var rows = [];
     var asked = '';
-    var sortBy = 'regel'; // 'regel' (orderregelnummer), 'loop' (looplocatie) of 'artikel' (artikelsticker, op orderregel)
+    var sortBy = 'loop'; // 'loop' (looplocatie, standaard), 'regel' (orderregelnummer) of 'artikel' (artikelsticker, op orderregel)
+    var BC_MODULE_MM = 0.38; // breedte van één streepje in de barcode, zelfde als de artikelsticker
+    var BC_MAX_MM = 96.7;    // breedte van het barcodevak
     var sortToggle = document.getElementById('soSort');
 
     var DAYS = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'];
@@ -87,9 +89,14 @@
             var code = svg.getAttribute('data-code');
             if (code === '') { return; }
             try {
-                JsBarcode(svg, code, { format: 'CODE128', displayValue: false, margin: 0, width: 2, height: 100 });
+                // Vaste streepjesbreedte, links uitgelijnd: niet uitrekken over de hele breedte van de sticker.
+                JsBarcode(svg, code, { format: 'CODE128', displayValue: false, margin: 0, width: 1, height: 100 });
+                var modules = parseFloat(svg.getAttribute('width')) || 0;
+                svg.setAttribute('viewBox', '0 0 ' + modules + ' 100');
                 svg.setAttribute('preserveAspectRatio', 'none');
                 svg.removeAttribute('style');
+                svg.removeAttribute('height');
+                svg.style.width = Math.min(modules * BC_MODULE_MM, BC_MAX_MM) + 'mm';
             } catch (e) {
                 svg.outerHTML = '<span class="so-nobarcode">Geen barcode mogelijk</span>';
             }
