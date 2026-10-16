@@ -510,21 +510,23 @@ function findKrimpmaatInCsv(string $csvFile, string $slangType, string $koppelin
     $row = $index[$needleSlang];
     $needleKoppeling = strtoupper($koppelingArtikel);
 
-    // Alle varianten langs en de best passende nemen (bij gelijke score de eerste,
-    // 2delig vóór 1delig zoals voorheen) - een korte typecode als "10" of "48"
-    // kan anders op meerdere varianten tegelijk passen.
+    // Alle varianten langs en de best passende nemen (bij gelijke score de eerste).
+    // De persmaat is altijd die van de huls: een match op een huls (2delig) telt
+    // het zwaarst, daarna een 1-delige koppeling (huls zit eraan vast), en pas
+    // als laatste redmiddel een pilaar (die zegt alleen welke variant het is).
+    // Binnen elke soort telt koppelingMatchScore() (volledig artikelnummer boven seriecode).
     $best = null;
     $candidates = [];
     foreach ([1, 2] as $number) {
         $prefix = "2delig_{$number}";
-        $candidates[] = [$prefix, max(
-            koppelingMatchScore($needleKoppeling, csvGetColumn($row, "{$prefix} - Huls")),
-            koppelingMatchScore($needleKoppeling, csvGetColumn($row, "{$prefix} - Pilaar"))
-        )];
+        $hulsScore = koppelingMatchScore($needleKoppeling, csvGetColumn($row, "{$prefix} - Huls"));
+        $pilaarScore = koppelingMatchScore($needleKoppeling, csvGetColumn($row, "{$prefix} - Pilaar"));
+        $candidates[] = [$prefix, $hulsScore > 0 ? 20 + $hulsScore : $pilaarScore];
     }
     foreach ([1, 2, 3] as $number) {
         $prefix = "1delig_{$number}";
-        $candidates[] = [$prefix, koppelingMatchScore($needleKoppeling, csvGetColumn($row, $prefix))];
+        $score = koppelingMatchScore($needleKoppeling, csvGetColumn($row, $prefix));
+        $candidates[] = [$prefix, $score > 0 ? 10 + $score : 0];
     }
     foreach ($candidates as [$prefix, $score]) {
         if ($score > 0 && ($best === null || $score > $best['score'])) {
@@ -577,9 +579,9 @@ function renderKrimpmatenTable(array $card, string $slangType): string
     $rows = [];
 
     foreach ($sideLabels as $side => $label) {
-        // Per zijde is er maar 1 krimpmaat. Passen meerdere onderdelen van deze
-        // zijde (bv. koppeling + huls/pilaar) op een variant, dan telt de best
-        // passende (zie koppelingMatchScore()), bij gelijke score de eerste.
+        // Per zijde is er maar 1 krimpmaat, die van de huls. Passen meerdere
+        // onderdelen van deze zijde op een variant, dan wint de huls (zie de
+        // score in findKrimpmaatInCsv()), bij gelijke score het eerste onderdeel.
         $best = null;
         foreach ($card[$side] as $componentRow) {
             $artikel = pick($componentRow, ARTIKELNUMMER_CANDIDATES);
