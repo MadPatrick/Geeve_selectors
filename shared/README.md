@@ -133,6 +133,9 @@ Vóór de `require` zetten (zie ook de docblock bovenin `shared/header.php` zelf
 | `$headerHomeHref` | string | nee | `'../index.php'` | Link van die knop. |
 | `$headerTopline` | string (kale HTML) | nee | `''` | Eigen inhoud boven de titel (icoon-knoppen/versietekst/statuspil). Wordt **ongefilterd** uitgevoerd (geen `h()`) - dus zelf escapen wat niet al vaste markup is. Leeg = geen topline-rij. |
 
+De PC-naam van de gebruiker (`pcNaam()` uit `shared/pcnaam.php`, via reverse DNS van het IP-adres) zet
+`shared/header.php` zelf rechts naast het Rubix-logo (`.header-user` in `.brand-logo-row`), op elke pagina; daar hoeft een app niets voor te doen.
+
 Bouw `$headerTopline` met `ob_start()`/`ob_get_clean()` vóór het includen zodra het meer dan 1
 regel is. Voorbeeld met meerdere icoon-knoppen (naar `hoses/index.php`):
 

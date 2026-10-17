@@ -16,6 +16,7 @@ header('Pragma: no-cache');
 // deze map los buiten de portal gedeployed).
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
 
+require_once __DIR__ . '/../shared/pcnaam.php';
 require_once __DIR__ . '/inc/db.php';
 
 // Loopt het opbouwen van de pagina vast op een PHP-fout (bv. tijdslimiet of
@@ -958,6 +959,11 @@ function renderHoseCard(array $card): string
         pick($row, GEWIJZIGD_NAAM_CANDIDATES)
     ) ?: pick($row, GEWIJZIGD_CANDIDATES);
 
+    $geprint = composeDatumNaam(
+        (new DateTimeImmutable('now', new DateTimeZone('Europe/Amsterdam')))->format('Y-m-d H:i:s'),
+        pcNaam()
+    );
+
     ob_start();
     ?>
     <div class="hose-card">
@@ -1054,6 +1060,10 @@ function renderHoseCard(array $card): string
                 <div class="card-meta-block">
                     <span>Laatste gewijzigd</span>
                     <div><?= h($gewijzigd) ?: '&mdash;' ?></div>
+                </div>
+                <div class="card-meta-block">
+                    <span>Geprint</span>
+                    <div><?= h($geprint) ?></div>
                 </div>
             </div>
         </div>
