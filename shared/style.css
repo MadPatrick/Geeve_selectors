@@ -168,7 +168,7 @@ button, input, select { font: inherit; }
     min-height: 30px; /* = hoogte van de icoon-knoppen, zodat de topbalk op elke pagina even hoog is */
     margin-bottom: 4px;
 }
-/* PC-naam van de gebruiker (shared/pcnaam.php), vooraan in de topbalk van elke app. */
+/* PC-naam van de gebruiker (shared/pcnaam.php), rechts naast het Rubix-logo in elke app. */
 .header-user {
     display: inline-flex;
     align-items: center;
@@ -179,6 +179,7 @@ button, input, select { font: inherit; }
     opacity: .92;
     white-space: nowrap;
 }
+.header-user { align-self: flex-end; height: 33px; } /* even hoog als het Rubix-logo, tekst verticaal in het midden daarvan */
 .header-user svg { display: block; }
 .version-inline {
     font-size: 12px;

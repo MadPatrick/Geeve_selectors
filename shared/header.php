@@ -35,8 +35,8 @@ declare(strict_types=1);
  *                                            zelf escapen wat niet al
  *                                            vaste markup is.
  *
- * De PC-naam van de gebruiker (shared/pcnaam.php) staat altijd vooraan in de
- * .header-topline-rij, vóór $headerTopline.
+ * De PC-naam van de gebruiker (shared/pcnaam.php) staat altijd rechts naast
+ * het Rubix-logo (.brand-logo-row).
  *
  * Voorbeeld (stauff/index.php):
  *   $headerTitle = 'Stauff Selector';
@@ -57,6 +57,7 @@ $headerPcNaam = pcNaam();
             <div class="brand-logo-row">
                 <img src="<?= h($headerImagesPath) ?>geeve.jpg" alt="Geeve Hydraulics - know how in hydraulics" class="brand-logo-img">
                 <img src="<?= h($headerImagesPath) ?>rubix.jpg" alt="Powered by Rubix" class="brand-rubix-img">
+                <?php if ($headerPcNaam !== ''): ?><span class="header-user" title="PC-naam van deze computer"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"></rect><path d="M8 20h8M12 16v4"></path></svg><?= h($headerPcNaam) ?></span><?= pcNaamCookieScript() ?><?php endif; ?>
             </div>
         </div>
         <?php if ($headerShowHome): ?>
@@ -69,7 +70,7 @@ $headerPcNaam = pcNaam();
         <?php endif; ?>
         <div class="header-content">
             <?php /* Altijd renderen (ook leeg): de rij heeft een vaste minimumhoogte, zodat de topbalk op elke pagina even hoog is. */ ?>
-            <div class="header-topline"><?php if ($headerPcNaam !== ''): ?><span class="header-user" title="PC-naam van deze computer"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"></rect><path d="M8 20h8M12 16v4"></path></svg><?= h($headerPcNaam) ?></span><?php endif; ?><?= $headerTopline ?></div>
+            <div class="header-topline"><?= $headerTopline ?></div>
             <h1><?= h($headerTitle) ?></h1>
         </div>
     </div>
