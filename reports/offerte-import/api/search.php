@@ -24,6 +24,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !csrfValid($_POST['csrf'] ?
     exit;
 }
 
+/** Hoe lang de lijst debiteuren/crediteuren/medewerkers uit Exact bewaard blijft (zie searchCandidates()). */
+const SEARCH_CACHE_SECONDS = 600;
+
 /** Kleine letters, zonder accenten en leestekens, als losse woorden. */
 function searchWords(string $text): array
 {
@@ -59,32 +62,64 @@ function tokenScore(string $token, array $words): float
     return $best;
 }
 
+/**
+ * Alle debiteuren, crediteuren of medewerkers als [nummer, naam, zoekwoorden], hooguit SEARCH_CACHE_SECONDS oud: de lijst
+ * komt dan niet meer bij elke toetsaanslag uit Exact, alleen het scoren gebeurt per zoekopdracht (zoals Slangkaart.Web
+ * de debiteuren 10 minuten bewaart). Zonder schrijfrechten op de tijdelijke map werkt het gewoon, maar zonder cache.
+ *
+ * @return list<array{0: string, 1: string, 2: list<string>}>
+ */
+function searchCandidates(string $kind): array
+{
+    $cacheFile = sys_get_temp_dir() . '/geeve_offerte_zoek_' . $kind . '.json';
+    if (is_file($cacheFile) && time() - (int) @filemtime($cacheFile) < SEARCH_CACHE_SECONDS) {
+        $cached = json_decode((string) @file_get_contents($cacheFile), true);
+        if (is_array($cached) && $cached !== []) {
+            return $cached;
+        }
+    }
+
+    $sql = $kind === 'medewerker'
+        ? "SET NOCOUNT ON; SELECT CAST(res_id AS varchar(20)) AS nr, '' AS code, RTRIM(fullname) AS naam FROM humres WHERE res_id IS NOT NULL"
+        : ($kind === 'crediteur'
+        ? "SET NOCOUNT ON; SELECT RTRIM(crdnr) AS nr, RTRIM(crdcode) AS code, RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(ISNULL(crdnr, ''))) <> '' OR LTRIM(RTRIM(ISNULL(crdcode, ''))) <> ''"
+        : "SET NOCOUNT ON; SELECT RTRIM(debnr) AS nr, RTRIM(debcode) AS code, RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(ISNULL(debnr, ''))) <> '' OR LTRIM(RTRIM(ISNULL(debcode, ''))) <> ''");
+    $candidates = [];
+    foreach (reportConnection()->query($sql)->fetchAll() as $row) {
+        $number = trim((string) $row['nr']) !== '' ? trim((string) $row['nr']) : trim((string) $row['code']);
+        if ($number === '') {
+            continue;
+        }
+        $name = trim((string) $row['naam']);
+        $candidates[] = [$number, $name, searchWords($name)];
+    }
+
+    if ($candidates !== []) {
+        $tmp = $cacheFile . '.' . bin2hex(random_bytes(4));
+        if (@file_put_contents($tmp, json_encode($candidates, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE)) !== false) {
+            @rename($tmp, $cacheFile);
+        }
+        @unlink($tmp);
+    }
+
+    return $candidates;
+}
+
 $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
 try {
     $query = trim((string) ($_POST['q'] ?? ''));
     $kind = (string) ($_POST['soort'] ?? 'debiteur');
-    $creditor = $kind === 'crediteur';
-    $employee = $kind === 'medewerker';
+    if ($kind !== 'crediteur' && $kind !== 'medewerker') {
+        $kind = 'debiteur'; // ook de naam van het cachebestand, dus nooit vrije invoer
+    }
     $tokens = searchWords($query);
     if (strlen($query) < 2 || strlen($query) > 60 || $tokens === []) {
         echo json_encode(['ok' => true, 'results' => []], $flags);
         exit;
     }
 
-    $pdo = reportConnection();
-    $sql = $employee
-        ? "SET NOCOUNT ON; SELECT CAST(res_id AS varchar(20)) AS nr, '' AS code, RTRIM(fullname) AS naam FROM humres WHERE res_id IS NOT NULL"
-        : ($creditor
-        ? "SET NOCOUNT ON; SELECT RTRIM(crdnr) AS nr, RTRIM(crdcode) AS code, RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(ISNULL(crdnr, ''))) <> '' OR LTRIM(RTRIM(ISNULL(crdcode, ''))) <> ''"
-        : "SET NOCOUNT ON; SELECT RTRIM(debnr) AS nr, RTRIM(debcode) AS code, RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(ISNULL(debnr, ''))) <> '' OR LTRIM(RTRIM(ISNULL(debcode, ''))) <> ''");
     $scored = [];
-    foreach ($pdo->query($sql)->fetchAll() as $row) {
-        $number = trim((string) $row['nr']) !== '' ? trim((string) $row['nr']) : trim((string) $row['code']);
-        $name = trim((string) $row['naam']);
-        if ($number === '') {
-            continue;
-        }
-        $words = searchWords($name);
+    foreach (searchCandidates($kind) as [$number, $name, $words]) {
         $sum = 0.0;
         $ok = true;
         foreach ($tokens as $token) {
