@@ -11,3 +11,116 @@
         Deny from all
     </IfModule>
 </FilesMatch>
+
+# Geen mappenlijsten: een map zonder index.php geeft "Forbidden" in plaats van een
+# lijst met bestanden en submappen.
+Options -Indexes
+
+# Korte adressen zonder mappen (zie shared/README.md, "Korte adressen"). Elk
+# kort adres hoort bij een tegel-id in GEEVE_APP_URLS (shared/paths.php); die twee
+# lijsten moeten gelijk blijven - tools/check-adressen.php controleert dat.
+# Per app drie regels:
+#  1. een bladwijzer op het oude adres (alleen GET van de pagina zelf) wordt
+#     doorgestuurd naar het korte adres; API's en formulieren (POST) niet;
+#  2. het korte adres zonder afsluitende "/" krijgt die erbij (nodig voor de
+#     relatieve links in de app);
+#  3. het korte adres wordt intern vertaald naar de echte map - de browser ziet die
+#     map niet.
+# 302 i.p.v. 301: een browser onthoudt een 301 voorgoed, dit blijft zo terug te draaien.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# msp
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)reports/msp/(index\.php)?(\?\S*)?\s
+RewriteRule ^reports/msp/(index\.php)?$ %1msp/ [R=302,L]
+RewriteRule ^msp$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^msp/(.*)$ reports/msp/$1 [L]
+
+# inkoop-groep
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)reports/inkoop\-groep/(index\.php)?(\?\S*)?\s
+RewriteRule ^reports/inkoop\-groep/(index\.php)?$ %1inkoop-groep/ [R=302,L]
+RewriteRule ^inkoop-groep$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^inkoop-groep/(.*)$ reports/inkoop-groep/$1 [L]
+
+# productiviteit
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)reports/productiviteit/(index\.php)?(\?\S*)?\s
+RewriteRule ^reports/productiviteit/(index\.php)?$ %1productiviteit/ [R=302,L]
+RewriteRule ^productiviteit$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^productiviteit/(.*)$ reports/productiviteit/$1 [L]
+
+# artikel-marge
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)reports/artikel\-marge/(index\.php)?(\?\S*)?\s
+RewriteRule ^reports/artikel\-marge/(index\.php)?$ %1artikel-marge/ [R=302,L]
+RewriteRule ^artikel-marge$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^artikel-marge/(.*)$ reports/artikel-marge/$1 [L]
+
+# inkooporder
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)reports/inkooporder/(index\.php)?(\?\S*)?\s
+RewriteRule ^reports/inkooporder/(index\.php)?$ %1inkooporder/ [R=302,L]
+RewriteRule ^inkooporder$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^inkooporder/(.*)$ reports/inkooporder/$1 [L]
+
+# order-offerte
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)reports/order\-offerte/(index\.php)?(\?\S*)?\s
+RewriteRule ^reports/order\-offerte/(index\.php)?$ %1order-offerte/ [R=302,L]
+RewriteRule ^order-offerte$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^order-offerte/(.*)$ reports/order-offerte/$1 [L]
+
+# offerte-import
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)reports/offerte\-import/(index\.php)?(\?\S*)?\s
+RewriteRule ^reports/offerte\-import/(index\.php)?$ %1offerte-import/ [R=302,L]
+RewriteRule ^offerte-import$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^offerte-import/(.*)$ reports/offerte-import/$1 [L]
+
+# inkooporder-import
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)reports/inkooporder\-import/(index\.php)?(\?\S*)?\s
+RewriteRule ^reports/inkooporder\-import/(index\.php)?$ %1inkooporder-import/ [R=302,L]
+RewriteRule ^inkooporder-import$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^inkooporder-import/(.*)$ reports/inkooporder-import/$1 [L]
+
+# export-info
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)reports/export\-info/(index\.php)?(\?\S*)?\s
+RewriteRule ^reports/export\-info/(index\.php)?$ %1export-info/ [R=302,L]
+RewriteRule ^export-info$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^export-info/(.*)$ reports/export-info/$1 [L]
+
+# artikel-import
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)reports/artikel\-import/(index\.php)?(\?\S*)?\s
+RewriteRule ^reports/artikel\-import/(index\.php)?$ %1artikel-import/ [R=302,L]
+RewriteRule ^artikel-import$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^artikel-import/(.*)$ reports/artikel-import/$1 [L]
+
+# stickers-order
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)stickers/order/(index\.php)?(\?\S*)?\s
+RewriteRule ^stickers/order/(index\.php)?$ %1stickers-order/ [R=302,L]
+RewriteRule ^stickers-order$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^stickers-order/(.*)$ stickers/order/$1 [L]
+
+# stickers-productie
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)stickers/productie/(index\.php)?(\?\S*)?\s
+RewriteRule ^stickers/productie/(index\.php)?$ %1stickers-productie/ [R=302,L]
+RewriteRule ^stickers-productie$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^stickers-productie/(.*)$ stickers/productie/$1 [L]
+
+# stickers-artikel
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)stickers/artikel/(index\.php)?(\?\S*)?\s
+RewriteRule ^stickers/artikel/(index\.php)?$ %1stickers-artikel/ [R=302,L]
+RewriteRule ^stickers-artikel$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^stickers-artikel/(.*)$ stickers/artikel/$1 [L]
+
+# stickers-artikel-groot
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)stickers/accu/(index\.php)?(\?\S*)?\s
+RewriteRule ^stickers/accu/(index\.php)?$ %1stickers-artikel-groot/ [R=302,L]
+RewriteRule ^stickers-artikel-groot$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^stickers-artikel-groot/(.*)$ stickers/accu/$1 [L]
+
+# stickers-slanglabels
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)stickers/slanglabels/(index\.php)?(\?\S*)?\s
+RewriteRule ^stickers/slanglabels/(index\.php)?$ %1stickers-slanglabels/ [R=302,L]
+RewriteRule ^stickers-slanglabels$ %{REQUEST_URI}/ [R=302,L]
+RewriteRule ^stickers-slanglabels/(.*)$ stickers/slanglabels/$1 [L]
+
+# Overal: ".../index.php" in de adresbalk wordt ".../" (alleen GET).
+RewriteCond %{THE_REQUEST} ^GET\s(\S*/)index\.php(\?\S*)?\s
+RewriteRule ^(.*/)?index\.php$ %1 [R=302,L]
+</IfModule>

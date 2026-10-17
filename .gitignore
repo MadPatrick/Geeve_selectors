@@ -3,3 +3,11 @@
 .settings.key
 # Lokfiles van de SentinelOne-agent (ransomware-detectie) op de server
 .aaa.*
+# Centrale datamap (CSV's en back-ups, op de server bewerkt): niet in git, alleen
+# de .htaccess die de map afsluit - zie shared/paths.php.
+/data/*
+!/data/.htaccess
+# Oude plekken van de CSV's (vervangen door data/<app>/); blijven alleen als terugval.
+/hoses/data/
+/adapters/data/
+/configurator/data/

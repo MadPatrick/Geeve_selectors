@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
-tileRequirePage('export-info', '../../templates/index.php');
+require_once __DIR__ . '/../../shared/paths.php';
+tileRequirePage('export-info', geeveAppUrl('templates'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
 
@@ -38,7 +39,7 @@ $csrf = csrfToken();
     <link rel="stylesheet" href="../../assets/style.css?v=<?= h(assetVersion('../../assets/style.css')) ?>">
     <!-- Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers. -->
     <link rel="stylesheet" href="../../klantartikel/assets/style.css?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
-    <link rel="stylesheet" href="../msp/assets/style.css?v=<?= h(assetVersion('../msp/assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('reports/msp/assets/style.css')) ?>?v=<?= h(assetVersion('../msp/assets/style.css')) ?>">
     <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
 </head>
 <body>
@@ -46,7 +47,7 @@ $csrf = csrfToken();
     <?php
     $headerTitle = 'Export info';
     $headerImagesPath = '../../images/';
-    $headerHomeHref = '../../templates/index.php'; // tegel staat onder Templates
+    $headerHomeHref = geeveAppUrl('templates'); // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
@@ -80,7 +81,7 @@ $csrf = csrfToken();
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
-<script src="../assets/vendor/xlsx-style.min.js"></script>
+<script src="<?= h(geeveUrl('reports/assets/vendor/xlsx-style.min.js')) ?>"></script>
 <script src="assets/export-info.js?v=<?= h(assetVersion('assets/export-info.js')) ?>"></script>
 </body>
 </html>

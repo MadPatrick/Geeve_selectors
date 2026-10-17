@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
+require_once __DIR__ . '/../shared/paths.php';
 tileRequirePage('slangkaarten', '../index.php');
 
 // Voorkomt dat een browser/proxy een eerder opgehaalde pagina hergebruikt
@@ -377,7 +378,8 @@ function renderExtraArtikelenTable(array $row): string
 /**
  * Krimpmaten (Persmaat) opzoeken voor een koppel-/hulsartikel, op basis
  * van slangtype + het koppel-/hulsartikelnummer. Leest
- * /hoses/data/artikelnummers_staal.csv en artikelnummers_rvs.csv -
+ * de centrale data/hoses/artikelnummers_staal.csv en _rvs.csv (terugval:
+ * /hoses/data/, zie shared/paths.php) -
  * dezelfde CSV's als de Slangen fitting Selector (madpatrick/Geeve_hose,
  * hier gekopieerd naar /hoses in de Geeve_selectors-portal). Deze
  * bestanden bestaan alleen binnen die portal (buurmap van deze app) -
@@ -557,7 +559,8 @@ function findKrimpmaat(string $slangType, string $koppelingArtikel): ?array
 
     $result = null;
     foreach (['artikelnummers_staal.csv', 'artikelnummers_rvs.csv'] as $filename) {
-        $result = findKrimpmaatInCsv(__DIR__ . '/../hoses/data/' . $filename, $slangType, $koppelingArtikel);
+        $csvFile = findFirstReadableFile(geeveDataCandidates('hoses', $filename, [__DIR__ . '/../hoses/data/' . $filename]));
+        $result = $csvFile !== null ? findKrimpmaatInCsv($csvFile, $slangType, $koppelingArtikel) : null;
         if ($result !== null) {
             break;
         }
@@ -1579,9 +1582,11 @@ if ($selectedKeys !== []) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Slangkaarten | Geeve Hydraulics</title>
-    <link rel="icon" href="../favicon.ico?v=<?= h(assetVersion('../favicon.ico')) ?>" type="image/x-icon">
-    <link rel="stylesheet" href="../shared/style.css?v=<?= h(assetVersion('../shared/style.css')) ?>">
-    <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
+    <?php
+    // Gedeelde <head>-links; de slangkaart-layout (kaart + A4-print) is de gedeelde standaard in shared/slangkaart.css.
+    $headCss = ['shared/slangkaart.css', 'slkprinten/assets/style.css'];
+    require __DIR__ . '/../shared/head.php';
+    ?>
     <script src="assets/klant-search.js?v=<?= h(assetVersion('assets/klant-search.js')) ?>" defer></script>
 </head>
 <body>

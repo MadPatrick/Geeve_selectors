@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
-tileRequirePage('artikel-marge', '../index.php');
+require_once __DIR__ . '/../../shared/paths.php';
+tileRequirePage('artikel-marge', geeveAppUrl('reports'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
 
@@ -38,14 +39,14 @@ $csrf = csrfToken();
     <link rel="stylesheet" href="../../assets/style.css?v=<?= h(assetVersion('../../assets/style.css')) ?>">
     <!-- Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers. -->
     <link rel="stylesheet" href="../../klantartikel/assets/style.css?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
-    <link rel="stylesheet" href="../msp/assets/style.css?v=<?= h(assetVersion('../msp/assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('reports/msp/assets/style.css')) ?>?v=<?= h(assetVersion('../msp/assets/style.css')) ?>">
 </head>
 <body>
 <main class="page-shell page-shell--wide">
     <?php
     $headerTitle = 'Artikelmarges';
     $headerImagesPath = '../../images/';
-    $headerHomeHref = '../index.php';
+    $headerHomeHref = geeveAppUrl('reports');
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
@@ -76,7 +77,7 @@ $csrf = csrfToken();
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
-<script src="../assets/vendor/xlsx-style.min.js"></script>
-<script src="../assets/sp-report.js?v=<?= h(assetVersion('../assets/sp-report.js')) ?>"></script>
+<script src="<?= h(geeveUrl('reports/assets/vendor/xlsx-style.min.js')) ?>"></script>
+<script src="<?= h(geeveUrl('reports/assets/sp-report.js')) ?>?v=<?= h(assetVersion('../assets/sp-report.js')) ?>"></script>
 </body>
 </html>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 require_once __DIR__ . '/shared/tiles.php';
+require_once __DIR__ . '/shared/paths.php';
 
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 
@@ -61,7 +62,7 @@ $lockRoot = '';
 
     <div class="tile-grid">
         <?php ob_start(); if (tileVisible('hoses')): ?>
-        <a class="<?= tileClass('hoses') ?>" href="hoses/index.php"<?= tileAttrs('hoses') ?>>
+        <a class="<?= tileClass('hoses') ?>" href="<?= h(geeveAppUrl('hoses')) ?>"<?= tileAttrs('hoses') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M3 7c2 0 2 3 4 3s2-3 4-3 2 3 4 3 2-3 4-3 2 3 4 3"></path>
@@ -75,7 +76,7 @@ $lockRoot = '';
         <?php endif; $tileHtml['hoses'] = ob_get_clean(); ?>
 
         <?php ob_start(); if (tileVisible('adapters')): ?>
-        <a class="<?= tileClass('adapters') ?>" href="adapters/index.php"<?= tileAttrs('adapters') ?>>
+        <a class="<?= tileClass('adapters') ?>" href="<?= h(geeveAppUrl('adapters')) ?>"<?= tileAttrs('adapters') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14.7 6.3a1 1 0 0 0 1.4 0l1.6-1.6a1 1 0 0 1 1.4 0l1.2 1.2a1 1 0 0 1 0 1.4l-1.6 1.6a1 1 0 0 0 0 1.4l3.1 3.1a1 1 0 0 1 0 1.4l-1.4 1.4a1 1 0 0 1-1.4 0l-3.1-3.1a1 1 0 0 0-1.4 0l-1.6 1.6a1 1 0 0 1-1.4 0l-1.2-1.2a1 1 0 0 1 0-1.4l1.6-1.6a1 1 0 0 0 0-1.4L9 6.3a1 1 0 0 0-1.4 0L6 7.9a1 1 0 0 1-1.4 0L3.4 6.7a1 1 0 0 1 0-1.4L5 3.7a1 1 0 0 1 1.4 0l1.6 1.6a1 1 0 0 0 1.4 0"></path>
@@ -89,7 +90,7 @@ $lockRoot = '';
         <?php endif; $tileHtml['adapters'] = ob_get_clean(); ?>
 
         <?php ob_start(); if (tileVisible('slangkaarten')): ?>
-        <a class="<?= tileClass('slangkaarten') ?>" href="slkprinten/index.php"<?= tileAttrs('slangkaarten') ?>>
+        <a class="<?= tileClass('slangkaarten') ?>" href="<?= h(geeveAppUrl('slangkaarten')) ?>"<?= tileAttrs('slangkaarten') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
@@ -103,7 +104,7 @@ $lockRoot = '';
         <?php endif; $tileHtml['slangkaarten'] = ob_get_clean(); ?>
 
         <?php ob_start(); if (tileVisible('slangkaarten-app')): ?>
-        <a class="<?= tileClass('slangkaarten-app') ?>" href="slangkaarten/index.php"<?= tileAttrs('slangkaarten-app') ?>>
+        <a class="<?= tileClass('slangkaarten-app') ?>" href="<?= h(geeveAppUrl('slangkaarten-app')) ?>"<?= tileAttrs('slangkaarten-app') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="3" width="16" height="18" rx="2"></rect>
@@ -119,7 +120,7 @@ $lockRoot = '';
         <?php endif; $tileHtml['slangkaarten-app'] = ob_get_clean(); ?>
 
         <?php ob_start(); if (tileVisible('stickers')): ?>
-        <a class="<?= tileClass('stickers') ?>" href="stickers/index.php"<?= tileAttrs('stickers') ?>>
+        <a class="<?= tileClass('stickers') ?>" href="<?= h(geeveAppUrl('stickers')) ?>"<?= tileAttrs('stickers') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M4 4h12l4 4v12H4Z"></path>
@@ -132,7 +133,7 @@ $lockRoot = '';
         </a>
         <?php endif; $tileHtml['stickers'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stauff')): ?>
-        <a class="<?= tileClass('stauff') ?>" href="stauff/index.php"<?= tileAttrs('stauff') ?>>
+        <a class="<?= tileClass('stauff') ?>" href="<?= h(geeveAppUrl('stauff')) ?>"<?= tileAttrs('stauff') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="4" y="10" width="16" height="7" rx="2"></rect>
@@ -147,7 +148,7 @@ $lockRoot = '';
         </a>
         <?php endif; $tileHtml['stauff'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('reports')): ?>
-        <a class="<?= tileClass('reports') ?>" href="reports/index.php"<?= tileAttrs('reports') ?>>
+        <a class="<?= tileClass('reports') ?>" href="<?= h(geeveAppUrl('reports')) ?>"<?= tileAttrs('reports') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
@@ -163,7 +164,7 @@ $lockRoot = '';
         </a>
         <?php endif; $tileHtml['reports'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('templates')): ?>
-        <a class="<?= tileClass('templates') ?>" href="templates/index.php"<?= tileAttrs('templates') ?>>
+        <a class="<?= tileClass('templates') ?>" href="<?= h(geeveAppUrl('templates')) ?>"<?= tileAttrs('templates') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="3" y="3" width="18" height="18" rx="2"></rect>

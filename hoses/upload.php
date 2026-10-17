@@ -103,9 +103,10 @@ if (count($headerLine) !== $expectedColumns) {
     ));
 }
 
-// Always write to the primary location (data/), regardless of which
-// candidate the app is currently reading from.
-$targetFile = $datasets[$dataset]['candidates'][0];
+// Write to the file the app is currently reading from (central data/ or an
+// old location), or to the central location if there is none yet - see
+// geeveDataWriteTarget() in shared/paths.php.
+$targetFile = geeveDataWriteTarget($datasets[$dataset]['candidates']);
 $targetDir = dirname($targetFile);
 
 if (!is_dir($targetDir) && !@mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
@@ -123,7 +124,7 @@ if (is_file($targetFile) && !is_writable($targetFile)) {
     redirectWithMessage('error', 'Het bestaande bestand is niet schrijfbaar voor de webserver. Controleer de bestandsrechten op de server.');
 }
 
-$backupDir = $targetDir . '/backups';
+$backupDir = geeveBackupDir($targetFile);
 if (!is_dir($backupDir)) {
     @mkdir($backupDir, 0775, true);
 }

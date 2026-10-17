@@ -1,0 +1,105 @@
+/*
+ * Gedeelde CSS-variabelen (tokens) voor alle Geeve-apps - zie shared/README.md, "CSS-variabelen".
+ *
+ * Dit bestand bevat ALLEEN :root-variabelen, geen regels. shared/style.css importeert het, dus elke app die
+ * shared/style.css laadt heeft ze. Een andere toepassing (later bijv. Slangkaart.Web) kan dit bestand los laden en
+ * zijn eigen variabelen erop laten wijzen.
+ *
+ * Afspraken:
+ *  - Een kleur, maat of afstand die op meer dan één plek nodig is, komt hier als variabele - geen losse hex-waarden in
+ *    de eigen assets/style.css van een app. Een nieuwe kleur = eerst een nieuwe variabele.
+ *  - Bestaande namen (--accent, --panel, --line, --btn-*, ...) blijven bestaan; apps gebruiken die al.
+ *  - Knoppen: alleen --btn-*-variabelen (zie CLAUDE.md, "Knoppen").
+ */
+
+:root {
+    --bg: #adadad;
+    --panel: #f2f2f2;
+    --ink: #1f2328;
+    --muted: #687383;
+    --line: #d6dde4;
+    --accent: #ee305d;
+    --accent-dark: #b90d32;
+    --dark-1: #232323;
+    --dark-2: #3b3b3b;
+    --soft: #f4f7fa;
+    --ok: #237447;
+    --danger: #a03636;
+    --shadow: 0 10px 24px rgba(0, 0, 0, .06);
+    /* Knoppen: 5px ruimte tussen aangrenzende knoppen, en een rand in dezelfde
+       kleurtoon als de knop - LICHTERE rand op een donkere knop, DONKERDERE rand
+       op een lichte knop. */
+    --btn-gap: 5px;
+    --line-strong: #c9d4de;      /* lichte/neutrale knop (bijv. #edf2f6 of wit) */
+    --ok-soft-line: #14532d;     /* rand van lichtgroene knop (#e8f4ed): donkergroen */
+    --accent-line: #f47896;      /* donkere accentkleur (--accent) */
+    --accent-dark-line: #d2627a; /* donkerrode knop (--accent-dark) */
+    --ok-fill: rgba(88, 198, 124, .85); /* vulling van groene statuspillen (rgb 88, 198, 124, iets transparant) */
+    --btn-green: #c6efd2;        /* achtergrond van ALLE groene knoppen (zelfde als de Print-knop) */
+    --btn-green-hover: #b0e6c0;  /* idem, bij hover */
+    /* Knopkleuren: ALLE knoppen halen hun kleuren uit deze variabelen (zie CLAUDE.md, "Knoppen"). */
+    --btn-red: rgba(238, 48, 93, .8);           /* rode knop (hoofdactie); vroegere donkerrode knoppen zijn nu ook rood */
+    --btn-red-line: #e0516a;
+    --btn-ink-light: #fff;                      /* witte tekst/iconen op rode, blauwe en header-knoppen */
+    --btn-grey: rgba(208, 209, 204, .7);        /* grijze tweede-keuzeknop, ook de keuzeschakelaar */
+    --btn-grey-line: #9a9b96;
+    --btn-white: #fff;                          /* witte/lichte knop (+ rode tekst bij de PDF-knop) */
+    --btn-white-line: #c9d4de;
+    --btn-white-hover: #f4f7fa;
+    --btn-blue: rgba(8, 127, 255, .85);         /* gekozen optie in een keuzeschakelaar */
+    --btn-blue-line: #0a5fc2;
+    --btn-danger: #a03636;                      /* "gevonden/fout"-toestand en verwijderknoppen */
+    --btn-danger-line: #c17c7c;
+    --btn-danger-hover: #fbecec;
+    --btn-danger-hover-line: #eec4c4;
+    --btn-accent-hover: #fff3f6;                /* lichte knop met roze hover (toevoegen) */
+    --btn-glass: rgba(255, 255, 255, .08);      /* ronde knoppen op de donkere header */
+    --btn-glass-hover: rgba(255, 255, 255, .18);
+    --btn-glass-line: rgba(255, 255, 255, .35);
+    --btn-glass-line-hover: rgba(255, 255, 255, .55);
+    --btn-save-ink: #baf0cf;                    /* opslaan-icoon in de header (wijzigen-modus) */
+    --btn-save-line: rgba(186, 240, 207, .5);
+    --btn-save-hover: rgba(186, 240, 207, .22);
+    --btn-save-hover-line: rgba(186, 240, 207, .7);
+    --btn-cancel-hover: rgba(255, 141, 169, .22);
+    --btn-cancel-hover-line: rgba(255, 141, 169, .7);
+    --btn-config-ink: #525252;                  /* config-tandwiel op het hoofdscherm */
+    --btn-config-line: rgba(82, 82, 82, .7);
+    --ok-ink: #0f3d22;           /* tekst op groene knoppen (donkergroen voor goed contrast) */
+    --ok-line: #14532d;          /* rand van donkergroene knop (--ok): donkergroen */
+    --danger-line: #c17c7c;      /* donkerrode knop (--danger) */
+
+    /* ---- Vlakken ---- */
+    --surface-white: #fff;              /* witte kaart/invoerveld */
+    --surface-subtle: #fafcfd;          /* bijna-wit vlak, tabelrij-hover, vinkjesvak slangkaart */
+    --surface-input-disabled: #f5f7f9;
+    --panel-glass: rgba(242, 242, 242, .88); /* .panel: --panel (#f2f2f2), iets transparant */
+
+    /* ---- Lijnen ---- */
+    --line-input: #cbd6df;              /* rand van invoervelden en tabellen */
+    --line-faint: #f0f2f4;              /* scheidingslijn tussen detailregels (slangkaart) */
+
+    /* ---- Tekst ---- */
+    --ink-disabled: #97a3af;
+    --ink-print: #111;                  /* tekst op een printblad */
+    --font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-print: Arial, Helvetica, sans-serif;
+
+    /* ---- Status (meldingen, pillen, rijkleuren) ---- */
+    --status-error: #a03636;
+    --status-error-soft: #f7eaea;
+    --status-error-line: #e8b1b1;
+    --status-error-ink: #7d2f2f;
+    --status-accent-soft: #fdeaee;      /* roze achtergrond (accent) */
+    --status-warn: #e0b04a;
+    --status-warn-soft: #fff3d6;
+    --status-warn-ink: #8a5a00;
+    --status-ok-soft: #e8f4ed;
+
+    /* ---- Vorm en maat ---- */
+    --radius-sm: 10px;                  /* invoervelden, kleine kaders */
+    --radius-md: 14px;
+    --radius-lg: 18px;                  /* .panel, brand-panel */
+    --radius-pill: 999px;
+    --focus-ring: 0 0 0 3px rgba(238, 48, 93, .14);
+}

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
-tileRequirePage('msp', '../index.php');
+require_once __DIR__ . '/../../shared/paths.php';
+tileRequirePage('msp', geeveAppUrl('reports'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
 
@@ -52,7 +53,7 @@ $thisYear = (int) date('Y');
     <?php
     $headerTitle = 'MSP report';
     $headerImagesPath = '../../images/';
-    $headerHomeHref = '../index.php';
+    $headerHomeHref = geeveAppUrl('reports');
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
