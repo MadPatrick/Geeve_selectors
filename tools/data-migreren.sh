@@ -19,7 +19,7 @@
 # Stopt bij de eerste fout; er wordt niets verwijderd.
 set -euo pipefail
 
-if [ ! -f version.php ] || [ ! -d .git ] || [ ! -d shared ]; then
+if [ ! -f version.php ] || [ ! -e .git ] || [ ! -d shared ]; then
     echo "FOUT: draai dit vanuit de portal-map (bijv. /var/www/html)." >&2
     exit 1
 fi
