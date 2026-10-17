@@ -15,6 +15,22 @@ Wat wél per app hoort (zie `shared/README.md`, "Wat hoort in je eigen `assets/s
 secties/kaarten, stappenindicatoren, statuspillen e.d. - dat blijft bewust ongedeeld, ook al lijkt
 het oppervlakkig op wat een andere app heeft.
 
+## Data, adressen en CSS-variabelen (standaard)
+
+- **Data** (CSV's en back-ups) staat centraal in `data/<app>/` en `data/backups/<app>/`, **niet in git**. Lezen en
+  schrijven altijd via `shared/paths.php` (`geeveDataCandidates()`, `findFirstReadableFile()`,
+  `geeveDataWriteTarget()`, `geeveBackupDir()`), nooit met een hard pad naar de map van een andere app. Zet geen
+  CSV's terug in git.
+- **Korte adressen:** geen mappen in de adresbalk. Links naar een andere app of een overzicht via
+  `geeveAppUrl('<tegel-id>')`, naar een bestand in een andere map via `geeveUrl('<pad vanaf de root>')`; geen `../`
+  naar een buurmap. Een nieuwe of verplaatste app: `TILE_REGISTRY`, `GEEVE_APP_URLS` en zo nodig de RewriteRules in
+  `.htaccess` bijwerken, dan `php tools/check-adressen.php`. Zie `shared/README.md`, "Korte adressen".
+- **CSS-variabelen:** alle kleuren en maten komen uit `shared/tokens.css`; geen losse hex-/rgba-waarden in een eigen
+  `assets/style.css`. Een nieuwe kleur = eerst een nieuwe variabele in `tokens.css`. Nieuwe apps laden hun CSS via
+  `shared/head.php`.
+- **Slangkaart-layout:** de layout van Slangkaart printen is de standaard voor elke slangkaart-app:
+  `shared/slangkaart.css` + `shared/SLANGKAART-LAYOUT.md`. Niet per app opnieuw maken of afwijken zonder overleg.
+
 ## Tabellen: compacte regelafstand (standaard)
 
 Datatabellen in tegels gebruiken **standaard** de gedeelde tabelopmaak `.ka-table` (met `.ka-input` voor

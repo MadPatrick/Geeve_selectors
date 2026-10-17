@@ -3,6 +3,8 @@
 *Geeve Intranet (Geeve_selectors), 17-10-2026. Alleen een voorstel, er is nog niets gebouwd.
 Branch: `fixes/centrale-data-en-css-5v24fm`.*
 
+*Status 17-10-2026: fase 1-6 gebouwd op deze branch (zie `docs/UITROL-CENTRALE-DATA.md` voor de uitrol). Afwijkingen van het voorstel: Slangkaarten Printen houdt het adres `/slkprinten/` (`/slangkaarten/` is van Slangkaart.Web) en oude adressen sturen voorlopig met een 302 door in plaats van een 301. De slangkaart-layout van slkprinten is vastgelegd als `shared/slangkaart.css`.*
+
 *Versie 3 (17-10-2026 08:35), besluiten van Patrick:*
 - *De data staat centraal in `/var/www/html/data` en gaat **uit git** (§3, §4, §7).*
 - *In de browser zie je **geen mappen of submappen** in het adres (§5).*
