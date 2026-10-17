@@ -123,6 +123,22 @@ function q(string $identifier): string
     return '[' . str_replace(']', ']]', $identifier) . ']';
 }
 
+/**
+ * Join-voorwaarde tussen ItemAccounts (ia) en cicmpy (c) voor een koppeling [kolom op ItemAccounts, kolom op cicmpy].
+ * De bevestigde koppeling AccountCode = cmp_wwn is GUID op GUID: die vergelijkt direct, zodat SQL Server een index kan
+ * gebruiken (zoals Slangkaart.Web: ia.AccountCode = cicmpy.cmp_wwn). De overige kandidaten hebben onbekende typen en
+ * blijven als tekst vergeleken (alleen nog voor de diagnose); met CAST/TRIM om beide kolommen is dat een volledige scan.
+ *
+ * @param array{0: string, 1: string} $link
+ */
+function linkJoin(array $link): string
+{
+    if (strcasecmp($link[0], 'AccountCode') === 0 && strcasecmp($link[1], 'cmp_wwn') === 0) {
+        return 'ia.' . q($link[0]) . ' = c.' . q($link[1]);
+    }
+    return 'LTRIM(RTRIM(CAST(ia.' . q($link[0]) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($link[1]) . ' AS varchar(64))))';
+}
+
 /** @return list<array<string,mixed>> debiteuren op deze prijslijst */
 function findCustomersByPriceList(PDO $pdo, array $schema, string $priceList): array
 {
@@ -158,7 +174,7 @@ function findCustomerArticlesAny(PDO $pdo, array $schema, string $priceList, ?st
 function findCustomerArticles(PDO $pdo, array $schema, string $priceList, array $link, ?string $debnr = null, ?int $limit = MAX_ARTICLE_ROWS + 1): array
 {
     $p = q($schema['pricelist']);
-    $join = 'LTRIM(RTRIM(CAST(ia.' . q($link[0]) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($link[1]) . ' AS varchar(64))))';
+    $join = linkJoin($link);
     $code = 'ia.' . q($schema['codeColumn']);
     $itemCode = 'ia.' . q($schema['itemCode']);
     $descJoin = $schema['hasItems'] ? "LEFT JOIN Items i ON i.ItemCode = {$itemCode}" : '';
@@ -183,7 +199,7 @@ function findCustomerArticles(PDO $pdo, array $schema, string $priceList, array 
 function countCustomerArticles(PDO $pdo, array $schema, string $priceList, array $link): array
 {
     $p = q($schema['pricelist']);
-    $join = 'LTRIM(RTRIM(CAST(ia.' . q($link[0]) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($link[1]) . ' AS varchar(64))))';
+    $join = linkJoin($link);
     $code = 'ia.' . q($schema['codeColumn']);
     $stmt = $pdo->prepare(
         "SELECT LTRIM(RTRIM(c.debnr)) AS debnr, COUNT(*) AS aantal FROM ItemAccounts ia JOIN cicmpy c ON {$join} " .
@@ -214,7 +230,7 @@ function diagnoseItemAccounts(PDO $pdo, array $schema, string $priceList): array
         foreach ($schema['links'] as [$a, $b]) {
             $stmt = $pdo->prepare(
                 "SELECT COUNT(*) AS totaal, SUM(CASE WHEN {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' THEN 1 ELSE 0 END) AS gevuld " .
-                'FROM ItemAccounts ia JOIN cicmpy c ON LTRIM(RTRIM(CAST(ia.' . q($a) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($b) . " AS varchar(64)))) " .
+                'FROM ItemAccounts ia JOIN cicmpy c ON ' . linkJoin([$a, $b]) . ' ' .
                 "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl"
             );
             $stmt->execute(['pl' => $priceList]);
@@ -307,7 +323,7 @@ function buildExactXml(array $customers, array $articles): string
 function findConsolidatedArticles(PDO $pdo, array $schema, string $priceList, array $link, ?int $limit = MAX_ARTICLE_ROWS + 1): array
 {
     $p = q($schema['pricelist']);
-    $join = 'LTRIM(RTRIM(CAST(ia.' . q($link[0]) . ' AS varchar(64)))) = LTRIM(RTRIM(CAST(c.' . q($link[1]) . ' AS varchar(64))))';
+    $join = linkJoin($link);
     $code = 'ia.' . q($schema['codeColumn']);
     $itemCode = 'ia.' . q($schema['itemCode']);
     $descJoin = $schema['hasItems'] ? "LEFT JOIN Items i ON i.ItemCode = {$itemCode}" : '';

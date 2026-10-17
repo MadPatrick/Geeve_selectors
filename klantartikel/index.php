@@ -27,6 +27,7 @@ function assetVersion(string $relativePath): string
 
 $priceList = trim((string) ($_GET['prijslijst'] ?? $_POST['prijslijst'] ?? ''));
 $priceColumn = trim((string) ($_GET['pcol'] ?? ''));
+$diagnose = isset($_GET['diagnose']);
 $customers = [];
 $articles = [];
 $schema = null;
@@ -63,11 +64,17 @@ if ($priceList !== '') {
             exit;
         }
 
-        [, $usedLink] = findCustomerArticlesAny($pdo, $schema, $priceList, null, 1);
+        // Normaal alleen de eerste (bevestigde) koppeling, AccountCode = cmp_wwn: elke andere kandidaat is een volledige
+        // scan van ItemAccounts x cicmpy. De andere kandidaten en de tellingen per koppeling alleen op verzoek (?diagnose=1).
+        if ($diagnose) {
+            [, $usedLink] = findCustomerArticlesAny($pdo, $schema, $priceList, null, 1);
+        } else {
+            $usedLink = $schema['links'][0];
+        }
         if ($usedLink !== null) {
             $articles = findConsolidatedArticles($pdo, $schema, $priceList, $usedLink, null);
         }
-        if ($customers !== [] && $articles === []) {
+        if ($diagnose && $customers !== [] && $articles === []) {
             $diag = diagnoseItemAccounts($pdo, $schema, $priceList);
         }
     } catch (Throwable $e) {
@@ -177,6 +184,10 @@ if ($priceList !== '') {
                 </div>
             </form>
 
+            <?php if ($diag === null && !$diagnose && $customers !== [] && $articles === []): ?>
+                <p class="ka-empty">Geen klantartikelnummers gevonden via ItemAccounts.<?= h($schema['links'][0][0]) ?> = cicmpy.<?= h($schema['links'][0][1]) ?>.
+                    <a href="?<?= h(http_build_query(array_filter(['prijslijst' => $priceList, 'pcol' => $priceColumn, 'diagnose' => '1'], static fn ($v) => $v !== ''))) ?>">Andere koppelingen proberen (diagnose)</a></p>
+            <?php endif; ?>
             <?php if ($diag !== null): ?>
                 <h3>Diagnose</h3>
                 <p class="ka-empty">Geprobeerde koppelingen (in volgorde): <?= h(implode('; ', array_map(static fn ($l) => "ItemAccounts.{$l[0]} = cicmpy.{$l[1]}", $schema['links']))) ?>. Klantartikelnummer uit <code><?= h($schema['codeColumn']) ?></code>.</p>
