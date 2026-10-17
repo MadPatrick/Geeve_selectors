@@ -13,10 +13,9 @@ van deze portal. Apache stuurt `/slangkaarten/` door naar die app.
 2. [Mappen](#2-mappen)
 3. [Installeren en bijwerken](#3-installeren-en-bijwerken)
 4. [Centrale data](#4-centrale-data)
-5. [Korte adressen](#5-korte-adressen)
-6. [Layout en CSS](#6-layout-en-css)
-7. [Database-koppeling Exact](#7-database-koppeling-exact)
-8. [Versienummer](#8-versienummer)
+5. [Layout en CSS](#5-layout-en-css)
+6. [Database-koppeling Exact](#6-database-koppeling-exact)
+7. [Versienummer](#7-versienummer)
 
 ---
 
@@ -42,10 +41,10 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 
 | Tegel | Adres | Wat het doet |
 |---|---|---|
-| MSP report | `/msp/` | MSP-factuurregels van een maand (zelfde berekening als `dbo.SP_MSP`), als Excel |
-| Inkoop per Artikelgroep | `/inkoop-groep/` | Ingekochte aantallen per artikel van een artikelgroep in een periode |
-| Productiviteit | `/productiviteit/` | Beveiligd met een toegangscode |
-| Artikelmarges | `/artikel-marge/` | Verkoopprijs, inkoopprijs en marge |
+| MSP report | `/reports/msp/` | MSP-factuurregels van een maand (zelfde berekening als `dbo.SP_MSP`), als Excel |
+| Inkoop per Artikelgroep | `/reports/inkoop-groep/` | Ingekochte aantallen per artikel van een artikelgroep in een periode |
+| Productiviteit | `/reports/productiviteit/` | Beveiligd met een toegangscode |
+| Artikelmarges | `/reports/artikel-marge/` | Verkoopprijs, inkoopprijs en marge |
 
 ### Templates
 
@@ -53,12 +52,12 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 |---|---|---|
 | Klant Artikelnummers | `/klantartikel/` | Debiteuren op een prijslijst met hun klantartikelnummers; Excel in, XML (DEBTORS.xml) uit |
 | Kortingstructuur | `/klantkorting/` | Kortingstructuur per prijslijst (in opbouw) |
-| Inkooporder naar Excel | `/inkooporder/` | Inkooporder met regels uit Exact ophalen en als Excel downloaden |
-| Order of Offerte naar Excel | `/order-offerte/` | Order of offerte als Excel |
-| Offerte Import | `/offerte-import/` | Excel-offerte controleren met Exact en als XML exporteren |
-| Inkooporder Import | `/inkooporder-import/` | Idem voor inkooporders |
-| Export info | `/export-info/` | Orderregels met collo, gewicht en afmetingen voor de exportdocumenten |
-| Artikelgegevens Import | `/artikel-import/` | Artikelgegevens controleren met Exact en als XML (`<Items>`) exporteren |
+| Inkooporder naar Excel | `/reports/inkooporder/` | Inkooporder met regels uit Exact ophalen en als Excel downloaden |
+| Order of Offerte naar Excel | `/reports/order-offerte/` | Order of offerte als Excel |
+| Offerte Import | `/reports/offerte-import/` | Excel-offerte controleren met Exact en als XML exporteren |
+| Inkooporder Import | `/reports/inkooporder-import/` | Idem voor inkooporders |
+| Export info | `/reports/export-info/` | Orderregels met collo, gewicht en afmetingen voor de exportdocumenten |
+| Artikelgegevens Import | `/reports/artikel-import/` | Artikelgegevens controleren met Exact en als XML (`<Items>`) exporteren |
 
 ### Stickers
 
@@ -67,11 +66,11 @@ Alle stickers printen via de browser, één sticker per pagina. Posities en mate
 
 | Tegel | Adres | Formaat | Gegevens uit |
 |---|---|---|---|
-| Artikelen per Verkooporder | `/stickers-order/` | 102 × 54 mm | `[005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order]` |
-| Artikelen per Productieorder | `/stickers-productie/` | 102 × 54 mm | stored procedure `[005_Data_Geeve].[dbo].[SP_productie_label]` (EXECUTE-recht nodig) |
-| Artikelnummer | `/stickers-artikel/` | — | `[Exactrapportage].[dbo].[1002_Artikellabels]` |
-| Accu's | `/stickers-artikel-groot/` | 80 × 30 mm | geen database (invulsticker) |
-| Slanglabels | `/stickers-slanglabels/` | ALTEC 53000145 | `[Exactrapportage].[dbo].[1655 VW_Alle_OrdersGH]` |
+| Artikelen per Verkooporder | `/stickers/order/` | 102 × 54 mm | `[005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order]` |
+| Artikelen per Productieorder | `/stickers/productie/` | 102 × 54 mm | stored procedure `[005_Data_Geeve].[dbo].[SP_productie_label]` (EXECUTE-recht nodig) |
+| Artikelnummer | `/stickers/artikel/` | — | `[Exactrapportage].[dbo].[1002_Artikellabels]` |
+| Accu's | `/stickers/accu/` | 80 × 30 mm | geen database (invulsticker) |
+| Slanglabels | `/stickers/slanglabels/` | ALTEC 53000145 | `[Exactrapportage].[dbo].[1655 VW_Alle_OrdersGH]` |
 | Kabelmerkers Geel | — | — | nog niet gebouwd |
 
 Barcodes zijn Code 128 (JsBarcode, lokaal in `stickers/assets/vendor`).
@@ -89,12 +88,12 @@ toegangscode, "in progress", eigen naam en volgorde. De lijst van alle tegels st
 ```
 index.php, update.php      Hoofdscherm en Config
 version.php                Eén versienummer voor alle apps
-.htaccess                  Dotfiles afsluiten, geen mappenlijsten, korte adressen
+.htaccess                  Dotfiles afsluiten
 shared/                    Gedeeld door alle apps - zie shared/README.md
   tokens.css               Alle CSS-variabelen (kleuren, maten, lettertypes)
   style.css                Gedeelde opmaak (importeert tokens.css)
   head.php, header.php     <head>-links en de zwarte header
-  paths.php                Centrale data en korte adressen
+  paths.php                Centrale data en adressen van de apps
   tiles.php, access.php    Tegels, toegangscodes
   secure_settings.php      Versleutelde instellingen uit Config
   slangkaart.css           Vastgelegde slangkaart-layout, zie SLANGKAART-LAYOUT.md
@@ -112,9 +111,7 @@ slangkaarten/              Plaatshouder; het adres /slangkaarten/ is van Slangka
 ## 3. Installeren en bijwerken
 
 **Server:** Debian, Apache met PHP 8 in `/var/www/html` (een git-checkout van deze repo). PHP
-heeft geen `mbstring`; gebruik nergens `mb_*`-functies. Apache moet `mod_rewrite` hebben en
-`.htaccess` moet `Options` en `FileInfo` mogen zetten (`AllowOverride`), anders werken de korte
-adressen niet.
+heeft geen `mbstring`; gebruik nergens `mb_*`-functies.
 
 **Bijwerken:** `git pull` in `/var/www/html`. Er is geen update-knop meer in Config.
 
@@ -161,22 +158,7 @@ Uitleg voor ontwikkelaars: `shared/README.md`, "Centrale data".
 
 ---
 
-## 5. Korte adressen
-
-In de adresbalk staan geen mappen: `/msp/` in plaats van `/reports/msp/index.php`. Apache
-vertaalt het korte adres intern naar de echte map (`.htaccess`). Oude adressen en bladwijzers
-blijven werken; ze worden doorgestuurd naar het korte adres. Een map zonder `index.php` (zoals
-`/hoses/images/`) toont geen bestandenlijst maar "Forbidden".
-
-Het korte adres is het tegel-id. Uitzondering: Slangkaarten Printen blijft `/slkprinten/`, omdat
-`/slangkaarten/` van Slangkaart.Web is.
-
-Een app toevoegen of verplaatsen: zie `shared/README.md`, "Korte adressen", en controleer met
-`php tools/check-adressen.php`.
-
----
-
-## 6. Layout en CSS
+## 5. Layout en CSS
 
 Alle apps delen dezelfde huisstijl:
 
@@ -195,7 +177,7 @@ checklist. Afspraken over knoppen, tabellen en versienummer staan in [`CLAUDE.md
 
 ---
 
-## 7. Database-koppeling Exact
+## 6. Database-koppeling Exact
 
 Stauff, Slangkaart printen, Klant Artikelnummers, Kortingstructuur, de rapporten en de stickers
 lezen uit Exact (databases `005_Data_Geeve` en `Exactrapportage` op `GEEVE-SQL-2019`) met **één
@@ -212,7 +194,7 @@ versleuteld opgeslagen). Slangkaart printen heeft daarnaast een eigen database "
 
 ---
 
-## 8. Versienummer
+## 7. Versienummer
 
 Eén versienummer voor het hoofdscherm en alle apps, in `version.php`. Elke
 pagina leest dat bestand. Het wordt alleen opgehoogd als daarom gevraagd wordt, niet bij elke

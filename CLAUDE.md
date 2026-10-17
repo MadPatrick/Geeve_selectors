@@ -21,10 +21,9 @@ het oppervlakkig op wat een andere app heeft.
   schrijven altijd via `shared/paths.php` (`geeveDataCandidates()`, `findFirstReadableFile()`,
   `geeveDataWriteTarget()`, `geeveBackupDir()`), nooit met een hard pad naar de map van een andere app. Zet geen
   CSV's terug in git.
-- **Korte adressen:** geen mappen in de adresbalk. Links naar een andere app of een overzicht via
-  `geeveAppUrl('<tegel-id>')`, naar een bestand in een andere map via `geeveUrl('<pad vanaf de root>')`; geen `../`
-  naar een buurmap. Een nieuwe of verplaatste app: `TILE_REGISTRY`, `GEEVE_APP_URLS` en zo nodig de RewriteRules in
-  `.htaccess` bijwerken, dan `php tools/check-adressen.php`. Zie `shared/README.md`, "Korte adressen".
+- **Adressen:** links naar een andere app of een overzicht via `geeveAppUrl('<tegel-id>')`, naar een bestand in een
+  andere map via `geeveUrl('<pad vanaf de root>')`; geen `../` naar een buurmap. Een nieuwe of verplaatste app:
+  `TILE_REGISTRY` en `GEEVE_APP_URLS` bijwerken. Zie `shared/README.md`, "Adressen en links".
 - **CSS-variabelen:** alle kleuren en maten komen uit `shared/tokens.css`; geen losse hex-/rgba-waarden in een eigen
   `assets/style.css`. Een nieuwe kleur = eerst een nieuwe variabele in `tokens.css`. Nieuwe apps laden hun CSS via
   `shared/head.php`.
