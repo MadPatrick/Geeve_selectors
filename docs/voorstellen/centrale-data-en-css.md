@@ -64,8 +64,9 @@ Drie soorten bestanden, drie plekken:
 
 Waarom zo:
 
-- **Buiten de webroot** voor serverdata: niet via de browser op te halen (nu zijn
-  `hoses/data/*.csv` direct opvraagbaar), en `git pull` raakt het nooit.
+- **Buiten de webroot** voor serverdata: niet via de browser op te halen zonder per map een
+  `.htaccess` te moeten onthouden (hoses en adapters blokkeren `.csv` nu zo, configurator niet),
+  en `git pull` raakt het nooit.
 - **`media/` binnen de webroot en in git** voor afbeeldingen die bij de code horen: die moeten via
   een URL bereikbaar zijn en veranderen alleen met een commit. Eén plek, dus Stauff, Slangkaart
   printen of een nieuwe app kunnen dezelfde slang- of adapterafbeelding gebruiken.
