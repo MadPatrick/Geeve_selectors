@@ -916,6 +916,32 @@ function composeDatumNaam(string $datum, string $naam): string
     return trim("{$datum} {$naam}");
 }
 
+/**
+ * PC-naam van de gebruiker die print, via reverse DNS van het IP-adres van de
+ * request (de Windows-login zelf komt niet mee naar deze Debian-server). Het
+ * domeingedeelte valt weg ("PCNL23-0042.geeve.local" -> "PCNL23-0042"). Kent
+ * de DNS het IP niet, dan blijft het IP-adres staan. 1x per request opgezocht.
+ */
+function printerPcNaam(): string
+{
+    static $naam = null;
+    if ($naam !== null) {
+        return $naam;
+    }
+
+    $ip = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+    if ($ip === '') {
+        return $naam = '';
+    }
+
+    $host = gethostbyaddr($ip);
+    if ($host === false || $host === '' || $host === $ip) {
+        return $naam = $ip;
+    }
+
+    return $naam = strtoupper(explode('.', $host, 2)[0]);
+}
+
 /** Rendert 1 volledige slangkaart (gebruikt zowel op scherm als in print). */
 function renderHoseCard(array $card): string
 {
@@ -957,6 +983,11 @@ function renderHoseCard(array $card): string
         formatDateTime(pick($row, GEWIJZIGD_DATUM_CANDIDATES)),
         pick($row, GEWIJZIGD_NAAM_CANDIDATES)
     ) ?: pick($row, GEWIJZIGD_CANDIDATES);
+
+    $geprint = composeDatumNaam(
+        (new DateTimeImmutable('now', new DateTimeZone('Europe/Amsterdam')))->format('Y-m-d H:i:s'),
+        printerPcNaam()
+    );
 
     ob_start();
     ?>
@@ -1054,6 +1085,10 @@ function renderHoseCard(array $card): string
                 <div class="card-meta-block">
                     <span>Laatste gewijzigd</span>
                     <div><?= h($gewijzigd) ?: '&mdash;' ?></div>
+                </div>
+                <div class="card-meta-block">
+                    <span>Geprint</span>
+                    <div><?= h($geprint) ?></div>
                 </div>
             </div>
         </div>
