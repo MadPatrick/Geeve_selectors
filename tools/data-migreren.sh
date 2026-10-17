@@ -57,7 +57,7 @@ done
 for app in hoses adapters configurator; do
     if [ -d "$app/data/backups" ]; then
         mkdir -p "data/backups/$app"
-        cp -rpn "$app/data/backups/." "data/backups/$app/"
+        cp -rp --update=none "$app/data/backups/." "data/backups/$app/" 2>/dev/null || cp -rpn "$app/data/backups/." "data/backups/$app/"
         echo "back-ups gekopieerd: $app/data/backups -> data/backups/$app"
     fi
 done
@@ -70,7 +70,9 @@ for entry in "${FILES[@]}"; do
     app=${entry%%:*}; file=${entry#*:}
     src="$app/data/$file"
     if git ls-files --error-unmatch "$src" >/dev/null 2>&1; then
-        git update-index --no-skip-worktree --no-assume-unchanged "$src"
+        # Twee losse aanroepen: samen in één update-index werkt de eerste vlag niet.
+        git update-index --no-skip-worktree "$src"
+        git update-index --no-assume-unchanged "$src"
         if ! git diff --quiet -- "$src"; then
             [ -f "data/$app/$file" ] && cmp -s "$src" "data/$app/$file" || { echo "FOUT: $src is lokaal gewijzigd maar niet gelijk aan data/$app/$file - niets teruggezet." >&2; exit 1; }
             git checkout -- "$src"
