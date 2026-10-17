@@ -48,7 +48,7 @@ verloren. Daarom gaat de data uit git (§4.1).
 ├── data/                          NIEUW: centrale data voor alle apps, NIET in git (.gitignore: /data/* behalve .htaccess)
 │   ├── hoses/                     artikelnummers_staal.csv, _rvs.csv, _accessoires.csv
 │   ├── adapters/                  artikelnummers_adapters.csv
-│   ├── configurator/              artikelnummers.csv, slangkoppelingen.csv
+│   ├── configurator/              slangkoppelingen.csv (de slangen leest de configurator uit data/hoses/)
 │   ├── backups/<app>/             automatische back-ups bij opslaan/upload
 │   └── .htaccess                  "Require all denied": niets in data/ is via de browser op te vragen
 ├── shared/
@@ -104,6 +104,11 @@ function geeveAppUrl(string $tileId): string;            // kort adres van een a
   in één keer om.
 - `slkprinten/index.php` vervangt `__DIR__ . '/../hoses/data/'` door
   `geeveDataFile('hoses', ...)`.
+- De **Slang configurator** (testapp, nog af te maken) leest de slangen voortaan uit de centrale
+  `data/hoses/artikelnummers_staal.csv` in plaats van een eigen ingekorte kopie (besluit Patrick,
+  17-10-2026). Dat werkt zonder verdere codewijziging: de configurator zoekt kolommen op naam en
+  zijn kolommen zijn een deel van die in de staal-CSV. Zijn eigen `artikelnummers.csv` blijft als
+  terugval tot de overstap is gecontroleerd; `slangkoppelingen.csv` gaat naar `data/configurator/`.
 - Geen `mb_*`-functies (de server heeft geen mbstring).
 
 ### 4.1 Waarom uit git, en niet "in git maar uitgesloten van git pull"
@@ -274,8 +279,7 @@ koppelpunten, beide via een PR in Rubix-BNL/slangkaart-web:
    (17-10-2026): `/var/www/html/data`, niet in git, en korte adressen.
 2. ~~Korte adressen~~: besloten (17-10-2026), de tegel-id's worden het adres (`/msp/`,
    `/stickers-order/`).
-3. **Configurator**: blijft dat een eigen, ingekorte kopie, of moet die voortaan de centrale
-   slangen-CSV van de Slangen fitting Selector lezen?
+3. ~~Configurator~~: besloten (17-10-2026), testapp, leest de centrale slangen-CSV (§4).
 4. **Layout via Config (fase 9)**: nodig, of is "kleuren alleen via `tokens.css` en een commit"
    genoeg?
 5. **Huisstijl Slangkaart.Web**: later één gezamenlijke kleurset met Hans, of houdt elke app zijn
