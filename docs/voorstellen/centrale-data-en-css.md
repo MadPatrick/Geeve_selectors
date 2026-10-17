@@ -272,8 +272,8 @@ koppelpunten, beide via een PR in Rubix-BNL/slangkaart-web:
 
 1. ~~Locatie datamap~~, ~~CSV's uit git~~ en ~~geen mappen in de browser~~: besloten
    (17-10-2026): `/var/www/html/data`, niet in git, en korte adressen.
-2. **Korte adressen**: akkoord met de tegel-id's als adres (`/msp/`, `/stickers-order/`), of wil
-   je eigen namen per app?
+2. ~~Korte adressen~~: besloten (17-10-2026), de tegel-id's worden het adres (`/msp/`,
+   `/stickers-order/`).
 3. **Configurator**: blijft dat een eigen, ingekorte kopie, of moet die voortaan de centrale
    slangen-CSV van de Slangen fitting Selector lezen?
 4. **Layout via Config (fase 9)**: nodig, of is "kleuren alleen via `tokens.css` en een commit"
