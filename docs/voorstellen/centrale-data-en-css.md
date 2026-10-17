@@ -3,6 +3,9 @@
 *Geeve Intranet (Geeve_selectors), 17-10-2026. Alleen een voorstel, er is nog niets gebouwd.
 Branch: `fixes/centrale-data-en-css-5v24fm`.*
 
+*Versie 2 (17-10-2026 08:30): op verzoek van Patrick blijven de CSV's in git, in `/var/www/html/data`;
+lokale wijzigingen op de server mogen niet door een `git pull` overschreven worden (§3 en §4.1).*
+
 ## 1. Doel
 
 1. Data die apps gebruiken (`.csv`, afbeeldingen, back-ups) op **één centrale plek**, zodat elke
@@ -33,70 +36,96 @@ Branch: `fixes/centrale-data-en-css-5v24fm`.*
 **Bestaand risico dat dit voorstel ook oplost:** de CSV's staan in git én worden op de server
 bewerkt. Zodra iemand een CSV in git wijzigt terwijl de server een eigen bewerking heeft, weigert
 `git pull` ("local changes would be overwritten"), of gaat bij een harde reset de serverbewerking
-verloren. Data die op de server leeft, hoort niet in de git-werkmap.
+verloren. Wat op de server bewerkt wordt, moet dus in een bestand staan dat git niet beheert (§4.1).
 
 ## 3. Voorgestelde indeling
 
-Drie soorten bestanden, drie plekken:
+Alles binnen de bestaande checkout, op twee plekken:
 
 ```
 /var/www/html/                     (git, zoals nu)
+├── data/                          NIEUW: centrale data voor alle apps
+│   ├── hoses/                     artikelnummers_staal.csv, _rvs.csv, _accessoires.csv   (in git)
+│   ├── adapters/                  artikelnummers_adapters.csv                             (in git)
+│   ├── configurator/              artikelnummers.csv, slangkoppelingen.csv                (in git)
+│   ├── local/                     NIET in git (.gitignore): wijzigingen op de server
+│   │   ├── hoses/ adapters/ configurator/   zelfde bestandsnamen, overschrijven de git-versie
+│   └── backups/<app>/             NIET in git: automatische back-ups bij opslaan/upload
+│   └── .htaccess                  blokkeert alles in data/ voor de browser
 ├── shared/
 │   ├── tokens.css                 NIEUW: alleen :root-variabelen (kleur, maat, afstand, lettertype)
 │   ├── style.css                  gedeelde regels, gebruikt alleen variabelen
 │   ├── head.php                   NIEUW: favicon + tokens.css + style.css met cache-busting
-│   ├── paths.php                  NIEUW: geeveDataFile(), geeveMediaUrl(), geeveBackupDir()
+│   ├── paths.php                  NIEUW: geeveDataFile(), geeveDataWritePath(), geeveMediaUrl()
 │   └── header.php                 gebruikt geeveMediaUrl() i.p.v. $headerImagesPath
 ├── media/                         NIEUW: statische, gedeelde afbeeldingen (in git, via web)
 │   ├── brand/                     geeve.jpg, rubix.jpg, achtergrond.jpg, geeve-logo.svg, favicon.ico
 │   ├── hoses/   adapters/   stauff/   productafbeeldingen
 └── <app>/...                      code + eigen assets/style.css
-
-/var/www/geeve-data/               NIEUW: serverdata, NIET in git, NIET in de webroot
-├── csv/
-│   ├── hoses/        artikelnummers_staal.csv, _rvs.csv, _accessoires.csv
-│   ├── adapters/     artikelnummers_adapters.csv
-│   └── configurator/ artikelnummers.csv, slangkoppelingen.csv
-├── backups/<app>/                 automatische back-ups bij opslaan/upload
-├── uploads/                       (later) door gebruikers geüploade afbeeldingen
-└── settings/                      (laatste, optionele fase) .settings.key / .settings.enc
 ```
 
 Waarom zo:
 
-- **Buiten de webroot** voor serverdata: niet via de browser op te halen zonder per map een
-  `.htaccess` te moeten onthouden (hoses en adapters blokkeren `.csv` nu zo, configurator niet),
-  en `git pull` raakt het nooit.
+- **`data/` in git** zoals Patrick voorstelt: de versie in git is de standaardversie, met
+  geschiedenis, en een verse checkout werkt meteen.
+- **`data/local/` niet in git** voor wat op de server bewerkt wordt (zie §4.1 waarom dat nodig is
+  om `git pull` veilig te houden).
+- **Eén `data/.htaccess`** die alles weigert, in plaats van per app een `.htaccess` te moeten
+  onthouden (hoses en adapters blokkeren `.csv` nu zo, configurator niet).
 - **`media/` binnen de webroot en in git** voor afbeeldingen die bij de code horen: die moeten via
   een URL bereikbaar zijn en veranderen alleen met een commit. Eén plek, dus Stauff, Slangkaart
   printen of een nieuwe app kunnen dezelfde slang- of adapterafbeelding gebruiken.
-- De locatie van de datamap is instelbaar met de omgevingsvariabele **`GEEVE_DATA_DIR`**
-  (standaard `/var/www/geeve-data`), net als het bestaande `GEEVE_SETTINGS_KEY_FILE`.
+- Later kan de map nog naar buiten de webroot of buiten git: dan verandert alleen `shared/paths.php`
+  (eventueel via een omgevingsvariabele `GEEVE_DATA_DIR`), geen enkele app.
 
 ## 4. Centrale paden: `shared/paths.php`
 
 Eén include die elke app gebruikt in plaats van eigen `csv-paths.php`-bestanden. Schets:
 
 ```php
-// Volgorde: centrale datamap -> huidige app/data -> app-root (zoals nu).
-function geeveDataDir(): ?string;                       // GEEVE_DATA_DIR of /var/www/geeve-data, null als die niet bestaat
+// Leesvolgorde: data/local/<app> -> data/<app> -> <app>/data -> <app>/ (de laatste twee = huidige paden).
+function geeveDataDir(): string;                        // /var/www/html/data (later instelbaar)
 function geeveDataFile(string $app, string $file): ?string;   // eerste leesbare kandidaat
-function geeveDataWritePath(string $app, string $file): string; // centraal als schrijfbaar, anders de huidige plek
-function geeveBackupDir(string $app): string;           // centraal/backups/<app> of <app>/data/backups
+function geeveDataWritePath(string $app, string $file): string; // data/local/<app>/ als data/ bestaat, anders de huidige plek
+function geeveBackupDir(string $app): string;           // data/backups/<app> of <app>/data/backups
 function geeveMediaUrl(string $relPath): string;         // URL naar media/ vanaf de huidige pagina, met ?v=mtime
 ```
 
-- **Lezen** probeert eerst de centrale map en valt terug op precies de huidige kandidaten
-  (`<app>/data/x.csv`, dan `<app>/x.csv`). Bestaat `/var/www/geeve-data` niet, dan verandert er dus
-  niets.
-- **Schrijven** (opslaan, upload, back-up) gaat naar de plek waar het bestand gelezen werd. Zo kan
-  een bewerking nooit "verdwijnen" doordat lezen en schrijven verschillende bestanden pakken.
+- **Lezen** pakt de eerste die bestaat: de lokale serverversie, dan de git-versie in `data/`, dan
+  precies de huidige kandidaten (`<app>/data/x.csv`, `<app>/x.csv`). Zolang `data/` nog leeg is,
+  verandert er dus niets.
+- **Schrijven** (opslaan via "Gegevens wijzigen", upload) gaat altijd naar `data/local/<app>/`,
+  nooit naar een bestand dat git beheert. De eerste keer kopieert de app daarvoor de git-versie.
+  Lezen pakt daarna vanzelf die lokale versie, dus een bewerking kan niet "verdwijnen".
 - `hoses/inc/csv-paths.php`, `adapters/inc/csv-paths.php` en `configurator/inc/csv-paths.php`
   blijven bestaan als dun laagje dat `shared/paths.php` aanroept; de rest van de code hoeft niet
   in één keer om.
 - `slkprinten/index.php` vervangt `__DIR__ . '/../hoses/data/'` door
   `geeveDataFile('hoses', ...)`.
 - Geen `mb_*`-functies (de server heeft geen mbstring).
+
+### 4.1 Waarom `data/local/` en niet "data/ uitsluiten van git pull"
+
+Git kan een getrackt bestand niet betrouwbaar overslaan bij een `pull`:
+
+- `git update-index --skip-worktree` of `--assume-unchanged` werkt alleen zolang niemand het
+  bestand in git wijzigt. Komt er wél een wijziging binnen, dan stopt `git pull` met "local changes
+  would be overwritten" en blijft de hele update hangen.
+- Sparse-checkout (`data/` niet uitchecken) is sinds git 2.37 ook niet betrouwbaar: staat het
+  bestand toch in de map, dan haalt git de uitzondering er weer af.
+- `.gitignore` werkt alleen voor bestanden die níet in git staan.
+
+Daarom twee lagen: **git beheert `data/<app>/`, de server schrijft alleen in `data/local/<app>/`**
+(in `.gitignore`). Een `git pull` werkt dan altijd, en raakt de serverbewerkingen nooit.
+
+Gevolgen om te weten:
+
+- Zodra een bestand een lokale versie heeft, zie je een nieuwere git-versie van datzelfde bestand
+  niet meer. Voorstel: de datapagina van de app toont "lokale versie, gewijzigd op ..." en, als de
+  git-versie nieuwer is, een melding plus een knop **"Terug naar standaardversie"** (die de lokale
+  kopie naar `data/backups/` verplaatst).
+- Een serverbewerking terug in git krijgen gaat zoals nu: downloaden via de app (of de server-Claude
+  kopieert `data/local/x.csv` naar `data/x.csv`) en committen. Daarna kan de lokale kopie weg.
 
 ## 5. Uniforme CSS en layout-instellingen
 
@@ -147,7 +176,7 @@ daarna, als aanvulling op CLAUDE.md:
 ### 5.4 Layout-instellingen via Config (optioneel, later)
 
 Als je kleuren of breedtes zonder commit wilt kunnen aanpassen: Config schrijft een klein
-`geeve-data/layout/overrides.css` (alleen `:root { --x: ...; }`), en `shared/head.php` laadt dat
+`data/local/layout/overrides.css` (alleen `:root { --x: ...; }`), en `shared/head.php` laadt dat
 als laatste via `shared/layout.php`. Zonder dat bestand gelden gewoon de waarden uit
 `tokens.css`. Dit is een aparte stap; eerst moet alles via tokens lopen, anders heeft een
 instelling geen effect.
@@ -158,20 +187,21 @@ Elke fase is los uit te rollen met `git pull` en los terug te draaien.
 
 | Fase | Wat | Effect op de server | Terugdraaien |
 |---|---|---|---|
-| 1 | `shared/paths.php` + de drie `csv-paths.php` en `slkprinten` erop laten leunen | Geen: centrale map bestaat nog niet, dus alles leest/schrijft waar het nu staat | Commit revert |
-| 2 | Op de server: `/var/www/geeve-data/` aanmaken, eigenaar `www-data`, en de **huidige server-CSV's en back-ups ernaartoe kopiëren** (kopiëren, niet verplaatsen) | Apps lezen en schrijven vanaf nu centraal | Map hernoemen: alles valt terug op de oude bestanden |
-| 3 | CSV's uit git halen: `git rm --cached`, `.gitignore`-regel, en een `data-voorbeeld/` met de huidige inhoud voor een nieuwe installatie | Pas uitvoeren ná fase 2. Let op: een `git pull` verwijdert dan de oude kopieën in `<app>/data/`, de centrale kopie blijft | Bestanden staan nog in de git-geschiedenis en in `geeve-data` |
+| 1 | `shared/paths.php` + de drie `csv-paths.php`, `save.php`/`upload.php` en `slkprinten` erop laten leunen; `data/.htaccess` en `.gitignore`-regels voor `data/local/` en `data/backups/` | Geen: `data/` heeft nog geen CSV's, dus alles leest en schrijft waar het nu staat | Commit revert |
+| 2 | **Eerst de huidige serverversies veiligstellen**: de server-Claude kopieert `hoses/data/*.csv`, `adapters/data/*.csv` en `configurator/data/*.csv` naar `data/local/<app>/` (en de back-ups naar `data/backups/<app>/`) | Apps lezen nu de lokale kopie, inhoud gelijk aan nu | `data/local/` leegmaken |
+| 3 | In git: CSV's met `git mv` van `<app>/data/` naar `data/<app>/`, met als inhoud de actuele serverversie (zodat git weer bij is) | `git pull` op de server: kan pas na fase 2, want de server heeft lokale wijzigingen in `<app>/data/*.csv`; die eenmalig met `git checkout -- <app>/data` terugzetten (de inhoud staat dan al veilig in `data/local/`) | Revert; kopieën staan nog in `data/local/` |
 | 4 | `shared/tokens.css` + `shared/head.php`; `style.css` importeert tokens tijdelijk | Visueel niets | Revert |
 | 5 | Per app: `head.php` gebruiken en losse kleuren naar tokens | Per app te controleren | Revert per app |
-| 6 | Afbeeldingen naar `media/` (git mv) met `geeveMediaUrl()`; `$headerImagesPath` vervalt | Oude URL's (`hoses/images/x.png`) blijven werken via een `.htaccess`-redirect of door de mappen tijdelijk te laten staan | Revert |
-| 7 (optioneel) | `.settings.*` naar `geeve-data/settings/` via `GEEVE_SETTINGS_KEY_FILE` + nieuw `GEEVE_SETTINGS_DATA_FILE`, met terugval op de root | Na kopiëren werkt het centraal; oude bestanden pas weg na controle | Variabelen weghalen |
+| 6 | Afbeeldingen naar `media/` (git mv) met `geeveMediaUrl()`; `$headerImagesPath` vervalt | Oude URL's (`hoses/images/x.png`) blijven werken via een `.htaccess`-redirect | Revert |
+| 7 (optioneel) | Datapagina's: "lokale versie"-melding en "Terug naar standaardversie" (§4.1) | | Revert |
 | 8 (optioneel) | Layout-instellingen in Config (5.4) | | |
 
-Na fase 2 de oude `<app>/data/*.csv` nog **niet** weggooien; die blijven tot en met fase 3 de
-terugvaloptie.
+Fase 2 en 3 horen samen bij één update: eerst 2 op de server, direct daarna de `git pull` van 3.
 
-Het overgebleven `.env` in de root wordt al niet meer gelezen (zie Config) en kan los van dit
-voorstel verwijderd worden.
+De `.settings.*`-bestanden blijven waar ze zijn (root, niet in git); ze kunnen later naar
+`data/local/` via het bestaande `GEEVE_SETTINGS_KEY_FILE`, maar dat is geen onderdeel van dit
+voorstel. Het overgebleven `.env` in de root wordt al niet meer gelezen (zie Config) en kan los van
+dit voorstel verwijderd worden.
 
 ## 7. Slangkaart.Web later aansluiten
 
@@ -186,8 +216,8 @@ koppelpunten, beide via een PR in Rubix-BNL/slangkaart-web:
 2. **Data**: Slangkaart.Web importeert nu bij het opstarten JSON-momentopnamen van de selectors
    (`data/selector/2026-09-11-*.json`, zie `HERKOMST.md` daar), die met de hand van de pagina's
    zijn gehaald. Met de centrale map kan dat worden:
-   - **a.** Slangkaart.Web leest direct uit `GEEVE_DATA_DIR/csv/` (de dienst krijgt alleen
-     leesrechten via een groep), of
+   - **a.** Slangkaart.Web leest direct uit `/var/www/html/data/` (met dezelfde volgorde:
+     `local/` eerst; de dienst krijgt alleen leesrechten), of
    - **b.** een klein endpoint in de portal, bijvoorbeeld `shared/api/selectordata.php?selector=hoses`,
      dat dezelfde JSON levert als de huidige momentopnamen; Slangkaart.Web haalt die op in plaats van
      een bestand mee te leveren.
@@ -197,10 +227,10 @@ koppelpunten, beide via een PR in Rubix-BNL/slangkaart-web:
 
 ## 8. Vragen voor jou
 
-1. **Locatie datamap**: akkoord met `/var/www/geeve-data` (buiten de webroot), of liever een
-   andere plek, bijvoorbeeld `/srv/geeve`?
-2. **CSV's uit git (fase 3)**: wil je dat, of moeten ze in git blijven als "standaardversie"?
-   Uit git is veiliger voor `git pull`; in git houdt een geschiedenis bij.
+1. ~~Locatie datamap~~ en ~~CSV's uit git~~: besloten, `/var/www/html/data` in git, met
+   `data/local/` voor serverwijzigingen (17-10-2026).
+2. **"Terug naar standaardversie" (fase 7)**: wil je die knop, of is "lokale versie wint altijd,
+   bijwerken via downloaden en committen" genoeg?
 3. **Configurator**: blijft dat een eigen, ingekorte kopie, of moet die voortaan de centrale
    slangen-CSV van de Slangen fitting Selector lezen?
 4. **Layout via Config (fase 8)**: nodig, of is "kleuren alleen via `tokens.css` en een commit"
@@ -210,5 +240,5 @@ koppelpunten, beide via een PR in Rubix-BNL/slangkaart-web:
 
 ## 9. Wat ik als eerste zou bouwen
 
-Fase 1 en 4 samen: allebei onzichtbaar voor de gebruiker, allebei zonder serverwerk, en daarna
-kan elke volgende stap klein en per app.
+Fase 1 en 4 samen: allebei onzichtbaar voor de gebruiker, allebei zonder serverwerk. Daarna fase 2
+en 3 als één update met de server-Claude, en vervolgens per app de CSS.
