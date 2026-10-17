@@ -1023,22 +1023,36 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
 
     // Eerst de slangkaart zelf (2500 Slangkaarten.Nummer), daarnaast de
     // slangnummers uit "Details slangen" (kaarten waarvan alleen de
-    // koppelonderdelen bekend zijn).
+    // koppelonderdelen bekend zijn). Per tabel in twee stappen, zoals
+    // Slangkaart.Web: eerst "begint met" zoals getypt (een indexbereik, enkele
+    // ms), en pas als dat de 50 niet vult de fuzzy "bevat" (REPLACE op elke rij,
+    // een volledige scan). Wat met de zoekterm begint staat daardoor bovenaan.
+    $prefix = str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], trim($searchTerm)) . '%';
     $keys = [];
     foreach ([['2500 Slangkaarten', 'Nummer'], ['Details slangen', 'GHnr']] as [$table, $column]) {
-        try {
-            $statement = $pdo->prepare(
-                "SELECT TOP 50 [{$column}] FROM [dbo].[{$table}] WHERE " .
-                "REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '') LIKE :value " .
-                "GROUP BY [{$column}] ORDER BY [{$column}]"
-            );
-            $statement->execute(['value' => '%' . $normalizedTerm . '%']);
-            foreach ($statement->fetchAll(PDO::FETCH_COLUMN) as $found) {
-                $keys[trim((string) $found)] = true;
+        $steps = [
+            ["[{$column}] LIKE :value", $prefix],
+            ["REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '') LIKE :value", '%' . $normalizedTerm . '%'],
+        ];
+        $found = [];
+        foreach ($steps as [$condition, $value]) {
+            try {
+                $statement = $pdo->prepare(
+                    "SELECT TOP 50 [{$column}] FROM [dbo].[{$table}] WHERE {$condition} " .
+                    "GROUP BY [{$column}] ORDER BY [{$column}]"
+                );
+                $statement->execute(['value' => $value]);
+                foreach ($statement->fetchAll(PDO::FETCH_COLUMN) as $hit) {
+                    $found[trim((string) $hit)] = true;
+                }
+            } catch (PDOException $exception) {
+                break;
             }
-        } catch (PDOException $exception) {
-            continue;
+            if (count($found) >= 50) {
+                break;
+            }
         }
+        $keys += array_slice($found, 0, 50, true);
     }
     $keys = array_slice(array_keys($keys), 0, 50);
 
@@ -1063,7 +1077,15 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
         // Zonder koppelonderdelen tonen we de slangnummers toch.
     }
 
-    $detailSides = findCouplingRowsFromDetails($pdo, $keys);
+    // enrichHoseLinesWithCouplings() zoekt "Details slangen" al op voor kaarten zonder Zijde A/B-rijen; alleen kaarten die
+    // daarna nog zonder koppelingen staan (of als dat mislukte) gaan hier nog een keer langs, en alleen als die er zijn.
+    $emptyKeys = [];
+    foreach ($lines as $line) {
+        if (($line['_KoppelingAList'] ?? []) === [] && ($line['_KoppelingBList'] ?? []) === []) {
+            $emptyKeys[] = pick($line, HOSE_KEY_COLUMNS);
+        }
+    }
+    $detailSides = $emptyKeys !== [] ? findCouplingRowsFromDetails($pdo, $emptyKeys) : [];
     foreach ($lines as &$line) {
         $key = hoseKeyIndex(pick($line, HOSE_KEY_COLUMNS));
         if (($line['_KoppelingAList'] ?? []) === [] && ($line['_KoppelingBList'] ?? []) === []) {
