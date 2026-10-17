@@ -12,8 +12,8 @@ gaat dieper en is bedoeld als checklist/kopieersjabloon.
   `shared/style.css` geïmporteerd; zie "CSS-variabelen" hieronder.
 - **`shared/head.php`** - de `<link>`-regels voor de `<head>` (favicon, `shared/style.css`, eigen
   stylesheets), met cache-busting en absolute adressen.
-- **`shared/paths.php`** - centrale data (`data/<app>/`) en adressen (`geeveUrl()`,
-  `geeveAppUrl()`), zie "Centrale data" en "Adressen en links" hieronder.
+- **`shared/paths.php`** - centrale data (`data/<app>/`) en korte adressen (`geeveUrl()`,
+  `geeveAppUrl()`), zie "Centrale data" en "Korte adressen" hieronder.
 - **`shared/slangkaart.css`** - de vastgelegde slangkaart-layout, zie
   [`SLANGKAART-LAYOUT.md`](SLANGKAART-LAYOUT.md).
 - **`shared/style.css`** - CSS-resets, de header/brand-panel-chrome en de meest
@@ -285,18 +285,25 @@ verschillende bestanden pakken. Een nieuwe app zet zijn data meteen in `data/<ap
 geen oude plekken nodig. Afbeeldingen die bij de code horen blijven in git, in de eigen
 `images/` van de app.
 
-## Adressen en links
+## Korte adressen
 
-Elke app heeft een tegel-id met zijn map in **`GEEVE_APP_URLS`** (`shared/paths.php`), naast
-`TILE_REGISTRY` in `shared/tiles.php`. Alle adressen zijn absoluut vanaf de portal-root, zodat de
-portal ook in een submap werkt (bijv. een testkopie onder `/Geeve_selectors/`).
+In de adresbalk staan geen mappen: een app heeft een kort adres zoals `/msp/` in plaats van
+`/reports/msp/index.php`. Drie plekken horen bij elkaar:
+
+1. **`GEEVE_APP_URLS`** in `shared/paths.php`: tegel-id => kort adres.
+2. **`TILE_REGISTRY`** in `shared/tiles.php`: tegel-id => de echte map.
+3. **De root-`.htaccess`**: per app die dieper ligt dan één map (`reports/*`, `stickers/*`) drie
+   RewriteRules (oud adres doorsturen, `/` toevoegen, intern vertalen). Een app direct onder de
+   root (`hoses/`) heeft geen regels nodig: het korte adres is de map.
+
+Na een wijziging: `php tools/check-adressen.php` controleert dat de drie overeenkomen.
 
 Links in een app:
 
 - naar een andere app of een overzicht: `geeveAppUrl('reports')`, `geeveAppUrl('msp')`;
-- naar een bestand van een andere map: `geeveUrl('reports/assets/sp-report.js')`, niet `../`
-  naar een buurmap;
-- binnen de eigen map gewoon relatief (`assets/style.css`, `api/data.php`).
+- naar een bestand van een andere map: `geeveUrl('reports/assets/sp-report.js')`. Gebruik geen
+  `../` naar een buurmap: vanaf een kort adres wijst `../` niet meer naar de echte map;
+- binnen de eigen map gewoon relatief (`assets/style.css`, `api/data.php`): dat blijft werken.
 
 ## Slangkaart-layout
 
@@ -319,6 +326,7 @@ versienummer wordt niet bij elke wijziging opgehoogd.
 - [ ] Eigen pagina-inhoud binnen `.panel`/`.field`-structuur waar van toepassing.
 - [ ] Data (CSV's) in `data/<appnaam>/` via `shared/paths.php`, niet in git.
 - [ ] (optioneel) tegel: `TILE_REGISTRY` (`shared/tiles.php`), `GEEVE_APP_URLS`
-      (`shared/paths.php`) en het `<a class="tile">`-blok op het overzicht.
+      (`shared/paths.php`), zo nodig de RewriteRules in `.htaccess`, en het `<a class="tile">`-blok
+      op het overzicht. Daarna `php tools/check-adressen.php`.
 - [ ] Eigen README.md voor de nieuwe app (zie de bestaande apps als voorbeeld).
 - [ ] `version.php` **niet** zelf ophogen; dat gebeurt alleen op verzoek (zie `CLAUDE.md`).
