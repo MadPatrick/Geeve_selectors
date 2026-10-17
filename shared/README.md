@@ -2,7 +2,7 @@
 
 Dit document is de complete referentie om een **nieuwe subapp** aan de Geeve Selectors-portal toe
 te voegen met dezelfde huisstijl als alle andere apps, zonder iets te kopiëren. Het hoofdscherm en
-elke subapp (`hoses`, `adapters`, `configurator`, `stauff`, `slangkaarten`, `stickers`) gebruiken
+elke subapp (`hoses`, `adapters`, `configurator`, `stauff`, `slkprinten`, `stickers`) gebruiken
 dit al. Zie ook de korte samenvatting in de root-`README.md` ("Gedeelde layout") - dit document
 gaat dieper en is bedoeld als checklist/kopieersjabloon.
 
@@ -133,6 +133,9 @@ Vóór de `require` zetten (zie ook de docblock bovenin `shared/header.php` zelf
 | `$headerHomeHref` | string | nee | `'../index.php'` | Link van die knop. |
 | `$headerTopline` | string (kale HTML) | nee | `''` | Eigen inhoud boven de titel (icoon-knoppen/versietekst/statuspil). Wordt **ongefilterd** uitgevoerd (geen `h()`) - dus zelf escapen wat niet al vaste markup is. Leeg = geen topline-rij. |
 
+De PC-naam van de gebruiker (`pcNaam()` uit `shared/pcnaam.php`, via reverse DNS van het IP-adres) zet
+`shared/header.php` zelf rechts naast het Rubix-logo (`.header-user` in `.brand-logo-row`), op elke pagina; daar hoeft een app niets voor te doen.
+
 Bouw `$headerTopline` met `ob_start()`/`ob_get_clean()` vóór het includen zodra het meer dan 1
 regel is. Voorbeeld met meerdere icoon-knoppen (naar `hoses/index.php`):
 
@@ -154,7 +157,7 @@ require __DIR__ . '/../shared/header.php';
 ?>
 ```
 
-Een eenvoudige topline met alleen versietekst (naar `slangkaarten`/`stickers`):
+Een eenvoudige topline met alleen versietekst (naar `slkprinten`/`stickers`):
 
 ```php
 <?php
@@ -197,6 +200,11 @@ require __DIR__ . '/../shared/header.php';
 gebruiken - zie Stauff's `.copy-button`/`.assembly-erp-status` voor een voorbeeld van eigen,
 helderdere varianten op zo'n plek (gedocumenteerd in `stauff/README.md`).
 
+### Knopkleuren (`--btn-*`)
+
+Alle knoppen halen hun kleuren uit de `--btn-*`-variabelen in `:root` (groen, rood, grijs, wit, blauw, danger, glass
+voor de header, save/cancel, config, `--btn-ink-light`). Zie `CLAUDE.md`, "Knoppen", voor de afspraken.
+
 ### Resets
 
 `* { box-sizing: border-box; }`, `html { min-height: 100%; }`,
@@ -208,7 +216,7 @@ helderdere varianten op zo'n plek (gedocumenteerd in `stauff/README.md`).
 | Klasse | Omschrijving |
 |---|---|
 | `.page-shell` | De centrale contentkolom (`width: min(1100px, calc(100% - 28px))`, gecentreerd) - de standaard voor o.a. het hoofdscherm. |
-| `.page-shell--wide` | Standaard brede variant (1400px) voor selector-apps met veel kolommen: `<main class="page-shell page-shell--wide">`. Gebruikt door hoses/adapters/stauff/slangkaarten - geen eigen breedte-override meer nodig. |
+| `.page-shell--wide` | Standaard brede variant (1400px) voor selector-apps met veel kolommen: `<main class="page-shell page-shell--wide">`. Gebruikt door hoses/adapters/stauff/slkprinten - geen eigen breedte-override meer nodig. |
 | `.page-header` | Wrapper om `shared/header.php`'s `<header>`. |
 | `.brand-panel` + `::after` | De zwarte header-balk met logo's/titel + de accentstreep onderaan. |
 | `.brand-copy`, `.brand-logo-row`, `.brand-logo-img`, `.brand-rubix-img` | Logo-opmaak binnen de brand-panel. |
@@ -226,6 +234,7 @@ helderdere varianten op zo'n plek (gedocumenteerd in `stauff/README.md`).
 | `.field` (+ `> span`, `small`) | Verticale label+input-groep. |
 | `.compact-field` | Variant zonder vaste minimumbreedte. |
 | `input, select` (+ `:focus`, `:disabled`) | Basisopmaak voor formuliervelden. |
+| `.print-btn` | De Print-knop van alle apps: lichtgroen met printer-icoon. Markup: `<button type="button" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>`. |
 
 ### Responsive
 

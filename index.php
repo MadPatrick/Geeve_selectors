@@ -89,7 +89,7 @@ $lockRoot = '';
         <?php endif; $tileHtml['adapters'] = ob_get_clean(); ?>
 
         <?php ob_start(); if (tileVisible('slangkaarten')): ?>
-        <a class="<?= tileClass('slangkaarten') ?>" href="slangkaarten/index.php"<?= tileAttrs('slangkaarten') ?>>
+        <a class="<?= tileClass('slangkaarten') ?>" href="slkprinten/index.php"<?= tileAttrs('slangkaarten') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
@@ -101,6 +101,22 @@ $lockRoot = '';
             <?= tileLockIcon('slangkaarten') ?>
         </a>
         <?php endif; $tileHtml['slangkaarten'] = ob_get_clean(); ?>
+
+        <?php ob_start(); if (tileVisible('slangkaarten-app')): ?>
+        <a class="<?= tileClass('slangkaarten-app') ?>" href="slangkaarten/index.php"<?= tileAttrs('slangkaarten-app') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+                    <path d="M8 8h8"></path>
+                    <path d="M8 12h8"></path>
+                    <path d="M8 16h5"></path>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('slangkaarten-app')) ?></h2>
+            <p>In voorbereiding.</p>
+            <?= tileLockIcon('slangkaarten-app') ?>
+        </a>
+        <?php endif; $tileHtml['slangkaarten-app'] = ob_get_clean(); ?>
 
         <?php ob_start(); if (tileVisible('stickers')): ?>
         <a class="<?= tileClass('stickers') ?>" href="stickers/index.php"<?= tileAttrs('stickers') ?>>
@@ -146,33 +162,20 @@ $lockRoot = '';
             <?= tileLockIcon('reports') ?>
         </a>
         <?php endif; $tileHtml['reports'] = ob_get_clean(); ?>
-        <?php ob_start(); if (tileVisible('klantartikel')): ?>
-        <a class="<?= tileClass('klantartikel') ?>" href="klantartikel/index.php"<?= tileAttrs('klantartikel') ?>>
+        <?php ob_start(); if (tileVisible('templates')): ?>
+        <a class="<?= tileClass('templates') ?>" href="templates/index.php"<?= tileAttrs('templates') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path>
-                    <circle cx="7.5" cy="7.5" r="1.5"></circle>
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
                 </svg>
             </div>
-            <h2><?= h(tileTitle('klantartikel')) ?></h2>
-            <p>Zoek op prijslijstnummer de gekoppelde klanten en hun artikelen met klantartikelnummer uit Exact.</p>
-            <?= tileLockIcon('klantartikel') ?>
+            <h2><?= h(tileTitle('templates')) ?></h2>
+            <p>Excel-exports, imports en klantgegevens.</p>
+            <?= tileLockIcon('templates') ?>
         </a>
-        <?php endif; $tileHtml['klantartikel'] = ob_get_clean(); ?>
-        <?php ob_start(); if (tileVisible('klantkorting')): ?>
-        <a class="<?= tileClass('klantkorting') ?>" href="klantkorting/index.php"<?= tileAttrs('klantkorting') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <line x1="19" y1="5" x2="5" y2="19"></line>
-                    <circle cx="6.5" cy="6.5" r="2.5"></circle>
-                    <circle cx="17.5" cy="17.5" r="2.5"></circle>
-                </svg>
-            </div>
-            <h2><?= h(tileTitle('klantkorting')) ?></h2>
-            <p>Bekijk en pas de kortingstructuur van klanten aan op basis van hun prijslijst.</p>
-            <?= tileLockIcon('klantkorting') ?>
-        </a>
-        <?php endif; $tileHtml['klantkorting'] = ob_get_clean(); ?>
+        <?php endif; $tileHtml['templates'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('home') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 

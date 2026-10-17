@@ -75,6 +75,12 @@
         assemblyErpStatus: el('assemblyErpStatus'),
         copyButton: el('copyButton'),
         codeHint: el('codeHint'),
+        assemblyCodeLength: el('assemblyCodeLength'),
+        exactWriteButton: el('exactWriteButton'),
+        exactOverlay: el('exactOverlay'),
+        exactBody: el('exactBody'),
+        exactCancel: el('exactCancel'),
+        exactConfirm: el('exactConfirm'),
         warningBox: el('warningBox'),
         shapeImg1: el('shapeImg1'),
         shapeImg2: el('shapeImg2'),
@@ -832,6 +838,13 @@
     }
 
     function syncLocationConfigButtons() {
+        ui.exactWriteButton.addEventListener('click', openExactModal);
+        ui.exactConfirm.addEventListener('click', confirmExactWrite);
+        ui.exactCancel.addEventListener('click', closeExactModal);
+        ui.exactOverlay.addEventListener('click', event => {
+            if (event.target === ui.exactOverlay) closeExactModal();
+        });
+
         ui.locationConfigButtons.forEach(button => {
             const pos = button.dataset.location;
             button.classList.toggle('is-active', !!norm(state.locationFilters[pos]));
@@ -1483,6 +1496,39 @@
         return firstCodePart(article);
     }
 
+    // Exact staat voor een artikelnummer (ItemCode) maximaal 30 tekens toe.
+    // Een langere samenstellingscode kan dus nooit als artikel in Exact
+    // bestaan: de selector toont dan een rode teller, schakelt "Kopieer code"
+    // uit en zegt vanaf welk codedeel het niet meer past. Bewust niet stil
+    // inkorten - dan kunnen 2 verschillende sets hetzelfde nummer krijgen.
+    const EXACT_CODE_MAX_LENGTH = 30;
+
+    function updateCodeLength(parts) {
+        const counter = ui.assemblyCodeLength;
+        const code = parts.join('-');
+        if (counter) {
+            counter.hidden = !code;
+            counter.textContent = `${code.length}/${EXACT_CODE_MAX_LENGTH}`;
+            counter.classList.toggle('is-over', code.length > EXACT_CODE_MAX_LENGTH);
+        }
+        if (code.length <= EXACT_CODE_MAX_LENGTH) return false;
+
+        // Eerste codedeel dat (inclusief koppelteken ervoor) niet meer binnen
+        // de 30 tekens past.
+        let length = 0;
+        let firstOver = parts[parts.length - 1];
+        for (let i = 0; i < parts.length; i += 1) {
+            length += (i > 0 ? 1 : 0) + parts[i].length;
+            if (length > EXACT_CODE_MAX_LENGTH) {
+                firstOver = parts[i];
+                break;
+            }
+        }
+        ui.codeHint.innerHTML = `De code is ${code.length} tekens; Exact staat maximaal ${EXACT_CODE_MAX_LENGTH} tekens toe. ` +
+            `Vanaf <strong>${escapeHtml(firstOver)}</strong> past het niet meer: haal een extra regel weg of kies een korter onderdeel.`;
+        return true;
+    }
+
     function updateAssemblyCode() {
         const clamp = state.selectedClamp;
         const wcode = computeLocation6Code(currentMaterialByRole());
@@ -1493,6 +1539,8 @@
             ui.assemblyCode.textContent = 'Selecteer eerst een beugel';
             ui.copyButton.disabled = true;
             ui.codeHint.innerHTML = 'Locaties 1, 3, 4 en 5 zijn optioneel; locatie 6 wordt automatisch bepaald. Locatie 2 gebruikt de beugelcode, bijvoorbeeld <strong>215 PP</strong> of <strong>3015 PP</strong>.';
+            updateCodeLength([]);
+            ui.exactWriteButton.disabled = true;
             checkAssemblyInErp('');
             return;
         }
@@ -1520,9 +1568,12 @@
 
         const code = parts.join('-');
         ui.assemblyCode.textContent = code;
-        ui.copyButton.disabled = !code;
         ui.codeHint.textContent = '';
-        checkAssemblyInErp(code);
+        const tooLong = updateCodeLength(parts);
+        ui.copyButton.disabled = !code || tooLong;
+        ui.exactWriteButton.disabled = !code || tooLong;
+        // Een te lange code kan niet in Exact bestaan - niet laten controleren.
+        checkAssemblyInErp(tooLong ? '' : code);
     }
 
     /**
@@ -1597,6 +1648,134 @@
                     ui.assemblyErpStatus.hidden = true;
                 });
         }, 300);
+    }
+
+    /**
+     * "Naar Exact": de samenstelling als artikel (artikelgroep 67, STAUFF SET) met stuklijst naar Exact schrijven.
+     * Het schrijven zelf doet de slangkaart-app (Slangkaart.Web, POST /slangkaarten/api/stauff/naar-exact), met
+     * dezelfde schrijver en beveiliging als de slangkaarten. Eerst altijd een proef: de app geeft terug wat er naar
+     * Exact zou gaan en of schrijven aan staat; pas na "Schrijven naar Exact" wordt er echt geschreven.
+     */
+    const EXACT_WRITE_URL = '../slangkaarten/api/stauff/naar-exact';
+
+    // De onderdelen in de volgorde van het scherm (locatie 1-5 en de extra regels ertussen); locatie 6 is alleen
+    // een codedeel, geen artikel.
+    function assemblyLines() {
+        const fixed = {
+            '1': () => [norm(ui.loc1.value), aantalValue(ui.aantalLoc1)],
+            '2': () => [state.selectedClamp ? norm(state.selectedClamp['Artikelcode']) : '', aantalValue(ui.aantalLoc2)],
+            '3': () => [norm(ui.loc3.value), aantalValue(ui.aantalLoc3)],
+            '4': () => [norm(ui.loc4.value), aantalValue(ui.aantalLoc4)],
+            '5': () => [norm(ui.loc5.value), aantalValue(ui.aantalLoc5)],
+        };
+        return [...ui.assemblyList.querySelectorAll(':scope > .location-card')].map(card => {
+            if (card.classList.contains('extra-item-card')) {
+                return [norm(card.querySelector('.extra-item-artikel').value), aantalValue(card.querySelector('.extra-item-aantal'))];
+            }
+            const line = fixed[card.dataset.location];
+            return line ? line() : ['', 0];
+        }).filter(([artikel]) => artikel).map(([artikel, aantal]) => ({ artikel, aantal }));
+    }
+
+    // De totaalprijs zoals de selector hem toont (som van verkoopprijs x aantal), alleen als die van elk onderdeel
+    // bekend is; anders null en gaat er geen verkoopprijs naar Exact.
+    function assemblySalesPrice(lines) {
+        let total = 0;
+        for (const { artikel, aantal } of lines) {
+            const price = state.lastPrices[artikel];
+            if (typeof price !== 'number' || !Number.isFinite(price)) return null;
+            total += price * aantal;
+        }
+        return lines.length ? Math.round(total * 100) / 100 : null;
+    }
+
+    async function postExact(body) {
+        let response;
+        try {
+            response = await fetch(EXACT_WRITE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+                cache: 'no-store',
+            });
+        } catch {
+            return { ok: false, fout: 'De slangkaart-app is niet bereikbaar.' };
+        }
+        if (response.status === 404) {
+            return { ok: false, fout: 'De slangkaart-app kent "Naar Exact" voor Stauff nog niet. Dat komt met de volgende uitrol van die app.' };
+        }
+        try {
+            return await response.json();
+        } catch {
+            return { ok: false, fout: `Onverwacht antwoord van de slangkaart-app (HTTP ${response.status}).` };
+        }
+    }
+
+    function exactLinesHtml(lines, missing) {
+        const missingSet = new Set((missing || []).map(a => upper(a)));
+        return `<table class="exact-lines"><thead><tr><th>Onderdeel</th><th>Aantal</th></tr></thead><tbody>${
+            lines.map(r => `<tr${missingSet.has(upper(r.artikel)) ? ' class="is-missing"' : ''}><td>${escapeHtml(r.artikel)}</td><td>${escapeHtml(String(r.aantal))}</td></tr>`).join('')
+        }</tbody></table>`;
+    }
+
+    let exactRequest = null;
+
+    async function openExactModal() {
+        const code = ui.assemblyCode.textContent;
+        if (!code || ui.exactWriteButton.disabled) return;
+        const regels = assemblyLines();
+        exactRequest = { code, regels, verkoopprijs: assemblySalesPrice(regels) };
+        ui.exactConfirm.hidden = true;
+        ui.exactConfirm.disabled = false;
+        ui.exactCancel.textContent = 'Sluiten';
+        ui.exactBody.innerHTML = '<p class="exact-note">Controleren wat er naar Exact gaat…</p>';
+        ui.exactOverlay.hidden = false;
+
+        const result = await postExact({ ...exactRequest, schrijven: false });
+        if (!result.ok) {
+            ui.exactBody.innerHTML = `<p class="exact-note is-error">${escapeHtml(result.fout || 'Onbekende fout.')}</p>`;
+            return;
+        }
+        const missing = result.ontbreekt || [];
+        const artikel = result.artikel || {};
+        let html = `<p class="exact-code">${escapeHtml(code)}</p>` +
+            `<p class="exact-note">${escapeHtml(artikel.Description0 || 'STAUFF SET')}, artikelgroep ${escapeHtml(artikel.Assortment || '67')}, HS-code ${escapeHtml(artikel.StatisticalNumber || '')}. Kostprijs volgens de stuklijst: € ${escapeHtml(artikel.CostPriceStandard || '0')}. ` +
+            (artikel.SalesPrice ? `Verkoopprijs: € ${escapeHtml(artikel.SalesPrice)}.` : 'Geen verkoopprijs: die is niet van alle onderdelen bekend.') + '</p>' +
+            exactLinesHtml(result.stuklijst || [], missing);
+        if (missing.length) {
+            html += `<p class="exact-note is-error">Niet in Exact: ${missing.map(escapeHtml).join(', ')}. Zo kan de set niet naar Exact.</p>`;
+        }
+        if (!result.schrijvenAan) {
+            html += '<p class="exact-note">Schrijven naar Exact staat nog uit in de slangkaart-app. Dit is wat er naar Exact zou gaan; er is niets geschreven.</p>';
+        } else if (!missing.length) {
+            html += `<p class="exact-note">Wordt geschreven naar ${escapeHtml(result.server || 'Exact')}. Bestaat de set al, dan wordt hij bijgewerkt en krijgt hij een nieuwe stuklijst.</p>`;
+            ui.exactConfirm.hidden = false;
+            ui.exactCancel.textContent = 'Annuleren';
+        }
+        ui.exactBody.innerHTML = html;
+    }
+
+    async function confirmExactWrite() {
+        if (!exactRequest) return;
+        ui.exactConfirm.disabled = true;
+        ui.exactCancel.textContent = 'Sluiten';
+        ui.exactBody.insertAdjacentHTML('beforeend', '<p class="exact-note">Bezig met schrijven naar Exact…</p>');
+        const result = await postExact({ ...exactRequest, schrijven: true });
+        ui.exactConfirm.hidden = true;
+        if (!result.ok) {
+            ui.exactBody.innerHTML = `<p class="exact-note is-error">${escapeHtml(result.fout || 'Onbekende fout.')}</p>` +
+                (result.stand ? `<p class="exact-note">Stand in Exact: ${escapeHtml(result.stand)}</p>` : '');
+            return;
+        }
+        ui.exactBody.innerHTML = `<p class="exact-code">${escapeHtml(exactRequest.code)}</p>` +
+            `<p class="exact-note is-ok">${result.nieuw ? 'Aangemaakt' : 'Bijgewerkt'} in Exact (${escapeHtml(result.server || '')}): ` +
+            `${escapeHtml(String(result.stuklijstregels))} stuklijstregels, kostprijs ${formatPrice(result.kostprijs)}.</p>`;
+        checkAssemblyInErp(exactRequest.code);
+    }
+
+    function closeExactModal() {
+        ui.exactOverlay.hidden = true;
+        exactRequest = null;
     }
 
     function formatPrice(value) {

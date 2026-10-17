@@ -27,7 +27,11 @@
     var summaryEl = document.getElementById('oiSummary');
     var tbody = document.querySelector('#oiTable tbody');
 
-    var lines = [];          // {nr, text, desc, code, qty}
+    var lines = [];          // {nr, text, desc, code, qty, supplier}
+    // Offerte: optionele kolom Leveranciersnummer (artikelcode van de leverancier). Is de artikelcode leeg, dan zoekt de controle
+    // ons artikelnummer op en vult het in; zonder (eenduidige) match blijft de artikelcode leeg.
+    var useSupplier = !purchase;
+    var supplierInfo = {};   // LEVERANCIERSNUMMER (hoofdletters) -> {item, matches}
     var itemInfo = {};       // CODE (hoofdletters) -> {found, description}
     var sellerInfo = null;   // {found, name}
     var debtorInfo = null;
@@ -65,6 +69,8 @@
         var n = Number(String(q === null || q === undefined ? '' : q).replace(',', '.'));
         return isFinite(n) && n > 0 ? n : null;
     }
+    // Aantal met enkelvoud of meervoud: pl(1, 'regel', 'regels') = '1 regel'.
+    function pl(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
     function showMessage(text) { messageEl.textContent = text; messageEl.hidden = !text; }
     function showInfo(text) { infoEl.textContent = text; infoEl.hidden = !text; }
     function setCheck(el, text, ok) {
@@ -72,17 +78,27 @@
         el.className = 'oi-check' + (text ? (ok ? ' is-ok' : ' is-bad') : '');
     }
 
-    // ---- Template: alleen de regels (Regelnr, Aantal, Artikelcode); de kopvelden vul je in op het dashboard ----
+    // ---- Template: alleen de regels (Regelnr, Aantal, Artikelcode, bij offertes ook Leveranciersnummer); de kopvelden vul je in op het dashboard ----
     function downloadTemplate() {
-        var rows = [['Regelnr', 'Aantal', 'Artikelcode']];
-        for (var i = 1; i <= 100; i++) { rows.push([i, '', '']); }
+        var rows = [useSupplier ? ['Regelnr', 'Aantal', 'Artikelcode', 'Leveranciersnummer'] : ['Regelnr', 'Aantal', 'Artikelcode']];
+        for (var i = 1; i <= 100; i++) { rows.push(useSupplier ? [i, '', '', ''] : [i, '', '']); }
         var ws = XLSX.utils.aoa_to_sheet(rows);
         var head = { font: { bold: true, color: { rgb: 'FFFFFFFF' } }, fill: { patternType: 'solid', fgColor: { rgb: 'FF1F4E78' } }, alignment: { horizontal: 'center' } };
-        ['A1', 'B1', 'C1'].forEach(function (a) { ws[a].s = head; });
-        for (var r = 2; r <= 101; r++) { ws['C' + r] = { t: 's', v: '', z: '@' }; } // artikelcodes altijd als tekst
-        ws['!cols'] = [{ wch: 10 }, { wch: 10 }, { wch: 28 }];
-        ws['!ref'] = 'A1:C101';
-        var help = XLSX.utils.aoa_to_sheet([
+        (useSupplier ? ['A1', 'B1', 'C1', 'D1'] : ['A1', 'B1', 'C1']).forEach(function (a) { ws[a].s = head; });
+        for (var r = 2; r <= 101; r++) {
+            ws['C' + r] = { t: 's', v: '', z: '@' }; // artikelcodes altijd als tekst
+            if (useSupplier) { ws['D' + r] = { t: 's', v: '', z: '@' }; } // leveranciersnummers ook (voorloopnullen blijven staan)
+        }
+        ws['!cols'] = useSupplier ? [{ wch: 10 }, { wch: 10 }, { wch: 28 }, { wch: 28 }] : [{ wch: 10 }, { wch: 10 }, { wch: 28 }];
+        ws['!ref'] = useSupplier ? 'A1:D101' : 'A1:C101';
+        var help = XLSX.utils.aoa_to_sheet(useSupplier ? [
+            [1, 'Geef per regel het aantal (kolom B) en de artikelcode (kolom C) in'],
+            [2, 'Weet je alleen het artikelnummer van de leverancier? Laat de artikelcode leeg en vul het leveranciersnummer (kolom D) in; ons artikelnummer wordt dan in Exact opgezocht'],
+            [3, 'Staan artikelcode en leveranciersnummer allebei ingevuld, dan geldt de artikelcode'],
+            [4, 'Meer dan 100 regels? Nummer de regelnummers gewoon door'],
+            [5, 'Verkoper, debiteurnummer, omschrijving en datum vul je in op het dashboard (Offerte Import)'],
+            [6, 'Importeer het bestand in Offerte Import; de artikelen worden gecontroleerd met Exact en de artikelomschrijving wordt opgehaald']
+        ] : [
             [1, 'Geef per regel het aantal (kolom B) en de artikelcode (kolom C) in'],
             [2, 'Meer dan 100 regels? Nummer de regelnummers gewoon door'],
             [3, 'Verkoper of inkoper, debiteur- of leveranciernummer, omschrijving en datum vul je in op het dashboard (Offerte Import of Inkooporder Import)'],
@@ -137,16 +153,20 @@
                     var line = {
                         nr: cols['regelnr'] ? cellText(val(cols['regelnr'] + row)) : '',
                         qty: val(cols['aantal'] + row),
-                        code: cellText(val(cols['artikelcode'] + row)).toUpperCase()
+                        code: cellText(val(cols['artikelcode'] + row)).toUpperCase(),
+                        supplier: ''
                     };
-                    if (line.code === '' && (line.qty === null || line.qty === '')) { continue; }
+                    var supCol = useSupplier ? (cols['leveranciersnummer'] || cols['leveranciernummer']) : null;
+                    if (supCol && line.code === '') { line.supplier = cellText(val(supCol + row)); }
+                    if (line.code === '' && line.supplier === '' && (line.qty === null || line.qty === '')) { continue; }
                     lines.push(line);
                 }
                 itemInfo = {};
                 checked = {};
+                supplierInfo = {};
                 importedName = file.name;
                 render();
-                showInfo(lines.length ? 'Geïmporteerd: ' + file.name + ' (' + lines.length + ' regels). De gegevens worden gecontroleerd met Exact…' : '');
+                showInfo(lines.length ? 'Geïmporteerd: ' + file.name + ' (' + pl(lines.length, 'regel', 'regels') + '). De gegevens worden gecontroleerd met Exact…' : '');
                 if (!lines.length) { showMessage('Geen regels gevonden in ' + file.name + '. Vul in de template het aantal (kolom B) en de artikelcode (kolom C) in.'); }
                 validate(true);
             } catch (err) {
@@ -167,6 +187,11 @@
         if (withItems) {
             var seen = {};
             lines.forEach(function (l) { if (cv(l) !== '' && !seen[ck(l)]) { seen[ck(l)] = true; body.append('items[]', cv(l)); } });
+            var seenSup = {};
+            lines.forEach(function (l) {
+                var s = supplierPending(l) ? l.supplier.trim() : '';
+                if (s !== '' && !seenSup[s.toUpperCase()]) { seenSup[s.toUpperCase()] = true; body.append('suppliers[]', s); }
+            });
         }
         var ticket = ++validating;
         fetch(endpoint, { method: 'POST', body: body })
@@ -178,8 +203,16 @@
                 debtorInfo = json.partij || json.debiteur;
                 if (withItems) {
                     itemInfo = json.items || {};
+                    // Leveranciersnummers: gevonden artikelnummer invullen als artikelcode (alleen waar die nog leeg is).
+                    var sup = json.suppliers || {};
+                    lines.forEach(function (l) {
+                        if (!supplierPending(l)) { return; }
+                        var hit = sup[l.supplier.trim().toUpperCase()];
+                        supplierInfo[l.supplier.trim().toUpperCase()] = hit || { item: '', matches: [] };
+                        if (hit && hit.item) { l.code = hit.item.toUpperCase(); }
+                    });
                     lines.forEach(function (l) { if (cv(l) !== '') { checked[ck(l)] = true; } });
-                    if (lines.length && !quiet) { showInfo('Geïmporteerd: ' + importedName + ' (' + lines.length + ' regels), gecontroleerd met Exact.'); }
+                    if (lines.length && !quiet) { showInfo('Geïmporteerd: ' + importedName + ' (' + pl(lines.length, 'regel', 'regels') + '), gecontroleerd met Exact.'); }
                 }
                 render();
             })
@@ -213,9 +246,22 @@
         timer = setTimeout(function () { validate(purchase && lines.length > 0, true); }, 400);
     }
 
+    // Regel met alleen een leveranciersnummer waarvan het artikelnummer nog niet is opgezocht.
+    function supplierPending(l) {
+        return useSupplier && cv(l) === '' && !!l.supplier && l.supplier.trim() !== '' && !supplierInfo[l.supplier.trim().toUpperCase()];
+    }
+
     // ---- Tonen en beoordelen ----
     function lineState(l) {
-        if (cv(l) === '' && (l.qty === null || String(l.qty).trim() === '')) { return { cls: 'is-empty', label: 'Nog leeg: vul aan of verwijder', ok: false, export: false }; }
+        var sup = useSupplier && l.supplier ? l.supplier.trim() : '';
+        if (cv(l) === '' && sup === '' && (l.qty === null || String(l.qty).trim() === '')) { return { cls: 'is-empty', label: 'Nog leeg: vul aan of verwijder', ok: false, export: false }; }
+        if (cv(l) === '' && sup !== '') {
+            var si = supplierInfo[sup.toUpperCase()];
+            if (!si) { return { cls: '', label: 'Leveranciersnummer wordt opgezocht…', ok: false, export: false, pending: true }; }
+            if (si.matches && si.matches.length > 1) { return { cls: 'is-incomplete', label: 'Leveranciersnummer hoort bij meerdere artikelen (' + si.matches.join(', ') + '): vul de artikelcode in', ok: false, export: false }; }
+            if (si.item) { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
+            return { cls: 'is-incomplete', label: 'Geen artikel bij leveranciersnummer: vul de artikelcode in', ok: false, export: false };
+        }
         if (cv(l) === '') { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
         if (qtyOf(l.qty) === null) { return { cls: 'is-incomplete', label: 'Aantal ontbreekt of is ongeldig', ok: false, export: false }; }
         if (!checked[ck(l)]) { return { cls: '', label: 'Wordt gecontroleerd…', ok: false, export: false, pending: true }; }
@@ -252,6 +298,7 @@
                 '<td>' + esc(l.nr) + '</td>' +
                 '<td><input type="text" class="ka-input oi-qty" data-i="' + i + '" value="' + esc(l.qty === null ? '' : l.qty) + '" maxlength="12" inputmode="decimal" autocomplete="off" aria-label="Aantal regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 (purchase ? '<td class="oi-min">' + (info && info.minOrder > 0 ? esc(info.minOrder) : '') + '</td>' : '') +
+                (useSupplier ? '<td class="oi-sup">' + esc(l.supplier || '') + '</td>' : '') +
                 '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
                 '<td>' + esc(st.label) + '</td>' +
@@ -267,7 +314,6 @@
             var again = tbody.querySelector('input.' + focusCls + '[data-i="' + focusIdx + '"]');
             if (again) { again.focus(); if (caret !== null) { again.setSelectionRange(caret, caret); } }
         }
-        resultEl.hidden = lines.length === 0;
 
         var articles = states.length;
         var missing = states.filter(function (s) { return s.cls === 'is-missing'; }).length;
@@ -276,7 +322,7 @@
         var minOrder = states.filter(function (s) { return s.minorder; }).length;
         var pending = states.some(function (s) { return s.pending; });
         summaryEl.innerHTML =
-            '<span class="msp-pill"><strong>' + lines.length + '</strong> regels</span>' +
+            '<span class="msp-pill"><strong>' + lines.length + '</strong> ' + (lines.length === 1 ? 'regel' : 'regels') + '</span>' +
             (missing ? '<span class="msp-pill oi-pill-bad"><strong>' + missing + '</strong> niet in Exact</span>' : '') +
             (minOrder ? '<span class="msp-pill oi-pill-warn"><strong>' + minOrder + '</strong> onder minimale bestelhoeveelheid</span>' : '') +
             (incomplete ? '<span class="msp-pill oi-pill-warn"><strong>' + incomplete + '</strong> onvolledig (aantal of artikelcode)</span>' : '');
@@ -288,9 +334,9 @@
         if (descEl.value.trim() === '') { problems.push('omschrijving invullen'); }
         if (!dateOk) { problems.push('datum invullen'); }
         if (!states.some(function (s) { return s.export; })) { problems.push('minstens één artikelregel met artikelcode en aantal'); }
-        if (missing) { problems.push(missing + ' artikel(en) die niet in Exact bestaan (rood) aanpassen of verwijderen'); }
-        if (incomplete) { problems.push(incomplete + ' regel(s) zonder geldig aantal of artikelcode (oranje) aanvullen of verwijderen'); }
-        if (empty) { problems.push(empty + ' lege regel(s) invullen of verwijderen'); }
+        if (missing) { problems.push(pl(missing, 'artikel', 'artikelen') + ' die niet in Exact bestaan (rood) aanpassen of verwijderen'); }
+        if (incomplete) { problems.push(pl(incomplete, 'regel', 'regels') + ' zonder geldig aantal of artikelcode (oranje) aanvullen of verwijderen'); }
+        if (empty) { problems.push(pl(empty, 'lege regel', 'lege regels') + ' invullen of verwijderen'); }
         if (pending) { problems.push('artikelen worden nog gecontroleerd'); }
         var ready = lines.length > 0 && problems.length === 0;
         exportBtn.disabled = !ready;
@@ -403,7 +449,7 @@
     document.getElementById('oiAdd').addEventListener('click', function () {
         var max = 0;
         lines.forEach(function (l) { var n = parseInt(l.nr, 10); if (isFinite(n) && n > max) { max = n; } });
-        lines.push({ nr: String(max + 1), qty: '', code: '' });
+        lines.push({ nr: String(max + 1), qty: '', code: '', supplier: '' });
         render();
         var inputs = tbody.querySelectorAll('input.oi-code');
         if (inputs.length) { inputs[inputs.length - 1].focus(); }

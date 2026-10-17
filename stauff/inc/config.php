@@ -23,7 +23,7 @@ function appConfig(): array
     return [
         'db' => [
             // Zie Config in het hoofdmenu - "EXACT_DB_*" (gedeeld met
-            // /slangkaarten). In tegenstelling tot /slangkaarten's eigen
+            // /slkprinten). In tegenstelling tot /slkprinten's eigen
             // "Slangkaarten"-database is dit de Exact-database "005" -
             // zelfde server (GEEVE-SQL-2019), ander doel: het uitlezen
             // van artikelgroep 67 (Stauff).

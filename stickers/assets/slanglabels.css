@@ -1,0 +1,91 @@
+/* Slanglabels (stickers/slanglabels): scherm, het label zelf en de printinstellingen.
+   Knoppen/tabel/velden komen uit klantartikel/ en reports/msp/ (zie stickers/slanglabels/index.php).
+   Label ALTEC 53000145 (25 × 95 mm, printvlak 25 × 25 mm); posities bijstellen na een proefprint. */
+
+.sl-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.sl-form { flex: 1 1 520px; min-width: 0; }
+.sl-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
+
+.sl-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px 16px; margin-top: 18px; }
+.sl-fields .sl-wide { grid-column: span 2; }
+.sl-fields .ka-input { width: 100%; }
+.sl-datehead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sl-check { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; cursor: pointer; }
+.sl-check input { width: 14px; height: 14px; min-height: 0; margin: 0; padding: 0; }
+.sl-fields .ka-input:disabled { opacity: .5; }
+
+#slTable tbody tr { cursor: pointer; }
+#slTable tbody tr.is-current td { background: #cfe3fa; }
+#slTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
+#slTable th:first-child, #slTable td:first-child { width: 1%; }
+#slTable td.num { text-align: right; }
+
+.sl-preview { zoom: 1.4; }
+.sl-preview .slanglabel { box-shadow: 0 0 0 1px #e0516a; border-radius: 1mm; background: #fff; }
+/* In het voorbeeld de doorzichtige plakrand gearceerd, zodat duidelijk is waar niet geprint wordt. */
+.sl-preview .slanglabel::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--sl-tail-top);
+    height: calc(var(--sl-h) - var(--sl-area));
+    background: repeating-linear-gradient(45deg, #f3f3f3 0 2mm, #fff 2mm 4mm);
+}
+.sl-print { display: flex; align-items: center; gap: 12px; }
+
+/* ALTEC 53000145: 25 mm breed, 95 mm lang. Alleen een vlak van 25 × 25 mm wordt bedrukt, de rest is een
+   doorzichtige plakrand die om de slang wordt gewikkeld. De tekst staat recht (0°) in dat vlak; de printer draait het label zelf (bevestigd na proefprint).
+   Het printvlak zit aan het begin (bovenkant) van het label (bevestigd na proefprint). Zit het aan de andere kant, zet dan
+   --sl-area-top op calc(var(--sl-h) - var(--sl-area)) en --sl-tail-top op 0. Andere draairichting: --sl-rotate. */
+.slanglabel {
+    --sl-w: 25mm;
+    --sl-h: 95mm;
+    --sl-area: 25mm;
+    --sl-area-top: 0mm;
+    --sl-tail-top: var(--sl-area);
+    --sl-rotate: 0deg;
+    position: relative;
+    width: var(--sl-w);
+    height: var(--sl-h);
+    overflow: hidden;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.slanglabel .area {
+    position: absolute;
+    left: 0;
+    top: var(--sl-area-top);
+    width: var(--sl-area);
+    height: var(--sl-area);
+    transform: rotate(var(--sl-rotate));
+}
+.slanglabel .f {
+    position: absolute;
+    left: 1mm;
+    right: 1mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+}
+.slanglabel .nr { top: 1.5mm; height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
+.slanglabel .ref { top: 5.5mm; height: 2.5mm; font-size: 1.6mm; white-space: nowrap; }
+.slanglabel .len { top: 8.75mm; height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
+.slanglabel .dat { top: 12.25mm; height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
+.slanglabel .kl { top: 17mm; height: 6mm; font-size: 1.5mm; white-space: normal; }
+
+.sl-printsheet { display: none; }
+
+@page { size: 25mm 95mm; margin: 0; }
+
+@media print {
+    html, body { background: #fff !important; margin: 0; padding: 0; }
+    body > *:not(.sl-printsheet) { display: none !important; }
+    .sl-printsheet { display: block; }
+    .sl-printsheet .slanglabel { break-after: page; page-break-after: always; }
+    .sl-printsheet .slanglabel:last-child { break-after: auto; page-break-after: auto; }
+}

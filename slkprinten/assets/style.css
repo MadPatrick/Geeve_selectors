@@ -1,0 +1,318 @@
+/* Tokens, resets, header/brand-panel-chrome, h1, .panel/.field/input-
+   select-basisstijlen staan nu in ../shared/style.css (geladen vóór dit
+   bestand, zie index.php) - hier alleen app-specifieke overrides en
+   aanvullingen. */
+
+.section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+h2 { margin: 4px 0 0; font-size: 20px; }
+.step { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: var(--accent-dark); }
+
+.klant-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: #e8f4ed;
+    border: 1px solid var(--ok-soft-line);
+    color: var(--ok);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.order-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: #fdeaee;
+    border: 1px solid #f5c3cf;
+    color: var(--accent-dark);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.stap2-badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0; }
+
+.search-row { display: flex; gap: 16px; align-items: flex-end; }
+.search-row .field { flex: 1 1 auto; margin: 0; }
+
+input::placeholder { color: #929fac; }
+
+/* Veld Klant: suggesties tijdens het typen (zie assets/klant-search.js) -
+   zelfde opmaak als het prijslijstveld in Klant Artikelnummers. */
+.klant-field { position: relative; }
+.klant-hits {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 20; margin: 4px 0 0; padding: 4px 0; list-style: none;
+    background: #fff; border: 1px solid var(--line-strong, #c9d4de); border-radius: 10px; box-shadow: var(--shadow);
+    max-height: 360px; overflow-y: auto; font-size: 13px; font-weight: 400;
+}
+.klant-hits[hidden] { display: none; }
+.klant-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.klant-hits li:hover, .klant-hits li.is-active { background: #fde6ec; }
+
+.submit-button {
+    appearance: none;
+    position: relative;
+    overflow: hidden;
+    flex: 0 0 auto;
+    border: 1px solid var(--btn-red-line);
+    border-radius: 999px;
+    background: var(--btn-red);
+    color: var(--btn-ink-light);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 13px 26px;
+    min-height: 48px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity .15s;
+}
+.submit-button:hover { opacity: .9; }
+.submit-button:disabled { cursor: default; opacity: .85; }
+
+/* Voortgang tijdens het zoeken: het "glas" vult van links naar rechts
+   als achtergrond van de knop zelf. Gewone GET-paginanavigatie, dus geen
+   echt %-percentage bekend - vult geleidelijk tot ~92% en blijft daar
+   staan tot de nieuwe pagina laadt. */
+.button-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 0%;
+    background: rgba(255, 255, 255, .3);
+}
+.submit-button.loading .button-fill,
+.print-btn.loading .button-fill {
+    animation: button-fill-progress 8s ease-out forwards;
+}
+.button-label { position: relative; z-index: 1; }
+@keyframes button-fill-progress {
+    0% { width: 0%; }
+    20% { width: 45%; }
+    60% { width: 75%; }
+    100% { width: 92%; }
+}
+
+/* Navigatieknoppen ("Wissen", "Kiezen") - lichtgroen, zelfde toon als
+   .klant-badge, geen onderstreping (het zijn <a>-tags). */
+.link-button {
+    display: inline-block;
+    appearance: none;
+    text-decoration: none;
+    border: 1px solid var(--ok-line);
+    border-radius: 999px;
+    background: var(--btn-green);
+    color: var(--ok-ink);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 18px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s, color .15s;
+}
+.link-button:hover { opacity: .9; }
+
+/* Compactere variant binnen tabelrijen (bv. "Kiezen" bij orderkeuze) -
+   de standaard padding maakte de knop hoger dan de rij. */
+.lines-table .link-button { padding: 4px 14px; font-size: 12px; }
+
+.warning-box { margin-top: 18px; padding: 15px 18px; border-radius: 12px; border: 1px solid #e8b1b1; background: #fff1f1; color: #7d2f2f; }
+.empty-result { padding: 18px; border: 1px dashed #c8d4de; border-radius: 12px; background: #fafcfd; color: var(--muted); font-style: italic; margin-top: 18px; }
+.print-status { margin: 0; color: var(--muted); font-size: 13px; }
+
+/* ---- Regel-overzicht (stap 2: selecteren welke slangkaarten je wil printen) ---- */
+
+.lines-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.lines-table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+.lines-table th, .lines-table td { border-bottom: 1px solid var(--line); padding: 9px 12px; text-align: left; }
+.lines-table thead th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; position: sticky; top: 0; }
+.lines-table tbody tr:hover { background: #fafcfd; }
+.lines-table tbody tr:last-child td { border-bottom: none; }
+.lines-check-col { width: 1%; text-align: center; }
+.lines-check-col input { width: auto; min-height: 0; }
+.lines-actions { display: flex; justify-content: flex-end; margin-top: 16px; }
+
+/* ---- Slangkaart (op scherm + basis voor print) ---- */
+
+.hose-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    margin-top: 18px;
+    background: #fff;
+}
+.hose-card:first-child { margin-top: 0; }
+
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; border-bottom: 2px solid var(--accent-dark); padding-bottom: 12px; margin-bottom: 16px; }
+.card-brand { font-weight: 900; font-size: 18px; letter-spacing: -.01em; color: var(--ink); }
+.card-brand span { color: var(--accent-dark); }
+.card-subbrand { display: block; margin-top: 2px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.card-order-meta { text-align: right; }
+.card-order-meta > div:first-child { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.card-order-meta span { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.card-order-meta strong { font-size: 18px; }
+.card-klant { margin-top: 4px; font-weight: 700; font-size: 13px; color: var(--ink); }
+
+.card-body { display: grid; grid-template-columns: 1fr 140px; gap: 20px; align-items: start; }
+.card-details { display: flex; flex-direction: column; }
+.card-detail-row { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-bottom: 1px solid #f0f2f4; font-size: 13px; }
+.card-detail-row span { color: var(--muted); }
+.card-detail-row strong { text-align: right; overflow-wrap: anywhere; }
+.card-slangnummer strong { font-size: 16px; color: var(--accent-dark); }
+
+.card-qty-box { border: 1px solid var(--line); border-radius: 12px; padding: 14px; text-align: center; background: var(--soft); }
+.card-qty-box span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+.card-qty-box strong { display: block; font-size: 34px; font-weight: 900; color: var(--ink); }
+
+.card-note {
+    margin-top: 18px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 13px;
+}
+.card-note span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+/* Standaard 3 regels hoogte, ook leeg/ongebruikt (line-height 1.5em x 3);
+   min-height i.p.v. height, dus groeit automatisch mee bij langere tekst. */
+.card-note div { min-height: 4.5em; line-height: 1.5; font-size: 11px; }
+
+.card-couplings { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: start; }
+.coupling-block h4 { margin: 0 0 8px; font-size: 13px; font-weight: 800; color: var(--accent-dark); }
+/* Zelfde afgeronde-hoeken-kader als .card-flags/.lines-table-wrap elders op
+   de kaart/pagina - border-radius + overflow:hidden op de wrapper, want
+   dat werkt niet direct op een border-collapse:collapse tabel. */
+.coupling-table-wrap { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.coupling-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.coupling-table th, .coupling-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+.coupling-table th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; }
+.coupling-table td.coupling-empty-cell { color: var(--muted); font-style: italic; text-align: center; }
+.coupling-empty { color: var(--muted); font-size: 12px; font-style: italic; margin: 0; }
+
+.angle-block { display: flex; align-items: center; justify-content: center; }
+.angle-diagram { width: 100px; height: auto; }
+
+/* Bewerkingen (opties zoals labelen/graveren) staat over de volle breedte
+   van het blad, met dezelfde koptekststijl als Krimpmaten/Extra artikelen. */
+.card-bewerkingen { margin-top: 18px; }
+
+/* Extra artikelen (géén koppelonderdeel van zijde A/B) en Krimpmaten staan
+   naast elkaar, allebei 50% van de bladbreedte. */
+.card-flags-row { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+.card-flags { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.card-krimpmaten .coupling-block { margin: 0; }
+.card-flag { background: #fafcfd; padding: 8px 12px; display: flex; justify-content: space-between; gap: 10px; font-size: 12px; }
+.card-flag span { color: var(--muted); }
+.card-flag strong { color: var(--ink); }
+.card-flag-empty { background: #fafcfd; }
+
+.card-footer { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.card-footer-addresses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 12px; }
+.card-footer-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.card-address-block span, .card-meta-block span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+.card-address-block div { font-size: 12.5px; line-height: 1.4; }
+.card-meta-block div { font-size: 10.5px; line-height: 1.4; }
+/* Zelfde tekstgrootte als het Ordernummer bovenaan de kaart (.card-order-meta strong). */
+.card-verzendwijze div { font-size: 18px; font-weight: 700; }
+
+/* ---- Picklijst (1 eigen printpagina vóór de slangkaarten): alle losse
+   artikelen (koppelonderdelen + extra artikelen) van de hele order, met
+   de aantallen opgeteld - zie buildPicklist()/renderPicklist(). ---- */
+.picklist-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; border-bottom: 2px solid var(--accent-dark); padding-bottom: 12px; margin-bottom: 16px; }
+.picklist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.picklist-table th, .picklist-table td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+.picklist-table thead th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; }
+
+#printSheet { display: none; }
+
+@media print {
+    @page { size: A4 portrait; margin: 14mm 12mm; }
+
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+    }
+
+    body { background: #fff; }
+    .page-shell { display: none !important; }
+
+    #printSheet {
+        display: block;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        color: #111;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* De picklijst staat nu als laatste pagina (na alle slangkaarten), dus
+       geen page-break-after meer nodig - dat zou een lege pagina erachter
+       toevoegen. */
+    #printSheet .picklist-sheet {
+        min-height: 268mm;
+        border: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #printSheet .hose-card {
+        display: flex;
+        flex-direction: column;
+        /* A4 (297mm) min. de @page-marges hierboven (14mm boven + onder) =
+           de bedrukbare hoogte. Alles vóór .card-couplings (merk, order,
+           details, aantal, notitie) en alles erna (vinkjes, footer) staat
+           zo altijd op een vaste positie boven/onder in de pagina; de
+           koppelingen-sectie is de enige die meegroeit en de ruimte
+           ertussen opvult (zie flex: 1 1 auto hieronder). Elke slangkaart
+           krijgt altijd een break erna (ook de laatste), want de
+           picklijst volgt er nog op. */
+        min-height: 268mm; /* 1mm speling: Firefox rondt mm->px anders af en maakte bij precies 269mm een lege pagina */
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        margin: 0;
+        page-break-after: always;
+        break-after: page;
+    }
+
+    #printSheet .card-top,
+    #printSheet .card-body,
+    #printSheet .card-note,
+    #printSheet .card-bewerkingen,
+    #printSheet .card-flags-row,
+    #printSheet .card-footer {
+        flex: 0 0 auto;
+    }
+    #printSheet .card-couplings { flex: 1 1 auto; }
+
+    .card-flag, .coupling-table th, .coupling-table td { font-size: 11px; }
+}
+
+/* Alleen op scherm: de bedrukbare A4-breedte (210mm - 2x12mm = 186mm =
+   ~703px) ligt maar net boven deze grens. Firefox rekent de printbreedte
+   net anders uit dan Chrome/Edge en kwam er soms onder, waardoor de
+   mobiele 1-koloms opmaak in de print belandde (kaart ~2x zo hoog, over
+   meerdere pagina's verspreid). */
+@media screen and (max-width: 700px) {
+    .page-shell { margin-top: 6px; }
+    .brand-panel { padding: 14px 16px 18px; grid-template-columns: 1fr; }
+    .brand-logo-img { height: 50px; }
+    .brand-rubix-img { height: 25px; }
+    .header-content { text-align: left; }
+    .header-home-button {
+        position: static;
+        transform: none;
+        width: 30px;
+        height: 30px;
+        margin-bottom: 8px;
+    }
+    .header-home-button svg { width: 18px; height: 18px; }
+    h1 { font-size: 22px; }
+    .panel { padding: 18px; border-radius: 14px; }
+    .search-row { flex-direction: column; align-items: stretch; }
+    .card-body { grid-template-columns: 1fr; }
+    .card-couplings { grid-template-columns: 1fr; }
+    .card-footer-addresses, .card-footer-meta { grid-template-columns: 1fr; }
+    .card-flags-row { grid-template-columns: 1fr; }
+    .card-flags { grid-template-columns: 1fr; }
+}

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
-tileRequirePage('klantartikel', '../index.php');
+tileRequirePage('klantartikel', '../templates/index.php');
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
@@ -97,15 +97,18 @@ if ($priceList !== '') {
 <main class="page-shell page-shell--wide">
     <?php
     $headerTitle = 'Klant Artikelnummers';
+    $headerHomeHref = '../templates/index.php'; // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../shared/header.php';
     ?>
 
     <section class="panel">
         <form method="get" class="ka-form">
-            <label class="field">
-                <span>Prijslijstnummer</span>
-                <input type="text" name="prijslijst" value="<?= h($priceList) ?>" placeholder="bijv. 100" autocomplete="off" autofocus required>
+            <label class="field pl-field">
+                <span>Prijslijst</span>
+                <input type="text" name="prijslijst" id="plSearch" value="<?= h($priceList) ?>" placeholder="Nummer of naam, bijv. 100" autocomplete="off" autofocus required
+                       role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="plSearchHits" data-lists="api/pricelists.php">
+                <ul class="pl-hits" id="plSearchHits" role="listbox" hidden></ul>
             </label>
             <button type="submit" class="ka-button">Zoeken</button>
         </form>
@@ -194,5 +197,6 @@ if ($priceList !== '') {
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
+<script src="assets/pricelist-search.js?v=<?= h(assetVersion('assets/pricelist-search.js')) ?>"></script>
 </body>
 </html>

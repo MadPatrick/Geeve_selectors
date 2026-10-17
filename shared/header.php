@@ -35,6 +35,9 @@ declare(strict_types=1);
  *                                            zelf escapen wat niet al
  *                                            vaste markup is.
  *
+ * De PC-naam van de gebruiker (shared/pcnaam.php) staat altijd rechts naast
+ * het Rubix-logo (.brand-logo-row).
+ *
  * Voorbeeld (stauff/index.php):
  *   $headerTitle = 'Stauff Selector';
  *   require __DIR__ . '/../shared/header.php';
@@ -44,6 +47,9 @@ $headerImagesPath = $headerImagesPath ?? '../images/';
 $headerShowHome = $headerShowHome ?? true;
 $headerHomeHref = $headerHomeHref ?? '../index.php';
 $headerTopline = $headerTopline ?? '';
+
+require_once __DIR__ . '/pcnaam.php';
+$headerPcNaam = pcNaam();
 ?>
 <header class="page-header">
     <div class="brand-panel">
@@ -51,6 +57,7 @@ $headerTopline = $headerTopline ?? '';
             <div class="brand-logo-row">
                 <img src="<?= h($headerImagesPath) ?>geeve.jpg" alt="Geeve Hydraulics - know how in hydraulics" class="brand-logo-img">
                 <img src="<?= h($headerImagesPath) ?>rubix.jpg" alt="Powered by Rubix" class="brand-rubix-img">
+                <?php if ($headerPcNaam !== ''): ?><span class="header-user" title="PC-naam van deze computer"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"></rect><path d="M8 20h8M12 16v4"></path></svg><?= h($headerPcNaam) ?></span><?= pcNaamCookieScript() ?><?php endif; ?>
             </div>
         </div>
         <?php if ($headerShowHome): ?>

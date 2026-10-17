@@ -1,0 +1,49 @@
+/* Sticker Accu's (stickers/accu): scherm, de sticker zelf en de printinstellingen.
+   Stickerformaat 80 × 30 mm (aanname, nagemaakt van de oude app); posities in mm, bijstellen na een proefprint. */
+
+.ac-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.ac-form { flex: 1 1 420px; min-width: 0; }
+.ac-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 16px; }
+.ac-fields { display: grid; grid-template-columns: repeat(2, minmax(160px, 1fr)); gap: 12px 16px; margin-top: 18px; max-width: 560px; }
+.ac-fields .ac-wide { grid-column: span 2; }
+.ac-fields .ka-input { width: 100%; }
+
+.ac-preview { zoom: 1.8; }
+.ac-preview .accu { box-shadow: 0 0 0 1px #e0516a; border-radius: 1.5mm; background: #fff; }
+.ac-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+.ac-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.ac-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
+
+.accu {
+    position: relative;
+    width: 80mm;
+    height: 30mm;
+    overflow: hidden;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    line-height: 1;
+}
+.accu svg { position: absolute; }
+/* Beide symbolen even hoog (18 mm) op dezelfde boven- en onderlijn; viewBoxen zijn allebei 34 hoog. */
+.accu .warn { left: 2mm; top: 5mm; width: 20.1mm; height: 18mm; }
+.accu .acc { left: 23.5mm; top: 5mm; width: 6.9mm; height: 18mm; }
+.accu .f { position: absolute; display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
+/* Alle tekst even groot en links uitgelijnd, 10px (2,65 mm) rechts van het accu-symbool (dat eindigt op 30,4 mm). */
+.accu .r { left: 33.05mm; right: 2mm; height: 5mm; font-size: 3.2mm; }
+.accu .r1 { top: 2.5mm; }
+.accu .r2 { top: 8.5mm; }
+.accu .r3 { top: 14.5mm; }
+.accu .r4 { top: 20.5mm; }
+
+.ac-printsheet { display: none; }
+
+@page { size: 80mm 30mm; margin: 0; }
+
+@media print {
+    html, body { background: #fff !important; margin: 0; padding: 0; }
+    body > *:not(.ac-printsheet) { display: none !important; }
+    .ac-printsheet { display: block; }
+    .ac-printsheet .accu { break-after: page; page-break-after: always; }
+    .ac-printsheet .accu:last-child { break-after: auto; page-break-after: auto; }
+}

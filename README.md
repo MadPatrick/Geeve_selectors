@@ -4,28 +4,40 @@ Startpagina met tegels naar de Geeve-selectors:
 
 - **`/hoses`** — Slangen fitting Selector
 - **`/adapters`** — Adapters Selector
-- **`/klantartikel`** — Klant Artikelnummers: voer een prijslijstnummer in, krijg de debiteuren op die prijslijst en hun
+- **`/klantartikel`** — Klant Artikelnummers (tegel onder Templates): voer een prijslijstnummer in, krijg de debiteuren op die prijslijst en hun
   artikelen met een klantartikelnummer (`ItemAccounts.ItemCodeAccount`) uit Exact (database 005, zelfde
   inloggegevens als `/stauff`). Kolomnamen worden uit `INFORMATION_SCHEMA` afgeleid, zie `klantartikel/inc/queries.php`.
   Met Excel-sjabloon (download) en Excel-import (slepen of kiezen; SheetJS lokaal in `klantartikel/assets/vendor`) en XML-export (DEBTORS.xml) in het Exact-importformaat (eExact, zoals de Excel-template "Geeve Import debiteuren").
-- **`/klantkorting`** — Kortingstructuur: per prijslijst de klanten en hun kortingstructuur bekijken/aanpassen (basis = `/klantartikel`).
+- **`/klantkorting`** — Kortingstructuur (tegel onder Templates): per prijslijst de klanten en hun kortingstructuur bekijken/aanpassen (basis = `/klantartikel`).
   Eerste versie toont klanten en een verkenning van de korting-/prijslijsttabellen in Exact; de eigenlijke structuur volgt.
-- **`/reports`** — Reports: overzichtsscherm (zelfde tegel-layout als het hoofdscherm) met rapporten als tegel; `reports/msp` ("MSP report"): haalt de MSP-factuurregels van een te kiezen maand op (standaard de vorige maand; lees-query in database `005` met dezelfde berekening als de procedure `dbo.SP_MSP` van het Excel-bestand "MSP CLAIM"; maakt niets aan in de database), toont ze en geeft ze als Excel-download (blad `Temp_Export_MSP_factuurregels`).
+- **`/reports`** — Reports: overzichtsscherm (zelfde tegel-layout als het hoofdscherm) met rapporten als tegel; `reports/msp` ("MSP report"): haalt de MSP-factuurregels van een te kiezen maand op (standaard de vorige maand; lees-query in database `005` met dezelfde berekening als de procedure `dbo.SP_MSP` van het Excel-bestand "MSP CLAIM"; maakt niets aan in de database), toont ze en geeft ze als Excel-download (blad `Temp_Export_MSP_factuurregels`). `reports/artikel-import` ("Artikelgegevens Import"): Excel-template met artikelgegevens (zoals "Artikelgegevens_Import_Ramon") importeren, per artikel controleren met Exact (bestaand/nieuw, huidige waarden, leverancier en artikelgroep), velden aanpassen en als XML (`<Items>`, zelfde opbouw als de macro) exporteren; lees-queries in `reports/artikel-import/api/validate.php`.
 - **`/stauff`** — Stauff Selector / beugelconfigurator, zelfde brand-panel/paneel-stijl als `/hoses`
   en `/adapters`. Heeft ook een databaseverbinding naar de Exact-database "005" (artikelgroep 67),
   zie "Database-koppeling Exact (database 005)" hieronder. Tegel op de startpagina is weer actief
   (was tijdelijk uitgeschakeld tijdens de opbouw).
 - **`/configurator`** — Slang configurator, zelfde brand-panel/paneel-stijl. Bestanden staan er nog,
   maar er is momenteel geen tegel op de startpagina die hierheen linkt.
-- **`/slangkaarten`** — Slangkaarten bij order - zoekt een order of klant op en print
+- **`/slkprinten`** — Slangkaarten bij order - zoekt een order of klant op en print
   slangkaarten/labels van de geselecteerde regels. Heeft een eigen database nodig (SQL Server,
-  database "Slangkaarten", zie `slangkaarten/README.md`). Voor de Locatie-kolom op de picklijst
+  database "Slangkaarten", zie `slkprinten/README.md`). Voor de Locatie-kolom op de picklijst
   gebruikt deze subapp ook dezelfde Exact-database "005" als `/stauff`, met dezelfde (centraal
   opgeslagen) inloggegevens.
-- **`/stickers`** — eigen scherm met 3 tegels: "Stickers op Artikelnummer", "Stickers op
-  Artikelnummer (groot)" en "Stickers op Zakjes". Nog niet functioneel (alle 3 staan als
-  "Binnenkort beschikbaar") - bestanden staan er nog, maar er is momenteel geen tegel op de
-  startpagina die hierheen linkt.
+- **`/stickers`** — eigen scherm met tegels. **`/stickers/order`** ("Artikelen per Verkooporder"): voer een
+  ordernummer in en print per orderregel een sticker van 102 × 54 mm (op volgorde van `ord_rgl`), nagemaakt van de
+  NiceLabel-template. Gegevens uit `[005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order]` (zelfde inloggegevens als
+  `/stauff`, via `reports/inc.php`); aantal = `besteld`, barcode = Code 128 van het artikelnummer (JsBarcode, lokaal in
+  `stickers/assets/vendor`), rechtsonder de `looplocatie`, datum = printdatum. Printen via de browser (`@page` 102 × 54 mm,
+  één sticker per pagina); posities/lettergroottes staan in `stickers/assets/order-stickers.css`.
+  **`/stickers/artikel`** ("Artikelnummer"): zoeken in `[Exactrapportage].[dbo].[1002_Artikellabels]`.
+  **`/stickers/productie`** ("Artikelen per Productieorder"): voer een verkoopordernummer in en print per productieorderregel
+  een sticker van 102 × 54 mm, gegevens uit de stored procedure `[005_Data_Geeve].[dbo].[SP_productie_label] @ordernr`
+  (de app-gebruiker heeft daar EXECUTE-recht op nodig); barcode = Code 128 van het artikelnummer, datum = printdatum,
+  posities in `stickers/assets/productie-stickers.css`.
+  **`/stickers/slanglabels`** ("Slanglabels"): voer een ordernummer in, gegevens uit `[Exactrapportage].[dbo].[1655 VW_Alle_OrdersGH]`;
+  velden zijn aan te passen voor het printen, label 50 × 50 mm (aanname), posities in `stickers/assets/slanglabels.css`.
+  **`/stickers/accu`** ("Accu's", tegel-id `stickers-artikel-groot`): invulsticker zonder database (bedrijfsnaam, datum,
+  voorvuldruk, vrij veld), 80 × 30 mm (aanname), posities in `stickers/assets/accu.css`.
+  "Kabelmerkers Geel" is nog niet functioneel ("Binnenkort beschikbaar").
 
 `Geeve_selectors` is de enige/canonieke plek voor al deze subapps — er zijn geen losse bronrepo's
 meer waar wijzigingen vandaan gekopieerd worden of naartoe teruggezet moeten worden. Wijzigingen
@@ -44,23 +56,23 @@ die drie dingen zelf te regelen (een eigen "terug"-link, eigen logo's, een hardc
 versienummer) - dat is dan ook geen ondersteunde manier van deployen; deze portal-map is de enige
 plek waar deze code leeft en gedraaid wordt.
 
-`/slangkaarten` en `/stauff` hebben, in tegenstelling tot de andere tegels, database-inloggegevens
+`/slkprinten` en `/stauff` hebben, in tegenstelling tot de andere tegels, database-inloggegevens
 nodig - deels eigen (voor de "Slangkaarten"-database), deels gedeeld (voor de Exact-database "005") -
-beide in te vullen via **Config** in het hoofdmenu, zie `slangkaarten/README.md` resp. "Database-
+beide in te vullen via **Config** in het hoofdmenu, zie `slkprinten/README.md` resp. "Database-
 koppeling Exact (database 005)" hieronder. `.env`-bestanden worden niet meer gebruikt. Zonder ingevulde Config toont die tegel/pagina (of
 alleen de Locatie-kolom op de picklijst) een foutmelding/streepje i.p.v. te crashen; de rest van de
 portal blijft gewoon werken.
 
-## Database-koppeling Exact (database 005) - gedeeld door /stauff en /slangkaarten
+## Database-koppeling Exact (database 005) - gedeeld door /stauff en /slkprinten
 
-`/stauff` (artikelgroep 67) en `/slangkaarten` (Locatie op de picklijst, zie
-`slangkaarten/README.md`) praten allebei met dezelfde Exact-database "005" (zelfde server als de
+`/stauff` (artikelgroep 67) en `/slkprinten` (Locatie op de picklijst, zie
+`slkprinten/README.md`) praten allebei met dezelfde Exact-database "005" (zelfde server als de
 "Slangkaarten"-database, `GEEVE-SQL-2019`), met **hetzelfde SQL-account**. Die inloggegevens staan
 daarom 1x centraal, niet los per subapp:
 
 1. **Verbinding opgezet** (dit is af): vul via Config in het hoofdmenu (versleuteld opgeslagen, `.settings.enc`)
    `EXACT_DB_USER`/`EXACT_DB_PASSWORD` in van een bestaand SQL-account dat database "005"
-   mag lezen. Zowel `stauff/inc/config.php` als `slangkaarten/inc/config.php` laden deze
+   mag lezen. Zowel `stauff/inc/config.php` als `slkprinten/inc/config.php` laden deze
    instellingen automatisch - er is dus maar 1 plek om deze inloggegevens te zetten of te wijzigen.
    De root-`.htaccess` blokkeert browsertoegang tot dotfiles (dus ook `.settings.enc`/`.settings.key`).
 2. **Tabel/kolom voor groep 67 gevonden** (dit is af): `GRV_SalesItems` (kolommen `ItemCode`,
@@ -82,7 +94,7 @@ shared/style.css        Gedeelde basisopmaak (tokens, header/brand-panel-chrome,
                         primitieven) voor hoofdscherm + alle subapps, zie "Gedeelde layout"
 shared/header.php       Gedeelde header/brand-panel-include, zie "Gedeelde layout"
 shared/secure_settings.php  Versleutelde opslag van de Exact-database "005"-inloggegevens (EXACT_DB_*),
-                        ingevuld via Config; gebruikt door /stauff en /slangkaarten
+                        ingevuld via Config; gebruikt door /stauff en /slkprinten
 assets/style.css        Styling van alleen de startpagina (bovenop shared/style.css)
 images/                 Gedeeld Geeve/Rubix-merklogo (geeve.jpg, rubix.jpg) - door alle
                         subapps gebruikt via ../images/..., één plek om bij te werken
@@ -98,9 +110,11 @@ stauff/                 Volledige Stauff Selector-app (eigen assets/data/api/etc
                         naar Exact "005" leest EXACT_DB_* uit Config
 configurator/           Volledige Slang configurator-app (eigen assets/data/etc.) - bestanden
                         staan er nog, momenteel geen tegel op de startpagina
-slangkaarten/           Volledige Slangkaarten-app (eigen assets/inc/etc.; account voor de
+slkprinten/             Volledige Slangkaarten-app (eigen assets/inc/etc.; account voor de
                         "Slangkaarten"-database en voor de Locatie-lookup op de picklijst uit Config,
-                        zie slangkaarten/README.md)
+                        zie slkprinten/README.md)
+slangkaarten/           Nieuwe app Slangkaarten (in voorbereiding, nog alleen een lege pagina);
+                        tegel-id 'slangkaarten-app' - 'slangkaarten' is de tegel van slkprinten/
 stickers/               Eigen scherm met 3 tegels (nog niet functioneel - "Binnenkort
                         beschikbaar") - bestanden staan er nog, momenteel geen tegel op de
                         startpagina
@@ -163,7 +177,7 @@ heeft de nieuwe app meteen dezelfde huisstijl, zonder iets te kopiëren.
 
 ## Eén gedeeld versienummer
 
-Het hoofdscherm en alle subapps (`hoses`, `adapters`, `configurator`, `stauff`, `slangkaarten`,
+Het hoofdscherm en alle subapps (`hoses`, `adapters`, `configurator`, `stauff`, `slkprinten`,
 `stickers`) tonen/gebruiken hetzelfde versienummer, uit `version.php` op rootniveau
 (`return '0.3.0';`). Elke pagina
 laadt dit via `is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '...'`

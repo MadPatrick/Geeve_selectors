@@ -1,0 +1,93 @@
+/* Artikelstickers per Verkooporder (stickers/order): de sticker zelf (102 × 54 mm) en de printinstellingen.
+   Knoppen/tabel/velden komen uit klantartikel/ en reports/msp/ (zie stickers/order/index.php).
+   Posities en lettergroottes in mm, nagemaakt van de NiceLabel-template; bijstellen na een proefprint. */
+
+#soTable td.num { text-align: right; font-variant-numeric: tabular-nums; }
+#soTable tr.is-off td { color: var(--muted); }
+/* Vinkjes even hoog als de tekst (13px), niet de 48px van de gedeelde input-regel. */
+#soTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
+#soTable th:first-child, #soTable td:first-child { width: 1%; }
+
+/* Print stickers helemaal rechts in de rij met knoppen. */
+.so-print { margin-left: auto; }
+
+/* Eerste blok: invoer links, voorbeeld helemaal rechts (op smalle schermen eronder). */
+.so-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.so-form { flex: 1 1 420px; min-width: 0; }
+.so-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; }
+.so-side[hidden] { display: none; }
+
+/* Voorbeeld op het scherm: één sticker tegelijk (iets vergroot), met < en > eronder; printen doet ze allemaal. */
+.so-preview { zoom: 1.25; }
+/* Afgeronde hoeken alleen op het scherm (box-shadow volgt de ronding, outline niet overal); overflow zichtbaar zodat tekst
+   vlak bij een hoek niet wordt afgeknipt. */
+.so-preview .sticker { box-shadow: 0 0 0 1px #e0516a; border-radius: 2.5mm; overflow: visible; background: #fff; }
+.so-preview:not(.is-measuring) .sticker:not(.is-current) { display: none; }
+.so-nav { display: flex; gap: var(--btn-gap); align-items: center; margin-top: 14px; }
+.so-nav .ka-button { min-width: 44px; justify-content: center; font-size: 18px; padding: 0 14px; }
+.so-nav .ka-button:disabled { opacity: .4; cursor: default; }
+.so-nav .msp-status { min-width: 12ch; text-align: center; }
+
+.sticker {
+    position: relative;
+    width: 102mm;
+    height: 54mm;
+    overflow: hidden;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 3.2mm;
+    line-height: 1;
+}
+/* Marge van 10px (2,65 mm) aan alle kanten: de velden hieronder staan in mm op de volle 102 × 54 mm en worden als geheel
+   iets verkleind en verschoven, zodat alles tussen 2,65 en 99,35 mm (breed) / 51,35 mm (hoog) valt. */
+.sticker-in { position: absolute; left: 0; top: 0; width: 102mm; height: 54mm; transform-origin: 0 0; transform: translate(2.15mm, 2.08mm) scale(.964, .934); }
+.sticker .f {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.sticker .b { font-weight: 700; }
+.sticker .big { font-size: 4.6mm; }
+.sticker .large { font-size: 4.3mm; }
+.sticker .bc { position: absolute; left: 1.5mm; top: 33.2mm; width: 96.7mm; height: 10mm; }
+.sticker .bc svg { display: block; width: 100%; height: 100%; shape-rendering: crispEdges; }
+
+/* Rij 1: Bonnr + klantnaam */
+.sticker .r1 { top: .6mm; height: 4.5mm; }
+.sticker .r2 { top: 5.3mm; height: 5.3mm; }
+.sticker .r3 { top: 12.3mm; height: 6mm; }
+.sticker .r4 { top: 21.3mm; height: 5.5mm; }
+.sticker .r5 { top: 27.6mm; height: 5.3mm; }
+.sticker .r6 { top: 47.4mm; height: 5.3mm; }
+
+.sticker .c-l1 { left: .5mm; width: 12.7mm; }      /* "Bonnr.:" */
+.sticker .c-bonnr { left: 14.3mm; width: 23.6mm; }
+.sticker .c-debnm { left: 38.9mm; width: 61.5mm; }
+.sticker .c-l2 { left: .5mm; width: 25.5mm; }      /* "Uw referentie:" */
+.sticker .c-ref { left: 26.3mm; width: 74mm; }
+.sticker .c-l3 { left: .5mm; width: 21mm; }        /* "Aantal:" / "Locatie:" */
+.sticker .c-val3 { left: 22.6mm; width: 13.5mm; }  /* aantal / locatie */
+.sticker .c-l4 { left: 37.2mm; width: 18.5mm; }    /* "Artikelnr:" / "Uw Artikelnr:" */
+.sticker .c-val4 { left: 55.8mm; width: 45mm; }    /* artikelnummer / uw artikelnummer */
+.sticker .c-l5 { left: .5mm; width: 35mm; }        /* "Country Of Origin:" */
+.sticker .c-coo { left: 37.2mm; width: 40mm; }
+.sticker .c-l6 { left: .5mm; width: 9mm; }         /* "rgl:" */
+.sticker .c-rgl { left: 9.7mm; width: 22.6mm; }
+.sticker .c-date { left: 34.6mm; width: 42mm; }
+.sticker .c-loop { left: 78.4mm; width: 22.4mm; }
+
+@page { size: 102mm 54mm; margin: 0; }
+
+@media print {
+    html, body { background: #fff !important; margin: 0; padding: 0; }
+    body > main > *:not(.so-top), .so-form, .so-nav { display: none !important; }
+    body > main, .so-top, #soPreviewPanel { all: unset; display: block; }
+    /* .page-shell (shared) heeft marges; die moeten weg, anders schuift elke sticker 14px naar rechts en 6px omlaag. */
+    body > main.page-shell { margin: 0 !important; width: auto !important; }
+    .so-preview { display: block; zoom: 1; }
+    .so-preview:not(.is-measuring) .sticker:not(.is-current) { display: block; }
+    .so-preview .sticker { box-shadow: none; border-radius: 0; overflow: hidden; break-after: page; page-break-after: always; }
+    .so-preview .sticker:last-child { break-after: auto; page-break-after: auto; }
+}

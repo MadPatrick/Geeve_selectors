@@ -38,7 +38,12 @@
         };
     }
 
+    // Andere omschrijving van de prijslijst dan in Exact: dan gaan alle regels mee in de XML (de omschrijving staat per regel).
+    var desc = document.getElementById('kkDesc');
+    function descChanged() { return !!desc && desc.value.trim() !== '' && desc.value.trim() !== desc.getAttribute('data-orig'); }
+
     function isChanged(row) {
+        if (descChanged()) { return true; }
         if (!row.hasAttribute('data-orig')) { return true; }
         var v = rowValues(row);
         return (v.qty + '|' + v.disc + '|' + v.from + '|' + v.to) !== row.getAttribute('data-orig');
@@ -137,7 +142,7 @@
             e.preventDefault();
             showInfo(problems.length
                 ? 'Export niet mogelijk: ' + problems.slice(0, 5).join('; ') + (problems.length > 5 ? ' (+' + (problems.length - 5) + ' meer)' : '') + '.'
-                : 'Er zijn geen gewijzigde of nieuwe regels om te exporteren.', true);
+                : (descChanged() ? 'Deze prijslijst heeft nog geen regels; zonder regels kan de omschrijving niet via de XML mee.' : 'Er zijn geen gewijzigde of nieuwe regels om te exporteren.'), true);
             return;
         }
         message.hidden = true;

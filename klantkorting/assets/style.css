@@ -12,3 +12,7 @@ details.panel > summary { cursor: pointer; font-weight: 750; }
 .kk-qty, .kk-disc { min-width: 10ch; }
 .kk-hint { font-size: 13px; color: var(--ink); }
 .ka-actions { flex-wrap: wrap; }
+
+/* Omschrijving van de prijslijst (gaat mee in de XML-export). */
+.kk-desc-field { max-width: 46ch; margin: 0 0 12px; }
+.kk-desc-field > span small { font-weight: 600; }

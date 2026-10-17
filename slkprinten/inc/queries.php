@@ -286,12 +286,24 @@ function tryColumnsInQueryWithEquals(
     );
 }
 
-/** Groepeert rijen op hun HOSE_KEY_COLUMNS-sleutel, voor snel opzoeken. */
+/**
+ * Opzoeksleutel voor een slangnummer: hoofdletters en spaties gelijkgetrokken.
+ * SQL Server vergelijkt slangnummers zonder op hoofdletters/spaties aan het eind
+ * te letten, PHP-arraysleutels wel - zonder dit vond de WHERE ... IN de
+ * koppelonderdelen wel, maar werden ze niet aan de kaart gekoppeld als de
+ * schrijfwijze iets afweek (bv. "VCD-B KOP 1-4" vs "VCD-B Kop 1-4").
+ */
+function hoseKeyIndex(string $hoseKey): string
+{
+    return strtoupper(preg_replace('/\s+/', ' ', trim($hoseKey)) ?? trim($hoseKey));
+}
+
+/** Groepeert rijen op hun HOSE_KEY_COLUMNS-sleutel (via hoseKeyIndex()), voor snel opzoeken. */
 function groupRowsByHoseKey(array $rows): array
 {
     $grouped = [];
     foreach ($rows as $row) {
-        $grouped[pick($row, HOSE_KEY_COLUMNS)][] = $row;
+        $grouped[hoseKeyIndex(pick($row, HOSE_KEY_COLUMNS))][] = $row;
     }
 
     return $grouped;
@@ -333,6 +345,40 @@ function fetchCustomerOrderSummaryRows(PDO $pdo, string $customerName): array
     } catch (PDOException $exception) {
         return tryColumnsLikeQuery($pdo, '2500 Slangkaarten bij order', KLANT_CANDIDATES, $customerName);
     }
+}
+
+/**
+ * Alle klantnamen (kolom nm) met een slangregel in de afgelopen 2 jaar -
+ * dezelfde grens als findOrdersByCustomer() - voor de suggesties tijdens
+ * het typen in het veld Klant. Valt terug op alle namen zonder datumfilter
+ * als de orddat-kolom om wat voor reden dan ook niet bruikbaar is.
+ *
+ * @return string[]
+ */
+function findCustomerNames(PDO $pdo): array
+{
+    $queries = [
+        'SELECT DISTINCT [nm] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] IS NOT NULL AND [orddat] >= DATEADD(year, -2, GETDATE())',
+        'SELECT DISTINCT [nm] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] IS NOT NULL',
+    ];
+    foreach ($queries as $sql) {
+        try {
+            $names = [];
+            foreach ($pdo->query($sql)->fetchAll(PDO::FETCH_COLUMN) as $name) {
+                $name = trim((string) $name);
+                if ($name !== '') {
+                    $names[$name] = true;
+                }
+            }
+            $names = array_keys($names);
+            natcasesort($names);
+            return array_values(array_map('strval', $names));
+        } catch (PDOException $exception) {
+            continue;
+        }
+    }
+
+    return [];
 }
 
 /**
@@ -703,15 +749,50 @@ function enrichHoseLinesWithCouplings(PDO $pdo, array $hoseLines): array
     $sideBRows = tryColumnsInQuery($pdo, '93004 hv 3001 Slangonderdelen Zijde B', HOSE_KEY_COLUMNS, $hoseKeys);
     $groupedA = groupRowsByHoseKey($sideARows);
     $groupedB = groupRowsByHoseKey($sideBRows);
+    $detailSides = findCouplingRowsFromDetails($pdo, keysWithoutCouplings($hoseKeys, $groupedA, $groupedB));
 
     foreach ($hoseLines as &$line) {
-        $hoseKey = pick($line, HOSE_KEY_COLUMNS);
-        $line['_KoppelingAList'] = collectCouplingArticles($groupedA[$hoseKey] ?? []);
-        $line['_KoppelingBList'] = collectCouplingArticles($groupedB[$hoseKey] ?? []);
+        $index = hoseKeyIndex(pick($line, HOSE_KEY_COLUMNS));
+        [$sideA, $sideB] = couplingSides($index, $groupedA, $groupedB, $detailSides);
+        $line['_KoppelingAList'] = collectCouplingArticles($sideA);
+        $line['_KoppelingBList'] = collectCouplingArticles($sideB);
     }
     unset($line);
 
     return $hoseLines;
+}
+
+/**
+ * Slangnummers waarvoor "93004 hv 3001 Slangonderdelen Zijde A/B" geen enkel
+ * onderdeel gaf - die zoeken we daarna nog op in "Details slangen" (zie
+ * couplingSides()).
+ *
+ * @param string[] $hoseKeys
+ * @return string[]
+ */
+function keysWithoutCouplings(array $hoseKeys, array $groupedA, array $groupedB): array
+{
+    return array_values(array_filter($hoseKeys, static function (string $key) use ($groupedA, $groupedB): bool {
+        $index = hoseKeyIndex($key);
+        return !isset($groupedA[$index]) && !isset($groupedB[$index]);
+    }));
+}
+
+/**
+ * Koppelonderdelen van 1 slang: uit de Zijde A/B-views, en als die voor deze
+ * slang allebei leeg zijn uit "Details slangen" (findCouplingRowsFromDetails()).
+ * Sommige slangkaarten staan wel in de order, maar hun onderdelen niet in de
+ * views - dan bleef de kaart zonder koppelingen.
+ *
+ * @return array{0: array, 1: array}
+ */
+function couplingSides(string $index, array $groupedA, array $groupedB, array $detailSides): array
+{
+    if (isset($groupedA[$index]) || isset($groupedB[$index])) {
+        return [$groupedA[$index] ?? [], $groupedB[$index] ?? []];
+    }
+
+    return [$detailSides[$index]['A'] ?? [], $detailSides[$index]['B'] ?? []];
 }
 
 /** Lijst van artikelnummers uit koppelzijde-rijen (1 waarde per onderdeel). */
@@ -780,16 +861,18 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
     $sideBRows = tryColumnsInQuery($pdo, '93004 hv 3001 Slangonderdelen Zijde B', HOSE_KEY_COLUMNS, $hoseKeys);
     $groupedA = groupRowsByHoseKey($sideARows);
     $groupedB = groupRowsByHoseKey($sideBRows);
+    $detailSides = findCouplingRowsFromDetails($pdo, keysWithoutCouplings($hoseKeys, $groupedA, $groupedB));
 
     $cards = [];
     $foundKeys = [];
     foreach ($mainRows as $row) {
         $hoseKey = pick($row, HOSE_KEY_COLUMNS);
-        $foundKeys[$hoseKey] = true;
+        $foundKeys[hoseKeyIndex($hoseKey)] = true;
+        [$sideA, $sideB] = couplingSides(hoseKeyIndex($hoseKey), $groupedA, $groupedB, $detailSides);
         $cards[] = [
             'row'   => $row,
-            'sideA' => $groupedA[$hoseKey] ?? [],
-            'sideB' => $groupedB[$hoseKey] ?? [],
+            'sideA' => $sideA,
+            'sideB' => $sideB,
         ];
     }
 
@@ -799,12 +882,10 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
     // Alleen zonder ordernummer; binnen een order is een ontbrekende regel
     // gewoon "niet in deze order".
     if ($orderNumber === '') {
-        $missingKeys = array_values(array_filter($hoseKeys, static fn(string $key): bool => !isset($foundKeys[$key])));
+        $missingKeys = array_values(array_filter($hoseKeys, static fn(string $key): bool => !isset($foundKeys[hoseKeyIndex($key)])));
         $masterRows = $missingKeys !== [] ? findSlangkaartMasterRows($pdo, $missingKeys) : [];
-        $detailSides = $missingKeys !== [] ? findCouplingRowsFromDetails($pdo, $missingKeys) : [];
         foreach ($missingKeys as $hoseKey) {
-            $sideA = $groupedA[$hoseKey] ?? ($detailSides[$hoseKey]['A'] ?? []);
-            $sideB = $groupedB[$hoseKey] ?? ($detailSides[$hoseKey]['B'] ?? []);
+            [$sideA, $sideB] = couplingSides(hoseKeyIndex($hoseKey), $groupedA, $groupedB, $detailSides);
             $masterRow = $masterRows[$hoseKey] ?? null;
             if ($masterRow === null && $sideA === [] && $sideB === []) {
                 continue;
@@ -898,7 +979,7 @@ function findCouplingRowsFromDetails(PDO $pdo, array $hoseKeys): array
 
     $result = [];
     foreach ($rows as $row) {
-        $key = trim((string) $row['GHnr']);
+        $key = hoseKeyIndex((string) $row['GHnr']);
         $side = strtoupper(trim((string) $row['Type']));
         $article = trim((string) $row['artnr']);
         if ($article === '' || ($side !== 'A' && $side !== 'B')) {
@@ -984,7 +1065,7 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
 
     $detailSides = findCouplingRowsFromDetails($pdo, $keys);
     foreach ($lines as &$line) {
-        $key = pick($line, HOSE_KEY_COLUMNS);
+        $key = hoseKeyIndex(pick($line, HOSE_KEY_COLUMNS));
         if (($line['_KoppelingAList'] ?? []) === [] && ($line['_KoppelingBList'] ?? []) === []) {
             $line['_KoppelingAList'] = collectCouplingArticles($detailSides[$key]['A'] ?? []);
             $line['_KoppelingBList'] = collectCouplingArticles($detailSides[$key]['B'] ?? []);

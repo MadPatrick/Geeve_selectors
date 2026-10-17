@@ -22,6 +22,11 @@ function assetVersion(string $relativePath): string
     $mtime = @filemtime($full);
     return $mtime !== false ? (string) $mtime : APP_VERSION;
 }
+
+// Beveiligde tegels: elke keer dat dit overzicht opent, vragen ze opnieuw om de code.
+tilesRelock('stickers');
+$lockRoot = '../';
+$csrf = csrfToken();
 ?>
 <!doctype html>
 <html lang="nl">
@@ -32,6 +37,8 @@ function assetVersion(string $relativePath): string
     <title>Stickers | Geeve Hydraulics</title>
     <link rel="icon" href="../favicon.ico?v=<?= h(assetVersion('../favicon.ico')) ?>" type="image/x-icon">
     <link rel="stylesheet" href="../shared/style.css?v=<?= h(assetVersion('../shared/style.css')) ?>">
+    <!-- Popup voor beveiligde tegels en de "IN PROGRESS"-stempel komen uit de stijl van het hoofdscherm. -->
+    <link rel="stylesheet" href="../assets/style.css?v=<?= h(assetVersion('../assets/style.css')) ?>">
     <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
 </head>
 <body>
@@ -42,11 +49,22 @@ function assetVersion(string $relativePath): string
     require __DIR__ . '/../shared/header.php';
     ?>
 
-    <p class="intro">Kies wat je wilt printen.</p>
-
     <div class="tile-grid">
+        <?php ob_start(); if (tileVisible('stickers-order')): ?>
+        <a class="<?= tileClass('stickers-order') ?>" href="order/index.php"<?= tileAttrs('stickers-order') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 5v14M7 5v14M10 5v14M14 5v14M17 5v14M21 5v14"></path>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('stickers-order')) ?></h2>
+            <p>Per orderregel een artikelsticker, op volgorde van orderregel of looplocatie.</p>
+            <span class="tile-cta">Openen</span>
+            <?= tileLockIcon('stickers-order') ?>
+        </a>
+        <?php endif; $tileHtml['stickers-order'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-artikel')): ?>
-        <div class="<?= tileClass('stickers-artikel') ?> tile-disabled" aria-disabled="true">
+        <a class="<?= tileClass('stickers-artikel') ?>" href="artikel/index.php"<?= tileAttrs('stickers-artikel') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
@@ -54,12 +72,27 @@ function assetVersion(string $relativePath): string
                 </svg>
             </div>
             <h2><?= h(tileTitle('stickers-artikel')) ?></h2>
-            <p>Sticker printen op basis van een artikelnummer.</p>
-            <span class="tile-cta">Binnenkort beschikbaar</span>
-        </div>
+            <p>Sticker met omschrijving en barcode, zoeken op artikelnummer.</p>
+            <span class="tile-cta">Openen</span>
+            <?= tileLockIcon('stickers-artikel') ?>
+        </a>
         <?php endif; $tileHtml['stickers-artikel'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('stickers-productie')): ?>
+        <a class="<?= tileClass('stickers-productie') ?>" href="productie/index.php"<?= tileAttrs('stickers-productie') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('stickers-productie')) ?></h2>
+            <p>Per productieorder in een verkooporder een sticker met aantal, artikelnummer en barcode.</p>
+            <span class="tile-cta">Openen</span>
+            <?= tileLockIcon('stickers-productie') ?>
+        </a>
+        <?php endif; $tileHtml['stickers-productie'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-artikel-groot')): ?>
-        <div class="<?= tileClass('stickers-artikel-groot') ?> tile-disabled" aria-disabled="true">
+        <a class="<?= tileClass('stickers-artikel-groot') ?>" href="accu/index.php"<?= tileAttrs('stickers-artikel-groot') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
@@ -68,27 +101,45 @@ function assetVersion(string $relativePath): string
                 </svg>
             </div>
             <h2><?= h(tileTitle('stickers-artikel-groot')) ?></h2>
-            <p>Zelfde sticker op artikelnummer, in een groter formaat.</p>
-            <span class="tile-cta">Binnenkort beschikbaar</span>
-        </div>
+            <p>Sticker voor op een accu: bedrijfsnaam, datum, voorvuldruk en een vrij veld.</p>
+            <span class="tile-cta">Openen</span>
+            <?= tileLockIcon('stickers-artikel-groot') ?>
+        </a>
         <?php endif; $tileHtml['stickers-artikel-groot'] = ob_get_clean(); ?>
-        <?php ob_start(); if (tileVisible('stickers-zakjes')): ?>
-        <div class="<?= tileClass('stickers-zakjes') ?> tile-disabled" aria-disabled="true">
+        <?php ob_start(); if (tileVisible('stickers-kabelmerkers')): ?>
+        <div class="<?= tileClass('stickers-kabelmerkers') ?> tile-disabled" aria-disabled="true">
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M6 8h12l-1.2 12.2a1 1 0 0 1-1 .8H8.2a1 1 0 0 1-1-.8Z"></path>
-                    <path d="M9 8V6a3 3 0 0 1 6 0v2"></path>
+                    <path d="M2 12h5M17 12h5"></path>
+                    <rect x="7" y="8" width="10" height="8" rx="1.5"></rect>
+                    <path d="M10 8v8M14 8v8"></path>
                 </svg>
             </div>
-            <h2><?= h(tileTitle('stickers-zakjes')) ?></h2>
-            <p>Sticker printen voor op een zakje.</p>
+            <h2><?= h(tileTitle('stickers-kabelmerkers')) ?></h2>
+            <p>Gele kabelmerkers printen.</p>
             <span class="tile-cta">Binnenkort beschikbaar</span>
         </div>
-        <?php endif; $tileHtml['stickers-zakjes'] = ob_get_clean(); ?>
+        <?php endif; $tileHtml['stickers-kabelmerkers'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('stickers-slanglabels')): ?>
+        <a class="<?= tileClass('stickers-slanglabels') ?>" href="slanglabels/index.php"<?= tileAttrs('stickers-slanglabels') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 17c4 0 4-10 9-10s5 10 9 10"></path>
+                    <rect x="9" y="3" width="6" height="4" rx="1"></rect>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('stickers-slanglabels')) ?></h2>
+            <p>Labels voor op een slang, per order op te halen en aan te passen.</p>
+            <span class="tile-cta">Openen</span>
+            <?= tileLockIcon('stickers-slanglabels') ?>
+        </a>
+        <?php endif; $tileHtml['stickers-slanglabels'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('stickers') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
+
+<?php require __DIR__ . '/../shared/lock_modal.php'; ?>
 </body>
 </html>

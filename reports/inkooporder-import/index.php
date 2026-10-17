@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
-tileRequirePage('inkooporder-import', '../index.php');
+tileRequirePage('inkooporder-import', '../../templates/index.php');
 
 require_once __DIR__ . '/../../shared/csrf.php';
 
@@ -46,7 +46,7 @@ $csrf = csrfToken();
     <?php
     $headerTitle = 'Inkooporder Import';
     $headerImagesPath = '../../images/';
-    $headerHomeHref = '../index.php';
+    $headerHomeHref = '../../templates/index.php'; // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
@@ -56,7 +56,6 @@ $csrf = csrfToken();
         <p class="ka-empty">Download de lege template (Regelnr, Aantal, Artikelcode), vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). Inkoper, leveranciernummer, omschrijving en datum vul je hieronder in. De velden en artikelen worden gecontroleerd met Exact: de artikelomschrijving komt uit Exact, en artikelen die niet bestaan staan rood. Is alles in orde, dan maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Logistieke import</strong>).</p>
         <div class="ka-actions">
             <button type="button" id="oiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
-            <button type="button" id="oiAdd" class="ka-button ka-button--secondary">Regel toevoegen</button>
             <button type="button" id="oiExport" class="ka-button" disabled>Exporteer XML</button>
         </div>
         <div id="oiDrop" class="ka-drop" tabindex="0" role="button">
@@ -94,8 +93,11 @@ $csrf = csrfToken();
         </div>
     </section>
 
-    <section class="panel" id="oiResult" hidden>
-        <div class="msp-summary" id="oiSummary"></div>
+    <section class="panel" id="oiResult">
+        <div class="oi-summary-bar">
+            <div class="msp-summary" id="oiSummary"></div>
+            <button type="button" id="oiAdd" class="ka-button ka-button--secondary">Regel toevoegen</button>
+        </div>
         <div class="ka-table-wrap msp-scroll">
             <table class="ka-table" id="oiTable">
                 <thead>

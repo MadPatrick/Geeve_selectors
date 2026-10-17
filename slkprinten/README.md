@@ -107,12 +107,13 @@ bovenaan `inc/queries.php` ("Update 5"/"Update 6"). Geen enkele kolom heeft een 
 De picklijst (laatste printpagina, zie "Status" hierboven) toont de kolommen Artikelnummer /
 Locatie / Aantal / Voorraad / Besteld. Locatie en Voorraad worden opgezocht via
 `findArtikelExactData()` in `index.php`, in de Exact-database "005" (zelfde server,
-`GEEVE-SQL-2019`, andere database - dezelfde die `/stauff` gebruikt voor artikelgroep 67), tabel
-`GRV_StockpositionsPerDay` (`ItemCode` → `Warehouse Location` resp. `Free Stock`, de huidige vrije
-voorraad). De voor de hand liggende kandidaat `CSPickITItemLocations` bleek bij het uitzoeken leeg
-te staan (0 rijen); `GRV_StockpositionsPerDay` is een dagelijkse voorraadmutatie-tabel (12+ miljoen
-rijen, geen 1-op-1 locatie-/voorraadtabel), dus wordt de meest recente rij per artikel gebruikt
-(`ORDER BY [Transaction Date] DESC`), zonder filtering op `Warehouse`. Besteld is met opzet altijd
+`GEEVE-SQL-2019`, andere database - dezelfde die `/stauff` gebruikt voor artikelgroep 67), de locatie uit tabel
+`voorrd` (`artcode` → `maglok`, magazijn `1`; de vaste locatie per artikel), de voorraad uit `StockBalances`
+(zie `findArtikelExactDataBatch()`). Tot 15-10-2026 kwam de locatie uit `GRV_StockpositionsPerDay` (meest recente
+rij per artikel): dat kostte ~6 s per print en liep bij grote orders tegen de querytimeout van 8 s, waarna de
+locatiekolom leeg bleef. `voorrd` gaat via de clustered index (magcode, artcode) in ~0,03 s, en wijst na een
+verplaatsing op dezelfde dag naar de nieuwe locatie (gemeten op orders 36021680 en 36021616).
+`CSPickITItemLocations` en `Items.WareHouseLocation` zijn leeg. Besteld is met opzet altijd
 leeg - géén databasekolom, puur ruimte om met de hand op de uitgeprinte picklijst in te vullen.
 
 Dit is een **losse, optionele** tweede databaseverbinding (`getExactPdoConnection()` in
