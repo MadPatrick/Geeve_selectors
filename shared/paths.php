@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Centrale paden voor de hele portal - zie shared/README.md ("Centrale data" en "Korte adressen").
+ * Centrale paden voor de hele portal - zie shared/README.md ("Centrale data" en "Adressen en links").
  *
  *  - Data (CSV's en hun back-ups) staat centraal in data/<app>/ op portal-rootniveau. Die map staat NIET in git
  *    (alleen data/.htaccess, die de map voor de browser afsluit), zodat een git pull op de server de bestanden die daar
@@ -117,8 +117,8 @@ function geeveUrl(string $path): string
 }
 
 /**
- * Kort adres van een app: het tegel-id uit TILE_REGISTRY (shared/tiles.php) of een van de vaste namen hieronder.
- * Moet overeenkomen met de RewriteRules in de root-.htaccess.
+ * Adres van een app: tegel-id uit TILE_REGISTRY (shared/tiles.php) of een van de vaste namen hieronder => de map
+ * vanaf de portal-root.
  */
 const GEEVE_APP_URLS = [
     'home' => '',
@@ -133,21 +133,21 @@ const GEEVE_APP_URLS = [
     'configurator' => 'configurator/',
     'klantartikel' => 'klantartikel/',
     'klantkorting' => 'klantkorting/',
-    'msp' => 'msp/',
-    'inkoop-groep' => 'inkoop-groep/',
-    'productiviteit' => 'productiviteit/',
-    'artikel-marge' => 'artikel-marge/',
-    'inkooporder' => 'inkooporder/',
-    'order-offerte' => 'order-offerte/',
-    'offerte-import' => 'offerte-import/',
-    'inkooporder-import' => 'inkooporder-import/',
-    'export-info' => 'export-info/',
-    'artikel-import' => 'artikel-import/',
-    'stickers-order' => 'stickers-order/',
-    'stickers-productie' => 'stickers-productie/',
-    'stickers-artikel' => 'stickers-artikel/',
-    'stickers-artikel-groot' => 'stickers-artikel-groot/',
-    'stickers-slanglabels' => 'stickers-slanglabels/',
+    'msp' => 'reports/msp/',
+    'inkoop-groep' => 'reports/inkoop-groep/',
+    'productiviteit' => 'reports/productiviteit/',
+    'artikel-marge' => 'reports/artikel-marge/',
+    'inkooporder' => 'reports/inkooporder/',
+    'order-offerte' => 'reports/order-offerte/',
+    'offerte-import' => 'reports/offerte-import/',
+    'inkooporder-import' => 'reports/inkooporder-import/',
+    'export-info' => 'reports/export-info/',
+    'artikel-import' => 'reports/artikel-import/',
+    'stickers-order' => 'stickers/order/',
+    'stickers-productie' => 'stickers/productie/',
+    'stickers-artikel' => 'stickers/artikel/',
+    'stickers-artikel-groot' => 'stickers/accu/',
+    'stickers-slanglabels' => 'stickers/slanglabels/',
 ];
 
 function geeveAppUrl(string $id): string
