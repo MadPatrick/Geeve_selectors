@@ -1,7 +1,7 @@
 # Uitrol: centrale data
 
 Eenmalige stappen op de server (`/var/www/html`) voor de eerste `git pull` na de merge van de
-branch `fixes/centrale-data-en-css-5v24fm`. Daarna is het weer gewoon `git pull`.
+branch `1_centrale-data-en-css`. Daarna is het weer gewoon `git pull`.
 
 **Waarom:** de CSV's gaan uit git en verhuizen naar `data/`. Op de server zijn die CSV's lokaal
 bewerkt (en staan ze deels op skip-worktree), dus een gewone `git pull` weigert. De
