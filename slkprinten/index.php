@@ -16,6 +16,7 @@ header('Pragma: no-cache');
 // deze map los buiten de portal gedeployed).
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
 
+require_once __DIR__ . '/../shared/pcnaam.php';
 require_once __DIR__ . '/inc/db.php';
 
 // Loopt het opbouwen van de pagina vast op een PHP-fout (bv. tijdslimiet of
@@ -916,32 +917,6 @@ function composeDatumNaam(string $datum, string $naam): string
     return trim("{$datum} {$naam}");
 }
 
-/**
- * PC-naam van de gebruiker die print, via reverse DNS van het IP-adres van de
- * request (de Windows-login zelf komt niet mee naar deze Debian-server). Het
- * domeingedeelte valt weg ("PCNL23-0042.geeve.local" -> "PCNL23-0042"). Kent
- * de DNS het IP niet, dan blijft het IP-adres staan. 1x per request opgezocht.
- */
-function printerPcNaam(): string
-{
-    static $naam = null;
-    if ($naam !== null) {
-        return $naam;
-    }
-
-    $ip = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
-    if ($ip === '') {
-        return $naam = '';
-    }
-
-    $host = gethostbyaddr($ip);
-    if ($host === false || $host === '' || $host === $ip) {
-        return $naam = $ip;
-    }
-
-    return $naam = strtoupper(explode('.', $host, 2)[0]);
-}
-
 /** Rendert 1 volledige slangkaart (gebruikt zowel op scherm als in print). */
 function renderHoseCard(array $card): string
 {
@@ -986,7 +961,7 @@ function renderHoseCard(array $card): string
 
     $geprint = composeDatumNaam(
         (new DateTimeImmutable('now', new DateTimeZone('Europe/Amsterdam')))->format('Y-m-d H:i:s'),
-        printerPcNaam()
+        pcNaam()
     );
 
     ob_start();

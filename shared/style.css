@@ -168,6 +168,18 @@ button, input, select { font: inherit; }
     min-height: 30px; /* = hoogte van de icoon-knoppen, zodat de topbalk op elke pagina even hoog is */
     margin-bottom: 4px;
 }
+/* PC-naam van de gebruiker (shared/pcnaam.php), vooraan in de topbalk van elke app. */
+.header-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #f1f1f1;
+    opacity: .92;
+    white-space: nowrap;
+}
+.header-user svg { display: block; }
 .version-inline {
     font-size: 12px;
     font-weight: 700;
