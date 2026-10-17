@@ -1,7 +1,7 @@
 # Voorstel: centrale data, gedeelde media en uniforme CSS
 
 *Geeve Intranet (Geeve_selectors), 17-10-2026. Alleen een voorstel, er is nog niets gebouwd.
-Branch: `fixes/centrale-data-en-css-5v24fm`.*
+Branch: `1_centrale-data-en-css`.*
 
 *Status 17-10-2026: fase 1-6 gebouwd op deze branch (zie `docs/UITROL-CENTRALE-DATA.md` voor de uitrol). Afwijkingen van het voorstel: Slangkaarten Printen houdt het adres `/slkprinten/` (`/slangkaarten/` is van Slangkaart.Web) en oude adressen sturen voorlopig met een 302 door in plaats van een 301. De slangkaart-layout van slkprinten is vastgelegd als `shared/slangkaart.css`.*
 
