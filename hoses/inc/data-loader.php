@@ -18,10 +18,17 @@ function cleanValue($value): string
     return trim($value);
 }
 
+// Onthoudt de uitkomst per kolomnaam: getColumn() vergelijkt voor elke opgevraagde cel alle kolomkoppen, en er zijn maar
+// een paar tientallen verschillende koppen. Zonder dit kostte het inlezen van de CSV's ~0,6 s per paginaweergave.
 function normalizeHeader($value): string
 {
-    $value = preg_replace('/^\xEF\xBB\xBF/', '', (string) $value) ?? (string) $value;
-    return strtolower(cleanValue($value));
+    static $memo = [];
+    $key = (string) $value;
+    if (isset($memo[$key])) {
+        return $memo[$key];
+    }
+    $value = preg_replace('/^\xEF\xBB\xBF/', '', $key) ?? $key;
+    return $memo[$key] = strtolower(cleanValue($value));
 }
 
 function getColumn(array $row, string $columnName): string
@@ -343,6 +350,39 @@ function loadMergedArticles(array $csvFiles, ?string $accessoryCsvFile, array &$
     }
 
     usort($articles, static fn(array $a, array $b): int => strnatcasecmp($a['artnr'], $b['artnr']));
+
+    return $articles;
+}
+
+// Zelfde als loadMergedArticles(), maar met een bestandscache in de tijdelijke map: de CSV's veranderen zelden, dus de
+// samengevoegde lijst wordt pas opnieuw opgebouwd als een CSV (of deze loader) een andere wijzigingsdatum of grootte
+// heeft - na een upload of opslaan dus vanzelf. Alleen een foutloos resultaat wordt bewaard. Zonder schrijfrechten op de
+// tijdelijke map werkt alles gewoon, maar zonder cache.
+function loadMergedArticlesCached(array $csvFiles, ?string $accessoryCsvFile, array &$errors): array
+{
+    $signature = [__FILE__ . '@' . (string) @filemtime(__FILE__)];
+    foreach ([$csvFiles['staal'] ?? null, $csvFiles['rvs'] ?? null, $accessoryCsvFile] as $file) {
+        $signature[] = $file === null ? '-' : $file . '@' . (string) @filemtime($file) . '@' . (string) @filesize($file);
+    }
+    $cacheFile = sys_get_temp_dir() . '/geeve_hoses_articles_' . md5(implode('|', $signature)) . '.json';
+
+    $cached = is_file($cacheFile) ? json_decode((string) @file_get_contents($cacheFile), true) : null;
+    if (is_array($cached) && $cached !== []) {
+        return $cached;
+    }
+
+    $articles = loadMergedArticles($csvFiles, $accessoryCsvFile, $errors);
+    if ($errors === [] && $articles !== []) {
+        // Oude cachebestanden (andere handtekening) opruimen, dan atomair wegschrijven.
+        foreach (glob(sys_get_temp_dir() . '/geeve_hoses_articles_*.json') ?: [] as $old) {
+            @unlink($old);
+        }
+        $tmp = $cacheFile . '.' . bin2hex(random_bytes(4));
+        if (@file_put_contents($tmp, json_encode($articles, JSON_UNESCAPED_UNICODE)) !== false) {
+            @rename($tmp, $cacheFile);
+        }
+        @unlink($tmp);
+    }
 
     return $articles;
 }

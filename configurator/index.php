@@ -23,10 +23,17 @@ function cleanValue($value): string
     return trim($value);
 }
 
+// Onthoudt de uitkomst per kolomnaam: getColumn() vergelijkt voor elke opgevraagde cel alle kolomkoppen, en er zijn maar
+// een paar tientallen verschillende koppen. Zonder dit kostte het inlezen van de CSV's ~0,6 s per paginaweergave.
 function normalizeHeader($value): string
 {
-    $value = preg_replace('/^\xEF\xBB\xBF/', '', (string) $value) ?? (string) $value;
-    return strtolower(cleanValue($value));
+    static $memo = [];
+    $key = (string) $value;
+    if (isset($memo[$key])) {
+        return $memo[$key];
+    }
+    $value = preg_replace('/^\xEF\xBB\xBF/', '', $key) ?? $key;
+    return $memo[$key] = strtolower(cleanValue($value));
 }
 
 function getColumn(array $row, string $columnName): string
