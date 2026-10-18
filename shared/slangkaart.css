@@ -121,6 +121,10 @@
         background: var(--surface-white);
         color: var(--ink-print);
         font-family: var(--font-print);
+        /* Kaderranden in de print donkergrijs, hetzelfde grijs als de hoek-tekening (Patrick, 18-10-2026); op
+           scherm blijven ze lichtgrijs (--line uit tokens.css). Geldt voor alle kaders: kaart, tabellen, vinkjes,
+           footerlijn, picklijst. */
+        --line: #999;
     }
 
     /* De picklijst staat nu als laatste pagina (na alle slangkaarten), dus
