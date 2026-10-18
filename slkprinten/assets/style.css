@@ -243,6 +243,9 @@ input::placeholder { color: #929fac; }
         background: #fff;
         color: #111;
         font-family: Arial, Helvetica, sans-serif;
+        /* Kaderranden in de print donkergrijs, hetzelfde grijs als de hoek-tekening (Patrick, 18-10-2026); op
+           scherm blijven ze lichtgrijs. Geldt voor alle kaders: kaart, tabellen, vinkjes, footerlijn, picklijst. */
+        --line: #999;
     }
 
     /* De picklijst staat nu als laatste pagina (na alle slangkaarten), dus
