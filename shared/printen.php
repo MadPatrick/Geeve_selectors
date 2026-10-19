@@ -173,24 +173,42 @@ function geeveIppInfo(string $host): array
     return ['model' => null, 'color' => null];
 }
 
-/** De CUPS-driver ("-m"-waarde) voor kleur of zwart-wit, gezocht in lpinfo -m; null als er geen passende is. */
-function geeveFindDriver(bool $color): ?string
+/**
+ * De CUPS-driver ("-m"-waarde) voor een printer, gezocht in lpinfo -m. Kleur: een PCL 6-kleurendriver. Zwart-wit: een
+ * generieke PCL 6/PCL 5-driver, anders (printer sprak IPP) "everywhere", anders de kleurendriver (die op een
+ * zwart-witprinter gewoon grijs print). null als er niets bruikbaars is.
+ */
+function geeveFindDriver(bool $color, bool $ippBeschikbaar = false): ?string
 {
     $result = geeveRun(['/usr/sbin/lpinfo', '-m'], 20);
     if ($result['code'] !== 0) {
         return null;
     }
-    $found = null;
+    $models = [];
     foreach (explode("\n", $result['out']) as $line) {
         $line = trim($line);
-        if ($color && preg_match('/color\s*laserjet\s*series\s*pcl\s*6/i', $line) === 1) {
-            return strtok($line, ' ') ?: null;
-        }
-        if (!$color && $found === null && preg_match('/generic.*pcl\s*6/i', $line) === 1 && stripos($line, 'color') === false) {
-            $found = strtok($line, ' ') ?: null;
+        if ($line !== '') {
+            $models[] = [strtok($line, ' '), $line];
         }
     }
-    return $found;
+    $find = static function (string $pattern, bool $noColor = false) use ($models): ?string {
+        foreach ($models as [$id, $line]) {
+            if (preg_match($pattern, $line) === 1 && (!$noColor || stripos($line, 'color') === false)) {
+                return $id ?: null;
+            }
+        }
+        return null;
+    };
+    $colorDriver = $find('/color\s*laserjet\s*series\s*pcl\s*6/i') ?? $find('/color.*pcl\s*6/i');
+    if ($color) {
+        return $colorDriver ?? $find('/pcl\s*6/i');
+    }
+    return $find('/generic.*pcl\s*6/i', true)
+        ?? $find('/laserjet\s*series\s*pcl\s*6/i', true)
+        ?? $find('/generic.*pcl/i', true)
+        ?? $find('/pcl\s*6/i', true)
+        ?? ($ippBeschikbaar ? $find('/^everywhere\b/i') : null)
+        ?? $colorDriver;
 }
 
 /**
@@ -233,9 +251,9 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
     } else {
         return [false, 'De printer vertelt niet of hij kleur kan. Kies zelf Kleur of Zwart-wit en probeer het opnieuw.'];
     }
-    $driver = geeveFindDriver($color);
+    $driver = geeveFindDriver($color, $info['model'] !== null);
     if ($driver === null) {
-        return [false, 'Er is geen passende printerdriver (' . ($color ? 'PCL 6 kleur' : 'PCL 6 zwart-wit') . ') op de server gevonden.'];
+        return [false, 'Er is geen passende printerdriver (' . ($color ? 'PCL 6 kleur' : 'PCL 6 zwart-wit') . ') op de server gevonden' . ($info['model'] !== null ? ' voor ' . $info['model'] : ' (de printer meldde zijn model niet)') . '. Meld het model, dan wordt de juiste driver geïnstalleerd.'];
     }
 
     $base = 'geeve_' . trim((string) preg_replace('/[^a-z0-9]+/', '_', strtolower($name)), '_');
