@@ -305,8 +305,11 @@ Links in een app:
 
 `shared/printen.php` print vanaf de server, zonder het printvenster van de browser:
 
-- **Printers** zijn CUPS-wachtrijen op de server (`lpadmin`, `socket://<ip>:9100`). Welke in een keuzelijst
-  staan en met welke naam, staat in `GEEVE_PRINTERS`; `geevePrinters()` geeft alleen de wachtrijen die CUPS echt kent.
+- **Printers** zijn CUPS-wachtrijen op de server. Ze worden beheerd in **Config > Printers** (naam, IP-adres of
+  netwerknaam; poort 9100 wordt gecontroleerd, kleur/zwart-wit via IPP herkend, de wachtrij met `lpadmin` aangemaakt).
+  De lijst staat in `data/printers/printers.json` (niet in git); per printer staat vast in welke tegels hij te kiezen
+  is (`GEEVE_PRINT_TILES`: nieuwe tegel met direct printen = daar toevoegen). `geevePrinters($tegelId)` geeft de
+  printers voor een tegel. Voorwaarde op de server: `www-data` zit in de groep `lpadmin`.
 - **`geevePrintHtml($html, $cssFiles, $wachtrij, $titel)`** maakt van dezelfde HTML als de browserprint (bijv. de
   inhoud van `#printSheet`) met headless Chromium (`/usr/bin/chromium-headless-shell`) een PDF met de print-CSS,
   en geeft die met `lp` aan de printer. De PDF is gelijk aan wat de browser print.

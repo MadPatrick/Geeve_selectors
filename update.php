@@ -9,6 +9,7 @@ session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 require_once __DIR__ . '/shared/secure_settings.php';
 require_once __DIR__ . '/shared/tiles.php';
+require_once __DIR__ . '/shared/printen.php';
 
 function h(string $value): string
 {
@@ -90,6 +91,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         $tilesMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Tegel-instellingen opgeslagen.']
             : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
+    }
+}
+
+$printersMessage = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && str_starts_with((string) ($_POST['action'] ?? ''), 'printer-')) {
+    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+        $requestError = true;
+    } else {
+        $printerAction = (string) $_POST['action'];
+        $printerQueue = (string) ($_POST['queue'] ?? '');
+        if ($printerAction === 'printer-add') {
+            $addTiles = is_array($_POST['new_tiles'] ?? null) ? array_map('strval', $_POST['new_tiles']) : [];
+            [$ok, $text] = geeveAddPrinter((string) ($_POST['new_name'] ?? ''), (string) ($_POST['new_host'] ?? ''), (string) ($_POST['new_color'] ?? 'auto'), $addTiles);
+        } elseif ($printerAction === 'printer-remove') {
+            [$ok, $text] = geeveRemovePrinter($printerQueue);
+        } elseif ($printerAction === 'printer-test') {
+            try {
+                $job = geevePrintTestPage($printerQueue);
+                [$ok, $text] = [true, 'Testpagina verstuurd (opdracht ' . $job . ').'];
+            } catch (RuntimeException $e) {
+                [$ok, $text] = [false, $e->getMessage()];
+            }
+        } else { // printer-save: in welke tegels elke printer te kiezen is
+            $tilesPerQueue = [];
+            foreach (array_keys(geevePrinterList()) as $queue) {
+                $row = $_POST['tiles'][$queue] ?? [];
+                $tilesPerQueue[$queue] = is_array($row) ? array_map('strval', $row) : [];
+            }
+            [$ok, $text] = geevePrinterTilesSave($tilesPerQueue)
+                ? [true, 'Printer-instellingen opgeslagen.']
+                : [false, 'Opslaan mislukt: ' . geevePrintersFile() . ' is niet schrijfbaar.'];
+        }
+        $printersMessage = ['ok' => $ok, 'text' => $text];
     }
 }
 
@@ -249,6 +283,90 @@ $storedSettings = secureSettingsRead();
                 <?php endforeach; ?>
             </div>
             <button type="submit" class="update-submit">Opslaan</button>
+        </form>
+    </section>
+
+    <section class="update-panel">
+        <h2>Printers</h2>
+        <p>Printers waarop de portal direct kan printen (zonder printvenster van de browser). Een nieuwe printer vul je in met naam en IP-adres of netwerknaam: de portal controleert de verbinding, herkent kleur of zwart-wit en maakt de wachtrij zelf aan. Met de vinkjes bepaal je in welke tegel een printer in de keuzelijst staat.</p>
+
+        <?php if ($printersMessage !== null): ?>
+            <div class="update-message <?= $printersMessage['ok'] ? 'ok' : 'error' ?>"><?= h($printersMessage['text']) ?></div>
+        <?php endif; ?>
+
+        <?php $printerList = geevePrinterList(); ?>
+        <?php if ($printerList !== []): ?>
+        <form method="post" class="update-form printers-form" autocomplete="off">
+            <input type="hidden" name="action" value="printer-save">
+            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <div class="printers-table" role="table" style="--printer-tiles: <?= count(GEEVE_PRINT_TILES) ?>">
+                <div class="printers-row printers-head" role="row">
+                    <span role="columnheader">Printer</span>
+                    <span role="columnheader">Adres</span>
+                    <span role="columnheader">Kleur</span>
+                    <?php foreach (GEEVE_PRINT_TILES as $tileName): ?>
+                        <span role="columnheader"><?= h($tileName) ?></span>
+                    <?php endforeach; ?>
+                    <span role="columnheader"></span>
+                </div>
+                <?php foreach ($printerList as $queue => $printer): ?>
+                    <div class="printers-row" role="row">
+                        <span role="cell"><?= h($printer['name']) ?></span>
+                        <span role="cell"><?= h($printer['host']) ?></span>
+                        <span role="cell"><?= $printer['color'] ? 'Kleur' : 'Zwart-wit' ?></span>
+                        <?php foreach (GEEVE_PRINT_TILES as $tileId => $tileName): ?>
+                            <label role="cell" class="settings-switch tiles-switch" title="<?= h($printer['name'] . ': ' . $tileName) ?>">
+                                <input type="checkbox" name="tiles[<?= h($queue) ?>][]" value="<?= h($tileId) ?>"<?= in_array($tileId, $printer['tiles'] ?? [], true) ? ' checked' : '' ?>>
+                                <span class="settings-switch-track"></span>
+                            </label>
+                        <?php endforeach; ?>
+                        <span role="cell" class="printers-actions">
+                            <button type="submit" form="printer-test-<?= h($queue) ?>" class="update-submit">Testpagina</button>
+                            <button type="submit" form="printer-remove-<?= h($queue) ?>" class="update-submit" onclick="return confirm('Printer verwijderen?');">Verwijderen</button>
+                        </span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <button type="submit" class="update-submit">Opslaan</button>
+        </form>
+        <?php foreach ($printerList as $queue => $printer): ?>
+            <?php foreach (['test', 'remove'] as $printerButton): ?>
+                <form method="post" id="printer-<?= h($printerButton) ?>-<?= h($queue) ?>" hidden>
+                    <input type="hidden" name="action" value="printer-<?= h($printerButton) ?>">
+                    <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+                    <input type="hidden" name="queue" value="<?= h($queue) ?>">
+                </form>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+        <?php else: ?>
+            <p>Er zijn nog geen printers.</p>
+        <?php endif; ?>
+
+        <h3 class="printers-add-title">Printer toevoegen</h3>
+        <form method="post" class="update-form printers-add" autocomplete="off">
+            <input type="hidden" name="action" value="printer-add">
+            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <label class="update-code-field"><span>Naam</span>
+                <input type="text" name="new_name" maxlength="60" placeholder="Bijvoorbeeld Balie" required>
+            </label>
+            <label class="update-code-field"><span>IP-adres of netwerknaam</span>
+                <input type="text" name="new_host" maxlength="64" placeholder="10.209.192.185" required>
+            </label>
+            <label class="update-code-field"><span>Kleur</span>
+                <select name="new_color">
+                    <option value="auto">Automatisch herkennen</option>
+                    <option value="kleur">Kleur</option>
+                    <option value="zwartwit">Zwart-wit</option>
+                </select>
+            </label>
+            <?php foreach (GEEVE_PRINT_TILES as $tileId => $tileName): ?>
+                <label class="settings-switch" title="<?= h($tileName) ?>">
+                    <input type="checkbox" name="new_tiles[]" value="<?= h($tileId) ?>" checked>
+                    <span class="settings-switch-track"></span>
+                    <?= h($tileName) ?>
+                </label>
+            <?php endforeach; ?>
+            <button type="submit" class="update-submit">Toevoegen</button>
         </form>
     </section>
 
