@@ -289,8 +289,9 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
         return [false, 'Dit adres is niet gevonden op het interne netwerk.'];
     }
     foreach (geevePrinterList() as $existing) {
-        if ($existing['host'] === $host) {
-            return [false, 'Er staat al een printer met dit adres: ' . $existing['name'] . '.'];
+        // Meerdere printers (bijv. twee labelmaten) mogen hetzelfde adres hebben, zolang de naam verschilt.
+        if ($existing['host'] === $host && strcasecmp($existing['name'], $name) === 0) {
+            return [false, 'Er staat al een printer met deze naam op dit adres: ' . $existing['name'] . '.'];
         }
     }
     $socket = @fsockopen($ip, 9100, $errno, $errstr, 3);
@@ -389,8 +390,8 @@ function geeveUpdatePrinter(string $queue, string $name, string $host, string $k
         return [false, 'Het IP-adres of de netwerknaam is ongeldig.'];
     }
     foreach ($list as $otherQueue => $other) {
-        if ($otherQueue !== $queue && $other['host'] === $host) {
-            return [false, 'Er staat al een printer met dit adres: ' . $other['name'] . '.'];
+        if ($otherQueue !== $queue && $other['host'] === $host && strcasecmp($other['name'], $name) === 0) {
+            return [false, 'Er staat al een printer met deze naam op dit adres: ' . $other['name'] . '.'];
         }
     }
     $current = $list[$queue];
