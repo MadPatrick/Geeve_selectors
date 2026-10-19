@@ -145,8 +145,9 @@ function geeveMediaPrintBlocks(string $css): string
         $result .= substr($css, $start, $i - 1 - $start) . "\n";
         $offset = $i;
     }
-    // @page hoort niet op scherm (en is in @media screen ongeldig).
-    return preg_replace('/@page\b[^{]*\{[^}]*\}/', '', $result) ?? $result;
+    // Commentaar eerst weg (daarin kan "@page" staan), daarna de @page-regel zelf: die hoort niet op scherm.
+    $result = preg_replace('#/\*.*?\*/#s', '', $result) ?? $result;
+    return preg_replace('/@page(?![\w-])[^{]*\{[^}]*\}/', '', $result) ?? $result;
 }
 
 function geeveChromiumBinary(): ?string
