@@ -124,7 +124,7 @@
         /* Kaderranden in de print donkergrijs, donkergrijs --line-print (was #999; Patrick, 19-10-2026, zodat ze op de Canon blijven staan); op
            scherm blijven ze lichtgrijs (--line uit tokens.css). Geldt voor alle kaders: kaart, tabellen, vinkjes,
            footerlijn, picklijst. */
-        --line: var(--line-print);
+        --line: var(--line-print, #666); /* terugval: een verouderde tokens.css in de browsercache kent --line-print nog niet, en dan vervalt elke kaderlijn */
     }
     /* Alle kaders in de print even dun (1px, --line-print): geen dikkere buitenkaders meer, zodat de lijnen
        gelijkmatig uitkomen (Patrick, 19-10-2026). */
