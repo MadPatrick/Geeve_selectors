@@ -63,6 +63,8 @@ Een lege waarde toont een streepje (`&mdash;`), behalve de notitie (blijft leeg)
   Besteld (leeg, om af te vinken).
 - **Kleuren in de print:** `print-color-adjust: exact`, zodat de grijze vlakken en rode accenten
   ook geprint worden. Tekst in de print is `--ink-print`, lettertype `--font-print` (Arial).
+- **Kaderranden in de print:** donkergrijs `#999` (hetzelfde grijs als de hoek-tekening), op scherm lichtgrijs
+  `--line`. `#printSheet` zet daarvoor `--line` opnieuw; dat geldt voor alle kaders (18-10-2026).
 - **Alleen het printblad:** `.page-shell` (het scherm van de app) wordt in de print verborgen.
 - **Smal scherm (onder 700px), alleen op scherm:** de kaartblokken staan onder elkaar. Dit
   geldt bewust niet in de print, omdat Firefox de printbreedte (186 mm, ongeveer 703px) soms
@@ -73,7 +75,7 @@ Een lege waarde toont een streepje (`&mdash;`), behalve de notitie (blijft leeg)
 | Gebruik | Variabele |
 |---|---|
 | Accentlijn onder de kop, Slangnummer, `h4`-koppen, "HYDRAULICS" | `--accent-dark` |
-| Kaders en lijnen | `--line` |
+| Kaders en lijnen | `--line` (in de print `#999`) |
 | Lijn tussen detailregels | `--line-faint` |
 | Kopjes van tabellen, aantal-vak | `--soft` |
 | Vakjes van Bewerkingen | `--surface-subtle` |
