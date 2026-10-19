@@ -274,6 +274,13 @@ $storedSettings = secureSettingsRead();
             <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
             <?php $tilePrinters = geevePrinterList(); ?>
             <div class="tiles-table" role="table" style="--printer-cols: <?= count($tilePrinters) ?>">
+                <div class="tiles-row tiles-head tiles-supergroup" role="row">
+                    <span></span>
+                    <span class="tiles-supergroup-label" style="grid-column: span 3">Dashboard</span>
+                    <?php if ($tilePrinters !== []): ?>
+                    <span class="tiles-supergroup-label" style="grid-column: span <?= count($tilePrinters) ?>">Printers</span>
+                    <?php endif; ?>
+                </div>
                 <div class="tiles-row tiles-head" role="row">
                     <span role="columnheader">Tegel</span>
                     <span role="columnheader">Zichtbaar</span>
@@ -294,7 +301,7 @@ $storedSettings = secureSettingsRead();
                         <div class="tiles-row" role="row" data-id="<?= h($tileId) ?>">
                             <span role="cell" class="tiles-name">
                                 <span class="tiles-handle" title="Sleep om de volgorde te wijzigen" aria-label="Sleep om de volgorde te wijzigen">&#8942;&#8942;</span>
-                                <input type="text" class="tiles-title" name="tile[<?= h($tileId) ?>][title]" value="<?= h($tileFlags[$tileId]['title']) ?>" placeholder="<?= h($tile[1]) ?>" maxlength="60" aria-label="Naam van de tegel (<?= h($tile[1]) ?>)" autocomplete="off">
+                                <input type="text" class="tiles-title" name="tile[<?= h($tileId) ?>][title]" value="<?= h($tileFlags[$tileId]['title']) ?>" placeholder="<?= h($tile[1]) ?>" maxlength="30" aria-label="Naam van de tegel (<?= h($tile[1]) ?>)" autocomplete="off">
                                 <input type="hidden" name="order[<?= h($groupId) ?>][]" value="<?= h($tileId) ?>">
                             </span>
                             <?php foreach (['visible' => 'Zichtbaar', 'locked' => 'Beveiligd', 'wip' => 'In progress'] as $flag => $flagLabel): ?>
@@ -304,9 +311,8 @@ $storedSettings = secureSettingsRead();
                                 </label>
                             <?php endforeach; ?>
                             <?php foreach ($tilePrinters as $queue => $printer): ?>
-                                <label role="cell" class="settings-switch tiles-switch" title="<?= h($tile[1] . ': ' . $printer['name']) ?>">
+                                <label role="cell" class="tiles-check" title="<?= h($tile[1] . ': ' . $printer['name']) ?>">
                                     <input type="checkbox" name="printers[<?= h($tileId) ?>][]" value="<?= h($queue) ?>"<?= in_array($tileId, $printer['tiles'] ?? [], true) ? ' checked' : '' ?>>
-                                    <span class="settings-switch-track"></span>
                                 </label>
                             <?php endforeach; ?>
                         </div>
