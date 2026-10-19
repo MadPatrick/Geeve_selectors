@@ -51,6 +51,9 @@ const GEEVE_PRINT_TILE_PAGE = [
 ];
 
 /** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
+/** Labels die 90° gedraaid in de printer liggen, per sheet-class van de tegel: 'ccw' of 'cw'. */
+const GEEVE_LABEL_DRAAI = ['sl-printsheet' => 'ccw'];
+
 const GEEVE_TSPL_ZWART_IS_NUL = true;
 
 /** Het soort van een printer ('a4' of 'label'); oude regels zonder soort zijn 'a4'. */
@@ -612,7 +615,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         }
         $tspl = '';
         foreach ($pages as $page) {
-            $tspl .= geevePbmToTspl((string) file_get_contents($page), $dpi);
+            $tspl .= geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '');
         }
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
@@ -626,8 +629,32 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
     }
 }
 
+/**
+ * Draait een 1-bit bitmap (rijen van intdiv(breedte+7,8) bytes, 1 = zwart) een kwartslag.
+ *
+ * @return array{0: string, 1: int, 2: int} nieuwe data, breedte, hoogte
+ */
+function geevePbmDraai(string $data, int $width, int $height, bool $clockwise): array
+{
+    $rowBytes = intdiv($width + 7, 8);
+    $newRowBytes = intdiv($height + 7, 8);
+    $out = array_fill(0, $newRowBytes * $width, 0);
+    for ($y = 0; $y < $height; $y++) {
+        $rowStart = $y * $rowBytes;
+        for ($x = 0; $x < $width; $x++) {
+            if ((ord($data[$rowStart + ($x >> 3)]) >> (7 - ($x & 7))) & 1) {
+                // cw: (x,y) -> (H-1-y, x); ccw: (x,y) -> (y, W-1-x)
+                $nx = $clockwise ? $height - 1 - $y : $y;
+                $ny = $clockwise ? $x : $width - 1 - $x;
+                $out[$ny * $newRowBytes + ($nx >> 3)] |= 1 << (7 - ($nx & 7));
+            }
+        }
+    }
+    return [pack('C*', ...$out), $height, $width];
+}
+
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
-function geevePbmToTspl(string $pbm, int $dpi): string
+function geevePbmToTspl(string $pbm, int $dpi, string $draai = ''): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -638,6 +665,11 @@ function geevePbmToTspl(string $pbm, int $dpi): string
     $data = substr($pbm, $m[0][1] + strlen($m[0][0]), $rowBytes * $height);
     if (strlen($data) !== $rowBytes * $height) {
         throw new RuntimeException('De afbeelding van het label is onvolledig.');
+    }
+    if ($draai !== '') {
+        // Het label ligt 90° gedraaid in de printer: de bitmap gaat gedraaid mee, breedte en hoogte wisselen.
+        [$data, $width, $height] = geevePbmDraai($data, $width, $height, $draai === 'cw');
+        $rowBytes = intdiv($width + 7, 8);
     }
     if (GEEVE_TSPL_ZWART_IS_NUL) {
         $data = ~$data;
