@@ -70,8 +70,10 @@ $csrf = csrfToken();
             <div class="ac-print">
                 <label class="ac-copies"><input type="number" id="acCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
                 <button type="button" id="acClear" class="ka-button ka-button--secondary">Leegmaken</button>
-                <?= geevePrinterSelectHtml('stickers-artikel-groot', $csrf) ?>
-                <button type="button" id="acPrint" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
+                <div class="print-group">
+                    <?= geevePrinterSelectHtml('stickers-artikel-groot', $csrf) ?>
+                    <button type="button" id="acPrint" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
+                </div>
             </div>
         </div>
     </section>
