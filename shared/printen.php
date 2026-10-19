@@ -12,10 +12,23 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/paths.php';
 
-/** Tegels waarin een printer te kiezen is (tegel-id => naam). Nieuwe tegel met direct printen: hier toevoegen. */
+/**
+ * Tegels met een printknop (tegel-id => naam): alleen voor die tegels is in Config een printerkeuze te maken. Een tegel
+ * waar een printknop bijkomt, hier toevoegen. Direct printen vanaf de server werkt nu in 'slangkaarten'; de andere
+ * tegels printen nog via het printvenster van de browser.
+ */
 const GEEVE_PRINT_TILES = [
     'slangkaarten' => 'Slangkaarten Printen',
+    'hoses' => 'Slangen fitting Selector',
+    'stickers-order' => 'Artikelen per Verkooporder',
+    'stickers-productie' => 'Artikelen per Productieorder',
+    'stickers-artikel' => 'Artikelnummer',
+    'stickers-artikel-groot' => "Accu's",
+    'stickers-slanglabels' => 'Slanglabels',
 ];
+
+/** Tegels waarin direct printen al werkt; de printers die daar bij aangevinkt staan, worden getoond. */
+const GEEVE_PRINT_TILES_ACTIEF = ['slangkaarten'];
 
 /**
  * Alleen voor de eerste import: de namen van de drie printers die vóór het printerscherm in de code stonden. Heeft
@@ -56,7 +69,7 @@ function geevePrinterList(): array
                     'name' => GEEVE_PRINTERS_OUD[$m[1]] ?? $m[1],
                     'host' => $m[2],
                     'color' => $m[1] !== 'geeve_balie',
-                    'tiles' => array_keys(GEEVE_PRINT_TILES),
+                    'tiles' => GEEVE_PRINT_TILES_ACTIEF,
                 ];
             }
         }
@@ -367,7 +380,7 @@ function geevePrinterTilesSave(array $tilesPerQueue): bool
 {
     $list = geevePrinterList();
     foreach ($list as $queue => $printer) {
-        $list[$queue]['tiles'] = array_values(array_intersect($tilesPerQueue[$queue] ?? [], array_keys(TILE_REGISTRY)));
+        $list[$queue]['tiles'] = array_values(array_intersect($tilesPerQueue[$queue] ?? [], array_keys(GEEVE_PRINT_TILES)));
     }
     return geevePrinterListSave($list);
 }

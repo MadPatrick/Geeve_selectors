@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         $tilesPerQueue = [];
         foreach (array_keys(geevePrinterList()) as $queue) {
             $tilesPerQueue[$queue] = [];
-            foreach (array_keys(TILE_REGISTRY) as $printTile) {
+            foreach (array_keys(GEEVE_PRINT_TILES) as $printTile) {
                 if (in_array($queue, array_map('strval', (array) ($_POST['printers'][$printTile] ?? [])), true)) {
                     $tilesPerQueue[$queue][] = $printTile;
                 }
@@ -316,8 +316,11 @@ $storedSettings = secureSettingsRead();
                                     <span class="settings-switch-track"></span>
                                 </label>
                             <?php endforeach; ?>
-                            <?php $printerIndex = 0; foreach ($tilePrinters as $queue => $printer): ?>
-                                <label role="cell" class="tiles-check<?= $printerIndex++ === 0 ? ' tiles-sep' : '' ?>" title="<?= h($tile[1] . ': ' . $printer['name']) ?>">
+                            <?php $printerIndex = 0; foreach ($tilePrinters as $queue => $printer): $sepClass = $printerIndex++ === 0 ? ' tiles-sep' : ''; ?>
+                                <?php if (!isset(GEEVE_PRINT_TILES[$tileId])): ?>
+                                <span role="cell" class="tiles-check<?= $sepClass ?>"></span>
+                                <?php continue; endif; ?>
+                                <label role="cell" class="tiles-check<?= $sepClass ?>" title="<?= h($tile[1] . ': ' . $printer['name']) ?>">
                                     <input type="checkbox" name="printers[<?= h($tileId) ?>][]" value="<?= h($queue) ?>"<?= in_array($tileId, $printer['tiles'] ?? [], true) ? ' checked' : '' ?>>
                                 </label>
                             <?php endforeach; ?>
