@@ -132,8 +132,6 @@
     #printSheet .card-qty-box,
     #printSheet .card-note,
     #printSheet .coupling-table-wrap,
-    #printSheet .coupling-table th,
-    #printSheet .coupling-table td,
     #printSheet .card-flags {
         border-width: 2px;
     }
