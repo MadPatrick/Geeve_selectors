@@ -73,6 +73,9 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
             $links .= '<link rel="stylesheet" href="file://' . htmlspecialchars($path, ENT_QUOTES) . '">' . "\n";
             $printRegels .= geeveMediaPrintBlocks((string) @file_get_contents($path));
         }
+        // De Canons drukken op de rechterrand net iets minder af dan de PDF breed is (ook met fit-to-page vielen de
+        // kaderlijnen rechts weg). Bij direct printen daarom rechts 17 mm marge i.p.v. 12 mm; de browserprint blijft gelijk.
+        $links .= "<style>@page { margin-right: 17mm; }</style>\n";
         $passendScript = '';
         if ($passend !== null) {
             // Meten kan alleen op "scherm"; daarom gelden de printregels hier ook op scherm, bij de printbreedte
@@ -104,7 +107,7 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
             '--disable-extensions',
             '--no-pdf-header-footer',
             '--print-to-pdf-no-header',
-            '--window-size=703,1100', // printbreedte: A4 (210 mm) min 2 x 12 mm marge = 186 mm = 703 px
+            '--window-size=684,1100', // printbreedte: A4 (210 mm) min 12 mm links en 17 mm rechts = 181 mm = 684 px
             '--user-data-dir=' . $workDir . '/profiel',
             '--print-to-pdf=' . $pdfFile,
             'file://' . $htmlFile,
