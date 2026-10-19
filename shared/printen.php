@@ -73,14 +73,11 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
             $links .= '<link rel="stylesheet" href="file://' . htmlspecialchars($path, ENT_QUOTES) . '">' . "\n";
             $printRegels .= geeveMediaPrintBlocks((string) @file_get_contents($path));
         }
-        // De Canons drukken op de rechterrand net iets minder af dan de PDF breed is (ook met fit-to-page vielen de
-        // kaderlijnen rechts weg). Bij direct printen daarom rechts 17 mm marge i.p.v. 12 mm; de browserprint blijft gelijk.
-        $links .= "<style>@page { margin-right: 17mm; }</style>\n";
         $passendScript = '';
         if ($passend !== null) {
             // Meten kan alleen op "scherm"; daarom gelden de printregels hier ook op scherm, bij de printbreedte
-            // (vaste breedte 181 mm = A4 min 12 mm links en 17 mm rechts). Het script zet daarna per te hoog element een zoom.
-            $links .= "<style>@media screen {\n" . $printRegels . "\nhtml, body { margin: 0; padding: 0; background: none; }\n#printSheet { width: 181mm; }\n}</style>\n";
+            // (vaste breedte 186 mm = A4 min 2 x 12 mm marge). Het script zet daarna per te hoog element een zoom.
+            $links .= "<style>@media screen {\n" . $printRegels . "\nhtml, body { margin: 0; padding: 0; background: none; }\n#printSheet { width: 186mm; }\n}</style>\n";
             $passendScript = '<script>(function () {'
                 . 'var max = ' . (float) $passend[1] . ' * 96 / 25.4;'
                 . 'document.querySelectorAll(' . json_encode((string) $passend[0]) . ').forEach(function (el) {'

@@ -130,8 +130,11 @@
     #printSheet .card-note,
     #printSheet .coupling-table-wrap,
     #printSheet .card-flags {
-        border-width: 2px;
+        border-width: 1.5px;
     }
+    /* Chromium knipt in de PDF alles af op de rechterrand van het printgebied; de boxen lopen precies tot die rand,
+       waardoor de rechter kaderlijn tot een haarlijn werd. 1 mm ruimte rechts houdt hem heel. */
+    #printSheet { padding-right: 1mm; box-sizing: border-box; }
 
     /* De picklijst staat nu als laatste pagina (na alle slangkaarten), dus
        geen page-break-after meer nodig - dat zou een lege pagina erachter
