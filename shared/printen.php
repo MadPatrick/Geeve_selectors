@@ -291,7 +291,9 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
 {
     $name = trim($name);
     $host = strtolower(trim($host));
-    $soort = $soort === 'label' ? 'label' : 'a4';
+    // 'label-ql1100' / 'label-ql1050': Brother QL (eigen rastertaal, via brother_ql); 'label': TSPL (Altec).
+    $brotherModel = ['label-ql1100' => 'QL-1100', 'label-ql1050' => 'QL-1050'][$soort] ?? null;
+    $soort = $brotherModel !== null || $soort === 'label' ? 'label' : 'a4';
     if ($name === '' || strlen($name) > 60) {
         return [false, 'Geef de printer een naam (maximaal 60 tekens).'];
     }
@@ -362,6 +364,10 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
     ];
     if ($soort === 'label') {
         $list[$queue]['dpi'] = 300;
+        if ($brotherModel !== null) {
+            $list[$queue]['taal'] = 'brother';
+            $list[$queue]['model'] = $brotherModel;
+        }
     }
     if (!geevePrinterListSave($list)) {
         if (!empty($created)) {
@@ -608,6 +614,61 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
     }
 }
 
+/** brother_ql (eigen Python-omgeving op de server) en het label waarop de Brother QL-printers staan: 102 x 51 mm. */
+const GEEVE_BROTHER_QL_DIR = '/opt/brother_ql';
+const GEEVE_BROTHER_QL_LABEL = ['maat' => '102x51', 'breedte' => 1164, 'hoogte' => 526];
+
+/**
+ * Print een PDF op een Brother QL-1100/1050: elke pagina wordt een bitmap van 1164 x 526 punten (300 dpi, het
+ * printbare vlak van een 102 x 51 mm-label; de pagina wordt passend verkleind en gecentreerd), brother_ql zet die om
+ * in QL-rasteropdrachten en die gaan kaal (raw) naar de wachtrij. Geeft het CUPS-jobnummer.
+ */
+function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, string $title, string $workDir): string
+{
+    $python = GEEVE_BROTHER_QL_DIR . '/bin/python3';
+    $create = GEEVE_BROTHER_QL_DIR . '/bin/brother_ql_create';
+    if (!is_executable($create) || !is_executable($python)) {
+        throw new RuntimeException('brother_ql staat niet op de server (' . GEEVE_BROTHER_QL_DIR . '), Brother-labelprinters kunnen daardoor niet printen.');
+    }
+    $dots = GEEVE_BROTHER_QL_LABEL;
+    $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', '300', '-scale-to-y', (string) $dots['hoogte'], '-scale-to-x', '-1', $pdfFile, $workDir . '/ql'], 60);
+    $pages = glob($workDir . '/ql-*.pbm') ?: [];
+    sort($pages);
+    if ($raster['code'] !== 0 || $pages === []) {
+        throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
+    }
+    $pad = 'import sys\nfrom PIL import Image\n'
+        . 'src = Image.open(sys.argv[1]).convert("1")\n'
+        . 'w, h = int(sys.argv[3]), int(sys.argv[4])\n'
+        . 'if src.width > w or src.height > h:\n'
+        . '    f = min(w / src.width, h / src.height)\n'
+        . '    src = src.resize((max(1, int(src.width * f)), max(1, int(src.height * f))))\n'
+        . 'canvas = Image.new("1", (w, h), 1)\n'
+        . 'canvas.paste(src, ((w - src.width) // 2, (h - src.height) // 2))\n'
+        . 'canvas.save(sys.argv[2])\n';
+    $bin = '';
+    foreach ($pages as $i => $page) {
+        $png = $workDir . '/label' . $i . '.png';
+        $out = $workDir . '/label' . $i . '.bin';
+        $fit = geeveRun([$python, '-c', str_replace('\\n', "\n", $pad), $page, $png, (string) $dots['breedte'], (string) $dots['hoogte']], 30);
+        if ($fit['code'] !== 0) {
+            throw new RuntimeException('Het label kon niet worden klaargemaakt: ' . geeveLastLine($fit['err']));
+        }
+        $make = geeveRun([$create, '--model', (string) ($printer['model'] ?? 'QL-1100'), '--label-size', $dots['maat'], $png, $out], 30);
+        if ($make['code'] !== 0 || !is_file($out)) {
+            throw new RuntimeException('brother_ql kon het label niet omzetten: ' . geeveLastLine($make['err'] . $make['out']));
+        }
+        $bin .= (string) file_get_contents($out);
+    }
+    $file = $workDir . '/labels.bin';
+    file_put_contents($file, $bin);
+    $print = geeveRun(['/usr/bin/lp', '-d', $queue, '-t', $title, '-o', 'raw', $file], 20);
+    if ($print['code'] !== 0) {
+        throw new RuntimeException('De printer weigerde de opdracht: ' . geeveLastLine($print['err'] . $print['out']));
+    }
+    return preg_match('/request id is (\S+)/', $print['out'], $match) === 1 ? $match[1] : trim($print['out']);
+}
+
 /**
  * Print de labels in een HTML-fragment op een kale TSPL-labelprinter: PDF op labelformaat (de @page-regel van de app),
  * per pagina een zwart-wit bitmap op de resolutie van de printer, als BITMAP-opdracht naar de wachtrij (lp -o raw).
@@ -627,6 +688,9 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
     $workDir = geeveWorkDir();
     try {
         $pdfFile = geeveRenderPdf($bodyHtml, $cssFiles, $title, $workDir, null, $sheetClass);
+        if (($printer['taal'] ?? '') === 'brother') {
+            return geeveBrotherPrint($pdfFile, $printer, $queue, $title, $workDir);
+        }
         $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', (string) $dpi, $pdfFile, $workDir . '/pagina'], 60);
         $pages = glob($workDir . '/pagina-*.pbm') ?: [];
         sort($pages);
@@ -781,6 +845,19 @@ function geeveLabelTest(string $queue): string
     $printer = geevePrinterList()[$queue] ?? null;
     if ($printer === null || geevePrinterSoort($printer) !== 'label') {
         throw new RuntimeException('Dit is geen labelprinter.');
+    }
+    if (($printer['taal'] ?? '') === 'brother') {
+        $workDir = geeveWorkDir();
+        try {
+            $naam = htmlspecialchars((string) $printer['name'], ENT_QUOTES);
+            $html = '<style>@page { size: 102mm 51mm; margin: 0; } .t { box-sizing: border-box; width: 102mm; height: 51mm; padding: 4mm; '
+                . 'border: 1mm solid #000; font-family: Arial, sans-serif; } .t h1 { margin: 0 0 3mm; font-size: 9mm; } .t p { margin: 0 0 2mm; font-size: 5mm; }</style>'
+                . '<div class="t"><h1>TESTLABEL</h1><p>' . $naam . '</p><p>' . htmlspecialchars((string) ($printer['model'] ?? ''), ENT_QUOTES) . ' - 102 x 51 mm</p></div>';
+            $pdf = geeveRenderPdf($html, [], 'Testlabel', $workDir);
+            return geeveBrotherPrint($pdf, $printer, $queue, 'Testlabel', $workDir);
+        } finally {
+            geeveRemoveDir($workDir);
+        }
     }
     $dpi = (int) ($printer['dpi'] ?? 300);
     $sizes = [];

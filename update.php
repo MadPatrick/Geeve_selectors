@@ -418,6 +418,8 @@ $storedSettings = secureSettingsRead();
                 <select name="new_soort" id="newSoort">
                     <option value="a4">Gewone printer (A4)</option>
                     <option value="label">Labelprinter (TSPL, rechtstreeks)</option>
+                    <option value="label-ql1100">Brother QL-1100 (labelprinter, 102 x 51 mm)</option>
+                    <option value="label-ql1050">Brother QL-1050 (labelprinter, 102 x 51 mm)</option>
                 </select>
             </label>
             <label class="update-code-field" data-soort="a4"><span>Kleur</span>
