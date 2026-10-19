@@ -806,10 +806,54 @@
             if (input) input.value = String(value);
         });
         if (ui.aantalLoc5) ui.aantalLoc5.value = isDubbelBeugel() ? '1' : '2';
+        // Nieuwe beugel: een glijmoer op locatie 1 krijgt zijn aantal
+        // opnieuw, ook als het toevallig hetzelfde artikel blijft - zie
+        // applyGlijmoerAantallen().
+        if (ui.aantalLoc1) delete ui.aantalLoc1.dataset.glijmoerCode;
         // Nieuwe cyclus: isGestapeldDubbel() moet hierna weer minstens 1x
         // toegepast worden, ook als de uitkomst toevallig hetzelfde is als
         // in de vorige cyclus - zie applyGestapeldDubbelAantal().
         state.lastGestapeldDubbel = null;
+    }
+
+    // Beugel uit bouwgroep GR1A (zie state.beugelGroup). Daar gaat een
+    // glijmoer per 1 i.p.v. per 2, en toont locatie 1 ook de SM-glijmoeren
+    // van GR1 (Patrick, 2026-10-19).
+    function isGr1aBeugel() {
+        return upper(state.beugelGroup) === 'GR1A';
+    }
+
+    function isGlijmoer(code) {
+        const prefix = firstCodePart(code);
+        return !!norm(code) && (prefix === 'SM' || prefix === 'GMV');
+    }
+
+    /**
+     * Glijmoeren (SM/GMV) gaan altijd per 2, behalve bij een GR1A-beugel
+     * (dan per 1). Zet het aantal van locatie 1 en van elke extra regel
+     * alleen als het gekozen artikel daar WISSELT (bijgehouden in
+     * dataset.glijmoerCode van het aantal-veld) - zo blijft een handmatige
+     * aanpassing staan zolang hetzelfde artikel gekozen blijft. Wisselt een
+     * glijmoer naar een ander soort artikel, dan gaat het aantal terug naar 1.
+     * Aangeroepen vanuit updateAssemblyCode(), vóór de prijsberekening.
+     */
+    function applyGlijmoerAantallen() {
+        const pairs = [[ui.loc1, ui.aantalLoc1]];
+        document.querySelectorAll('.extra-item-card').forEach(card => {
+            pairs.push([card.querySelector('.extra-item-artikel'), card.querySelector('.extra-item-aantal')]);
+        });
+        pairs.forEach(([select, aantalInput]) => {
+            if (!select || !aantalInput) return;
+            const code = norm(select.value);
+            const previous = aantalInput.dataset.glijmoerCode ?? '';
+            if (code === previous) return;
+            aantalInput.dataset.glijmoerCode = code;
+            if (isGlijmoer(code)) {
+                aantalInput.value = isGr1aBeugel() ? '1' : '2';
+            } else if (isGlijmoer(previous)) {
+                aantalInput.value = '1';
+            }
+        });
     }
 
     /**
@@ -939,7 +983,8 @@
             });
 
         if (GROUP_FILTER_ENABLED_FOR[numPos] && state.beugelGroup) {
-            items = items.filter(item => tagMatches(item.group, state.beugelGroup));
+            items = items.filter(item => tagMatches(item.group, state.beugelGroup)
+                || (isGr1aBeugel() && firstCodePart(item.code) === 'SM' && tagMatches(item.group, 'GR1')));
         }
 
         if (numPos === 5) {
@@ -1460,6 +1505,7 @@
             // soort, zodat een handmatig aangepast aantal daarna niet
             // weer overschreven wordt.
             aantalInput.value = pos === '5' ? (isDubbelBeugel() ? '1' : '2') : '1';
+            delete aantalInput.dataset.glijmoerCode;
             if (!pos) {
                 delete locationFilterRequests[requestKey];
                 artikelSelect.disabled = true;
@@ -1534,6 +1580,7 @@
         const wcode = computeLocation6Code(currentMaterialByRole());
         ui.loc6.textContent = wcode || '—';
         updateShapeImages();
+        applyGlijmoerAantallen();
         refreshLocationPrices();
         if (!clamp) {
             ui.assemblyCode.textContent = 'Selecteer eerst een beugel';
