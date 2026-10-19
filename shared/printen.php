@@ -79,8 +79,8 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
         $passendScript = '';
         if ($passend !== null) {
             // Meten kan alleen op "scherm"; daarom gelden de printregels hier ook op scherm, bij de printbreedte
-            // (venster = A4 min de marges). Het script zet daarna per te hoog element een zoom.
-            $links .= "<style>@media screen {\n" . $printRegels . "\nhtml, body { margin: 0; padding: 0; background: none; }\n}</style>\n";
+            // (vaste breedte 181 mm = A4 min 12 mm links en 17 mm rechts). Het script zet daarna per te hoog element een zoom.
+            $links .= "<style>@media screen {\n" . $printRegels . "\nhtml, body { margin: 0; padding: 0; background: none; }\n#printSheet { width: 181mm; }\n}</style>\n";
             $passendScript = '<script>(function () {'
                 . 'var max = ' . (float) $passend[1] . ' * 96 / 25.4;'
                 . 'document.querySelectorAll(' . json_encode((string) $passend[0]) . ').forEach(function (el) {'
@@ -107,7 +107,7 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
             '--disable-extensions',
             '--no-pdf-header-footer',
             '--print-to-pdf-no-header',
-            '--window-size=684,1100', // printbreedte: A4 (210 mm) min 12 mm links en 17 mm rechts = 181 mm = 684 px
+            '--window-size=1200,1100', // breder dan 700 px, anders slaat de mobiele opmaak van slangkaart.css aan (kaartblokken onder elkaar)
             '--user-data-dir=' . $workDir . '/profiel',
             '--print-to-pdf=' . $pdfFile,
             'file://' . $htmlFile,
