@@ -278,7 +278,7 @@ $storedSettings = secureSettingsRead();
                     <span></span>
                     <span class="tiles-supergroup-label" style="grid-column: span 3">Dashboard</span>
                     <?php if ($tilePrinters !== []): ?>
-                    <span class="tiles-supergroup-label" style="grid-column: span <?= count($tilePrinters) ?>">Printers</span>
+                    <span class="tiles-supergroup-label tiles-sep" style="grid-column: span <?= count($tilePrinters) ?>">Printers</span>
                     <?php endif; ?>
                 </div>
                 <div class="tiles-row tiles-head" role="row">
@@ -286,8 +286,8 @@ $storedSettings = secureSettingsRead();
                     <span role="columnheader">Zichtbaar</span>
                     <span role="columnheader">Beveiligd</span>
                     <span role="columnheader">In progress</span>
-                    <?php foreach ($tilePrinters as $printer): ?>
-                        <span role="columnheader" title="<?= h($printer['name']) ?>"><?= h(trim(strtok($printer['name'], '('))) ?></span>
+                    <?php foreach (array_keys($tilePrinters) as $printerIndex => $queue): $printer = $tilePrinters[$queue]; ?>
+                        <span role="columnheader" class="tiles-printer-head<?= $printerIndex === 0 ? ' tiles-sep' : '' ?>" title="<?= h($printer['name']) ?>"><?= h(trim(strtok($printer['name'], '('))) ?></span>
                     <?php endforeach; ?>
                 </div>
                 <?php
@@ -310,8 +310,8 @@ $storedSettings = secureSettingsRead();
                                     <span class="settings-switch-track"></span>
                                 </label>
                             <?php endforeach; ?>
-                            <?php foreach ($tilePrinters as $queue => $printer): ?>
-                                <label role="cell" class="tiles-check" title="<?= h($tile[1] . ': ' . $printer['name']) ?>">
+                            <?php $printerIndex = 0; foreach ($tilePrinters as $queue => $printer): ?>
+                                <label role="cell" class="tiles-check<?= $printerIndex++ === 0 ? ' tiles-sep' : '' ?>" title="<?= h($tile[1] . ': ' . $printer['name']) ?>">
                                     <input type="checkbox" name="printers[<?= h($tileId) ?>][]" value="<?= h($queue) ?>"<?= in_array($tileId, $printer['tiles'] ?? [], true) ? ' checked' : '' ?>>
                                 </label>
                             <?php endforeach; ?>
