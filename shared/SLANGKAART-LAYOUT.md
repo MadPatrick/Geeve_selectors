@@ -63,7 +63,7 @@ Een lege waarde toont een streepje (`&mdash;`), behalve de notitie (blijft leeg)
   Besteld (leeg, om af te vinken).
 - **Kleuren in de print:** `print-color-adjust: exact`, zodat de grijze vlakken en rode accenten
   ook geprint worden. Tekst in de print is `--ink-print`, lettertype `--font-print` (Arial).
-- **Kaderranden in de print:** donkergrijs `#666` (`--line-print`), 1,5px alleen om de blokken (cellen 1px), op scherm lichtgrijs
+- **Kaderranden in de print:** zwart `#000` (`--line-print`), 1,5px alleen om de blokken (cellen 1px), op scherm lichtgrijs
   `--line`. `#printSheet` zet daarvoor `--line` opnieuw; dat geldt voor alle kaders (18-10-2026).
 - **Alleen het printblad:** `.page-shell` (het scherm van de app) wordt in de print verborgen.
 - **Smal scherm (onder 700px), alleen op scherm:** de kaartblokken staan onder elkaar. Dit
@@ -75,7 +75,7 @@ Een lege waarde toont een streepje (`&mdash;`), behalve de notitie (blijft leeg)
 | Gebruik | Variabele |
 |---|---|
 | Accentlijn onder de kop, Slangnummer, `h4`-koppen, "HYDRAULICS" | `--accent-dark` |
-| Kaders en lijnen | `--line` (in de print `#666`) |
+| Kaders en lijnen | `--line` (in de print zwart) |
 | Lijn tussen detailregels | `--line-faint` |
 | Kopjes van tabellen, aantal-vak | `--soft` |
 | Vakjes van Bewerkingen | `--surface-subtle` |
