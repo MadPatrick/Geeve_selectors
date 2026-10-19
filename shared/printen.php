@@ -280,6 +280,69 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
     return [true, $name . ' is toegevoegd' . ($info['model'] !== null ? ' (' . $info['model'] . ', ' : ' (') . ($color ? 'kleur' : 'zwart-wit') . ').'];
 }
 
+/**
+ * Wijzigt naam, adres en/of kleur van een printer uit de lijst en past de CUPS-wachtrij aan. $kleurKeuze: 'auto'
+ * (ongewijzigd laten), 'kleur' of 'zwartwit'. Geeft [true, melding] of [false, foutmelding].
+ *
+ * @return array{0: bool, 1: string}
+ */
+function geeveUpdatePrinter(string $queue, string $name, string $host, string $kleurKeuze): array
+{
+    $list = geevePrinterList();
+    if (!isset($list[$queue])) {
+        return [false, 'Onbekende printer.'];
+    }
+    $name = trim($name);
+    $host = strtolower(trim($host));
+    if ($name === '' || strlen($name) > 60) {
+        return [false, 'Geef de printer een naam (maximaal 60 tekens).'];
+    }
+    if (preg_match('/^[a-z0-9]([a-z0-9.-]{0,60}[a-z0-9])?$/', $host) !== 1) {
+        return [false, 'Het IP-adres of de netwerknaam is ongeldig.'];
+    }
+    foreach ($list as $otherQueue => $other) {
+        if ($otherQueue !== $queue && $other['host'] === $host) {
+            return [false, 'Er staat al een printer met dit adres: ' . $other['name'] . '.'];
+        }
+    }
+    $current = $list[$queue];
+    $args = [];
+    $hostChanged = $host !== $current['host'];
+    if ($hostChanged) {
+        $ip = filter_var($host, FILTER_VALIDATE_IP) !== false ? $host : gethostbyname($host);
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false || !geeveIsPrivateAddress($ip)) {
+            return [false, 'Dit adres is niet gevonden op het interne netwerk.'];
+        }
+        $socket = @fsockopen($ip, 9100, $errno, $errstr, 3);
+        if ($socket === false) {
+            return [false, 'De printer antwoordt niet op poort 9100 (' . ($errstr !== '' ? $errstr : 'geen verbinding') . ').'];
+        }
+        fclose($socket);
+        $args = array_merge($args, ['-v', 'socket://' . $ip . ':9100']);
+    }
+    $color = $kleurKeuze === 'kleur' ? true : ($kleurKeuze === 'zwartwit' ? false : $current['color']);
+    if ($color !== $current['color']) {
+        $driver = geeveFindDriver($color, false);
+        if ($driver === null) {
+            return [false, 'Er is geen passende printerdriver (' . ($color ? 'PCL 6 kleur' : 'PCL 6 zwart-wit') . ') op de server gevonden.'];
+        }
+        $args = array_merge($args, ['-m', $driver]);
+    }
+    if ($name !== $current['name']) {
+        $args = array_merge($args, ['-D', $name]);
+    }
+    if ($args !== []) {
+        $change = geeveRun(array_merge(['/usr/sbin/lpadmin', '-p', $queue], $args), 20);
+        if ($change['code'] !== 0) {
+            return [false, 'De wachtrij kon niet worden aangepast: ' . geeveLastLine($change['err'] . $change['out'])];
+        }
+    }
+    $list[$queue] = ['name' => $name, 'host' => $host, 'color' => $color] + $current;
+    return geevePrinterListSave($list)
+        ? [true, $name . ' is gewijzigd.']
+        : [false, 'De lijst met printers kon niet worden opgeslagen.'];
+}
+
 /** Haalt een printer weg: de CUPS-wachtrij en de regel in de lijst. Alleen printers uit de lijst. */
 function geeveRemovePrinter(string $queue): array
 {

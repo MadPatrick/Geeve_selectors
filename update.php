@@ -110,6 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
 }
 
 $printersMessage = null;
+$editQueue = (string) ($_GET['wijzig'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && str_starts_with((string) ($_POST['action'] ?? ''), 'printer-')) {
     if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
         $requestError = true;
@@ -119,6 +120,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && str_starts_with((string) ($_POST['a
         if ($printerAction === 'printer-add') {
             // Een nieuwe printer staat eerst in geen enkele tegel; kies hem bij Tegels.
             [$ok, $text] = geeveAddPrinter((string) ($_POST['new_name'] ?? ''), (string) ($_POST['new_host'] ?? ''), (string) ($_POST['new_color'] ?? 'auto'), []);
+        } elseif ($printerAction === 'printer-edit') {
+            [$ok, $text] = geeveUpdatePrinter($printerQueue, (string) ($_POST['edit_name'] ?? ''), (string) ($_POST['edit_host'] ?? ''), (string) ($_POST['edit_color'] ?? 'auto'));
+            if (!$ok) {
+                $editQueue = $printerQueue; // formulier open laten met de melding
+            }
         } elseif ($printerAction === 'printer-remove') {
             [$ok, $text] = geeveRemovePrinter($printerQueue);
         } elseif ($printerAction === 'printer-test') {
@@ -324,7 +330,7 @@ $storedSettings = secureSettingsRead();
         </form>
     </section>
 
-    <section class="update-panel">
+    <section class="update-panel" id="printers">
         <h2>Printers</h2>
         <p>Printers waarop de portal direct kan printen (zonder printvenster van de browser). Een nieuwe printer vul je in met naam en IP-adres of netwerknaam: de portal controleert de verbinding, herkent kleur of zwart-wit en maakt de wachtrij zelf aan. Per tegel kies je bij Tegels (hierboven) welke printers daar beschikbaar zijn.</p>
 
@@ -348,6 +354,7 @@ $storedSettings = secureSettingsRead();
                         <span role="cell"><?= h($printer['host']) ?></span>
                         <span role="cell"><?= $printer['color'] ? 'Kleur' : 'Zwart-wit' ?></span>
                         <span role="cell" class="printers-actions">
+                            <a class="update-submit printers-edit-link" href="?wijzig=<?= h(rawurlencode($queue)) ?>#printers">Wijzigen</a>
                             <button type="submit" form="printer-test-<?= h($queue) ?>" class="update-submit">Testpagina</button>
                             <button type="submit" form="printer-remove-<?= h($queue) ?>" class="update-submit" onclick="return confirm('Printer verwijderen?');">Verwijderen</button>
                         </span>
@@ -366,6 +373,30 @@ $storedSettings = secureSettingsRead();
         <?php endforeach; ?>
         <?php else: ?>
             <p>Er zijn nog geen printers.</p>
+        <?php endif; ?>
+
+        <?php if ($editQueue !== '' && isset($printerList[$editQueue])): $editPrinter = $printerList[$editQueue]; ?>
+        <h3 class="printers-add-title">Printer wijzigen: <?= h($editPrinter['name']) ?></h3>
+        <form method="post" class="update-form printers-add" autocomplete="off">
+            <input type="hidden" name="action" value="printer-edit">
+            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <input type="hidden" name="queue" value="<?= h($editQueue) ?>">
+            <label class="update-code-field"><span>Naam</span>
+                <input type="text" name="edit_name" maxlength="60" value="<?= h($editPrinter['name']) ?>" required>
+            </label>
+            <label class="update-code-field"><span>IP-adres of netwerknaam</span>
+                <input type="text" name="edit_host" maxlength="64" value="<?= h($editPrinter['host']) ?>" required>
+            </label>
+            <label class="update-code-field"><span>Kleur</span>
+                <select name="edit_color">
+                    <option value="auto">Ongewijzigd (<?= $editPrinter['color'] ? 'kleur' : 'zwart-wit' ?>)</option>
+                    <option value="kleur">Kleur</option>
+                    <option value="zwartwit">Zwart-wit</option>
+                </select>
+            </label>
+            <button type="submit" class="update-submit">Opslaan</button>
+            <a class="update-submit printers-edit-link" href="update.php#printers">Annuleren</a>
+        </form>
         <?php endif; ?>
 
         <h3 class="printers-add-title">Printer toevoegen</h3>
