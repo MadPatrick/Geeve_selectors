@@ -121,10 +121,21 @@
         background: var(--surface-white);
         color: var(--ink-print);
         font-family: var(--font-print);
-        /* Kaderranden in de print donkergrijs, hetzelfde grijs als de hoek-tekening (Patrick, 18-10-2026); op
+        /* Kaderranden in de print donkergrijs, donkergrijs --line-print (was #999; Patrick, 19-10-2026, zodat ze op de Canon blijven staan); op
            scherm blijven ze lichtgrijs (--line uit tokens.css). Geldt voor alle kaders: kaart, tabellen, vinkjes,
            footerlijn, picklijst. */
-        --line: #999;
+        --line: var(--line-print);
+        /* Geen lichtgrijze vulling in de print: een zwart-witdriver maakt er een puntjesraster van, waarin de
+           dunne kaderlijn (vooral de verticale rand rechts) wegvalt. Wit geeft een doorgetrokken lijn. */
+        --soft: var(--surface-white);
+    }
+    #printSheet .card-qty-box,
+    #printSheet .card-note,
+    #printSheet .coupling-table-wrap,
+    #printSheet .coupling-table th,
+    #printSheet .coupling-table td,
+    #printSheet .card-flags {
+        border-width: 2px;
     }
 
     /* De picklijst staat nu als laatste pagina (na alle slangkaarten), dus
