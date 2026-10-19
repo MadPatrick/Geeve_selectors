@@ -236,7 +236,7 @@
 /* Printers (Config) */
 .printers-form { flex-direction: column; align-items: flex-start; }
 .printers-table { width: 100%; display: flex; flex-direction: column; }
-.printers-row { display: grid; grid-template-columns: minmax(160px, 1.4fr) minmax(110px, 1fr) 90px repeat(var(--printer-tiles, 1), 140px) auto; gap: 12px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.printers-row { display: grid; grid-template-columns: minmax(160px, 1.4fr) minmax(110px, 1fr) 90px auto; gap: 12px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--line); font-size: 14px; }
 .printers-head { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 .printers-row .tiles-switch { justify-self: center; }
 .printers-actions { display: flex; gap: var(--btn-gap); justify-content: flex-end; }
@@ -245,3 +245,5 @@
 @media (max-width: 720px) {
     .printers-row { grid-template-columns: 1fr 1fr; }
 }
+.tiles-printers { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; padding: 6px 4px 10px 34px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.tiles-printer { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); cursor: pointer; }

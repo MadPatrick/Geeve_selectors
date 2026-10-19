@@ -32,6 +32,53 @@ const SECURE_SETTINGS_KEYS = [
     'TILE_FLAGS',
 ];
 
+/** Sleutels die uit het serverbestand komen (zie secureSettingsFilePath()); die velden verdwijnen dan uit Config. */
+const SECURE_SETTINGS_FILE_KEYS = [
+    'EXACT_DB_HOST',
+    'EXACT_DB_PORT',
+    'EXACT_DB_NAME',
+    'EXACT_DB_USER',
+    'EXACT_DB_PASSWORD',
+    'EXACT_DB_TRUST_SERVER_CERT',
+    'DB_USER',
+    'DB_PASSWORD',
+];
+
+/**
+ * Het instellingenbestand van de server, buiten de webmap (standaard /etc/geeve/portal.json, of het pad uit de
+ * omgevingsvariabele GEEVE_INSTELLINGEN). JSON ({"EXACT_DB_USER": "..."}) of "SLEUTEL = waarde"-regels (.ini), met de namen uit SECURE_SETTINGS_FILE_KEYS;
+ * eigendom van root, leesbaar voor de webserver, alleen op de server te wijzigen.
+ */
+function secureSettingsFilePath(): string
+{
+    $custom = getenv('GEEVE_INSTELLINGEN');
+    return $custom !== false && $custom !== '' ? $custom : '/etc/geeve/portal.json';
+}
+
+/** De waarden uit het serverbestand, of null als dat bestand er niet is (dan geldt het versleutelde bestand in Config). */
+function secureSettingsFileValues(): ?array
+{
+    static $values = false;
+    if ($values === false) {
+        $path = secureSettingsFilePath();
+        $values = null;
+        if (is_readable($path)) {
+            $parsed = substr($path, -5) === '.json'
+                ? json_decode((string) @file_get_contents($path), true)
+                : @parse_ini_file($path, false, INI_SCANNER_RAW);
+            if (is_array($parsed)) {
+                $values = [];
+                foreach (SECURE_SETTINGS_FILE_KEYS as $k) {
+                    if (isset($parsed[$k]) && is_scalar($parsed[$k]) && trim((string) $parsed[$k]) !== '') {
+                        $values[$k] = trim((string) $parsed[$k], " \t\"'");
+                    }
+                }
+            }
+        }
+    }
+    return $values;
+}
+
 function secureSettingsKeyPath(): string
 {
     $custom = getenv('GEEVE_SETTINGS_KEY_FILE');
@@ -62,8 +109,8 @@ function secureSettingsKey(bool $create): ?string
     return $key;
 }
 
-/** @return array<string,string> */
-function secureSettingsRead(): array
+/** Alleen wat versleuteld in .settings.enc staat (voor opslaan in Config). @return array<string,string> */
+function secureSettingsReadStored(): array
 {
     $path = secureSettingsDataPath();
     if (!is_readable($path) || !function_exists('openssl_decrypt')) {
@@ -95,6 +142,16 @@ function secureSettingsRead(): array
     return $out;
 }
 
+/**
+ * De instellingen zoals de apps ze gebruiken: .settings.enc, met daarover de waarden uit het serverbestand (dat gaat voor).
+ *
+ * @return array<string,string>
+ */
+function secureSettingsRead(): array
+{
+    return array_merge(secureSettingsReadStored(), secureSettingsFileValues() ?? []);
+}
+
 /** Laatste foutreden van secureSettingsWrite(), voor in de melding. */
 function secureSettingsLastError(): string
 {
@@ -119,7 +176,11 @@ function secureSettingsWrite(array $values): bool
         return false;
     }
     $clean = [];
+    $fromFile = secureSettingsFileValues() !== null;
     foreach (SECURE_SETTINGS_KEYS as $k) {
+        if ($fromFile && in_array($k, SECURE_SETTINGS_FILE_KEYS, true)) {
+            continue; // beheerd op de server, niet meer in .settings.enc
+        }
         if (isset($values[$k]) && $values[$k] !== '') {
             $clean[$k] = $values[$k];
         }

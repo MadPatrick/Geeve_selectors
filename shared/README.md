@@ -347,3 +347,13 @@ het bestand veranderd is en haalt na een `git pull` meteen de nieuwe versie, ook
       (`shared/paths.php`) en het `<a class="tile">`-blok op het overzicht.
 - [ ] Eigen README.md voor de nieuwe app (zie de bestaande apps als voorbeeld).
 - [ ] `version.php` **niet** zelf ophogen; dat gebeurt alleen op verzoek (zie `CLAUDE.md`).
+
+## Database-instellingen buiten de webmap
+
+De database-inloggegevens (`EXACT_DB_*`, `DB_USER`, `DB_PASSWORD`) staan niet meer in de html-map maar in een bestand
+van de server: `/etc/geeve/portal.json` (of het pad uit de omgevingsvariabele `GEEVE_INSTELLINGEN`, door Apache gezet
+met `SetEnv`). JSON met dezelfde sleutelnamen, eigenaar root, groep www-data, rechten 640; wijzigen kan alleen op de
+server. Bestaat het bestand, dan gaat het voor `.settings.enc` en verdwijnen de databasevelden uit Config (alleen-lezen
+overzicht). Bestaat het niet, dan werkt Config zoals voorheen. Tegelinstellingen en toegangscode blijven in Config.
+`secureSettingsReadStored()` leest alleen `.settings.enc` (voor opslaan), `secureSettingsRead()` combineert beide.
+De instellingen van de .NET-app (`/etc/slangkaart/`) staan hier los van.

@@ -28,6 +28,7 @@ function assetVersion(string $relativePath): string
 
 $requestError = false;
 $settingsMessage = null;
+$dbFromFile = secureSettingsFileValues() !== null;
 
 if (empty($_SESSION['config_csrf'])) {
     $_SESSION['config_csrf'] = bin2hex(random_bytes(16));
@@ -37,10 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
     if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
         $requestError = true;
     } else {
-        $values = secureSettingsRead();
+        $values = secureSettingsReadStored();
         foreach (SECURE_SETTINGS_KEYS as $settingKey) {
             if ($settingKey === 'TILE_FLAGS') {
                 continue; // wordt apart opgeslagen (formulier Tegels)
+            }
+            if ($dbFromFile && in_array($settingKey, SECURE_SETTINGS_FILE_KEYS, true)) {
+                continue; // beheerd op de server (/etc/geeve/portal.json)
             }
             $posted = trim((string) ($_POST[$settingKey] ?? ''));
             if ($settingKey === 'EXACT_DB_TRUST_SERVER_CERT') {
@@ -86,9 +90,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 ? array_values(array_filter(array_map('strval', $posted), static fn ($id) => isset(TILE_REGISTRY[$id]) && TILE_REGISTRY[$id][0] === $orderGroup))
                 : [];
         }
-        $values = secureSettingsRead();
+        $values = secureSettingsReadStored();
         $values['TILE_FLAGS'] = (string) json_encode($flags);
-        $tilesMessage = secureSettingsWrite($values)
+        // Printers per tegel (alleen tegels met direct printen): printers.json bewaart per printer de tegels.
+        $tilesPerQueue = [];
+        foreach (array_keys(geevePrinterList()) as $queue) {
+            $tilesPerQueue[$queue] = [];
+            foreach (array_keys(GEEVE_PRINT_TILES) as $printTile) {
+                if (in_array($queue, array_map('strval', (array) ($_POST['printers'][$printTile] ?? [])), true)) {
+                    $tilesPerQueue[$queue][] = $printTile;
+                }
+            }
+        }
+        $printersSaved = geevePrinterList() === [] || geevePrinterTilesSave($tilesPerQueue);
+        $tilesMessage = secureSettingsWrite($values) && $printersSaved
             ? ['ok' => true, 'text' => 'Tegel-instellingen opgeslagen.']
             : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
     }
@@ -102,8 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && str_starts_with((string) ($_POST['a
         $printerAction = (string) $_POST['action'];
         $printerQueue = (string) ($_POST['queue'] ?? '');
         if ($printerAction === 'printer-add') {
-            $addTiles = is_array($_POST['new_tiles'] ?? null) ? array_map('strval', $_POST['new_tiles']) : [];
-            [$ok, $text] = geeveAddPrinter((string) ($_POST['new_name'] ?? ''), (string) ($_POST['new_host'] ?? ''), (string) ($_POST['new_color'] ?? 'auto'), $addTiles);
+            // Een nieuwe printer staat eerst in geen enkele tegel; kies hem bij Tegels.
+            [$ok, $text] = geeveAddPrinter((string) ($_POST['new_name'] ?? ''), (string) ($_POST['new_host'] ?? ''), (string) ($_POST['new_color'] ?? 'auto'), []);
         } elseif ($printerAction === 'printer-remove') {
             [$ok, $text] = geeveRemovePrinter($printerQueue);
         } elseif ($printerAction === 'printer-test') {
@@ -113,15 +128,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && str_starts_with((string) ($_POST['a
             } catch (RuntimeException $e) {
                 [$ok, $text] = [false, $e->getMessage()];
             }
-        } else { // printer-save: in welke tegels elke printer te kiezen is
-            $tilesPerQueue = [];
-            foreach (array_keys(geevePrinterList()) as $queue) {
-                $row = $_POST['tiles'][$queue] ?? [];
-                $tilesPerQueue[$queue] = is_array($row) ? array_map('strval', $row) : [];
-            }
-            [$ok, $text] = geevePrinterTilesSave($tilesPerQueue)
-                ? [true, 'Printer-instellingen opgeslagen.']
-                : [false, 'Opslaan mislukt: ' . geevePrintersFile() . ' is niet schrijfbaar.'];
+        } else {
+            [$ok, $text] = [false, 'Onbekende actie.'];
         }
         $printersMessage = ['ok' => $ok, 'text' => $text];
     }
@@ -159,7 +167,11 @@ $storedSettings = secureSettingsRead();
 
     <section class="update-panel">
         <h2>Database-instellingen</h2>
+        <?php if ($dbFromFile): ?>
+        <p>De database-inloggegevens (Exact en Slangkaarten) worden beheerd op de server, in <code><?= h(secureSettingsFilePath()) ?></code>, buiten de webmap. Ze zijn hier niet in te stellen; wijzigen kan alleen op de server (bestand van root, daarna geen herstart nodig). Hieronder staat alleen wat daarin is ingesteld.</p>
+        <?php else: ?>
         <p>Inloggegevens voor de Exact-database (gedeeld door Stauff, Klant Artikelnummers, Kortingstructuur, MSP report en Slangkaarten) en voor de eigen Slangkaarten-database. Ze worden versleuteld opgeslagen, niet als leesbaar bestand. Een <code>.env</code>-bestand wordt niet meer gelezen en mag worden verwijderd. Wachtwoord leeg laten = ongewijzigd.</p>
+        <?php endif; ?>
 
         <?php if ($settingsMessage !== null): ?>
             <div class="update-message <?= $settingsMessage['ok'] ? 'ok' : 'error' ?>"><?= h($settingsMessage['text']) ?></div>
@@ -176,6 +188,13 @@ $storedSettings = secureSettingsRead();
             ?>
             <div class="settings-cols">
                 <div class="settings-col">
+            <?php if ($dbFromFile): $fileValues = secureSettingsFileValues(); ?>
+            <h3 class="settings-subtitle">Databases</h3>
+            <ul class="settings-help">
+                <li>Exact-database: <?= h(($fileValues['EXACT_DB_HOST'] ?? 'GEEVE-SQL-2019') . (isset($fileValues['EXACT_DB_PORT']) ? ':' . $fileValues['EXACT_DB_PORT'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME'] ?? '005') . ', gebruiker ' . ($fileValues['EXACT_DB_USER'] ?? '(niet ingesteld)') . ', wachtwoord ' . (isset($fileValues['EXACT_DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt')) ?></li>
+                <li>Slangkaarten-database: gebruiker <?= h($fileValues['DB_USER'] ?? '(niet ingesteld)') ?>, wachtwoord <?= isset($fileValues['DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt' ?></li>
+            </ul>
+            <?php else: ?>
             <h3 class="settings-subtitle">Exact-database</h3>
             <p class="settings-help">Server, poort en certificaat gelden ook voor de Slangkaarten-database.</p>
             <div class="settings-row">
@@ -211,8 +230,10 @@ $storedSettings = secureSettingsRead();
                     <span>Server-certificaat vertrouwen</span>
                 </label>
             </div>
+            <?php endif; ?>
                 </div>
                 <div class="settings-col">
+            <?php if (!$dbFromFile): ?>
             <h3 class="settings-subtitle">Slangkaarten-database</h3>
             <p class="settings-help">Eigen account voor de database <code>Slangkaarten</code> (slangkaarten, orders en kaartgegevens). Server, poort en certificaat zijn dezelfde als hierboven.</p>
             <div class="settings-row">
@@ -225,6 +246,7 @@ $storedSettings = secureSettingsRead();
                     <input type="password" name="DB_PASSWORD" value="" placeholder="<?= $hasSlangPassword ? 'Opgeslagen' : '' ?>" size="20" autocomplete="new-password">
                 </label>
             </div>
+            <?php endif; ?>
             <h3 class="settings-subtitle">Toegangscode</h3>
             <p class="settings-help">Code voor de beveiligde tegels (zie Tegels hieronder; standaard alleen <strong>Productiviteit</strong>). Leeg laten = ongewijzigd.</p>
             <div class="settings-row">
@@ -278,6 +300,18 @@ $storedSettings = secureSettingsRead();
                                 </label>
                             <?php endforeach; ?>
                         </div>
+                        <?php if (isset(GEEVE_PRINT_TILES[$tileId])): ?>
+                        <div class="tiles-printers" role="row">
+                            <span>Printers voor deze tegel:</span>
+                            <?php foreach (geevePrinterList() as $queue => $printer): ?>
+                                <label class="tiles-printer">
+                                    <input type="checkbox" name="printers[<?= h($tileId) ?>][]" value="<?= h($queue) ?>"<?= in_array($tileId, $printer['tiles'] ?? [], true) ? ' checked' : '' ?>>
+                                    <?= h($printer['name']) ?>
+                                </label>
+                            <?php endforeach; ?>
+                            <?php if (geevePrinterList() === []): ?><em>nog geen printers (zie Printers hieronder)</em><?php endif; ?>
+                        </div>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                     </div>
                 <?php endforeach; ?>
@@ -288,7 +322,7 @@ $storedSettings = secureSettingsRead();
 
     <section class="update-panel">
         <h2>Printers</h2>
-        <p>Printers waarop de portal direct kan printen (zonder printvenster van de browser). Een nieuwe printer vul je in met naam en IP-adres of netwerknaam: de portal controleert de verbinding, herkent kleur of zwart-wit en maakt de wachtrij zelf aan. Met de vinkjes bepaal je in welke tegel een printer in de keuzelijst staat.</p>
+        <p>Printers waarop de portal direct kan printen (zonder printvenster van de browser). Een nieuwe printer vul je in met naam en IP-adres of netwerknaam: de portal controleert de verbinding, herkent kleur of zwart-wit en maakt de wachtrij zelf aan. Per tegel kies je hieronder bij Tegels welke printers daar beschikbaar zijn.</p>
 
         <?php if ($printersMessage !== null): ?>
             <div class="update-message <?= $printersMessage['ok'] ? 'ok' : 'error' ?>"><?= h($printersMessage['text']) ?></div>
@@ -296,17 +330,12 @@ $storedSettings = secureSettingsRead();
 
         <?php $printerList = geevePrinterList(); ?>
         <?php if ($printerList !== []): ?>
-        <form method="post" class="update-form printers-form" autocomplete="off">
-            <input type="hidden" name="action" value="printer-save">
-            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+        <div class="printers-form">
             <div class="printers-table" role="table" style="--printer-tiles: <?= count(GEEVE_PRINT_TILES) ?>">
                 <div class="printers-row printers-head" role="row">
                     <span role="columnheader">Printer</span>
                     <span role="columnheader">Adres</span>
                     <span role="columnheader">Kleur</span>
-                    <?php foreach (GEEVE_PRINT_TILES as $tileName): ?>
-                        <span role="columnheader"><?= h($tileName) ?></span>
-                    <?php endforeach; ?>
                     <span role="columnheader"></span>
                 </div>
                 <?php foreach ($printerList as $queue => $printer): ?>
@@ -314,12 +343,6 @@ $storedSettings = secureSettingsRead();
                         <span role="cell"><?= h($printer['name']) ?></span>
                         <span role="cell"><?= h($printer['host']) ?></span>
                         <span role="cell"><?= $printer['color'] ? 'Kleur' : 'Zwart-wit' ?></span>
-                        <?php foreach (GEEVE_PRINT_TILES as $tileId => $tileName): ?>
-                            <label role="cell" class="settings-switch tiles-switch" title="<?= h($printer['name'] . ': ' . $tileName) ?>">
-                                <input type="checkbox" name="tiles[<?= h($queue) ?>][]" value="<?= h($tileId) ?>"<?= in_array($tileId, $printer['tiles'] ?? [], true) ? ' checked' : '' ?>>
-                                <span class="settings-switch-track"></span>
-                            </label>
-                        <?php endforeach; ?>
                         <span role="cell" class="printers-actions">
                             <button type="submit" form="printer-test-<?= h($queue) ?>" class="update-submit">Testpagina</button>
                             <button type="submit" form="printer-remove-<?= h($queue) ?>" class="update-submit" onclick="return confirm('Printer verwijderen?');">Verwijderen</button>
@@ -327,8 +350,7 @@ $storedSettings = secureSettingsRead();
                     </div>
                 <?php endforeach; ?>
             </div>
-            <button type="submit" class="update-submit">Opslaan</button>
-        </form>
+        </div>
         <?php foreach ($printerList as $queue => $printer): ?>
             <?php foreach (['test', 'remove'] as $printerButton): ?>
                 <form method="post" id="printer-<?= h($printerButton) ?>-<?= h($queue) ?>" hidden>
@@ -359,13 +381,6 @@ $storedSettings = secureSettingsRead();
                     <option value="zwartwit">Zwart-wit</option>
                 </select>
             </label>
-            <?php foreach (GEEVE_PRINT_TILES as $tileId => $tileName): ?>
-                <label class="settings-switch" title="<?= h($tileName) ?>">
-                    <input type="checkbox" name="new_tiles[]" value="<?= h($tileId) ?>" checked>
-                    <span class="settings-switch-track"></span>
-                    <?= h($tileName) ?>
-                </label>
-            <?php endforeach; ?>
             <button type="submit" class="update-submit">Toevoegen</button>
         </form>
     </section>
