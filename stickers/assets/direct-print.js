@@ -1,6 +1,6 @@
 /*
  * Direct printen vanuit een tegel met een printknop. De pagina toont (via geevePrinterSelectHtml()) een keuzelijst
- * "Printer". Kies je een printer, dan stuurt window.print() het afdrukblok naar de server (shared/print-api.php) in plaats
+ * "Printer". Kies je een printer (standaard de eerste of je vorige keuze), dan stuurt window.print() het afdrukblok naar de server (shared/print-api.php) in plaats
  * van het printvenster van de browser te openen; zonder keuze werkt alles zoals voorheen.
  */
 (function () {
@@ -8,15 +8,12 @@
     var select = document.getElementById('directPrinter');
     if (!box || !select) { return; }
     var status = document.getElementById('directPrintStatus');
-    var storeKey = 'directPrinter.' + box.getAttribute('data-tile');
+    var cookieName = 'geeve_printer_' + box.getAttribute('data-tile');
     var browserPrint = window.print.bind(window);
 
-    try {
-        var saved = window.localStorage.getItem(storeKey);
-        if (saved && Array.prototype.some.call(select.options, function (o) { return o.value === saved; })) { select.value = saved; }
-    } catch (e) { /* localStorage kan ontbreken */ }
+    // De keuze onthouden we per gebruiker in een cookie (een jaar); de pagina zet hem de volgende keer voorgeselecteerd.
     select.addEventListener('change', function () {
-        try { window.localStorage.setItem(storeKey, select.value); } catch (e) { /* idem */ }
+        document.cookie = cookieName + '=' + encodeURIComponent(select.value === '' ? 'browser' : select.value) + '; path=/; max-age=31536000; SameSite=Lax';
         status.textContent = '';
     });
 

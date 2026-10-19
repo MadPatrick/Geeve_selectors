@@ -1756,10 +1756,7 @@ if ($selectedKeys !== []) {
                     <label class="printer-choice">
                         <span>Printer</span>
                         <select name="printer" form="hoseLinesForm" id="printerChoice">
-                            <option value="">Printvenster van de browser</option>
-                            <?php foreach ($printers as $queue => $label): ?>
-                                <option value="<?= h($queue) ?>"><?= h($label) ?></option>
-                            <?php endforeach; ?>
+                            <?= geevePrinterOptionsHtml('slangkaarten', $printers) ?>
                         </select>
                     </label>
                 <?php endif; ?>
@@ -1780,15 +1777,11 @@ if ($selectedKeys !== []) {
                 if (!form || !button || !label) { return; }
 
                 var originalLabel = label.textContent;
-                // De gekozen printer onthoudt deze browser (alleen voor het gemak; zonder opslag gewoon de browserprint).
+                // De gekozen printer onthouden we per gebruiker in een cookie; de pagina zet hem de volgende keer voorgeselecteerd.
                 var printer = document.getElementById('printerChoice');
                 if (printer) {
-                    try {
-                        var saved = window.localStorage.getItem('slkprinten.printer');
-                        if (saved !== null && printer.querySelector('option[value="' + saved.replace(/"/g, '') + '"]')) { printer.value = saved; }
-                    } catch (e) {}
                     printer.addEventListener('change', function () {
-                        try { window.localStorage.setItem('slkprinten.printer', printer.value); } catch (e) {}
+                        document.cookie = 'geeve_printer_slangkaarten=' + encodeURIComponent(printer.value === '' ? 'browser' : printer.value) + '; path=/; max-age=31536000; SameSite=Lax';
                     });
                 }
                 form.addEventListener('submit', function () {

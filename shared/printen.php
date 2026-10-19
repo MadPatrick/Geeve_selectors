@@ -826,9 +826,29 @@ function geeveRemoveDir(string $dir): void
 }
 
 /**
+ * De <option>s van een printerkeuze: de printers van de tegel, en als laatste "Printvenster van de browser" (waarde "").
+ * Voorgeselecteerd is de keuze uit het cookie geeve_printer_<tegel> (de gebruiker koos eerder een printer of het
+ * browservenster), anders de eerste printer.
+ *
+ * @param array<string, string> $printers wachtrij => naam
+ */
+function geevePrinterOptionsHtml(string $tileId, array $printers): string
+{
+    $h = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $saved = (string) ($_COOKIE['geeve_printer_' . $tileId] ?? '');
+    $selected = $saved === 'browser' || isset($printers[$saved]) ? $saved : (string) array_key_first($printers);
+    $options = '';
+    foreach ($printers as $queue => $name) {
+        $options .= '<option value="' . $h($queue) . '"' . ($selected === $queue ? ' selected' : '') . '>' . $h($name) . '</option>';
+    }
+    return $options . '<option value=""' . ($selected === 'browser' ? ' selected' : '') . '>Printvenster van de browser</option>';
+}
+
+/**
  * De printerkeuze naast een printknop: een keuzelijst "Printer" met de printers van deze tegel (Config > Tegels), plus
  * het script dat de printknop dan naar de server laat printen. Leeg als er voor de tegel geen printers zijn.
- * Eerste optie "Printvenster van de browser" = zoals voorheen.
+ * Voorgeselecteerd: de printer die de gebruiker de vorige keer koos (cookie), anders de eerste printer; "Printvenster
+ * van de browser" staat als laatste optie.
  */
 function geevePrinterSelectHtml(string $tileId, string $csrf): string
 {
@@ -838,10 +858,7 @@ function geevePrinterSelectHtml(string $tileId, string $csrf): string
         return '';
     }
     $h = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    $options = '<option value="">Printvenster van de browser</option>';
-    foreach ($printers as $queue => $name) {
-        $options .= '<option value="' . $h($queue) . '">' . $h($name) . '</option>';
-    }
+    $options = geevePrinterOptionsHtml($tileId, $printers);
     return '<label class="direct-print" id="directPrint" data-tile="' . $h($tileId) . '" data-sheet="' . $h($page['sheet'])
         . '" data-endpoint="' . $h(geeveUrl('shared/print-api.php')) . '" data-csrf="' . $h($csrf) . '">'
         . '<span>Printer</span><select id="directPrinter">' . $options . '</select><span class="direct-print-status" id="directPrintStatus"></span></label>';
