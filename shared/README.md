@@ -310,6 +310,8 @@ Links in een app:
 - **`geevePrintHtml($html, $cssFiles, $wachtrij, $titel)`** maakt van dezelfde HTML als de browserprint (bijv. de
   inhoud van `#printSheet`) met headless Chromium (`/usr/bin/chromium-headless-shell`) een PDF met de print-CSS,
   en geeft die met `lp` aan de printer. De PDF is gelijk aan wat de browser print.
+  Met `$passend = [selector, max-hoogte in mm]` wordt een te hoog element (bijv. een slangkaart met een lange notitie)
+  verkleind tot het op één pagina past; Slangkaart printen gebruikt `['#printSheet .hose-card', 268]`.
 - Voorbeeld: Slangkaart printen, stap 2 (keuzelijst "Printer" boven de printknop).
 
 ## Slangkaart-layout

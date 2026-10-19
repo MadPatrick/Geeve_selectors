@@ -1543,7 +1543,10 @@ if ($selectedKeys !== []) {
                     $printSheetHtml,
                     ['shared/slangkaart.css', 'slkprinten/assets/style.css'],
                     $printerChoice,
-                    'Slangkaarten ' . ($orderNumber !== '' ? $orderNumber : 'zonder order')
+                    'Slangkaarten ' . ($orderNumber !== '' ? $orderNumber : 'zonder order'),
+                    // Een kaart met veel inhoud (lange notitie) wordt verkleind tot hij op één A4 past:
+                    // de bedrukbare hoogte uit shared/slangkaart.css (@page 14 mm boven/onder, min-height 268 mm).
+                    ['#printSheet .hose-card', 268]
                 );
                 $directPrint = ['printer' => $printers[$printerChoice], 'job' => $job];
             } catch (Throwable $exception) {
