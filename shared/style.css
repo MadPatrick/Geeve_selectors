@@ -275,7 +275,7 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
 .direct-print select { width: auto; min-width: 220px; }
 .print-group { display: inline-flex; flex-direction: row-reverse; align-items: center; justify-content: flex-end; gap: 12px; }
 .print-group .direct-print { display: flex; position: relative; }
-.print-group .direct-print > span:first-child { position: absolute; bottom: 100%; left: 0; margin-bottom: 2px; }
+.print-group .direct-print > span:first-child { display: none; }
 .print-group .direct-print-status { position: absolute; top: 100%; left: 0; white-space: nowrap; }
 .direct-print-status { font-weight: 500; color: var(--muted); }
 .direct-print-status.is-error { color: var(--btn-danger, #a03636); }

@@ -54,6 +54,9 @@ const GEEVE_PRINT_TILE_PAGE = [
 /** Labels die 90° gedraaid in de printer liggen, per sheet-class van de tegel: 'ccw' of 'cw'. */
 const GEEVE_LABEL_DRAAI = ['sl-printsheet' => 'cw'];
 
+/** Medium en afdrukinstellingen van de Windows-driver (RTMLBSlanglabels01), per sheet-class: mm, mm/s als TSPL-SPEED (inch/s), zwarting 0-15. */
+const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 27, 'snelheid' => 2, 'zwarting' => 7]];
+
 const GEEVE_TSPL_ZWART_IS_NUL = true;
 
 /** Het soort van een printer ('a4' of 'label'); oude regels zonder soort zijn 'a4'. */
@@ -615,7 +618,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         }
         $tspl = '';
         foreach ($pages as $page) {
-            $tspl .= geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '');
+            $tspl .= geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? []);
         }
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
@@ -653,8 +656,36 @@ function geevePbmDraai(string $data, int $width, int $height, bool $clockwise): 
     return [pack('C*', ...$out), $height, $width];
 }
 
+/**
+ * Zet een 1-bit bitmap op een canvas van newW x newH punten: rechts uitgelijnd (te brede kant links wordt afgesneden),
+ * verticaal gecentreerd. Rijen van intdiv(breedte+7,8) bytes, 1 = zwart.
+ *
+ * @return array{0: string, 1: int, 2: int}
+ */
+function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $newH): array
+{
+    $rowBytes = intdiv($width + 7, 8);
+    $newRowBytes = intdiv($newW + 7, 8);
+    $out = array_fill(0, $newRowBytes * $newH, 0);
+    $dx = $newW - $width;
+    $dy = intdiv($newH - $height, 2);
+    for ($y = 0; $y < $height; $y++) {
+        $ny = $y + $dy;
+        if ($ny < 0 || $ny >= $newH) {
+            continue;
+        }
+        for ($x = 0; $x < $width; $x++) {
+            $nx = $x + $dx;
+            if ($nx >= 0 && $nx < $newW && (ord($data[$y * $rowBytes + ($x >> 3)]) >> (7 - ($x & 7))) & 1) {
+                $out[$ny * $newRowBytes + ($nx >> 3)] |= 1 << (7 - ($nx & 7));
+            }
+        }
+    }
+    return [pack('C*', ...$out), $newW, $newH];
+}
+
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
-function geevePbmToTspl(string $pbm, int $dpi, string $draai = ''): string
+function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = []): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -669,6 +700,14 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = ''): string
     if ($draai !== '') {
         // Het label ligt 90° gedraaid in de printer: de bitmap gaat gedraaid mee, breedte en hoogte wisselen.
         [$data, $width, $height] = geevePbmDraai($data, $width, $height, $draai === 'cw');
+        $rowBytes = intdiv($width + 7, 8);
+    }
+    if (isset($medium['breedte'], $medium['hoogte'])) {
+        // Medium zoals de Windows-driver het had (bijv. 90 x 27 mm): te brede kant links bijsnijden (daar is niets bedrukt),
+        // de hoogte aanvullen en de afdruk daarin verticaal centreren.
+        $newW = (int) round($medium['breedte'] / 25.4 * $dpi);
+        $newH = (int) round($medium['hoogte'] / 25.4 * $dpi);
+        [$data, $width, $height] = geevePbmCanvas($data, $width, $height, $newW, $newH);
         $rowBytes = intdiv($width + 7, 8);
     }
     if (GEEVE_TSPL_ZWART_IS_NUL) {
@@ -687,7 +726,11 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = ''): string
     $mm = static fn(int $dots): float => abs($dots / $dpi * 25.4 - round($dots / $dpi * 25.4)) < 0.3 ? round($dots / $dpi * 25.4) : round($dots / $dpi * 25.4, 1);
     $widthMm = $mm($width);
     $heightMm = $mm($height);
-    return 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\nGAP 3 mm,0 mm\r\nDIRECTION 0\r\nCLS\r\n"
+    $instelling = isset($medium['snelheid'], $medium['zwarting'])
+        ? 'SPEED ' . $medium['snelheid'] . "\r\nDENSITY " . $medium['zwarting'] . "\r\n" : '';
+    // Met een vast medium geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte, net als de Windows-driver.
+    $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : '';
+    return 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gap . $instelling . "DIRECTION 0\r\nCLS\r\n"
         . 'BITMAP 0,0,' . $rowBytes . ',' . $height . ',0,' . $data . "\r\nPRINT 1,1\r\n";
 }
 

@@ -161,5 +161,5 @@ input::placeholder { color: #929fac; }
 /* Stap 2: printerkeuze boven de printknop (direct printen vanaf de server, zie shared/printen.php). */
 .print-actions { display: flex; flex-direction: row-reverse; align-items: center; justify-content: flex-end; gap: 12px; }
 .printer-choice { display: flex; position: relative; gap: 4px; font-size: 12px; font-weight: 700; color: var(--muted); }
-.printer-choice > span { position: absolute; bottom: 100%; left: 0; margin-bottom: 2px; }
+.printer-choice > span { display: none; }
 .printer-choice select { min-height: 44px; min-width: 260px; }
