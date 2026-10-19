@@ -113,7 +113,9 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
             throw new RuntimeException('Chromium kon geen PDF maken: ' . geeveLastLine($render['err']));
         }
 
-        $print = geeveRun(['/usr/bin/lp', '-d', $queue, '-t', $title, $pdfFile], 20);
+        // fit-to-page: CUPS schaalt de A4 een fractie naar het printbare gebied van de printer (zoals de Windows-driver
+        // bij de browserprint doet); zonder viel aan de rechterkant net iets weg op de Canons.
+        $print = geeveRun(['/usr/bin/lp', '-d', $queue, '-t', $title, '-o', 'fit-to-page', $pdfFile], 20);
         if ($print['code'] !== 0) {
             throw new RuntimeException('De printer weigerde de opdracht: ' . geeveLastLine($print['err'] . $print['out']));
         }
