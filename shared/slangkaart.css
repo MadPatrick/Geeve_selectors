@@ -59,7 +59,7 @@
    de kaart/pagina - border-radius + overflow:hidden op de wrapper, want
    dat werkt niet direct op een border-collapse:collapse tabel. */
 .coupling-table-wrap { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.coupling-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.coupling-table { width: calc(100% + 2px); margin: -1px; border-collapse: collapse; font-size: 12px; } /* de buitenste celranden vallen onder de wrapper-rand (overflow:hidden): geen dubbele lijn aan de rand */
 .coupling-table th, .coupling-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
 .coupling-table th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; }
 .coupling-table td.coupling-empty-cell { color: var(--muted); font-style: italic; text-align: center; }
