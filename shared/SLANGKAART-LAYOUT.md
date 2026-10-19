@@ -63,7 +63,7 @@ Een lege waarde toont een streepje (`&mdash;`), behalve de notitie (blijft leeg)
   Besteld (leeg, om af te vinken).
 - **Kleuren in de print:** `print-color-adjust: exact`, zodat de grijze vlakken en rode accenten
   ook geprint worden. Tekst in de print is `--ink-print`, lettertype `--font-print` (Arial).
-- **Kaderranden in de print:** donkergrijs `#666` (`--line-print`), 2px alleen om de blokken (cellen 1px), vulling wit, op scherm lichtgrijs
+- **Kaderranden in de print:** donkergrijs `#666` (`--line-print`), 2px alleen om de blokken (cellen 1px), op scherm lichtgrijs
   `--line`. `#printSheet` zet daarvoor `--line` opnieuw; dat geldt voor alle kaders (18-10-2026).
 - **Alleen het printblad:** `.page-shell` (het scherm van de app) wordt in de print verborgen.
 - **Smal scherm (onder 700px), alleen op scherm:** de kaartblokken staan onder elkaar. Dit

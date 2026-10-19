@@ -125,9 +125,6 @@
            scherm blijven ze lichtgrijs (--line uit tokens.css). Geldt voor alle kaders: kaart, tabellen, vinkjes,
            footerlijn, picklijst. */
         --line: var(--line-print);
-        /* Geen lichtgrijze vulling in de print: een zwart-witdriver maakt er een puntjesraster van, waarin de
-           dunne kaderlijn (vooral de verticale rand rechts) wegvalt. Wit geeft een doorgetrokken lijn. */
-        --soft: var(--surface-white);
     }
     #printSheet .card-qty-box,
     #printSheet .card-note,
