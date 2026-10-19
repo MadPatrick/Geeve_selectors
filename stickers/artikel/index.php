@@ -5,6 +5,7 @@ declare(strict_types=1);
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het Stickers-scherm, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
+require_once __DIR__ . '/../../shared/printen.php';
 tileRequirePage('stickers-artikel', geeveAppUrl('stickers'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
@@ -66,7 +67,8 @@ $csrf = csrfToken();
                 <div class="sa-print">
                     <span id="saPrintInfo" class="msp-status"></span>
                     <label class="sa-copies"><input type="number" id="saCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
-                    <button type="button" class="print-btn sa-btn" data-roll="geeve"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
+                    <?= geevePrinterSelectHtml('stickers-artikel', $csrf) ?>
+                <button type="button" class="print-btn sa-btn" data-roll="geeve"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
                 </div>
             </div>
             <div id="saMessage" class="ka-message ka-message--error" hidden></div>
@@ -100,5 +102,6 @@ $csrf = csrfToken();
 <script src="<?= h(geeveUrl('stickers/assets/vendor/JsBarcode.code128.min.js')) ?>"></script>
 <script src="<?= h(geeveUrl('stickers/assets/art-sticker.js')) ?>?v=<?= h(assetVersion('../assets/art-sticker.js')) ?>"></script>
 <script src="<?= h(geeveUrl('stickers/assets/artikel-stickers.js')) ?>?v=<?= h(assetVersion('../assets/artikel-stickers.js')) ?>"></script>
+<script src="<?= h(geeveUrl('stickers/assets/direct-print.js')) ?>?v=<?= h(assetVersion('../assets/direct-print.js')) ?>"></script>
 </body>
 </html>

@@ -315,6 +315,13 @@ Links in een app:
   en geeft die met `lp` aan de printer. De PDF is gelijk aan wat de browser print.
   Met `$passend = [selector, max-hoogte in mm]` wordt een te hoog element (bijv. een slangkaart met een lange notitie)
   verkleind tot het op één pagina past; Slangkaart printen gebruikt `['#printSheet .hose-card', 268]`.
+- **Labelprinters** (soort "Label" in Config > Printers, kale wachtrij zonder driver naar poort 9100, TSPL): hetzelfde
+  afdrukblok wordt als PDF op labelformaat gerenderd (de `@page`-regel van de app), met `pdftoppm -mono` (poppler-utils)
+  naar een bitmap op 300 dpi gezet en als TSPL `BITMAP` met `lp -o raw` verstuurd (`geevePrintLabels()`). Een
+  A4-printer past bij tegels met soort 'a4', een labelprinter bij 'label' (`GEEVE_PRINT_TILE_SOORT`).
+- **Printknop in een tegel:** `geevePrinterSelectHtml($tegelId, $csrf)` toont de keuzelijst naast de knop; het script
+  `stickers/assets/direct-print.js` laat `window.print()` dan het afdrukblok naar `shared/print-api.php` sturen. De
+  tegel staat in `GEEVE_PRINT_TILES` en `GEEVE_PRINT_TILE_PAGE` (afdrukblok-id, klasse, stylesheets).
 - Voorbeeld: Slangkaart printen, stap 2 (keuzelijst "Printer" boven de printknop).
 
 ## Slangkaart-layout

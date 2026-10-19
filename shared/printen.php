@@ -13,9 +13,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/paths.php';
 
 /**
- * Tegels met een printknop (tegel-id => naam): alleen voor die tegels is in Config een printerkeuze te maken. Een tegel
- * waar een printknop bijkomt, hier toevoegen. Direct printen vanaf de server werkt nu in 'slangkaarten'; de andere
- * tegels printen nog via het printvenster van de browser.
+ * Tegels met een printknop (tegel-id => naam; de Selector heeft er geen: die downloadt alleen de pdf-catalogus). Alleen
+ * voor die tegels is in Config een printerkeuze te maken. Een tegel waar een printknop bijkomt, hier toevoegen.
  */
 const GEEVE_PRINT_TILES = [
     'slangkaarten' => 'Slangkaarten Printen',
@@ -26,8 +25,45 @@ const GEEVE_PRINT_TILES = [
     'stickers-slanglabels' => 'Slanglabels',
 ];
 
-/** Tegels waarin direct printen al werkt; de printers die daar bij aangevinkt staan, worden getoond. */
+/** Soort printer per tegel: 'a4' (gewone printer, PCL) of 'label' (kale TSPL-labelprinter). Standaard 'a4'. */
+const GEEVE_PRINT_TILE_SOORT = [
+    'stickers-order' => 'label',
+    'stickers-productie' => 'label',
+    'stickers-artikel' => 'label',
+    'stickers-artikel-groot' => 'label',
+    'stickers-slanglabels' => 'label',
+];
+
+/** Tegels waarin direct printen al werkt; bij de eerste import staan de bestaande A4-printers hierbij aangevinkt. */
 const GEEVE_PRINT_TILES_ACTIEF = ['slangkaarten'];
+
+/**
+ * Per tegel met een printknop die in de browser een afdrukblok opbouwt: welk element (id) dat blok is, welke klasse het
+ * in de print moet hebben, en welke stylesheets de pagina laadt (vanaf de portal-root). Het blok wordt bij direct printen
+ * door stickers/assets/direct-print.js naar shared/print-api.php gestuurd.
+ */
+const GEEVE_PRINT_TILE_PAGE = [
+    'stickers-slanglabels' => ['sheet' => 'slPrintSheet', 'class' => 'sl-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/slanglabels.css']],
+    'stickers-artikel-groot' => ['sheet' => 'acPrintSheet', 'class' => 'ac-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/accu.css']],
+    'stickers-artikel' => ['sheet' => 'saPrintSheet', 'class' => 'sa-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/artikel-stickers.css']],
+    'stickers-productie' => ['sheet' => 'psPrintSheet', 'class' => 'ps-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/productie-stickers.css']],
+    'stickers-order' => ['sheet' => 'soSheet', 'class' => 'so-preview', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css']],
+];
+
+/** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
+const GEEVE_TSPL_ZWART_IS_NUL = true;
+
+/** Het soort van een printer ('a4' of 'label'); oude regels zonder soort zijn 'a4'. */
+function geevePrinterSoort(array $printer): string
+{
+    return ($printer['soort'] ?? 'a4') === 'label' ? 'label' : 'a4';
+}
+
+/** Past een printer bij een tegel (zelfde soort)? */
+function geevePrinterPastBijTegel(array $printer, string $tileId): bool
+{
+    return geevePrinterSoort($printer) === (GEEVE_PRINT_TILE_SOORT[$tileId] ?? 'a4');
+}
 
 /**
  * Alleen voor de eerste import: de namen van de drie printers die vóór het printerscherm in de code stonden. Heeft
@@ -63,11 +99,12 @@ function geevePrinterList(): array
     if ($result['code'] === 0) {
         foreach (explode("\n", $result['out']) as $line) {
             // "device for geeve_balie: socket://10.209.192.184:9100"
-            if (preg_match('#^device for (geeve_[\w-]+): socket://([^:/\s]+)#', trim($line), $m) === 1) {
+            if (preg_match('#^device for (geeve_[\w-]+): socket://([^:/\s]+)#', trim($line), $m) === 1 && isset(GEEVE_PRINTERS_OUD[$m[1]])) {
                 $list[$m[1]] = [
                     'name' => GEEVE_PRINTERS_OUD[$m[1]] ?? $m[1],
                     'host' => $m[2],
                     'color' => $m[1] !== 'geeve_balie',
+                    'soort' => 'a4',
                     'tiles' => GEEVE_PRINT_TILES_ACTIEF,
                 ];
             }
@@ -103,7 +140,7 @@ function geevePrinters(string $tile = 'slangkaarten'): array
     }
     $printers = [];
     foreach (geevePrinterList() as $queue => $printer) {
-        if (in_array($queue, $cups, true) && in_array($tile, $printer['tiles'] ?? [], true)) {
+        if (in_array($queue, $cups, true) && in_array($tile, $printer['tiles'] ?? [], true) && geevePrinterPastBijTegel($printer, $tile)) {
             $printers[$queue] = $printer['name'];
         }
     }
@@ -230,15 +267,19 @@ function geeveFindDriver(bool $color, bool $ippBeschikbaar = false): ?string
  * @param list<string> $tiles
  * @return array{0: bool, 1: string}
  */
-function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $tiles): array
+function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $tiles, string $soort = 'a4', float $breedte = 25, float $hoogte = 95): array
 {
     $name = trim($name);
     $host = strtolower(trim($host));
+    $soort = $soort === 'label' ? 'label' : 'a4';
     if ($name === '' || strlen($name) > 60) {
         return [false, 'Geef de printer een naam (maximaal 60 tekens).'];
     }
     if (preg_match('/^[a-z0-9]([a-z0-9.-]{0,60}[a-z0-9])?$/', $host) !== 1) {
         return [false, 'Het IP-adres of de netwerknaam is ongeldig.'];
+    }
+    if ($soort === 'label' && ($breedte < 10 || $breedte > 120 || $hoogte < 10 || $hoogte > 300)) {
+        return [false, 'Geef het formaat van het label in mm (breedte 10-120, hoogte 10-300).'];
     }
     $ip = filter_var($host, FILTER_VALIDATE_IP) !== false ? $host : gethostbyname($host);
     if (filter_var($ip, FILTER_VALIDATE_IP) === false || !geeveIsPrivateAddress($ip)) {
@@ -255,41 +296,73 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
     }
     fclose($socket);
 
-    $info = geeveIppInfo($ip);
-    if ($kleurKeuze === 'kleur' || $kleurKeuze === 'zwartwit') {
-        $color = $kleurKeuze === 'kleur';
-    } elseif ($info['color'] !== null) {
-        $color = $info['color'];
-    } else {
-        return [false, 'De printer vertelt niet of hij kleur kan. Kies zelf Kleur of Zwart-wit en probeer het opnieuw.'];
-    }
-    $driver = geeveFindDriver($color, $info['model'] !== null);
-    if ($driver === null) {
-        return [false, 'Er is geen passende printerdriver (' . ($color ? 'PCL 6 kleur' : 'PCL 6 zwart-wit') . ') op de server gevonden' . ($info['model'] !== null ? ' voor ' . $info['model'] : ' (de printer meldde zijn model niet)') . '. Meld het model, dan wordt de juiste driver geïnstalleerd.'];
+    $info = ['model' => null, 'color' => null];
+    $color = false;
+    $driver = null;
+    if ($soort === 'a4') {
+        $info = geeveIppInfo($ip);
+        if ($kleurKeuze === 'kleur' || $kleurKeuze === 'zwartwit') {
+            $color = $kleurKeuze === 'kleur';
+        } elseif ($info['color'] !== null) {
+            $color = $info['color'];
+        } else {
+            return [false, 'De printer vertelt niet of hij kleur kan. Kies zelf Kleur of Zwart-wit en probeer het opnieuw.'];
+        }
+        $driver = geeveFindDriver($color, $info['model'] !== null);
+        if ($driver === null) {
+            return [false, 'Er is geen passende printerdriver (' . ($color ? 'PCL 6 kleur' : 'PCL 6 zwart-wit') . ') op de server gevonden' . ($info['model'] !== null ? ' voor ' . $info['model'] : ' (de printer meldde zijn model niet)') . '. Meld het model, dan wordt de juiste driver geïnstalleerd.'];
+        }
     }
 
-    $base = 'geeve_' . trim((string) preg_replace('/[^a-z0-9]+/', '_', strtolower($name)), '_');
-    $queue = substr($base, 0, 40);
     $list = geevePrinterList();
-    for ($n = 2; isset($list[$queue]); $n++) {
-        $queue = substr($base, 0, 36) . '_' . $n;
-    }
-    $make = geeveRun(['/usr/sbin/lpadmin', '-p', $queue, '-E', '-v', 'socket://' . $ip . ':9100', '-m', $driver,
-        '-o', 'media=A4', '-o', 'printer-is-shared=false', '-D', $name], 20);
-    if ($make['code'] !== 0) {
-        return [false, 'De printerwachtrij kon niet worden aangemaakt: ' . geeveLastLine($make['err'] . $make['out'])];
+    // Staat er al een wachtrij naar dit adres in CUPS (bijv. door de beheerder aangemaakt)? Dan die overnemen.
+    $queue = geeveFindQueueForHost($ip);
+    if ($queue === null || isset($list[$queue])) {
+        $base = 'geeve_' . trim((string) preg_replace('/[^a-z0-9]+/', '_', strtolower($name)), '_');
+        $queue = substr($base, 0, 40);
+        for ($n = 2; isset($list[$queue]); $n++) {
+            $queue = substr($base, 0, 36) . '_' . $n;
+        }
+        $args = ['/usr/sbin/lpadmin', '-p', $queue, '-E', '-v', 'socket://' . $ip . ':9100',
+            '-m', $driver ?? 'raw', '-o', 'printer-is-shared=false', '-D', $name];
+        if ($soort === 'a4') {
+            $args = array_merge($args, ['-o', 'media=A4']);
+        }
+        $make = geeveRun($args, 20);
+        if ($make['code'] !== 0) {
+            return [false, 'De printerwachtrij kon niet worden aangemaakt: ' . geeveLastLine($make['err'] . $make['out'])];
+        }
+        $created = true;
     }
     $list[$queue] = [
         'name' => $name,
         'host' => $host,
         'color' => $color,
+        'soort' => $soort,
         'tiles' => array_values(array_intersect($tiles, array_keys(GEEVE_PRINT_TILES))),
     ];
+    if ($soort === 'label') {
+        $list[$queue] += ['dpi' => 300, 'breedte' => $breedte, 'hoogte' => $hoogte];
+    }
     if (!geevePrinterListSave($list)) {
-        geeveRun(['/usr/sbin/lpadmin', '-x', $queue], 10);
+        if (!empty($created)) {
+            geeveRun(['/usr/sbin/lpadmin', '-x', $queue], 10);
+        }
         return [false, 'De lijst met printers kon niet worden opgeslagen (' . geevePrintersFile() . ' niet schrijfbaar).'];
     }
-    return [true, $name . ' is toegevoegd' . ($info['model'] !== null ? ' (' . $info['model'] . ', ' : ' (') . ($color ? 'kleur' : 'zwart-wit') . ').'];
+    return [true, $name . ' is toegevoegd' . ($soort === 'label' ? ' (labelprinter).' : ($info['model'] !== null ? ' (' . $info['model'] . ', ' : ' (') . ($color ? 'kleur' : 'zwart-wit') . ').')];
+}
+
+/** De CUPS-wachtrij (geeve_*) die al naar dit IP-adres op poort 9100 wijst, of null. */
+function geeveFindQueueForHost(string $ip): ?string
+{
+    $result = geeveRun(['/usr/bin/lpstat', '-v'], 5);
+    foreach (explode("\n", $result['out']) as $line) {
+        if (preg_match('#^device for (geeve_[\w-]+): socket://' . preg_quote($ip, '#') . '(:\d+)?/?$#', trim($line), $m) === 1) {
+            return $m[1];
+        }
+    }
+    return null;
 }
 
 /**
@@ -298,7 +371,7 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
  *
  * @return array{0: bool, 1: string}
  */
-function geeveUpdatePrinter(string $queue, string $name, string $host, string $kleurKeuze): array
+function geeveUpdatePrinter(string $queue, string $name, string $host, string $kleurKeuze, ?float $breedte = null, ?float $hoogte = null): array
 {
     $list = geevePrinterList();
     if (!isset($list[$queue])) {
@@ -332,8 +405,9 @@ function geeveUpdatePrinter(string $queue, string $name, string $host, string $k
         fclose($socket);
         $args = array_merge($args, ['-v', 'socket://' . $ip . ':9100']);
     }
+    $isLabel = geevePrinterSoort($current) === 'label';
     $color = $kleurKeuze === 'kleur' ? true : ($kleurKeuze === 'zwartwit' ? false : $current['color']);
-    if ($color !== $current['color']) {
+    if (!$isLabel && $color !== $current['color']) {
         $driver = geeveFindDriver($color, false);
         if ($driver === null) {
             return [false, 'Er is geen passende printerdriver (' . ($color ? 'PCL 6 kleur' : 'PCL 6 zwart-wit') . ') op de server gevonden.'];
@@ -349,7 +423,12 @@ function geeveUpdatePrinter(string $queue, string $name, string $host, string $k
             return [false, 'De wachtrij kon niet worden aangepast: ' . geeveLastLine($change['err'] . $change['out'])];
         }
     }
-    $list[$queue] = ['name' => $name, 'host' => $host, 'color' => $color] + $current;
+    $new = ['name' => $name, 'host' => $host, 'color' => $color] + $current;
+    if ($isLabel && $breedte !== null && $hoogte !== null && $breedte >= 10 && $breedte <= 120 && $hoogte >= 10 && $hoogte <= 300) {
+        $new['breedte'] = $breedte;
+        $new['hoogte'] = $hoogte;
+    }
+    $list[$queue] = $new;
     return geevePrinterListSave($list)
         ? [true, $name . ' is gewijzigd.']
         : [false, 'De lijst met printers kon niet worden opgeslagen.'];
@@ -391,6 +470,9 @@ function geevePrintTestPage(string $queue): string
     if ($printer === null) {
         throw new RuntimeException('Onbekende printer.');
     }
+    if (geevePrinterSoort($printer) === 'label') {
+        return geeveLabelTest($queue);
+    }
     $body = '<div style="font-family: Arial, sans-serif; font-size: 14px;">'
         . '<h1 style="margin: 0 0 8px;">Testpagina - ' . htmlspecialchars($printer['name'], ENT_QUOTES) . '</h1>'
         . '<p>Geeve Hydraulics portal, ' . htmlspecialchars($printer['host'], ENT_QUOTES) . ', ' . ($printer['color'] ? 'kleur' : 'zwart-wit') . '. Alle kaders moeten volledig zichtbaar zijn.</p>'
@@ -404,78 +486,99 @@ function geevePrintTestPage(string $queue): string
 }
 
 /**
- * Print een HTML-fragment (de inhoud van #printSheet) op een CUPS-wachtrij. $cssFiles zijn paden vanaf de
- * portal-root, in dezelfde volgorde als in de <head> van de app. Geeft het CUPS-jobnummer terug; gooit een
- * RuntimeException met een leesbare melding als het misgaat.
- *
- * $passend: optioneel [selector, maximale hoogte in mm]. Elk element dat in de print hoger is dan die hoogte, wordt
- * met CSS-zoom precies zo veel verkleind dat het op één pagina past (bijv. een slangkaart met een lange notitie).
+ * Rendert een HTML-fragment (de inhoud van #printSheet) met headless Chromium en de print-CSS naar een PDF in $workDir
+ * en geeft het pad ervan. $cssFiles zijn paden vanaf de portal-root, in dezelfde volgorde als in de <head> van de app.
+ * $sheetClass: de klasse die #printSheet in de app heeft (sommige apps verbergen in de print alles buiten die klasse).
+ * $passend: zie geevePrintHtml(). Gooit een RuntimeException met een leesbare melding.
  */
-function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string $title, ?array $passend = null): string
+function geeveRenderPdf(string $bodyHtml, array $cssFiles, string $title, string $workDir, ?array $passend = null, string $sheetClass = ''): string
 {
-    if (!isset(geevePrinterList()[$queue])) {
-        throw new RuntimeException('Onbekende printer: ' . $queue);
-    }
     $chromium = geeveChromiumBinary();
     if ($chromium === null) {
         throw new RuntimeException('Chromium staat niet op de server, direct printen kan daardoor niet.');
     }
+    $htmlFile = $workDir . '/print.html';
+    $pdfFile = $workDir . '/print.pdf';
 
+    $links = '';
+    $printRegels = '';
+    foreach (array_merge(['shared/style.css'], $cssFiles) as $css) {
+        $path = geevePortalDir() . '/' . ltrim($css, '/');
+        $links .= '<link rel="stylesheet" href="file://' . htmlspecialchars($path, ENT_QUOTES) . '">' . "\n";
+        $printRegels .= geeveMediaPrintBlocks((string) @file_get_contents($path));
+    }
+    $passendScript = '';
+    if ($passend !== null) {
+        // Meten kan alleen op "scherm"; daarom gelden de printregels hier ook op scherm, bij de printbreedte
+        // (vaste breedte 186 mm = A4 min 2 x 12 mm marge). Het script zet daarna per te hoog element een zoom.
+        $links .= "<style>@media screen {\n" . $printRegels . "\nhtml, body { margin: 0; padding: 0; background: none; }\n#printSheet { width: 186mm; }\n}</style>\n";
+        $passendScript = '<script>(function () {'
+            . 'var max = ' . (float) $passend[1] . ' * 96 / 25.4;'
+            . 'document.querySelectorAll(' . json_encode((string) $passend[0]) . ').forEach(function (el) {'
+            . 'var hoogte = el.scrollHeight;'
+            . 'if (hoogte > max + 1) { el.style.zoom = Math.max(0.6, (max - 2) / hoogte).toFixed(3); }'
+            . '});'
+            . '})();</script>';
+    }
+    // Alleen het printblad, zonder scripts: Chromium rendert met print-CSS, dus #printSheet wordt zichtbaar en
+    // .page-shell bestaat niet.
+    $bodyHtml = preg_replace('#<script\b.*?</script>#is', '', $bodyHtml) ?? '';
+    $class = preg_match('/^[\w -]*$/', $sheetClass) === 1 && $sheetClass !== '' ? ' class="' . $sheetClass . '"' : '';
+    $document = "<!doctype html>\n<html lang=\"nl\"><head><meta charset=\"utf-8\"><title>"
+        . htmlspecialchars($title, ENT_QUOTES) . "</title>\n" . $links . '</head><body>'
+        . '<div id="printSheet"' . $class . '>' . $bodyHtml . '</div>' . $passendScript . '</body></html>';
+    if (file_put_contents($htmlFile, $document) === false) {
+        throw new RuntimeException('Kon het printbestand niet wegschrijven.');
+    }
+
+    $render = geeveRun([
+        $chromium,
+        '--headless',
+        '--no-sandbox',
+        '--disable-gpu',
+        '--disable-extensions',
+        '--no-pdf-header-footer',
+        '--print-to-pdf-no-header',
+        '--window-size=1200,1100', // breder dan 700 px, anders slaat de mobiele opmaak van slangkaart.css aan (kaartblokken onder elkaar)
+        '--user-data-dir=' . $workDir . '/profiel',
+        '--print-to-pdf=' . $pdfFile,
+        'file://' . $htmlFile,
+    ], 60, ['HOME' => $workDir]);
+    if (!is_file($pdfFile) || filesize($pdfFile) === 0) {
+        throw new RuntimeException('Chromium kon geen PDF maken: ' . geeveLastLine($render['err']));
+    }
+    return $pdfFile;
+}
+
+/** Maakt een tijdelijke werkmap (0700); de aanroeper ruimt hem op met geeveRemoveDir(). */
+function geeveWorkDir(): string
+{
     $workDir = rtrim(sys_get_temp_dir(), '/') . '/geeve-print-' . bin2hex(random_bytes(6));
     if (!@mkdir($workDir, 0700)) {
         throw new RuntimeException('Kon geen tijdelijke map maken voor de print.');
     }
-    $htmlFile = $workDir . '/print.html';
-    $pdfFile = $workDir . '/print.pdf';
+    return $workDir;
+}
 
+/**
+ * Print een HTML-fragment (de inhoud van #printSheet) op een CUPS-wachtrij van een A4-printer. Geeft het CUPS-jobnummer
+ * terug; gooit een RuntimeException met een leesbare melding als het misgaat.
+ *
+ * $passend: optioneel [selector, maximale hoogte in mm]. Elk element dat in de print hoger is dan die hoogte, wordt
+ * met CSS-zoom precies zo veel verkleind dat het op één pagina past (bijv. een slangkaart met een lange notitie).
+ */
+function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string $title, ?array $passend = null, string $sheetClass = ''): string
+{
+    $printer = geevePrinterList()[$queue] ?? null;
+    if ($printer === null) {
+        throw new RuntimeException('Onbekende printer: ' . $queue);
+    }
+    if (geevePrinterSoort($printer) === 'label') {
+        return geevePrintLabels($bodyHtml, $cssFiles, $queue, $title, $sheetClass);
+    }
+    $workDir = geeveWorkDir();
     try {
-        $links = '';
-        $printRegels = '';
-        foreach (array_merge(['shared/style.css'], $cssFiles) as $css) {
-            $path = geevePortalDir() . '/' . ltrim($css, '/');
-            $links .= '<link rel="stylesheet" href="file://' . htmlspecialchars($path, ENT_QUOTES) . '">' . "\n";
-            $printRegels .= geeveMediaPrintBlocks((string) @file_get_contents($path));
-        }
-        $passendScript = '';
-        if ($passend !== null) {
-            // Meten kan alleen op "scherm"; daarom gelden de printregels hier ook op scherm, bij de printbreedte
-            // (vaste breedte 186 mm = A4 min 2 x 12 mm marge). Het script zet daarna per te hoog element een zoom.
-            $links .= "<style>@media screen {\n" . $printRegels . "\nhtml, body { margin: 0; padding: 0; background: none; }\n#printSheet { width: 186mm; }\n}</style>\n";
-            $passendScript = '<script>(function () {'
-                . 'var max = ' . (float) $passend[1] . ' * 96 / 25.4;'
-                . 'document.querySelectorAll(' . json_encode((string) $passend[0]) . ').forEach(function (el) {'
-                . 'var hoogte = el.scrollHeight;'
-                . 'if (hoogte > max + 1) { el.style.zoom = Math.max(0.6, (max - 2) / hoogte).toFixed(3); }'
-                . '});'
-                . '})();</script>';
-        }
-        // Alleen het printblad, zonder scripts: Chromium rendert met print-CSS, dus #printSheet wordt zichtbaar en
-        // .page-shell bestaat niet.
-        $bodyHtml = preg_replace('#<script\b.*?</script>#is', '', $bodyHtml) ?? '';
-        $document = "<!doctype html>\n<html lang=\"nl\"><head><meta charset=\"utf-8\"><title>"
-            . htmlspecialchars($title, ENT_QUOTES) . "</title>\n" . $links . '</head><body>'
-            . '<div id="printSheet">' . $bodyHtml . '</div>' . $passendScript . '</body></html>';
-        if (file_put_contents($htmlFile, $document) === false) {
-            throw new RuntimeException('Kon het printbestand niet wegschrijven.');
-        }
-
-        $render = geeveRun([
-            $chromium,
-            '--headless',
-            '--no-sandbox',
-            '--disable-gpu',
-            '--disable-extensions',
-            '--no-pdf-header-footer',
-            '--print-to-pdf-no-header',
-            '--window-size=1200,1100', // breder dan 700 px, anders slaat de mobiele opmaak van slangkaart.css aan (kaartblokken onder elkaar)
-            '--user-data-dir=' . $workDir . '/profiel',
-            '--print-to-pdf=' . $pdfFile,
-            'file://' . $htmlFile,
-        ], 60, ['HOME' => $workDir]);
-        if (!is_file($pdfFile) || filesize($pdfFile) === 0) {
-            throw new RuntimeException('Chromium kon geen PDF maken: ' . geeveLastLine($render['err']));
-        }
-
+        $pdfFile = geeveRenderPdf($bodyHtml, $cssFiles, $title, $workDir, $passend, $sheetClass);
         // fit-to-page: CUPS schaalt de A4 een fractie naar het printbare gebied van de printer (zoals de Windows-driver
         // bij de browserprint doet); zonder viel aan de rechterkant net iets weg op de Canons.
         $print = geeveRun(['/usr/bin/lp', '-d', $queue, '-t', $title, '-o', 'fit-to-page', $pdfFile], 20);
@@ -483,6 +586,114 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
             throw new RuntimeException('De printer weigerde de opdracht: ' . geeveLastLine($print['err'] . $print['out']));
         }
         // "request id is geeve_binnendienst_l1-12 (1 file(s))"
+        return preg_match('/request id is (\S+)/', $print['out'], $match) === 1 ? $match[1] : trim($print['out']);
+    } finally {
+        geeveRemoveDir($workDir);
+    }
+}
+
+/**
+ * Print de labels in een HTML-fragment op een kale TSPL-labelprinter: PDF op labelformaat (de @page-regel van de app),
+ * per pagina een zwart-wit bitmap op de resolutie van de printer, als BITMAP-opdracht naar de wachtrij (lp -o raw).
+ * Heeft pdftoppm (poppler-utils) nodig. Geeft het CUPS-jobnummer.
+ */
+function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, string $title, string $sheetClass = ''): string
+{
+    $printer = geevePrinterList()[$queue] ?? null;
+    if ($printer === null || geevePrinterSoort($printer) !== 'label') {
+        throw new RuntimeException('Dit is geen labelprinter.');
+    }
+    // Voorkom dat een aangeleverd label lokale bestanden of andere pagina's binnenhaalt.
+    if (preg_match('#(file:|<iframe|<object|<embed|<link|@import|<base)#i', $bodyHtml) === 1) {
+        throw new RuntimeException('Het label bevat niet-toegestane inhoud.');
+    }
+    $dpi = (int) ($printer['dpi'] ?? 300);
+    $workDir = geeveWorkDir();
+    try {
+        $pdfFile = geeveRenderPdf($bodyHtml, $cssFiles, $title, $workDir, null, $sheetClass);
+        $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', (string) $dpi, $pdfFile, $workDir . '/pagina'], 60);
+        $pages = glob($workDir . '/pagina-*.pbm') ?: [];
+        sort($pages);
+        if ($raster['code'] !== 0 || $pages === []) {
+            throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
+        }
+        $tspl = '';
+        foreach ($pages as $page) {
+            $tspl .= geevePbmToTspl((string) file_get_contents($page), $dpi);
+        }
+        $file = $workDir . '/labels.tspl';
+        file_put_contents($file, $tspl);
+        $print = geeveRun(['/usr/bin/lp', '-d', $queue, '-t', $title, '-o', 'raw', $file], 20);
+        if ($print['code'] !== 0) {
+            throw new RuntimeException('De printer weigerde de opdracht: ' . geeveLastLine($print['err'] . $print['out']));
+        }
+        return preg_match('/request id is (\S+)/', $print['out'], $match) === 1 ? $match[1] : trim($print['out']);
+    } finally {
+        geeveRemoveDir($workDir);
+    }
+}
+
+/** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
+function geevePbmToTspl(string $pbm, int $dpi): string
+{
+    if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
+        throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
+    }
+    $width = (int) $m[1][0];
+    $height = (int) $m[2][0];
+    $rowBytes = intdiv($width + 7, 8);
+    $data = substr($pbm, $m[0][1] + strlen($m[0][0]), $rowBytes * $height);
+    if (strlen($data) !== $rowBytes * $height) {
+        throw new RuntimeException('De afbeelding van het label is onvolledig.');
+    }
+    if (GEEVE_TSPL_ZWART_IS_NUL) {
+        $data = ~$data;
+        // Opvulbits aan het eind van elke rij blijven wit (1).
+        $pad = $rowBytes * 8 - $width;
+        if ($pad > 0) {
+            $mask = chr((1 << $pad) - 1);
+            for ($y = 0; $y < $height; $y++) {
+                $i = $y * $rowBytes + $rowBytes - 1;
+                $data[$i] = $data[$i] | $mask;
+            }
+        }
+    }
+    // 25,1 mm (afronding van de pdf-maat) wordt 25 mm; echte halve maten blijven staan.
+    $mm = static fn(int $dots): float => abs($dots / $dpi * 25.4 - round($dots / $dpi * 25.4)) < 0.3 ? round($dots / $dpi * 25.4) : round($dots / $dpi * 25.4, 1);
+    $widthMm = $mm($width);
+    $heightMm = $mm($height);
+    return 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\nGAP 3 mm,0 mm\r\nDIRECTION 0\r\nCLS\r\n"
+        . 'BITMAP 0,0,' . $rowBytes . ',' . $height . ',0,' . $data . "\r\nPRINT 1,1\r\n";
+}
+
+/** Een testlabel in TSPL: kader rondom, tekst en een barcode, op het opgegeven labelformaat. Geeft het jobnummer. */
+function geeveLabelTest(string $queue): string
+{
+    $printer = geevePrinterList()[$queue] ?? null;
+    if ($printer === null || geevePrinterSoort($printer) !== 'label') {
+        throw new RuntimeException('Dit is geen labelprinter.');
+    }
+    $dpi = (int) ($printer['dpi'] ?? 300);
+    $widthMm = (float) ($printer['breedte'] ?? 25);
+    $heightMm = (float) ($printer['hoogte'] ?? 95);
+    $w = (int) round($widthMm / 25.4 * $dpi);
+    $h = (int) round($heightMm / 25.4 * $dpi);
+    $name = preg_replace('/[^\x20-\x7e]/', '', str_replace('"', "'", $printer['name'])) ?? '';
+    $tspl = 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\nGAP 3 mm,0 mm\r\nDIRECTION 0\r\nCLS\r\n"
+        . 'BOX 0,0,' . ($w - 1) . ',' . ($h - 1) . ",3\r\n"
+        . 'TEXT 20,20,"3",0,1,1,"TESTLABEL"' . "\r\n"
+        . 'TEXT 20,70,"2",0,1,1,"' . substr($name, 0, 24) . '"' . "\r\n"
+        . 'TEXT 20,110,"2",0,1,1,"' . round($widthMm) . 'x' . round($heightMm) . ' mm, ' . $dpi . ' dpi"' . "\r\n"
+        . 'BARCODE 20,160,"128",60,1,0,2,2,"12345678"' . "\r\n"
+        . "PRINT 1,1\r\n";
+    $workDir = geeveWorkDir();
+    try {
+        $file = $workDir . '/test.tspl';
+        file_put_contents($file, $tspl);
+        $print = geeveRun(['/usr/bin/lp', '-d', $queue, '-t', 'Testlabel', '-o', 'raw', $file], 20);
+        if ($print['code'] !== 0) {
+            throw new RuntimeException('De printer weigerde de opdracht: ' . geeveLastLine($print['err'] . $print['out']));
+        }
         return preg_match('/request id is (\S+)/', $print['out'], $match) === 1 ? $match[1] : trim($print['out']);
     } finally {
         geeveRemoveDir($workDir);
@@ -582,4 +793,26 @@ function geeveRemoveDir(string $dir): void
         $item->isDir() && !$item->isLink() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
     }
     @rmdir($dir);
+}
+
+/**
+ * De printerkeuze naast een printknop: een keuzelijst "Printer" met de printers van deze tegel (Config > Tegels), plus
+ * het script dat de printknop dan naar de server laat printen. Leeg als er voor de tegel geen printers zijn.
+ * Eerste optie "Printvenster van de browser" = zoals voorheen.
+ */
+function geevePrinterSelectHtml(string $tileId, string $csrf): string
+{
+    $page = GEEVE_PRINT_TILE_PAGE[$tileId] ?? null;
+    $printers = geevePrinters($tileId);
+    if ($page === null || $printers === []) {
+        return '';
+    }
+    $h = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $options = '<option value="">Printvenster van de browser</option>';
+    foreach ($printers as $queue => $name) {
+        $options .= '<option value="' . $h($queue) . '">' . $h($name) . '</option>';
+    }
+    return '<label class="direct-print" id="directPrint" data-tile="' . $h($tileId) . '" data-sheet="' . $h($page['sheet'])
+        . '" data-endpoint="' . $h(geeveUrl('shared/print-api.php')) . '" data-csrf="' . $h($csrf) . '">'
+        . '<span>Printer</span><select id="directPrinter">' . $options . '</select><span class="direct-print-status" id="directPrintStatus"></span></label>';
 }

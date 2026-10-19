@@ -256,3 +256,4 @@
 }
 .printers-head span { text-align: left; justify-self: start; }
 .printers-edit-link { text-decoration: none; display: inline-block; }
+[data-soort][hidden] { display: none; }

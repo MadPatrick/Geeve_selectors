@@ -119,9 +119,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && str_starts_with((string) ($_POST['a
         $printerQueue = (string) ($_POST['queue'] ?? '');
         if ($printerAction === 'printer-add') {
             // Een nieuwe printer staat eerst in geen enkele tegel; kies hem bij Tegels.
-            [$ok, $text] = geeveAddPrinter((string) ($_POST['new_name'] ?? ''), (string) ($_POST['new_host'] ?? ''), (string) ($_POST['new_color'] ?? 'auto'), []);
+            [$ok, $text] = geeveAddPrinter((string) ($_POST['new_name'] ?? ''), (string) ($_POST['new_host'] ?? ''), (string) ($_POST['new_color'] ?? 'auto'), [], (string) ($_POST['new_soort'] ?? 'a4'), (float) str_replace(',', '.', (string) ($_POST['new_breedte'] ?? '25')), (float) str_replace(',', '.', (string) ($_POST['new_hoogte'] ?? '95')));
         } elseif ($printerAction === 'printer-edit') {
-            [$ok, $text] = geeveUpdatePrinter($printerQueue, (string) ($_POST['edit_name'] ?? ''), (string) ($_POST['edit_host'] ?? ''), (string) ($_POST['edit_color'] ?? 'auto'));
+            [$ok, $text] = geeveUpdatePrinter($printerQueue, (string) ($_POST['edit_name'] ?? ''), (string) ($_POST['edit_host'] ?? ''), (string) ($_POST['edit_color'] ?? 'auto'), isset($_POST['edit_breedte']) ? (float) str_replace(',', '.', (string) $_POST['edit_breedte']) : null, isset($_POST['edit_hoogte']) ? (float) str_replace(',', '.', (string) $_POST['edit_hoogte']) : null);
             if (!$ok) {
                 $editQueue = $printerQueue; // formulier open laten met de melding
             }
@@ -317,7 +317,7 @@ $storedSettings = secureSettingsRead();
                                 </label>
                             <?php endforeach; ?>
                             <?php $printerIndex = 0; foreach ($tilePrinters as $queue => $printer): $sepClass = $printerIndex++ === 0 ? ' tiles-sep' : ''; ?>
-                                <?php if (!isset(GEEVE_PRINT_TILES[$tileId])): ?>
+                                <?php if (!isset(GEEVE_PRINT_TILES[$tileId]) || !geevePrinterPastBijTegel($printer, $tileId)): ?>
                                 <span role="cell" class="tiles-check<?= $sepClass ?>"></span>
                                 <?php continue; endif; ?>
                                 <label role="cell" class="tiles-check<?= $sepClass ?>" title="<?= h($tile[1] . ': ' . $printer['name']) ?>">
@@ -348,14 +348,14 @@ $storedSettings = secureSettingsRead();
                 <div class="printers-row printers-head" role="row">
                     <span role="columnheader">Printer</span>
                     <span role="columnheader">Adres</span>
-                    <span role="columnheader">Kleur</span>
+                    <span role="columnheader">Soort</span>
                     <span role="columnheader"></span>
                 </div>
                 <?php foreach ($printerList as $queue => $printer): ?>
                     <div class="printers-row" role="row">
                         <span role="cell"><?= h($printer['name']) ?></span>
                         <span role="cell"><?= h($printer['host']) ?></span>
-                        <span role="cell"><?= $printer['color'] ? 'Kleur' : 'Zwart-wit' ?></span>
+                        <span role="cell"><?= geevePrinterSoort($printer) === 'label' ? 'Label ' . h((string) ($printer['breedte'] ?? '')) . '×' . h((string) ($printer['hoogte'] ?? '')) : ($printer['color'] ? 'Kleur' : 'Zwart-wit') ?></span>
                         <span role="cell" class="printers-actions">
                             <a class="update-submit printers-edit-link" href="?wijzig=<?= h(rawurlencode($queue)) ?>#printers">Wijzigen</a>
                             <button type="submit" form="printer-test-<?= h($queue) ?>" class="update-submit">Testpagina</button>
@@ -390,6 +390,14 @@ $storedSettings = secureSettingsRead();
             <label class="update-code-field"><span>IP-adres of netwerknaam</span>
                 <input type="text" name="edit_host" maxlength="64" value="<?= h($editPrinter['host']) ?>" required>
             </label>
+            <?php if (geevePrinterSoort($editPrinter) === 'label'): ?>
+            <label class="update-code-field"><span>Label breedte (mm)</span>
+                <input type="text" name="edit_breedte" value="<?= h((string) ($editPrinter['breedte'] ?? 25)) ?>" size="6" inputmode="decimal">
+            </label>
+            <label class="update-code-field"><span>Label hoogte (mm)</span>
+                <input type="text" name="edit_hoogte" value="<?= h((string) ($editPrinter['hoogte'] ?? 95)) ?>" size="6" inputmode="decimal">
+            </label>
+            <?php else: ?>
             <label class="update-code-field"><span>Kleur</span>
                 <select name="edit_color">
                     <option value="auto">Ongewijzigd (<?= $editPrinter['color'] ? 'kleur' : 'zwart-wit' ?>)</option>
@@ -397,6 +405,7 @@ $storedSettings = secureSettingsRead();
                     <option value="zwartwit">Zwart-wit</option>
                 </select>
             </label>
+            <?php endif; ?>
             <button type="submit" class="update-submit">Opslaan</button>
             <a class="update-submit printers-edit-link" href="update.php#printers">Annuleren</a>
         </form>
@@ -412,7 +421,19 @@ $storedSettings = secureSettingsRead();
             <label class="update-code-field"><span>IP-adres of netwerknaam</span>
                 <input type="text" name="new_host" maxlength="64" placeholder="10.209.192.185" required>
             </label>
-            <label class="update-code-field"><span>Kleur</span>
+            <label class="update-code-field"><span>Soort</span>
+                <select name="new_soort" id="newSoort">
+                    <option value="a4">Gewone printer (A4)</option>
+                    <option value="label">Labelprinter (TSPL, rechtstreeks)</option>
+                </select>
+            </label>
+            <label class="update-code-field" data-soort="label" hidden><span>Label breedte (mm)</span>
+                <input type="text" name="new_breedte" value="25" size="6" inputmode="decimal">
+            </label>
+            <label class="update-code-field" data-soort="label" hidden><span>Label hoogte (mm)</span>
+                <input type="text" name="new_hoogte" value="95" size="6" inputmode="decimal">
+            </label>
+            <label class="update-code-field" data-soort="a4"><span>Kleur</span>
                 <select name="new_color">
                     <option value="auto">Automatisch herkennen</option>
                     <option value="kleur">Kleur</option>
@@ -426,5 +447,18 @@ $storedSettings = secureSettingsRead();
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 <script src="assets/tiles-sort.js?v=<?= h(assetVersion('assets/tiles-sort.js')) ?>"></script>
+<script>
+(function () {
+    var soort = document.getElementById('newSoort');
+    if (!soort) { return; }
+    function toggle() {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-soort]'), function (el) {
+            el.hidden = el.getAttribute('data-soort') !== soort.value;
+        });
+    }
+    soort.addEventListener('change', toggle);
+    toggle();
+}());
+</script>
 </body>
 </html>
