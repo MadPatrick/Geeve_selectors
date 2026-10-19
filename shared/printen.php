@@ -286,7 +286,7 @@ function geevePrinterTilesSave(array $tilesPerQueue): bool
 {
     $list = geevePrinterList();
     foreach ($list as $queue => $printer) {
-        $list[$queue]['tiles'] = array_values(array_intersect($tilesPerQueue[$queue] ?? [], array_keys(GEEVE_PRINT_TILES)));
+        $list[$queue]['tiles'] = array_values(array_intersect($tilesPerQueue[$queue] ?? [], array_keys(TILE_REGISTRY)));
     }
     return geevePrinterListSave($list);
 }

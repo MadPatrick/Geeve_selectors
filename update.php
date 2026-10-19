@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         $tilesPerQueue = [];
         foreach (array_keys(geevePrinterList()) as $queue) {
             $tilesPerQueue[$queue] = [];
-            foreach (array_keys(GEEVE_PRINT_TILES) as $printTile) {
+            foreach (array_keys(TILE_REGISTRY) as $printTile) {
                 if (in_array($queue, array_map('strval', (array) ($_POST['printers'][$printTile] ?? [])), true)) {
                     $tilesPerQueue[$queue][] = $printTile;
                 }
@@ -272,12 +272,16 @@ $storedSettings = secureSettingsRead();
         <form method="post" class="update-form tiles-form" autocomplete="off">
             <input type="hidden" name="action" value="save-tiles">
             <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
-            <div class="tiles-table" role="table">
+            <?php $tilePrinters = geevePrinterList(); ?>
+            <div class="tiles-table" role="table" style="--printer-cols: <?= count($tilePrinters) ?>">
                 <div class="tiles-row tiles-head" role="row">
                     <span role="columnheader">Tegel</span>
                     <span role="columnheader">Zichtbaar</span>
                     <span role="columnheader">Beveiligd</span>
                     <span role="columnheader">In progress</span>
+                    <?php foreach ($tilePrinters as $printer): ?>
+                        <span role="columnheader" title="<?= h($printer['name']) ?>"><?= h(trim(strtok($printer['name'], '('))) ?></span>
+                    <?php endforeach; ?>
                 </div>
                 <?php
                 $tileGroups = ['home' => 'Hoofdscherm', 'reports' => 'Reports', 'templates' => 'Templates', 'stickers' => 'Stickers (tegels op het Stickers-scherm)'];
@@ -299,19 +303,13 @@ $storedSettings = secureSettingsRead();
                                     <span class="settings-switch-track"></span>
                                 </label>
                             <?php endforeach; ?>
-                        </div>
-                        <?php if (isset(GEEVE_PRINT_TILES[$tileId])): ?>
-                        <div class="tiles-printers" role="row">
-                            <span>Printers voor deze tegel:</span>
-                            <?php foreach (geevePrinterList() as $queue => $printer): ?>
-                                <label class="tiles-printer">
+                            <?php foreach ($tilePrinters as $queue => $printer): ?>
+                                <label role="cell" class="settings-switch tiles-switch" title="<?= h($tile[1] . ': ' . $printer['name']) ?>">
                                     <input type="checkbox" name="printers[<?= h($tileId) ?>][]" value="<?= h($queue) ?>"<?= in_array($tileId, $printer['tiles'] ?? [], true) ? ' checked' : '' ?>>
-                                    <?= h($printer['name']) ?>
+                                    <span class="settings-switch-track"></span>
                                 </label>
                             <?php endforeach; ?>
-                            <?php if (geevePrinterList() === []): ?><em>nog geen printers (zie Printers hieronder)</em><?php endif; ?>
                         </div>
-                        <?php endif; ?>
                     <?php endforeach; ?>
                     </div>
                 <?php endforeach; ?>
@@ -322,7 +320,7 @@ $storedSettings = secureSettingsRead();
 
     <section class="update-panel">
         <h2>Printers</h2>
-        <p>Printers waarop de portal direct kan printen (zonder printvenster van de browser). Een nieuwe printer vul je in met naam en IP-adres of netwerknaam: de portal controleert de verbinding, herkent kleur of zwart-wit en maakt de wachtrij zelf aan. Per tegel kies je hieronder bij Tegels welke printers daar beschikbaar zijn.</p>
+        <p>Printers waarop de portal direct kan printen (zonder printvenster van de browser). Een nieuwe printer vul je in met naam en IP-adres of netwerknaam: de portal controleert de verbinding, herkent kleur of zwart-wit en maakt de wachtrij zelf aan. Per tegel kies je bij Tegels (hierboven) welke printers daar beschikbaar zijn.</p>
 
         <?php if ($printersMessage !== null): ?>
             <div class="update-message <?= $printersMessage['ok'] ? 'ok' : 'error' ?>"><?= h($printersMessage['text']) ?></div>

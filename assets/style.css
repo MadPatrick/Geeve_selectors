@@ -213,14 +213,14 @@
 
 /* Config > Tegels: tegels onder elkaar, daarachter per optie een schakelaar. */
 .tiles-form { flex-direction: column; align-items: flex-start; }
-.tiles-table { width: 100%; max-width: 760px; display: flex; flex-direction: column; }
-.tiles-row { display: grid; grid-template-columns: minmax(180px, 1fr) repeat(3, 110px); gap: 12px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--line); }
+.tiles-table { --printer-cols: 0; width: 100%; display: flex; flex-direction: column; }
+.tiles-row { display: grid; grid-template-columns: minmax(180px, 1fr) repeat(calc(3 + var(--printer-cols)), 110px); gap: 12px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--line); }
 .tiles-head { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 .tiles-head span:not(:first-child), .tiles-row .tiles-switch { justify-self: center; }
 .tiles-head span:not(:first-child) { text-align: center; }
 .tiles-group { margin-top: 14px; padding: 4px; font-size: 15px; font-weight: 800; border-bottom: 2px solid var(--line-strong, #c9d4de); }
 .tiles-name { font-size: 14px; font-weight: 650; }
-@media (max-width: 560px) { .tiles-row { grid-template-columns: minmax(120px, 1fr) repeat(3, 64px); gap: 6px; } .tiles-head { font-size: 10px; } }
+@media (max-width: 560px) { .tiles-row { grid-template-columns: minmax(120px, 1fr) repeat(calc(3 + var(--printer-cols)), 64px); gap: 6px; } .tiles-head { font-size: 10px; } }
 
 /* Config: bovenste rij met "Terug naar hoofdmenu" (even groot als de tekst). */
 .config-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
@@ -245,5 +245,3 @@
 @media (max-width: 720px) {
     .printers-row { grid-template-columns: 1fr 1fr; }
 }
-.tiles-printers { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; padding: 6px 4px 10px 34px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
-.tiles-printer { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); cursor: pointer; }
