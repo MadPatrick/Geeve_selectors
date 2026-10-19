@@ -57,9 +57,11 @@ eigen tabelregels per app (kolombreedtes, statuskleuren) mogen wel, de regelafst
 ## Versienummer (alle apps)
 
 Eén gedeeld versienummer in `version.php` (root) voor het hoofdscherm en alle subapps - zie
-`shared/README.md`, "Versienummer". **Hoog het versienummer nooit uit jezelf op**: alleen als de
-gebruiker daar expliciet om vraagt (de gebruiker geeft zelf aan wanneer). Wijzig `version.php` dus
-niet bij een gewone feature/fix-commit.
+`shared/README.md`, "Versienummer". Opbouw `0.4.5.1` = `<major>.<minor>.<patch>.<build>`:
+- **Build (laatste nummer):** hoog je **automatisch met 1 op** bij elke push naar GitHub met een wijziging (één keer
+  per push, ook als die meerdere commits bevat).
+- **De eerste drie nummers** nooit uit jezelf: alleen als de gebruiker daar expliciet om vraagt. Bij zo'n ophoging
+  begint de build weer bij 1 (bijv. 0.4.6.1).
 
 ## Git
 

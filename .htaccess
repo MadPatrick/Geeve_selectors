@@ -11,3 +11,12 @@
         Deny from all
     </IfModule>
 </FilesMatch>
+
+# Cache: CSS, JS en afbeeldingen elke keer bij de server navragen (304 als ze niet veranderd zijn),
+# zodat na een git pull meteen de nieuwe versie geladen wordt - ook van bestanden zonder ?v=, zoals
+# shared/tokens.css (via @import in shared/style.css) en de logo's. Werkt alleen met mod_headers.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|png|jpe?g|gif|svg|ico|webp)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>

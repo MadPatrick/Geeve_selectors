@@ -197,5 +197,5 @@ versleuteld opgeslagen). Slangkaart printen heeft daarnaast een eigen database "
 ## 7. Versienummer
 
 Eén versienummer voor het hoofdscherm en alle apps, in `version.php`. Elke
-pagina leest dat bestand. Het wordt alleen opgehoogd als daarom gevraagd wordt, niet bij elke
-wijziging.
+pagina leest dat bestand. Opbouw `0.4.5.1`: het laatste nummer (build) gaat bij elke push naar
+GitHub 1 omhoog, de eerste drie alleen als daarom gevraagd wordt.

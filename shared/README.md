@@ -311,8 +311,14 @@ opbouw in [`SLANGKAART-LAYOUT.md`](SLANGKAART-LAYOUT.md).
 
 Alle apps tonen hetzelfde versienummer uit `version.php` (root), al geladen via de
 `APP_VERSION`-constante in stap 2 hierboven. Een versie-ophoging betekent: pas `return '...'` in `version.php` (root)
-aan - niet een eigen, losse constante per app. Doe dat alleen als de gebruiker erom vraagt; het
-versienummer wordt niet bij elke wijziging opgehoogd.
+aan - niet een eigen, losse constante per app. Opbouw `<major>.<minor>.<patch>.<build>`: de build (laatste
+nummer) gaat bij elke push naar GitHub 1 omhoog; de eerste drie alleen op verzoek van de gebruiker, en dan begint
+de build weer bij 1.
+
+Browsers halen CSS, JS en afbeeldingen niet blind uit hun cache: de root-`.htaccess` zet daarvoor
+`Cache-Control: no-cache` (alleen als Apache `mod_headers` heeft). De browser vraagt dan bij elk bezoek even na of
+het bestand veranderd is en haalt na een `git pull` meteen de nieuwe versie, ook van bestanden zonder `?v=`, zoals
+`shared/tokens.css` (via `@import`) en de logo's.
 
 ## Checklist
 
