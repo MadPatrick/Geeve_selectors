@@ -1,0 +1,10 @@
+# Centrale datamap (CSV's en hun back-ups, zie shared/paths.php): staat niet in
+# git en is nooit via de browser op te vragen. Downloaden gaat via de knop van de
+# app (bijv. hoses/download.php). Alleen dit bestand staat in git.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order Allow,Deny
+    Deny from all
+</IfModule>

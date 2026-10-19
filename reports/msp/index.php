@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
-tileRequirePage('msp', '../index.php');
+require_once __DIR__ . '/../../shared/paths.php';
+tileRequirePage('msp', geeveAppUrl('reports'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
 
@@ -40,19 +41,19 @@ $thisYear = (int) date('Y');
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>MSP report | Geeve Hydraulics</title>
-    <link rel="icon" href="../../favicon.ico?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
-    <link rel="stylesheet" href="../../shared/style.css?v=<?= h(assetVersion('../../shared/style.css')) ?>">
-    <link rel="stylesheet" href="../../assets/style.css?v=<?= h(assetVersion('../../assets/style.css')) ?>">
+    <link rel="icon" href="<?= h(geeveUrl('favicon.ico')) ?>?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
+    <link rel="stylesheet" href="<?= h(geeveUrl('shared/style.css')) ?>?v=<?= h(assetVersion('../../shared/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('assets/style.css')) ?>?v=<?= h(assetVersion('../../assets/style.css')) ?>">
     <!-- Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers. -->
-    <link rel="stylesheet" href="../../klantartikel/assets/style.css?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('klantartikel/assets/style.css')) ?>?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
     <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
 </head>
 <body>
 <main class="page-shell page-shell--wide">
     <?php
     $headerTitle = 'MSP report';
-    $headerImagesPath = '../../images/';
-    $headerHomeHref = '../index.php';
+    $headerImagesPath = geeveUrl('images/');
+    $headerHomeHref = geeveAppUrl('reports');
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
@@ -91,7 +92,7 @@ $thisYear = (int) date('Y');
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
-<script src="../../klantartikel/assets/vendor/xlsx.core.min.js"></script>
+<script src="<?= h(geeveUrl('klantartikel/assets/vendor/xlsx.core.min.js')) ?>"></script>
 <script src="assets/msp.js?v=<?= h(assetVersion('assets/msp.js')) ?>"></script>
 </body>
 </html>

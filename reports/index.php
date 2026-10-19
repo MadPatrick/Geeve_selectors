@@ -5,6 +5,7 @@ declare(strict_types=1);
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 require_once __DIR__ . '/../shared/tiles.php';
+require_once __DIR__ . '/../shared/paths.php';
 
 // Dit overzicht is zelf ook een tegel (Reports): is die beveiligd, dan eerst de code.
 tileRequirePage('reports', '../index.php');
@@ -51,7 +52,7 @@ $csrf = csrfToken();
 
     <div class="tile-grid">
         <?php ob_start(); if (tileVisible('msp')): ?>
-        <a class="<?= tileClass('msp') ?>" href="msp/index.php"<?= tileAttrs('msp') ?>>
+        <a class="<?= tileClass('msp') ?>" href="<?= h(geeveAppUrl('msp')) ?>"<?= tileAttrs('msp') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -65,7 +66,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['msp'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('inkoop-groep')): ?>
-        <a class="<?= tileClass('inkoop-groep') ?>" href="inkoop-groep/index.php"<?= tileAttrs('inkoop-groep') ?>>
+        <a class="<?= tileClass('inkoop-groep') ?>" href="<?= h(geeveAppUrl('inkoop-groep')) ?>"<?= tileAttrs('inkoop-groep') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="3" y="3" width="7" height="7"></rect>
@@ -80,7 +81,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['inkoop-groep'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('productiviteit')): ?>
-        <a class="<?= tileClass('productiviteit') ?>" href="productiviteit/index.php"<?= tileAttrs('productiviteit') ?>>
+        <a class="<?= tileClass('productiviteit') ?>" href="<?= h(geeveAppUrl('productiviteit')) ?>"<?= tileAttrs('productiviteit') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -95,7 +96,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['productiviteit'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('artikel-marge')): ?>
-        <a class="<?= tileClass('artikel-marge') ?>" href="artikel-marge/index.php"<?= tileAttrs('artikel-marge') ?>>
+        <a class="<?= tileClass('artikel-marge') ?>" href="<?= h(geeveAppUrl('artikel-marge')) ?>"<?= tileAttrs('artikel-marge') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>

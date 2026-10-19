@@ -255,7 +255,7 @@ function updateCsvRow(string $path, string $eol, string $artnr, array $columnUpd
             $rows[$foundIndex][$idx] = $value;
         }
 
-        $backupDir = dirname($path) . '/backups';
+        $backupDir = geeveBackupDir($path);
         if (!is_dir($backupDir)) {
             @mkdir($backupDir, 0775, true);
         }

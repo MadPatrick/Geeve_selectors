@@ -2,32 +2,24 @@
 
 declare(strict_types=1);
 
-// Shared by index.php, download.php and upload.php so the three agree on
-// where each CSV lives and which fallback locations are accepted.
+// Shared by index.php, download.php, upload.php and save.php so they agree on
+// where each CSV lives. Central location first (data/hoses/, see
+// shared/paths.php), then the old locations as fallback.
+
+require_once __DIR__ . '/../../shared/paths.php';
 
 $csvFileCandidates = [
-    'staal' => [
+    'staal' => geeveDataCandidates('hoses', 'artikelnummers_staal.csv', [
         __DIR__ . '/../data/artikelnummers_staal.csv',
         __DIR__ . '/../artikelnummers_staal.csv',
-    ],
-    'rvs' => [
+    ]),
+    'rvs' => geeveDataCandidates('hoses', 'artikelnummers_rvs.csv', [
         __DIR__ . '/../data/artikelnummers_rvs.csv',
         __DIR__ . '/../artikelnummers_rvs.csv',
-    ],
+    ]),
 ];
 
-$accessoryCsvCandidates = [
+$accessoryCsvCandidates = geeveDataCandidates('hoses', 'artikelnummers_accessoires.csv', [
     __DIR__ . '/../data/artikelnummers_accessoires.csv',
     __DIR__ . '/../artikelnummers_accessoires.csv',
-];
-
-function findFirstReadableFile(array $candidates): ?string
-{
-    foreach ($candidates as $candidate) {
-        if (is_file($candidate) && is_readable($candidate)) {
-            return $candidate;
-        }
-    }
-
-    return null;
-}
+]);

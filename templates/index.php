@@ -5,6 +5,7 @@ declare(strict_types=1);
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 require_once __DIR__ . '/../shared/tiles.php';
+require_once __DIR__ . '/../shared/paths.php';
 
 // Dit overzicht is zelf ook een tegel (Templates): is die beveiligd, dan eerst de code.
 tileRequirePage('templates', '../index.php');
@@ -51,7 +52,7 @@ $csrf = csrfToken();
 
     <div class="tile-grid">
         <?php ob_start(); if (tileVisible('klantartikel')): ?>
-        <a class="<?= tileClass('klantartikel') ?>" href="../klantartikel/index.php"<?= tileAttrs('klantartikel') ?>>
+        <a class="<?= tileClass('klantartikel') ?>" href="<?= h(geeveAppUrl('klantartikel')) ?>"<?= tileAttrs('klantartikel') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path>
@@ -64,7 +65,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['klantartikel'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('klantkorting')): ?>
-        <a class="<?= tileClass('klantkorting') ?>" href="../klantkorting/index.php"<?= tileAttrs('klantkorting') ?>>
+        <a class="<?= tileClass('klantkorting') ?>" href="<?= h(geeveAppUrl('klantkorting')) ?>"<?= tileAttrs('klantkorting') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <line x1="19" y1="5" x2="5" y2="19"></line>
@@ -78,7 +79,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['klantkorting'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('inkooporder')): ?>
-        <a class="<?= tileClass('inkooporder') ?>" href="../reports/inkooporder/index.php"<?= tileAttrs('inkooporder') ?>>
+        <a class="<?= tileClass('inkooporder') ?>" href="<?= h(geeveAppUrl('inkooporder')) ?>"<?= tileAttrs('inkooporder') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="9" cy="21" r="1"></circle>
@@ -92,7 +93,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['inkooporder'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('order-offerte')): ?>
-        <a class="<?= tileClass('order-offerte') ?>" href="../reports/order-offerte/index.php"<?= tileAttrs('order-offerte') ?>>
+        <a class="<?= tileClass('order-offerte') ?>" href="<?= h(geeveAppUrl('order-offerte')) ?>"<?= tileAttrs('order-offerte') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -107,7 +108,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['order-offerte'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('offerte-import')): ?>
-        <a class="<?= tileClass('offerte-import') ?>" href="../reports/offerte-import/index.php"<?= tileAttrs('offerte-import') ?>>
+        <a class="<?= tileClass('offerte-import') ?>" href="<?= h(geeveAppUrl('offerte-import')) ?>"<?= tileAttrs('offerte-import') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -122,7 +123,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['offerte-import'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('inkooporder-import')): ?>
-        <a class="<?= tileClass('inkooporder-import') ?>" href="../reports/inkooporder-import/index.php"<?= tileAttrs('inkooporder-import') ?>>
+        <a class="<?= tileClass('inkooporder-import') ?>" href="<?= h(geeveAppUrl('inkooporder-import')) ?>"<?= tileAttrs('inkooporder-import') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -137,7 +138,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['inkooporder-import'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('export-info')): ?>
-        <a class="<?= tileClass('export-info') ?>" href="../reports/export-info/index.php"<?= tileAttrs('export-info') ?>>
+        <a class="<?= tileClass('export-info') ?>" href="<?= h(geeveAppUrl('export-info')) ?>"<?= tileAttrs('export-info') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -151,7 +152,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['export-info'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('artikel-import')): ?>
-        <a class="<?= tileClass('artikel-import') ?>" href="../reports/artikel-import/index.php"<?= tileAttrs('artikel-import') ?>>
+        <a class="<?= tileClass('artikel-import') ?>" href="<?= h(geeveAppUrl('artikel-import')) ?>"<?= tileAttrs('artikel-import') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>

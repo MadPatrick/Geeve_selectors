@@ -2,29 +2,24 @@
 
 declare(strict_types=1);
 
-// This app keeps its own, trimmed copy of the hose article list (Staal
-// only - RVS and the 1-delig/Pilaar coupling columns are dropped), separate
-// from the /hoses selector's data - edits made here don't affect /hoses,
-// and vice versa.
+// The hose list comes from the central hose data of the Slangen fitting
+// Selector (data/hoses/artikelnummers_staal.csv, see shared/paths.php); this
+// app reads its columns by name, which are a subset of that file's. Its own
+// trimmed copy (data/configurator/artikelnummers.csv or the old location)
+// is only the fallback. slangkoppelingen.csv is this app's own file.
+
+require_once __DIR__ . '/../../shared/paths.php';
 
 $csvFileCandidates = [
-    'artikelnummers' => [
-        __DIR__ . '/../data/artikelnummers.csv',
-        __DIR__ . '/../artikelnummers.csv',
-    ],
-    'slangkoppelingen' => [
+    'artikelnummers' => array_merge(
+        [geeveDataDir() . '/hoses/artikelnummers_staal.csv'],
+        geeveDataCandidates('configurator', 'artikelnummers.csv', [
+            __DIR__ . '/../data/artikelnummers.csv',
+            __DIR__ . '/../artikelnummers.csv',
+        ])
+    ),
+    'slangkoppelingen' => geeveDataCandidates('configurator', 'slangkoppelingen.csv', [
         __DIR__ . '/../data/slangkoppelingen.csv',
         __DIR__ . '/../slangkoppelingen.csv',
-    ],
+    ]),
 ];
-
-function findFirstReadableFile(array $candidates): ?string
-{
-    foreach ($candidates as $candidate) {
-        if (is_file($candidate) && is_readable($candidate)) {
-            return $candidate;
-        }
-    }
-
-    return null;
-}

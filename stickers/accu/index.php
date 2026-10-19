@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het Stickers-scherm, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
-tileRequirePage('stickers-artikel-groot', '../index.php');
+require_once __DIR__ . '/../../shared/paths.php';
+tileRequirePage('stickers-artikel-groot', geeveAppUrl('stickers'));
 
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
@@ -31,19 +32,19 @@ function assetVersion(string $relativePath): string
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Accu's | Geeve Hydraulics</title>
-    <link rel="icon" href="../../favicon.ico?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
-    <link rel="stylesheet" href="../../shared/style.css?v=<?= h(assetVersion('../../shared/style.css')) ?>">
+    <link rel="icon" href="<?= h(geeveUrl('favicon.ico')) ?>?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
+    <link rel="stylesheet" href="<?= h(geeveUrl('shared/style.css')) ?>?v=<?= h(assetVersion('../../shared/style.css')) ?>">
     <!-- Knoppen, invoervelden en meldingen zijn dezelfde als in de rapporten. -->
-    <link rel="stylesheet" href="../../klantartikel/assets/style.css?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
-    <link rel="stylesheet" href="../../reports/msp/assets/style.css?v=<?= h(assetVersion('../../reports/msp/assets/style.css')) ?>">
-    <link rel="stylesheet" href="../assets/accu.css?v=<?= h(assetVersion('../assets/accu.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('klantartikel/assets/style.css')) ?>?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('reports/msp/assets/style.css')) ?>?v=<?= h(assetVersion('../../reports/msp/assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('stickers/assets/accu.css')) ?>?v=<?= h(assetVersion('../assets/accu.css')) ?>">
 </head>
 <body>
 <main class="page-shell page-shell--wide">
     <?php
     $headerTitle = "Accu's";
-    $headerImagesPath = '../../images/';
-    $headerHomeHref = '../index.php';
+    $headerImagesPath = geeveUrl('images/');
+    $headerHomeHref = geeveAppUrl('stickers');
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
@@ -75,6 +76,6 @@ function assetVersion(string $relativePath): string
 </main>
 <!-- Alleen voor het printen: hier komen de stickers (aantal keer) vlak voor window.print(). -->
 <div id="acPrintSheet" class="ac-printsheet" aria-hidden="true"></div>
-<script src="../assets/accu.js?v=<?= h(assetVersion('../assets/accu.js')) ?>"></script>
+<script src="<?= h(geeveUrl('stickers/assets/accu.js')) ?>?v=<?= h(assetVersion('../assets/accu.js')) ?>"></script>
 </body>
 </html>

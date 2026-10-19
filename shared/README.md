@@ -8,7 +8,15 @@ gaat dieper en is bedoeld als checklist/kopieersjabloon.
 
 ## Wat je krijgt
 
-- **`shared/style.css`** - kleurtokens, CSS-resets, de header/brand-panel-chrome en de meest
+- **`shared/tokens.css`** - alle CSS-variabelen (kleuren, maten, lettertypes). Wordt door
+  `shared/style.css` geïmporteerd; zie "CSS-variabelen" hieronder.
+- **`shared/head.php`** - de `<link>`-regels voor de `<head>` (favicon, `shared/style.css`, eigen
+  stylesheets), met cache-busting en absolute adressen.
+- **`shared/paths.php`** - centrale data (`data/<app>/`) en adressen (`geeveUrl()`,
+  `geeveAppUrl()`), zie "Centrale data" en "Adressen en links" hieronder.
+- **`shared/slangkaart.css`** - de vastgelegde slangkaart-layout, zie
+  [`SLANGKAART-LAYOUT.md`](SLANGKAART-LAYOUT.md).
+- **`shared/style.css`** - CSS-resets, de header/brand-panel-chrome en de meest
   gebruikte formulierprimitieven (`.panel`, `.field`, `input`, `select`). Zie "CSS-referentie"
   hieronder voor de volledige lijst.
 - **`shared/header.php`** - de brand-panel/header-markup (logo's, "terug naar hoofdmenu"-knop,
@@ -70,8 +78,8 @@ hieronder) en app-specifieke JS.
    definieert die functie niet - elke app moet 'm dus zelf (zoals hierboven) declareren vóórdat de
    include gebruikt wordt.
 
-3. **`<head>`** - laad `shared/style.css` **vóór** de eigen `assets/style.css`, zodat de eigen
-   stylesheet specifieke waarden kan overschrijven zonder de hele regel te hoeven herhalen:
+3. **`<head>`** - gebruik `shared/head.php`. Die zet favicon, `shared/style.css` (met daarin
+   `shared/tokens.css`) en daarna je eigen stylesheets, met absolute adressen en cache-busting:
 
    ```html
    <!doctype html>
@@ -81,11 +89,15 @@ hieronder) en app-specifieke JS.
        <meta name="viewport" content="width=device-width, initial-scale=1">
        <meta name="robots" content="noindex,nofollow">
        <title>&lt;Apptitel&gt; | Geeve Hydraulics</title>
-       <link rel="icon" href="../favicon.ico?v=<?= h(assetVersion('../favicon.ico')) ?>" type="image/x-icon">
-       <link rel="stylesheet" href="../shared/style.css?v=<?= h(assetVersion('../shared/style.css')) ?>">
-       <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
+       <?php
+       $headCss = ['<appnaam>/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+       require __DIR__ . '/../shared/head.php';
+       ?>
    </head>
    ```
+
+   Oudere apps hebben nog de losse `<link>`-regels (`../shared/style.css` vóór `assets/style.css`);
+   dat werkt ook, maar nieuwe apps gebruiken `head.php`.
 
 4. **`<body>`** - open `<main class="page-shell">` (of `<main class="page-shell page-shell--wide">` voor een brede selector-app) en include `shared/header.php` direct erna, met
    minimaal `$headerTitle` gezet:
@@ -169,28 +181,24 @@ require __DIR__ . '/../shared/header.php';
 
 ## CSS-referentie (`shared/style.css`)
 
-### Kleurtokens (`:root`)
+### CSS-variabelen (`shared/tokens.css`)
 
-| Token | Waarde | Gebruik |
+Alle variabelen staan in **`shared/tokens.css`** (alleen `:root`, geen regels); `shared/style.css`
+importeert dat bestand. Kijk daar voor de actuele waarden. De groepen:
+
+| Groep | Voorbeelden | Gebruik |
 |---|---|---|
-| `--bg` | `#ececec` | Paginabackground (`body`). |
-| `--panel` | `#ffffff` | Achtergrond van `.panel`. |
-| `--ink` | `#1f2328` | Hoofdtekstkleur. |
-| `--muted` | `#687383` | Gedempte/secundaire tekst. |
-| `--line` | `#d6dde4` | Randen (o.a. `.panel`). |
-| `--accent` | `#ee305d` | Merkkleur (focus-rand, `.brand-panel::after`-streep). |
-| `--accent-dark` | `#b90d32` | Donkere variant van de merkkleur. |
-| `--dark-1` / `--dark-2` | `#232323` / `#3b3b3b` | Donkere achtergronden (o.a. `.brand-panel`, `.code-panel` in Stauff). |
-| `--soft` | `#f4f7fa` | Zachte achtergrond (bijv. tabelkoppen). |
-| `--ok` | `#237447` | Succes/positief - bedoeld voor een **lichte** achtergrond. |
-| `--danger` | `#a03636` | Fout/negatief - bedoeld voor een **lichte** achtergrond. |
-| `--shadow` | `0 10px 24px rgba(0,0,0,.06)` | Standaard schaduw (`.panel`, `.brand-panel`). |
-| `--btn-gap` | `5px` | Ruimte tussen aangrenzende knoppen (gebruik als `gap` van een knoppenrij). |
-| `--line-strong` | `#c9d4de` | Rand voor een lichte/neutrale knop (wit of `#edf2f6`). |
-| `--ok-soft-line` | `#b3d5c2` | Rand voor een lichtgroene knop (`#e8f4ed`). |
-| `--accent-line` | `#f47896` | Rand voor een knop in `--accent`. |
-| `--accent-dark-line` | `#d2627a` | Rand voor een knop in `--accent-dark`. |
-| `--ok-line` / `--danger-line` | `#70a587` / `#c17c7c` | Rand voor een knop in `--ok` / `--danger`. |
+| Basis | `--bg`, `--panel`, `--ink`, `--muted`, `--line`, `--soft`, `--shadow` | Pagina, panelen, tekst, randen |
+| Merk | `--accent`, `--accent-dark`, `--dark-1`, `--dark-2` | Accentkleur, donkere header |
+| Status | `--ok`, `--danger`, `--status-error*`, `--status-warn*`, `--status-ok-soft`, `--status-accent-soft` | Meldingen, pillen, rijkleuren |
+| Vlakken | `--surface-white`, `--surface-subtle`, `--surface-input-disabled`, `--panel-glass` | Kaarten, tabelrijen, velden |
+| Lijnen | `--line-input`, `--line-faint`, `--line-strong`, `*-line` | Invoervelden, scheidingslijnen, knoprand |
+| Tekst | `--font-family`, `--font-print`, `--ink-print`, `--ink-disabled` | Lettertypes, printtekst |
+| Vorm | `--radius-sm`, `--radius-md`, `--radius-lg`, `--radius-pill`, `--focus-ring`, `--btn-gap` | Afronding, focus, knopafstand |
+| Knoppen | `--btn-*` | Alle knopkleuren, zie hieronder |
+
+**Afspraak:** geen losse kleurwaarden in een eigen `assets/style.css`. Een kleur die je nodig hebt
+staat in `tokens.css`, of komt er eerst als nieuwe variabele bij.
 
 **Knopregel:** elke knop heeft een rand in dezelfde kleurtoon als zijn achtergrond - een
 **lichtere** rand op een donkere knop, een **donkerdere** rand op een lichte knop (gebruik de
@@ -257,6 +265,48 @@ Dupliceer nooit een gedeelde regel 1-op-1 in de eigen stylesheet - als twee apps
 dezelfde override nodig hebben, hoort die override in `shared/style.css`, niet in allebei de eigen
 bestanden.
 
+## Centrale data (`data/`)
+
+CSV's en hun back-ups staan centraal in **`data/<app>/`** op portal-rootniveau, bijvoorbeeld
+`data/hoses/artikelnummers_staal.csv`. Die map staat **niet in git** (alleen `data/.htaccess`, die
+de map voor de browser afsluit), zodat `git pull` de bestanden die op de server bewerkt worden nooit
+raakt. Elke app mag elk bestand lezen: Slangkaart printen en de configurator lezen bijvoorbeeld de
+slangen-CSV van `hoses`.
+
+```php
+require_once __DIR__ . '/../shared/paths.php';
+
+// Leesvolgorde: data/hoses/x.csv, dan de oude plekken die je meegeeft.
+$candidates = geeveDataCandidates('hoses', 'artikelnummers_staal.csv', [__DIR__ . '/data/artikelnummers_staal.csv']);
+$file = findFirstReadableFile($candidates);          // om te lezen
+$target = geeveDataWriteTarget($candidates);         // om naartoe te schrijven (upload/bewerken)
+$backupDir = geeveBackupDir($target);                // data/backups/hoses/
+```
+
+Schrijven gaat altijd naar het bestand dat gelezen wordt, zodat lezen en schrijven nooit
+verschillende bestanden pakken. Een nieuwe app zet zijn data meteen in `data/<appnaam>/` en heeft
+geen oude plekken nodig. Afbeeldingen die bij de code horen blijven in git, in de eigen
+`images/` van de app.
+
+## Adressen en links
+
+Elke app heeft een tegel-id met zijn map in **`GEEVE_APP_URLS`** (`shared/paths.php`), naast
+`TILE_REGISTRY` in `shared/tiles.php`. Alle adressen zijn absoluut vanaf de portal-root, zodat de
+portal ook in een submap werkt (bijv. een testkopie onder `/Geeve_selectors/`).
+
+Links in een app:
+
+- naar een andere app of een overzicht: `geeveAppUrl('reports')`, `geeveAppUrl('msp')`;
+- naar een bestand van een andere map: `geeveUrl('reports/assets/sp-report.js')`, niet `../`
+  naar een buurmap;
+- binnen de eigen map gewoon relatief (`assets/style.css`, `api/data.php`).
+
+## Slangkaart-layout
+
+De slangkaart van Slangkaart printen is de standaard voor elke app die slangkaarten toont of
+print. Laad `shared/slangkaart.css` (na `shared/style.css`, vóór je eigen stylesheet) en volg de
+opbouw in [`SLANGKAART-LAYOUT.md`](SLANGKAART-LAYOUT.md).
+
 ## Versienummer
 
 Alle apps tonen hetzelfde versienummer uit `version.php` (root), al geladen via de
@@ -266,11 +316,12 @@ versienummer wordt niet bij elke wijziging opgehoogd.
 
 ## Checklist
 
-- [ ] `<appnaam>/assets/style.css` aangemaakt (mag leeg beginnen).
-- [ ] `<appnaam>/index.php`: kopblok (`APP_VERSION`, `h()`, `assetVersion()`) + `<head>` met
-      `shared/style.css` vóór `assets/style.css`.
+- [ ] `<appnaam>/assets/style.css` aangemaakt (mag leeg beginnen), zonder losse kleurwaarden.
+- [ ] `<appnaam>/index.php`: kopblok (`APP_VERSION`, `h()`) en `<head>` via `shared/head.php`.
 - [ ] `<main class="page-shell">` + `shared/header.php`-include met minimaal `$headerTitle`.
 - [ ] Eigen pagina-inhoud binnen `.panel`/`.field`-structuur waar van toepassing.
-- [ ] `version.php` (root) opgehoogd.
-- [ ] (optioneel) tegel toegevoegd aan het hoofdscherm (`index.php`, `.tile-grid`).
+- [ ] Data (CSV's) in `data/<appnaam>/` via `shared/paths.php`, niet in git.
+- [ ] (optioneel) tegel: `TILE_REGISTRY` (`shared/tiles.php`), `GEEVE_APP_URLS`
+      (`shared/paths.php`) en het `<a class="tile">`-blok op het overzicht.
 - [ ] Eigen README.md voor de nieuwe app (zie de bestaande apps als voorbeeld).
+- [ ] `version.php` **niet** zelf ophogen; dat gebeurt alleen op verzoek (zie `CLAUDE.md`).

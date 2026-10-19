@@ -23,7 +23,7 @@ $csvFiles = [
 
 $accessoryCsvFile = findFirstReadableFile($accessoryCsvCandidates);
 
-$articles = loadMergedArticles($csvFiles, $accessoryCsvFile, $loadErrors);
+$articles = loadMergedArticlesCached($csvFiles, $accessoryCsvFile, $loadErrors);
 
 function h(string $value): string
 {

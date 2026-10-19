@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
+require_once __DIR__ . '/../shared/paths.php';
 tileRequirePage('stickers', '../index.php');
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
@@ -51,7 +52,7 @@ $csrf = csrfToken();
 
     <div class="tile-grid">
         <?php ob_start(); if (tileVisible('stickers-order')): ?>
-        <a class="<?= tileClass('stickers-order') ?>" href="order/index.php"<?= tileAttrs('stickers-order') ?>>
+        <a class="<?= tileClass('stickers-order') ?>" href="<?= h(geeveAppUrl('stickers-order')) ?>"<?= tileAttrs('stickers-order') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M3 5v14M7 5v14M10 5v14M14 5v14M17 5v14M21 5v14"></path>
@@ -64,7 +65,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['stickers-order'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-artikel')): ?>
-        <a class="<?= tileClass('stickers-artikel') ?>" href="artikel/index.php"<?= tileAttrs('stickers-artikel') ?>>
+        <a class="<?= tileClass('stickers-artikel') ?>" href="<?= h(geeveAppUrl('stickers-artikel')) ?>"<?= tileAttrs('stickers-artikel') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
@@ -78,7 +79,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['stickers-artikel'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-productie')): ?>
-        <a class="<?= tileClass('stickers-productie') ?>" href="productie/index.php"<?= tileAttrs('stickers-productie') ?>>
+        <a class="<?= tileClass('stickers-productie') ?>" href="<?= h(geeveAppUrl('stickers-productie')) ?>"<?= tileAttrs('stickers-productie') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="12" cy="12" r="3"></circle>
@@ -92,7 +93,7 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['stickers-productie'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-artikel-groot')): ?>
-        <a class="<?= tileClass('stickers-artikel-groot') ?>" href="accu/index.php"<?= tileAttrs('stickers-artikel-groot') ?>>
+        <a class="<?= tileClass('stickers-artikel-groot') ?>" href="<?= h(geeveAppUrl('stickers-artikel-groot')) ?>"<?= tileAttrs('stickers-artikel-groot') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
@@ -121,7 +122,7 @@ $csrf = csrfToken();
         </div>
         <?php endif; $tileHtml['stickers-kabelmerkers'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-slanglabels')): ?>
-        <a class="<?= tileClass('stickers-slanglabels') ?>" href="slanglabels/index.php"<?= tileAttrs('stickers-slanglabels') ?>>
+        <a class="<?= tileClass('stickers-slanglabels') ?>" href="<?= h(geeveAppUrl('stickers-slanglabels')) ?>"<?= tileAttrs('stickers-slanglabels') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M3 17c4 0 4-10 9-10s5 10 9 10"></path>

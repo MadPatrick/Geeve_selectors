@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
-tileRequirePage('inkooporder-import', '../../templates/index.php');
+require_once __DIR__ . '/../../shared/paths.php';
+tileRequirePage('inkooporder-import', geeveAppUrl('templates'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
 
@@ -33,25 +34,25 @@ $csrf = csrfToken();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Inkooporder Import | Geeve Hydraulics</title>
-    <link rel="icon" href="../../favicon.ico?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
-    <link rel="stylesheet" href="../../shared/style.css?v=<?= h(assetVersion('../../shared/style.css')) ?>">
-    <link rel="stylesheet" href="../../assets/style.css?v=<?= h(assetVersion('../../assets/style.css')) ?>">
+    <link rel="icon" href="<?= h(geeveUrl('favicon.ico')) ?>?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
+    <link rel="stylesheet" href="<?= h(geeveUrl('shared/style.css')) ?>?v=<?= h(assetVersion('../../shared/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('assets/style.css')) ?>?v=<?= h(assetVersion('../../assets/style.css')) ?>">
     <!-- Knoppen, tabel, meldingen en de sleepzone zijn dezelfde als in Klant Artikelnummers. -->
-    <link rel="stylesheet" href="../../klantartikel/assets/style.css?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
-    <link rel="stylesheet" href="../msp/assets/style.css?v=<?= h(assetVersion('../msp/assets/style.css')) ?>">
-    <link rel="stylesheet" href="../offerte-import/assets/style.css?v=<?= h(assetVersion('../offerte-import/assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('klantartikel/assets/style.css')) ?>?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('reports/msp/assets/style.css')) ?>?v=<?= h(assetVersion('../msp/assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(geeveUrl('reports/offerte-import/assets/style.css')) ?>?v=<?= h(assetVersion('../offerte-import/assets/style.css')) ?>">
 </head>
 <body>
 <main class="page-shell page-shell--wide">
     <?php
     $headerTitle = 'Inkooporder Import';
-    $headerImagesPath = '../../images/';
-    $headerHomeHref = '../../templates/index.php'; // tegel staat onder Templates
+    $headerImagesPath = geeveUrl('images/');
+    $headerHomeHref = geeveAppUrl('templates'); // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel" id="oiApp" data-validate="../offerte-import/api/validate.php" data-kind="inkoop" data-csrf="<?= h($csrf) ?>">
+    <section class="panel" id="oiApp" data-validate="<?= h(geeveUrl('reports/offerte-import/api/validate.php')) ?>" data-kind="inkoop" data-csrf="<?= h($csrf) ?>">
         <h2>Inkooporder importeren via Excel</h2>
         <p class="ka-empty">Download de lege template (Regelnr, Aantal, Artikelcode), vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). Inkoper, leveranciernummer, omschrijving en datum vul je hieronder in. De velden en artikelen worden gecontroleerd met Exact: de artikelomschrijving komt uit Exact, en artikelen die niet bestaan staan rood. Is alles in orde, dan maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Logistieke import</strong>).</p>
         <div class="ka-actions">
@@ -113,7 +114,7 @@ $csrf = csrfToken();
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
-<script src="../assets/vendor/xlsx-style.min.js"></script>
-<script src="../offerte-import/assets/offerte.js?v=<?= h(assetVersion('../offerte-import/assets/offerte.js')) ?>"></script>
+<script src="<?= h(geeveUrl('reports/assets/vendor/xlsx-style.min.js')) ?>"></script>
+<script src="<?= h(geeveUrl('reports/offerte-import/assets/offerte.js')) ?>?v=<?= h(assetVersion('../offerte-import/assets/offerte.js')) ?>"></script>
 </body>
 </html>
