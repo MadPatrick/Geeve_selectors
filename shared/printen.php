@@ -267,7 +267,7 @@ function geeveFindDriver(bool $color, bool $ippBeschikbaar = false): ?string
  * @param list<string> $tiles
  * @return array{0: bool, 1: string}
  */
-function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $tiles, string $soort = 'a4', float $breedte = 25, float $hoogte = 95): array
+function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $tiles, string $soort = 'a4'): array
 {
     $name = trim($name);
     $host = strtolower(trim($host));
@@ -277,9 +277,6 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
     }
     if (preg_match('/^[a-z0-9]([a-z0-9.-]{0,60}[a-z0-9])?$/', $host) !== 1) {
         return [false, 'Het IP-adres of de netwerknaam is ongeldig.'];
-    }
-    if ($soort === 'label' && ($breedte < 10 || $breedte > 120 || $hoogte < 10 || $hoogte > 300)) {
-        return [false, 'Geef het formaat van het label in mm (breedte 10-120, hoogte 10-300).'];
     }
     $ip = filter_var($host, FILTER_VALIDATE_IP) !== false ? $host : gethostbyname($host);
     if (filter_var($ip, FILTER_VALIDATE_IP) === false || !geeveIsPrivateAddress($ip)) {
@@ -342,7 +339,7 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
         'tiles' => array_values(array_intersect($tiles, array_keys(GEEVE_PRINT_TILES))),
     ];
     if ($soort === 'label') {
-        $list[$queue] += ['dpi' => 300, 'breedte' => $breedte, 'hoogte' => $hoogte];
+        $list[$queue]['dpi'] = 300;
     }
     if (!geevePrinterListSave($list)) {
         if (!empty($created)) {
@@ -371,7 +368,7 @@ function geeveFindQueueForHost(string $ip): ?string
  *
  * @return array{0: bool, 1: string}
  */
-function geeveUpdatePrinter(string $queue, string $name, string $host, string $kleurKeuze, ?float $breedte = null, ?float $hoogte = null): array
+function geeveUpdatePrinter(string $queue, string $name, string $host, string $kleurKeuze): array
 {
     $list = geevePrinterList();
     if (!isset($list[$queue])) {
@@ -424,10 +421,6 @@ function geeveUpdatePrinter(string $queue, string $name, string $host, string $k
         }
     }
     $new = ['name' => $name, 'host' => $host, 'color' => $color] + $current;
-    if ($isLabel && $breedte !== null && $hoogte !== null && $breedte >= 10 && $breedte <= 120 && $hoogte >= 10 && $hoogte <= 300) {
-        $new['breedte'] = $breedte;
-        $new['hoogte'] = $hoogte;
-    }
     $list[$queue] = $new;
     return geevePrinterListSave($list)
         ? [true, $name . ' is gewijzigd.']
@@ -666,7 +659,31 @@ function geevePbmToTspl(string $pbm, int $dpi): string
         . 'BITMAP 0,0,' . $rowBytes . ',' . $height . ',0,' . $data . "\r\nPRINT 1,1\r\n";
 }
 
-/** Een testlabel in TSPL: kader rondom, tekst en een barcode, op het opgegeven labelformaat. Geeft het jobnummer. */
+/**
+ * Het labelformaat van een tegel in mm als [breedte, hoogte], gelezen uit de @page-regel van de stylesheet van de app
+ * ("@page { size: 25mm 95mm; ... }"), of null als die er niet is.
+ *
+ * @return array{0: float, 1: float}|null
+ */
+function geeveTileLabelSize(string $tileId): ?array
+{
+    $page = GEEVE_PRINT_TILE_PAGE[$tileId] ?? null;
+    if ($page === null) {
+        return null;
+    }
+    foreach (array_reverse($page['css']) as $css) {
+        $text = (string) @file_get_contents(geevePortalDir() . '/' . $css);
+        if (preg_match('/@page\s*\{[^}]*size:\s*([\d.]+)mm\s+([\d.]+)mm/', $text, $m) === 1) {
+            return [(float) $m[1], (float) $m[2]];
+        }
+    }
+    return null;
+}
+
+/**
+ * Testlabels in TSPL (kader rondom, tekst en een barcode), één per labelformaat van de tegels waaraan de printer is
+ * gekoppeld. Gooit een RuntimeException als de printer nog bij geen enkele tegel staat. Geeft het jobnummer.
+ */
 function geeveLabelTest(string $queue): string
 {
     $printer = geevePrinterList()[$queue] ?? null;
@@ -674,18 +691,31 @@ function geeveLabelTest(string $queue): string
         throw new RuntimeException('Dit is geen labelprinter.');
     }
     $dpi = (int) ($printer['dpi'] ?? 300);
-    $widthMm = (float) ($printer['breedte'] ?? 25);
-    $heightMm = (float) ($printer['hoogte'] ?? 95);
-    $w = (int) round($widthMm / 25.4 * $dpi);
-    $h = (int) round($heightMm / 25.4 * $dpi);
+    $sizes = [];
+    foreach ($printer['tiles'] ?? [] as $tileId) {
+        $size = geeveTileLabelSize((string) $tileId);
+        if ($size !== null) {
+            $sizes[implode('x', $size)] = [$size, GEEVE_PRINT_TILES[$tileId] ?? $tileId];
+        }
+    }
+    if ($sizes === []) {
+        throw new RuntimeException('Vink deze printer eerst aan bij een tegel (Config > Tegels): het labelformaat komt uit de tegel.');
+    }
     $name = preg_replace('/[^\x20-\x7e]/', '', str_replace('"', "'", $printer['name'])) ?? '';
-    $tspl = 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\nGAP 3 mm,0 mm\r\nDIRECTION 0\r\nCLS\r\n"
-        . 'BOX 0,0,' . ($w - 1) . ',' . ($h - 1) . ",3\r\n"
-        . 'TEXT 20,20,"3",0,1,1,"TESTLABEL"' . "\r\n"
-        . 'TEXT 20,70,"2",0,1,1,"' . substr($name, 0, 24) . '"' . "\r\n"
-        . 'TEXT 20,110,"2",0,1,1,"' . round($widthMm) . 'x' . round($heightMm) . ' mm, ' . $dpi . ' dpi"' . "\r\n"
-        . 'BARCODE 20,160,"128",60,1,0,2,2,"12345678"' . "\r\n"
-        . "PRINT 1,1\r\n";
+    $tspl = '';
+    foreach ($sizes as [[$widthMm, $heightMm], $tileName]) {
+        $w = (int) round($widthMm / 25.4 * $dpi);
+        $h = (int) round($heightMm / 25.4 * $dpi);
+        $tileText = preg_replace('/[^\x20-\x7e]/', '', str_replace('"', "'", (string) $tileName)) ?? '';
+        $tspl .= 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\nGAP 3 mm,0 mm\r\nDIRECTION 0\r\nCLS\r\n"
+            . 'BOX 0,0,' . ($w - 1) . ',' . ($h - 1) . ",3\r\n"
+            . 'TEXT 20,20,"3",0,1,1,"TESTLABEL"' . "\r\n"
+            . 'TEXT 20,70,"2",0,1,1,"' . substr($name, 0, 24) . '"' . "\r\n"
+            . 'TEXT 20,110,"2",0,1,1,"' . substr($tileText, 0, 24) . '"' . "\r\n"
+            . 'TEXT 20,150,"2",0,1,1,"' . round($widthMm) . 'x' . round($heightMm) . ' mm"' . "\r\n"
+            . 'BARCODE 20,200,"128",60,1,0,2,2,"12345678"' . "\r\n"
+            . "PRINT 1,1\r\n";
+    }
     $workDir = geeveWorkDir();
     try {
         $file = $workDir . '/test.tspl';
