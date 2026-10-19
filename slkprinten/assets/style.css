@@ -157,8 +157,3 @@ input::placeholder { color: #929fac; }
     .panel { padding: 18px; border-radius: 14px; }
     .search-row { flex-direction: column; align-items: stretch; }
 }
-
-/* Stap 2: printerkeuze boven de printknop (direct printen vanaf de server, zie shared/printen.php). */
-.print-actions { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
-.printer-choice { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; color: var(--muted); }
-.printer-choice select { min-height: 44px; min-width: 260px; }
