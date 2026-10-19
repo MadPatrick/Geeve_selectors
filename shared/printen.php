@@ -44,11 +44,8 @@ function geevePrinters(): array
  * Print een HTML-fragment (de inhoud van #printSheet) op een CUPS-wachtrij. $cssFiles zijn paden vanaf de
  * portal-root, in dezelfde volgorde als in de <head> van de app. Geeft het CUPS-jobnummer terug; gooit een
  * RuntimeException met een leesbare melding als het misgaat.
- *
- * $passend: optioneel [selector, maximale hoogte in mm]. Elk element dat in de print hoger is dan die hoogte, wordt
- * met CSS-zoom precies zo veel verkleind dat het op één pagina past (bijv. een slangkaart met een lange notitie).
  */
-function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string $title, ?array $passend = null): string
+function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string $title): string
 {
     if (!array_key_exists($queue, geevePrinters())) {
         throw new RuntimeException('Onbekende printer: ' . $queue);
@@ -67,31 +64,16 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
 
     try {
         $links = '';
-        $printRegels = '';
         foreach (array_merge(['shared/style.css'], $cssFiles) as $css) {
             $path = geevePortalDir() . '/' . ltrim($css, '/');
             $links .= '<link rel="stylesheet" href="file://' . htmlspecialchars($path, ENT_QUOTES) . '">' . "\n";
-            $printRegels .= geeveMediaPrintBlocks((string) @file_get_contents($path));
-        }
-        $passendScript = '';
-        if ($passend !== null) {
-            // Meten kan alleen op "scherm"; daarom gelden de printregels hier ook op scherm, bij de printbreedte
-            // (venster = A4 min de marges). Het script zet daarna per te hoog element een zoom.
-            $links .= "<style>@media screen {\n" . $printRegels . "\nhtml, body { margin: 0; padding: 0; background: none; }\n}</style>\n";
-            $passendScript = '<script>(function () {'
-                . 'var max = ' . (float) $passend[1] . ' * 96 / 25.4;'
-                . 'document.querySelectorAll(' . json_encode((string) $passend[0]) . ').forEach(function (el) {'
-                . 'var hoogte = el.scrollHeight;'
-                . 'if (hoogte > max + 1) { el.style.zoom = Math.max(0.6, (max - 2) / hoogte).toFixed(3); }'
-                . '});'
-                . '})();</script>';
         }
         // Alleen het printblad, zonder scripts: Chromium rendert met print-CSS, dus #printSheet wordt zichtbaar en
         // .page-shell bestaat niet.
         $bodyHtml = preg_replace('#<script\b.*?</script>#is', '', $bodyHtml) ?? '';
         $document = "<!doctype html>\n<html lang=\"nl\"><head><meta charset=\"utf-8\"><title>"
             . htmlspecialchars($title, ENT_QUOTES) . "</title>\n" . $links . '</head><body>'
-            . '<div id="printSheet">' . $bodyHtml . '</div>' . $passendScript . '</body></html>';
+            . '<div id="printSheet">' . $bodyHtml . '</div></body></html>';
         if (file_put_contents($htmlFile, $document) === false) {
             throw new RuntimeException('Kon het printbestand niet wegschrijven.');
         }
@@ -104,7 +86,6 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
             '--disable-extensions',
             '--no-pdf-header-footer',
             '--print-to-pdf-no-header',
-            '--window-size=703,1100', // printbreedte: A4 (210 mm) min 2 x 12 mm marge = 186 mm = 703 px
             '--user-data-dir=' . $workDir . '/profiel',
             '--print-to-pdf=' . $pdfFile,
             'file://' . $htmlFile,
@@ -122,31 +103,6 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
     } finally {
         geeveRemoveDir($workDir);
     }
-}
-
-/** De inhoud van alle "@media print { ... }"-blokken in een stylesheet (zonder de omhulling). */
-function geeveMediaPrintBlocks(string $css): string
-{
-    $result = '';
-    $offset = 0;
-    while (preg_match('/@media\s+print\s*\{/', $css, $match, PREG_OFFSET_CAPTURE, $offset) === 1) {
-        $start = $match[0][1] + strlen($match[0][0]);
-        $depth = 1;
-        $i = $start;
-        $length = strlen($css);
-        while ($i < $length && $depth > 0) {
-            if ($css[$i] === '{') {
-                $depth++;
-            } elseif ($css[$i] === '}') {
-                $depth--;
-            }
-            $i++;
-        }
-        $result .= substr($css, $start, $i - 1 - $start) . "\n";
-        $offset = $i;
-    }
-    // @page hoort niet op scherm (en is in @media screen ongeldig).
-    return preg_replace('/@page\b[^{]*\{[^}]*\}/', '', $result) ?? $result;
 }
 
 function geeveChromiumBinary(): ?string

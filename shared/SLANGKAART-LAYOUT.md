@@ -43,7 +43,7 @@ Van boven naar beneden. Elke kaart is in de print precies één A4-pagina.
 | 1 | `.card-top` | Links het merk "GEEVE **HYDRAULICS**" met `small.card-subbrand` "Slangenkaart"; rechts `.card-order-meta`: Ordernummer (groot) en de klantnaam (`.card-klant`) | Vaste hoogte, bovenaan |
 | 2 | `.card-body` | Twee kolommen. Links `.card-details` met `.card-detail-row`'s: **Slangnummer** (rood, `.card-slangnummer`), Referentie, Uw Referentie, Omschrijving, Slang type, Lengte. Rechts `.card-qty-box` "Aantal slangen" (groot getal) | Vaste hoogte |
 | 3 | `.card-couplings` | Drie kolommen: zijde **A** en zijde **B** (elk een `.coupling-block` met `h4` en een `.coupling-table`: Artikelnummer, Qty) en `.angle-block` met de hoek-tekening (`svg.angle-diagram`, zwarte lijnen) | **Groeit mee** en vult de ruimte tussen boven- en onderkant |
-| 4 | `.card-note` | "Notitie", altijd minstens 3 regels hoog | Vaste hoogte |
+| 4 | `.card-note` | "Notitie", tekst 9px (klein, zodat lange notities passen), altijd minstens 3 regels hoog | Vaste hoogte |
 | 5 | `.card-bewerkingen` | `h4` "Bewerkingen" met `.card-flags`: raster van 3 x 3 `.card-flag`'s (Labelen, Testen/spoelen, DNV Certificaat, Graveren, Pin prikken, Snijlengte, Testen, Proppen, één leeg vak `.card-flag-empty`) | Vaste hoogte |
 | 6 | `.card-flags-row` | Twee kolommen van 50%: "Extra artikelen" (`.coupling-table`, Artikelnummer, Aantal) en "Krimpmaten" | Vaste hoogte |
 | 7 | `.card-footer` | `.card-footer-addresses`: Ordercrediteur, Afleveradres, Verzendwijze (groot, `.card-verzendwijze`). Daaronder `.card-footer-meta`: Orderdatum, Aangemaakt, Laatste gewijzigd | Vaste hoogte, onderaan |
