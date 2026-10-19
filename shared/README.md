@@ -301,6 +301,17 @@ Links in een app:
   naar een buurmap;
 - binnen de eigen map gewoon relatief (`assets/style.css`, `api/data.php`).
 
+## Direct printen
+
+`shared/printen.php` print vanaf de server, zonder het printvenster van de browser:
+
+- **Printers** zijn CUPS-wachtrijen op de server (`lpadmin`, `socket://<ip>:9100`). Welke in een keuzelijst
+  staan en met welke naam, staat in `GEEVE_PRINTERS`; `geevePrinters()` geeft alleen de wachtrijen die CUPS echt kent.
+- **`geevePrintHtml($html, $cssFiles, $wachtrij, $titel)`** maakt van dezelfde HTML als de browserprint (bijv. de
+  inhoud van `#printSheet`) met headless Chromium (`/usr/bin/chromium-headless-shell`) een PDF met de print-CSS,
+  en geeft die met `lp` aan de printer. De PDF is gelijk aan wat de browser print.
+- Voorbeeld: Slangkaart printen, stap 2 (keuzelijst "Printer" boven de printknop).
+
 ## Slangkaart-layout
 
 De slangkaart van Slangkaart printen is de standaard voor elke app die slangkaarten toont of

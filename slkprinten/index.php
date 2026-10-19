@@ -18,6 +18,7 @@ header('Pragma: no-cache');
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
 
 require_once __DIR__ . '/../shared/pcnaam.php';
+require_once __DIR__ . '/../shared/printen.php';
 require_once __DIR__ . '/inc/db.php';
 
 // Loopt het opbouwen van de pagina vast op een PHP-fout (bv. tijdslimiet of
@@ -1514,6 +1515,10 @@ $customerOrders = [];
 $hoseNumberResults = [];
 $hoseCardsWithoutOrder = [];
 $printSheetHtml = '';
+$printers = geevePrinters();
+$printerChoice = trim((string) ($_POST['printer'] ?? ''));
+$directPrint = null;      // ['printer' => naam, 'job' => CUPS-jobnummer] na een gelukte directe print
+$directPrintError = null; // melding als direct printen misging; de browserprint blijft dan mogelijk
 $showRecentOrders = false;
 $errorMessage = null;
 
@@ -1530,6 +1535,20 @@ if ($selectedKeys !== []) {
         }
         if ($hoseCards !== []) {
             $printSheetHtml .= renderPicklist(buildPicklist($hoseCards), $orderNumber, pick($hoseCards[0]['row'], KLANT_CANDIDATES));
+        }
+        // Printer gekozen in stap 2: direct vanaf de server printen i.p.v. het printvenster van de browser.
+        if ($hoseCards !== [] && isset($printers[$printerChoice])) {
+            try {
+                $job = geevePrintHtml(
+                    $printSheetHtml,
+                    ['shared/slangkaart.css', 'slkprinten/assets/style.css'],
+                    $printerChoice,
+                    'Slangkaarten ' . ($orderNumber !== '' ? $orderNumber : 'zonder order')
+                );
+                $directPrint = ['printer' => $printers[$printerChoice], 'job' => $job];
+            } catch (Throwable $exception) {
+                $directPrintError = $exception->getMessage();
+            }
         }
     } catch (Throwable $exception) {
         $hoseCards = [];
@@ -1691,6 +1710,25 @@ if ($selectedKeys !== []) {
 
     <?php if ($errorMessage !== null): ?>
         <section class="warning-box"><?= h($errorMessage) ?></section>
+    <?php elseif ($hoseCards !== [] && ($directPrint !== null || $directPrintError !== null)): ?>
+        <section class="panel result-panel">
+            <div class="section-heading">
+                <div>
+                    <span class="step">Stap 3</span>
+                    <?php if ($directPrint !== null): ?>
+                        <h2><?= count($hoseCards) ?> slangkaart<?= count($hoseCards) === 1 ? '' : 'en' ?> verstuurd naar <?= h($directPrint['printer']) ?></h2>
+                    <?php else: ?>
+                        <h2>Direct printen is niet gelukt</h2>
+                    <?php endif; ?>
+                </div>
+                <button type="button" class="print-btn" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Via de browser printen</span></button>
+            </div>
+            <?php if ($directPrint !== null): ?>
+                <p class="print-status">De printer heeft de opdracht ontvangen (opdracht <?= h($directPrint['job']) ?>).</p>
+            <?php else: ?>
+                <p class="warning-box"><?= h((string) $directPrintError) ?></p>
+            <?php endif; ?>
+        </section>
     <?php elseif ($hoseCards !== []): ?>
         <section class="panel result-panel">
             <div class="section-heading">
@@ -1720,11 +1758,24 @@ if ($selectedKeys !== []) {
                     </div>
                     <h2><?= count($hoseLines) ?> slangregel<?= count($hoseLines) === 1 ? '' : 'en' ?> gevonden</h2>
                 </div>
+                <div class="print-actions">
+                <?php if ($printers !== []): ?>
+                    <label class="printer-choice">
+                        <span>Printer</span>
+                        <select name="printer" form="hoseLinesForm" id="printerChoice">
+                            <option value="">Printvenster van de browser</option>
+                            <?php foreach ($printers as $queue => $label): ?>
+                                <option value="<?= h($queue) ?>"><?= h($label) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                <?php endif; ?>
                 <button type="submit" form="hoseLinesForm" class="print-btn" id="printSelectedButton">
                     <span class="button-fill" aria-hidden="true"></span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     <span class="button-label">Print geselecteerde slangkaarten</span>
                 </button>
+                </div>
             </div>
             <?= renderHoseLinesForm($hoseLines, $orderNumber, $customerName) ?>
         </section>
@@ -1736,6 +1787,17 @@ if ($selectedKeys !== []) {
                 if (!form || !button || !label) { return; }
 
                 var originalLabel = label.textContent;
+                // De gekozen printer onthoudt deze browser (alleen voor het gemak; zonder opslag gewoon de browserprint).
+                var printer = document.getElementById('printerChoice');
+                if (printer) {
+                    try {
+                        var saved = window.localStorage.getItem('slkprinten.printer');
+                        if (saved !== null && printer.querySelector('option[value="' + saved.replace(/"/g, '') + '"]')) { printer.value = saved; }
+                    } catch (e) {}
+                    printer.addEventListener('change', function () {
+                        try { window.localStorage.setItem('slkprinten.printer', printer.value); } catch (e) {}
+                    });
+                }
                 form.addEventListener('submit', function () {
                     button.classList.add('loading');
                     button.disabled = true;
