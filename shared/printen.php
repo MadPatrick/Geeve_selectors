@@ -19,7 +19,6 @@ require_once __DIR__ . '/paths.php';
  */
 const GEEVE_PRINT_TILES = [
     'slangkaarten' => 'Slangkaarten Printen',
-    'hoses' => 'Slangen fitting Selector',
     'stickers-order' => 'Artikelen per Verkooporder',
     'stickers-productie' => 'Artikelen per Productieorder',
     'stickers-artikel' => 'Artikelnummer',
