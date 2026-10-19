@@ -43,7 +43,7 @@ Van boven naar beneden. Elke kaart is in de print precies één A4-pagina.
 | 1 | `.card-top` | Links het merk "GEEVE **HYDRAULICS**" met `small.card-subbrand` "Slangenkaart"; rechts `.card-order-meta`: Ordernummer (groot) en de klantnaam (`.card-klant`) | Vaste hoogte, bovenaan |
 | 2 | `.card-body` | Twee kolommen. Links `.card-details` met `.card-detail-row`'s: **Slangnummer** (rood, `.card-slangnummer`), Referentie, Uw Referentie, Omschrijving, Slang type, Lengte. Rechts `.card-qty-box` "Aantal slangen" (groot getal) | Vaste hoogte |
 | 3 | `.card-couplings` | Drie kolommen: zijde **A** en zijde **B** (elk een `.coupling-block` met `h4` en een `.coupling-table`: Artikelnummer, Qty) en `.angle-block` met de hoek-tekening (`svg.angle-diagram`, zwarte lijnen) | **Groeit mee** en vult de ruimte tussen boven- en onderkant |
-| 4 | `.card-note` | "Notitie", altijd minstens 3 regels hoog | Vaste hoogte |
+| 4 | `.card-note` | "Notitie", tekst 9px (klein, zodat lange notities passen), altijd minstens 3 regels hoog | Vaste hoogte |
 | 5 | `.card-bewerkingen` | `h4` "Bewerkingen" met `.card-flags`: raster van 3 x 3 `.card-flag`'s (Labelen, Testen/spoelen, DNV Certificaat, Graveren, Pin prikken, Snijlengte, Testen, Proppen, één leeg vak `.card-flag-empty`) | Vaste hoogte |
 | 6 | `.card-flags-row` | Twee kolommen van 50%: "Extra artikelen" (`.coupling-table`, Artikelnummer, Aantal) en "Krimpmaten" | Vaste hoogte |
 | 7 | `.card-footer` | `.card-footer-addresses`: Ordercrediteur, Afleveradres, Verzendwijze (groot, `.card-verzendwijze`). Daaronder `.card-footer-meta`: Orderdatum, Aangemaakt, Laatste gewijzigd | Vaste hoogte, onderaan |
@@ -63,7 +63,7 @@ Een lege waarde toont een streepje (`&mdash;`), behalve de notitie (blijft leeg)
   Besteld (leeg, om af te vinken).
 - **Kleuren in de print:** `print-color-adjust: exact`, zodat de grijze vlakken en rode accenten
   ook geprint worden. Tekst in de print is `--ink-print`, lettertype `--font-print` (Arial).
-- **Kaderranden in de print:** donkergrijs `#999` (hetzelfde grijs als de hoek-tekening), op scherm lichtgrijs
+- **Kaderranden in de print:** donkergrijs `#666` (`--line-print`), alle kaders 1px dun en overal even dik (geen dubbele buitenrand om tabellen), op scherm lichtgrijs
   `--line`. `#printSheet` zet daarvoor `--line` opnieuw; dat geldt voor alle kaders (18-10-2026).
 - **Alleen het printblad:** `.page-shell` (het scherm van de app) wordt in de print verborgen.
 - **Smal scherm (onder 700px), alleen op scherm:** de kaartblokken staan onder elkaar. Dit
@@ -75,7 +75,7 @@ Een lege waarde toont een streepje (`&mdash;`), behalve de notitie (blijft leeg)
 | Gebruik | Variabele |
 |---|---|
 | Accentlijn onder de kop, Slangnummer, `h4`-koppen, "HYDRAULICS" | `--accent-dark` |
-| Kaders en lijnen | `--line` (in de print `#999`) |
+| Kaders en lijnen | `--line` (in de print `#666`) |
 | Lijn tussen detailregels | `--line-faint` |
 | Kopjes van tabellen, aantal-vak | `--soft` |
 | Vakjes van Bewerkingen | `--surface-subtle` |

@@ -78,6 +78,7 @@
     /* ---- Lijnen ---- */
     --line-input: #cbd6df;              /* rand van invoervelden en tabellen */
     --line-faint: #f0f2f4;              /* scheidingslijn tussen detailregels (slangkaart) */
+    --line-print: #666;                 /* kaderlijnen in de print van een slangkaart (zwart-witdriver maakt lichtgrijs bijna onzichtbaar) */
 
     /* ---- Tekst ---- */
     --ink-disabled: #97a3af;

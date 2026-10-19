@@ -51,7 +51,7 @@
 .card-note span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
 /* Standaard 3 regels hoogte, ook leeg/ongebruikt (line-height 1.5em x 3);
    min-height i.p.v. height, dus groeit automatisch mee bij langere tekst. */
-.card-note div { min-height: 4.5em; line-height: 1.5; font-size: 11px; }
+.card-note div { min-height: 4.5em; line-height: 1.5; font-size: 9px; } /* 2px kleiner (Patrick, 19-10-2026), zodat een lange notitie op de kaart past */
 
 .card-couplings { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: start; }
 .coupling-block h4 { margin: 0 0 8px; font-size: 13px; font-weight: 800; color: var(--accent-dark); }
@@ -59,7 +59,7 @@
    de kaart/pagina - border-radius + overflow:hidden op de wrapper, want
    dat werkt niet direct op een border-collapse:collapse tabel. */
 .coupling-table-wrap { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.coupling-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.coupling-table { width: calc(100% + 2px); margin: -1px; border-collapse: collapse; font-size: 12px; } /* de buitenste celranden vallen onder de wrapper-rand (overflow:hidden): geen dubbele lijn aan de rand */
 .coupling-table th, .coupling-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
 .coupling-table th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; }
 .coupling-table td.coupling-empty-cell { color: var(--muted); font-style: italic; text-align: center; }
@@ -121,11 +121,16 @@
         background: var(--surface-white);
         color: var(--ink-print);
         font-family: var(--font-print);
-        /* Kaderranden in de print donkergrijs, hetzelfde grijs als de hoek-tekening (Patrick, 18-10-2026); op
+        /* Kaderranden in de print donkergrijs, donkergrijs --line-print (was #999; Patrick, 19-10-2026, zodat ze op de Canon blijven staan); op
            scherm blijven ze lichtgrijs (--line uit tokens.css). Geldt voor alle kaders: kaart, tabellen, vinkjes,
            footerlijn, picklijst. */
-        --line: #999;
+        --line: var(--line-print);
     }
+    /* Alle kaders in de print even dun (1px, --line-print): geen dikkere buitenkaders meer, zodat de lijnen
+       gelijkmatig uitkomen (Patrick, 19-10-2026). */
+    /* Chromium knipt in de PDF alles af op de rechterrand van het printgebied; de boxen lopen precies tot die rand,
+       waardoor de rechter kaderlijn tot een haarlijn werd. 1 mm ruimte rechts houdt hem heel. */
+    #printSheet { padding-right: 1mm; box-sizing: border-box; }
 
     /* De picklijst staat nu als laatste pagina (na alle slangkaarten), dus
        geen page-break-after meer nodig - dat zou een lege pagina erachter
