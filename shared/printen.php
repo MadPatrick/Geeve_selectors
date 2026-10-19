@@ -273,6 +273,20 @@ function geeveFindDriver(bool $color, bool $ippBeschikbaar = false): ?string
  * @param list<string> $tiles
  * @return array{0: bool, 1: string}
  */
+/**
+ * Splitst een adres als "10.209.192.172" of "10.209.192.172:9101" in [host, poort]. De poort is standaard 9100: een
+ * USB-printserver (bijv. Silex DS-510) geeft elke aangesloten printer een eigen poort op hetzelfde IP.
+ *
+ * @return array{0: string, 1: int}
+ */
+function geeveSplitHost(string $adres): array
+{
+    if (preg_match('/^(.*):(\d{1,5})$/', $adres, $m) === 1) {
+        return [$m[1], (int) $m[2]];
+    }
+    return [$adres, 9100];
+}
+
 function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $tiles, string $soort = 'a4'): array
 {
     $name = trim($name);
@@ -281,10 +295,11 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
     if ($name === '' || strlen($name) > 60) {
         return [false, 'Geef de printer een naam (maximaal 60 tekens).'];
     }
-    if (preg_match('/^[a-z0-9]([a-z0-9.-]{0,60}[a-z0-9])?$/', $host) !== 1) {
-        return [false, 'Het IP-adres of de netwerknaam is ongeldig.'];
+    if (preg_match('/^[a-z0-9]([a-z0-9.-]{0,60}[a-z0-9])?(:\d{1,5})?$/', $host) !== 1) {
+        return [false, 'Het IP-adres of de netwerknaam is ongeldig (eventueel met poort, bijv. 10.209.192.172:9101).'];
     }
-    $ip = filter_var($host, FILTER_VALIDATE_IP) !== false ? $host : gethostbyname($host);
+    [$hostNaam, $poort] = geeveSplitHost($host);
+    $ip = filter_var($hostNaam, FILTER_VALIDATE_IP) !== false ? $hostNaam : gethostbyname($hostNaam);
     if (filter_var($ip, FILTER_VALIDATE_IP) === false || !geeveIsPrivateAddress($ip)) {
         return [false, 'Dit adres is niet gevonden op het interne netwerk.'];
     }
@@ -294,9 +309,9 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
             return [false, 'Er staat al een printer met deze naam op dit adres: ' . $existing['name'] . '.'];
         }
     }
-    $socket = @fsockopen($ip, 9100, $errno, $errstr, 3);
+    $socket = @fsockopen($ip, $poort, $errno, $errstr, 3);
     if ($socket === false) {
-        return [false, 'De printer antwoordt niet op poort 9100 (' . ($errstr !== '' ? $errstr : 'geen verbinding') . ').'];
+        return [false, 'De printer antwoordt niet op poort ' . $poort . ' (' . ($errstr !== '' ? $errstr : 'geen verbinding') . ').'];
     }
     fclose($socket);
 
@@ -320,14 +335,14 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
 
     $list = geevePrinterList();
     // Staat er al een wachtrij naar dit adres in CUPS (bijv. door de beheerder aangemaakt)? Dan die overnemen.
-    $queue = geeveFindQueueForHost($ip);
+    $queue = geeveFindQueueForHost($ip, $poort);
     if ($queue === null || isset($list[$queue])) {
         $base = 'geeve_' . trim((string) preg_replace('/[^a-z0-9]+/', '_', strtolower($name)), '_');
         $queue = substr($base, 0, 40);
         for ($n = 2; isset($list[$queue]); $n++) {
             $queue = substr($base, 0, 36) . '_' . $n;
         }
-        $args = ['/usr/sbin/lpadmin', '-p', $queue, '-E', '-v', 'socket://' . $ip . ':9100',
+        $args = ['/usr/sbin/lpadmin', '-p', $queue, '-E', '-v', 'socket://' . $ip . ':' . $poort,
             '-m', $driver ?? 'raw', '-o', 'printer-is-shared=false', '-D', $name];
         if ($soort === 'a4') {
             $args = array_merge($args, ['-o', 'media=A4']);
@@ -358,11 +373,11 @@ function geeveAddPrinter(string $name, string $host, string $kleurKeuze, array $
 }
 
 /** De CUPS-wachtrij (geeve_*) die al naar dit IP-adres op poort 9100 wijst, of null. */
-function geeveFindQueueForHost(string $ip): ?string
+function geeveFindQueueForHost(string $ip, int $poort = 9100): ?string
 {
     $result = geeveRun(['/usr/bin/lpstat', '-v'], 5);
     foreach (explode("\n", $result['out']) as $line) {
-        if (preg_match('#^device for (geeve_[\w-]+): socket://' . preg_quote($ip, '#') . '(:\d+)?/?$#', trim($line), $m) === 1) {
+        if (preg_match('#^device for (geeve_[\w-]+): socket://' . preg_quote($ip, '#') . '(?::(\d+))?/?$#', trim($line), $m) === 1 && (int) ($m[2] ?? 9100) === $poort) {
             return $m[1];
         }
     }
@@ -386,8 +401,8 @@ function geeveUpdatePrinter(string $queue, string $name, string $host, string $k
     if ($name === '' || strlen($name) > 60) {
         return [false, 'Geef de printer een naam (maximaal 60 tekens).'];
     }
-    if (preg_match('/^[a-z0-9]([a-z0-9.-]{0,60}[a-z0-9])?$/', $host) !== 1) {
-        return [false, 'Het IP-adres of de netwerknaam is ongeldig.'];
+    if (preg_match('/^[a-z0-9]([a-z0-9.-]{0,60}[a-z0-9])?(:\d{1,5})?$/', $host) !== 1) {
+        return [false, 'Het IP-adres of de netwerknaam is ongeldig (eventueel met poort, bijv. 10.209.192.172:9101).'];
     }
     foreach ($list as $otherQueue => $other) {
         if ($otherQueue !== $queue && $other['host'] === $host && strcasecmp($other['name'], $name) === 0) {
@@ -398,16 +413,17 @@ function geeveUpdatePrinter(string $queue, string $name, string $host, string $k
     $args = [];
     $hostChanged = $host !== $current['host'];
     if ($hostChanged) {
-        $ip = filter_var($host, FILTER_VALIDATE_IP) !== false ? $host : gethostbyname($host);
+        [$hostNaam, $poort] = geeveSplitHost($host);
+        $ip = filter_var($hostNaam, FILTER_VALIDATE_IP) !== false ? $hostNaam : gethostbyname($hostNaam);
         if (filter_var($ip, FILTER_VALIDATE_IP) === false || !geeveIsPrivateAddress($ip)) {
             return [false, 'Dit adres is niet gevonden op het interne netwerk.'];
         }
-        $socket = @fsockopen($ip, 9100, $errno, $errstr, 3);
+        $socket = @fsockopen($ip, $poort, $errno, $errstr, 3);
         if ($socket === false) {
-            return [false, 'De printer antwoordt niet op poort 9100 (' . ($errstr !== '' ? $errstr : 'geen verbinding') . ').'];
+            return [false, 'De printer antwoordt niet op poort ' . $poort . ' (' . ($errstr !== '' ? $errstr : 'geen verbinding') . ').'];
         }
         fclose($socket);
-        $args = array_merge($args, ['-v', 'socket://' . $ip . ':9100']);
+        $args = array_merge($args, ['-v', 'socket://' . $ip . ':' . $poort]);
     }
     $isLabel = geevePrinterSoort($current) === 'label';
     $color = $kleurKeuze === 'kleur' ? true : ($kleurKeuze === 'zwartwit' ? false : $current['color']);
