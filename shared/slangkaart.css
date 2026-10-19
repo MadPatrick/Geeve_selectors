@@ -126,12 +126,8 @@
            footerlijn, picklijst. */
         --line: var(--line-print);
     }
-    #printSheet .card-qty-box,
-    #printSheet .card-note,
-    #printSheet .coupling-table-wrap,
-    #printSheet .card-flags {
-        border-width: 1.5px;
-    }
+    /* Alle kaders in de print even dun (1px, --line-print): geen dikkere buitenkaders meer, zodat de lijnen
+       gelijkmatig uitkomen (Patrick, 19-10-2026). */
     /* Chromium knipt in de PDF alles af op de rechterrand van het printgebied; de boxen lopen precies tot die rand,
        waardoor de rechter kaderlijn tot een haarlijn werd. 1 mm ruimte rechts houdt hem heel. */
     #printSheet { padding-right: 1mm; box-sizing: border-box; }
