@@ -52,7 +52,7 @@ const GEEVE_PRINT_TILE_PAGE = [
 
 /** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
 /** Labels die 90° gedraaid in de printer liggen, per sheet-class van de tegel: 'ccw' of 'cw'. */
-const GEEVE_LABEL_DRAAI = ['sl-printsheet' => 'ccw'];
+const GEEVE_LABEL_DRAAI = ['sl-printsheet' => 'cw'];
 
 const GEEVE_TSPL_ZWART_IS_NUL = true;
 
