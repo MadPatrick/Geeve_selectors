@@ -172,6 +172,10 @@ function geeveSmbPrinterType(string $share, string $driver): ?array
     if (preg_match('/zdesigner|zebra|zpl|dymo|brady/i', $share . ' ' . $driver) === 1) {
         return null;
     }
+    if (preg_match('/label|etiket|sticker/i', $share) === 1) {
+        // Een labelprinter met een gewone (PCL-)driver: daar kan de portal geen labels op printen, en een A4-afdruk hoort er niet op.
+        return null;
+    }
     if (preg_match('/pcl|universal/i', $driver) === 1) {
         // Kleur volgens de driver; de Canon-multifunctionals (Generic Plus PCL6) printen in kleur.
         return ['soort' => 'a4', 'taal' => 'pcl', 'color' => preg_match('/colou?r|canon/i', $driver) === 1];
