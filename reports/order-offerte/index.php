@@ -53,7 +53,8 @@ $csrf = csrfToken();
 
     <section class="panel">
         <h2>Order of Offerte naar Excel</h2>
-        <p class="ka-empty">Haalt de regels van een order of offerte uit Exact op (dezelfde gegevens als het Excel-bestand "Exact Order of Offerte naar Excel"). Vul het offerte- of ordernummer in, haal de gegevens op en download ze daarna als Excel-bestand.</p>
+        <p class="ka-empty">Haalt de regels van een order of offerte uit Exact op (dezelfde gegevens als het Excel-bestand "Exact Order of Offerte naar Excel"). 
+            <br>Vul het offerte- of ordernummer in, haal de gegevens op en download ze daarna als Excel-bestand.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="Offerte/ordernummer" data-sheet="orders offertes" data-file="Order_Offerte">
             <label class="msp-field">
                 <span>Offerte/ordernummer</span>
