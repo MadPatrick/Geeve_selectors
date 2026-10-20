@@ -10,14 +10,14 @@ tileApiGuard('orderhistorie');
  * Orderhistorie: geleverde orderregels per klant, vanaf de eerste order (de oude Excel toonde alleen de laatste 2 jaar).
  * Kolommen als in die Excel: artnr, afldat, prijslijst, debnm, ordernr, refer, uw referentie, pakbon_dat, art_omsc, aant_gelev.
  *
- * Bron: de view/tabel die al deze kolommen heeft. De naam is niet vastgelegd: orderhistorieBron() zoekt hem op in
+ * Bron: vastgezet op de algemene view "400 orderhistorie" (alle klanten; Carl maakte daarnaast views per klant). Is ORDERHISTORIE_BRON leeg, dan zoekt orderhistorieBron() hem op in
  * INFORMATION_SCHEMA (database Exactrapportage en de database van de app; bij gelijke score wint Exactrapportage, daarna de kortste naam). Staat de juiste bron er niet bij,
  * zet dan hieronder ORDERHISTORIE_BRON op de volledige naam, bijv. '[Exactrapportage].[dbo].[naam van de view]'.
  */
 
 require_once __DIR__ . '/../../inc.php';
 
-const ORDERHISTORIE_BRON = '';
+const ORDERHISTORIE_BRON = '[Exactrapportage].[dbo].[400 orderhistorie]';
 const ORDERHISTORIE_MAX = 50000;
 /** Voorkeursbron: de algemene view met alle klanten (Carl maakte daarnaast views per klant, zoals "400 orderhistorie929"). */
 const ORDERHISTORIE_VOORKEUR = ['400 orderhistorie'];
@@ -295,8 +295,11 @@ reportApi(function (array $in): array {
         // Vaste bron: kolommen worden via een lege SELECT TOP 0 gekoppeld.
         $meta = $pdo->query('SET NOCOUNT ON; SELECT TOP 0 * FROM ' . ORDERHISTORIE_BRON);
         $names = [];
+        $types = [];
         for ($i = 0; $i < $meta->columnCount(); $i++) {
-            $names[] = (string) ($meta->getColumnMeta($i)['name'] ?? '');
+            $cm = $meta->getColumnMeta($i);
+            $names[] = (string) ($cm['name'] ?? '');
+            $types[] = strtolower((string) ($cm['sqlsrv:decl_type'] ?? ''));
         }
         $kolommen = [];
         $debnrKolom = null;
@@ -314,7 +317,7 @@ reportApi(function (array $in): array {
                 break;
             }
         }
-        $bron = ['bron' => ORDERHISTORIE_BRON, 'kolommen' => $kolommen, 'debnr' => $debnrKolom];
+        $bron = ['bron' => ORDERHISTORIE_BRON, 'kolommen' => $kolommen, 'debnr' => $debnrKolom, 'afldatType' => (string) ($types[array_search($kolommen['afldat'] ?? '', $names, true)] ?? '')];
         if (array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), ORDERHISTORIE_OPTIONEEL, array_keys($kolommen)) !== []) {
             throw new RuntimeException('De bron ORDERHISTORIE_BRON mist een of meer verplichte kolommen van de orderhistorie.');
         }
