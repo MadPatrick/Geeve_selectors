@@ -117,6 +117,7 @@
         } else if (klantInput.value.trim() !== '') {
             body.set('klantzoek', klantInput.value.trim());
         }
+        if (/[?&]diagnose/.test(location.search)) { body.set('diagnose', '1'); }
         body.set('van', vanInput.value);
         body.set('tot', totInput.value);
         body.set('artnr', artnrInput.value.trim());

@@ -76,8 +76,10 @@ function orderhistorieBron(PDO $pdo): array
     }
     $best = null;
     $bestScore = -1;
+    $GLOBALS['orderhistorie_kandidaten'] = [];
     foreach ($candidates as $c) {
         $score = count(orderhistorieMatch($pdo, $c));
+        $GLOBALS['orderhistorie_kandidaten'][] = ($c['db'] !== '' ? $c['db'] . '.' : '') . $c['schema'] . '.' . $c['table'] . ': ' . $score . ' van ' . count(ORDERHISTORIE_KOLOMMEN) . ' kolommen';
         if ($score > $bestScore || ($score === $bestScore && $best !== null && $c['db'] === $best['db'] && strlen($c['table']) < strlen($best['table']))) {
             $best = $c;
             $bestScore = $score;
@@ -171,6 +173,54 @@ function orderhistorieLike(string $text): string
     return '%' . str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], $text) . '%';
 }
 
+/** Tekstrapport voor ?diagnose=1: gekozen bron, kolomkoppeling, voorbeeldregels en aantallen per klantfilter. */
+function orderhistorieDiagnose(PDO $pdo, array $bron, string $debnr, string $klant): string
+{
+    $out = ['DIAGNOSE orderhistorie', 'Bron: ' . $bron['bron'], 'Debiteurnummer-kolom: ' . ($bron['debnr'] ?? '(geen)')];
+    foreach ($bron['kolommen'] as $field => $name) {
+        $out[] = '  ' . $field . ' = ' . $name;
+    }
+    $out[] = 'Kandidaten: ' . implode(' | ', $GLOBALS['orderhistorie_kandidaten'] ?? ['(vaste bron)']);
+    $cols = array_map(static fn (string $n): string => orderhistorieIdent($n), array_values($bron['kolommen']));
+    if ($bron['debnr'] !== null) {
+        $cols[] = orderhistorieIdent($bron['debnr']);
+    }
+    $run = static function (string $label, string $sql, array $params, bool $count) use ($pdo, &$out): void {
+        $t = microtime(true);
+        try {
+            $stmt = $pdo->prepare('SET NOCOUNT ON; ' . $sql);
+            $stmt->execute($params);
+            $rows = $stmt->fetchAll(PDO::FETCH_NUM);
+            $ms = (int) round((microtime(true) - $t) * 1000);
+            if ($count) {
+                $out[] = $label . ': ' . ($rows[0][0] ?? '?') . ' (' . $ms . ' ms)';
+            } else {
+                $out[] = $label . ' (' . $ms . ' ms, ' . count($rows) . ' regels):';
+                foreach ($rows as $r) {
+                    $out[] = '  ' . implode(' | ', array_map(static fn ($v): string => $v instanceof DateTimeInterface ? $v->format('Y-m-d') : trim((string) $v), $r));
+                }
+            }
+        } catch (Throwable $e) {
+            $out[] = $label . ': FOUT ' . $e->getMessage();
+        }
+    };
+    $run('Eerste 3 regels van de bron', 'SELECT TOP 3 ' . implode(', ', $cols) . ' FROM ' . $bron['bron'] . ' WITH (NOLOCK)', [], false);
+    $debCol = $bron['debnr'] !== null ? orderhistorieIdent($bron['debnr']) : null;
+    $nmCol = orderhistorieIdent($bron['kolommen']['debnm']);
+    if ($debnr !== '' && $debCol !== null) {
+        $run('Aantal met debnr = ' . $debnr, 'SELECT COUNT(*) FROM ' . $bron['bron'] . ' WITH (NOLOCK) WHERE LTRIM(RTRIM(CAST(' . $debCol . ' AS varchar(50)))) = ?', [$debnr], true);
+    }
+    if ($klant !== '') {
+        $run('Aantal met naam = ' . $klant, 'SELECT COUNT(*) FROM ' . $bron['bron'] . ' WITH (NOLOCK) WHERE LTRIM(RTRIM(' . $nmCol . ')) = ?', [$klant], true);
+    }
+    $zoek = $debnr !== '' ? $debnr : $klant;
+    if ($zoek !== '') {
+        $like = orderhistorieLike($zoek);
+        $run('Voorbeelden waar nummer of naam "' . $zoek . '" bevat', 'SELECT DISTINCT TOP 5 ' . $nmCol . ($debCol !== null ? ', ' . $debCol : '') . ' FROM ' . $bron['bron'] . ' WITH (NOLOCK) WHERE ' . $nmCol . ' LIKE ?' . ($debCol !== null ? ' OR CAST(' . $debCol . ' AS varchar(50)) LIKE ?' : ''), $debCol !== null ? [$like, $like] : [$like], false);
+    }
+    return implode("\n", $out);
+}
+
 reportApi(function (array $in): array {
     $van = orderhistorieIso((string) ($in['van'] ?? ''), 'begindatum');
     $tot = orderhistorieIso((string) ($in['tot'] ?? ''), 'einddatum');
@@ -232,6 +282,11 @@ reportApi(function (array $in): array {
         $msBron = (int) round((microtime(true) - $t0) * 1000);
     }
     $col = static fn (string $field): string => orderhistorieIdent($bron['kolommen'][$field]);
+
+    if (($in['diagnose'] ?? '') !== '') {
+        unset($_SESSION['orderhistorie_bron']);
+        throw new RuntimeException(orderhistorieDiagnose($pdo, $bron, $debnr, $klant));
+    }
 
     $where = [];
     $params = [];

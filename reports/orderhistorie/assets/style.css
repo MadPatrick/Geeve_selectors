@@ -17,3 +17,4 @@
 .oh-table tr.oh-filterrow .ka-input { width: 100%; min-width: 8ch; font-weight: 400; }
 .oh-table td.num { text-align: right; }
 .oh-table td.oh-omsc { white-space: normal; }
+#ohMessage { white-space: pre-wrap; }
