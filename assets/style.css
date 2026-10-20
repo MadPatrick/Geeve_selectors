@@ -233,11 +233,12 @@
 .tiles-handle:hover { background: rgba(0, 0, 0, .07); color: var(--ink); }
 .tiles-row.is-dragging { opacity: .45; background: rgba(238, 48, 93, .08); }
 .tiles-title { flex: 1 1 auto; min-width: 0; min-height: 34px; padding: 4px 10px; font-size: 14px; font-weight: 650; border: 1px solid var(--line-strong, #c9d4de); border-radius: 8px; background: #fff; }
-.sneeuw-row { align-items: center; gap: 20px; }
-.sneeuw-row .settings-switch { gap: 20px; align-items: center; }
+.sneeuw-row { align-items: center; gap: 20px; margin-bottom: 8px; }
+.sneeuw-row .settings-switch { gap: 20px; align-items: center; min-width: 270px; }
 .sneeuw-row .settings-switch > span:last-child { line-height: 24px; }
-.sneeuw-leeg { visibility: hidden; } /* 'Van' staat niet zichtbaar; de ruimte blijft als marge */
-.sneeuw-dag { flex-direction: row; align-items: center; gap: 10px; }
 .sneeuw-dag-keuze { display: flex; gap: 8px; }
 .sneeuw-dag-keuze select { min-width: 72px; min-height: 43px; font-size: 15px; }
 .sneeuw-dag-keuze select + select { min-width: 140px; }
+.sneeuw-dag-keuze select[name$="_MAAND"] { min-width: 240px; }
+.sneeuw-dagen { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+.sneeuw-dagen input { width: 76px; min-height: 43px; font-size: 15px; text-align: center; }

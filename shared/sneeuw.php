@@ -3,20 +3,22 @@
 declare(strict_types=1);
 
 /**
- * Sneeuw in de topbalk rond de kerst (Config > Topbalk). Instellingen (secureSettings):
- *   SNEEUW_AAN   'yes' = sneeuw gebruiken, anders altijd de glow
- *   SNEEUW_VAN   'MM-DD' eerste dag van de periode (standaard 12-15)
- *   SNEEUW_TOT   'MM-DD' laatste dag van de periode (standaard 01-06)
- * De periode geldt elk jaar en mag over de jaarwisseling lopen (van > tot).
- *
- * Pasen (Config > Topbalk): PASEN_AAN 'yes' = paaseieren in de topbalk van 7 dagen voor eerste paasdag t/m
- * tweede paasdag (paasdatum berekend, geen extensie nodig); buiten die periode geen eieren.
+ * Sneeuw (kerst) en paaseieren (Pasen) in de topbalk, in plaats van de glow. Zie ook shared/header.php.
+ */
+
+/*
+ * Topbalk-animaties (Config > Topbalk), elk met: AAN ('yes'), DATUM ('MM-DD', elk jaar), VOOR en NA (aantal dagen
+ * rond die datum waarin het actief is). Sneeuw: SNEEUW_* (standaard 25 december, 10 dagen ervoor, 12 erna).
+ * Pasen: PASEN_* (standaard de berekende eerste paasdag, 7 dagen ervoor, 1 erna; een lege DATUM = automatisch
+ * eerste paasdag). Buiten de periode (of uit) staat de glow; sneeuw gaat voor paaseieren.
  */
 
 require_once __DIR__ . '/secure_settings.php';
 
-const SNEEUW_STANDAARD_VAN = '12-15';
-const SNEEUW_STANDAARD_TOT = '01-06';
+const TOPBALK_STANDAARD = [
+    'SNEEUW' => ['datum' => '12-25', 'voor' => 10, 'na' => 12],
+    'PASEN' => ['datum' => '', 'voor' => 7, 'na' => 1],
+];
 
 /** Geeft 'MM-DD' terug, of $standaard als de waarde geen geldige dag is. */
 function sneeuwDag(string $waarde, string $standaard): string
@@ -27,28 +29,51 @@ function sneeuwDag(string $waarde, string $standaard): string
     return $standaard;
 }
 
-/** De ingestelde periode: ['aan' => bool, 'van' => 'MM-DD', 'tot' => 'MM-DD']. */
-function sneeuwInstellingen(): array
+/** Aantal dagen 0-60. */
+function topbalkDagen($waarde, int $standaard): int
+{
+    return is_numeric($waarde) ? max(0, min(60, (int) $waarde)) : $standaard;
+}
+
+/** De instellingen van $naam ('SNEEUW' of 'PASEN'): ['aan' => bool, 'datum' => 'MM-DD' of '' (= Pasen), 'voor' => int, 'na' => int]. */
+function topbalkInstellingen(string $naam): array
 {
     $s = secureSettingsRead();
+    $std = TOPBALK_STANDAARD[$naam];
     return [
-        'aan' => ($s['SNEEUW_AAN'] ?? '') === 'yes',
-        'van' => sneeuwDag((string) ($s['SNEEUW_VAN'] ?? ''), SNEEUW_STANDAARD_VAN),
-        'tot' => sneeuwDag((string) ($s['SNEEUW_TOT'] ?? ''), SNEEUW_STANDAARD_TOT),
+        'aan' => ($s[$naam . '_AAN'] ?? '') === 'yes',
+        'datum' => sneeuwDag((string) ($s[$naam . '_DATUM'] ?? ''), $std['datum']),
+        'voor' => topbalkDagen($s[$naam . '_VOOR'] ?? null, $std['voor']),
+        'na' => topbalkDagen($s[$naam . '_NA'] ?? null, $std['na']),
     ];
 }
 
-/** True als de sneeuw aan staat en vandaag (of $vandaag, 'MM-DD') in de periode valt. */
-function sneeuwActief(?string $vandaag = null): bool
+/** True als $naam aan staat en vandaag (of $vandaag, 'JJJJ-MM-DD') binnen de periode rond de datum valt. */
+function topbalkActief(string $naam, ?string $vandaag = null): bool
 {
-    $i = sneeuwInstellingen();
+    $i = topbalkInstellingen($naam);
     if (!$i['aan']) {
         return false;
     }
-    $nu = $vandaag ?? date('m-d');
-    return $i['van'] <= $i['tot']
-        ? ($nu >= $i['van'] && $nu <= $i['tot'])
-        : ($nu >= $i['van'] || $nu <= $i['tot']);
+    $nu = new DateTimeImmutable($vandaag ?? date('Y-m-d'));
+    $jaar = (int) $nu->format('Y');
+    foreach ([$jaar - 1, $jaar, $jaar + 1] as $j) { // ook de datum van vorig/volgend jaar: de periode kan over de jaarwisseling lopen
+        $midden = $i['datum'] === '' ? paasDatum($j) : new DateTimeImmutable($j . '-' . $i['datum']);
+        if ($nu >= $midden->modify('-' . $i['voor'] . ' days') && $nu <= $midden->modify('+' . $i['na'] . ' days')) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function sneeuwActief(?string $vandaag = null): bool
+{
+    return topbalkActief('SNEEUW', $vandaag);
+}
+
+function paasActief(?string $vandaag = null): bool
+{
+    return topbalkActief('PASEN', $vandaag);
 }
 
 /** De sneeuwvlokken als HTML (vaste, pseudo-willekeurige verdeling: bij elke paginalaad hetzelfde). */
@@ -84,17 +109,6 @@ function paasDatum(int $jaar): DateTimeImmutable
     $maand = intdiv($h + $l - 7 * $m + 114, 31);
     $dag = (($h + $l - 7 * $m + 114) % 31) + 1;
     return new DateTimeImmutable(sprintf('%04d-%02d-%02d', $jaar, $maand, $dag));
-}
-
-/** True als paaseieren aan staan en vandaag (of $vandaag, 'JJJJ-MM-DD') tussen 7 dagen voor en tweede paasdag valt. */
-function paasActief(?string $vandaag = null): bool
-{
-    if ((secureSettingsRead()['PASEN_AAN'] ?? '') !== 'yes') {
-        return false;
-    }
-    $nu = new DateTimeImmutable($vandaag ?? date('Y-m-d'));
-    $pasen = paasDatum((int) $nu->format('Y'));
-    return $nu >= $pasen->modify('-7 days') && $nu <= $pasen->modify('+1 day');
 }
 
 /** Een paar paaseieren langs de onderkant van de topbalk. */

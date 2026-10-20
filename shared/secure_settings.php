@@ -32,9 +32,13 @@ const SECURE_SETTINGS_KEYS = [
     'TILE_FLAGS',
     // Sneeuw in de topbalk rond de kerst (zie shared/sneeuw.php); ingesteld via Config > Topbalk.
     'SNEEUW_AAN',
-    'SNEEUW_VAN',
-    'SNEEUW_TOT',
+    'SNEEUW_DATUM',
+    'SNEEUW_VOOR',
+    'SNEEUW_NA',
     'PASEN_AAN',
+    'PASEN_DATUM',
+    'PASEN_VOOR',
+    'PASEN_NA',
 ];
 
 /** Sleutels die uit het serverbestand komen (zie secureSettingsFilePath()); die velden verdwijnen dan uit Config. */
