@@ -211,7 +211,7 @@ $storedSettings = secureSettingsRead();
             </div>
             <?php endif; ?>
             <h3 class="settings-subtitle">Toegangscode</h3>
-            <p class="settings-help">Code voor de beveiligde tegels (zie Tegels hieronder; standaard alleen <strong>Productiviteit</strong>). Leeg laten = ongewijzigd.</p>
+            <p class="settings-help">Code voor de beveiligde tegels.</p>
             <div class="settings-row">
                 <label class="update-code-field">
                     <span>Code</span>
