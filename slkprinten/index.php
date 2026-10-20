@@ -254,7 +254,6 @@ const LINE_OVERVIEW_FIELDS = [
     ['label' => 'Regel',         'candidates' => REGELNUMMER_CANDIDATES],
     ['label' => 'Aantal',        'candidates' => ['Aantal', 'Aantal slangen', 'AantalSlangen'], 'format' => 'whole'],
     ['label' => 'Slangnummer',   'candidates' => ['GHnr', 'Slangnummer', 'SlangNr', 'Slang nr']],
-    ['label' => 'GHnm',          'candidates' => ['GHnm', 'Omschrijving slang']],
     ['label' => 'Slang type',    'candidates' => SLANGTYPE_CANDIDATES],
     ['label' => 'Lengte',        'candidates' => LENGTE_CANDIDATES, 'format' => 'leadingzero'],
 ];
@@ -1102,10 +1101,10 @@ function renderHoseLinesForm(array $hoseLines, string $orderNumber, string $cust
                             <th><?= h($field['label']) ?></th>
                         <?php endforeach; ?>
                         <?php for ($i = 1; $i <= $maxKoppelingA; $i++): ?>
-                            <th><?= $maxKoppelingA > 1 ? 'Koppeling A ' . $i : 'Koppeling A' ?></th>
+                            <th><?= $maxKoppelingA > 1 ? 'Koppeling A' . $i : 'Koppeling A' ?></th>
                         <?php endfor; ?>
                         <?php for ($i = 1; $i <= $maxKoppelingB; $i++): ?>
-                            <th><?= $maxKoppelingB > 1 ? 'Koppeling B ' . $i : 'Koppeling B' ?></th>
+                            <th><?= $maxKoppelingB > 1 ? 'Koppeling B' . $i : 'Koppeling B' ?></th>
                         <?php endfor; ?>
                     </tr>
                 </thead>
