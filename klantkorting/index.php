@@ -41,24 +41,34 @@ try {
 
         // XML-export van de gewijzigde/nieuwe regels uit het scherm.
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'export') {
+            // De regels komen als één JSON-veld (klantkorting.js): losse velden per regel worden door
+            // PHP (max_input_vars = 1000) bij ruim 80 regels stilzwijgend afgekapt.
+            $posted = json_decode((string) ($_POST['regels'] ?? ''), true);
+            if (!is_array($posted)) {
+                throw new RuntimeException('Geen regels ontvangen; herlaad de pagina en probeer opnieuw.');
+            }
             $rows = [];
-            foreach ((array) ($_POST['group'] ?? []) as $i => $group) {
-                $group = trim((string) $group);
-                $tiers = parseTierLists((string) ($_POST['aantal'][$i] ?? ''), (string) ($_POST['korting'][$i] ?? ''));
-                if ($group === '' || $tiers === null) {
+            foreach ($posted as $p) {
+                if (!is_array($p)) {
                     continue;
                 }
+                $group = trim((string) ($p['group'] ?? ''));
+                $tiers = parseTierLists((string) ($p['aantal'] ?? ''), (string) ($p['korting'] ?? ''));
+                if ($group === '' || $tiers === null) {
+                    throw new RuntimeException('Ongeldige regel voor artikelgroep "' . $group . '"; er is geen XML gemaakt.');
+                }
                 $rows[] = [
-                    'id' => trim((string) ($_POST['id'][$i] ?? '')),
+                    'id' => trim((string) ($p['id'] ?? '')),
                     'group' => $group,
-                    'debcode' => trim((string) ($_POST['debcode'][$i] ?? '')),
-                    'kind' => trim((string) ($_POST['soort'][$i] ?? 'P')) ?: 'P',
-                    'artcode' => trim((string) ($_POST['artcode'][$i] ?? '')),
-                    'unit' => trim((string) ($_POST['unit'][$i] ?? '')),
-                    'factor' => trim((string) ($_POST['factor'][$i] ?? '')),
-                    'value' => trim((string) ($_POST['value'][$i] ?? '')),
-                    'from' => trim((string) ($_POST['from'][$i] ?? '')),
-                    'to' => trim((string) ($_POST['to'][$i] ?? '')),
+                    'groupExists' => ($p['groepbestaat'] ?? true) !== false,
+                    'debcode' => trim((string) ($p['debcode'] ?? '')),
+                    'kind' => trim((string) ($p['soort'] ?? 'P')) ?: 'P',
+                    'artcode' => trim((string) ($p['artcode'] ?? '')),
+                    'unit' => trim((string) ($p['unit'] ?? '')),
+                    'factor' => trim((string) ($p['factor'] ?? '')),
+                    'value' => trim((string) ($p['value'] ?? '')),
+                    'from' => trim((string) ($p['from'] ?? '')),
+                    'to' => trim((string) ($p['to'] ?? '')),
                     'tiers' => $tiers,
                 ];
             }
@@ -180,7 +190,7 @@ try {
                         $debcode = trim((string) ($l['debcode'] ?? ''));
                         $orig = tierQtyText($l) . '|' . tierDiscountText($l) . '|' . dateToIso($l['validfrom']) . '|' . dateToIso($l['validto']);
                         ?>
-                        <tr class="is-found" data-orig="<?= h($orig) ?>" data-kort="<?= h(trim((string) $l['kort_pbn'])) ?>">
+                        <tr class="is-found" data-orig="<?= h($orig) ?>" data-groepbestaat="<?= (int) $l['GroupExists'] ?>" data-kort="<?= h(trim((string) $l['kort_pbn'])) ?>">
                             <td class="ka-itemcell"><strong class="ka-itemtext"><?= h((string) $l['ItemGroup']) ?></strong>
                                 <input type="hidden" name="group[]" class="kk-group" value="<?= h((string) $l['ItemGroup']) ?>">
                                 <input type="hidden" name="id[]" value="<?= h((string) $l['ID']) ?>">

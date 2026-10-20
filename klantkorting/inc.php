@@ -33,6 +33,7 @@ function findDiscountLines(PDO $pdo, string $priceList): array
         'LTRIM(RTRIM(staffl.prijslijst)) AS prijslijst',
         "TRY_CAST(SUBSTRING(staffl.artcode, 21, 10) AS INT) AS ItemGroup",
         "ISNULL(i.Description_0, '') AS ItemGroupDescr",
+        'CASE WHEN i.Assortment IS NULL THEN 0 ELSE 1 END AS GroupExists',
         'LTRIM(RTRIM(cicmpy.debcode)) AS debcode',
         'cicmpy.cmp_name AS klant',
         'staffl.validfrom', 'staffl.validto', 'staffl.ID', 'staffl.kort_pbn',
@@ -186,7 +187,8 @@ function buildDiscountXml(string $priceList, array $rows, string $priceListDescr
         $xml .= "  <ItemPrice>\r\n" .
             '    <Item code="' . xmlEscape($artcode) . "\" type=\"P\">\r\n" .
             '      <Description>' . xmlEscape($artcode) . "</Description>\r\n" .
-            '      <Assortment number="' . xmlEscape($r['group']) . '" code="' . xmlEscape($r['group']) . "\"/>\r\n" .
+            // Bestaat de artikelgroep niet (meer) in Exact, dan laat Exact Assortment in zijn eigen export ook weg.
+            (($r['groupExists'] ?? true) ? '      <Assortment number="' . xmlEscape($r['group']) . '" code="' . xmlEscape($r['group']) . "\"/>\r\n" : '') .
             "      <IsSalesItem>0</IsSalesItem>\r\n" .
             "      <IsFractionAllowedItem>0</IsFractionAllowedItem>\r\n" .
             "    </Item>\r\n" .
