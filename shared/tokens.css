@@ -103,5 +103,11 @@
     --radius-lg: 18px;                  /* .panel, brand-panel */
     --radius-pill: 999px;
     --snow: rgba(255, 255, 255, .9);    /* sneeuwvlokken in de topbalk (kerstperiode) */
+    --egg-1: #ffd23f;                   /* paaseieren in de topbalk (Pasen) */
+    --egg-2: #7ad7f0;
+    --egg-3: #ff8fab;
+    --egg-4: #9be564;
+    --egg-5: #c39bf5;
+    --egg-stripe: rgba(255, 255, 255, .8);
     --focus-ring: 0 0 0 3px rgba(238, 48, 93, .14);
 }

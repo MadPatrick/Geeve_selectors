@@ -124,6 +124,32 @@ button, input, select { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
     .snow { display: none; }
 }
+/* Pasen: een paar paaseieren in plaats van de glow (zie shared/sneeuw.php). */
+.brand-panel--pasen::before { display: none; }
+.eggs { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.egg {
+    position: absolute;
+    bottom: 6px;
+    left: var(--l);
+    width: 24px;
+    height: 30px;
+    transform: rotate(var(--r));
+    animation: egg-wiebel 4s var(--w) ease-in-out infinite;
+}
+.egg-body { stroke: var(--btn-glass-line); stroke-width: .6; }
+.egg-stripe { stroke: var(--egg-stripe); stroke-width: 1.6; }
+.egg-1 .egg-body { fill: var(--egg-1); }
+.egg-2 .egg-body { fill: var(--egg-2); }
+.egg-3 .egg-body { fill: var(--egg-3); }
+.egg-4 .egg-body { fill: var(--egg-4); }
+.egg-5 .egg-body { fill: var(--egg-5); }
+@keyframes egg-wiebel {
+    0%, 100% { transform: rotate(var(--r)); }
+    50% { transform: rotate(calc(var(--r) * -1)); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .egg { animation: none; }
+}
 .brand-copy { display: flex; flex-direction: column; align-items: flex-start; }
 .brand-logo-row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
 .brand-logo-img { display: block; height: 66px; width: auto; }

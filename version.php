@@ -13,4 +13,4 @@ declare(strict_types=1);
 // Opbouw: <major>.<minor>.<patch>.<build>. Het laatste nummer (build) gaat bij elke push naar
 // GitHub automatisch 1 omhoog; de eerste drie alleen als Patrick daarom vraagt.
 
-return '0.4.5.63';
+return '0.4.5.64';

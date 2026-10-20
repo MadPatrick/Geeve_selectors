@@ -34,6 +34,7 @@ const SECURE_SETTINGS_KEYS = [
     'SNEEUW_AAN',
     'SNEEUW_VAN',
     'SNEEUW_TOT',
+    'PASEN_AAN',
 ];
 
 /** Sleutels die uit het serverbestand komen (zie secureSettingsFilePath()); die velden verdwijnen dan uit Config. */

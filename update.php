@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
             $standaard
         );
         $values = secureSettingsReadStored();
+        $values['PASEN_AAN'] = isset($_POST['PASEN_AAN']) ? 'yes' : 'no';
         $values['SNEEUW_AAN'] = isset($_POST['SNEEUW_AAN']) ? 'yes' : 'no';
         $values['SNEEUW_VAN'] = $dag('SNEEUW_VAN', SNEEUW_STANDAARD_VAN);
         $values['SNEEUW_TOT'] = $dag('SNEEUW_TOT', SNEEUW_STANDAARD_TOT);
@@ -267,7 +268,7 @@ $storedSettings = secureSettingsRead();
             <div class="settings-row sneeuw-row">
                 <?php foreach (['SNEEUW_VAN' => ['Van', 'van'], 'SNEEUW_TOT' => ['Tot en met', 'tot']] as $veld => [$label, $sleutel]): ?>
                 <div class="update-code-field sneeuw-dag">
-                    <span><?= h($label) ?></span>
+                    <span<?= $sleutel === 'van' ? ' class="sneeuw-leeg"' : '' ?>><?= h($label) ?></span>
                     <span class="sneeuw-dag-keuze">
                         <select name="<?= h($veld) ?>_DAG" aria-label="<?= h($label) ?>: dag">
                             <?php for ($d = 1; $d <= 31; $d++): ?><option value="<?= $d ?>"<?= (int) substr($sneeuw[$sleutel], 3) === $d ? ' selected' : '' ?>><?= $d ?></option><?php endfor; ?>
@@ -278,6 +279,13 @@ $storedSettings = secureSettingsRead();
                     </span>
                 </div>
                 <?php endforeach; ?>
+            </div>
+            <div class="settings-row sneeuw-row">
+                <label class="settings-switch">
+                    <input type="checkbox" name="PASEN_AAN" value="yes"<?= ($storedSettings['PASEN_AAN'] ?? '') === 'yes' ? ' checked' : '' ?>>
+                    <span class="settings-switch-track"></span>
+                    <span>Paaseieren met Pasen (een week voor t/m tweede paasdag)</span>
+                </label>
             </div>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
