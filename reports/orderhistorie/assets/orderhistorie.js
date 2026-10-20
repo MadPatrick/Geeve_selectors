@@ -227,10 +227,12 @@
         refresh();
     });
 
-    // "Tot en met" is standaard vandaag (lokale datum).
+    // Standaard: "Afgeleverd vanaf" = 1 januari van het vorige jaar, "Tot en met" = vandaag (lokale datum).
     (function () {
-        var d = new Date();
-        totInput.value = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+        function iso(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+        var now = new Date();
+        vanInput.value = (now.getFullYear() - 1) + '-01-01';
+        totInput.value = iso(now);
     })();
 
     zoekBtn.addEventListener('click', zoek);
