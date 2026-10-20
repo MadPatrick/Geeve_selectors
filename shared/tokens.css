@@ -39,7 +39,7 @@
     --btn-green-hover: #b0e6c0;  /* idem, bij hover */
     /* Knopkleuren: ALLE knoppen halen hun kleuren uit deze variabelen (zie CLAUDE.md, "Knoppen"). */
     --btn-red: rgba(238, 48, 93, .8);           /* rode knop (hoofdactie); vroegere donkerrode knoppen zijn nu ook rood */
-    --btn-red-line: #e0516a;
+    --btn-red-line: #b90d32;                    /* rand van de rode knop: donkerrood, zo steekt hij net zo duidelijk af als de donkergroene rand van de groene knop */
     --btn-ink-light: #fff;                      /* witte tekst/iconen op rode, blauwe en header-knoppen */
     --btn-grey: rgba(208, 209, 204, .7);        /* grijze tweede-keuzeknop, ook de keuzeschakelaar */
     --btn-grey-line: #9a9b96;
