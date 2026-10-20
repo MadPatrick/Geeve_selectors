@@ -29,10 +29,16 @@ try {
         $params[] = '%' . $word . '%';
         $params[] = '%' . $word . '%';
     }
+    // Een getypt nummer: debiteuren waarvan het nummer ermee begint eerst, van laag naar hoog; daarna de rest op naam.
+    $order = 'ORDER BY c.cmp_name';
+    if (ctype_digit($words[0])) {
+        $order = 'ORDER BY CASE WHEN LTRIM(RTRIM(c.debnr)) LIKE ? THEN 0 ELSE 1 END, TRY_CAST(LTRIM(RTRIM(c.debnr)) AS bigint), c.cmp_name';
+        $params[] = $words[0] . '%';
+    }
     $stmt = $pdo->prepare(
         'SELECT TOP 20 LTRIM(RTRIM(c.debnr)) AS debnr, c.cmp_name AS naam, ' .
         ($plColumn !== null ? 'LTRIM(RTRIM(CAST(c.' . q($plColumn) . " AS varchar(50)))) AS prijslijst" : "CAST('' AS varchar(1)) AS prijslijst") .
-        ' FROM cicmpy c WHERE ' . implode(' AND ', $where) . ' ORDER BY c.cmp_name'
+        ' FROM cicmpy c WHERE ' . implode(' AND ', $where) . ' ' . $order
     );
     $stmt->execute($params);
     $rows = array_map(static fn (array $r): array => [
