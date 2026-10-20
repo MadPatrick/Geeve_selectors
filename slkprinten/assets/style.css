@@ -7,29 +7,20 @@
 h2 { margin: 4px 0 0; font-size: 20px; }
 .step { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: var(--accent-dark); }
 
-.klant-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 16px;
-    border-radius: 10px;
-    background: #e8f4ed;
-    border: 1px solid var(--ok-soft-line);
-    color: var(--ok);
-    font-weight: 700;
-    font-size: 14px;
-}
-
+/* Klant- en orderbadge in stap 2: exact dezelfde opmaak (rand, hoeken, padding, letter), alleen de kleur verschilt:
+   lichte achtergrond, donkere rand en tekst in dezelfde tint. */
+.klant-badge,
 .order-badge {
     display: inline-flex;
     align-items: center;
     padding: 10px 16px;
     border-radius: 10px;
-    background: #fdeaee;
-    border: 1px solid #f5c3cf;
-    color: var(--accent-dark);
+    border: 1px solid;
     font-weight: 700;
     font-size: 14px;
 }
+.klant-badge { background: #e8f4ed; border-color: var(--ok-soft-line); color: var(--ok); }
+.order-badge { background: #fdeaee; border-color: var(--accent-dark); color: var(--accent-dark); }
 
 .stap2-badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0; }
 
