@@ -120,8 +120,8 @@ reportApi(function (array $in): array {
         throw new RuntimeException('Kies een klant of vul een begindatum, artikelnummer of omschrijving in.');
     }
 
-    // Artikel 30 ("binnen 30 dagen") is een tekstregel, geen product: nooit tonen.
-    $where = ["LTRIM(RTRIM(ohr.artcode)) <> '30'"];
+    // Artikel 30 en andere leverbeloftes ("binnen 30 dagen", "binnen 14 dagen", ...) zijn tekstregels, geen product: nooit tonen.
+    $where = ["LTRIM(RTRIM(ohr.artcode)) <> '30'", "ISNULL(i.Description, '') NOT LIKE 'binnen%dagen%'"];
     $params = [];
     if ($debnr !== '') {
         $where[] = 'LTRIM(RTRIM(ohk.debnr)) = ?';
