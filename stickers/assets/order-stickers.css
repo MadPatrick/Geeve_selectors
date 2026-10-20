@@ -10,6 +10,7 @@
 
 /* Print stickers helemaal rechts in de rij met knoppen. */
 .so-print { margin-left: auto; }
+.so-printrow { margin-top: 14px; }
 
 /* Eerste blok: invoer links, voorbeeld helemaal rechts (op smalle schermen eronder). */
 .so-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }

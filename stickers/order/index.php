@@ -69,10 +69,6 @@ $csrf = csrfToken();
             </div>
             <button type="button" id="soFetch" class="ka-button">Gegevens ophalen</button>
             <span id="soStatus" class="msp-status"></span>
-            <div class="print-group">
-                <?= geevePrinterSelectHtml('stickers-order', $csrf) ?>
-                <button type="button" id="soPrint" class="print-btn so-print" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
-            </div>
         </div>
         <div id="soMessage" class="ka-message ka-message--error" hidden></div>
         </div>
@@ -80,10 +76,17 @@ $csrf = csrfToken();
         <!-- Voorbeeld: rechts in dit blok, één sticker tegelijk. -->
         <div class="so-side" id="soPreviewPanel" hidden>
             <div class="so-preview" id="soSheet"></div>
+            <!-- Vorige/volgende sticker en "Sticker x van y": verborgen (het script gebruikt ze nog). -->
+            <div hidden>
             <div class="so-nav" id="soNav">
                 <button type="button" id="soPrev" class="ka-button ka-button--secondary" aria-label="Vorige sticker">&lt;</button>
                 <span id="soPreviewCount" class="msp-status"></span>
                 <button type="button" id="soNext" class="ka-button ka-button--secondary" aria-label="Volgende sticker">&gt;</button>
+            </div>
+            </div>
+            <div class="print-group so-printrow">
+                <?= geevePrinterSelectHtml('stickers-order', $csrf) ?>
+                <button type="button" id="soPrint" class="print-btn so-print" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
             </div>
         </div>
     </section>
