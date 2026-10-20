@@ -341,11 +341,11 @@ reportApi(function (array $in): array {
         $params[] = orderhistorieLike($klantZoek);
     }
     if ($van !== '') {
-        $where[] = $col('afldat') . ' >= CAST(? AS datetime)';
+        $where[] = $col('afldat') . ' >= CONVERT(datetime, ?, 23)';
         $params[] = $van;
     }
     if ($tot !== '') {
-        $where[] = $col('afldat') . ' < DATEADD(day, 1, CAST(? AS datetime))';
+        $where[] = $col('afldat') . ' < DATEADD(day, 1, CONVERT(datetime, ?, 23))';
         $params[] = $tot;
     }
     if ($artnr !== '') {
