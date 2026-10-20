@@ -31,6 +31,7 @@ van deze portal. Apache stuurt `/slangkaarten/` door naar die app.
 | Slangkaarten | `/slangkaarten/` | — | — | Slangkaart.Web (aparte .NET-app, via Apache) |
 | Stickers | `/stickers/` | `stickers/` | — | Overzicht met stickertegels, zie hieronder |
 | Stauff Selector | `/stauff/` | `stauff/` | ja | Beugelconfigurator op Exact artikelgroep 67, "Naar Exact" via Slangkaart.Web |
+| Gebogen buis | `/gebogenbuis/` | `gebogenbuis/` | nee | Prijsberekening gebogen buis: klant + klantkorting (kortingstructuur van de prijslijst), artikelen met bruto prijs en vrije voorraad, montage, notities; in opbouw |
 | Reports | `/reports/` | `reports/` | — | Overzicht met rapporten, zie hieronder |
 | Templates | `/templates/` | `templates/` | — | Overzicht met Excel/XML-templates, zie hieronder |
 

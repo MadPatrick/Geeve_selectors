@@ -22,6 +22,7 @@ const TILE_REGISTRY = [
     'slangkaarten-app' => ['home', 'Slangkaarten', 'slangkaarten/index.php', true, false, true],
     'stickers' => ['home', 'Stickers', 'stickers/index.php', true, false, false],
     'stauff' => ['home', 'Stauff Selector', 'stauff/index.php', true, false, true],
+    'gebogenbuis' => ['home', 'Gebogen buis', 'gebogenbuis/index.php', true, false, true],
     'reports' => ['home', 'Reports', 'reports/index.php', true, false, false],
     'msp' => ['reports', 'MSP report', 'reports/msp/index.php', true, false, false],
     'inkoop-groep' => ['reports', 'Inkoop per Artikelgroep', 'reports/inkoop-groep/index.php', true, false, false],
