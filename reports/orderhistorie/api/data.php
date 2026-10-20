@@ -206,6 +206,10 @@ function orderhistorieDiagnose(PDO $pdo, array $bron, string $debnr, string $kla
     }
     $leeg = array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), array_keys($bron['kolommen']));
     $out[] = 'Ontbrekende kolommen (blijven leeg): ' . ($leeg === [] ? '(geen)' : implode(', ', $leeg));
+    if (preg_match('/^\[([^\]]+)\]\.\[([^\]]+)\]\.\[(.+)\]$/', $bron['bron'], $mm) === 1) {
+        $types = $pdo->query('SET NOCOUNT ON; SELECT COLUMN_NAME + \' \' + DATA_TYPE FROM ' . orderhistorieIdent($mm[1]) . '.INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ' . $pdo->quote($mm[2]) . ' AND TABLE_NAME = ' . $pdo->quote($mm[3]) . ' ORDER BY ORDINAL_POSITION');
+        $out[] = 'Kolomtypes: ' . implode(', ', $types->fetchAll(PDO::FETCH_COLUMN));
+    }
     $out[] = 'Alle kolommen van de bron: ' . implode(', ', orderhistorieKolomnamen($pdo, $bron['bron']));
     foreach ($GLOBALS['orderhistorie_kandidatenlijst'] ?? [] as $c) {
         if (preg_match('/^400 (TB )?orderhistorie( laatste 2 jaar| per debiteur| per artikel| 1932| 512)?$/', $c['table']) === 1) {
@@ -341,12 +345,12 @@ reportApi(function (array $in): array {
         $params[] = orderhistorieLike($klantZoek);
     }
     if ($van !== '') {
-        $where[] = $col('afldat') . ' >= CONVERT(datetime, ?, 23)';
-        $params[] = $van;
+        $where[] = 'TRY_CONVERT(datetime, ' . $col('afldat') . ') >= CONVERT(datetime, ?, 112)';
+        $params[] = str_replace('-', '', $van);
     }
     if ($tot !== '') {
-        $where[] = $col('afldat') . ' < DATEADD(day, 1, CONVERT(datetime, ?, 23))';
-        $params[] = $tot;
+        $where[] = 'TRY_CONVERT(datetime, ' . $col('afldat') . ') < DATEADD(day, 1, CONVERT(datetime, ?, 112))';
+        $params[] = str_replace('-', '', $tot);
     }
     if ($artnr !== '') {
         $where[] = $col('artnr') . ' LIKE ?';
