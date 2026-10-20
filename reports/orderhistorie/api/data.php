@@ -78,6 +78,7 @@ function orderhistorieBron(PDO $pdo): array
             $candidates[] = ['db' => $db !== '' ? $db : '', 'schema' => $schema, 'table' => $table, 'names' => $names];
         }
     }
+    $GLOBALS['orderhistorie_kandidatenlijst'] = $candidates;
     $best = null;
     $bestScore = -1;
     $GLOBALS['orderhistorie_kandidaten'] = [];
@@ -87,7 +88,9 @@ function orderhistorieBron(PDO $pdo): array
         if (array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), ORDERHISTORIE_OPTIONEEL, array_keys($matched)) !== []) {
             $score = min($score, count($matched) - 50); // mist een verplicht veld: alleen als er niets beters is
         }
-        $GLOBALS['orderhistorie_kandidaten'][] = $c['table'] . ': ' . $score;
+        if ($score > -45) {
+            $GLOBALS['orderhistorie_kandidaten'][] = $c['table'] . ': ' . $score;
+        }
         if ($score > $bestScore || ($score === $bestScore && $best !== null && $c['db'] === $best['db'] && strlen($c['table']) < strlen($best['table']))) {
             $best = $c;
             $bestScore = $score;
@@ -181,6 +184,19 @@ function orderhistorieLike(string $text): string
     return '%' . str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], $text) . '%';
 }
 
+/** Kolomnamen van een view/tabel (volledige naam met haakjes, bijv. [Exactrapportage].[dbo].[naam]). @return list<string> */
+function orderhistorieKolomnamen(PDO $pdo, string $full): array
+{
+    if (preg_match('/^\[([^\]]+)\]\.\[([^\]]+)\]\.\[(.+)\]$/', $full, $m) !== 1) {
+        return [];
+    }
+    $stmt = $pdo->query(
+        'SET NOCOUNT ON; SELECT COLUMN_NAME FROM ' . orderhistorieIdent($m[1]) . '.INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ' .
+        $pdo->quote($m[2]) . ' AND TABLE_NAME = ' . $pdo->quote($m[3]) . ' ORDER BY ORDINAL_POSITION'
+    );
+    return array_map('strval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+}
+
 /** Tekstrapport voor ?diagnose=1: gekozen bron, kolomkoppeling, voorbeeldregels en aantallen per klantfilter. */
 function orderhistorieDiagnose(PDO $pdo, array $bron, string $debnr, string $klant): string
 {
@@ -190,8 +206,15 @@ function orderhistorieDiagnose(PDO $pdo, array $bron, string $debnr, string $kla
     }
     $leeg = array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), array_keys($bron['kolommen']));
     $out[] = 'Ontbrekende kolommen (blijven leeg): ' . ($leeg === [] ? '(geen)' : implode(', ', $leeg));
-    $alle = $pdo->query('SET NOCOUNT ON; SELECT c.name FROM sys.columns c WHERE c.object_id = OBJECT_ID(' . $pdo->quote(str_replace(['[', ']'], '', $bron['bron'])) . ') ORDER BY c.column_id');
-    $out[] = 'Alle kolommen van de bron: ' . implode(', ', $alle ? $alle->fetchAll(PDO::FETCH_COLUMN) : []);
+    $out[] = 'Alle kolommen van de bron: ' . implode(', ', orderhistorieKolomnamen($pdo, $bron['bron']));
+    foreach ($GLOBALS['orderhistorie_kandidatenlijst'] ?? [] as $c) {
+        if (preg_match('/^400 (TB )?orderhistorie( laatste 2 jaar| per debiteur| per artikel| 1932| 512)?$/', $c['table']) === 1) {
+            $m = orderhistorieMatch($pdo, $c);
+            $mist = array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), array_keys($m));
+            $out[] = 'Variant "' . $c['table'] . '": mist ' . ($mist === [] ? '(niets)' : implode(', ', $mist)) . '; kolommen: ' .
+                implode(', ', orderhistorieKolomnamen($pdo, '[Exactrapportage].[' . $c['schema'] . '].[' . $c['table'] . ']'));
+        }
+    }
     $out[] = 'Kandidaten: ' . implode(' | ', $GLOBALS['orderhistorie_kandidaten'] ?? ['(vaste bron)']);
     $cols = array_map(static fn (string $n): string => orderhistorieIdent($n), array_values($bron['kolommen']));
     if ($bron['debnr'] !== null) {
