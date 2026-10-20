@@ -16,6 +16,7 @@
 .oi-del { border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 8px; border-radius: 6px; }
 .oi-del:hover { color: var(--danger, #a03636); background: #fde6ec; }
 #oiTable input.oi-code { width: 100%; min-width: 16ch; box-sizing: border-box; text-transform: uppercase; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong, #c9d4de); border-radius: 8px; background: #fff; }
+#oiTable input.oi-sup { width: 100%; min-width: 16ch; box-sizing: border-box; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong, #c9d4de); border-radius: 8px; background: #fff; }
 #oiTable tr.is-missing input.oi-code { border: 1px solid #c17c7c; background: #fff5f5; color: #a03636; font-weight: 700; }
 #oiTable tr.is-incomplete input.oi-code { border: 1px solid #e0b04a; background: #fffbf0; }
 @media (max-width: 640px) { .oi-fields .oi-wide { grid-column: auto; } }
@@ -36,7 +37,7 @@
 .oi-suggest li.is-note { color: var(--muted); cursor: default; font-style: italic; }
 .oi-suggest li.is-note:hover { background: transparent; }
 /* Compacte regels: celpadding staat op .ka-table; hier alleen de eigen invoervelden. */
-#oiTable input.oi-qty, #oiTable input.oi-code { min-height: 28px; padding-top: 2px; padding-bottom: 2px; }
+#oiTable input.oi-qty, #oiTable input.oi-code, #oiTable input.oi-sup { min-height: 28px; padding-top: 2px; padding-bottom: 2px; }
 .oi-del { padding: 0 8px; }
 /* Regel toevoegen staat naast de tellingen boven de tabel; het tabelblok is altijd zichtbaar, zodat je ook zonder Excel regels kunt invoeren. */
 .oi-summary-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--btn-gap); margin-bottom: 12px; }

@@ -37,6 +37,7 @@
     var debtorInfo = null;
     var checked = {};        // CODE -> true zodra de controle met Exact klaar is
     var codeTimers = {};
+    var supTimer = null;
     var importedName = '';
     var timer = null;
     var validating = 0;
@@ -298,7 +299,7 @@
                 '<td>' + esc(l.nr) + '</td>' +
                 '<td><input type="text" class="ka-input oi-qty" data-i="' + i + '" value="' + esc(l.qty === null ? '' : l.qty) + '" maxlength="12" inputmode="decimal" autocomplete="off" aria-label="Aantal regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 (purchase ? '<td class="oi-min">' + (info && info.minOrder > 0 ? esc(info.minOrder) : '') + '</td>' : '') +
-                (useSupplier ? '<td class="oi-sup">' + esc(l.supplier || '') + '</td>' : '') +
+                (useSupplier ? '<td><input type="text" class="ka-input oi-sup" data-i="' + i + '" value="' + esc(l.supplier || '') + '" maxlength="40" autocomplete="off" spellcheck="false" aria-label="Leveranciersnummer regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
                 '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
                 '<td>' + esc(st.label) + '</td>' +
@@ -306,7 +307,7 @@
         });
         // Staat de cursor in een artikelcode, dan blijft die daar na het opnieuw tekenen van de tabel.
         var active = document.activeElement;
-        var focusCls = active && active.classList ? (active.classList.contains('oi-code') ? 'oi-code' : (active.classList.contains('oi-qty') ? 'oi-qty' : null)) : null;
+        var focusCls = active && active.classList ? (active.classList.contains('oi-code') ? 'oi-code' : (active.classList.contains('oi-qty') ? 'oi-qty' : (active.classList.contains('oi-sup') ? 'oi-sup' : null))) : null;
         var focusIdx = focusCls ? active.getAttribute('data-i') : null;
         var caret = focusCls ? active.selectionStart : null;
         tbody.innerHTML = html;
@@ -421,6 +422,14 @@
         if (el.classList && el.classList.contains('oi-qty')) {
             lines[+el.getAttribute('data-i')].qty = el.value;
             render();
+            return;
+        }
+        if (el.classList && el.classList.contains('oi-sup')) {
+            // Leveranciersnummer gewijzigd: is de artikelcode leeg, dan na een korte pauze ons artikelnummer opnieuw opzoeken.
+            lines[+el.getAttribute('data-i')].supplier = el.value;
+            render();
+            clearTimeout(supTimer);
+            supTimer = setTimeout(function () { validate(true, true); }, 500);
             return;
         }
         if (!el.classList || !el.classList.contains('oi-code')) { return; }
