@@ -257,14 +257,14 @@ $storedSettings = secureSettingsRead();
             <input type="hidden" name="action" value="save-sneeuw">
             <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
             <?php $sneeuw = sneeuwInstellingen(); $sneeuwMaanden = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']; ?>
-            <div class="settings-row">
+            <div class="settings-row sneeuw-row">
                 <label class="settings-switch">
                     <input type="checkbox" name="SNEEUW_AAN" value="yes"<?= $sneeuw['aan'] ? ' checked' : '' ?>>
                     <span class="settings-switch-track"></span>
                     <span>Sneeuw rond de kerst</span>
                 </label>
             </div>
-            <div class="settings-row">
+            <div class="settings-row sneeuw-row">
                 <?php foreach (['SNEEUW_VAN' => ['Van', 'van'], 'SNEEUW_TOT' => ['Tot en met', 'tot']] as $veld => [$label, $sleutel]): ?>
                 <div class="update-code-field sneeuw-dag">
                     <span><?= h($label) ?></span>
