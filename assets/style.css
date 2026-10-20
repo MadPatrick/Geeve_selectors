@@ -242,3 +242,4 @@
 .sneeuw-dag-keuze select[name$="_MAAND"] { min-width: 240px; }
 .sneeuw-dagen { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
 .sneeuw-dagen input { width: 76px; min-height: 43px; font-size: 15px; text-align: center; }
+.sneeuw-form { flex-direction: column; align-items: flex-start; } /* elke animatie op een eigen regel */

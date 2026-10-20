@@ -109,5 +109,9 @@
     --egg-4: #9be564;
     --egg-5: #c39bf5;
     --egg-stripe: rgba(255, 255, 255, .8);
+    --fw-1: #ffd23f;                    /* vuurwerk in de topbalk (Nieuwjaar) */
+    --fw-2: #ff6b8b;
+    --fw-3: #7ad7f0;
+    --fw-4: #9be564;
     --focus-ring: 0 0 0 3px rgba(238, 48, 93, .14);
 }

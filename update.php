@@ -252,11 +252,11 @@ $storedSettings = secureSettingsRead();
             <div class="update-message <?= $sneeuwMessage['ok'] ? 'ok' : 'error' ?>"><?= h($sneeuwMessage['text']) ?></div>
         <?php endif; ?>
 
-        <form method="post" class="update-form" autocomplete="off">
+        <form method="post" class="update-form sneeuw-form" autocomplete="off">
             <input type="hidden" name="action" value="save-sneeuw">
             <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
             <?php $sneeuwMaanden = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']; ?>
-            <?php foreach (['SNEEUW' => 'Sneeuw rond de kerst', 'PASEN' => 'Paaseieren met Pasen'] as $naam => $titel):
+            <?php foreach (['SNEEUW' => 'Sneeuw rond de kerst', 'NIEUWJAAR' => 'Vuurwerk met Nieuwjaar', 'PASEN' => 'Paaseieren met Pasen'] as $naam => $titel):
                 $i = topbalkInstellingen($naam);
                 $maandNu = $i['datum'] === '' ? 0 : (int) substr($i['datum'], 0, 2);
                 $dagNu = $i['datum'] === '' ? 0 : (int) substr($i['datum'], 3);

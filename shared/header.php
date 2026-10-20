@@ -35,7 +35,7 @@ declare(strict_types=1);
  *                                            zelf escapen wat niet al
  *                                            vaste markup is.
  *
- * Rond de kerst (Config > Topbalk, shared/sneeuw.php) valt er sneeuw in de topbalk in plaats van de glow; met Pasen staan er paaseieren.
+ * Rond de kerst (Config > Topbalk, shared/sneeuw.php) valt er sneeuw in de topbalk in plaats van de glow; met Pasen staan er paaseieren en met Nieuwjaar is er vuurwerk (voorrang: Nieuwjaar, sneeuw, Pasen).
  *
  * De PC-naam van de gebruiker (shared/pcnaam.php) staat altijd rechts naast
  * het Rubix-logo (.brand-logo-row).
@@ -54,13 +54,15 @@ require_once __DIR__ . '/pcnaam.php';
 $headerPcNaam = pcNaam();
 
 require_once __DIR__ . '/sneeuw.php';
-$headerSneeuw = sneeuwActief();
-$headerPasen = !$headerSneeuw && paasActief();
+$headerVuurwerk = nieuwjaarActief();
+$headerSneeuw = !$headerVuurwerk && sneeuwActief();
+$headerPasen = !$headerVuurwerk && !$headerSneeuw && paasActief();
 ?>
 <header class="page-header">
-    <div class="brand-panel<?= $headerSneeuw ? ' brand-panel--sneeuw' : '' ?><?= $headerPasen ? ' brand-panel--pasen' : '' ?>">
+    <div class="brand-panel<?= $headerSneeuw ? ' brand-panel--sneeuw' : '' ?><?= $headerPasen ? ' brand-panel--pasen' : '' ?><?= $headerVuurwerk ? ' brand-panel--vuurwerk' : '' ?>">
         <?= $headerSneeuw ? sneeuwVlokkenHtml() : '' ?>
         <?= $headerPasen ? paasEierenHtml() : '' ?>
+        <?= $headerVuurwerk ? vuurwerkHtml() : '' ?>
         <div class="brand-copy">
             <div class="brand-logo-row">
                 <img src="<?= h($headerImagesPath) ?>geeve.jpg" alt="Geeve Hydraulics - know how in hydraulics" class="brand-logo-img">

@@ -124,6 +124,50 @@ button, input, select { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
     .snow { display: none; }
 }
+/* Nieuwjaar: vuurwerk in plaats van de glow (zie shared/sneeuw.php). */
+.brand-panel--vuurwerk::before { display: none; }
+.fireworks { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 2; border-radius: inherit; }
+/* De vonken zijn schaduwen van het blokje zelf: schalen van het blokje laat de burst uitwaaieren. */
+.fw {
+    position: absolute;
+    left: var(--l);
+    top: var(--t);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(.1);
+    animation: fw-burst 3.4s var(--w) ease-out infinite;
+    box-shadow:
+        0px -30px 0 currentColor,
+        21px -21px 0 currentColor,
+        30px 0px 0 currentColor,
+        21px 21px 0 currentColor,
+        0px 30px 0 currentColor,
+        -21px 21px 0 currentColor,
+        -30px 0px 0 currentColor,
+        -21px -21px 0 currentColor,
+        0px -16px 0 currentColor,
+        11px -11px 0 currentColor,
+        16px 0px 0 currentColor,
+        11px 11px 0 currentColor,
+        0px 16px 0 currentColor,
+        -11px 11px 0 currentColor,
+        -16px 0px 0 currentColor,
+        -11px -11px 0 currentColor;
+}
+.fw-1 { color: var(--fw-1); }
+.fw-2 { color: var(--fw-2); }
+.fw-3 { color: var(--fw-3); }
+.fw-4 { color: var(--fw-4); }
+@keyframes fw-burst {
+    0% { transform: scale(.1); opacity: 1; }
+    35% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.25); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .fireworks { display: none; }
+}
 /* Pasen: een paar paaseieren in plaats van de glow (zie shared/sneeuw.php). */
 .brand-panel--pasen::before { display: none; }
 .eggs { position: absolute; inset: 0; pointer-events: none; z-index: 2; }

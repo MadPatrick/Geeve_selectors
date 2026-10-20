@@ -39,6 +39,10 @@ const SECURE_SETTINGS_KEYS = [
     'PASEN_DATUM',
     'PASEN_VOOR',
     'PASEN_NA',
+    'NIEUWJAAR_AAN',
+    'NIEUWJAAR_DATUM',
+    'NIEUWJAAR_VOOR',
+    'NIEUWJAAR_NA',
 ];
 
 /** Sleutels die uit het serverbestand komen (zie secureSettingsFilePath()); die velden verdwijnen dan uit Config. */

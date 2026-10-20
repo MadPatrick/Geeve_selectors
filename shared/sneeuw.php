@@ -10,7 +10,8 @@ declare(strict_types=1);
  * Topbalk-animaties (Config > Topbalk), elk met: AAN ('yes'), DATUM ('MM-DD', elk jaar), VOOR en NA (aantal dagen
  * rond die datum waarin het actief is). Sneeuw: SNEEUW_* (standaard 25 december, 10 dagen ervoor, 12 erna).
  * Pasen: PASEN_* (standaard de berekende eerste paasdag, 7 dagen ervoor, 1 erna; een lege DATUM = automatisch
- * eerste paasdag). Buiten de periode (of uit) staat de glow; sneeuw gaat voor paaseieren.
+ * eerste paasdag). Nieuwjaar: NIEUWJAAR_* (standaard 1 januari, 1 dag ervoor, 1 erna) met vuurwerk. Buiten de periode
+ * (of uit) staat de glow. Voorrang bij overlap: Nieuwjaar, dan sneeuw, dan paaseieren.
  */
 
 require_once __DIR__ . '/secure_settings.php';
@@ -18,6 +19,7 @@ require_once __DIR__ . '/secure_settings.php';
 const TOPBALK_STANDAARD = [
     'SNEEUW' => ['datum' => '12-25', 'voor' => 10, 'na' => 12],
     'PASEN' => ['datum' => '', 'voor' => 7, 'na' => 1],
+    'NIEUWJAAR' => ['datum' => '01-01', 'voor' => 1, 'na' => 1],
 ];
 
 /** Geeft 'MM-DD' terug, of $standaard als de waarde geen geldige dag is. */
@@ -71,6 +73,11 @@ function sneeuwActief(?string $vandaag = null): bool
     return topbalkActief('SNEEUW', $vandaag);
 }
 
+function nieuwjaarActief(?string $vandaag = null): bool
+{
+    return topbalkActief('NIEUWJAAR', $vandaag);
+}
+
 function paasActief(?string $vandaag = null): bool
 {
     return topbalkActief('PASEN', $vandaag);
@@ -119,6 +126,16 @@ function paasEierenHtml(): string
         $html .= '<svg class="egg egg-' . $kleur . '" style="--l:' . $links . '%;--r:' . (($n % 2 === 0) ? -12 : 10) . 'deg;--w:' . ($n * -0.6) . 's" viewBox="0 0 24 30">'
             . '<path class="egg-body" d="M12 1C6 1 2 12 2 19a10 10 0 0 0 20 0C22 12 18 1 12 1z"/>'
             . '<path class="egg-stripe" d="M3 17q4.5 3.5 9 0t9 0M4.5 22.5q3.8 3 7.500 0t7.500 0" fill="none"/></svg>';
+    }
+    return $html . '</div>';
+}
+
+/** Een paar vuurwerkbursts verspreid over de topbalk. */
+function vuurwerkHtml(): string
+{
+    $html = '<div class="fireworks" aria-hidden="true">';
+    foreach ([[52, 38, 1, 0], [64, 62, 2, 1.1], [76, 34, 3, 2.3], [88, 58, 4, 0.6], [40, 60, 3, 1.8], [96, 40, 1, 2.9]] as [$links, $boven, $kleur, $vertraging]) {
+        $html .= '<i class="fw fw-' . $kleur . '" style="--l:' . $links . '%;--t:' . $boven . '%;--w:' . $vertraging . 's"></i>';
     }
     return $html . '</div>';
 }
