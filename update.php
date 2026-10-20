@@ -9,6 +9,7 @@ session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 require_once __DIR__ . '/shared/secure_settings.php';
 require_once __DIR__ . '/shared/sneeuw.php';
+require_once __DIR__ . '/shared/access.php';
 require_once __DIR__ . '/shared/tiles.php';
 require_once __DIR__ . '/shared/printen.php';
 
@@ -28,6 +29,71 @@ function assetVersion(string $relativePath): string
 }
 
 $requestError = false;
+
+// Config is alleen met een toegangscode te openen (zie shared/access.php, accessConfigCodeOk): een juiste code blijft
+// voor de sessie onthouden (15 minuten zonder gebruik), daarna vraagt Config er weer om.
+header('Cache-Control: no-store');
+$codeError = null;
+if (!accessUnlocked('config')) {
+    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'unlock-config') {
+        if (!csrfValid($_POST['csrf'] ?? null)) {
+            $codeError = 'Sessie verlopen. Probeer het opnieuw.';
+        } else {
+            $outcome = accessTryUnlock('config', (string) ($_POST['code'] ?? ''));
+            if ($outcome === 'ok') {
+                header('Location: update.php');
+                exit;
+            }
+            $codeError = $outcome === 'wacht' ? 'Te veel foute pogingen. Wacht een minuut en probeer het opnieuw.' : 'Onjuiste code.';
+        }
+    }
+    ?>
+<!doctype html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Config | Geeve Hydraulics</title>
+    <link rel="icon" href="favicon.ico?v=<?= h(assetVersion('favicon.ico')) ?>" type="image/x-icon">
+    <link rel="stylesheet" href="shared/style.css?v=<?= h(assetVersion('shared/style.css')) ?>">
+    <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
+</head>
+<body>
+<main class="page-shell">
+    <?php
+    $headerTitle = 'Config';
+    $headerImagesPath = 'images/';
+    $headerShowHome = false;
+    require __DIR__ . '/shared/header.php';
+    ?>
+    <div class="config-bar">
+        <a href="index.php" class="back-link">&larr; Terug naar hoofdmenu</a>
+    </div>
+    <section class="update-panel">
+        <h2>Toegangscode</h2>
+        <p>Config is beveiligd. Vul de toegangscode in om de instellingen te openen.</p>
+        <?php if ($codeError !== null): ?>
+            <div class="update-message error"><?= h($codeError) ?></div>
+        <?php endif; ?>
+        <form method="post" class="update-form" autocomplete="off">
+            <input type="hidden" name="action" value="unlock-config">
+            <input type="hidden" name="csrf" value="<?= h(csrfToken()) ?>">
+            <label class="update-code-field">
+                <span>Code</span>
+                <input type="password" name="code" inputmode="numeric" autocomplete="off" autofocus required>
+            </label>
+            <button type="submit" class="update-submit">Openen</button>
+        </form>
+    </section>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
+</main>
+</body>
+</html>
+<?php
+    exit;
+}
+
 $settingsMessage = null;
 $dbFromFile = secureSettingsFileValues() !== null;
 

@@ -24,6 +24,26 @@ function accessCode(): string
     return $code !== false && trim($code) !== '' ? trim($code) : ACCESS_DEFAULT_CODE;
 }
 
+const ACCESS_CONFIG_FILE = '/etc/geeve/config.cred';
+
+/**
+ * Code voor Config (scope 'config'): één regel in /etc/geeve/config.cred (buiten de webmap, eigendom van root,
+ * leesbaar voor de webserver): een password_hash() van de code (aanbevolen) of de code zelf. Ontbreekt het bestand
+ * (of is het leeg), dan geldt dezelfde toegangscode als voor de beveiligde tegels (accessCode()).
+ */
+function accessConfigCodeOk(string $code): bool
+{
+    $code = trim($code);
+    $stored = is_readable(ACCESS_CONFIG_FILE) ? trim((string) @file_get_contents(ACCESS_CONFIG_FILE)) : '';
+    if ($stored === '') {
+        return hash_equals(accessCode(), $code);
+    }
+    if (str_starts_with($stored, '$')) {
+        return password_verify($code, $stored);
+    }
+    return hash_equals($stored, $code);
+}
+
 function accessUnlocked(string $scope): bool
 {
     csrfStartSession();
@@ -50,7 +70,8 @@ function accessTryUnlock(string $scope, string $code): string
     if (($_SESSION['access_locked_until'] ?? 0) > $now) {
         return 'wacht';
     }
-    if (hash_equals(accessCode(), trim($code))) {
+    $juist = $scope === 'config' ? accessConfigCodeOk($code) : hash_equals(accessCode(), trim($code));
+    if ($juist) {
         $_SESSION['access_unlocked'][$scope] = time();
         $_SESSION['access_failed'] = 0;
         return 'ok';
