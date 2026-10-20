@@ -16,5 +16,5 @@
 .oh-table tr.oh-filterrow th { cursor: default; padding-top: 4px; padding-bottom: 4px; background: var(--surface-white); }
 .oh-table tr.oh-filterrow .ka-input { width: 100%; min-width: 8ch; font-weight: 400; }
 .oh-table td.num { text-align: right; }
-.oh-table td.oh-omsc { white-space: normal; }
+.oh-table td.oh-omsc { white-space: nowrap; }
 #ohMessage { white-space: pre-wrap; }
