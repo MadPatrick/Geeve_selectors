@@ -72,8 +72,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
     if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
         $requestError = true;
     } else {
-        // De datumvelden geven JJJJ-MM-DD; alleen maand en dag tellen (de periode geldt elk jaar).
-        $dag = static fn (string $key, string $standaard): string => sneeuwDag(substr((string) ($_POST[$key] ?? ''), 5), $standaard);
+        // Dag en maand apart gekozen; de periode geldt elk jaar.
+        $dag = static fn (string $key, string $standaard): string => sneeuwDag(
+            sprintf('%02d-%02d', (int) ($_POST[$key . '_MAAND'] ?? 0), (int) ($_POST[$key . '_DAG'] ?? 0)),
+            $standaard
+        );
         $values = secureSettingsReadStored();
         $values['SNEEUW_AAN'] = isset($_POST['SNEEUW_AAN']) ? 'yes' : 'no';
         $values['SNEEUW_VAN'] = $dag('SNEEUW_VAN', SNEEUW_STANDAARD_VAN);
@@ -244,7 +247,7 @@ $storedSettings = secureSettingsRead();
 
     <section class="update-panel">
         <h2>Topbalk</h2>
-        <p>Sneeuw in de topbalk. Staat dit aan en valt vandaag tussen de twee datums, dan sneeuwt het in plaats van de glow; anders is de glow te zien. De periode geldt elk jaar en mag over de jaarwisseling lopen (alleen dag en maand tellen).</p>
+        <p>Sneeuw in de topbalk. Staat dit aan en valt vandaag tussen de twee datums, dan sneeuwt het in plaats van de glow; anders is de glow te zien. De periode geldt elk jaar (zonder jaartal) en mag over de jaarwisseling lopen.</p>
 
         <?php if ($sneeuwMessage !== null): ?>
             <div class="update-message <?= $sneeuwMessage['ok'] ? 'ok' : 'error' ?>"><?= h($sneeuwMessage['text']) ?></div>
@@ -253,7 +256,7 @@ $storedSettings = secureSettingsRead();
         <form method="post" class="update-form" autocomplete="off">
             <input type="hidden" name="action" value="save-sneeuw">
             <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
-            <?php $sneeuw = sneeuwInstellingen(); $sneeuwJaar = date('Y'); ?>
+            <?php $sneeuw = sneeuwInstellingen(); $sneeuwMaanden = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']; ?>
             <div class="settings-row">
                 <label class="settings-switch">
                     <input type="checkbox" name="SNEEUW_AAN" value="yes"<?= $sneeuw['aan'] ? ' checked' : '' ?>>
@@ -262,14 +265,19 @@ $storedSettings = secureSettingsRead();
                 </label>
             </div>
             <div class="settings-row">
-                <label class="update-code-field">
-                    <span>Van</span>
-                    <input type="date" name="SNEEUW_VAN" value="<?= h($sneeuwJaar . '-' . $sneeuw['van']) ?>" required>
-                </label>
-                <label class="update-code-field">
-                    <span>Tot en met</span>
-                    <input type="date" name="SNEEUW_TOT" value="<?= h($sneeuwJaar . '-' . $sneeuw['tot']) ?>" required>
-                </label>
+                <?php foreach (['SNEEUW_VAN' => ['Van', 'van'], 'SNEEUW_TOT' => ['Tot en met', 'tot']] as $veld => [$label, $sleutel]): ?>
+                <div class="update-code-field sneeuw-dag">
+                    <span><?= h($label) ?></span>
+                    <span class="sneeuw-dag-keuze">
+                        <select name="<?= h($veld) ?>_DAG" aria-label="<?= h($label) ?>: dag">
+                            <?php for ($d = 1; $d <= 31; $d++): ?><option value="<?= $d ?>"<?= (int) substr($sneeuw[$sleutel], 3) === $d ? ' selected' : '' ?>><?= $d ?></option><?php endfor; ?>
+                        </select>
+                        <select name="<?= h($veld) ?>_MAAND" aria-label="<?= h($label) ?>: maand">
+                            <?php foreach ($sneeuwMaanden as $i => $maand): ?><option value="<?= $i + 1 ?>"<?= (int) substr($sneeuw[$sleutel], 0, 2) === $i + 1 ? ' selected' : '' ?>><?= h($maand) ?></option><?php endforeach; ?>
+                        </select>
+                    </span>
+                </div>
+                <?php endforeach; ?>
             </div>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
