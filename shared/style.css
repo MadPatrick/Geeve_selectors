@@ -98,9 +98,6 @@ button, input, select { font: inherit; }
     0% { background-position: 100% 0; animation-timing-function: ease-out; }
     20%, 100% { background-position: 0% 0; }
 }
-@media (prefers-reduced-motion: reduce) {
-    .brand-panel::before { animation: none; }
-}
 /* Kerstperiode: sneeuw in plaats van de glow (zie shared/sneeuw.php). */
 .brand-panel--sneeuw::before { display: none; }
 .snow { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 2; border-radius: inherit; }
@@ -120,9 +117,6 @@ button, input, select { font: inherit; }
     50% { transform: translate(var(--x), 60px); }
     90% { opacity: 1; }
     100% { transform: translate(calc(var(--x) * -1), 140px); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-    .snow { display: none; }
 }
 /* Nieuwjaar: vuurwerk in plaats van de glow (zie shared/sneeuw.php). */
 .brand-panel--vuurwerk::before { display: none; }
@@ -165,9 +159,6 @@ button, input, select { font: inherit; }
     35% { transform: scale(1); opacity: 1; }
     100% { transform: scale(1.25); opacity: 0; }
 }
-@media (prefers-reduced-motion: reduce) {
-    .fireworks { display: none; }
-}
 /* Pasen: een paar paaseieren in plaats van de glow (zie shared/sneeuw.php). */
 .brand-panel--pasen::before { display: none; }
 .eggs { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
@@ -190,9 +181,6 @@ button, input, select { font: inherit; }
 @keyframes egg-wiebel {
     0%, 100% { transform: rotate(var(--r)); }
     50% { transform: rotate(calc(var(--r) * -1)); }
-}
-@media (prefers-reduced-motion: reduce) {
-    .egg { animation: none; }
 }
 .brand-copy { display: flex; flex-direction: column; align-items: flex-start; }
 .brand-logo-row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
