@@ -199,7 +199,7 @@ function geevePrinterList(): array
         return $list = $cached;
     }
     try {
-        // Sharenamen (met het IP-adres als omschrijving) en de driver per printer; enumprinters 1 is veel sneller dan 2.
+        // Sharenamen (met een omschrijving) en de driver per printer; enumprinters 1 is veel sneller dan 2.
         $shares = geeveSmbRun('smbclient', ['-L', '//' . GEEVE_SMB_SERVER, '-g'], 20);
         $drivers = geeveSmbRun('rpcclient', [GEEVE_SMB_SERVER, '-c', 'enumprinters 1'], 20);
     } catch (RuntimeException $e) {
@@ -271,9 +271,8 @@ function geeveSmbPrint(string $share, string $file, string $title): string
 }
 
 /**
- * Zet een PDF (A4) om in PCL XL voor een gewone printer, zoals de CUPS-driver "HP (Color) LaserJet Series PCL 6" het
- * deed: 600 dpi, kleur of zwart-wit, en passend verkleind tot het printbare vlak (12 pt rondom, fit-to-page); zonder
- * die verkleining viel op de Canons aan de rechterkant net iets weg.
+ * Zet een PDF (A4) om in PCL XL voor een gewone printer: 600 dpi, kleur of zwart-wit, en passend verkleind tot het
+ * printbare vlak (12 pt rondom, fit-to-page); zonder die verkleining viel op de Canons aan de rechterkant net iets weg.
  */
 function geevePdfToPcl(string $pdfFile, bool $color, string $workDir): string
 {

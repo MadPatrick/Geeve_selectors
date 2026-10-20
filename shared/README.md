@@ -319,8 +319,7 @@ Links in een app:
   dat van de Exact-koppeling - niet op slot gaat.
 - **`geevePrintHtml($html, $cssFiles, $share, $titel)`** maakt van dezelfde HTML als de browserprint (bijv. de
   inhoud van `#printSheet`) met headless Chromium (`/usr/bin/chromium-headless-shell`) een PDF met de print-CSS,
-  ghostscript zet die om in PCL XL (600 dpi, passend verkleind tot het printbare vlak, zoals CUPS met fit-to-page
-  deed) en `smbclient` zet hem in de wachtrij van de share. De PDF is gelijk aan wat de browser print.
+  ghostscript zet die om in PCL XL (600 dpi, passend verkleind tot het printbare vlak, fit-to-page) en `smbclient` zet hem in de wachtrij van de share. De PDF is gelijk aan wat de browser print.
   Met `$passend = [selector, max-hoogte in mm]` wordt een te hoog element (bijv. een slangkaart met een lange notitie)
   verkleind tot het op één pagina past; Slangkaart printen gebruikt `['#printSheet .hose-card', 268]`.
 - **Labelprinters**: hetzelfde afdrukblok wordt als PDF op labelformaat gerenderd (de `@page`-regel van de app), met
