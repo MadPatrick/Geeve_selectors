@@ -7,7 +7,7 @@ declare(strict_types=1);
  * het (zelfde print-CSS) en stuurt het naar de gekozen printer van die tegel. Zie shared/printen.php en
  * stickers/assets/direct-print.js.
  *
- * POST (JSON): {"tile": "<tegel-id>", "printer": "<wachtrij>", "html": "<inhoud van het afdrukblok>", "csrf": "<token>"}
+ * POST (JSON): {"tile": "<tegel-id>", "printer": "<share op de printserver>", "html": "<inhoud van het afdrukblok>", "csrf": "<token>"}
  * Antwoord (JSON): {"ok": true, "job": "...", "printer": "<naam>"} of {"ok": false, "error": "..."}
  */
 
@@ -55,4 +55,5 @@ try {
 } catch (RuntimeException $e) {
     printApiFail(500, $e->getMessage());
 }
+geeveRememberPrinter($tile, $queue);
 echo json_encode(['ok' => true, 'job' => $job, 'printer' => $printers[$queue]]);

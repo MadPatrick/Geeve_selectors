@@ -1507,7 +1507,7 @@ $hoseCardsWithoutOrder = [];
 $printSheetHtml = '';
 $printers = geevePrinters();
 $printerChoice = trim((string) ($_POST['printer'] ?? ''));
-$directPrint = null;      // ['printer' => naam, 'job' => CUPS-jobnummer] na een gelukte directe print
+$directPrint = null;      // ['printer' => naam, 'job' => printserver\share] na een gelukte directe print
 $directPrintError = null; // melding als direct printen misging; de browserprint blijft dan mogelijk
 $showRecentOrders = false;
 $errorMessage = null;
@@ -1539,6 +1539,7 @@ if ($selectedKeys !== []) {
                     ['#printSheet .hose-card', 268]
                 );
                 $directPrint = ['printer' => $printers[$printerChoice], 'job' => $job];
+                geeveRememberPrinter('slangkaarten', $printerChoice);
             } catch (Throwable $exception) {
                 $directPrintError = $exception->getMessage();
             }
@@ -1717,7 +1718,7 @@ if ($selectedKeys !== []) {
                 <button type="button" class="print-btn" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Via de browser printen</span></button>
             </div>
             <?php if ($directPrint !== null): ?>
-                <p class="print-status">De printer heeft de opdracht ontvangen (opdracht <?= h($directPrint['job']) ?>).</p>
+                <p class="print-status">De printserver heeft de opdracht ontvangen (<?= h($directPrint['job']) ?>).</p>
             <?php else: ?>
                 <p class="warning-box"><?= h((string) $directPrintError) ?></p>
             <?php endif; ?>

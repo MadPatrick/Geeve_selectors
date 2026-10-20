@@ -305,20 +305,29 @@ Links in een app:
 
 `shared/printen.php` print vanaf de server, zonder het printvenster van de browser:
 
-- **Printers** zijn CUPS-wachtrijen op de server. Ze worden beheerd in **Config > Printers** (naam, IP-adres of
-  netwerknaam; poort 9100 wordt gecontroleerd, kleur/zwart-wit via IPP herkend, de wachtrij met `lpadmin` aangemaakt).
-  De lijst staat in `data/printers/printers.json` (niet in git); per printer staat vast in welke tegels hij te kiezen
-  is (`GEEVE_PRINT_TILES`: nieuwe tegel met direct printen = daar toevoegen). `geevePrinters($tegelId)` geeft de
-  printers voor een tegel. Voorwaarde op de server: `www-data` zit in de groep `lpadmin`.
-- **`geevePrintHtml($html, $cssFiles, $wachtrij, $titel)`** maakt van dezelfde HTML als de browserprint (bijv. de
+- **Printers** zijn de printershares op de Windows-printserver `SVNL-VWP-PS01` waarvan de naam met `RTM` begint
+  (`GEEVE_SMB_SERVER`, `GEEVE_SMB_PREFIX`). Er is niets in te stellen in Config: `geevePrinterList()` haalt de shares
+  (`smbclient -L`) en hun driver (`rpcclient enumprinters 1`) op en bewaart de lijst 10 minuten in
+  `data/printers/smb-printers.json` (niet in git). De driver bepaalt het soort: PCL-driver = A4 (kleur bij "Color" of
+  Canon), Altec = TSPL-labelprinter, Brother QL = Brother-labelprinter; Zebra/ZPL en onbekende drivers vallen weg.
+  `geevePrinters($tegelId)` geeft de printers die bij een tegel passen (`GEEVE_PRINT_TILE_SOORT`: 'a4' of 'label';
+  nieuwe tegel met direct printen = toevoegen aan `GEEVE_PRINT_TILES`).
+- **Inloggen** op de printserver gebeurt met het account uit `/etc/geeve/smb-print.cred` (of `/etc/geeve/smbtest.cred`;
+  formaat van `smbclient -A`: `username`, `password`, `domain`), buiten de webmap, van root en leesbaar voor
+  `www-data` (`chown root:www-data`, `chmod 640`). Na een inlogfout (verkeerd wachtwoord, account op slot) stopt de
+  portal met proberen tot dat bestand is gewijzigd (`data/printers/smb-geblokkeerd.json`), zodat het account - ook
+  dat van de Exact-koppeling - niet op slot gaat.
+- **`geevePrintHtml($html, $cssFiles, $share, $titel)`** maakt van dezelfde HTML als de browserprint (bijv. de
   inhoud van `#printSheet`) met headless Chromium (`/usr/bin/chromium-headless-shell`) een PDF met de print-CSS,
-  en geeft die met `lp` aan de printer. De PDF is gelijk aan wat de browser print.
+  ghostscript zet die om in PCL XL (600 dpi, passend verkleind tot het printbare vlak, zoals CUPS met fit-to-page
+  deed) en `smbclient` zet hem in de wachtrij van de share. De PDF is gelijk aan wat de browser print.
   Met `$passend = [selector, max-hoogte in mm]` wordt een te hoog element (bijv. een slangkaart met een lange notitie)
   verkleind tot het op één pagina past; Slangkaart printen gebruikt `['#printSheet .hose-card', 268]`.
-- **Labelprinters** (soort "Label" in Config > Printers, kale wachtrij zonder driver naar poort 9100, TSPL): hetzelfde
-  afdrukblok wordt als PDF op labelformaat gerenderd (de `@page`-regel van de app), met `pdftoppm -mono` (poppler-utils)
-  naar een bitmap op 300 dpi gezet en als TSPL `BITMAP` met `lp -o raw` verstuurd (`geevePrintLabels()`). Een
-  A4-printer past bij tegels met soort 'a4', een labelprinter bij 'label' (`GEEVE_PRINT_TILE_SOORT`).
+- **Labelprinters**: hetzelfde afdrukblok wordt als PDF op labelformaat gerenderd (de `@page`-regel van de app), met
+  `pdftoppm -mono` (poppler-utils) naar een bitmap op 300 dpi gezet en als TSPL `BITMAP` (Altec) of via brother_ql
+  (Brother QL) naar de share gestuurd (`geevePrintLabels()`).
+- **Laatst gebruikte printer:** na een gelukte print onthoudt de portal de share per tegel in het cookie
+  `geeve_printer_<tegel>` (`geeveRememberPrinter()`); die staat de volgende keer voorgeselecteerd.
 - **Printknop in een tegel:** `geevePrinterSelectHtml($tegelId, $csrf)` toont de keuzelijst naast de knop; het script
   `stickers/assets/direct-print.js` laat `window.print()` dan het afdrukblok naar `shared/print-api.php` sturen. De
   tegel staat in `GEEVE_PRINT_TILES` en `GEEVE_PRINT_TILE_PAGE` (afdrukblok-id, klasse, stylesheets).
