@@ -17,6 +17,7 @@ header('Pragma: no-cache');
 // deze map los buiten de portal gedeployed).
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
 
+require_once __DIR__ . '/../shared/printen.php';
 require_once __DIR__ . '/inc/db.php';
 
 // Loopt het opbouwen van de pagina vast op een PHP-fout (bv. tijdslimiet of
