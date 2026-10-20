@@ -27,8 +27,8 @@
     --danger: #a03636;
     --shadow: 0 10px 24px rgba(0, 0, 0, .06);
     /* Knoppen: 5px ruimte tussen aangrenzende knoppen, en een rand in dezelfde
-       kleurtoon als de knop - LICHTERE rand op een donkere knop, DONKERDERE rand
-       op een lichte knop. */
+       kleurtoon als de knop, altijd DONKERDER dan de vulling (duidelijk zichtbaar,
+       overal 1px). */
     --btn-gap: 5px;
     --line-strong: #c9d4de;      /* lichte/neutrale knop (bijv. #edf2f6 of wit) */
     --ok-soft-line: #14532d;     /* rand van lichtgroene knop (#e8f4ed): donkergroen */
