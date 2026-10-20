@@ -204,6 +204,10 @@ function orderhistorieDiagnose(PDO $pdo, array $bron, string $debnr, string $kla
             $out[] = $label . ': FOUT ' . $e->getMessage();
         }
     };
+    $afl = orderhistorieIdent($bron['kolommen']['afldat']);
+    $run('Totaal, oudste en nieuwste afleverdatum', 'SELECT CAST(COUNT(*) AS varchar(20)) + \' regels, ' . 'van \' + CONVERT(varchar(10), MIN(' . $afl . '), 105) + \' t/m \' + CONVERT(varchar(10), MAX(' . $afl . '), 105) FROM ' . $bron['bron'] . ' WITH (NOLOCK)', [], false);
+    $run('Nieuwste 3 regels', 'SELECT TOP 3 ' . implode(', ', $cols) . ' FROM ' . $bron['bron'] . ' WITH (NOLOCK) ORDER BY ' . $afl . ' DESC', [], false);
+    $run('Aantal regels met Wohler in de naam', 'SELECT COUNT(*) FROM ' . $bron['bron'] . ' WITH (NOLOCK) WHERE ' . orderhistorieIdent($bron['kolommen']['debnm']) . " LIKE '%WOHLER%'", [], true);
     $run('Eerste 3 regels van de bron', 'SELECT TOP 3 ' . implode(', ', $cols) . ' FROM ' . $bron['bron'] . ' WITH (NOLOCK)', [], false);
     $debCol = $bron['debnr'] !== null ? orderhistorieIdent($bron['debnr']) : null;
     $nmCol = orderhistorieIdent($bron['kolommen']['debnm']);
