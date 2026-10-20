@@ -55,5 +55,7 @@ try {
 } catch (RuntimeException $e) {
     printApiFail(500, $e->getMessage());
 }
-geeveRememberPrinter($tile, $queue);
+// Optionele groep (bijv. de Artikelsticker bij Artikelen per Verkooporder): eigen onthouden printer.
+$groep = preg_match('/^[a-z]{1,12}$/', (string) ($body['groep'] ?? '')) === 1 ? '_' . $body['groep'] : '';
+geeveRememberPrinter($tile . $groep, $queue);
 echo json_encode(['ok' => true, 'job' => $job, 'printer' => $printers[$queue]]);
