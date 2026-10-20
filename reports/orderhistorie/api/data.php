@@ -8,7 +8,7 @@ tileApiGuard('orderhistorie');
 
 /**
  * Orderhistorie: geleverde orderregels per klant, vanaf de eerste order (de oude Excel toonde alleen de laatste 2 jaar).
- * Kolommen als in die Excel, zonder prijslijst en debiteur (de klant staat al in het filter): artnr, afldat, ordernr, refer, uw referentie, pakbon_dat, art_omsc, aant_gelev.
+ * Kolommen als in die Excel, zonder prijslijst, debiteur en afleverdatum (afldat blijft wel het filter en de sortering): artnr, ordernr, refer, uw referentie, pakbon_dat, art_omsc, aant_gelev.
  *
  * Bron: dezelfde tabellen als de view [Exactrapportage].[dbo].[400 orderhistorie] van Carl, maar rechtstreeks bevraagd (die view
  * zet de datums om naar tekst en koppelt de hele artikelview, waardoor filteren op klant of datum erg traag is):
@@ -21,17 +21,17 @@ require_once __DIR__ . '/../../inc.php';
 const ORDERHISTORIE_MAX = 50000;
 
 const ORDERHISTORIE_KOLOMMEN = [
-    'Artikelnr', 'Afleverdatum', 'Ordernr', 'Referentie', 'Uw referentie', 'Pakbondatum', 'Omschrijving', 'Aantal geleverd',
+    'Artikelnr', 'Ordernr', 'Referentie', 'Uw referentie', 'Pakbondatum', 'Omschrijving', 'Aantal geleverd',
 ];
-const ORDERHISTORIE_DATUM = [false, true, false, false, false, true, false, false];
-const ORDERHISTORIE_GETAL = [false, false, false, false, false, false, false, true];
+const ORDERHISTORIE_DATUM = [false, false, false, false, true, false, false];
+const ORDERHISTORIE_GETAL = [false, false, false, false, false, false, true];
 
 const ORDERHISTORIE_FROM =
     'orhkrg ohk WITH (NOLOCK) INNER JOIN orhsrg ohr WITH (NOLOCK) ON ohk.ordernr = ohr.ordernr AND ohk.pakbon_nr = ohr.pakbon_nr ' .
     'INNER JOIN Items i WITH (NOLOCK) ON i.ItemCode = ohr.artcode';
 
 const ORDERHISTORIE_SELECT =
-    'LTRIM(RTRIM(ohr.artcode)), ohr.afldat, ohk.ordernr, ' .
+    'LTRIM(RTRIM(ohr.artcode)), ohk.ordernr, ' .
     'LTRIM(RTRIM(ohk.refer)), LTRIM(RTRIM(ohk.docnumber)), ohk.pakbon_dat, LTRIM(RTRIM(i.Description)), ohr.aant_gelev';
 
 /** Waarde uit pdo_sqlsrv (string of DateTime) als YYYY-MM-DD. */
