@@ -247,7 +247,7 @@ $storedSettings = secureSettingsRead();
 
     <section class="update-panel">
         <h2>Topbalk</h2>
-        <p>Sneeuw in de topbalk. Staat dit aan en valt vandaag tussen de twee datums, dan sneeuwt het in plaats van de glow; anders is de glow te zien. De periode geldt elk jaar (zonder jaartal) en mag over de jaarwisseling lopen.</p>
+        <p>Animaties in de topbalk.</p>
 
         <?php if ($sneeuwMessage !== null): ?>
             <div class="update-message <?= $sneeuwMessage['ok'] ? 'ok' : 'error' ?>"><?= h($sneeuwMessage['text']) ?></div>
