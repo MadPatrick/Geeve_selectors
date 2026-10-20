@@ -121,7 +121,8 @@ reportApi(function (array $in): array {
     }
 
     // Artikel 30 en andere leverbeloftes ("binnen 30 dagen", "binnen 14 dagen", ...) zijn tekstregels, geen product: nooit tonen.
-    $where = ["LTRIM(RTRIM(ohr.artcode)) <> '30'", "ISNULL(i.Description, '') NOT LIKE 'binnen%dagen%'"];
+    // Alleen verkooporders (ord_soort V, zoals in de view 9101 Orderhistorie met regels): offertes kunnen nooit geleverd zijn.
+    $where = ["ohk.ord_soort = 'V'", "LTRIM(RTRIM(ohr.artcode)) <> '30'", "ISNULL(i.Description, '') NOT LIKE 'binnen%dagen%'"];
     $params = [];
     if ($debnr !== '') {
         $where[] = 'LTRIM(RTRIM(ohk.debnr)) = ?';
