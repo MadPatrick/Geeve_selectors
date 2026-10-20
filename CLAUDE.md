@@ -1,5 +1,25 @@
 # Werkafspraken voor Claude in deze repo
 
+## Voorwaarde voor elke nieuwe app: altijd de gedeelde onderdelen gebruiken
+
+Elke app draait **altijd op deze Geeve-server**, naast de portal. Daarom is dit een **voorwaarde, zonder dat Patrick het
+apart hoeft te vragen**: een nieuwe app houdt vanaf de eerste regel rekening met de gedeelde settings, lay-out/CSS,
+centrale CSV-map en printfunctie. Er wordt niets vanzelf geladen; de app moet dit zelf inladen/registreren:
+
+- **Lay-out en CSS:** `shared/head.php` (met `shared/style.css` en `shared/tokens.css`) en `shared/header.php`; voor
+  slangkaarten ook `shared/slangkaart.css`. Geen eigen kleuren, header of knopstijlen.
+- **Versienummer:** `version.php` (root) via `APP_VERSION`.
+- **Data (CSV's):** alleen via `shared/paths.php` in `data/<app>/`, niet in git.
+- **Settings en toegang:** database-inloggegevens via `secureSettingsRead()` (`shared/secure_settings.php`), nooit eigen
+  bestanden; tegel en toegangscode via `TILE_REGISTRY` (`shared/tiles.php`), `tileApiGuard()`/`accessApiGuard()`.
+- **Printen:** `shared/printen.php` (`geevePrinters()`, `geevePrintHtml()`), geen eigen printkoppeling of eigen
+  printerlijst; inlog alleen via `/etc/geeve/smbprint.cred`.
+- **Adressen en registratie:** `geeveUrl()`/`geeveAppUrl()`, en `TILE_REGISTRY` + `GEEVE_APP_URLS` bijwerken.
+- Server-eisen: geen `mb_*`, `AllowOverride All` voor de portalmap.
+
+Volg [`docs/HERGEBRUIK-SHARED.md`](docs/HERGEBRUIK-SHARED.md) (inladen, voorbeeld, printen, data, valkuilen, checklist).
+Wijk alleen af na overleg met Patrick.
+
 ## Nieuwe (sub)app toevoegen - gedeelde layout is de standaard
 
 Elke nieuwe app in deze portal gebruikt **standaard, zonder dit te hoeven vragen**, de gedeelde
