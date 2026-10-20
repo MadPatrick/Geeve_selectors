@@ -198,8 +198,7 @@
             return '<span class="msp-pill">' + esc(k.label) + ' <strong>' + esc(k.value) + '</strong></span>';
         }).join('') +
             '<span class="msp-pill"><strong>' + nl(shown.length) + '</strong> regels' + (filtered ? ' van ' + nl(data.rows.length) : '') + '</span>' +
-            (shown.length > MAX_SHOWN ? '<span class="msp-pill">Op het scherm: eerste <strong>' + nl(MAX_SHOWN) + '</strong> (download bevat alles)</span>' : '') +
-            '<span class="msp-pill">Bron <strong>' + esc(data.bron || '') + '</strong></span>';
+            (shown.length > MAX_SHOWN ? '<span class="msp-pill">Op het scherm: eerste <strong>' + nl(MAX_SHOWN) + '</strong> (download bevat alles)</span>' : '');
         downloadBtn.disabled = shown.length === 0;
     }
 
