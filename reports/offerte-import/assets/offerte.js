@@ -210,7 +210,7 @@
                         if (!supplierPending(l)) { return; }
                         var hit = sup[l.supplier.trim().toUpperCase()];
                         supplierInfo[l.supplier.trim().toUpperCase()] = hit || { item: '', matches: [] };
-                        if (hit && hit.item) { l.code = hit.item.toUpperCase(); }
+                        if (hit && hit.item) { l.code = hit.item.toUpperCase(); l.autoCode = true; }
                     });
                     lines.forEach(function (l) { if (cv(l) !== '') { checked[ck(l)] = true; } });
                     if (lines.length && !quiet) { showInfo('Geïmporteerd: ' + importedName + ' (' + pl(lines.length, 'regel', 'regels') + '), gecontroleerd met Exact.'); }
@@ -426,7 +426,10 @@
         }
         if (el.classList && el.classList.contains('oi-sup')) {
             // Leveranciersnummer gewijzigd: is de artikelcode leeg, dan na een korte pauze ons artikelnummer opnieuw opzoeken.
-            lines[+el.getAttribute('data-i')].supplier = el.value;
+            var line = lines[+el.getAttribute('data-i')];
+            line.supplier = el.value;
+            // Een artikelcode die uit het oude leveranciersnummer kwam, hoort daar niet meer bij: leegmaken en opnieuw opzoeken.
+            if (line.autoCode) { line.code = ''; line.autoCode = false; }
             render();
             clearTimeout(supTimer);
             supTimer = setTimeout(function () { validate(true, true); }, 500);
@@ -437,6 +440,7 @@
         var pos = el.selectionStart;
         el.value = el.value.toUpperCase();
         if (pos !== null) { el.setSelectionRange(pos, pos); }
+        lines[i].autoCode = false;
         lines[i].code = el.value; // ruwe invoer (alleen hoofdletters), zodat een spatie midden in de code niet verdwijnt
         var code = el.value.trim();
         // Rij direct bijwerken (nog niet gecontroleerd), daarna debounce de controle.
