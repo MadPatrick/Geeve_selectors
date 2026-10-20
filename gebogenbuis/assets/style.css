@@ -40,3 +40,10 @@
 .gb-totals dd { margin: 0; font-variant-numeric: tabular-nums; }
 .gb-totals .gb-totals-netto { font-size: 18px; font-weight: 800; border-bottom: 0; }
 #gbApp .ka-table-wrap { overflow: visible; } /* de keuzelijst onder een zoekveld mag buiten de tabel uitsteken */
+
+/* Invoervelden 5px hoger dan de standaard tabelregel (28px -> 33px) en alle cellen boven uitgelijnd, zodat de velden op één lijn staan. */
+.gb-lines td { vertical-align: top; }
+.ka-table.gb-lines .ka-input { min-height: 33px; }
+.gb-lines td.gb-num, .gb-lines td .gb-del { padding-top: 0; }
+.gb-lines td.gb-num { line-height: 33px; padding-top: 3px; }
+.gb-lines .gb-del { margin-top: 2px; }
