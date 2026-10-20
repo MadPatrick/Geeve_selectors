@@ -34,8 +34,8 @@
 }
 .tile:hover, .tile:focus-visible {
     transform: translateY(-3px);
-    box-shadow: 0 16px 34px var(--c-rgba-0-0-0-0p1);
-    border-color: var(--c-c7d0d9);
+    box-shadow: 0 16px 34px var(--black-a10);
+    border-color: var(--line-hover);
     outline: none;
 }
 .tile:hover::after, .tile:focus-visible::after { transform: scaleX(1); }
@@ -62,7 +62,7 @@
     cursor: default;
     pointer-events: none;
 }
-.tile-disabled .tile-icon { background: var(--c-eef0f3); color: var(--muted); }
+.tile-disabled .tile-icon { background: var(--tile-disabled-bg); color: var(--muted); }
 .tile-disabled .tile-cta { color: var(--muted); }
 .tile-disabled::after { display: none; }
 

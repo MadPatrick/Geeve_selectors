@@ -312,10 +312,10 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
     min-width: 120px;
     min-height: 44px;
     padding: 0 20px;
-    border: 1px solid var(--ok-soft-line);
+    border: 1px solid var(--btn-green-line);
     border-radius: 999px;
     background: var(--btn-green);
-    color: var(--ok-ink);
+    color: var(--btn-green-ink);
     font: inherit;
     font-size: 13px;
     font-weight: 750;

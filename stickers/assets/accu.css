@@ -9,7 +9,7 @@
 .ac-fields .ka-input { width: 100%; }
 
 .ac-preview { zoom: 1.8; }
-.ac-preview .accu { box-shadow: 0 0 0 1px var(--c-e0516a); border-radius: 1.5mm; background: var(--surface-white); }
+.ac-preview .accu { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1.5mm; background: var(--surface-white); }
 .ac-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
 .ac-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
 .ac-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
@@ -19,7 +19,7 @@
     width: 80mm;
     height: 30mm;
     overflow: hidden;
-    color: var(--c-000000);
+    color: var(--ink-black);
     font-family: Arial, Helvetica, sans-serif;
     font-weight: 700;
     line-height: 1;

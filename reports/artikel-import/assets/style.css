@@ -1,5 +1,5 @@
 /* Artikelgegevens Import: eigen tabelregels; knoppen, tabel (.ka-table, compacte regels) en meldingen komen uit klantartikel. */
-#aiTable thead th { position: sticky; top: 0; background: var(--soft, var(--soft)); z-index: 1; white-space: normal; vertical-align: bottom; }
+#aiTable thead th { position: sticky; top: 0; background: var(--soft); z-index: 1; white-space: normal; vertical-align: bottom; }
 #aiTable td { vertical-align: middle; }
 /* De tabel past altijd in de breedte (geen schuifbalk): vaste kolomverdeling, velden vullen hun kolom. */
 #aiTable { table-layout: fixed; width: 100%; }
@@ -10,22 +10,22 @@
 #aiTable .ka-input { width: 100%; min-width: 0; min-height: 28px; padding: 2px 6px; font-size: 13px; }
 #aiTable input.ai-num { text-align: right; }
 #aiTable select.ai-status { padding-right: 0; }
-#aiTable .ka-input::placeholder { color: var(--c-8c99a6); opacity: 1; }
+#aiTable .ka-input::placeholder { color: var(--ink-placeholder-alt); opacity: 1; }
 /* Gewijzigd t.o.v. Exact: geel; fout: rood. */
-#aiTable .ka-input.is-changed { background: var(--c-fff8d6); border-color: var(--status-warn); }
-#aiTable .ka-input.is-bad { background: var(--c-fff5f5); border-color: var(--c-c17c7c); color: var(--danger); font-weight: 700; }
-#aiTable tr.is-new td:nth-child(2) { color: var(--c-0a5fc2); }
+#aiTable .ka-input.is-changed { background: var(--status-changed-bg); border-color: var(--status-warn); }
+#aiTable .ka-input.is-bad { background: var(--status-bad-bg-faint); border-color: var(--status-bad-line); color: var(--danger); font-weight: 700; }
+#aiTable tr.is-new td:nth-child(2) { color: var(--status-info-ink); }
 #aiTable tr.is-incomplete td:nth-child(2) { color: var(--status-warn-ink); }
 #aiTable tr.is-missing td:nth-child(2) { color: var(--danger); }
 .ai-del { border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; padding: 0 4px; border-radius: 6px; }
 .ai-del:hover { color: var(--btn-danger); background: var(--btn-danger-hover); }
 .ai-problems { color: var(--status-warn-ink); background: var(--status-warn-soft); }
-.ai-pill-bad { border-color: var(--c-c17c7c); background: var(--c-fde2e2); color: var(--danger); }
-.ai-pill-new { border-color: var(--c-0a5fc2); background: var(--c-e6f0fd); color: var(--c-0a5fc2); }
-.ai-pill-changed { border-color: var(--status-warn); background: var(--c-fff8d6); color: var(--status-warn-ink); }
+.ai-pill-bad { border-color: var(--status-bad-line); background: var(--status-bad-bg); color: var(--danger); }
+.ai-pill-new { border-color: var(--status-info-ink); background: var(--status-info-soft); color: var(--status-info-ink); }
+.ai-pill-changed { border-color: var(--status-warn); background: var(--status-changed-bg); color: var(--status-warn-ink); }
 #aiExport:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(.5); }
 /* Alles ingevuld en gecontroleerd: de Exporteer-knop is lichtgroen (zelfde als de Print-knop). */
-#aiExport:not(:disabled) { background: var(--btn-green); border-color: var(--ok-soft-line); color: var(--ok-ink); }
+#aiExport:not(:disabled) { background: var(--btn-green); border-color: var(--btn-green-line); color: var(--btn-green-ink); }
 #aiExport:not(:disabled):hover { background: var(--btn-green-hover); }
 /* Regel toevoegen staat naast de tellingen boven de tabel; het tabelblok is altijd zichtbaar, zodat je ook zonder Excel regels kunt invoeren. */
 .ai-summary-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--btn-gap); margin-bottom: 12px; }

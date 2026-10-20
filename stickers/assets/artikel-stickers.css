@@ -10,14 +10,14 @@
 .sa-table-wrap { max-height: 480px; overflow-y: auto; margin-top: 14px; }
 #saTable thead th { position: sticky; top: 0; z-index: 1; }
 #saTable tbody tr { cursor: pointer; }
-#saTable tbody tr.is-current td { background: var(--c-cfe3fa); }
+#saTable tbody tr.is-current td { background: var(--row-current-bg); }
 /* Vinkjes even hoog als de tekst (13px), niet de 48px van de gedeelde input-regel. */
 #saTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
 #saTable th:first-child, #saTable td:first-child { width: 1%; }
 #saTable td:nth-child(2) { white-space: nowrap; }
 
 .sa-preview { zoom: 1.25; }
-.sa-preview .sticker { box-shadow: 0 0 0 1px var(--c-e0516a); border-radius: 2.5mm; background: var(--surface-white); }
+.sa-preview .sticker { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 2.5mm; background: var(--surface-white); }
 
 .sa-print { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 16px; align-self: flex-end; }
 .sa-print .msp-status { min-height: 0; }

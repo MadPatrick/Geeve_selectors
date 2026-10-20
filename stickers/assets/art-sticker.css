@@ -7,7 +7,7 @@
     width: 102mm;
     height: 54mm;
     overflow: hidden;
-    color: var(--c-000000);
+    color: var(--ink-black);
     font-family: Arial, Helvetica, sans-serif;
     line-height: 1;
 }
