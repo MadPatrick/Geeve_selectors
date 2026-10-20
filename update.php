@@ -335,6 +335,20 @@ $storedSettings = secureSettingsRead();
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
+<script>
+// Pasen: bij "eerste paasdag (automatisch)" toont de dag een "-"; kies je een maand, dan komt er een dagnummer.
+(function () {
+    var maand = document.querySelector('select[name="PASEN_MAAND"]');
+    var dag = document.querySelector('select[name="PASEN_DAG"]');
+    if (!maand || !dag) { return; }
+    function sync() {
+        if (maand.value === '0') { dag.value = '0'; }
+        else if (dag.value === '0') { dag.value = '1'; }
+    }
+    maand.addEventListener('change', sync);
+    sync();
+})();
+</script>
 <script src="assets/tiles-sort.js?v=<?= h(assetVersion('assets/tiles-sort.js')) ?>"></script>
 </body>
 </html>
