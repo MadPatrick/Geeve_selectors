@@ -148,10 +148,15 @@ function orderhistorieKies(PDO $pdo, array $c): array
             break;
         }
     }
+    $stmt = $pdo->query(
+        'SET NOCOUNT ON; SELECT DATA_TYPE FROM ' . ($c['db'] !== '' ? $c['db'] . '.' : '') . 'INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ' .
+        $pdo->quote($c['schema']) . ' AND TABLE_NAME = ' . $pdo->quote($c['table']) . ' AND COLUMN_NAME = ' . $pdo->quote($kolommen['afldat'])
+    );
     return [
         'bron' => ($c['db'] !== '' ? $c['db'] . '.' : '') . orderhistorieIdent($c['schema']) . '.' . orderhistorieIdent($c['table']),
         'kolommen' => $kolommen,
         'debnr' => $debnr,
+        'afldatType' => strtolower((string) $stmt->fetchColumn()),
     ];
 }
 
@@ -316,21 +321,23 @@ reportApi(function (array $in): array {
     } else {
         // De gevonden bron staat in de sessie: de zoektocht in INFORMATION_SCHEMA hoeft maar één keer.
         $t0 = microtime(true);
-        if (isset($_SESSION['orderhistorie_bron2']) && is_array($_SESSION['orderhistorie_bron2'])) {
-            $bron = $_SESSION['orderhistorie_bron2'];
+        if (isset($_SESSION['orderhistorie_bron3']) && is_array($_SESSION['orderhistorie_bron3'])) {
+            $bron = $_SESSION['orderhistorie_bron3'];
         } else {
             $bron = orderhistorieBron($pdo);
-            $_SESSION['orderhistorie_bron2'] = $bron;
+            $_SESSION['orderhistorie_bron3'] = $bron;
         }
         $msBron = (int) round((microtime(true) - $t0) * 1000);
     }
     $col = static fn (string $field): string => isset($bron['kolommen'][$field]) ? orderhistorieIdent($bron['kolommen'][$field]) : 'CAST(NULL AS varchar(1))';
 
     if (($in['diagnose'] ?? '') !== '') {
-        unset($_SESSION['orderhistorie_bron2']);
+        unset($_SESSION['orderhistorie_bron3']);
         throw new RuntimeException(orderhistorieDiagnose($pdo, $bron, $debnr, $klant));
     }
 
+    // Echte datumkolom: direct vergelijken (snel). Tekstkolom: veilig omzetten, zodat een rare waarde geen fout geeft.
+    $afl = in_array($bron['afldatType'] ?? '', SP_DATE_TYPES, true) ? $col('afldat') : 'TRY_CONVERT(datetime, ' . $col('afldat') . ')';
     $where = [];
     $params = [];
     if ($debnr !== '' && $bron['debnr'] !== null) {
@@ -345,11 +352,11 @@ reportApi(function (array $in): array {
         $params[] = orderhistorieLike($klantZoek);
     }
     if ($van !== '') {
-        $where[] = 'TRY_CONVERT(datetime, ' . $col('afldat') . ') >= CONVERT(datetime, ?, 112)';
+        $where[] = $afl . ' >= CONVERT(datetime, ?, 112)';
         $params[] = str_replace('-', '', $van);
     }
     if ($tot !== '') {
-        $where[] = 'TRY_CONVERT(datetime, ' . $col('afldat') . ') < DATEADD(day, 1, CONVERT(datetime, ?, 112))';
+        $where[] = $afl . ' < DATEADD(day, 1, CONVERT(datetime, ?, 112))';
         $params[] = str_replace('-', '', $tot);
     }
     if ($artnr !== '') {
