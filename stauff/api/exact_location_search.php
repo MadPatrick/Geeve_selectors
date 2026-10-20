@@ -143,6 +143,15 @@ if ($group !== '') {
     $params['groupMid'] = '%' . $groupTag . ' %';
     $params['groupEnd'] = '%' . $groupTag;
 
+    // Bij een GR1A-beugel toont locatie 1 ook de SM-glijmoeren van GR1
+    // (Patrick, 2026-10-19) - die rijen hier dus ook doorlaten; welke
+    // ervan echt getoond worden bepaalt renderLiveCandidates() in
+    // assets/selector.js (alleen SM).
+    if (strtoupper($group) === 'GR1A') {
+        $conditions[] = "[Item Description] LIKE '%GR1 %'";
+        $conditions[] = "[Item Description] LIKE '%GR1'";
+    }
+
     // Niet alleen glijmoer-artikelen (SM/GMV) dekken soms meerdere
     // bouwgroepen met 1 tag i.p.v. 1 tag per artikel - bevestigd ook bij
     // bouten (AS), bv. "HEX BOLT AS-M6X30-DIN931/933-8.8-W3, GR1/1A" dekt

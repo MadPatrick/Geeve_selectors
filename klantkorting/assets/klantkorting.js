@@ -146,13 +146,28 @@
             return;
         }
         message.hidden = true;
+        // Alle te exporteren regels als één JSON-veld: met losse velden per regel (12 stuks) kapt PHP
+        // (max_input_vars = 1000) bij ruim 80 regels de rest stilzwijgend af.
+        var rows = [];
         var disabled = [];
         Array.prototype.forEach.call(tbody.rows, function (row) {
             var v = rowValues(row);
-            if (!isChanged(row) || (v.group === '' && v.qty === '' && v.disc === '')) {
-                Array.prototype.forEach.call(row.querySelectorAll('input'), function (i) { i.disabled = true; disabled.push(i); });
+            if (isChanged(row) && !(v.group === '' && v.qty === '' && v.disc === '')) {
+                var r = {};
+                Array.prototype.forEach.call(row.querySelectorAll('input[name]'), function (i) { r[i.name.replace('[]', '')] = i.value; });
+                r.groepbestaat = row.getAttribute('data-groepbestaat') !== '0';
+                rows.push(r);
             }
+            Array.prototype.forEach.call(row.querySelectorAll('input'), function (i) { i.disabled = true; disabled.push(i); });
         });
+        var packed = form.querySelector('input[name="regels"]');
+        if (!packed) {
+            packed = document.createElement('input');
+            packed.type = 'hidden';
+            packed.name = 'regels';
+            form.appendChild(packed);
+        }
+        packed.value = JSON.stringify(rows);
         setTimeout(function () { disabled.forEach(function (i) { i.disabled = false; }); }, 0);
     });
 

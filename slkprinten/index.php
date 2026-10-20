@@ -17,7 +17,6 @@ header('Pragma: no-cache');
 // deze map los buiten de portal gedeployed).
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
 
-require_once __DIR__ . '/../shared/printen.php';
 require_once __DIR__ . '/inc/db.php';
 
 // Loopt het opbouwen van de pagina vast op een PHP-fout (bv. tijdslimiet of
@@ -1765,7 +1764,6 @@ if ($selectedKeys !== []) {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     <span class="button-label">Print geselecteerde slangkaarten</span>
                 </button>
-                </div>
             </div>
             <?= renderHoseLinesForm($hoseLines, $orderNumber, $customerName) ?>
         </section>

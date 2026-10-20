@@ -31,9 +31,6 @@ slangnummer, zie hieronder):
 4. **Printen** - alleen van de aangevinkte regels wordt de daadwerkelijke slangkaart (uit "2500
    Slangkaarten bij order", met koppelonderdelen zijde A/B) opgehaald; `window.print()` wordt
    automatisch aangeroepen zodra de pagina laadt, geen aparte preview-stap.
-   Is in stap 2 bij **Printer** een printer gekozen (in plaats van "Printvenster van de browser"), dan
-   print de server de kaarten en picklijst direct op die printer, zonder printvenster (zie
-   `shared/README.md`, "Direct printen"). De keuze onthoudt de browser.
 
 Structureel belangrijk: **1 rij in "2500 Slangkaarten bij order" = 1 slang**, niet 1 rij per
 order - een order met "Aantal slangen" = 4 heeft dus 1 rij die aangeeft dat die slang 4x gemaakt

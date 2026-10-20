@@ -54,7 +54,8 @@ $csrf = csrfToken();
 
     <section class="panel" id="eiApp" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
         <h2>Export info</h2>
-        <p class="ka-empty">Haalt de orderregels voor de exportdocumenten uit Exact op (dezelfde gegevens als het Excel-bestand "Exact Export info Order"). Vul het ordernummer in, haal de gegevens op, vul collo, gewicht en afmetingen aan en exporteer de gekozen weergave naar Excel.</p>
+        <p class="ka-empty">Haalt de orderregels voor de exportdocumenten uit Exact op (dezelfde gegevens als het Excel-bestand "Exact Export info Order"). 
+            <br>Vul het ordernummer in, haal de gegevens op, vul collo, gewicht en afmetingen aan en exporteer de gekozen weergave naar Excel.</p>
         <div class="ka-actions">
             <label class="msp-field">
                 <span>Ordernummer</span>
