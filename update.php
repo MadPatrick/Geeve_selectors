@@ -280,6 +280,7 @@ $storedSettings = secureSettingsRead();
                 <label class="sneeuw-dagen"><input type="number" name="<?= $naam ?>_NA" value="<?= $i['na'] ?>" min="0" max="60"><span>dagen erna</span></label>
             </div>
             <?php endforeach; ?>
+            <p class="settings-help">Nu actief in de topbalk: <strong><?= h(nieuwjaarActief() ? 'vuurwerk (Nieuwjaar)' : (sneeuwActief() ? 'sneeuw (kerst)' : (paasActief() ? 'paaseieren (Pasen)' : 'geen, de glow'))) ?></strong> (datum op de server: <?= h(date('d-m-Y')) ?>).</p>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
     </section>
