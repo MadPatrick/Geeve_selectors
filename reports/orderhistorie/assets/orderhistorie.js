@@ -123,7 +123,9 @@
         body.set('omsc', omscInput.value.trim());
         zoekBtn.disabled = true;
         downloadBtn.disabled = true;
-        status.textContent = 'Bezig met zoeken…';
+        var started = Date.now();
+        status.textContent = 'Bezig met zoeken… 0 s';
+        var ticker = setInterval(function () { status.textContent = 'Bezig met zoeken… ' + Math.round((Date.now() - started) / 1000) + ' s'; }, 1000);
         fetch(app.dataset.endpoint, { method: 'POST', body: body })
             .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
             .then(function (json) {
@@ -139,14 +141,15 @@
                 downloadBtn.disabled = data.rows.length === 0;
                 status.textContent = data.rows.length === 0
                     ? 'Geen regels gevonden.'
-                    : 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + '.';
+                    : 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + ' (' +
+                        Math.round((Date.now() - started) / 100) / 10 + ' s' + (data.tijden ? ', waarvan bron zoeken ' + data.tijden.bron + ' ms en ophalen uit SQL ' + data.tijden.ophalen + ' ms' : '') + ').';
             })
             .catch(function (err) {
                 status.textContent = '';
                 result.hidden = true;
                 fail(err.message);
             })
-            .then(function () { zoekBtn.disabled = false; });
+            .then(function () { clearInterval(ticker); zoekBtn.disabled = false; });
     }
 
     // ---- Tabel: kop met sorteren, filterrij per kolom, regels ----
@@ -216,6 +219,12 @@
         sortCol = c;
         refresh();
     });
+
+    // "Tot en met" is standaard vandaag (lokale datum).
+    (function () {
+        var d = new Date();
+        totInput.value = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    })();
 
     zoekBtn.addEventListener('click', zoek);
     [vanInput, totInput, artnrInput, omscInput].forEach(function (el) {

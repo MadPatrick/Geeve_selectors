@@ -187,11 +187,12 @@ reportApi(function (array $in): array {
     if ($van !== '' && $tot !== '' && $van > $tot) {
         throw new RuntimeException('De begindatum ligt na de einddatum.');
     }
-    if ($debnr === '' && $klant === '' && $klantZoek === '' && $van === '' && $tot === '' && $artnr === '' && $omsc === '') {
-        throw new RuntimeException('Kies een klant of vul een datum, artikelnummer of omschrijving in.');
+    if ($debnr === '' && $klant === '' && $klantZoek === '' && $van === '' && $artnr === '' && $omsc === '') {
+        throw new RuntimeException('Kies een klant of vul een begindatum, artikelnummer of omschrijving in.');
     }
 
     $pdo = reportConnection();
+    $msBron = 0;
     if (ORDERHISTORIE_BRON !== '') {
         // Vaste bron: kolommen worden via een lege SELECT TOP 0 gekoppeld.
         $meta = $pdo->query('SET NOCOUNT ON; SELECT TOP 0 * FROM ' . ORDERHISTORIE_BRON);
@@ -220,7 +221,15 @@ reportApi(function (array $in): array {
             throw new RuntimeException('De bron ORDERHISTORIE_BRON mist een of meer kolommen van de orderhistorie.');
         }
     } else {
-        $bron = orderhistorieBron($pdo);
+        // De gevonden bron staat in de sessie: de zoektocht in INFORMATION_SCHEMA hoeft maar één keer.
+        $t0 = microtime(true);
+        if (isset($_SESSION['orderhistorie_bron']) && is_array($_SESSION['orderhistorie_bron'])) {
+            $bron = $_SESSION['orderhistorie_bron'];
+        } else {
+            $bron = orderhistorieBron($pdo);
+            $_SESSION['orderhistorie_bron'] = $bron;
+        }
+        $msBron = (int) round((microtime(true) - $t0) * 1000);
     }
     $col = static fn (string $field): string => orderhistorieIdent($bron['kolommen'][$field]);
 
@@ -261,6 +270,7 @@ reportApi(function (array $in): array {
         ($where ? ' WHERE ' . implode(' AND ', $where) : '') .
         ' ORDER BY ' . $col('afldat') . ' DESC, ' . $col('ordernr') . ', ' . $col('artnr')
     );
+    $t1 = microtime(true);
     $stmt->execute($params);
 
     $dates = array_map(static fn (string $f): bool => in_array($f, ['afldat', 'pakbon'], true), $fields);
@@ -279,6 +289,7 @@ reportApi(function (array $in): array {
         }
         $rows[] = $r;
     }
+    $msOphalen = (int) round((microtime(true) - $t1) * 1000);
     $capped = count($rows) > ORDERHISTORIE_MAX;
     if ($capped) {
         array_pop($rows);
@@ -301,6 +312,7 @@ reportApi(function (array $in): array {
         'dates' => $dates,
         'rows' => $rows,
         'bron' => $bron['bron'],
+        'tijden' => ['bron' => $msBron, 'ophalen' => $msOphalen],
         'kop' => $kop,
         'klantNaam' => $klant !== '' ? $klant : ($klantZoek !== '' ? $klantZoek : 'alle klanten'),
     ];
