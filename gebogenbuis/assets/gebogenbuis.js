@@ -124,7 +124,7 @@
             '<td><input type="text" class="ka-input gb-item" placeholder="Artikelnummer of omschrijving" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false">' +
             '<ul class="gb-hits" role="listbox" hidden></ul><span class="gb-desc"></span></td>' +
             '<td><input type="text" class="ka-input gb-qty" inputmode="decimal" value="1" autocomplete="off"></td>' +
-            '<td class="gb-num gb-price"></td><td class="gb-num gb-stock"></td>' +
+            '<td class="gb-num gb-price"></td><td class="gb-num gb-total"></td><td class="gb-num gb-stock"></td>' +
             '<td class="gb-num gb-disc"></td>' +
             '<td><button type="button" class="gb-del" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td>';
         body.appendChild(tr);
@@ -163,6 +163,7 @@
         var tr = r.tr;
         tr.querySelector('.gb-desc').textContent = r.item ? r.item.omschrijving : '';
         tr.querySelector('.gb-price').textContent = r.item && r.item.prijs !== null ? euro(r.item.prijs) : (r.item ? 'onbekend' : '');
+        tr.querySelector('.gb-total').textContent = r.item && r.item.prijs !== null ? euro(r.item.prijs * qtyOf(r)) : '';
         var stock = tr.querySelector('.gb-stock');
         stock.textContent = stockText(r);
         stock.classList.toggle('gb-stock-low', !!r.item && r.item.voorraad !== '' && num(r.item.voorraad) < qtyOf(r));

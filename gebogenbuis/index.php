@@ -51,7 +51,7 @@ function assetVersion(string $relativePath): string
         <div class="ka-message ka-message--error" id="gbMessage" hidden></div>
 
         <div class="ka-table-wrap"><table class="ka-table gb-lines" id="gbTable">
-            <thead><tr><th>Artikel</th><th>Aantal</th><th class="gb-num">Bruto prijs</th><th class="gb-num">Vrije voorraad</th><th class="gb-num">Korting</th><th></th></tr></thead>
+            <thead><tr><th>Artikel</th><th>Aantal</th><th class="gb-num">Bruto prijs /stuk</th><th class="gb-num">Bruto prijs totaal</th><th class="gb-num">Vrije voorraad</th><th class="gb-num">Korting</th><th></th></tr></thead>
             <tbody id="gbBody"></tbody>
         </table></div>
         <button type="button" class="ka-add gb-add" id="gbAdd" title="Artikel toevoegen" aria-label="Artikel toevoegen">+</button>
