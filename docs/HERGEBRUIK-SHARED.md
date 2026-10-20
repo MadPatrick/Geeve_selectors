@@ -22,6 +22,25 @@ waar gaat het mis.
 
 Voorkeur: **A**. Alleen dan hoeft er niets te worden uitgezocht over rechten, adressen en `.htaccess`.
 
+## 1b. Wordt dit automatisch gebruikt door een nieuwe app?
+
+**Nee: niets wordt vanzelf geladen.** Er is geen gedeeld "framework" dat elke map in de portal oppikt. Elke pagina
+laadt zelf wat ze nodig heeft met `require`. Een map aanmaken is dus niet genoeg.
+
+| Onderdeel | Automatisch? | Wat de app zelf moet doen |
+|---|---|---|
+| CSS en variabelen (`style.css`, `tokens.css`) | Nee | `shared/head.php` includen (zet `h()` ervoor) |
+| Topbalk (`header.php`, logo's, PC-naam, sneeuw) | Nee | `shared/header.php` includen met `$headerTitle` |
+| Versienummer | Nee | `version.php` inlezen via `APP_VERSION` |
+| Centrale CSV's | Nee | Lezen/schrijven via `shared/paths.php`; map `data/<app>/` ontstaat bij het eerste schrijven |
+| Printen | Nee | `shared/printen.php` includen en `geevePrintHtml()` aanroepen (paragraaf 4) |
+| Hoofdscherm-tegel | Nee | Eigen regel in `TILE_REGISTRY` (`shared/tiles.php`) en `GEEVE_APP_URLS` (`shared/paths.php`) |
+
+Wat wel vanzelf werkt zodra de app in de portalmap staat: de root-`.htaccess` (dotfiles geblokkeerd, no-cache voor
+CSS/JS), `data/.htaccess` (CSV's afgesloten), en de printerlijst en inlog van de printserver (die gelden voor elke
+aanroep van `geevePrinters()`). Zonder de includes krijgt een nieuwe pagina dus geen huisstijl, geen header en geen
+versienummer. De checklist in paragraaf 11 en `shared/README.md` zijn de lijst om dat af te vinken.
+
 ## 2. Wat er op de server aanwezig moet zijn
 
 Dit staat al op de Geeve-server; een andere omgeving (testkopie, nieuwe server) moet het ook hebben.
