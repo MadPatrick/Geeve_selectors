@@ -21,10 +21,9 @@ const GEEVE_SMB_PREFIX = 'RTM';
 
 /**
  * Inlogbestand voor de printserver (smbclient -A: "username = ...", "password = ...", "domain = ..."), buiten de
- * webmap, eigendom van root en leesbaar voor de webserver. Het eerste bestaande bestand telt; de omgevingsvariabele
- * GEEVE_SMB_CRED gaat voor.
+ * webmap, eigendom van root en leesbaar voor de webserver. De omgevingsvariabele GEEVE_SMB_CRED gaat voor.
  */
-const GEEVE_SMB_CRED_FILES = ['/etc/geeve/smbprint.cred', '/etc/geeve/smbtest.cred'];
+const GEEVE_SMB_CRED_FILES = ['/etc/geeve/smbprint.cred'];
 
 /** Zo lang (seconden) blijft de printerlijst van de printserver bewaard voordat hij opnieuw wordt opgehaald. */
 const GEEVE_SMB_CACHE_SECONDEN = 1800;

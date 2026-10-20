@@ -312,8 +312,7 @@ Links in een app:
   Canon), Altec = TSPL-labelprinter, Brother QL = Brother-labelprinter; Zebra/ZPL en onbekende drivers vallen weg.
   `geevePrinters($tegelId)` geeft de printers die bij een tegel passen (`GEEVE_PRINT_TILE_SOORT`: 'a4' of 'label';
   nieuwe tegel met direct printen = toevoegen aan `GEEVE_PRINT_TILES`).
-- **Inloggen** op de printserver gebeurt met het account uit `/etc/geeve/smbprint.cred` (de oude naam `/etc/geeve/smbtest.cred` werkt nog als terugval;
-  formaat van `smbclient -A`: `username`, `password`, `domain`), buiten de webmap, van root en leesbaar voor
+- **Inloggen** op de printserver gebeurt met het account uit `/etc/geeve/smbprint.cred` (formaat van `smbclient -A`: `username`, `password`, `domain`), buiten de webmap, van root en leesbaar voor
   `www-data` (`chown root:www-data`, `chmod 640`). Na een inlogfout (verkeerd wachtwoord, account op slot) stopt de
   portal met proberen tot dat bestand is gewijzigd (`data/printers/smb-geblokkeerd.json`), zodat het account - ook
   dat van de Exact-koppeling - niet op slot gaat.
