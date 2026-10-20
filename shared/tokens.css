@@ -102,5 +102,6 @@
     --radius-md: 14px;
     --radius-lg: 18px;                  /* .panel, brand-panel */
     --radius-pill: 999px;
+    --snow: rgba(255, 255, 255, .9);    /* sneeuwvlokken in de topbalk (kerstperiode) */
     --focus-ring: 0 0 0 3px rgba(238, 48, 93, .14);
 }

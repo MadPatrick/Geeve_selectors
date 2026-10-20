@@ -8,6 +8,7 @@ session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 require_once __DIR__ . '/shared/secure_settings.php';
+require_once __DIR__ . '/shared/sneeuw.php';
 require_once __DIR__ . '/shared/tiles.php';
 require_once __DIR__ . '/shared/printen.php';
 
@@ -40,8 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
     } else {
         $values = secureSettingsReadStored();
         foreach (SECURE_SETTINGS_KEYS as $settingKey) {
-            if ($settingKey === 'TILE_FLAGS') {
-                continue; // wordt apart opgeslagen (formulier Tegels)
+            if ($settingKey === 'TILE_FLAGS' || str_starts_with($settingKey, 'SNEEUW_')) {
+                continue; // worden apart opgeslagen (formulieren Tegels en Topbalk)
             }
             if ($dbFromFile && in_array($settingKey, SECURE_SETTINGS_FILE_KEYS, true)) {
                 continue; // beheerd op de server (/etc/geeve/portal.json)
@@ -62,6 +63,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         }
         $settingsMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Instellingen versleuteld opgeslagen.']
+            : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
+    }
+}
+
+$sneeuwMessage = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-sneeuw') {
+    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+        $requestError = true;
+    } else {
+        // De datumvelden geven JJJJ-MM-DD; alleen maand en dag tellen (de periode geldt elk jaar).
+        $dag = static fn (string $key, string $standaard): string => sneeuwDag(substr((string) ($_POST[$key] ?? ''), 5), $standaard);
+        $values = secureSettingsReadStored();
+        $values['SNEEUW_AAN'] = isset($_POST['SNEEUW_AAN']) ? 'yes' : 'no';
+        $values['SNEEUW_VAN'] = $dag('SNEEUW_VAN', SNEEUW_STANDAARD_VAN);
+        $values['SNEEUW_TOT'] = $dag('SNEEUW_TOT', SNEEUW_STANDAARD_TOT);
+        $sneeuwMessage = secureSettingsWrite($values)
+            ? ['ok' => true, 'text' => 'Topbalk-instellingen opgeslagen.']
             : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
     }
 }
@@ -219,6 +237,39 @@ $storedSettings = secureSettingsRead();
                 </label>
             </div>
                 </div>
+            </div>
+            <button type="submit" class="update-submit">Opslaan</button>
+        </form>
+    </section>
+
+    <section class="update-panel">
+        <h2>Topbalk</h2>
+        <p>Sneeuw in de topbalk. Staat dit aan en valt vandaag tussen de twee datums, dan sneeuwt het in plaats van de glow; anders is de glow te zien. De periode geldt elk jaar en mag over de jaarwisseling lopen (alleen dag en maand tellen).</p>
+
+        <?php if ($sneeuwMessage !== null): ?>
+            <div class="update-message <?= $sneeuwMessage['ok'] ? 'ok' : 'error' ?>"><?= h($sneeuwMessage['text']) ?></div>
+        <?php endif; ?>
+
+        <form method="post" class="update-form" autocomplete="off">
+            <input type="hidden" name="action" value="save-sneeuw">
+            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <?php $sneeuw = sneeuwInstellingen(); $sneeuwJaar = date('Y'); ?>
+            <div class="settings-row">
+                <label class="settings-switch">
+                    <input type="checkbox" name="SNEEUW_AAN" value="yes"<?= $sneeuw['aan'] ? ' checked' : '' ?>>
+                    <span class="settings-switch-track"></span>
+                    <span>Sneeuw rond de kerst</span>
+                </label>
+            </div>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Van</span>
+                    <input type="date" name="SNEEUW_VAN" value="<?= h($sneeuwJaar . '-' . $sneeuw['van']) ?>" required>
+                </label>
+                <label class="update-code-field">
+                    <span>Tot en met</span>
+                    <input type="date" name="SNEEUW_TOT" value="<?= h($sneeuwJaar . '-' . $sneeuw['tot']) ?>" required>
+                </label>
             </div>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>

@@ -30,6 +30,10 @@ const SECURE_SETTINGS_KEYS = [
     'ACCESS_CODE',
     // Per tegel: zichtbaar / beveiligd / in progress (JSON, zie shared/tiles.php); ingesteld via Config > Tegels.
     'TILE_FLAGS',
+    // Sneeuw in de topbalk rond de kerst (zie shared/sneeuw.php); ingesteld via Config > Topbalk.
+    'SNEEUW_AAN',
+    'SNEEUW_VAN',
+    'SNEEUW_TOT',
 ];
 
 /** Sleutels die uit het serverbestand komen (zie secureSettingsFilePath()); die velden verdwijnen dan uit Config. */

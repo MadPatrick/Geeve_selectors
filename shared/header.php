@@ -35,6 +35,8 @@ declare(strict_types=1);
  *                                            zelf escapen wat niet al
  *                                            vaste markup is.
  *
+ * Rond de kerst (Config > Topbalk, shared/sneeuw.php) valt er sneeuw in de topbalk in plaats van de glow.
+ *
  * De PC-naam van de gebruiker (shared/pcnaam.php) staat altijd rechts naast
  * het Rubix-logo (.brand-logo-row).
  *
@@ -50,9 +52,13 @@ $headerTopline = $headerTopline ?? '';
 
 require_once __DIR__ . '/pcnaam.php';
 $headerPcNaam = pcNaam();
+
+require_once __DIR__ . '/sneeuw.php';
+$headerSneeuw = sneeuwActief();
 ?>
 <header class="page-header">
-    <div class="brand-panel">
+    <div class="brand-panel<?= $headerSneeuw ? ' brand-panel--sneeuw' : '' ?>">
+        <?= $headerSneeuw ? sneeuwVlokkenHtml() : '' ?>
         <div class="brand-copy">
             <div class="brand-logo-row">
                 <img src="<?= h($headerImagesPath) ?>geeve.jpg" alt="Geeve Hydraulics - know how in hydraulics" class="brand-logo-img">
