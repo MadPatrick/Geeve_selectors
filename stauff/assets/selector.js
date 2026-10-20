@@ -793,8 +793,8 @@
     };
 
     // Standaardaantal per vaste locatie (1-6) - overal 1, behalve Bout
-    // (locatie 5, zie resetAantalFields() hieronder: standaard 2, maar 1
-    // bij een dubbele beugel - isDubbelBeugel(), met opzet niet de CSV).
+    // (locatie 5, zie standaardBoutAantal(): 1 bij GR1, anders 2, en 1 bij
+    // een dubbele beugel - isDubbelBeugel(), met opzet niet de CSV).
     // Gebruikt bij het opnieuw leegmaken van de samenstelling
     // (clearAssembly()) en bij het kiezen van een nieuwe, andere beugel
     // (selectClamp()).
@@ -805,7 +805,7 @@
             const input = ui[`aantalLoc${pos}`];
             if (input) input.value = String(value);
         });
-        if (ui.aantalLoc5) ui.aantalLoc5.value = isDubbelBeugel() ? '1' : '2';
+        if (ui.aantalLoc5) ui.aantalLoc5.value = String(standaardBoutAantal());
         // Nieuwe beugel: een glijmoer op locatie 1 krijgt zijn aantal
         // opnieuw, ook als het toevallig hetzelfde artikel blijft - zie
         // applyGlijmoerAantallen().
@@ -816,11 +816,27 @@
         state.lastGestapeldDubbel = null;
     }
 
-    // Beugel uit bouwgroep GR1A (zie state.beugelGroup). Daar gaat een
-    // glijmoer per 1 i.p.v. per 2, en toont locatie 1 ook de SM-glijmoeren
-    // van GR1 (Patrick, 2026-10-19).
+    // Beugel uit bouwgroep GR1A (zie state.beugelGroup): locatie 1 toont
+    // daar ook de SM-glijmoeren van GR1 (Patrick, 2026-10-19).
     function isGr1aBeugel() {
         return upper(state.beugelGroup) === 'GR1A';
+    }
+
+    // Beugel uit bouwgroep GR1 (ook GR1D). Aantallen per beugel (Patrick,
+    // 2026-10-20): bij GR1 1 glijmoer (SM) en 1 bout (AS/IS/AF); bij GR1A,
+    // GR2 en hoger en de zware serie (GRxS) 2 glijmoeren (GMV) en 2 bouten.
+    function isGr1Beugel() {
+        return upper(state.beugelGroup).replace(/D$/, '') === 'GR1';
+    }
+
+    function glijmoerBoutAantal() {
+        return isGr1Beugel() ? 1 : 2;
+    }
+
+    // Standaard Bout-aantal (locatie 5): 1 bij GR1, anders 2 - en 1 bij een
+    // dubbele beugel (isDubbelBeugel()), zoals voorheen.
+    function standaardBoutAantal() {
+        return isDubbelBeugel() ? 1 : glijmoerBoutAantal();
     }
 
     function isGlijmoer(code) {
@@ -829,8 +845,8 @@
     }
 
     /**
-     * Glijmoeren (SM/GMV) gaan altijd per 2, behalve bij een GR1A-beugel
-     * (dan per 1). Zet het aantal van locatie 1 en van elke extra regel
+     * Glijmoeren (SM/GMV): 1 bij een GR1-beugel, anders 2 (zie
+     * glijmoerBoutAantal()). Zet het aantal van locatie 1 en van elke extra regel
      * alleen als het gekozen artikel daar WISSELT (bijgehouden in
      * dataset.glijmoerCode van het aantal-veld) - zo blijft een handmatige
      * aanpassing staan zolang hetzelfde artikel gekozen blijft. Wisselt een
@@ -849,7 +865,7 @@
             if (code === previous) return;
             aantalInput.dataset.glijmoerCode = code;
             if (isGlijmoer(code)) {
-                aantalInput.value = isGr1aBeugel() ? '1' : '2';
+                aantalInput.value = String(glijmoerBoutAantal());
             } else if (isGlijmoer(previous)) {
                 aantalInput.value = '1';
             }
@@ -858,7 +874,7 @@
 
     /**
      * Verdubbelt het Beugel-aantal (locatie 2: 1 -> 2) en het Bout-aantal
-     * (locatie 5: 2 -> 4, of 1 -> 2 bij een dubbele beugel - isDubbelBeugel())
+     * (locatie 5: 2x glijmoerBoutAantal(), dus 4 of bij GR1 2)
      * zodra de gekozen Lasplaat/Dekplaat de dubbel-gestapelde variant is
      * (isGestapeldDubbel(), SPAS/DPAS) - en zet ze terug naar hun gewone
      * waarde zodra dat niet meer het geval is. Overschrijft het aantal-veld
@@ -875,7 +891,7 @@
         state.lastGestapeldDubbel = gestapeld;
 
         if (ui.aantalLoc2) ui.aantalLoc2.value = gestapeld ? '2' : '1';
-        if (ui.aantalLoc5) ui.aantalLoc5.value = gestapeld ? '4' : (isDubbelBeugel() ? '1' : '2');
+        if (ui.aantalLoc5) ui.aantalLoc5.value = String(gestapeld ? glijmoerBoutAantal() * 2 : standaardBoutAantal());
         // .value = triggert geen 'input'-event (zie bindEvents()) - de
         // totalen dus hier zelf meteen herberekenen met de nieuwe aantallen.
         recomputeTotal();
@@ -1504,7 +1520,7 @@
             // resetAantalFields()). Alleen gezet bij het wisselen van
             // soort, zodat een handmatig aangepast aantal daarna niet
             // weer overschreven wordt.
-            aantalInput.value = pos === '5' ? (isDubbelBeugel() ? '1' : '2') : '1';
+            aantalInput.value = pos === '5' ? String(standaardBoutAantal()) : '1';
             delete aantalInput.dataset.glijmoerCode;
             if (!pos) {
                 delete locationFilterRequests[requestKey];
