@@ -139,13 +139,12 @@
                 refresh();
                 result.hidden = false;
                 downloadBtn.disabled = data.rows.length === 0;
-                status.textContent = data.rows.length === 0
-                    ? 'Geen regels gevonden.'
-                    : 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + ' (' +
-                        Math.round((Date.now() - started) / 100) / 10 + ' s' + (data.tijden ? ', waarvan bron zoeken ' + data.tijden.bron + ' ms en ophalen uit SQL ' + data.tijden.ophalen + ' ms' : '') + ').';
+                status.textContent = (data.rows.length === 0 ? 'Geen regels gevonden' : 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })) +
+                    ' (' + Math.round((Date.now() - started) / 100) / 10 + ' s' +
+                    (data.tijden ? ', waarvan bron zoeken ' + data.tijden.bron + ' ms en ophalen uit SQL ' + data.tijden.ophalen + ' ms' : '') + ').';
             })
             .catch(function (err) {
-                status.textContent = '';
+                status.textContent = 'Mislukt na ' + Math.round((Date.now() - started) / 100) / 10 + ' s.';
                 result.hidden = true;
                 fail(err.message);
             })
