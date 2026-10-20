@@ -199,13 +199,17 @@
     function totals() {
         var bruto = 0;
         var korting = 0;
+        var artikelen = 0;
         rows.forEach(function (r) {
             if (!r.item || r.item.prijs === null) { return; }
             var line = r.item.prijs * qtyOf(r);
             bruto += line;
+            artikelen += line;
             korting += line * r.pct / 100;
         });
         bruto += num(montage.value);
+        document.getElementById('gbKortingPct').textContent = artikelen > 0 && korting > 0
+            ? '(' + (korting / artikelen * 100).toLocaleString('nl-NL', { maximumFractionDigits: 2 }) + ' %)' : '';
         document.getElementById('gbBruto').textContent = euro(bruto);
         document.getElementById('gbKorting').textContent = (korting > 0 ? '- ' : '') + euro(korting);
         document.getElementById('gbNetto').textContent = euro(bruto - korting);

@@ -58,7 +58,7 @@ function assetVersion(string $relativePath): string
 
         <div class="gb-extra">
             <label class="field">
-                <span>Montage <small>(bedrag in euro, vrij in te vullen; zonder korting)</small></span>
+                <span>Montage</span>
                 <input type="text" id="gbMontage" class="ka-input gb-montage" inputmode="decimal" placeholder="0,00" autocomplete="off">
             </label>
             <label class="field gb-notes">
@@ -69,9 +69,10 @@ function assetVersion(string $relativePath): string
 
         <dl class="gb-totals">
             <div><dt>Bruto prijs</dt><dd id="gbBruto">&euro; 0,00</dd></div>
-            <div><dt>Korting</dt><dd id="gbKorting">&euro; 0,00</dd></div>
+            <div><dt>Korting <span id="gbKortingPct"></span></dt><dd id="gbKorting">&euro; 0,00</dd></div>
             <div class="gb-totals-netto"><dt>Netto prijs</dt><dd id="gbNetto">&euro; 0,00</dd></div>
         </dl>
+        <div class="gb-actions"><button type="button" class="ka-button" id="gbNaarExact" disabled title="Nog niet gekoppeld aan Exact">Naar Exact</button></div>
     </section>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>

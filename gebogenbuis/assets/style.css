@@ -47,3 +47,5 @@
 .gb-lines td.gb-num, .gb-lines td .gb-del { padding-top: 0; }
 .gb-lines td.gb-num { line-height: 33px; padding-top: 3px; }
 .gb-lines .gb-del { margin-top: 2px; }
+.gb-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+.gb-actions .ka-button:disabled { opacity: .5; cursor: default; }
