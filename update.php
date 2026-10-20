@@ -269,6 +269,7 @@ $storedSettings = secureSettingsRead();
                 </label>
                 <span class="sneeuw-dag-keuze">
                     <select name="<?= $naam ?>_DAG" aria-label="<?= h($titel) ?>: dag">
+                        <?php if ($naam === 'PASEN'): ?><option value="0"<?= $dagNu === 0 ? ' selected' : '' ?>>-</option><?php endif; ?>
                         <?php for ($d = 1; $d <= 31; $d++): ?><option value="<?= $d ?>"<?= $dagNu === $d ? ' selected' : '' ?>><?= $d ?></option><?php endfor; ?>
                     </select>
                     <select name="<?= $naam ?>_MAAND" aria-label="<?= h($titel) ?>: maand">
