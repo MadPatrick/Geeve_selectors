@@ -10,155 +10,29 @@ tileApiGuard('orderhistorie');
  * Orderhistorie: geleverde orderregels per klant, vanaf de eerste order (de oude Excel toonde alleen de laatste 2 jaar).
  * Kolommen als in die Excel: artnr, afldat, prijslijst, debnm, ordernr, refer, uw referentie, pakbon_dat, art_omsc, aant_gelev.
  *
- * Bron: vastgezet op de algemene view "400 orderhistorie" (alle klanten; Carl maakte daarnaast views per klant). Is ORDERHISTORIE_BRON leeg, dan zoekt orderhistorieBron() hem op in
- * INFORMATION_SCHEMA (database Exactrapportage en de database van de app; bij gelijke score wint Exactrapportage, daarna de kortste naam). Staat de juiste bron er niet bij,
- * zet dan hieronder ORDERHISTORIE_BRON op de volledige naam, bijv. '[Exactrapportage].[dbo].[naam van de view]'.
+ * Bron: dezelfde tabellen als de view [Exactrapportage].[dbo].[400 orderhistorie] van Carl, maar rechtstreeks bevraagd (die view
+ * zet de datums om naar tekst en koppelt de hele artikelview, waardoor filteren op klant of datum erg traag is):
+ *   orhkrg (orderkop historie) JOIN orhsrg (orderregels historie) ON ordernr + pakbon_nr, plus Items voor de omschrijving.
+ * Zelfde SQL Server en inloggegevens (via Config) als /stauff en de rapporten (database van Exact, zoals Items en cicmpy).
  */
 
 require_once __DIR__ . '/../../inc.php';
 
-const ORDERHISTORIE_BRON = '[Exactrapportage].[dbo].[400 orderhistorie]';
 const ORDERHISTORIE_MAX = 50000;
-/** Voorkeursbron: de algemene view met alle klanten (Carl maakte daarnaast views per klant, zoals "400 orderhistorie929"). */
-const ORDERHISTORIE_VOORKEUR = ['400 orderhistorie'];
-/** Velden die in de bron mogen ontbreken; ze blijven dan leeg. */
-const ORDERHISTORIE_OPTIONEEL = ['prijslijst', 'refer', 'uwref', 'pakbon'];
 
-/** Veld in de app => mogelijke kolomnamen in de bron (kleine letters, zonder spaties, underscores en streepjes). */
 const ORDERHISTORIE_KOLOMMEN = [
-    'artnr' => ['artnr', 'artikelnummer', 'artcode'],
-    'afldat' => ['afldat', 'afleverdatum'],
-    'prijslijst' => ['prijslijst', 'prijslijstnr'],
-    'debnm' => ['debnm', 'debiteurnaam', 'klantnaam'],
-    'ordernr' => ['ordernr', 'ordernummer'],
-    'refer' => ['refer', 'referentie'],
-    'uwref' => ['uwreferentie', 'uwref', 'uwrefer'],
-    'pakbon' => ['pakbondat', 'pakbondatum'],
-    'omsc' => ['artomsc', 'artomschrijving', 'omschrijving', 'artnm'],
-    'aantal' => ['aantgelev', 'aantalgeleverd'],
+    'Artikelnr', 'Afleverdatum', 'Prijslijst', 'Debiteur', 'Ordernr', 'Referentie', 'Uw referentie', 'Pakbondatum', 'Omschrijving', 'Aantal geleverd',
 ];
-/** Optioneel: als de bron een debiteurnummer heeft, filtert de klantkeuze daarop in plaats van op de naam. */
-const ORDERHISTORIE_DEBNR = ['debnr', 'debiteurnr', 'debnummer', 'debiteurnummer'];
+const ORDERHISTORIE_DATUM = [false, true, false, false, false, false, false, true, false, false];
+const ORDERHISTORIE_GETAL = [false, false, false, false, false, false, false, false, false, true];
 
-const ORDERHISTORIE_KOPPEN = [
-    'artnr' => 'Artikelnr', 'afldat' => 'Afleverdatum', 'prijslijst' => 'Prijslijst', 'debnm' => 'Debiteur', 'ordernr' => 'Ordernr',
-    'refer' => 'Referentie', 'uwref' => 'Uw referentie', 'pakbon' => 'Pakbondatum', 'omsc' => 'Omschrijving', 'aantal' => 'Aantal geleverd',
-];
+const ORDERHISTORIE_FROM =
+    'orhkrg ohk WITH (NOLOCK) INNER JOIN orhsrg ohr WITH (NOLOCK) ON ohk.ordernr = ohr.ordernr AND ohk.pakbon_nr = ohr.pakbon_nr ' .
+    'LEFT JOIN Items i WITH (NOLOCK) ON i.ItemCode = ohr.artcode';
 
-function orderhistorieNorm(string $name): string
-{
-    return preg_replace('/[^a-z0-9]/', '', strtolower($name)) ?? '';
-}
-
-function orderhistorieIdent(string $name): string
-{
-    return '[' . str_replace(']', ']]', $name) . ']';
-}
-
-/**
- * Zoekt de bron en koppelt de kolommen.
- *
- * @return array{bron: string, kolommen: array<string,string>, debnr: ?string}
- */
-function orderhistorieBron(PDO $pdo): array
-{
-    $candidates = [];
-    foreach (['[Exactrapportage]', ''] as $db) {
-        // Alleen kolommen die op de gezochte lijken, zodat de metadata-query licht blijft.
-        $stmt = $pdo->query(
-            'SET NOCOUNT ON; SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM ' . ($db !== '' ? $db . '.' : '') . 'INFORMATION_SCHEMA.COLUMNS ' .
-            "WHERE COLUMN_NAME LIKE '%pakbon%' OR COLUMN_NAME LIKE '%gelev%' OR COLUMN_NAME LIKE '%omsc%' OR COLUMN_NAME LIKE '%afldat%'"
-        );
-        $perTable = [];
-        foreach ($stmt->fetchAll() as $r) {
-            $perTable[$r['TABLE_SCHEMA'] . '.' . $r['TABLE_NAME']][] = (string) $r['COLUMN_NAME'];
-        }
-        foreach ($perTable as $key => $names) {
-            [$schema, $table] = explode('.', $key, 2);
-            $candidates[] = ['db' => $db !== '' ? $db : '', 'schema' => $schema, 'table' => $table, 'names' => $names];
-        }
-    }
-    $GLOBALS['orderhistorie_kandidatenlijst'] = $candidates;
-    $best = null;
-    $bestScore = -1;
-    $GLOBALS['orderhistorie_kandidaten'] = [];
-    foreach ($candidates as $c) {
-        $matched = orderhistorieMatch($pdo, $c);
-        $score = count($matched) + (in_array($c['table'], ORDERHISTORIE_VOORKEUR, true) ? 100 : 0);
-        if (array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), ORDERHISTORIE_OPTIONEEL, array_keys($matched)) !== []) {
-            $score = min($score, count($matched) - 50); // mist een verplicht veld: alleen als er niets beters is
-        }
-        if ($score > -45) {
-            $GLOBALS['orderhistorie_kandidaten'][] = $c['table'] . ': ' . $score;
-        }
-        if ($score > $bestScore || ($score === $bestScore && $best !== null && $c['db'] === $best['db'] && strlen($c['table']) < strlen($best['table']))) {
-            $best = $c;
-            $bestScore = $score;
-        }
-    }
-    if ($best === null) {
-        throw new RuntimeException('Geen bron met orderhistorie gevonden. Zet ORDERHISTORIE_BRON in reports/orderhistorie/api/data.php op de juiste view.');
-    }
-    return orderhistorieKies($pdo, $best);
-}
-
-/** Alle kolommen van een kandidaat ophalen en tellen welke velden erop passen. @return array<string,string> */
-function orderhistorieMatch(PDO $pdo, array $c): array
-{
-    static $cache = [];
-    $full = ($c['db'] !== '' ? $c['db'] . '.' : '') . orderhistorieIdent($c['schema']) . '.' . orderhistorieIdent($c['table']);
-    if (!isset($cache[$full])) {
-        $stmt = $pdo->query(
-            'SET NOCOUNT ON; SELECT COLUMN_NAME FROM ' . ($c['db'] !== '' ? $c['db'] . '.' : '') . 'INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ' .
-            $pdo->quote($c['schema']) . ' AND TABLE_NAME = ' . $pdo->quote($c['table'])
-        );
-        $cache[$full] = array_map('strval', $stmt->fetchAll(PDO::FETCH_COLUMN));
-    }
-    $found = [];
-    foreach (ORDERHISTORIE_KOLOMMEN as $field => $options) {
-        foreach ($cache[$full] as $name) {
-            if (in_array(orderhistorieNorm($name), $options, true)) {
-                $found[$field] = $name;
-                break;
-            }
-        }
-    }
-    return $found;
-}
-
-/** @return array{bron: string, kolommen: array<string,string>, debnr: ?string} */
-function orderhistorieKies(PDO $pdo, array $c): array
-{
-    $kolommen = orderhistorieMatch($pdo, $c);
-    $mist = array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), ORDERHISTORIE_OPTIONEEL, array_keys($kolommen));
-    if ($mist !== []) {
-        throw new RuntimeException(
-            'Dichtstbijzijnde bron ' . $c['table'] . ' mist de kolommen: ' . implode(', ', array_map(static fn ($f) => ORDERHISTORIE_KOPPEN[$f], $mist)) .
-            '. Zet ORDERHISTORIE_BRON in reports/orderhistorie/api/data.php op de juiste view.'
-        );
-    }
-    $debnr = null;
-    $stmt = $pdo->query(
-        'SET NOCOUNT ON; SELECT COLUMN_NAME FROM ' . ($c['db'] !== '' ? $c['db'] . '.' : '') . 'INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ' .
-        $pdo->quote($c['schema']) . ' AND TABLE_NAME = ' . $pdo->quote($c['table'])
-    );
-    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $name) {
-        if (in_array(orderhistorieNorm((string) $name), ORDERHISTORIE_DEBNR, true)) {
-            $debnr = (string) $name;
-            break;
-        }
-    }
-    $stmt = $pdo->query(
-        'SET NOCOUNT ON; SELECT DATA_TYPE FROM ' . ($c['db'] !== '' ? $c['db'] . '.' : '') . 'INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ' .
-        $pdo->quote($c['schema']) . ' AND TABLE_NAME = ' . $pdo->quote($c['table']) . ' AND COLUMN_NAME = ' . $pdo->quote($kolommen['afldat'])
-    );
-    return [
-        'bron' => ($c['db'] !== '' ? $c['db'] . '.' : '') . orderhistorieIdent($c['schema']) . '.' . orderhistorieIdent($c['table']),
-        'kolommen' => $kolommen,
-        'debnr' => $debnr,
-        'afldatType' => strtolower((string) $stmt->fetchColumn()),
-    ];
-}
+const ORDERHISTORIE_SELECT =
+    'LTRIM(RTRIM(ohr.artcode)), ohr.afldat, LTRIM(RTRIM(ohr.prijslijst)), LTRIM(RTRIM(ohk.ord_debtor_name)), ohk.ordernr, ' .
+    'LTRIM(RTRIM(ohk.refer)), LTRIM(RTRIM(ohk.docnumber)), ohk.pakbon_dat, LTRIM(RTRIM(i.Description)), ohr.aant_gelev';
 
 /** Waarde uit pdo_sqlsrv (string of DateTime) als YYYY-MM-DD. */
 function orderhistorieDatum(mixed $v): ?string
@@ -189,90 +63,28 @@ function orderhistorieLike(string $text): string
     return '%' . str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], $text) . '%';
 }
 
-/** Kolomnamen van een view/tabel (volledige naam met haakjes, bijv. [Exactrapportage].[dbo].[naam]). @return list<string> */
-function orderhistorieKolomnamen(PDO $pdo, string $full): array
+/** Tekstrapport voor ?diagnose=1: aantallen en tijden per stap, en een paar voorbeeldregels. */
+function orderhistorieDiagnose(PDO $pdo, string $debnr): string
 {
-    if (preg_match('/^\[([^\]]+)\]\.\[([^\]]+)\]\.\[(.+)\]$/', $full, $m) !== 1) {
-        return [];
-    }
-    $stmt = $pdo->query(
-        'SET NOCOUNT ON; SELECT COLUMN_NAME FROM ' . orderhistorieIdent($m[1]) . '.INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ' .
-        $pdo->quote($m[2]) . ' AND TABLE_NAME = ' . $pdo->quote($m[3]) . ' ORDER BY ORDINAL_POSITION'
-    );
-    return array_map('strval', $stmt->fetchAll(PDO::FETCH_COLUMN));
-}
-
-/** Tekstrapport voor ?diagnose=1: gekozen bron, kolomkoppeling, voorbeeldregels en aantallen per klantfilter. */
-function orderhistorieDiagnose(PDO $pdo, array $bron, string $debnr, string $klant): string
-{
-    $out = ['DIAGNOSE orderhistorie', 'Bron: ' . $bron['bron'], 'Debiteurnummer-kolom: ' . ($bron['debnr'] ?? '(geen)')];
-    foreach ($bron['kolommen'] as $field => $name) {
-        $out[] = '  ' . $field . ' = ' . $name;
-    }
-    $leeg = array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), array_keys($bron['kolommen']));
-    $out[] = 'Ontbrekende kolommen (blijven leeg): ' . ($leeg === [] ? '(geen)' : implode(', ', $leeg));
-    if (preg_match('/^\[([^\]]+)\]\.\[([^\]]+)\]\.\[(.+)\]$/', $bron['bron'], $mm) === 1) {
-        $types = $pdo->query('SET NOCOUNT ON; SELECT COLUMN_NAME + \' \' + DATA_TYPE FROM ' . orderhistorieIdent($mm[1]) . '.INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ' . $pdo->quote($mm[2]) . ' AND TABLE_NAME = ' . $pdo->quote($mm[3]) . ' ORDER BY ORDINAL_POSITION');
-        $out[] = 'Kolomtypes: ' . implode(', ', $types->fetchAll(PDO::FETCH_COLUMN));
-    }
-    if (preg_match('/^\[([^\]]+)\]\.\[([^\]]+)\]\.\[(.+)\]$/', $bron['bron'], $dm) === 1) {
-        try {
-            $def = $pdo->query('SET NOCOUNT ON; SELECT definition FROM ' . orderhistorieIdent($dm[1]) . '.sys.sql_modules WHERE object_id = OBJECT_ID(' . $pdo->quote($bron['bron']) . ')')->fetchColumn();
-            $out[] = 'Definitie van de bron: ' . ($def === false || $def === null || $def === '' ? '(niet te lezen, geen VIEW DEFINITION-recht)' : "\n" . trim((string) $def));
-        } catch (Throwable $e) {
-            $out[] = 'Definitie van de bron: FOUT ' . $e->getMessage();
-        }
-    }
-    $out[] = 'Alle kolommen van de bron: ' . implode(', ', orderhistorieKolomnamen($pdo, $bron['bron']));
-    foreach ($GLOBALS['orderhistorie_kandidatenlijst'] ?? [] as $c) {
-        if (preg_match('/^400 (TB )?orderhistorie( laatste 2 jaar| per debiteur| per artikel| 1932| 512)?$/', $c['table']) === 1) {
-            $m = orderhistorieMatch($pdo, $c);
-            $mist = array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), array_keys($m));
-            $out[] = 'Variant "' . $c['table'] . '": mist ' . ($mist === [] ? '(niets)' : implode(', ', $mist)) . '; kolommen: ' .
-                implode(', ', orderhistorieKolomnamen($pdo, '[Exactrapportage].[' . $c['schema'] . '].[' . $c['table'] . ']'));
-        }
-    }
-    $out[] = 'Kandidaten: ' . implode(' | ', $GLOBALS['orderhistorie_kandidaten'] ?? ['(vaste bron)']);
-    $cols = array_map(static fn (string $n): string => orderhistorieIdent($n), array_values($bron['kolommen']));
-    if ($bron['debnr'] !== null) {
-        $cols[] = orderhistorieIdent($bron['debnr']);
-    }
-    $run = static function (string $label, string $sql, array $params, bool $count) use ($pdo, &$out): void {
+    $out = ['DIAGNOSE orderhistorie (rechtstreeks op orhkrg/orhsrg/Items)'];
+    $run = static function (string $label, string $sql, array $params) use ($pdo, &$out): void {
         $t = microtime(true);
         try {
             $stmt = $pdo->prepare('SET NOCOUNT ON; ' . $sql);
             $stmt->execute($params);
             $rows = $stmt->fetchAll(PDO::FETCH_NUM);
-            $ms = (int) round((microtime(true) - $t) * 1000);
-            if ($count) {
-                $out[] = $label . ': ' . ($rows[0][0] ?? '?') . ' (' . $ms . ' ms)';
-            } else {
-                $out[] = $label . ' (' . $ms . ' ms, ' . count($rows) . ' regels):';
-                foreach ($rows as $r) {
-                    $out[] = '  ' . implode(' | ', array_map(static fn ($v): string => $v instanceof DateTimeInterface ? $v->format('Y-m-d') : trim((string) $v), $r));
-                }
+            $out[] = $label . ' (' . (int) round((microtime(true) - $t) * 1000) . ' ms, ' . count($rows) . ' regels):';
+            foreach ($rows as $r) {
+                $out[] = '  ' . implode(' | ', array_map(static fn ($v): string => $v instanceof DateTimeInterface ? $v->format('Y-m-d') : trim((string) $v), $r));
             }
         } catch (Throwable $e) {
             $out[] = $label . ': FOUT ' . $e->getMessage();
         }
     };
-    $afl = orderhistorieIdent($bron['kolommen']['afldat']);
-    $run('Totaal, oudste en nieuwste afleverdatum', 'SELECT CAST(COUNT(*) AS varchar(20)) + \' regels, ' . 'van \' + CONVERT(varchar(10), MIN(' . $afl . '), 105) + \' t/m \' + CONVERT(varchar(10), MAX(' . $afl . '), 105) FROM ' . $bron['bron'] . ' WITH (NOLOCK)', [], false);
-    $run('Nieuwste 3 regels', 'SELECT TOP 3 ' . implode(', ', $cols) . ' FROM ' . $bron['bron'] . ' WITH (NOLOCK) ORDER BY ' . $afl . ' DESC', [], false);
-    $run('Aantal regels met Wohler in de naam', 'SELECT COUNT(*) FROM ' . $bron['bron'] . ' WITH (NOLOCK) WHERE ' . orderhistorieIdent($bron['kolommen']['debnm']) . " LIKE '%WOHLER%'", [], true);
-    $run('Eerste 3 regels van de bron', 'SELECT TOP 3 ' . implode(', ', $cols) . ' FROM ' . $bron['bron'] . ' WITH (NOLOCK)', [], false);
-    $debCol = $bron['debnr'] !== null ? orderhistorieIdent($bron['debnr']) : null;
-    $nmCol = orderhistorieIdent($bron['kolommen']['debnm']);
-    if ($debnr !== '' && $debCol !== null) {
-        $run('Aantal met debnr = ' . $debnr, 'SELECT COUNT(*) FROM ' . $bron['bron'] . ' WITH (NOLOCK) WHERE LTRIM(RTRIM(CAST(' . $debCol . ' AS varchar(50)))) = ?', [$debnr], true);
-    }
-    if ($klant !== '') {
-        $run('Aantal met naam = ' . $klant, 'SELECT COUNT(*) FROM ' . $bron['bron'] . ' WITH (NOLOCK) WHERE LTRIM(RTRIM(' . $nmCol . ')) = ?', [$klant], true);
-    }
-    $zoek = $debnr !== '' ? $debnr : $klant;
-    if ($zoek !== '') {
-        $like = orderhistorieLike($zoek);
-        $run('Voorbeelden waar nummer of naam "' . $zoek . '" bevat', 'SELECT DISTINCT TOP 5 ' . $nmCol . ($debCol !== null ? ', ' . $debCol : '') . ' FROM ' . $bron['bron'] . ' WITH (NOLOCK) WHERE ' . $nmCol . ' LIKE ?' . ($debCol !== null ? ' OR CAST(' . $debCol . ' AS varchar(50)) LIKE ?' : ''), $debCol !== null ? [$like, $like] : [$like], false);
+    $run('Totaal orderkoppen / oudste en nieuwste pakbondatum', 'SELECT COUNT(*), MIN(pakbon_dat), MAX(pakbon_dat) FROM orhkrg WITH (NOLOCK)', []);
+    if ($debnr !== '') {
+        $run('Aantal koppen en regels voor debnr ' . $debnr, 'SELECT COUNT(DISTINCT ohk.ordernr), COUNT(*) FROM ' . ORDERHISTORIE_FROM . ' WHERE LTRIM(RTRIM(ohk.debnr)) = ?', [$debnr]);
+        $run('Nieuwste 3 regels voor debnr ' . $debnr, 'SELECT TOP 3 ' . ORDERHISTORIE_SELECT . ' FROM ' . ORDERHISTORIE_FROM . ' WHERE LTRIM(RTRIM(ohk.debnr)) = ? ORDER BY ohr.afldat DESC', [$debnr]);
     }
     return implode("\n", $out);
 }
@@ -293,119 +105,69 @@ reportApi(function (array $in): array {
     if ($van !== '' && $tot !== '' && $van > $tot) {
         throw new RuntimeException('De begindatum ligt na de einddatum.');
     }
-    if ($debnr === '' && $klant === '' && $klantZoek === '' && $van === '' && $artnr === '' && $omsc === '') {
-        throw new RuntimeException('Kies een klant of vul een begindatum, artikelnummer of omschrijving in.');
-    }
 
     // Sessie niet vergrendeld houden tijdens een lange query: anders hangen andere pagina's van dezelfde gebruiker erop.
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_write_close();
     }
     $pdo = reportConnection();
-    $msBron = 0;
-    if (ORDERHISTORIE_BRON !== '') {
-        // Vaste bron: kolommen worden via een lege SELECT TOP 0 gekoppeld.
-        $meta = $pdo->query('SET NOCOUNT ON; SELECT TOP 0 * FROM ' . ORDERHISTORIE_BRON);
-        $names = [];
-        $types = [];
-        for ($i = 0; $i < $meta->columnCount(); $i++) {
-            $cm = $meta->getColumnMeta($i);
-            $names[] = (string) ($cm['name'] ?? '');
-            $types[] = strtolower((string) ($cm['sqlsrv:decl_type'] ?? ''));
-        }
-        $kolommen = [];
-        $debnrKolom = null;
-        foreach (ORDERHISTORIE_KOLOMMEN as $field => $options) {
-            foreach ($names as $name) {
-                if (in_array(orderhistorieNorm($name), $options, true)) {
-                    $kolommen[$field] = $name;
-                    break;
-                }
-            }
-        }
-        foreach ($names as $name) {
-            if (in_array(orderhistorieNorm($name), ORDERHISTORIE_DEBNR, true)) {
-                $debnrKolom = $name;
-                break;
-            }
-        }
-        $bron = ['bron' => ORDERHISTORIE_BRON, 'kolommen' => $kolommen, 'debnr' => $debnrKolom, 'afldatType' => (string) ($types[array_search($kolommen['afldat'] ?? '', $names, true)] ?? '')];
-        if (array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), ORDERHISTORIE_OPTIONEEL, array_keys($kolommen)) !== []) {
-            throw new RuntimeException('De bron ORDERHISTORIE_BRON mist een of meer verplichte kolommen van de orderhistorie.');
-        }
-    } else {
-        // De gevonden bron staat in de sessie: de zoektocht in INFORMATION_SCHEMA hoeft maar één keer.
-        $t0 = microtime(true);
-        if (isset($_SESSION['orderhistorie_bron3']) && is_array($_SESSION['orderhistorie_bron3'])) {
-            $bron = $_SESSION['orderhistorie_bron3'];
-        } else {
-            $bron = orderhistorieBron($pdo);
-            $_SESSION['orderhistorie_bron3'] = $bron;
-        }
-        $msBron = (int) round((microtime(true) - $t0) * 1000);
-    }
-    $col = static fn (string $field): string => isset($bron['kolommen'][$field]) ? orderhistorieIdent($bron['kolommen'][$field]) : 'CAST(NULL AS varchar(1))';
 
     if (($in['diagnose'] ?? '') !== '') {
-        unset($_SESSION['orderhistorie_bron3']);
-        throw new RuntimeException(orderhistorieDiagnose($pdo, $bron, $debnr, $klant));
+        throw new RuntimeException(orderhistorieDiagnose($pdo, $debnr));
+    }
+    // "Tot en met" staat standaard op vandaag en telt dus niet als filter.
+    if ($debnr === '' && $klant === '' && $klantZoek === '' && $van === '' && $artnr === '' && $omsc === '') {
+        throw new RuntimeException('Kies een klant of vul een begindatum, artikelnummer of omschrijving in.');
     }
 
-    // Echte datumkolom: direct vergelijken (snel). Tekstkolom: veilig omzetten, zodat een rare waarde geen fout geeft.
-    $afl = in_array($bron['afldatType'] ?? '', SP_DATE_TYPES, true) ? $col('afldat') : 'TRY_CONVERT(datetime, ' . $col('afldat') . ')';
     $where = [];
     $params = [];
-    if ($debnr !== '' && $bron['debnr'] !== null) {
-        $where[] = 'LTRIM(RTRIM(CAST(' . orderhistorieIdent($bron['debnr']) . ' AS varchar(50)))) = ?';
+    if ($debnr !== '') {
+        $where[] = 'LTRIM(RTRIM(ohk.debnr)) = ?';
         $params[] = $debnr;
     } elseif ($klant !== '') {
-        $where[] = 'LTRIM(RTRIM(' . $col('debnm') . ')) = ?';
+        $where[] = 'LTRIM(RTRIM(ohk.ord_debtor_name)) = ?';
         $params[] = $klant;
     }
     if ($klantZoek !== '') {
-        $where[] = $col('debnm') . ' LIKE ?';
+        $where[] = 'ohk.ord_debtor_name LIKE ?';
         $params[] = orderhistorieLike($klantZoek);
     }
     if ($van !== '') {
-        $where[] = $afl . ' >= CONVERT(datetime, ?, 112)';
+        $where[] = 'ohr.afldat >= CONVERT(datetime, ?, 112)';
         $params[] = str_replace('-', '', $van);
     }
     if ($tot !== '') {
-        $where[] = $afl . ' < DATEADD(day, 1, CONVERT(datetime, ?, 112))';
+        $where[] = 'ohr.afldat < DATEADD(day, 1, CONVERT(datetime, ?, 112))';
         $params[] = str_replace('-', '', $tot);
     }
     if ($artnr !== '') {
-        $where[] = $col('artnr') . ' LIKE ?';
+        $where[] = 'ohr.artcode LIKE ?';
         $params[] = orderhistorieLike($artnr);
     }
     if ($omsc !== '') {
-        $where[] = $col('omsc') . ' LIKE ?';
+        $where[] = 'i.Description LIKE ?';
         $params[] = orderhistorieLike($omsc);
     }
 
-    $fields = array_keys(ORDERHISTORIE_KOPPEN);
-    $select = implode(', ', array_map(static fn (string $f): string => $col($f), $fields));
     $stmt = $pdo->prepare(
-        'SET NOCOUNT ON; SELECT TOP ' . (ORDERHISTORIE_MAX + 1) . ' ' . $select . ' FROM ' . $bron['bron'] . ' WITH (NOLOCK)' .
-        ($where ? ' WHERE ' . implode(' AND ', $where) : '') .
-        ' ORDER BY ' . $col('afldat') . ' DESC, ' . $col('ordernr') . ', ' . $col('artnr')
+        'SET NOCOUNT ON; SELECT TOP ' . (ORDERHISTORIE_MAX + 1) . ' ' . ORDERHISTORIE_SELECT . ' FROM ' . ORDERHISTORIE_FROM .
+        ' WHERE ' . implode(' AND ', $where) . ' ORDER BY ohr.afldat DESC, ohk.ordernr, ohr.artcode'
     );
     $stmt->setAttribute(PDO::SQLSRV_ATTR_QUERY_TIMEOUT, 120); // een vastlopende query stopt na 2 minuten i.p.v. de server te blokkeren
     $t1 = microtime(true);
     $stmt->execute($params);
 
-    $dates = array_map(static fn (string $f): bool => in_array($f, ['afldat', 'pakbon'], true), $fields);
-    $numeric = array_map(static fn (string $f): bool => $f === 'aantal', $fields);
     $rows = [];
     while ($r = $stmt->fetch(PDO::FETCH_NUM)) {
         foreach ($r as $i => $v) {
-            if ($dates[$i]) {
+            if (ORDERHISTORIE_DATUM[$i]) {
                 $r[$i] = orderhistorieDatum($v);
             } elseif ($v === null) {
                 $r[$i] = null;
             } else {
                 $v = trim((string) $v);
-                $r[$i] = $numeric[$i] && is_numeric($v) ? $v + 0 : $v;
+                $r[$i] = ORDERHISTORIE_GETAL[$i] && is_numeric($v) ? $v + 0 : $v;
             }
         }
         $rows[] = $r;
@@ -428,12 +190,12 @@ reportApi(function (array $in): array {
     }
 
     return [
-        'columns' => array_values(ORDERHISTORIE_KOPPEN),
-        'numeric' => $numeric,
-        'dates' => $dates,
+        'columns' => ORDERHISTORIE_KOLOMMEN,
+        'numeric' => ORDERHISTORIE_GETAL,
+        'dates' => ORDERHISTORIE_DATUM,
         'rows' => $rows,
-        'bron' => $bron['bron'],
-        'tijden' => ['bron' => $msBron, 'ophalen' => $msOphalen],
+        'bron' => 'orhkrg + orhsrg',
+        'tijden' => ['bron' => 0, 'ophalen' => $msOphalen],
         'kop' => $kop,
         'klantNaam' => $klant !== '' ? $klant : ($klantZoek !== '' ? $klantZoek : 'alle klanten'),
     ];
