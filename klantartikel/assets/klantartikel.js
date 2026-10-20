@@ -189,6 +189,25 @@
         XLSX.writeFile(wb, 'Klantartikelen_sjabloon.xlsx');
     });
 
+    // Download lijst: alle regels van de lijst zoals ze nu in het scherm staan (ook de verborgen door het filter), als Excel.
+    document.getElementById('kaDownloadList').addEventListener('click', function () {
+        if (typeof XLSX === 'undefined') { showInfo('Excel-bibliotheek niet geladen.', true); return; }
+        var data = [['Artikelnummer', 'Omschrijving', 'Klantartikelnummer']];
+        Array.prototype.forEach.call(tbody.rows, function (row) {
+            var item = row.querySelector('.ka-item').value.trim();
+            var code = row.querySelector('.ka-code').value.trim();
+            if (item === '' && code === '') { return; }
+            var desc = row.querySelector('.ka-desc');
+            data.push([item, desc ? desc.textContent.trim() : '', code]);
+        });
+        var ws = XLSX.utils.aoa_to_sheet(data);
+        ws['!cols'] = [{ wch: 28 }, { wch: 50 }, { wch: 28 }];
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Artikelen');
+        var list = (form.querySelector('input[name="prijslijst"]') || {}).value || '';
+        XLSX.writeFile(wb, 'Klantartikelen' + (list ? '_' + list.replace(/[^\w.-]+/g, '_') : '') + '.xlsx');
+    });
+
     function cellText(v) { return v === undefined || v === null ? '' : String(v).trim(); }
 
     function importRows(data) {
