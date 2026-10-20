@@ -1654,7 +1654,7 @@ if ($selectedKeys !== []) {
                 >
             </label>
             <label class="field klant-field" for="klant">
-                <span>Klant</span>
+                <span>Klant of Klantnummer</span>
                 <input
                     id="klant"
                     name="klant"
