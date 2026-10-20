@@ -200,6 +200,10 @@ importeert dat bestand. Kijk daar voor de actuele waarden. De groepen:
 **Afspraak:** geen losse kleurwaarden in een eigen `assets/style.css`. Een kleur die je nodig hebt
 staat in `tokens.css`, of komt er eerst als nieuwe variabele bij.
 
+Het blok "Kleuren uit de bestaande apps" onderin `tokens.css` bevat de kleuren die voorheen los in de CSS van
+de apps stonden (oktober 2026). Ze heten naar hun waarde (`--c-1a2b3c`, `--c-rgba-255-255-255-p08`) zodat het uiterlijk
+exact gelijk bleef. Krijgt zo'n kleur een vaste betekenis, hernoem hem dan naar die betekenis en pas de verwijzingen aan.
+
 **Knopregel:** elke knop heeft een rand in dezelfde kleurtoon als zijn achtergrond - een
 **lichtere** rand op een donkere knop, een **donkerdere** rand op een lichte knop (gebruik de
 `*-line`-tokens hierboven) - en aangrenzende knoppen staan `var(--btn-gap)` (5px) uit elkaar.

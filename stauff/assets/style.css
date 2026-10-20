@@ -45,7 +45,7 @@ h2 { margin: 4px 0 0; font-size: 22px; }
     transition: background .15s ease, color .15s ease;
 }
 .family-switch-option:hover:not(:disabled):not(.is-active) { background: var(--soft); }
-.family-switch-option.is-active { background: var(--accent); border-color: var(--accent-line); color: #fff; }
+.family-switch-option.is-active { background: var(--accent); border-color: var(--accent-line); color: var(--surface-white); }
 .family-switch.is-disabled, .family-switch-option:disabled { cursor: not-allowed; }
 .family-switch-option:disabled { opacity: .5; }
 
@@ -61,7 +61,7 @@ h2 { margin: 4px 0 0; font-size: 22px; }
    diameter-box in .filter-grid (dus naast, niet onder), geen absolute
    overlay - dat brak het aanklikken van een resultaat. */
 .exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 600px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-.exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: #f4f7fa; font-size: 13px; font-weight: 750; color: var(--muted); }
+.exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: var(--soft); font-size: 13px; font-weight: 750; color: var(--muted); }
 .exact-live-status.error { color: var(--danger); }
 .exact-live-list { flex: 1 1 auto; list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
 .exact-live-list li { border-top: 1px solid var(--line); }
@@ -78,16 +78,16 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 .exact-live-chosen strong { color: var(--accent-dark); font-weight: 800; font-size: 16px; white-space: nowrap; }
 .exact-live-chosen span { color: var(--muted); font-size: 14px; text-align: right; }
 
-.segment { border: 1px solid var(--line-strong); background: #edf2f6; color: var(--muted); padding: 9px 21px; border-radius: 9px; cursor: pointer; font-weight: 750; }
+.segment { border: 1px solid var(--line-strong); background: var(--c-edf2f6); color: var(--muted); padding: 9px 21px; border-radius: 9px; cursor: pointer; font-weight: 750; }
 .segment:disabled { opacity: .38; cursor: not-allowed; }
 .material-code-field { flex: 0 0 auto; width: min(220px, 100%); }
 
 .assembly-list { display: grid; gap: 10px; }
-.location-card { display: grid; grid-template-columns: 52px 84px minmax(0, 1fr); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; background: #fff; }
+.location-card { display: grid; grid-template-columns: 52px 84px minmax(0, 1fr); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; background: var(--surface-white); }
 .location-number {
     display: grid;
     place-items: center;
-    background: #fdeaee;
+    background: var(--status-accent-soft);
     color: var(--accent-dark);
     font-size: 20px;
     font-weight: 850;
@@ -103,7 +103,7 @@ h2 { margin: 4px 0 0; font-size: 22px; }
    gewone (niet-klikbare) div. Bewust geen apart hover/actief-uiterlijk -
    alle nummerboxen (1-6) blijven visueel gelijk, klikbaar of niet. */
 button.location-number { cursor: pointer; }
-.location-image { display: flex; align-items: center; justify-content: center; padding: 6px; border-right: 1px solid var(--line); background: #fbfcfd; }
+.location-image { display: flex; align-items: center; justify-content: center; padding: 6px; border-right: 1px solid var(--line); background: var(--c-fbfcfd); }
 .location-image img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
 .location-image-placeholder { display: none; color: var(--muted); font-size: 20px; }
 .location-image.is-empty { opacity: .5; }
@@ -117,7 +117,7 @@ button.location-number { cursor: pointer; }
 .location-content { padding: 14px 16px; display: grid; grid-template-columns: minmax(190px, .75fr) 64px minmax(0, 1.25fr) auto 34px; align-items: center; gap: 18px; }
 .location-title strong, .location-title span { display: block; }
 .location-title span { color: var(--muted); font-size: 12px; margin-top: 2px; }
-.fixed-value { min-height: 44px; border-radius: 10px; padding: 11px 13px; background: #f5f8fa; border: 1px solid #d8e1e8; font-weight: 800; }
+.fixed-value { min-height: 44px; border-radius: 10px; padding: 11px 13px; background: var(--c-f5f8fa); border: 1px solid var(--c-d8e1e8); font-weight: 800; }
 
 /* Aantal per locatie (1-6) - links van het artikel-/waardeveld. Standaard
    1, behalve bij Bout (locatie 5) waar 2 de norm is (zie index.php). Telt
@@ -141,8 +141,8 @@ button.location-number { cursor: pointer; }
     min-width: 54px;
     border-radius: 10px;
     padding: 11px 10px;
-    background: #f5f8fa;
-    border: 1px solid #d8e1e8;
+    background: var(--c-f5f8fa);
+    border: 1px solid var(--c-d8e1e8);
     font-weight: 500;
     color: var(--accent-dark);
     white-space: nowrap;
@@ -219,9 +219,9 @@ button.location-number { cursor: pointer; }
 }
 .link-button:hover { opacity: .9; }
 
-.modal-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15, 23, 33, .55); }
+.modal-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--c-rgba-15-23-33-0p55); }
 .modal-overlay[hidden] { display: none; }
-.modal { width: min(480px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; background: var(--panel); border-radius: 18px; box-shadow: 0 24px 60px rgba(0, 0, 0, .3); padding: 24px 26px; }
+.modal { width: min(480px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; background: var(--panel); border-radius: 18px; box-shadow: 0 24px 60px var(--c-rgba-0-0-0-0p3); padding: 24px 26px; }
 .modal-header { margin-bottom: 14px; }
 .modal-header h2 { margin: 0; font-size: 19px; }
 .modal .field { margin-bottom: 10px; }
@@ -231,14 +231,14 @@ button.location-number { cursor: pointer; }
    meer - alle 6 locatienummers gebruiken nu dezelfde .location-number
    basisstijl, zodat de boxen 1-6 gelijk in layout blijven. */
 
-.code-panel { margin-top: 22px; border-radius: 18px; padding: 25px 26px; background: linear-gradient(105deg, var(--dark-1) 0%, var(--dark-2) 70%, var(--dark-1) 100%); color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 24px; box-shadow: var(--shadow); }
-.code-label { color: #f0819f; }
+.code-panel { margin-top: 22px; border-radius: 18px; padding: 25px 26px; background: linear-gradient(105deg, var(--dark-1) 0%, var(--dark-2) 70%, var(--dark-1) 100%); color: var(--surface-white); display: flex; justify-content: space-between; align-items: center; gap: 24px; box-shadow: var(--shadow); }
+.code-label { color: var(--c-f0819f); }
 /* Teller "26/30" naast SAMENSTELLINGSCODE: Exact staat maximaal 30 tekens
    toe voor een artikelnummer (zie updateCodeLength() in assets/selector.js).
    Rood (.is-over) als de code te lang is. */
-.code-length { margin-left: 10px; padding: 1px 8px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .25); color: #c7c7c7; font-size: 12px; font-weight: 700; }
+.code-length { margin-left: 10px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--c-rgba-255-255-255-0p25); color: var(--c-c7c7c7); font-size: 12px; font-weight: 700; }
 .code-length[hidden] { display: none; }
-.code-length.is-over { border-color: #f0819f; background: rgba(240, 129, 159, .18); color: #f0819f; }
+.code-length.is-over { border-color: var(--c-f0819f); background: var(--c-rgba-240-129-159-0p18); color: var(--c-f0819f); }
 .assembly-code { font-size: clamp(20px, 3vw, 30px); font-weight: 850; letter-spacing: .01em; margin: 6px 0 5px; overflow-wrap: anywhere; }
 /* Totaalprijs (som van verkoopprijs x aantal) + totaal beschikbaar (het
    laagste van floor(voorraad / aantal) over alle gekozen onderdelen - de
@@ -251,8 +251,8 @@ button.location-number { cursor: pointer; }
    waarde (.is-empty, gezet in JS) wordt verborgen. */
 .assembly-totals { display: grid; grid-template-columns: max-content auto; column-gap: 10px; row-gap: 2px; margin: 6px 0 5px; }
 .assembly-totals-row { display: contents; }
-.assembly-totals-row span { color: #c7c7c7; font-size: 13px; }
-.assembly-totals-row strong { color: #f0819f; font-size: 15px; font-weight: 800; text-align: right; }
+.assembly-totals-row span { color: var(--c-c7c7c7); font-size: 13px; }
+.assembly-totals-row strong { color: var(--c-f0819f); font-size: 15px; font-weight: 800; text-align: right; }
 .assembly-totals-row.is-empty { display: none; }
 /* Resultaat van de automatische Exact-controle (zie checkAssemblyInErp() in
    assets/selector.js) of de samenstellingscode al als kant-en-klaar
@@ -260,10 +260,10 @@ button.location-number { cursor: pointer; }
    die zijn bedoeld voor een lichte achtergrond en vallen weg tegen het
    donkere .code-panel. */
 .assembly-erp-status { font-size: 12px; font-weight: 700; margin: 2px 0 5px; }
-.assembly-erp-status.is-checking { color: #c7c7c7; font-weight: 600; }
-.assembly-erp-status.is-found { color: #6fd38c; }
-.assembly-erp-status.is-missing { color: #f0819f; }
-.code-hint { color: #c7c7c7; font-size: 12px; }
+.assembly-erp-status.is-checking { color: var(--c-c7c7c7); font-weight: 600; }
+.assembly-erp-status.is-found { color: var(--c-6fd38c); }
+.assembly-erp-status.is-missing { color: var(--c-f0819f); }
+.code-hint { color: var(--c-c7c7c7); font-size: 12px; }
 .copy-button {
     appearance: none;
     border: 1px solid var(--ok-line);
@@ -300,17 +300,17 @@ button.location-number { cursor: pointer; }
 .exact-modal { width: min(560px, 100%); }
 .exact-code { margin: 0 0 6px; font-size: 18px; font-weight: 850; overflow-wrap: anywhere; }
 .exact-note { margin: 8px 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
-.exact-note.is-error { color: #a03636; font-weight: 700; }
-.exact-note.is-ok { color: #1f7a3a; font-weight: 700; }
+.exact-note.is-error { color: var(--danger); font-weight: 700; }
+.exact-note.is-ok { color: var(--c-1f7a3a); font-weight: 700; }
 .exact-lines { width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0; }
 .exact-lines th, .exact-lines td { text-align: left; padding: 3px 8px; border-bottom: 1px solid var(--line-strong); }
 .exact-lines td:last-child, .exact-lines th:last-child { text-align: right; width: 70px; }
-.exact-lines tr.is-missing td { color: #a03636; font-weight: 700; }
+.exact-lines tr.is-missing td { color: var(--danger); font-weight: 700; }
 .copy-button.is-found { border-color: var(--btn-danger-line); background: var(--btn-danger); }
 .copy-button:hover:not(:disabled) { opacity: .9; }
 .copy-button:disabled { opacity: .45; cursor: default; }
 
-.warning-box { margin-top: 18px; padding: 15px 18px; border-radius: 12px; border: 1px solid #e8b1b1; background: #fff1f1; color: #7d2f2f; }
+.warning-box { margin-top: 18px; padding: 15px 18px; border-radius: 12px; border: 1px solid var(--status-error-line); background: var(--c-fff1f1); color: var(--status-error-ink); }
 .warning-box ul { margin: 8px 0 0 20px; padding: 0; }
 
 @media (max-width: 980px) {

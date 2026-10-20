@@ -34,8 +34,8 @@
 }
 .tile:hover, .tile:focus-visible {
     transform: translateY(-3px);
-    box-shadow: 0 16px 34px rgba(0, 0, 0, .1);
-    border-color: #c7d0d9;
+    box-shadow: 0 16px 34px var(--c-rgba-0-0-0-0p1);
+    border-color: var(--c-c7d0d9);
     outline: none;
 }
 .tile:hover::after, .tile:focus-visible::after { transform: scaleX(1); }
@@ -44,7 +44,7 @@
     width: 52px;
     height: 52px;
     border-radius: 14px;
-    background: #fdeaee;
+    background: var(--status-accent-soft);
     color: var(--accent-dark);
     display: flex;
     align-items: center;
@@ -62,7 +62,7 @@
     cursor: default;
     pointer-events: none;
 }
-.tile-disabled .tile-icon { background: #eef0f3; color: var(--muted); }
+.tile-disabled .tile-icon { background: var(--c-eef0f3); color: var(--muted); }
 .tile-disabled .tile-cta { color: var(--muted); }
 .tile-disabled::after { display: none; }
 

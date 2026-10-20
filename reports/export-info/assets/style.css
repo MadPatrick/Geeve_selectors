@@ -1,6 +1,6 @@
 .ei-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 #eiTable td.ei-num, #eiTable th.ei-num { text-align: right; }
-#eiTable input.ei-in { width: 100%; min-width: 7ch; box-sizing: border-box; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong, #c9d4de); border-radius: 8px; background: #fff; color: var(--ink); }
+#eiTable input.ei-in { width: 100%; min-width: 7ch; box-sizing: border-box; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong, var(--line-strong)); border-radius: 8px; background: var(--surface-white); color: var(--ink); }
 #eiTable input.ei-in.ei-num { text-align: right; }
-#eiTable input.ei-in.is-bad { border-color: #c17c7c; background: #fff5f5; }
+#eiTable input.ei-in.is-bad { border-color: var(--c-c17c7c); background: var(--c-fff5f5); }
 #eiTable td.ei-desc { white-space: normal; min-width: 18ch; }

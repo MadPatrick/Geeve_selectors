@@ -15,13 +15,13 @@
 .sl-fields .ka-input:disabled { opacity: .5; }
 
 #slTable tbody tr { cursor: pointer; }
-#slTable tbody tr.is-current td { background: #cfe3fa; }
+#slTable tbody tr.is-current td { background: var(--c-cfe3fa); }
 #slTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
 #slTable th:first-child, #slTable td:first-child { width: 1%; }
 #slTable td.num { text-align: right; }
 
 .sl-preview { zoom: 1.4; }
-.sl-preview .slanglabel { box-shadow: 0 0 0 1px #e0516a; border-radius: 1mm; background: #fff; }
+.sl-preview .slanglabel { box-shadow: 0 0 0 1px var(--c-e0516a); border-radius: 1mm; background: var(--surface-white); }
 /* In het voorbeeld de doorzichtige plakrand gearceerd, zodat duidelijk is waar niet geprint wordt. */
 .sl-preview .slanglabel::after {
     content: "";
@@ -30,7 +30,7 @@
     right: 0;
     top: var(--sl-tail-top);
     height: calc(var(--sl-h) - var(--sl-area));
-    background: repeating-linear-gradient(45deg, #f3f3f3 0 2mm, #fff 2mm 4mm);
+    background: repeating-linear-gradient(45deg, var(--c-f3f3f3) 0 2mm, var(--surface-white) 2mm 4mm);
 }
 .sl-print { display: flex; align-items: center; gap: 12px; }
 
@@ -49,7 +49,7 @@
     width: var(--sl-w);
     height: var(--sl-h);
     overflow: hidden;
-    color: #000;
+    color: var(--c-000000);
     font-family: Arial, Helvetica, sans-serif;
     font-weight: 700;
     line-height: 1.1;
@@ -83,7 +83,7 @@
 @page { size: 25mm 95mm; margin: 0; }
 
 @media print {
-    html, body { background: #fff !important; margin: 0; padding: 0; }
+    html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }
     body > *:not(.sl-printsheet) { display: none !important; }
     .sl-printsheet { display: block; }
     .sl-printsheet .slanglabel { break-after: page; page-break-after: always; }
