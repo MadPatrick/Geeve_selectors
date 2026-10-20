@@ -131,7 +131,7 @@ $storedSettings = secureSettingsRead();
     <section class="update-panel">
         <h2>Database-instellingen</h2>
         <?php if ($dbFromFile): ?>
-        <p>De database-inloggegevens (Exact en Slangkaarten) worden beheerd op de server, in <code><?= h(secureSettingsFilePath()) ?></code>, buiten de webmap. Ze zijn hier niet in te stellen; wijzigen kan alleen op de server (bestand van root, daarna geen herstart nodig). Hieronder staat alleen wat daarin is ingesteld.</p>
+        <p>De database-inloggegevens (Exact en Slangkaarten) worden beheerd op de server. Hieronder staat alleen wat daarin is ingesteld.</p>
         <?php else: ?>
         <p>Inloggegevens voor de Exact-database (gedeeld door Stauff, Klant Artikelnummers, Kortingstructuur, MSP report en Slangkaarten) en voor de eigen Slangkaarten-database. Ze worden versleuteld opgeslagen, niet als leesbaar bestand. Een <code>.env</code>-bestand wordt niet meer gelezen en mag worden verwijderd. Wachtwoord leeg laten = ongewijzigd.</p>
         <?php endif; ?>
@@ -269,22 +269,6 @@ $storedSettings = secureSettingsRead();
             </div>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
-    </section>
-
-    <section class="update-panel" id="printers">
-        <h2>Printers</h2>
-        <?php $smbBlocked = geeveSmbBlocked(); $smbPrinters = $smbBlocked === null ? geevePrinterList() : []; ?>
-        <p>De apps printen via de printserver <code><?= h(GEEVE_SMB_SERVER) ?></code>: in de printerkeuze staan alle printers waarvan de naam met <code><?= h(GEEVE_SMB_PREFIX) ?></code> begint (A4-printers bij Slangkaarten, labelprinters bij de stickers). De lijst komt van de printserver zelf en wordt elke <?= (int) (GEEVE_SMB_CACHE_SECONDEN / 60) ?> minuten ververst; hier is niets in te stellen. Inloggen gebeurt met het account uit <code><?= h(geeveSmbCredFile() ?? GEEVE_SMB_CRED_FILES[0]) ?></code>.</p>
-        <?php if ($smbBlocked !== null): ?>
-            <div class="update-message error"><?= h($smbBlocked) ?></div>
-        <?php elseif ($smbPrinters === []): ?>
-            <div class="update-message error">De printserver gaf geen printers terug.</div>
-        <?php else: ?>
-            <ul class="settings-help">
-                <li>A4-printers: <?= count(array_filter($smbPrinters, static fn (array $p): bool => geevePrinterSoort($p) === 'a4')) ?></li>
-                <li>Labelprinters: <?= count(array_filter($smbPrinters, static fn (array $p): bool => geevePrinterSoort($p) === 'label')) ?></li>
-            </ul>
-        <?php endif; ?>
     </section>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>

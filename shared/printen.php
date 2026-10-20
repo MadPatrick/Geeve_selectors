@@ -24,10 +24,10 @@ const GEEVE_SMB_PREFIX = 'RTM';
  * webmap, eigendom van root en leesbaar voor de webserver. Het eerste bestaande bestand telt; de omgevingsvariabele
  * GEEVE_SMB_CRED gaat voor.
  */
-const GEEVE_SMB_CRED_FILES = ['/etc/geeve/smb-print.cred', '/etc/geeve/smbtest.cred'];
+const GEEVE_SMB_CRED_FILES = ['/etc/geeve/smbprint.cred', '/etc/geeve/smbtest.cred'];
 
 /** Zo lang (seconden) blijft de printerlijst van de printserver bewaard voordat hij opnieuw wordt opgehaald. */
-const GEEVE_SMB_CACHE_SECONDEN = 600;
+const GEEVE_SMB_CACHE_SECONDEN = 1800;
 
 /**
  * Tegels met een printknop (tegel-id => naam; de Selector heeft er geen: die downloadt alleen de pdf-catalogus). Een

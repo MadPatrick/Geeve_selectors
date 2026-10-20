@@ -307,12 +307,12 @@ Links in een app:
 
 - **Printers** zijn de printershares op de Windows-printserver `SVNL-VWP-PS01` waarvan de naam met `RTM` begint
   (`GEEVE_SMB_SERVER`, `GEEVE_SMB_PREFIX`). Er is niets in te stellen in Config: `geevePrinterList()` haalt de shares
-  (`smbclient -L`) en hun driver (`rpcclient enumprinters 1`) op en bewaart de lijst 10 minuten in
+  (`smbclient -L`) en hun driver (`rpcclient enumprinters 1`) op en bewaart de lijst 30 minuten in
   `data/printers/smb-printers.json` (niet in git). De driver bepaalt het soort: PCL-driver = A4 (kleur bij "Color" of
   Canon), Altec = TSPL-labelprinter, Brother QL = Brother-labelprinter; Zebra/ZPL en onbekende drivers vallen weg.
   `geevePrinters($tegelId)` geeft de printers die bij een tegel passen (`GEEVE_PRINT_TILE_SOORT`: 'a4' of 'label';
   nieuwe tegel met direct printen = toevoegen aan `GEEVE_PRINT_TILES`).
-- **Inloggen** op de printserver gebeurt met het account uit `/etc/geeve/smb-print.cred` (of `/etc/geeve/smbtest.cred`;
+- **Inloggen** op de printserver gebeurt met het account uit `/etc/geeve/smbprint.cred` (de oude naam `/etc/geeve/smbtest.cred` werkt nog als terugval;
   formaat van `smbclient -A`: `username`, `password`, `domain`), buiten de webmap, van root en leesbaar voor
   `www-data` (`chown root:www-data`, `chmod 640`). Na een inlogfout (verkeerd wachtwoord, account op slot) stopt de
   portal met proberen tot dat bestand is gewijzigd (`data/printers/smb-geblokkeerd.json`), zodat het account - ook
