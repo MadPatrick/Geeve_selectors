@@ -52,11 +52,11 @@ $csrf = csrfToken();
 
     <section class="panel" id="ohApp" data-endpoint="api/data.php" data-klanten="api/klanten.php" data-csrf="<?= h($csrf) ?>">
         <h2>Orderhistorie</h2>
-        <p class="ka-empty">Alle geleverde orderregels sinds de eerste order, per klant of over alle klanten. Kies een klant en/of vul een periode, artikelnummer of omschrijving in en klik op Zoeken. Boven de lijst staan zoekvelden per kolom om het resultaat verder te filteren (bijv. omschrijving "bulkhead" met jaar "2019").</p>
+        <p class="ka-empty">Alle geleverde orderregels sinds de eerste order, per klant of over alle klanten. Vul minstens een klant, artikelnummer of omschrijving in (de periode is een extra filter) en klik op Zoeken. Boven de lijst staan zoekvelden per kolom om het resultaat verder te filteren (bijv. omschrijving "bulkhead" met jaar "2019").</p>
         <div class="ka-actions oh-filters">
             <label class="msp-field oh-klant">
                 <span>Klant</span>
-                <input type="text" class="ka-input" id="ohKlant" placeholder="Debiteurnummer of naam (leeg = alle klanten)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ohKlantHits" autofocus>
+                <input type="text" class="ka-input" id="ohKlant" placeholder="Debiteurnummer of naam" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ohKlantHits" autofocus>
                 <ul class="oh-hits" id="ohKlantHits" role="listbox" hidden></ul>
             </label>
             <label class="msp-field"><span>Afgeleverd vanaf</span><input type="date" class="ka-input" id="ohVan"></label>

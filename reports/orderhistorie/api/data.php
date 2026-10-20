@@ -115,9 +115,9 @@ reportApi(function (array $in): array {
     if (($in['diagnose'] ?? '') !== '') {
         throw new RuntimeException(orderhistorieDiagnose($pdo, $debnr));
     }
-    // "Tot en met" staat standaard op vandaag en telt dus niet als filter.
-    if ($debnr === '' && $klant === '' && $klantZoek === '' && $van === '' && $artnr === '' && $omsc === '') {
-        throw new RuntimeException('Kies een klant of vul een begindatum, artikelnummer of omschrijving in.');
+    // Zoeken mag alleen met een klant, artikelnummer of omschrijving; de datums alleen zijn te breed.
+    if ($debnr === '' && $klant === '' && $klantZoek === '' && $artnr === '' && $omsc === '') {
+        throw new RuntimeException('Vul een klant, artikelnummer of omschrijving in om te zoeken.');
     }
 
     // Artikel 30 en andere leverbeloftes ("binnen 30 dagen", "binnen 14 dagen", ...) zijn tekstregels, geen product: nooit tonen.

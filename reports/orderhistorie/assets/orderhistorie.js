@@ -117,6 +117,10 @@
     // ---- Zoeken ----
     function zoek() {
         fail('');
+        if (!klant && klantInput.value.trim() === '' && artnrInput.value.trim() === '' && omscInput.value.trim() === '') {
+            fail('Vul een klant, artikelnummer of omschrijving in om te zoeken.');
+            return;
+        }
         var body = new URLSearchParams();
         body.set('csrf', app.dataset.csrf);
         if (klant) {
