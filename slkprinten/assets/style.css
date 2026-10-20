@@ -49,6 +49,7 @@ input::placeholder { color: #929fac; }
 .klant-hits[hidden] { display: none; }
 .klant-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .klant-hits li:hover, .klant-hits li.is-active { background: #fde6ec; }
+.klant-nr { display: inline-block; min-width: 6ch; margin-right: 6px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .submit-button {
     appearance: none;
@@ -114,6 +115,9 @@ input::placeholder { color: #929fac; }
 /* Compactere variant binnen tabelrijen (bv. "Kiezen" bij orderkeuze) -
    de standaard padding maakte de knop hoger dan de rij. */
 .lines-table .link-button { padding: 4px 14px; font-size: 12px; }
+
+/* "Wissen" bovenaan stap 1: even groot als de knop Zoeken (.submit-button). */
+.search-panel .section-heading > .link-button { display: inline-flex; align-items: center; font-size: 14px; padding: 13px 26px; min-height: 48px; box-sizing: border-box; }
 
 .warning-box { margin-top: 18px; padding: 15px 18px; border-radius: 12px; border: 1px solid #e8b1b1; background: #fff1f1; color: #7d2f2f; }
 .empty-result { padding: 18px; border: 1px dashed #c8d4de; border-radius: 12px; background: #fafcfd; color: var(--muted); font-style: italic; margin-top: 18px; }

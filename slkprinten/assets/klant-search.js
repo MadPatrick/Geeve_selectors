@@ -1,15 +1,17 @@
-// Veld Klant (stap 1): suggesties terwijl je typt, uit de klantnamen met een slangregel in de afgelopen 2 jaar
-// (index.php?klanten=1). Fuzzy, in 3 rondes - wat het best past staat bovenaan:
-//  1. alle getypte woorden komen in de naam voor (hoofdletters, spaties, punten, accenten tellen niet mee, volgorde vrij);
+// Veld Klant (stap 1): suggesties terwijl je typt, uit de klanten (naam + klantnummer) met een slangregel in de afgelopen
+// 2 jaar (index.php?klanten=1). Je kunt op naam en op klantnummer zoeken. Fuzzy, in 3 rondes - wat het best past bepaalt
+// welke suggesties getoond worden (maximaal 12), de lijst zelf staat gesorteerd op klantnummer, laag naar hoog:
+//  1. alle getypte woorden komen in het klantnummer of de naam voor (hoofdletters, spaties, punten, accenten tellen niet mee, volgorde vrij);
 //  2. de getypte letters staan in die volgorde in de naam ("plfngr" -> Palfinger);
 //  3. tikfouten: elk woord lijkt op het begin van een woord in de naam (1 fout, of 2 bij langere woorden).
-// Een keuze vult de naam in en zoekt meteen; Enter zonder keuze zoekt op wat er getypt is, zoals voorheen.
+// Een keuze vult de naam in en zoekt meteen; Enter zonder keuze zoekt op wat er getypt is, zoals voorheen (een getypt
+// klantnummer wordt daarbij omgezet naar de naam van die klant).
 (function () {
     var input = document.getElementById('klant');
     var list = document.getElementById('klantHits');
     if (!input || !list) { return; }
     var form = input.form;
-    var klanten = null;   // [{naam, key, tokens}] na het laden
+    var klanten = null;   // [{naam, nr, key, tokens}] na het laden
     var hits = [];
     var active = -1;
     var MAX = 12;
@@ -58,6 +60,12 @@
         });
     }
 
+    // Klantnummer van laag naar hoog (cijfers als getal); klanten zonder nummer achteraan, daarna op naam.
+    function byNumber(a, b) {
+        if (a.nr === '' || b.nr === '') { return (a.nr === '') - (b.nr === '') || a.naam.localeCompare(b.naam, 'nl'); }
+        return a.nr.localeCompare(b.nr, 'nl', { numeric: true }) || a.naam.localeCompare(b.naam, 'nl');
+    }
+
     function load() {
         if (klanten !== null) { return; }
         klanten = [];
@@ -65,8 +73,9 @@
             .then(function (res) { return res.json(); })
             .then(function (json) {
                 if (!json.ok) { return; }
-                klanten = json.klanten.map(function (naam) {
-                    return { naam: naam, key: norm(naam), tokens: String(naam).split(/[\s.,\-\/&()]+/).map(norm).filter(Boolean) };
+                klanten = json.klanten.map(function (k) {
+                    var naam = k.naam, nr = k.nr || '';
+                    return { naam: naam, nr: nr, nrKey: norm(nr), key: norm(nr + ' ' + naam), tokens: (nr + ' ' + naam).split(/[\s.,\-\/&()]+/).map(norm).filter(Boolean) };
                 });
                 if (document.activeElement === input) { update(); }
             })
@@ -78,7 +87,7 @@
     function render() {
         list.innerHTML = hits.map(function (k, i) {
             return '<li role="option" data-i="' + i + '"' + (i === active ? ' class="is-active" aria-selected="true"' : '') + '>' +
-                esc(k.naam) + '</li>';
+                (k.nr ? '<span class="klant-nr">' + esc(k.nr) + '</span> ' : '') + esc(k.naam) + '</li>';
         }).join('');
         list.hidden = hits.length === 0;
         input.setAttribute('aria-expanded', hits.length ? 'true' : 'false');
@@ -93,7 +102,7 @@
         klanten.forEach(function (k) {
             var score = -1;
             if (words.every(function (w) { return k.key.indexOf(w) !== -1; })) {
-                score = k.key.indexOf(q) === 0 ? 0 : (k.tokens.some(function (t) { return t.indexOf(words[0]) === 0; }) ? 1 : 2);
+                score = (k.key.indexOf(q) === 0 || k.nrKey === q) ? 0 : (k.tokens.some(function (t) { return t.indexOf(words[0]) === 0; }) ? 1 : 2);
             } else if (isSubsequence(q, k.key)) {
                 score = 3;
             } else if (words.every(function (w) { return k.key.indexOf(w) !== -1 || closeToToken(w, k.tokens); })) {
@@ -101,8 +110,8 @@
             }
             if (score >= 0) { scored.push({ k: k, score: score }); }
         });
-        scored.sort(function (a, b) { return a.score - b.score || a.k.naam.localeCompare(b.k.naam, 'nl'); });
-        hits = scored.slice(0, MAX).map(function (s) { return s.k; });
+        scored.sort(function (a, b) { return a.score - b.score || byNumber(a.k, b.k); });
+        hits = scored.slice(0, MAX).map(function (s) { return s.k; }).sort(byNumber);
         active = -1;
         render();
     }
@@ -111,10 +120,18 @@
         if (!hits[i]) { return; }
         input.value = hits[i].naam;
         close();
-        // Zelfde als zelf op Opzoeken klikken (laat de knop ook "Bezig met zoeken…" tonen).
+        // Zelfde als zelf op Zoeken klikken (laat de knop ook "Bezig met zoeken…" tonen).
         if (form.requestSubmit) { form.requestSubmit(); } else { form.submit(); }
     }
 
+    // Een getypt klantnummer (bijv. 10234) zoekt op de naam van die klant, want de orders worden op naam gezocht.
+    form.addEventListener('submit', function () {
+        var typed = input.value.trim();
+        if (klanten && /^\d+$/.test(typed)) {
+            var match = klanten.filter(function (k) { return k.nr === typed; })[0];
+            if (match) { input.value = match.naam; }
+        }
+    });
     input.addEventListener('focus', load);
     input.addEventListener('input', update);
     input.addEventListener('keydown', function (e) {

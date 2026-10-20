@@ -1360,7 +1360,7 @@ function renderRecentOrdersFragment(bool $fresh, bool $debug): string
     return $html;
 }
 
-// Klantnamen voor de suggesties in het veld Klant (zie assets/klant-search.js),
+// Klanten (naam + klantnummer) voor de suggesties in het veld Klant (zie assets/klant-search.js),
 // 1 uur in een bestandscache: de lijst verandert zelden en de DISTINCT over
 // de hele slangkaart-tabel hoeft niet bij elke paginaweergave.
 // Controlepagina (alleen lezen): index.php?diagnose=<slangnummer> toont per bron wat de database voor dit
@@ -1464,7 +1464,7 @@ if (isset($_GET['diagnose'])) {
 if (isset($_GET['klanten'])) {
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
-    $cacheFile = sys_get_temp_dir() . '/geeve_slangkaarten_klanten.json';
+    $cacheFile = sys_get_temp_dir() . '/geeve_slangkaarten_klanten2.json';
     $names = null;
     if (is_file($cacheFile) && time() - (int) @filemtime($cacheFile) < 3600) {
         $cached = json_decode((string) @file_get_contents($cacheFile), true);
@@ -1472,7 +1472,7 @@ if (isset($_GET['klanten'])) {
     }
     if ($names === null) {
         try {
-            $names = findCustomerNames(getPdoConnection());
+            $names = findCustomers(getPdoConnection());
         } catch (Throwable $exception) {
             $names = [];
         }
@@ -1648,7 +1648,7 @@ if ($selectedKeys !== []) {
                     id="slangnummer"
                     name="slangnummer"
                     type="text"
-                    placeholder="bijv. artikelnummer"
+                    placeholder="bijv. GH 123456"
                     autocomplete="off"
                     value="<?= h($hoseNumberSearch) ?>"
                 >
@@ -1672,10 +1672,10 @@ if ($selectedKeys !== []) {
             </label>
             <button type="submit" class="submit-button" id="searchSubmitButton">
                 <span class="button-fill" aria-hidden="true"></span>
-                <span class="button-label">Opzoeken</span>
+                <span class="button-label">Zoeken</span>
             </button>
         </form>
-        <small>Vul een ordernummer, (een deel van) de klantnaam, óf een slangnummer in.</small>
+        <small>Vul een ordernummer, (een deel van) de klantnaam of het klantnummer, óf een slangnummer in.</small>
     </section>
 
     <script>
