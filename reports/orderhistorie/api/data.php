@@ -34,7 +34,7 @@ const ORDERHISTORIE_KOLOMMEN = [
     'refer' => ['refer', 'referentie'],
     'uwref' => ['uwreferentie', 'uwref', 'uwrefer'],
     'pakbon' => ['pakbondat', 'pakbondatum'],
-    'omsc' => ['artomsc', 'artomschrijving', 'omschrijving'],
+    'omsc' => ['artomsc', 'artomschrijving', 'omschrijving', 'artnm'],
     'aantal' => ['aantgelev', 'aantalgeleverd'],
 ];
 /** Optioneel: als de bron een debiteurnummer heeft, filtert de klantkeuze daarop in plaats van op de naam. */
