@@ -289,6 +289,10 @@ reportApi(function (array $in): array {
         throw new RuntimeException('Kies een klant of vul een begindatum, artikelnummer of omschrijving in.');
     }
 
+    // Sessie niet vergrendeld houden tijdens een lange query: anders hangen andere pagina's van dezelfde gebruiker erop.
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
     $pdo = reportConnection();
     $msBron = 0;
     if (ORDERHISTORIE_BRON !== '') {
@@ -378,6 +382,7 @@ reportApi(function (array $in): array {
         ($where ? ' WHERE ' . implode(' AND ', $where) : '') .
         ' ORDER BY ' . $col('afldat') . ' DESC, ' . $col('ordernr') . ', ' . $col('artnr')
     );
+    $stmt->setAttribute(PDO::SQLSRV_ATTR_QUERY_TIMEOUT, 120); // een vastlopende query stopt na 2 minuten i.p.v. de server te blokkeren
     $t1 = microtime(true);
     $stmt->execute($params);
 
