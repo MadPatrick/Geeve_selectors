@@ -15,6 +15,12 @@ Wat wél per app hoort (zie `shared/README.md`, "Wat hoort in je eigen `assets/s
 secties/kaarten, stappenindicatoren, statuspillen e.d. - dat blijft bewust ongedeeld, ook al lijkt
 het oppervlakkig op wat een andere app heeft.
 
+## Hergebruik van `shared/` door een andere app
+
+Wil een (losstaande) app de printfunctie, de centrale CSV's of de gedeelde layout/CSS gebruiken, volg dan
+[`docs/HERGEBRUIK-SHARED.md`](docs/HERGEBRUIK-SHARED.md): inladen, minimaal voorbeeld, printen, data lezen, vereisten en
+valkuilen. Zet daar nooit wachtwoorden in.
+
 ## Data, adressen en CSS-variabelen (standaard)
 
 - **Data** (CSV's en back-ups) staat centraal in `data/<app>/` en `data/backups/<app>/`, **niet in git**. Lezen en

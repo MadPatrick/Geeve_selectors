@@ -177,6 +177,9 @@ Alle apps delen dezelfde huisstijl:
 Een nieuwe app bouwen: volg [`shared/README.md`](shared/README.md), de stap-voor-stap gids en
 checklist. Afspraken over knoppen, tabellen en versienummer staan in [`CLAUDE.md`](CLAUDE.md).
 
+**Hergebruik door een andere app** (printen, centrale CSV's, layout/CSS, valkuilen):
+[`docs/HERGEBRUIK-SHARED.md`](docs/HERGEBRUIK-SHARED.md).
+
 ---
 
 ## 6. Database-koppeling Exact
