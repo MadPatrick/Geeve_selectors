@@ -27,8 +27,8 @@
     --danger: #a03636;
     --shadow: 0 10px 24px rgba(0, 0, 0, .06);
     /* Knoppen: 5px ruimte tussen aangrenzende knoppen, en een rand in dezelfde
-       kleurtoon als de knop - LICHTERE rand op een donkere knop, DONKERDERE rand
-       op een lichte knop. */
+       kleurtoon als de knop, altijd DONKERDER dan de vulling (duidelijk zichtbaar,
+       overal 1px). */
     --btn-gap: 5px;
     --line-strong: #c9d4de;      /* lichte/neutrale knop (bijv. #edf2f6 of wit) */
     --ok-soft-line: #14532d;     /* rand van lichtgroene knop (#e8f4ed): donkergroen */
@@ -39,7 +39,7 @@
     --btn-green-hover: #b0e6c0;  /* idem, bij hover */
     /* Knopkleuren: ALLE knoppen halen hun kleuren uit deze variabelen (zie CLAUDE.md, "Knoppen"). */
     --btn-red: rgba(238, 48, 93, .8);           /* rode knop (hoofdactie); vroegere donkerrode knoppen zijn nu ook rood */
-    --btn-red-line: #e0516a;
+    --btn-red-line: #b90d32;                    /* rand van de rode knop: donkerrood, zo steekt hij net zo duidelijk af als de donkergroene rand van de groene knop */
     --btn-ink-light: #fff;                      /* witte tekst/iconen op rode, blauwe en header-knoppen */
     --btn-grey: rgba(208, 209, 204, .7);        /* grijze tweede-keuzeknop, ook de keuzeschakelaar */
     --btn-grey-line: #9a9b96;
@@ -102,5 +102,16 @@
     --radius-md: 14px;
     --radius-lg: 18px;                  /* .panel, brand-panel */
     --radius-pill: 999px;
+    --snow: rgba(255, 255, 255, .9);    /* sneeuwvlokken in de topbalk (kerstperiode) */
+    --egg-1: #ffd23f;                   /* paaseieren in de topbalk (Pasen) */
+    --egg-2: #7ad7f0;
+    --egg-3: #ff8fab;
+    --egg-4: #9be564;
+    --egg-5: #c39bf5;
+    --egg-stripe: rgba(255, 255, 255, .8);
+    --fw-1: #ffd23f;                    /* vuurwerk in de topbalk (Nieuwjaar) */
+    --fw-2: #ff6b8b;
+    --fw-3: #7ad7f0;
+    --fw-4: #9be564;
     --focus-ring: 0 0 0 3px rgba(238, 48, 93, .14);
 }

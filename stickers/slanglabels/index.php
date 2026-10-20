@@ -5,6 +5,7 @@ declare(strict_types=1);
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het Stickers-scherm, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
+require_once __DIR__ . '/../../shared/printen.php';
 tileRequirePage('stickers-slanglabels', geeveAppUrl('stickers'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
@@ -80,7 +81,10 @@ $csrf = csrfToken();
             <div class="sl-preview" id="slSheet"></div>
             <div class="sl-print">
                 <span id="slPrintInfo" class="msp-status"></span>
-                <button type="button" id="slPrint" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
+                <div class="print-group">
+                    <?= geevePrinterSelectHtml('stickers-slanglabels', $csrf) ?>
+                    <button type="button" id="slPrint" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
+                </div>
             </div>
         </div>
     </section>
@@ -110,5 +114,6 @@ $csrf = csrfToken();
 <!-- Alleen voor het printen: hier komen de labels (elk aantal keer) vlak voor window.print(). -->
 <div id="slPrintSheet" class="sl-printsheet" aria-hidden="true"></div>
 <script src="<?= h(geeveUrl('stickers/assets/slanglabels.js')) ?>?v=<?= h(assetVersion('../assets/slanglabels.js')) ?>"></script>
+<script src="<?= h(geeveUrl('stickers/assets/direct-print.js')) ?>?v=<?= h(assetVersion('../assets/direct-print.js')) ?>"></script>
 </body>
 </html>

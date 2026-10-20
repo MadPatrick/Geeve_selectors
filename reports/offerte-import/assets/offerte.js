@@ -37,6 +37,7 @@
     var debtorInfo = null;
     var checked = {};        // CODE -> true zodra de controle met Exact klaar is
     var codeTimers = {};
+    var supTimer = null;
     var importedName = '';
     var timer = null;
     var validating = 0;
@@ -209,7 +210,7 @@
                         if (!supplierPending(l)) { return; }
                         var hit = sup[l.supplier.trim().toUpperCase()];
                         supplierInfo[l.supplier.trim().toUpperCase()] = hit || { item: '', matches: [] };
-                        if (hit && hit.item) { l.code = hit.item.toUpperCase(); }
+                        if (hit && hit.item) { l.code = hit.item.toUpperCase(); l.autoCode = true; }
                     });
                     lines.forEach(function (l) { if (cv(l) !== '') { checked[ck(l)] = true; } });
                     if (lines.length && !quiet) { showInfo('Geïmporteerd: ' + importedName + ' (' + pl(lines.length, 'regel', 'regels') + '), gecontroleerd met Exact.'); }
@@ -298,7 +299,7 @@
                 '<td>' + esc(l.nr) + '</td>' +
                 '<td><input type="text" class="ka-input oi-qty" data-i="' + i + '" value="' + esc(l.qty === null ? '' : l.qty) + '" maxlength="12" inputmode="decimal" autocomplete="off" aria-label="Aantal regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 (purchase ? '<td class="oi-min">' + (info && info.minOrder > 0 ? esc(info.minOrder) : '') + '</td>' : '') +
-                (useSupplier ? '<td class="oi-sup">' + esc(l.supplier || '') + '</td>' : '') +
+                (useSupplier ? '<td><input type="text" class="ka-input oi-sup" data-i="' + i + '" value="' + esc(l.supplier || '') + '" maxlength="40" autocomplete="off" spellcheck="false" aria-label="Leveranciersnummer regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
                 '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
                 '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
                 '<td>' + esc(st.label) + '</td>' +
@@ -306,7 +307,7 @@
         });
         // Staat de cursor in een artikelcode, dan blijft die daar na het opnieuw tekenen van de tabel.
         var active = document.activeElement;
-        var focusCls = active && active.classList ? (active.classList.contains('oi-code') ? 'oi-code' : (active.classList.contains('oi-qty') ? 'oi-qty' : null)) : null;
+        var focusCls = active && active.classList ? (active.classList.contains('oi-code') ? 'oi-code' : (active.classList.contains('oi-qty') ? 'oi-qty' : (active.classList.contains('oi-sup') ? 'oi-sup' : null))) : null;
         var focusIdx = focusCls ? active.getAttribute('data-i') : null;
         var caret = focusCls ? active.selectionStart : null;
         tbody.innerHTML = html;
@@ -423,11 +424,23 @@
             render();
             return;
         }
+        if (el.classList && el.classList.contains('oi-sup')) {
+            // Leveranciersnummer gewijzigd: is de artikelcode leeg, dan na een korte pauze ons artikelnummer opnieuw opzoeken.
+            var line = lines[+el.getAttribute('data-i')];
+            line.supplier = el.value;
+            // Een artikelcode die uit het oude leveranciersnummer kwam, hoort daar niet meer bij: leegmaken en opnieuw opzoeken.
+            if (line.autoCode) { line.code = ''; line.autoCode = false; }
+            render();
+            clearTimeout(supTimer);
+            supTimer = setTimeout(function () { validate(true, true); }, 500);
+            return;
+        }
         if (!el.classList || !el.classList.contains('oi-code')) { return; }
         var i = +el.getAttribute('data-i');
         var pos = el.selectionStart;
         el.value = el.value.toUpperCase();
         if (pos !== null) { el.setSelectionRange(pos, pos); }
+        lines[i].autoCode = false;
         lines[i].code = el.value; // ruwe invoer (alleen hoofdletters), zodat een spatie midden in de code niet verdwijnt
         var code = el.value.trim();
         // Rij direct bijwerken (nog niet gecontroleerd), daarna debounce de controle.

@@ -93,8 +93,9 @@ $lockRoot = '';
         <a class="<?= tileClass('slangkaarten') ?>" href="<?= h(geeveAppUrl('slangkaarten')) ?>"<?= tileAttrs('slangkaarten') ?>>
             <div class="tile-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
-                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    <path d="M6 9V2h12v7"></path>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
                 </svg>
             </div>
             <h2><?= h(tileTitle('slangkaarten')) ?></h2>
@@ -147,6 +148,20 @@ $lockRoot = '';
             <?= tileLockIcon('stauff') ?>
         </a>
         <?php endif; $tileHtml['stauff'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('gebogenbuis')): ?>
+        <a class="<?= tileClass('gebogenbuis') ?>" href="<?= h(geeveAppUrl('gebogenbuis')) ?>"<?= tileAttrs('gebogenbuis') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 5h6a6 6 0 0 1 6 6v8"></path>
+                    <path d="M13 19h6"></path>
+                    <path d="M4 9h2"></path>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('gebogenbuis')) ?></h2>
+            <p>Bereken de prijs van gebogen buis: artikelen met klantkorting, montage en notities.</p>
+            <?= tileLockIcon('gebogenbuis') ?>
+        </a>
+        <?php endif; $tileHtml['gebogenbuis'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('reports')): ?>
         <a class="<?= tileClass('reports') ?>" href="<?= h(geeveAppUrl('reports')) ?>"<?= tileAttrs('reports') ?>>
             <div class="tile-icon">

@@ -31,6 +31,7 @@ van deze portal. Apache stuurt `/slangkaarten/` door naar die app.
 | Slangkaarten | `/slangkaarten/` | — | — | Slangkaart.Web (aparte .NET-app, via Apache) |
 | Stickers | `/stickers/` | `stickers/` | — | Overzicht met stickertegels, zie hieronder |
 | Stauff Selector | `/stauff/` | `stauff/` | ja | Beugelconfigurator op Exact artikelgroep 67, "Naar Exact" via Slangkaart.Web |
+| Gebogen buis | `/gebogenbuis/` | `gebogenbuis/` | nee | Prijsberekening gebogen buis: klant + klantkorting (kortingstructuur van de prijslijst), artikelen met bruto prijs en vrije voorraad, montage, notities; in opbouw |
 | Reports | `/reports/` | `reports/` | — | Overzicht met rapporten, zie hieronder |
 | Templates | `/templates/` | `templates/` | — | Overzicht met Excel/XML-templates, zie hieronder |
 
@@ -58,6 +59,7 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 | Inkooporder Import | `/reports/inkooporder-import/` | Idem voor inkooporders |
 | Export info | `/reports/export-info/` | Orderregels met collo, gewicht en afmetingen voor de exportdocumenten |
 | Artikelgegevens Import | `/reports/artikel-import/` | Artikelgegevens controleren met Exact en als XML (`<Items>`) exporteren |
+| Orderhistorie | `/reports/orderhistorie/` | Geleverde orderregels per klant sinds de eerste order, filter per kolom, Download Excel |
 
 ### Stickers
 

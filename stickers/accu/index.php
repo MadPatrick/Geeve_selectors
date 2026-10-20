@@ -5,6 +5,8 @@ declare(strict_types=1);
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het Stickers-scherm, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
+require_once __DIR__ . '/../../shared/csrf.php';
+require_once __DIR__ . '/../../shared/printen.php';
 tileRequirePage('stickers-artikel-groot', geeveAppUrl('stickers'));
 
 
@@ -24,6 +26,7 @@ function assetVersion(string $relativePath): string
     return $mtime !== false ? (string) $mtime : APP_VERSION;
 }
 
+$csrf = csrfToken();
 ?>
 <!doctype html>
 <html lang="nl">
@@ -67,7 +70,10 @@ function assetVersion(string $relativePath): string
             <div class="ac-print">
                 <label class="ac-copies"><input type="number" id="acCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
                 <button type="button" id="acClear" class="ka-button ka-button--secondary">Leegmaken</button>
-                <button type="button" id="acPrint" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
+                <div class="print-group">
+                    <?= geevePrinterSelectHtml('stickers-artikel-groot', $csrf) ?>
+                    <button type="button" id="acPrint" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
+                </div>
             </div>
         </div>
     </section>
@@ -77,5 +83,6 @@ function assetVersion(string $relativePath): string
 <!-- Alleen voor het printen: hier komen de stickers (aantal keer) vlak voor window.print(). -->
 <div id="acPrintSheet" class="ac-printsheet" aria-hidden="true"></div>
 <script src="<?= h(geeveUrl('stickers/assets/accu.js')) ?>?v=<?= h(assetVersion('../assets/accu.js')) ?>"></script>
+<script src="<?= h(geeveUrl('stickers/assets/direct-print.js')) ?>?v=<?= h(assetVersion('../assets/direct-print.js')) ?>"></script>
 </body>
 </html>

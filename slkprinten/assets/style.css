@@ -7,29 +7,20 @@
 h2 { margin: 4px 0 0; font-size: 20px; }
 .step { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: var(--accent-dark); }
 
-.klant-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 16px;
-    border-radius: 10px;
-    background: #e8f4ed;
-    border: 1px solid var(--ok-soft-line);
-    color: var(--ok);
-    font-weight: 700;
-    font-size: 14px;
-}
-
+/* Klant- en orderbadge in stap 2: exact dezelfde opmaak (rand, hoeken, padding, letter), alleen de kleur verschilt:
+   lichte achtergrond, donkere rand en tekst in dezelfde tint. */
+.klant-badge,
 .order-badge {
     display: inline-flex;
     align-items: center;
     padding: 10px 16px;
     border-radius: 10px;
-    background: #fdeaee;
-    border: 1px solid #f5c3cf;
-    color: var(--accent-dark);
+    border: 1px solid;
     font-weight: 700;
     font-size: 14px;
 }
+.klant-badge { background: #e8f4ed; border-color: var(--ok-soft-line); color: var(--ok); }
+.order-badge { background: #fdeaee; border-color: var(--accent-dark); color: var(--accent-dark); }
 
 .stap2-badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0; }
 
@@ -49,6 +40,7 @@ input::placeholder { color: #929fac; }
 .klant-hits[hidden] { display: none; }
 .klant-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .klant-hits li:hover, .klant-hits li.is-active { background: #fde6ec; }
+.klant-nr { display: inline-block; min-width: 6ch; margin-right: 6px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .submit-button {
     appearance: none;
@@ -115,6 +107,9 @@ input::placeholder { color: #929fac; }
    de standaard padding maakte de knop hoger dan de rij. */
 .lines-table .link-button { padding: 4px 14px; font-size: 12px; }
 
+/* "Wissen" bovenaan stap 1: even groot als de knop Zoeken (.submit-button). */
+.search-panel .section-heading > .link-button { display: inline-flex; align-items: center; font-size: 14px; padding: 13px 26px; min-height: 48px; box-sizing: border-box; }
+
 .warning-box { margin-top: 18px; padding: 15px 18px; border-radius: 12px; border: 1px solid #e8b1b1; background: #fff1f1; color: #7d2f2f; }
 .empty-result { padding: 18px; border: 1px dashed #c8d4de; border-radius: 12px; background: #fafcfd; color: var(--muted); font-style: italic; margin-top: 18px; }
 .print-status { margin: 0; color: var(--muted); font-size: 13px; }
@@ -157,3 +152,9 @@ input::placeholder { color: #929fac; }
     .panel { padding: 18px; border-radius: 14px; }
     .search-row { flex-direction: column; align-items: stretch; }
 }
+
+/* Stap 2: printerkeuze boven de printknop (direct printen vanaf de server, zie shared/printen.php). */
+.print-actions { display: flex; flex-direction: row-reverse; align-items: center; justify-content: flex-end; gap: 12px; }
+.printer-choice { display: flex; position: relative; gap: 4px; font-size: 12px; font-weight: 700; color: var(--muted); }
+.printer-choice > span { display: none; }
+.printer-choice select { min-height: 44px; min-width: 260px; }

@@ -253,7 +253,6 @@ const LINE_OVERVIEW_FIELDS = [
     ['label' => 'Regel',         'candidates' => REGELNUMMER_CANDIDATES],
     ['label' => 'Aantal',        'candidates' => ['Aantal', 'Aantal slangen', 'AantalSlangen'], 'format' => 'whole'],
     ['label' => 'Slangnummer',   'candidates' => ['GHnr', 'Slangnummer', 'SlangNr', 'Slang nr']],
-    ['label' => 'GHnm',          'candidates' => ['GHnm', 'Omschrijving slang']],
     ['label' => 'Slang type',    'candidates' => SLANGTYPE_CANDIDATES],
     ['label' => 'Lengte',        'candidates' => LENGTE_CANDIDATES, 'format' => 'leadingzero'],
 ];
@@ -1101,10 +1100,10 @@ function renderHoseLinesForm(array $hoseLines, string $orderNumber, string $cust
                             <th><?= h($field['label']) ?></th>
                         <?php endforeach; ?>
                         <?php for ($i = 1; $i <= $maxKoppelingA; $i++): ?>
-                            <th><?= $maxKoppelingA > 1 ? 'Koppeling A ' . $i : 'Koppeling A' ?></th>
+                            <th><?= $maxKoppelingA > 1 ? 'Koppeling A' . $i : 'Koppeling A' ?></th>
                         <?php endfor; ?>
                         <?php for ($i = 1; $i <= $maxKoppelingB; $i++): ?>
-                            <th><?= $maxKoppelingB > 1 ? 'Koppeling B ' . $i : 'Koppeling B' ?></th>
+                            <th><?= $maxKoppelingB > 1 ? 'Koppeling B' . $i : 'Koppeling B' ?></th>
                         <?php endfor; ?>
                     </tr>
                 </thead>
@@ -1359,7 +1358,7 @@ function renderRecentOrdersFragment(bool $fresh, bool $debug): string
     return $html;
 }
 
-// Klantnamen voor de suggesties in het veld Klant (zie assets/klant-search.js),
+// Klanten (naam + klantnummer) voor de suggesties in het veld Klant (zie assets/klant-search.js),
 // 1 uur in een bestandscache: de lijst verandert zelden en de DISTINCT over
 // de hele slangkaart-tabel hoeft niet bij elke paginaweergave.
 // Controlepagina (alleen lezen): index.php?diagnose=<slangnummer> toont per bron wat de database voor dit
@@ -1463,7 +1462,7 @@ if (isset($_GET['diagnose'])) {
 if (isset($_GET['klanten'])) {
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
-    $cacheFile = sys_get_temp_dir() . '/geeve_slangkaarten_klanten.json';
+    $cacheFile = sys_get_temp_dir() . '/geeve_slangkaarten_klanten2.json';
     $names = null;
     if (is_file($cacheFile) && time() - (int) @filemtime($cacheFile) < 3600) {
         $cached = json_decode((string) @file_get_contents($cacheFile), true);
@@ -1471,7 +1470,7 @@ if (isset($_GET['klanten'])) {
     }
     if ($names === null) {
         try {
-            $names = findCustomerNames(getPdoConnection());
+            $names = findCustomers(getPdoConnection());
         } catch (Throwable $exception) {
             $names = [];
         }
@@ -1504,6 +1503,10 @@ $customerOrders = [];
 $hoseNumberResults = [];
 $hoseCardsWithoutOrder = [];
 $printSheetHtml = '';
+$printers = geevePrinters();
+$printerChoice = trim((string) ($_POST['printer'] ?? ''));
+$directPrint = null;      // ['printer' => naam, 'job' => printserver\share] na een gelukte directe print
+$directPrintError = null; // melding als direct printen misging; de browserprint blijft dan mogelijk
 $showRecentOrders = false;
 $errorMessage = null;
 
@@ -1520,6 +1523,24 @@ if ($selectedKeys !== []) {
         }
         if ($hoseCards !== []) {
             $printSheetHtml .= renderPicklist(buildPicklist($hoseCards), $orderNumber, pick($hoseCards[0]['row'], KLANT_CANDIDATES));
+        }
+        // Printer gekozen in stap 2: direct vanaf de server printen i.p.v. het printvenster van de browser.
+        if ($hoseCards !== [] && isset($printers[$printerChoice])) {
+            try {
+                $job = geevePrintHtml(
+                    $printSheetHtml,
+                    ['shared/slangkaart.css', 'slkprinten/assets/style.css'],
+                    $printerChoice,
+                    'Slangkaarten ' . ($orderNumber !== '' ? $orderNumber : 'zonder order'),
+                    // Vangnet: past een kaart ondanks de kleine notitieletter (9px) nog niet, dan wordt hij verkleind tot één A4:
+                    // de bedrukbare hoogte uit shared/slangkaart.css (@page 14 mm boven/onder, min-height 268 mm).
+                    ['#printSheet .hose-card', 268]
+                );
+                $directPrint = ['printer' => $printers[$printerChoice], 'job' => $job];
+                geeveRememberPrinter('slangkaarten', $printerChoice);
+            } catch (Throwable $exception) {
+                $directPrintError = $exception->getMessage();
+            }
         }
     } catch (Throwable $exception) {
         $hoseCards = [];
@@ -1625,13 +1646,13 @@ if ($selectedKeys !== []) {
                     id="slangnummer"
                     name="slangnummer"
                     type="text"
-                    placeholder="bijv. artikelnummer"
+                    placeholder="bijv. GH 123456"
                     autocomplete="off"
                     value="<?= h($hoseNumberSearch) ?>"
                 >
             </label>
             <label class="field klant-field" for="klant">
-                <span>Klant</span>
+                <span>Klant of Klantnummer</span>
                 <input
                     id="klant"
                     name="klant"
@@ -1649,10 +1670,10 @@ if ($selectedKeys !== []) {
             </label>
             <button type="submit" class="submit-button" id="searchSubmitButton">
                 <span class="button-fill" aria-hidden="true"></span>
-                <span class="button-label">Opzoeken</span>
+                <span class="button-label">Zoeken</span>
             </button>
         </form>
-        <small>Vul een ordernummer, (een deel van) de klantnaam, óf een slangnummer in.</small>
+        <small>Vul een ordernummer, (een deel van) de klantnaam of het klantnummer, óf een slangnummer in.</small>
     </section>
 
     <script>
@@ -1681,6 +1702,25 @@ if ($selectedKeys !== []) {
 
     <?php if ($errorMessage !== null): ?>
         <section class="warning-box"><?= h($errorMessage) ?></section>
+    <?php elseif ($hoseCards !== [] && ($directPrint !== null || $directPrintError !== null)): ?>
+        <section class="panel result-panel">
+            <div class="section-heading">
+                <div>
+                    <span class="step">Stap 3</span>
+                    <?php if ($directPrint !== null): ?>
+                        <h2><?= count($hoseCards) ?> slangkaart<?= count($hoseCards) === 1 ? '' : 'en' ?> verstuurd naar <?= h($directPrint['printer']) ?></h2>
+                    <?php else: ?>
+                        <h2>Direct printen is niet gelukt</h2>
+                    <?php endif; ?>
+                </div>
+                <button type="button" class="print-btn" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Via de browser printen</span></button>
+            </div>
+            <?php if ($directPrint !== null): ?>
+                <p class="print-status">De printserver heeft de opdracht ontvangen (<?= h($directPrint['job']) ?>).</p>
+            <?php else: ?>
+                <p class="warning-box"><?= h((string) $directPrintError) ?></p>
+            <?php endif; ?>
+        </section>
     <?php elseif ($hoseCards !== []): ?>
         <section class="panel result-panel">
             <div class="section-heading">
@@ -1710,6 +1750,15 @@ if ($selectedKeys !== []) {
                     </div>
                     <h2><?= count($hoseLines) ?> slangregel<?= count($hoseLines) === 1 ? '' : 'en' ?> gevonden</h2>
                 </div>
+                <div class="print-actions">
+                <?php if ($printers !== []): ?>
+                    <label class="printer-choice">
+                        <span>Printer</span>
+                        <select name="printer" form="hoseLinesForm" id="printerChoice">
+                            <?= geevePrinterOptionsHtml('slangkaarten', $printers) ?>
+                        </select>
+                    </label>
+                <?php endif; ?>
                 <button type="submit" form="hoseLinesForm" class="print-btn" id="printSelectedButton">
                     <span class="button-fill" aria-hidden="true"></span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
@@ -1726,6 +1775,13 @@ if ($selectedKeys !== []) {
                 if (!form || !button || !label) { return; }
 
                 var originalLabel = label.textContent;
+                // De gekozen printer onthouden we per gebruiker in een cookie; de pagina zet hem de volgende keer voorgeselecteerd.
+                var printer = document.getElementById('printerChoice');
+                if (printer) {
+                    printer.addEventListener('change', function () {
+                        document.cookie = 'geeve_printer_slangkaarten=' + encodeURIComponent(printer.value === '' ? 'browser' : printer.value) + '; path=/; max-age=31536000; SameSite=Lax';
+                    });
+                }
                 form.addEventListener('submit', function () {
                     button.classList.add('loading');
                     button.disabled = true;

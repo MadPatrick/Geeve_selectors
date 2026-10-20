@@ -62,10 +62,10 @@ $csrf = csrfToken();
         <div class="ka-actions">
             <button type="button" id="oiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
             <button type="button" id="oiExport" class="ka-button" disabled>Exporteer XML</button>
-        </div>
-        <div id="oiDrop" class="ka-drop" tabindex="0" role="button">
-            <strong>Excel importeren</strong> - sleep een ingevulde template hierheen of <u>kies een bestand</u>
-            <input type="file" id="oiFile" accept=".xlsx,.xls,.xlsm,.xltm" hidden>
+            <div id="oiDrop" class="ka-drop" tabindex="0" role="button">
+                <strong>Excel importeren</strong> - sleep een ingevulde template hierheen of <u>kies een bestand</u>
+                <input type="file" id="oiFile" accept=".xlsx,.xls,.xlsm,.xltm" hidden>
+            </div>
         </div>
         <div id="oiMessage" class="ka-message ka-message--error" hidden></div>
         <div id="oiInfo" class="ka-message ka-message--ok" hidden></div>

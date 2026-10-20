@@ -174,11 +174,11 @@ try {
                         <button type="button" id="kkTemplate" class="ka-button ka-button--secondary">Download Excel</button>
                         <button type="submit" class="ka-button ka-button--secondary">Exporteer XML</button>
                         <strong class="kk-hint">Importen in Exact via XML\Logistieke import\Artikelprijzen</strong>
+                        <div id="kkDrop" class="ka-drop" tabindex="0" role="button">
+                            <strong>Excel importeren</strong> - sleep een ingevuld bestand hierheen of <u>kies een bestand</u>
+                            <input type="file" id="kkFile" accept=".xlsx,.xls,.xlsm,.csv" hidden>
+                        </div>
                     </div>
-                </div>
-                <div id="kkDrop" class="ka-drop" tabindex="0" role="button">
-                    <strong>Excel importeren</strong> - sleep een ingevuld bestand hierheen of <u>kies een bestand</u>
-                    <input type="file" id="kkFile" accept=".xlsx,.xls,.xlsm,.csv" hidden>
                 </div>
                 <div id="kkMessage" class="ka-message ka-message--error" hidden></div>
                 <div id="kkInfo" class="ka-message ka-message--ok" hidden></div>

@@ -144,16 +144,17 @@ if ($priceList !== '') {
                 <div class="ka-heading">
                     <h2>Artikelen met klantartikelnummer <small id="kaCount">(<?= count($articles) ?>)</small></h2>
                     <div class="ka-actions">
-                        <button type="button" id="kaTemplate" class="ka-button ka-button--secondary">Download Excel</button>
+                        <button type="button" id="kaTemplate" class="ka-button ka-button--secondary">Download Template</button>
+                        <button type="button" id="kaDownloadList" class="ka-button ka-button--secondary">Download lijst</button>
                         <button type="button" id="kaAdd" class="ka-add" title="Regel toevoegen" aria-label="Regel toevoegen">+</button>
                         <button type="submit" class="ka-button ka-button--secondary" id="kaExport">Exporteer XML</button>
+                        <div id="kaDrop" class="ka-drop" tabindex="0" role="button">
+                            <strong>Excel importeren</strong> - sleep een ingevuld bestand hierheen of <u>kies een bestand</u>
+                            <input type="file" id="kaFile" accept=".xlsx,.xls,.xlsm,.csv" hidden>
+                        </div>
                     </div>
                 </div>
-                <p class="ka-empty">Geldt voor alle <?= count($customers) ?> klanten op deze prijslijst. De XML bevat alleen gewijzigde en nieuwe regels. Met Download Excel haal je een invulbaar sjabloon op; het ingevulde bestand importeer je hieronder. Het klantartikelnummer is te wijzigen; met + voeg je bovenaan een regel toe, waarvan het artikelnummer direct in Exact wordt gecontroleerd.</p>
-                <div id="kaDrop" class="ka-drop" tabindex="0" role="button">
-                    <strong>Excel importeren</strong> - sleep een ingevuld bestand hierheen of <u>kies een bestand</u>
-                    <input type="file" id="kaFile" accept=".xlsx,.xls,.xlsm,.csv" hidden>
-                </div>
+                <p class="ka-empty">Geldt voor alle <?= count($customers) ?> klanten op deze prijslijst. De XML bevat alleen gewijzigde en nieuwe regels. Met Download Template haal je een invulbaar sjabloon op en met Download lijst de huidige lijst als Excel; het ingevulde bestand importeer je hieronder. Het klantartikelnummer is te wijzigen; met + voeg je bovenaan een regel toe, waarvan het artikelnummer direct in Exact wordt gecontroleerd.</p>
                 <div id="kaMessage" class="ka-message ka-message--error" hidden></div>
                 <div id="kaInfo" class="ka-message ka-message--ok" hidden></div>
                 <div class="ka-table-wrap"><table class="ka-table" id="kaTable">

@@ -60,6 +60,9 @@
 .ka-pager[hidden] { display: none; }
 
 .ka-drop { margin: 12px 0; padding: 18px; border: 2px dashed var(--accent-line, #f47896); border-radius: 12px; text-align: center; font-size: 13px; color: var(--muted); cursor: pointer; }
+/* Het importvak staat naast de knoppen (in .ka-actions) en neemt de rest van de rij; op een smal scherm komt het eronder. */
+.ka-actions:has(> .ka-drop) { flex-wrap: wrap; }
+.ka-actions > .ka-drop { flex: 1 1 320px; margin: 0; padding: 10px 14px; }
 .ka-drop:hover, .ka-drop:focus-visible, .ka-drop.is-over { background: var(--soft, #f4f7fa); border-color: var(--accent); outline: none; }
 .ka-message--ok { color: #237447; background: #e8f4ed; }
 

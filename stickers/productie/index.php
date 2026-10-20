@@ -5,6 +5,7 @@ declare(strict_types=1);
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het Stickers-scherm, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
+require_once __DIR__ . '/../../shared/printen.php';
 tileRequirePage('stickers-productie', geeveAppUrl('stickers'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
@@ -63,22 +64,28 @@ $csrf = csrfToken();
                 <button type="button" id="psFetch" class="ka-button">Gegevens ophalen</button>
                 <span id="psStatus" class="msp-status"></span>
             </div>
-            <!-- Aantal en printknop onder het ordernummer. -->
-            <div class="ps-print">
-                <label class="ps-copies"><input type="number" id="psCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
-                <button type="button" id="psPrint" class="print-btn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
-                <span id="psPrintInfo" class="msp-status"></span>
-            </div>
             <div id="psMessage" class="ka-message ka-message--error" hidden></div>
         </div>
 
         <!-- Voorbeeld: één sticker tegelijk, met daaronder < >. -->
         <div class="ps-side" id="psSide" hidden>
             <div class="ps-preview" id="psSheet"></div>
+            <!-- Vorige/volgende sticker en "Sticker x van y": verborgen (het script gebruikt ze nog). -->
+            <div hidden>
             <div class="ps-nav">
                 <button type="button" id="psPrev" class="ka-button ka-button--secondary" aria-label="Vorige sticker">&lt;</button>
                 <span id="psPreviewCount" class="msp-status"></span>
                 <button type="button" id="psNext" class="ka-button ka-button--secondary" aria-label="Volgende sticker">&gt;</button>
+            </div>
+            </div>
+            <!-- Aantal, printerkeuze en printknop onder het voorbeeld. -->
+            <div class="ps-print">
+                <label class="ps-copies"><input type="number" id="psCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
+                <div class="print-group">
+                    <?= geevePrinterSelectHtml('stickers-productie', $csrf) ?>
+                    <button type="button" id="psPrint" class="print-btn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
+                </div>
+                <span id="psPrintInfo" class="msp-status"></span>
             </div>
         </div>
     </section>
@@ -110,5 +117,6 @@ $csrf = csrfToken();
 <script src="<?= h(geeveUrl('stickers/assets/vendor/JsBarcode.code128.min.js')) ?>"></script>
 <script src="<?= h(geeveUrl('stickers/assets/art-sticker.js')) ?>?v=<?= h(assetVersion('../assets/art-sticker.js')) ?>"></script>
 <script src="<?= h(geeveUrl('stickers/assets/productie-stickers.js')) ?>?v=<?= h(assetVersion('../assets/productie-stickers.js')) ?>"></script>
+<script src="<?= h(geeveUrl('stickers/assets/direct-print.js')) ?>?v=<?= h(assetVersion('../assets/direct-print.js')) ?>"></script>
 </body>
 </html>

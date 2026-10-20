@@ -22,6 +22,7 @@ const TILE_REGISTRY = [
     'slangkaarten-app' => ['home', 'Slangkaarten', 'slangkaarten/index.php', true, false, true],
     'stickers' => ['home', 'Stickers', 'stickers/index.php', true, false, false],
     'stauff' => ['home', 'Stauff Selector', 'stauff/index.php', true, false, true],
+    'gebogenbuis' => ['home', 'Gebogen buis', 'gebogenbuis/index.php', true, false, true],
     'reports' => ['home', 'Reports', 'reports/index.php', true, false, false],
     'msp' => ['reports', 'MSP report', 'reports/msp/index.php', true, false, false],
     'inkoop-groep' => ['reports', 'Inkoop per Artikelgroep', 'reports/inkoop-groep/index.php', true, false, false],
@@ -36,6 +37,7 @@ const TILE_REGISTRY = [
     'inkooporder-import' => ['templates', 'Inkooporder Import', 'reports/inkooporder-import/index.php', true, false, false],
     'export-info' => ['templates', 'Export info', 'reports/export-info/index.php', true, false, false],
     'artikel-import' => ['templates', 'Artikelgegevens Import', 'reports/artikel-import/index.php', true, false, false],
+    'orderhistorie' => ['templates', 'Orderhistorie', 'reports/orderhistorie/index.php', true, false, true],
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
     'stickers-order' => ['stickers', 'Artikelen per Verkooporder', 'stickers/order/index.php', true, false, true],
     'stickers-productie' => ['stickers', 'Artikelen per Productieorder', 'stickers/productie/index.php', true, false, true],

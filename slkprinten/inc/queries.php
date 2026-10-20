@@ -348,31 +348,38 @@ function fetchCustomerOrderSummaryRows(PDO $pdo, string $customerName): array
 }
 
 /**
- * Alle klantnamen (kolom nm) met een slangregel in de afgelopen 2 jaar -
- * dezelfde grens als findOrdersByCustomer() - voor de suggesties tijdens
- * het typen in het veld Klant. Valt terug op alle namen zonder datumfilter
- * als de orddat-kolom om wat voor reden dan ook niet bruikbaar is.
+ * Alle klanten (naam uit kolom nm, klantnummer uit debnr) met een slangregel in de afgelopen 2 jaar - dezelfde grens
+ * als findOrdersByCustomer() - voor de suggesties tijdens het typen in het veld Klant (zoeken op naam en klantnummer).
+ * Gesorteerd op klantnummer, laag naar hoog (klanten zonder nummer achteraan). Valt terug op alle klanten zonder
+ * datumfilter als de orddat-kolom niet bruikbaar is, en op alleen namen (nummer leeg) als debnr ontbreekt.
  *
- * @return string[]
+ * @return list<array{naam: string, nr: string}>
  */
-function findCustomerNames(PDO $pdo): array
+function findCustomers(PDO $pdo): array
 {
     $queries = [
-        'SELECT DISTINCT [nm] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] IS NOT NULL AND [orddat] >= DATEADD(year, -2, GETDATE())',
-        'SELECT DISTINCT [nm] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] IS NOT NULL',
+        'SELECT DISTINCT [nm], [debnr] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] IS NOT NULL AND [orddat] >= DATEADD(year, -2, GETDATE())',
+        'SELECT DISTINCT [nm], [debnr] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] IS NOT NULL',
+        'SELECT DISTINCT [nm], NULL AS [debnr] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] IS NOT NULL',
     ];
     foreach ($queries as $sql) {
         try {
-            $names = [];
-            foreach ($pdo->query($sql)->fetchAll(PDO::FETCH_COLUMN) as $name) {
-                $name = trim((string) $name);
-                if ($name !== '') {
-                    $names[$name] = true;
+            $customers = [];
+            foreach ($pdo->query($sql)->fetchAll(PDO::FETCH_NUM) as $row) {
+                $naam = trim((string) $row[0]);
+                $nr = trim((string) ($row[1] ?? ''));
+                if ($naam !== '') {
+                    $customers[$nr . "\0" . $naam] = ['naam' => $naam, 'nr' => $nr];
                 }
             }
-            $names = array_keys($names);
-            natcasesort($names);
-            return array_values(array_map('strval', $names));
+            $customers = array_values($customers);
+            usort($customers, static function (array $a, array $b): int {
+                if ($a['nr'] === '' || $b['nr'] === '') {
+                    return ($a['nr'] === '') <=> ($b['nr'] === '') ?: strcasecmp($a['naam'], $b['naam']);
+                }
+                return strnatcmp($a['nr'], $b['nr']) ?: strcasecmp($a['naam'], $b['naam']);
+            });
+            return $customers;
         } catch (PDOException $exception) {
             continue;
         }

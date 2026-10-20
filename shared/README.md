@@ -301,6 +301,38 @@ Links in een app:
   naar een buurmap;
 - binnen de eigen map gewoon relatief (`assets/style.css`, `api/data.php`).
 
+## Direct printen
+
+`shared/printen.php` print vanaf de server, zonder het printvenster van de browser:
+
+- **Printers** zijn de printershares op de Windows-printserver `SVNL-VWP-PS01` waarvan de naam met `RTM` begint
+  (`GEEVE_SMB_SERVER`, `GEEVE_SMB_PREFIX`). Er is niets in te stellen in Config: `geevePrinterList()` haalt de shares
+  (`smbclient -L`) en hun driver (`rpcclient enumprinters 1`) op en bewaart de lijst 30 minuten in
+  `data/printers/smb-printers.json` (niet in git). De driver bepaalt het soort: PCL-driver = A4 (kleur bij "Color" of
+  Canon), Altec = TSPL-labelprinter, Brother QL = Brother-labelprinter; Zebra/ZPL en onbekende drivers vallen weg.
+  `geevePrinters($tegelId)` geeft de printers die bij een tegel passen (`GEEVE_PRINT_TILE_SOORT`: 'a4' of 'label';
+  nieuwe tegel met direct printen = toevoegen aan `GEEVE_PRINT_TILES`).
+- **Inloggen** op de printserver gebeurt met het account uit `/etc/geeve/smbprint.cred` (de oude naam `/etc/geeve/smbtest.cred` werkt nog als terugval;
+  formaat van `smbclient -A`: `username`, `password`, `domain`), buiten de webmap, van root en leesbaar voor
+  `www-data` (`chown root:www-data`, `chmod 640`). Na een inlogfout (verkeerd wachtwoord, account op slot) stopt de
+  portal met proberen tot dat bestand is gewijzigd (`data/printers/smb-geblokkeerd.json`), zodat het account - ook
+  dat van de Exact-koppeling - niet op slot gaat.
+- **`geevePrintHtml($html, $cssFiles, $share, $titel)`** maakt van dezelfde HTML als de browserprint (bijv. de
+  inhoud van `#printSheet`) met headless Chromium (`/usr/bin/chromium-headless-shell`) een PDF met de print-CSS,
+  ghostscript zet die om in PCL XL (600 dpi, passend verkleind tot het printbare vlak, zoals CUPS met fit-to-page
+  deed) en `smbclient` zet hem in de wachtrij van de share. De PDF is gelijk aan wat de browser print.
+  Met `$passend = [selector, max-hoogte in mm]` wordt een te hoog element (bijv. een slangkaart met een lange notitie)
+  verkleind tot het op één pagina past; Slangkaart printen gebruikt `['#printSheet .hose-card', 268]`.
+- **Labelprinters**: hetzelfde afdrukblok wordt als PDF op labelformaat gerenderd (de `@page`-regel van de app), met
+  `pdftoppm -mono` (poppler-utils) naar een bitmap op 300 dpi gezet en als TSPL `BITMAP` (Altec) of via brother_ql
+  (Brother QL) naar de share gestuurd (`geevePrintLabels()`).
+- **Laatst gebruikte printer:** na een gelukte print onthoudt de portal de share per tegel in het cookie
+  `geeve_printer_<tegel>` (`geeveRememberPrinter()`); die staat de volgende keer voorgeselecteerd.
+- **Printknop in een tegel:** `geevePrinterSelectHtml($tegelId, $csrf)` toont de keuzelijst naast de knop; het script
+  `stickers/assets/direct-print.js` laat `window.print()` dan het afdrukblok naar `shared/print-api.php` sturen. De
+  tegel staat in `GEEVE_PRINT_TILES` en `GEEVE_PRINT_TILE_PAGE` (afdrukblok-id, klasse, stylesheets).
+- Voorbeeld: Slangkaart printen, stap 2 (keuzelijst "Printer" boven de printknop).
+
 ## Slangkaart-layout
 
 De slangkaart van Slangkaart printen is de standaard voor elke app die slangkaarten toont of
@@ -331,3 +363,13 @@ het bestand veranderd is en haalt na een `git pull` meteen de nieuwe versie, ook
       (`shared/paths.php`) en het `<a class="tile">`-blok op het overzicht.
 - [ ] Eigen README.md voor de nieuwe app (zie de bestaande apps als voorbeeld).
 - [ ] `version.php` **niet** zelf ophogen; dat gebeurt alleen op verzoek (zie `CLAUDE.md`).
+
+## Database-instellingen buiten de webmap
+
+De database-inloggegevens (`EXACT_DB_*`, `DB_USER`, `DB_PASSWORD`) staan niet meer in de html-map maar in een bestand
+van de server: `/etc/geeve/portal.json` (of het pad uit de omgevingsvariabele `GEEVE_INSTELLINGEN`, door Apache gezet
+met `SetEnv`). JSON met dezelfde sleutelnamen, eigenaar root, groep www-data, rechten 640; wijzigen kan alleen op de
+server. Bestaat het bestand, dan gaat het voor `.settings.enc` en verdwijnen de databasevelden uit Config (alleen-lezen
+overzicht). Bestaat het niet, dan werkt Config zoals voorheen. Tegelinstellingen en toegangscode blijven in Config.
+`secureSettingsReadStored()` leest alleen `.settings.enc` (voor opslaan), `secureSettingsRead()` combineert beide.
+De instellingen van de .NET-app (`/etc/slangkaart/`) staan hier los van.

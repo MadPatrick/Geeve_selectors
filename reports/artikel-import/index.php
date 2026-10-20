@@ -62,10 +62,10 @@ $csrf = csrfToken();
         <div class="ka-actions">
             <button type="button" id="aiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
             <button type="button" id="aiExport" class="ka-button" disabled>Exporteer XML</button>
-        </div>
-        <div id="aiDrop" class="ka-drop" tabindex="0" role="button">
-            <strong>Excel importeren</strong> - sleep een ingevulde template hierheen of <u>kies een bestand</u>
-            <input type="file" id="aiFile" accept=".xlsx,.xls,.xlsm,.xltm,.xltx" hidden>
+            <div id="aiDrop" class="ka-drop" tabindex="0" role="button">
+                <strong>Excel importeren</strong> - sleep een ingevulde template hierheen of <u>kies een bestand</u>
+                <input type="file" id="aiFile" accept=".xlsx,.xls,.xlsm,.xltm,.xltx" hidden>
+            </div>
         </div>
         <div id="aiMessage" class="ka-message ka-message--error" hidden></div>
         <div id="aiInfo" class="ka-message ka-message--ok" hidden></div>

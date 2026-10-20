@@ -1,0 +1,20 @@
+/* Orderhistorie: klantkeuzelijst en filterrij boven de tabel; knoppen, tabel en meldingen komen uit klantartikel/assets/style.css. */
+.oh-klant { position: relative; min-width: 36ch; }
+.oh-hits {
+    position: absolute; z-index: 20; left: 0; top: 100%; min-width: 100%; width: max-content; max-width: 70ch;
+    margin: 2px 0 0; padding: 4px 0; list-style: none; max-height: 320px; overflow-y: auto; font-weight: 400;
+    background: var(--surface-white); border: 1px solid var(--line-input); border-radius: 8px; box-shadow: var(--shadow); font-size: 13px;
+}
+.oh-hits[hidden] { display: none; }
+.oh-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; }
+.oh-hits li strong { display: inline-block; min-width: 8ch; }
+.oh-hits li:hover, .oh-hits li.is-active { background: var(--soft); }
+
+.oh-table th { cursor: pointer; user-select: none; }
+.oh-table th.is-sorted::after { content: ' \25B2'; font-size: 10px; }
+.oh-table th.is-sorted.is-desc::after { content: ' \25BC'; }
+.oh-table tr.oh-filterrow th { cursor: default; padding-top: 4px; padding-bottom: 4px; background: var(--surface-white); }
+.oh-table tr.oh-filterrow .ka-input { width: 100%; min-width: 8ch; font-weight: 400; }
+.oh-table td.num { text-align: right; }
+.oh-table td.oh-omsc { white-space: nowrap; }
+#ohMessage { white-space: pre-wrap; }

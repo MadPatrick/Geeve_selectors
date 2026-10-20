@@ -48,6 +48,9 @@ eigen tabelregels per app (kolombreedtes, statuskleuren) mogen wel, de regelafst
 - **Groen = lichtgroen**: alle groene knoppen (Gegevens ophalen, Wissen/Kiezen, Exporteer, Kopieer, ...) gebruiken
   `var(--btn-green)` (`#c6efd2`), zelfde als de Print-knop, met donkergroene rand en tekst. `--ok-fill` is alleen voor
   statuspillen ("ready").
+- **Rand = altijd donkerder dan de vulling**: elke knop heeft dezelfde randdikte (1px) en een duidelijk zichtbare rand in
+  een donkerdere tint van de eigen kleur (`--btn-*-line`); alleen de kleur verschilt per knop. Dat geldt ook voor de rode
+  knop (`--btn-red-line` is donkerrood).
 - **Rood = één rood**: er is geen donkerrode knop meer; rode knoppen (ook de vroegere donkerrode zoals Opzoeken, Upload,
   Ontgrendelen) gebruiken `var(--btn-red)`; omlijnde knoppen (PDF, Terug, Download) zijn wit met `--btn-red-line` en
   worden bij hover `--btn-red`.

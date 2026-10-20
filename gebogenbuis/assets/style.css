@@ -1,0 +1,58 @@
+/* Gebogen buis: alleen wat deze tegel zelf nodig heeft; tabel (.ka-table), invoer (.ka-input) en knoppen komen uit de gedeelde opmaak. */
+.gb-klant, .gb-lines td:first-child { position: relative; }
+.gb-klant input { max-width: 48ch; }
+.gb-klantinfo { margin: 8px 0 14px; font-size: 13px; color: var(--muted); }
+.gb-klantinfo strong { color: var(--ink); }
+
+.gb-hits {
+    position: absolute; z-index: 20; left: 0; top: 100%; min-width: 100%; width: max-content; max-width: 70ch;
+    margin: 2px 0 0; padding: 4px 0; list-style: none; max-height: 320px; overflow-y: auto;
+    background: var(--surface-white); border: 1px solid var(--line-input); border-radius: 8px; box-shadow: var(--shadow); font-size: 13px;
+}
+.gb-hits[hidden] { display: none; }
+.gb-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; }
+.gb-hits li strong { display: inline-block; min-width: 8ch; }
+.gb-hits li small { color: var(--muted); }
+.gb-hits li:hover, .gb-hits li.is-active { background: var(--soft); }
+
+.gb-lines .gb-item { min-width: 34ch; }
+.gb-lines .gb-qty { width: 9ch; min-width: 0; }
+.gb-lines .gb-num { text-align: right; }
+.gb-lines td.gb-num { font-variant-numeric: tabular-nums; }
+.gb-lines .gb-desc { display: block; font-size: 12px; color: var(--muted); white-space: normal; }
+.gb-lines .gb-note { display: block; font-size: 11px; color: var(--muted); white-space: normal; }
+.gb-lines .gb-stock-low { color: var(--danger); font-weight: 700; }
+.gb-del {
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer; line-height: 1;
+    color: var(--btn-danger); background: var(--btn-white); border: 1px solid var(--btn-danger-line);
+}
+.gb-del:hover { background: var(--btn-danger-hover); border-color: var(--btn-danger-hover-line); }
+.gb-add { margin-top: 12px; }
+
+.gb-extra { display: grid; grid-template-columns: minmax(14ch, 22ch) 1fr; gap: 16px; margin-top: 18px; align-items: start; }
+.gb-montage { text-align: right; }
+.gb-notes textarea { min-height: 80px; resize: vertical; }
+@media (max-width: 620px) { .gb-extra { grid-template-columns: 1fr; } }
+
+.gb-totals { margin: 22px 0 0 auto; max-width: 360px; }
+.gb-totals div { display: flex; justify-content: space-between; gap: 24px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.gb-totals dt { font-weight: 650; }
+.gb-totals dd { margin: 0; font-variant-numeric: tabular-nums; }
+.gb-totals .gb-totals-netto { font-size: 18px; font-weight: 800; border-bottom: 0; }
+#gbApp .ka-table-wrap { overflow: visible; } /* de keuzelijst onder een zoekveld mag buiten de tabel uitsteken */
+
+/* Invoervelden 5px hoger dan de standaard tabelregel (28px -> 33px) en alle cellen boven uitgelijnd, zodat de velden op één lijn staan. */
+.gb-lines td { vertical-align: top; }
+.ka-table.gb-lines .ka-input { min-height: 33px; }
+.gb-lines td.gb-num, .gb-lines td .gb-del { padding-top: 0; }
+.gb-lines td.gb-num { line-height: 33px; padding-top: 3px; }
+.gb-lines .gb-del { margin-top: 2px; }
+.gb-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+.gb-actions .ka-button:disabled { opacity: .5; cursor: default; }
+
+/* 10px extra ruimte tussen klant en tabelkop; artikel- en aantalvelden nog 5px hoger (33px -> 38px, blijven gelijk zodat ze op één lijn staan). */
+.gb-klant { margin-bottom: 10px; }
+.gb-klantinfo { margin-bottom: 24px; }
+.ka-table.gb-lines .ka-input { min-height: 38px; }
+.gb-lines td.gb-num { line-height: 38px; }
+.gb-lines .gb-del { margin-top: 5px; }

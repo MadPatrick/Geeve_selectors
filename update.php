@@ -8,7 +8,10 @@ session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 require_once __DIR__ . '/shared/secure_settings.php';
+require_once __DIR__ . '/shared/sneeuw.php';
+require_once __DIR__ . '/shared/access.php';
 require_once __DIR__ . '/shared/tiles.php';
+require_once __DIR__ . '/shared/printen.php';
 
 function h(string $value): string
 {
@@ -26,7 +29,73 @@ function assetVersion(string $relativePath): string
 }
 
 $requestError = false;
+
+// Config is alleen met een toegangscode te openen (zie shared/access.php, accessConfigCodeOk): een juiste code blijft
+// voor de sessie onthouden (15 minuten zonder gebruik), daarna vraagt Config er weer om.
+header('Cache-Control: no-store');
+$codeError = null;
+if (!accessUnlocked('config')) {
+    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'unlock-config') {
+        if (!csrfValid($_POST['csrf'] ?? null)) {
+            $codeError = 'Sessie verlopen. Probeer het opnieuw.';
+        } else {
+            $outcome = accessTryUnlock('config', (string) ($_POST['code'] ?? ''));
+            if ($outcome === 'ok') {
+                header('Location: update.php');
+                exit;
+            }
+            $codeError = $outcome === 'wacht' ? 'Te veel foute pogingen. Wacht een minuut en probeer het opnieuw.' : 'Onjuiste code.';
+        }
+    }
+    ?>
+<!doctype html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Config | Geeve Hydraulics</title>
+    <link rel="icon" href="favicon.ico?v=<?= h(assetVersion('favicon.ico')) ?>" type="image/x-icon">
+    <link rel="stylesheet" href="shared/style.css?v=<?= h(assetVersion('shared/style.css')) ?>">
+    <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
+</head>
+<body>
+<main class="page-shell">
+    <?php
+    $headerTitle = 'Config';
+    $headerImagesPath = 'images/';
+    $headerShowHome = false;
+    require __DIR__ . '/shared/header.php';
+    ?>
+    <div class="config-bar">
+        <a href="index.php" class="back-link">&larr; Terug naar hoofdmenu</a>
+    </div>
+    <section class="update-panel">
+        <h2>Toegangscode</h2>
+        <p>Config is beveiligd. Vul de toegangscode in om de instellingen te openen.</p>
+        <?php if ($codeError !== null): ?>
+            <div class="update-message error"><?= h($codeError) ?></div>
+        <?php endif; ?>
+        <form method="post" class="update-form" autocomplete="off">
+            <input type="hidden" name="action" value="unlock-config">
+            <input type="hidden" name="csrf" value="<?= h(csrfToken()) ?>">
+            <label class="update-code-field">
+                <span>Code</span>
+                <input type="password" name="code" inputmode="numeric" autocomplete="off" autofocus required>
+            </label>
+            <button type="submit" class="update-submit">Openen</button>
+        </form>
+    </section>
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
+</main>
+</body>
+</html>
+<?php
+    exit;
+}
+
 $settingsMessage = null;
+$dbFromFile = secureSettingsFileValues() !== null;
 
 if (empty($_SESSION['config_csrf'])) {
     $_SESSION['config_csrf'] = bin2hex(random_bytes(16));
@@ -36,10 +105,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
     if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
         $requestError = true;
     } else {
-        $values = secureSettingsRead();
+        $values = secureSettingsReadStored();
         foreach (SECURE_SETTINGS_KEYS as $settingKey) {
-            if ($settingKey === 'TILE_FLAGS') {
-                continue; // wordt apart opgeslagen (formulier Tegels)
+            if ($settingKey === 'TILE_FLAGS' || str_starts_with($settingKey, 'SNEEUW_')) {
+                continue; // worden apart opgeslagen (formulieren Tegels en Topbalk)
+            }
+            if ($dbFromFile && in_array($settingKey, SECURE_SETTINGS_FILE_KEYS, true)) {
+                continue; // beheerd op de server (/etc/geeve/portal.json)
             }
             $posted = trim((string) ($_POST[$settingKey] ?? ''));
             if ($settingKey === 'EXACT_DB_TRUST_SERVER_CERT') {
@@ -57,6 +129,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         }
         $settingsMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Instellingen versleuteld opgeslagen.']
+            : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
+    }
+}
+
+$sneeuwMessage = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-sneeuw') {
+    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+        $requestError = true;
+    } else {
+        $values = secureSettingsReadStored();
+        foreach (TOPBALK_STANDAARD as $naam => $std) {
+            $maand = (int) ($_POST[$naam . '_MAAND'] ?? 0); // 0 = automatisch (alleen Pasen: eerste paasdag)
+            $values[$naam . '_AAN'] = isset($_POST[$naam . '_AAN']) ? 'yes' : 'no';
+            $values[$naam . '_DATUM'] = $maand === 0 ? '' : sneeuwDag(sprintf('%02d-%02d', $maand, (int) ($_POST[$naam . '_DAG'] ?? 0)), $std['datum']);
+            $values[$naam . '_VOOR'] = (string) topbalkDagen($_POST[$naam . '_VOOR'] ?? null, $std['voor']);
+            $values[$naam . '_NA'] = (string) topbalkDagen($_POST[$naam . '_NA'] ?? null, $std['na']);
+        }
+        $sneeuwMessage = secureSettingsWrite($values)
+            ? ['ok' => true, 'text' => 'Topbalk-instellingen opgeslagen.']
             : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
     }
 }
@@ -85,7 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 ? array_values(array_filter(array_map('strval', $posted), static fn ($id) => isset(TILE_REGISTRY[$id]) && TILE_REGISTRY[$id][0] === $orderGroup))
                 : [];
         }
-        $values = secureSettingsRead();
+        $values = secureSettingsReadStored();
         $values['TILE_FLAGS'] = (string) json_encode($flags);
         $tilesMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Tegel-instellingen opgeslagen.']
@@ -125,7 +216,11 @@ $storedSettings = secureSettingsRead();
 
     <section class="update-panel">
         <h2>Database-instellingen</h2>
+        <?php if ($dbFromFile): ?>
+        <p>De database-inloggegevens (Exact en Slangkaarten) worden beheerd op de server. Hieronder staat alleen wat daarin is ingesteld.</p>
+        <?php else: ?>
         <p>Inloggegevens voor de Exact-database (gedeeld door Stauff, Klant Artikelnummers, Kortingstructuur, MSP report en Slangkaarten) en voor de eigen Slangkaarten-database. Ze worden versleuteld opgeslagen, niet als leesbaar bestand. Een <code>.env</code>-bestand wordt niet meer gelezen en mag worden verwijderd. Wachtwoord leeg laten = ongewijzigd.</p>
+        <?php endif; ?>
 
         <?php if ($settingsMessage !== null): ?>
             <div class="update-message <?= $settingsMessage['ok'] ? 'ok' : 'error' ?>"><?= h($settingsMessage['text']) ?></div>
@@ -142,6 +237,13 @@ $storedSettings = secureSettingsRead();
             ?>
             <div class="settings-cols">
                 <div class="settings-col">
+            <?php if ($dbFromFile): $fileValues = secureSettingsFileValues(); ?>
+            <h3 class="settings-subtitle">Databases</h3>
+            <ul class="settings-help">
+                <li>Exact-database: <?= h(($fileValues['EXACT_DB_HOST'] ?? 'GEEVE-SQL-2019') . (isset($fileValues['EXACT_DB_PORT']) ? ':' . $fileValues['EXACT_DB_PORT'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME'] ?? '005') . ', gebruiker ' . ($fileValues['EXACT_DB_USER'] ?? '(niet ingesteld)') . ', wachtwoord ' . (isset($fileValues['EXACT_DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt')) ?></li>
+                <li>Slangkaarten-database: gebruiker <?= h($fileValues['DB_USER'] ?? '(niet ingesteld)') ?>, wachtwoord <?= isset($fileValues['DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt' ?></li>
+            </ul>
+            <?php else: ?>
             <h3 class="settings-subtitle">Exact-database</h3>
             <p class="settings-help">Server, poort en certificaat gelden ook voor de Slangkaarten-database.</p>
             <div class="settings-row">
@@ -177,8 +279,10 @@ $storedSettings = secureSettingsRead();
                     <span>Server-certificaat vertrouwen</span>
                 </label>
             </div>
+            <?php endif; ?>
                 </div>
                 <div class="settings-col">
+            <?php if (!$dbFromFile): ?>
             <h3 class="settings-subtitle">Slangkaarten-database</h3>
             <p class="settings-help">Eigen account voor de database <code>Slangkaarten</code> (slangkaarten, orders en kaartgegevens). Server, poort en certificaat zijn dezelfde als hierboven.</p>
             <div class="settings-row">
@@ -191,8 +295,9 @@ $storedSettings = secureSettingsRead();
                     <input type="password" name="DB_PASSWORD" value="" placeholder="<?= $hasSlangPassword ? 'Opgeslagen' : '' ?>" size="20" autocomplete="new-password">
                 </label>
             </div>
+            <?php endif; ?>
             <h3 class="settings-subtitle">Toegangscode</h3>
-            <p class="settings-help">Code voor de beveiligde tegels (zie Tegels hieronder; standaard alleen <strong>Productiviteit</strong>). Leeg laten = ongewijzigd.</p>
+            <p class="settings-help">Code voor de beveiligde tegels.</p>
             <div class="settings-row">
                 <label class="update-code-field">
                     <span>Code</span>
@@ -201,6 +306,48 @@ $storedSettings = secureSettingsRead();
             </div>
                 </div>
             </div>
+            <button type="submit" class="update-submit">Opslaan</button>
+        </form>
+    </section>
+
+    <section class="update-panel">
+        <h2>Topbalk</h2>
+        <p>Animaties in de topbalk.</p>
+
+        <?php if ($sneeuwMessage !== null): ?>
+            <div class="update-message <?= $sneeuwMessage['ok'] ? 'ok' : 'error' ?>"><?= h($sneeuwMessage['text']) ?></div>
+        <?php endif; ?>
+
+        <form method="post" class="update-form sneeuw-form" autocomplete="off">
+            <input type="hidden" name="action" value="save-sneeuw">
+            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <?php $sneeuwMaanden = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']; ?>
+            <?php foreach (['SNEEUW' => 'Sneeuw rond de kerst', 'NIEUWJAAR' => 'Vuurwerk met Nieuwjaar', 'PASEN' => 'Paaseieren met Pasen'] as $naam => $titel):
+                $i = topbalkInstellingen($naam);
+                $maandNu = $i['datum'] === '' ? 0 : (int) substr($i['datum'], 0, 2);
+                $dagNu = $i['datum'] === '' ? 0 : (int) substr($i['datum'], 3);
+            ?>
+            <div class="settings-row sneeuw-row">
+                <label class="settings-switch">
+                    <input type="checkbox" name="<?= $naam ?>_AAN" value="yes"<?= $i['aan'] ? ' checked' : '' ?>>
+                    <span class="settings-switch-track"></span>
+                    <span><?= h($titel) ?></span>
+                </label>
+                <span class="sneeuw-dag-keuze">
+                    <select name="<?= $naam ?>_DAG" aria-label="<?= h($titel) ?>: dag">
+                        <?php if ($naam === 'PASEN'): ?><option value="0"<?= $dagNu === 0 ? ' selected' : '' ?>>-</option><?php endif; ?>
+                        <?php for ($d = 1; $d <= 31; $d++): ?><option value="<?= $d ?>"<?= $dagNu === $d ? ' selected' : '' ?>><?= $d ?></option><?php endfor; ?>
+                    </select>
+                    <select name="<?= $naam ?>_MAAND" aria-label="<?= h($titel) ?>: maand">
+                        <?php if ($naam === 'PASEN'): ?><option value="0"<?= $maandNu === 0 ? ' selected' : '' ?>>eerste paasdag (automatisch)</option><?php endif; ?>
+                        <?php foreach ($sneeuwMaanden as $m => $maand): ?><option value="<?= $m + 1 ?>"<?= $maandNu === $m + 1 ? ' selected' : '' ?>><?= h($maand) ?></option><?php endforeach; ?>
+                    </select>
+                </span>
+                <label class="sneeuw-dagen"><input type="number" name="<?= $naam ?>_VOOR" value="<?= $i['voor'] ?>" min="0" max="60"><span>dagen ervoor</span></label>
+                <label class="sneeuw-dagen"><input type="number" name="<?= $naam ?>_NA" value="<?= $i['na'] ?>" min="0" max="60"><span>dagen erna</span></label>
+            </div>
+            <?php endforeach; ?>
+            <p class="settings-help">Nu actief in de topbalk: <strong><?= h(nieuwjaarActief() ? 'vuurwerk (Nieuwjaar)' : (sneeuwActief() ? 'sneeuw (kerst)' : (paasActief() ? 'paaseieren (Pasen)' : 'geen, de glow'))) ?></strong> (datum op de server: <?= h(date('d-m-Y')) ?>).</p>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
     </section>
@@ -234,7 +381,7 @@ $storedSettings = secureSettingsRead();
                         <div class="tiles-row" role="row" data-id="<?= h($tileId) ?>">
                             <span role="cell" class="tiles-name">
                                 <span class="tiles-handle" title="Sleep om de volgorde te wijzigen" aria-label="Sleep om de volgorde te wijzigen">&#8942;&#8942;</span>
-                                <input type="text" class="tiles-title" name="tile[<?= h($tileId) ?>][title]" value="<?= h($tileFlags[$tileId]['title']) ?>" placeholder="<?= h($tile[1]) ?>" maxlength="60" aria-label="Naam van de tegel (<?= h($tile[1]) ?>)" autocomplete="off">
+                                <input type="text" class="tiles-title" name="tile[<?= h($tileId) ?>][title]" value="<?= h($tileFlags[$tileId]['title']) ?>" placeholder="<?= h($tile[1]) ?>" maxlength="30" aria-label="Naam van de tegel (<?= h($tile[1]) ?>)" autocomplete="off">
                                 <input type="hidden" name="order[<?= h($groupId) ?>][]" value="<?= h($tileId) ?>">
                             </span>
                             <?php foreach (['visible' => 'Zichtbaar', 'locked' => 'Beveiligd', 'wip' => 'In progress'] as $flag => $flagLabel): ?>
@@ -254,6 +401,20 @@ $storedSettings = secureSettingsRead();
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
+<script>
+// Pasen: bij "eerste paasdag (automatisch)" toont de dag een "-"; kies je een maand, dan komt er een dagnummer.
+(function () {
+    var maand = document.querySelector('select[name="PASEN_MAAND"]');
+    var dag = document.querySelector('select[name="PASEN_DAG"]');
+    if (!maand || !dag) { return; }
+    function sync() {
+        if (maand.value === '0') { dag.value = '0'; }
+        else if (dag.value === '0') { dag.value = '1'; }
+    }
+    maand.addEventListener('change', sync);
+    sync();
+})();
+</script>
 <script src="assets/tiles-sort.js?v=<?= h(assetVersion('assets/tiles-sort.js')) ?>"></script>
 </body>
 </html>
