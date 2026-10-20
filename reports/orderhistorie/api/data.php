@@ -19,6 +19,10 @@ require_once __DIR__ . '/../../inc.php';
 
 const ORDERHISTORIE_BRON = '';
 const ORDERHISTORIE_MAX = 50000;
+/** Voorkeursbron: de algemene view met alle klanten (Carl maakte daarnaast views per klant, zoals "400 orderhistorie929"). */
+const ORDERHISTORIE_VOORKEUR = ['400 orderhistorie'];
+/** Velden die in de bron mogen ontbreken; ze blijven dan leeg. */
+const ORDERHISTORIE_OPTIONEEL = ['prijslijst', 'refer', 'uwref', 'pakbon'];
 
 /** Veld in de app => mogelijke kolomnamen in de bron (kleine letters, zonder spaties, underscores en streepjes). */
 const ORDERHISTORIE_KOLOMMEN = [
@@ -78,14 +82,18 @@ function orderhistorieBron(PDO $pdo): array
     $bestScore = -1;
     $GLOBALS['orderhistorie_kandidaten'] = [];
     foreach ($candidates as $c) {
-        $score = count(orderhistorieMatch($pdo, $c));
-        $GLOBALS['orderhistorie_kandidaten'][] = ($c['db'] !== '' ? $c['db'] . '.' : '') . $c['schema'] . '.' . $c['table'] . ': ' . $score . ' van ' . count(ORDERHISTORIE_KOLOMMEN) . ' kolommen';
+        $matched = orderhistorieMatch($pdo, $c);
+        $score = count($matched) + (in_array($c['table'], ORDERHISTORIE_VOORKEUR, true) ? 100 : 0);
+        if (array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), ORDERHISTORIE_OPTIONEEL, array_keys($matched)) !== []) {
+            $score = min($score, count($matched) - 50); // mist een verplicht veld: alleen als er niets beters is
+        }
+        $GLOBALS['orderhistorie_kandidaten'][] = $c['table'] . ': ' . $score;
         if ($score > $bestScore || ($score === $bestScore && $best !== null && $c['db'] === $best['db'] && strlen($c['table']) < strlen($best['table']))) {
             $best = $c;
             $bestScore = $score;
         }
     }
-    if ($best === null || $bestScore < 0) {
+    if ($best === null) {
         throw new RuntimeException('Geen bron met orderhistorie gevonden. Zet ORDERHISTORIE_BRON in reports/orderhistorie/api/data.php op de juiste view.');
     }
     return orderhistorieKies($pdo, $best);
@@ -119,8 +127,8 @@ function orderhistorieMatch(PDO $pdo, array $c): array
 function orderhistorieKies(PDO $pdo, array $c): array
 {
     $kolommen = orderhistorieMatch($pdo, $c);
-    if (count($kolommen) < count(ORDERHISTORIE_KOLOMMEN)) {
-        $mist = array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), array_keys($kolommen));
+    $mist = array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), ORDERHISTORIE_OPTIONEEL, array_keys($kolommen));
+    if ($mist !== []) {
         throw new RuntimeException(
             'Dichtstbijzijnde bron ' . $c['table'] . ' mist de kolommen: ' . implode(', ', array_map(static fn ($f) => ORDERHISTORIE_KOPPEN[$f], $mist)) .
             '. Zet ORDERHISTORIE_BRON in reports/orderhistorie/api/data.php op de juiste view.'
@@ -180,6 +188,10 @@ function orderhistorieDiagnose(PDO $pdo, array $bron, string $debnr, string $kla
     foreach ($bron['kolommen'] as $field => $name) {
         $out[] = '  ' . $field . ' = ' . $name;
     }
+    $leeg = array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), array_keys($bron['kolommen']));
+    $out[] = 'Ontbrekende kolommen (blijven leeg): ' . ($leeg === [] ? '(geen)' : implode(', ', $leeg));
+    $alle = $pdo->query('SET NOCOUNT ON; SELECT c.name FROM sys.columns c WHERE c.object_id = OBJECT_ID(' . $pdo->quote(str_replace(['[', ']'], '', $bron['bron'])) . ') ORDER BY c.column_id');
+    $out[] = 'Alle kolommen van de bron: ' . implode(', ', $alle ? $alle->fetchAll(PDO::FETCH_COLUMN) : []);
     $out[] = 'Kandidaten: ' . implode(' | ', $GLOBALS['orderhistorie_kandidaten'] ?? ['(vaste bron)']);
     $cols = array_map(static fn (string $n): string => orderhistorieIdent($n), array_values($bron['kolommen']));
     if ($bron['debnr'] !== null) {
@@ -271,24 +283,24 @@ reportApi(function (array $in): array {
             }
         }
         $bron = ['bron' => ORDERHISTORIE_BRON, 'kolommen' => $kolommen, 'debnr' => $debnrKolom];
-        if (count($kolommen) < count(ORDERHISTORIE_KOLOMMEN)) {
-            throw new RuntimeException('De bron ORDERHISTORIE_BRON mist een of meer kolommen van de orderhistorie.');
+        if (array_diff(array_keys(ORDERHISTORIE_KOLOMMEN), ORDERHISTORIE_OPTIONEEL, array_keys($kolommen)) !== []) {
+            throw new RuntimeException('De bron ORDERHISTORIE_BRON mist een of meer verplichte kolommen van de orderhistorie.');
         }
     } else {
         // De gevonden bron staat in de sessie: de zoektocht in INFORMATION_SCHEMA hoeft maar één keer.
         $t0 = microtime(true);
-        if (isset($_SESSION['orderhistorie_bron']) && is_array($_SESSION['orderhistorie_bron'])) {
-            $bron = $_SESSION['orderhistorie_bron'];
+        if (isset($_SESSION['orderhistorie_bron2']) && is_array($_SESSION['orderhistorie_bron2'])) {
+            $bron = $_SESSION['orderhistorie_bron2'];
         } else {
             $bron = orderhistorieBron($pdo);
-            $_SESSION['orderhistorie_bron'] = $bron;
+            $_SESSION['orderhistorie_bron2'] = $bron;
         }
         $msBron = (int) round((microtime(true) - $t0) * 1000);
     }
-    $col = static fn (string $field): string => orderhistorieIdent($bron['kolommen'][$field]);
+    $col = static fn (string $field): string => isset($bron['kolommen'][$field]) ? orderhistorieIdent($bron['kolommen'][$field]) : 'CAST(NULL AS varchar(1))';
 
     if (($in['diagnose'] ?? '') !== '') {
-        unset($_SESSION['orderhistorie_bron']);
+        unset($_SESSION['orderhistorie_bron2']);
         throw new RuntimeException(orderhistorieDiagnose($pdo, $bron, $debnr, $klant));
     }
 
