@@ -49,6 +49,7 @@
         var active = -1;
         var timer = null;
         var seq = 0;
+        var lastQuery = '';
 
         function close() { klantHits.hidden = true; active = -1; klantInput.setAttribute('aria-expanded', 'false'); }
         function render() {
@@ -66,9 +67,10 @@
         }
         function search() {
             var q = klantInput.value.trim();
-            if (q.length < 2) { hits = []; close(); return; }
+            if (q.length < 2) { hits = []; lastQuery = ''; close(); return Promise.resolve(); }
             var mine = ++seq;
-            getJson(app.dataset.klanten + '?q=' + encodeURIComponent(q)).then(function (json) {
+            lastQuery = q;
+            return getJson(app.dataset.klanten + '?q=' + encodeURIComponent(q)).then(function (json) {
                 if (mine !== seq) { return; }
                 if (!json.ok) { fail(json.error || 'Zoeken mislukt.'); hits = []; close(); return; }
                 fail('');
@@ -77,6 +79,17 @@
                 render();
             }).catch(function () { if (mine === seq) { fail('Zoeken mislukt.'); } });
         }
+        // Enter in het klantveld: de bovenste (of gemarkeerde) klant uit de lijst kiezen en meteen zoeken.
+        function enter() {
+            var q = klantInput.value.trim();
+            clearTimeout(timer);
+            if (klant) { zoek(); return; }
+            function kies() {
+                if (hits.length) { pick(active >= 0 ? active : 0); }
+                zoek();
+            }
+            if (hits.length && lastQuery === q) { kies(); } else { search().then(kies); }
+        }
 
         klantInput.addEventListener('input', function () {
             if (klant && klantInput.value !== klant.debnr + ' ' + klant.naam) { klant = null; }
@@ -84,17 +97,12 @@
             timer = setTimeout(search, 250);
         });
         klantInput.addEventListener('keydown', function (e) {
-            if (klantHits.hidden) {
-                if (e.key === 'Enter') { e.preventDefault(); zoek(); }
-                return;
-            }
+            if (e.key === 'Enter') { e.preventDefault(); enter(); return; }
+            if (klantHits.hidden) { return; }
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                 e.preventDefault();
                 active = (active + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length;
                 render();
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                pick(active >= 0 ? active : 0);
             } else if (e.key === 'Escape') {
                 close();
             }
