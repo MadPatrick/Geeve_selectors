@@ -49,3 +49,10 @@
 .gb-lines .gb-del { margin-top: 2px; }
 .gb-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
 .gb-actions .ka-button:disabled { opacity: .5; cursor: default; }
+
+/* 10px extra ruimte tussen klant en tabelkop; artikel- en aantalvelden nog 5px hoger (33px -> 38px, blijven gelijk zodat ze op één lijn staan). */
+.gb-klant { margin-bottom: 10px; }
+.gb-klantinfo { margin-bottom: 24px; }
+.ka-table.gb-lines .ka-input { min-height: 38px; }
+.gb-lines td.gb-num { line-height: 38px; }
+.gb-lines .gb-del { margin-top: 5px; }
