@@ -12,7 +12,7 @@ tileApiGuard('orderhistorie');
  *
  * Bron: dezelfde tabellen als de view [Exactrapportage].[dbo].[400 orderhistorie] van Carl, maar rechtstreeks bevraagd (die view
  * zet de datums om naar tekst en koppelt de hele artikelview, waardoor filteren op klant of datum erg traag is):
- *   orhkrg (orderkop historie) JOIN orhsrg (orderregels historie) ON ordernr + pakbon_nr, plus Items voor de omschrijving.
+ *   orhkrg (orderkop historie) JOIN orhsrg (orderregels historie) ON ordernr + pakbon_nr, plus Items voor de omschrijving (INNER JOIN, zoals de view met de artikelen: tekstregels zonder artikel vallen weg).
  * Zelfde SQL Server en inloggegevens (via Config) als /stauff en de rapporten (database van Exact, zoals Items en cicmpy).
  */
 
@@ -28,7 +28,7 @@ const ORDERHISTORIE_GETAL = [false, false, false, false, false, false, false, fa
 
 const ORDERHISTORIE_FROM =
     'orhkrg ohk WITH (NOLOCK) INNER JOIN orhsrg ohr WITH (NOLOCK) ON ohk.ordernr = ohr.ordernr AND ohk.pakbon_nr = ohr.pakbon_nr ' .
-    'LEFT JOIN Items i WITH (NOLOCK) ON i.ItemCode = ohr.artcode';
+    'INNER JOIN Items i WITH (NOLOCK) ON i.ItemCode = ohr.artcode';
 
 const ORDERHISTORIE_SELECT =
     'LTRIM(RTRIM(ohr.artcode)), ohr.afldat, LTRIM(RTRIM(ohr.prijslijst)), LTRIM(RTRIM(ohk.ord_debtor_name)), ohk.ordernr, ' .
