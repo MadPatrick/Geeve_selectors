@@ -214,6 +214,9 @@ helderdere varianten op zo'n plek (gedocumenteerd in `stauff/README.md`).
 
 ### Knopkleuren (`--btn-*`)
 
+Elke knopsoort (Print, PDF, Hoofdactie, Tweede keuze, Groen, ...) heeft vaste variabelen: zie [`docs/KNOPPEN.md`](../docs/KNOPPEN.md)
+voor de tabel en het overzicht per app. Controle met `php tools/check-knoppen.php`.
+
 Alle knoppen halen hun kleuren uit de `--btn-*`-variabelen in `:root` (groen, rood, grijs, wit, blauw, danger, glass
 voor de header, save/cancel, config, `--btn-ink-light`). Zie `CLAUDE.md`, "Knoppen", voor de afspraken.
 

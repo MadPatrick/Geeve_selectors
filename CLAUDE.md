@@ -66,6 +66,10 @@ eigen tabelregels per app (kolombreedtes, statuskleuren) mogen wel, de regelafst
 
 ## Knoppen: alle kleuren uit variabelen (standaard)
 
+**Per knopsoort staan vaste variabelen in [`docs/KNOPPEN.md`](docs/KNOPPEN.md)** (Print = `--btn-print*`, PDF = `--btn-pdf*`,
+Hoofdactie = `--btn-primary*`, Tweede keuze = `--btn-secondary*`, Groen = `--btn-green*`, ...). Kies voor een nieuwe knop een
+soort uit die tabel en draai daarna `php tools/check-knoppen.php`.
+
 - **Elke knopkleur komt uit een `--btn-*`-variabele** in `shared/style.css` (`:root`): achtergrond, rand, hover en
   tekst/icoon. Geen losse hex-/rgba-waarden of `--accent-dark`/`--ok-fill` in knopregels; een nieuwe kleur = eerst een
   nieuwe `--btn-*`-variabele. Overzicht: `--btn-green` (+ `-hover`), `--btn-red` (+ `-line`), `--btn-grey` (+ `-line`),

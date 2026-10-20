@@ -78,6 +78,22 @@
     --btn-choice-line: var(--line-strong);      /* keuzeschakelaar (niet gekozen): rand */
     --btn-choice-ink: var(--muted);             /* keuzeschakelaar (niet gekozen): tekst */
     --btn-fill: var(--white-a30);               /* voortgangsvulling in een knop */
+    /* Knopsoorten: elke soort knop heeft vaste variabelen (zie docs/KNOPPEN.md). Wijzig je een soort, dan verandert hij overal. */
+    --btn-print: var(--btn-green);              /* Print-knop (.print-btn): lichtgroen */
+    --btn-print-hover: var(--btn-green-hover);
+    --btn-print-line: var(--btn-green-line);
+    --btn-print-ink: var(--btn-green-ink);
+    --btn-pdf: var(--btn-white);                /* PDF-knop (.pdf-button): wit met rode rand, bij hover rood */
+    --btn-pdf-line: var(--btn-red-line);
+    --btn-pdf-ink: var(--btn-ink-accent);
+    --btn-pdf-hover: var(--btn-red);
+    --btn-pdf-hover-ink: var(--btn-ink-light);
+    --btn-primary: var(--btn-red);              /* Hoofdactie (Opzoeken, Upload, Ontgrendelen): rood */
+    --btn-primary-line: var(--btn-red-line);
+    --btn-primary-ink: var(--btn-ink-light);
+    --btn-secondary: var(--btn-grey);           /* Tweede keuze (.ka-button--secondary): grijs */
+    --btn-secondary-line: var(--btn-grey-line);
+    --btn-secondary-ink: var(--btn-ink);
     --ok-ink: #0f3d22;           /* tekst op groene knoppen (donkergroen voor goed contrast) */
     --ok-line: #14532d;          /* rand van donkergroene knop (--ok): donkergroen */
     --danger-line: #c17c7c;      /* donkerrode knop (--danger) */

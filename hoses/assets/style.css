@@ -72,10 +72,10 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 .pdf-button {
     appearance: none;
     flex: 0 0 auto;
-    border: 1px solid var(--btn-red-line);
+    border: 1px solid var(--btn-pdf-line);
     border-radius: 999px;
-    background: var(--btn-white);
-    color: var(--btn-ink-accent);
+    background: var(--btn-pdf);
+    color: var(--btn-pdf-ink);
     font-weight: 700;
     font-size: 13px;
     padding: 10px 18px;
@@ -83,7 +83,7 @@ h3 { margin: 4px 0 0; font-size: 19px; }
     white-space: nowrap;
     transition: background .15s, color .15s;
 }
-.pdf-button:hover { background: var(--btn-red); color: var(--btn-ink-light); }
+.pdf-button:hover { background: var(--btn-pdf-hover); color: var(--btn-pdf-hover-ink); }
 
 .clear-filter-button {
     appearance: none;
@@ -157,10 +157,10 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 .upload-form input[type="file"] { border: 1px solid var(--line-input); background: var(--surface-white); color: var(--ink); border-radius: 10px; min-height: auto; padding: 9px 12px; }
 .upload-button {
     appearance: none;
-    border: 1px solid var(--btn-red-line);
+    border: 1px solid var(--btn-primary-line);
     border-radius: 999px;
-    background: var(--btn-red);
-    color: var(--btn-ink-light);
+    background: var(--btn-primary);
+    color: var(--btn-primary-ink);
     font-weight: 700;
     font-size: 13px;
     padding: 10px 18px;

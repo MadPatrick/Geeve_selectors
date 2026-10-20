@@ -208,7 +208,7 @@
 .lock-error { margin-top: 10px; color: var(--danger); font-size: 13px; font-weight: 700; }
 .lock-error[hidden] { display: none; }
 .lock-actions { display: flex; justify-content: flex-end; gap: var(--btn-gap, 5px); margin-top: 18px; }
-.lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--btn-red-line); background: var(--btn-red); color: var(--btn-ink-light); cursor: pointer; }
+.lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--btn-primary-line); background: var(--btn-primary); color: var(--btn-primary-ink); cursor: pointer; }
 .lock-button--secondary { background: var(--btn-white); color: var(--btn-ink); border-color: var(--btn-white-line); }
 .tile:has(.tile-lock) p { padding-right: 30px; }
 

@@ -4,12 +4,12 @@
 .ka-button {
     min-height: 44px; padding: 0 20px; border-radius: 999px; font: inherit; font-weight: 750; font-size: 13px;
     cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
-    color: var(--btn-ink-light); background: var(--btn-red); border: 1px solid var(--btn-red-line); /* iets transparant */
+    color: var(--btn-primary-ink); background: var(--btn-primary); border: 1px solid var(--btn-primary-line); /* iets transparant */
 }
 /* "Gegevens ophalen" in de rapporten: groen, zoals de andere groene knoppen (donkergroene rand). */
 #rpFetch, #eiFetch, #mspFetch { background: var(--btn-green); border-color: var(--btn-green-line); color: var(--btn-green-ink); }
 /* Tweede-keuzeknoppen (Download Excel, template, Regel toevoegen, ...): grijs (#D0D1CC), zoals de niet-gekozen keuzeschakelaar. */
-.ka-button--secondary, #eiExport { color: var(--btn-ink); background: var(--btn-grey); border-color: var(--btn-grey-line); }
+.ka-button--secondary, #eiExport { color: var(--btn-secondary-ink); background: var(--btn-secondary); border-color: var(--btn-secondary-line); }
 .ka-button:hover { opacity: .9; }
 .panel h2 small { color: var(--muted); font-weight: 600; }
 .ka-table-wrap { overflow-x: auto; }

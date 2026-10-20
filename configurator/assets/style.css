@@ -24,10 +24,10 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 .pdf-button {
     appearance: none;
     flex: 0 0 auto;
-    border: 1px solid var(--btn-red-line);
+    border: 1px solid var(--btn-pdf-line);
     border-radius: 999px;
-    background: var(--btn-white);
-    color: var(--btn-ink-accent);
+    background: var(--btn-pdf);
+    color: var(--btn-pdf-ink);
     font-weight: 700;
     font-size: 13px;
     padding: 10px 18px;
@@ -35,7 +35,7 @@ h2 { margin: 4px 0 0; font-size: 22px; }
     white-space: nowrap;
     transition: background .15s, color .15s;
 }
-.pdf-button:hover { background: var(--btn-red); color: var(--btn-ink-light); }
+.pdf-button:hover { background: var(--btn-pdf-hover); color: var(--btn-pdf-hover-ink); }
 
 
 .config-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }

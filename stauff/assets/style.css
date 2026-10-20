@@ -284,10 +284,10 @@ button.location-number { cursor: pointer; }
 /* Naar Exact: rode hoofdactie (zie shared/style.css, --btn-red). */
 .exact-write-button {
     appearance: none;
-    border: 1px solid var(--btn-red-line);
+    border: 1px solid var(--btn-primary-line);
     border-radius: 999px;
-    background: var(--btn-red);
-    color: var(--btn-ink-light);
+    background: var(--btn-primary);
+    color: var(--btn-primary-ink);
     font-weight: 800;
     min-height: 44px;
     padding: 10px 18px;
@@ -331,10 +331,10 @@ button.location-number { cursor: pointer; }
 
 .submit-button {
     appearance: none;
-    border: 1px solid var(--btn-red-line);
+    border: 1px solid var(--btn-primary-line);
     border-radius: 999px;
-    background: var(--btn-red);
-    color: var(--btn-ink-light);
+    background: var(--btn-primary);
+    color: var(--btn-primary-ink);
     font-weight: 700;
     font-size: 14px;
     padding: 11px 22px;
