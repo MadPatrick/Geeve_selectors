@@ -19,27 +19,27 @@ h2 { margin: 4px 0 0; font-size: 20px; }
     font-weight: 700;
     font-size: 14px;
 }
-.klant-badge { background: #e8f4ed; border-color: var(--ok-soft-line); color: var(--ok); }
-.order-badge { background: #fdeaee; border-color: var(--accent-dark); color: var(--accent-dark); }
+.klant-badge { background: var(--status-ok-soft); border-color: var(--ok-soft-line); color: var(--ok); }
+.order-badge { background: var(--status-accent-soft); border-color: var(--accent-dark); color: var(--accent-dark); }
 
 .stap2-badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0; }
 
 .search-row { display: flex; gap: 16px; align-items: flex-end; }
 .search-row .field { flex: 1 1 auto; margin: 0; }
 
-input::placeholder { color: #929fac; }
+input::placeholder { color: var(--ink-placeholder); }
 
 /* Veld Klant: suggesties tijdens het typen (zie assets/klant-search.js) -
    zelfde opmaak als het prijslijstveld in Klant Artikelnummers. */
 .klant-field { position: relative; }
 .klant-hits {
     position: absolute; top: 100%; left: 0; right: 0; z-index: 20; margin: 4px 0 0; padding: 4px 0; list-style: none;
-    background: #fff; border: 1px solid var(--line-strong, #c9d4de); border-radius: 10px; box-shadow: var(--shadow);
+    background: var(--surface-white); border: 1px solid var(--line-strong); border-radius: 10px; box-shadow: var(--shadow);
     max-height: 360px; overflow-y: auto; font-size: 13px; font-weight: 400;
 }
 .klant-hits[hidden] { display: none; }
 .klant-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.klant-hits li:hover, .klant-hits li.is-active { background: #fde6ec; }
+.klant-hits li:hover, .klant-hits li.is-active { background: var(--hover-accent); }
 .klant-nr { display: inline-block; min-width: 6ch; margin-right: 6px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .submit-button {
@@ -47,10 +47,10 @@ input::placeholder { color: #929fac; }
     position: relative;
     overflow: hidden;
     flex: 0 0 auto;
-    border: 1px solid var(--btn-red-line);
+    border: 1px solid var(--btn-primary-line);
     border-radius: 999px;
-    background: var(--btn-red);
-    color: var(--btn-ink-light);
+    background: var(--btn-primary);
+    color: var(--btn-primary-ink);
     font-weight: 700;
     font-size: 14px;
     padding: 13px 26px;
@@ -70,7 +70,7 @@ input::placeholder { color: #929fac; }
     position: absolute;
     top: 0; left: 0; bottom: 0;
     width: 0%;
-    background: rgba(255, 255, 255, .3);
+    background: var(--btn-fill);
 }
 .submit-button.loading .button-fill,
 .print-btn.loading .button-fill {
@@ -90,10 +90,10 @@ input::placeholder { color: #929fac; }
     display: inline-block;
     appearance: none;
     text-decoration: none;
-    border: 1px solid var(--ok-line);
+    border: 1px solid var(--btn-green-line);
     border-radius: 999px;
     background: var(--btn-green);
-    color: var(--ok-ink);
+    color: var(--btn-green-ink);
     font-weight: 700;
     font-size: 13px;
     padding: 10px 18px;
@@ -110,8 +110,8 @@ input::placeholder { color: #929fac; }
 /* "Wissen" bovenaan stap 1: even groot als de knop Zoeken (.submit-button). */
 .search-panel .section-heading > .link-button { display: inline-flex; align-items: center; font-size: 14px; padding: 13px 26px; min-height: 48px; box-sizing: border-box; }
 
-.warning-box { margin-top: 18px; padding: 15px 18px; border-radius: 12px; border: 1px solid #e8b1b1; background: #fff1f1; color: #7d2f2f; }
-.empty-result { padding: 18px; border: 1px dashed #c8d4de; border-radius: 12px; background: #fafcfd; color: var(--muted); font-style: italic; margin-top: 18px; }
+.warning-box { margin-top: 18px; padding: 15px 18px; border-radius: 12px; border: 1px solid var(--status-error-line); background: var(--warning-bg); color: var(--status-error-ink); }
+.empty-result { padding: 18px; border: 1px dashed var(--line-empty); border-radius: 12px; background: var(--surface-subtle); color: var(--muted); font-style: italic; margin-top: 18px; }
 .print-status { margin: 0; color: var(--muted); font-size: 13px; }
 
 /* ---- Regel-overzicht (stap 2: selecteren welke slangkaarten je wil printen) ---- */
@@ -120,7 +120,7 @@ input::placeholder { color: #929fac; }
 .lines-table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
 .lines-table th, .lines-table td { border-bottom: 1px solid var(--line); padding: 9px 12px; text-align: left; }
 .lines-table thead th { background: var(--soft); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; position: sticky; top: 0; }
-.lines-table tbody tr:hover { background: #fafcfd; }
+.lines-table tbody tr:hover { background: var(--surface-subtle); }
 .lines-table tbody tr:last-child td { border-bottom: none; }
 .lines-check-col { width: 1%; text-align: center; }
 .lines-check-col input { width: auto; min-height: 0; }

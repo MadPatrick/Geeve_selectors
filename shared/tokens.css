@@ -65,6 +65,35 @@
     --btn-cancel-hover-line: rgba(255, 141, 169, .7);
     --btn-config-ink: #525252;                  /* config-tandwiel op het hoofdscherm */
     --btn-config-line: rgba(82, 82, 82, .7);
+    /* Knoppen, aanvullende varianten (tekst, rand en vlak per soort knop; verwijzen naar dezelfde kleuren als eerder). */
+    --btn-green-ink: var(--ok-ink);             /* tekst/icoon op de lichtgroene knop */
+    --btn-green-line: var(--ok-line);           /* donkergroene rand van de lichtgroene knop */
+    --btn-ink: var(--ink);                      /* tekst op lichte/grijze knoppen */
+    --btn-ink-quiet: var(--muted);              /* tekst van rustige icoon-/toevoegknoppen */
+    --btn-ink-accent: var(--accent);            /* tekst van omlijnde rode knoppen en hover van rustige knoppen */
+    --btn-ink-danger: var(--danger);            /* tekst van verwijderknoppen */
+    --btn-add: var(--ok-bright);                /* ronde "toevoegen"-knop */
+    --btn-add-line: var(--status-found);
+    --btn-del-hover: var(--hover-accent);       /* achtergrond van de verwijderknop bij hover */
+    --btn-choice-line: var(--line-strong);      /* keuzeschakelaar (niet gekozen): rand */
+    --btn-choice-ink: var(--muted);             /* keuzeschakelaar (niet gekozen): tekst */
+    --btn-fill: var(--white-a30);               /* voortgangsvulling in een knop */
+    /* Knopsoorten: elke soort knop heeft vaste variabelen (zie docs/KNOPPEN.md). Wijzig je een soort, dan verandert hij overal. */
+    --btn-print: var(--btn-green);              /* Print-knop (.print-btn): lichtgroen */
+    --btn-print-hover: var(--btn-green-hover);
+    --btn-print-line: var(--btn-green-line);
+    --btn-print-ink: var(--btn-green-ink);
+    --btn-pdf: var(--btn-white);                /* PDF-knop (.pdf-button): wit met rode rand, bij hover rood */
+    --btn-pdf-line: var(--btn-red-line);
+    --btn-pdf-ink: var(--btn-ink-accent);
+    --btn-pdf-hover: var(--btn-red);
+    --btn-pdf-hover-ink: var(--btn-ink-light);
+    --btn-primary: var(--btn-red);              /* Hoofdactie (Opzoeken, Upload, Ontgrendelen): rood */
+    --btn-primary-line: var(--btn-red-line);
+    --btn-primary-ink: var(--btn-ink-light);
+    --btn-secondary: var(--btn-grey);           /* Tweede keuze (.ka-button--secondary): grijs */
+    --btn-secondary-line: var(--btn-grey-line);
+    --btn-secondary-ink: var(--btn-ink);
     --ok-ink: #0f3d22;           /* tekst op groene knoppen (donkergroen voor goed contrast) */
     --ok-line: #14532d;          /* rand van donkergroene knop (--ok): donkergroen */
     --danger-line: #c17c7c;      /* donkerrode knop (--danger) */
@@ -114,4 +143,93 @@
     --fw-3: #7ad7f0;
     --fw-4: #9be564;
     --focus-ring: 0 0 0 3px rgba(238, 48, 93, .14);
+
+    /* ---- Kleuren van de bestaande apps, benoemd naar functie (waarden ongewijzigd, oktober 2026) ----
+       Een kleur die bijna gelijk is aan een andere (bijv. --ink-empty, --ink-placeholder en --ink-placeholder-alt) kan later
+       samengevoegd worden; dat is een bewuste, zichtbare wijziging. */
+    --accent-a08: rgba(238, 48, 93, .08);
+    --accent-a12: rgba(238, 48, 93, .12);
+    --accent-a14: rgba(238, 48, 93, .14);
+    --accent-a25: rgba(238, 48, 93, .25);
+    --accent-a35: rgba(238, 48, 93, .35);
+    --badge-rvs-bg: #edf0f3;
+    --badge-rvs-ink: #525e6b;
+    --badge-rvs-line: #d8dde2;
+    --badge-staal-bg: #e5f0f8;
+    --badge-staal-ink: #174f7d;
+    --badge-staal-line: #c8deef;
+    --black-a07: rgba(0,0,0,.07);
+    --black-a10: rgba(0, 0, 0, .1);
+    --black-a15: rgba(0,0,0,.15);
+    --black-a25: rgba(0, 0, 0, .25);
+    --black-a30: rgba(0, 0, 0, .3);
+    --block-bg: #fbfcfd;
+    --box-bg: #f5f8fa;
+    --btn-choice: #edf2f6;
+    --draw-nut-fill: #d8d2c4;
+    --draw-nut-line: #b8b09a;
+    --draw-ruler: #8fd0e6;
+    --edit-status-bg: #eafaf1;
+    --eyebrow-ink: #ff8da9;
+    --focus-ring-error: rgba(160, 54, 54, .12);
+    --hover-accent: #fde6ec;
+    --hover-accent-soft: #fff3f6;
+    --ink-black: #000000;
+    --ink-empty: #8c98a6;
+    --ink-on-dark-soft: #f1f1f1;
+    --ink-placeholder: #929fac;
+    --ink-placeholder-alt: #8c99a6;
+    --label-tail-bg: #f3f3f3;
+    --line-box: #d8e1e8;
+    --line-empty: #c8d4de;
+    --line-hover: #c7d0d9;
+    --line-menu: #d8dee3;
+    --line-suggest: #cfd6dd;
+    --line-suggest-row: #edf1f4;
+    --line-table-row: #e3e9ee;
+    --missing-bg: #fdf1f4;
+    --missing-bg-soft: rgba(240, 129, 159, .18);
+    --missing-line: #f0819f;
+    --muted-soft: #c7c7c7;
+    --ok-bright: #3fa564;
+    --overlay-lock: rgba(31, 35, 40, .45);
+    --overlay-modal: rgba(15, 23, 33, .55);
+    --print-accent: #c9102e;
+    --print-head-bg: #e4e4e4;
+    --print-ink-faint: #888888;
+    --print-ink-muted: #555555;
+    --print-line: #cccccc;
+    --row-current-bg: #cfe3fa;
+    --shadow-menu: rgba(15, 30, 45, .15);
+    --shadow-suggest: rgba(23, 36, 51, .14);
+    --status-bad-bg: #fde2e2;
+    --status-bad-bg-faint: #fff5f5;
+    --status-bad-line: #c17c7c;
+    --status-changed-bg: #fff8d6;
+    --status-error-wash: #fbecec;
+    --status-error-wash-line: #eec4c4;
+    --status-found: #6fd38c;
+    --status-incomplete-bg: #fffbf0;
+    --status-info-ink: #0a5fc2;
+    --status-info-soft: #e6f0fd;
+    --status-invalid-bg: #fdf2f2;
+    --status-ok-ink: #1f7a3a;
+    --status-pill-bg: #e7edf2;
+    --sticker-preview-shadow: #e0516a;
+    --table-head-bg: #f6f9fb;
+    --tile-disabled-bg: #eef0f3;
+    --tile-wip-bg: rgba(244, 247, 250, .75);
+    --topbar-error-bg: rgba(255, 179, 179, .12);
+    --topbar-error-ink: #ffb3b3;
+    --topbar-error-line: rgba(255, 179, 179, .4);
+    --topbar-ready-bg: rgba(186, 240, 207, .12);
+    --topbar-ready-ink: #baf0cf;
+    --topbar-ready-line: rgba(186, 240, 207, .4);
+    --warning-bg: #fff1f1;
+    --white-a08: rgba(255, 255, 255, .08);
+    --white-a25: rgba(255, 255, 255, .25);
+    --white-a30: rgba(255, 255, 255, .3);
+    --white-a55: rgba(255, 255, 255, .55);
+    --white-a80: rgba(255, 255, 255, .8);
+    --white-a93: rgba(255,255,255,.93);
 }

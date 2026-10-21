@@ -55,9 +55,10 @@ if (!accessUnlocked('config')) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Config | Geeve Hydraulics</title>
-    <link rel="icon" href="favicon.ico?v=<?= h(assetVersion('favicon.ico')) ?>" type="image/x-icon">
-    <link rel="stylesheet" href="shared/style.css?v=<?= h(assetVersion('shared/style.css')) ?>">
-    <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
+    <?php
+    $headCss = ['assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    require __DIR__ . '/shared/head.php';
+    ?>
 </head>
 <body>
 <main class="page-shell">
@@ -193,9 +194,10 @@ $storedSettings = secureSettingsRead();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Config | Geeve Hydraulics</title>
-    <link rel="icon" href="favicon.ico?v=<?= h(assetVersion('favicon.ico')) ?>" type="image/x-icon">
-    <link rel="stylesheet" href="shared/style.css?v=<?= h(assetVersion('shared/style.css')) ?>">
-    <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
+    <?php
+    $headCss = ['assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    require __DIR__ . '/shared/head.php';
+    ?>
 </head>
 <body>
 <main class="page-shell">

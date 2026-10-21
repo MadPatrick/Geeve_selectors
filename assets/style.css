@@ -13,8 +13,8 @@
     flex-direction: column;
     gap: 10px;
     align-items: flex-start;
-    background: rgba(255, 255, 255, .8); /* iets transparant, zodat de achtergrond zacht doorschemert */
-    border: 2px solid #fff; /* duidelijke rand rond de tegel */
+    background: var(--white-a80); /* iets transparant, zodat de achtergrond zacht doorschemert */
+    border: 2px solid var(--surface-white); /* duidelijke rand rond de tegel */
     border-radius: 18px;
     box-shadow: var(--shadow);
     padding: 28px 26px;
@@ -36,8 +36,8 @@
 }
 .tile:hover, .tile:focus-visible {
     transform: translateY(-3px);
-    box-shadow: 0 16px 34px rgba(0, 0, 0, .1);
-    border-color: #c7d0d9;
+    box-shadow: 0 16px 34px var(--black-a10);
+    border-color: var(--line-hover);
     outline: none;
 }
 .tile:hover::after, .tile:focus-visible::after { transform: scaleX(1); }
@@ -46,8 +46,8 @@
     width: 52px;
     height: 52px;
     border-radius: 14px;
-    background: #fdeaee;
-    border: 1.5px solid rgba(238, 48, 93, .35); /* lichtrode rand om het icoonkader */
+    background: var(--status-accent-soft);
+    border: 1.5px solid var(--accent-a35); /* lichtrode rand om het icoonkader */
     color: var(--accent-dark);
     display: flex;
     align-items: center;
@@ -65,7 +65,7 @@
     cursor: default;
     pointer-events: none;
 }
-.tile-disabled .tile-icon { background: #eef0f3; color: var(--muted); }
+.tile-disabled .tile-icon { background: var(--tile-disabled-bg); color: var(--muted); }
 .tile-disabled .tile-cta { color: var(--muted); }
 .tile-disabled::after { display: none; }
 
@@ -111,8 +111,8 @@
     max-width: 110px;
     text-align: center;
     letter-spacing: .4em;
-    border: 1px solid #cbd6df;
-    background: #fff;
+    border: 1px solid var(--line-input);
+    background: var(--surface-white);
     color: var(--ink);
     border-radius: 10px;
     min-height: 44px;
@@ -120,7 +120,7 @@
     outline: none;
     transition: border-color .16s, box-shadow .16s;
 }
-.update-code-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(238, 48, 93, .14); }
+.update-code-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-a14); }
 
 .update-submit {
     appearance: none;
@@ -136,8 +136,8 @@
 .update-submit:hover { opacity: .9; }
 
 .update-message { margin-bottom: 16px; padding: 12px 15px; border-radius: 10px; font-size: 13px; font-weight: 600; }
-.update-message.ok { color: #237447; background: #e8f4ed; }
-.update-message.error { color: #a03636; background: #f7eaea; }
+.update-message.ok { color: var(--ok); background: var(--status-ok-soft); }
+.update-message.error { color: var(--danger); background: var(--status-error-soft); }
 
 @media (max-width: 720px) {
     /* .brand-panel/.header-content vallen al bij 980px uit shared op
@@ -156,14 +156,14 @@
 .settings-form .update-code-field input[name="EXACT_DB_PORT"] { width: calc(7ch + 26px); }
 .settings-switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; font-weight: 600; }
 .settings-switch input { position: absolute; opacity: 0; pointer-events: none; }
-.settings-switch-track { position: relative; width: 42px; height: 24px; border-radius: 12px; background: #c7c7c7; transition: background .15s; flex: none; }
-.settings-switch-track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; }
-.settings-switch input:checked + .settings-switch-track { background: #3fa564; }
+.settings-switch-track { position: relative; width: 42px; height: 24px; border-radius: 12px; background: var(--muted-soft); transition: background .15s; flex: none; }
+.settings-switch-track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--surface-white); transition: transform .15s; }
+.settings-switch input:checked + .settings-switch-track { background: var(--ok-bright); }
 .settings-switch input:checked + .settings-switch-track::after { transform: translateX(18px); }
-.settings-switch input:focus-visible + .settings-switch-track { box-shadow: 0 0 0 3px rgba(238, 48, 93, .25); }
+.settings-switch input:focus-visible + .settings-switch-track { box-shadow: 0 0 0 3px var(--accent-a25); }
 
 /* Tegel van een app die nog in ontwikkeling is: lichter, met een schuine tekst. Blijft gewoon klikbaar. */
-.tile--wip { background: rgba(244, 247, 250, .75); border-style: dashed; }
+.tile--wip { background: var(--tile-wip-bg); border-style: dashed; }
 .tile--wip > * { opacity: .5; }
 .tile--wip::before {
     content: "In progress";
@@ -174,7 +174,7 @@
     border: 2px solid var(--accent-dark);
     border-radius: 6px;
     color: var(--accent-dark);
-    background: rgba(255, 255, 255, .55);
+    background: var(--white-a55);
     font-size: 20px;
     font-weight: 800;
     letter-spacing: .08em;
@@ -198,9 +198,9 @@
 .tile-lock svg { width: 100%; height: 100%; }
 
 /* Popup voor de toegangscode van een beveiligde tegel. */
-.lock-modal { position: fixed; inset: 0; z-index: 100; background: rgba(31, 35, 40, .45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.lock-modal { position: fixed; inset: 0; z-index: 100; background: var(--overlay-lock); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .lock-modal[hidden] { display: none; }
-.lock-dialog { background: var(--panel); border-radius: 16px; box-shadow: 0 24px 60px rgba(0, 0, 0, .25); padding: 26px 26px 22px; width: min(360px, 100%); }
+.lock-dialog { background: var(--panel); border-radius: 16px; box-shadow: 0 24px 60px var(--black-a25); padding: 26px 26px 22px; width: min(360px, 100%); }
 .lock-dialog h2 { margin: 0 0 6px; font-size: 19px; }
 .lock-dialog p { margin: 0 0 14px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 .lock-input { width: 100%; box-sizing: border-box; font: inherit; font-size: 20px; letter-spacing: .3em; text-align: center; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 10px; }
@@ -208,8 +208,8 @@
 .lock-error { margin-top: 10px; color: var(--danger); font-size: 13px; font-weight: 700; }
 .lock-error[hidden] { display: none; }
 .lock-actions { display: flex; justify-content: flex-end; gap: var(--btn-gap, 5px); margin-top: 18px; }
-.lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--btn-red-line); background: var(--btn-red); color: var(--btn-ink-light); cursor: pointer; }
-.lock-button--secondary { background: var(--btn-white); color: var(--ink); border-color: var(--btn-white-line); }
+.lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--btn-primary-line); background: var(--btn-primary); color: var(--btn-primary-ink); cursor: pointer; }
+.lock-button--secondary { background: var(--btn-white); color: var(--btn-ink); border-color: var(--btn-white-line); }
 .tile:has(.tile-lock) p { padding-right: 30px; }
 
 /* Config > Tegels: tegels onder elkaar, daarachter per optie een schakelaar. */
@@ -219,7 +219,7 @@
 .tiles-head { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 .tiles-head span:not(:first-child), .tiles-row .tiles-switch { justify-self: center; }
 .tiles-head span:not(:first-child) { text-align: center; }
-.tiles-group { margin-top: 14px; padding: 4px; font-size: 15px; font-weight: 800; border-bottom: 2px solid var(--line-strong, #c9d4de); }
+.tiles-group { margin-top: 14px; padding: 4px; font-size: 15px; font-weight: 800; border-bottom: 2px solid var(--line-strong); }
 .tiles-name { font-size: 14px; font-weight: 650; }
 @media (max-width: 560px) { .tiles-row { grid-template-columns: minmax(120px, 1fr) repeat(3, 64px); gap: 6px; } .tiles-head { font-size: 10px; } }
 
@@ -230,9 +230,9 @@
 .tiles-list { display: flex; flex-direction: column; }
 .tiles-name { display: flex; align-items: center; gap: 8px; }
 .tiles-handle { cursor: grab; color: var(--muted); font-size: 16px; letter-spacing: -2px; line-height: 1; padding: 4px 6px; border-radius: 6px; user-select: none; }
-.tiles-handle:hover { background: rgba(0, 0, 0, .07); color: var(--ink); }
-.tiles-row.is-dragging { opacity: .45; background: rgba(238, 48, 93, .08); }
-.tiles-title { flex: 1 1 auto; min-width: 0; min-height: 34px; padding: 4px 10px; font-size: 14px; font-weight: 650; border: 1px solid var(--line-strong, #c9d4de); border-radius: 8px; background: #fff; }
+.tiles-handle:hover { background: var(--black-a07); color: var(--ink); }
+.tiles-row.is-dragging { opacity: .45; background: var(--accent-a08); }
+.tiles-title { flex: 1 1 auto; min-width: 0; min-height: 34px; padding: 4px 10px; font-size: 14px; font-weight: 650; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-white); }
 .sneeuw-row { align-items: center; gap: 20px; margin-bottom: 8px; }
 .sneeuw-row .settings-switch { gap: 20px; align-items: center; min-width: 270px; }
 .sneeuw-row .settings-switch > span:last-child { line-height: 24px; }

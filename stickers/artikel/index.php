@@ -35,13 +35,11 @@ $csrf = csrfToken();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Artikelnummer | Geeve Hydraulics</title>
-    <link rel="icon" href="<?= h(geeveUrl('favicon.ico')) ?>?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
-    <link rel="stylesheet" href="<?= h(geeveUrl('shared/style.css')) ?>?v=<?= h(assetVersion('../../shared/style.css')) ?>">
     <!-- Knoppen, tabel, invoerveld en meldingen zijn dezelfde als in de rapporten. -->
-    <link rel="stylesheet" href="<?= h(geeveUrl('klantartikel/assets/style.css')) ?>?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
-    <link rel="stylesheet" href="<?= h(geeveUrl('reports/msp/assets/style.css')) ?>?v=<?= h(assetVersion('../../reports/msp/assets/style.css')) ?>">
-    <link rel="stylesheet" href="<?= h(geeveUrl('stickers/assets/art-sticker.css')) ?>?v=<?= h(assetVersion('../assets/art-sticker.css')) ?>">
-    <link rel="stylesheet" href="<?= h(geeveUrl('stickers/assets/artikel-stickers.css')) ?>?v=<?= h(assetVersion('../assets/artikel-stickers.css')) ?>">
+    <?php
+    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/artikel-stickers.css'];   // vanaf de portal-root, in laadvolgorde
+    require __DIR__ . '/../../shared/head.php';
+    ?>
 </head>
 <body>
 <main class="page-shell page-shell--wide">

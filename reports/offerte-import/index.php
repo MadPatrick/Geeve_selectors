@@ -34,13 +34,11 @@ $csrf = csrfToken();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Offerte Import | Geeve Hydraulics</title>
-    <link rel="icon" href="<?= h(geeveUrl('favicon.ico')) ?>?v=<?= h(assetVersion('../../favicon.ico')) ?>" type="image/x-icon">
-    <link rel="stylesheet" href="<?= h(geeveUrl('shared/style.css')) ?>?v=<?= h(assetVersion('../../shared/style.css')) ?>">
-    <link rel="stylesheet" href="<?= h(geeveUrl('assets/style.css')) ?>?v=<?= h(assetVersion('../../assets/style.css')) ?>">
     <!-- Knoppen, tabel, meldingen en de sleepzone zijn dezelfde als in Klant Artikelnummers. -->
-    <link rel="stylesheet" href="<?= h(geeveUrl('klantartikel/assets/style.css')) ?>?v=<?= h(assetVersion('../../klantartikel/assets/style.css')) ?>">
-    <link rel="stylesheet" href="<?= h(geeveUrl('reports/msp/assets/style.css')) ?>?v=<?= h(assetVersion('../msp/assets/style.css')) ?>">
-    <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
+    <?php
+    $headCss = ['assets/style.css', 'klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'reports/offerte-import/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    require __DIR__ . '/../../shared/head.php';
+    ?>
 </head>
 <body>
 <main class="page-shell page-shell--wide">

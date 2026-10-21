@@ -149,8 +149,10 @@ data/backups/<app>/ automatische back-up bij elke upload of bewerking
   Alleen `data/.htaccess` staat in git; die sluit de map af voor de browser.
 - **Voor alle apps:** elke app kan elk bestand lezen via `shared/paths.php`. Slangkaart printen
   (krimpmaten) en de configurator lezen de slangen-CSV van `hoses`.
-- **Terugval:** staat een bestand nog niet in `data/`, dan lezen de apps de oude plek
-  (`hoses/data/` e.d.), zoals voorheen.
+- **Geen terugval meer:** `hoses`, `adapters` en `configurator` lezen alleen nog uit `data/<app>/`
+  (de oude plekken `hoses/data/` e.d. zijn uit de code gehaald, oktober 2026). Ontbreekt een bestand,
+  vul `data/` dan uit een back-up of via de uploadknop. Slangkaart printen heeft nog een terugval naar
+  `hoses/data/`.
 - **Downloaden en uploaden** gaat via de knoppen in de app (bijv. "Gegevens" in de Slangen fitting
   Selector), niet via een adres.
 - **Geschiedenis:** omdat de CSV's niet in git staan, is `data/backups/` de geschiedenis. Een
@@ -176,6 +178,9 @@ Alle apps delen dezelfde huisstijl:
 
 Een nieuwe app bouwen: volg [`shared/README.md`](shared/README.md), de stap-voor-stap gids en
 checklist. Afspraken over knoppen, tabellen en versienummer staan in [`CLAUDE.md`](CLAUDE.md).
+
+**Hergebruik door een andere app** (printen, centrale CSV's, layout/CSS, valkuilen):
+[`docs/HERGEBRUIK-SHARED.md`](docs/HERGEBRUIK-SHARED.md).
 
 ---
 

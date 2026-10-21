@@ -105,10 +105,10 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Kortingstructuur | Geeve Hydraulics</title>
-    <link rel="icon" href="../favicon.ico?v=<?= h(assetVersion('../favicon.ico')) ?>" type="image/x-icon">
-    <link rel="stylesheet" href="../shared/style.css?v=<?= h(assetVersion('../shared/style.css')) ?>">
-    <link rel="stylesheet" href="../klantartikel/assets/style.css?v=<?= h(assetVersion('../klantartikel/assets/style.css')) ?>">
-    <link rel="stylesheet" href="assets/style.css?v=<?= h(assetVersion('assets/style.css')) ?>">
+    <?php
+    $headCss = ['klantartikel/assets/style.css', 'klantkorting/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    require __DIR__ . '/../shared/head.php';
+    ?>
 </head>
 <body>
 <main class="page-shell page-shell--wide">
@@ -214,7 +214,7 @@ try {
                 </table></div>
                 <?php if ($lines === []): ?><p class="ka-empty" id="kkEmpty">Nog geen kortingsregels op deze prijslijst - voeg er een toe met +.</p><?php endif; ?>
             </form>
-            <script src="../klantartikel/assets/vendor/xlsx.core.min.js"></script>
+            <script src="<?= h(geeveUrl('klantartikel/assets/vendor/xlsx.core.min.js')) ?>"></script>
             <script src="assets/klantkorting.js?v=<?= h(assetVersion('assets/klantkorting.js')) ?>"></script>
             <?php endif; ?>
         </section>
@@ -224,6 +224,6 @@ try {
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
-<script src="../klantartikel/assets/pricelist-search.js?v=<?= h(assetVersion('../klantartikel/assets/pricelist-search.js')) ?>"></script>
+<script src="<?= h(geeveUrl('klantartikel/assets/pricelist-search.js')) ?>?v=<?= h(assetVersion('../klantartikel/assets/pricelist-search.js')) ?>"></script>
 </body>
 </html>

@@ -4,43 +4,43 @@
 .ka-button {
     min-height: 44px; padding: 0 20px; border-radius: 999px; font: inherit; font-weight: 750; font-size: 13px;
     cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
-    color: var(--btn-ink-light); background: var(--btn-red); border: 1px solid var(--btn-red-line); /* iets transparant */
+    color: var(--btn-primary-ink); background: var(--btn-primary); border: 1px solid var(--btn-primary-line); /* iets transparant */
 }
 /* "Gegevens ophalen" in de rapporten: groen, zoals de andere groene knoppen (donkergroene rand). */
-#rpFetch, #eiFetch, #mspFetch { background: var(--btn-green, #c6efd2); border-color: var(--ok-line, #14532d); color: var(--ok-ink, #0f3d22); }
+#rpFetch, #eiFetch, #mspFetch { background: var(--btn-green); border-color: var(--btn-green-line); color: var(--btn-green-ink); }
 /* Tweede-keuzeknoppen (Download Excel, template, Regel toevoegen, ...): grijs (#D0D1CC), zoals de niet-gekozen keuzeschakelaar. */
-.ka-button--secondary, #eiExport { color: var(--ink, #1d2630); background: var(--btn-grey); border-color: var(--btn-grey-line); }
+.ka-button--secondary, #eiExport { color: var(--btn-secondary-ink); background: var(--btn-secondary); border-color: var(--btn-secondary-line); }
 .ka-button:hover { opacity: .9; }
 .panel h2 small { color: var(--muted); font-weight: 600; }
 .ka-table-wrap { overflow-x: auto; }
 .ka-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.ka-table th, .ka-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3e9ee; white-space: nowrap; }
+.ka-table th, .ka-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line-table-row); white-space: nowrap; }
 /* Compacte regels (zelfde regelafstand als de offerte-import): weinig verticale celpadding en lagere invoervelden. */
 .ka-table td { padding-top: 3px; padding-bottom: 3px; }
 .ka-table .ka-input { min-height: 28px; padding-top: 2px; padding-bottom: 2px; }
 .ka-table td:nth-child(2) { white-space: normal; }
-.ka-table th { font-weight: 750; background: var(--soft, #f4f7fa); }
+.ka-table th { font-weight: 750; background: var(--soft); }
 .ka-empty { color: var(--muted); font-size: 13px; }
 .ka-message { padding: 12px 15px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
-.ka-message--error { color: #a03636; background: #f7eaea; }
+.ka-message--error { color: var(--danger); background: var(--status-error-soft); }
 
 .ka-chips { display: flex; flex-wrap: wrap; gap: var(--btn-gap); }
 .ka-chip {
     display: inline-flex; gap: 6px; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px;
-    font-size: 13px; border: 1px solid var(--accent-line, #f47896); color: var(--ink);
+    font-size: 13px; border: 1px solid var(--accent-line); color: var(--ink);
 }
 .ka-heading { display: flex; justify-content: space-between; align-items: center; gap: var(--btn-gap); flex-wrap: wrap; }
 .ka-heading h2 { margin: 0; }
-.ka-input { width: 100%; min-width: 14ch; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid #cbd6df; border-radius: 8px; font: inherit; font-size: 13px; background: #fff; }
-.ka-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(238, 48, 93, .14); }
+.ka-input { width: 100%; min-width: 14ch; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid var(--line-input); border-radius: 8px; font: inherit; font-size: 13px; background: var(--surface-white); }
+.ka-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-a14); }
 .ka-desc { white-space: normal; min-width: 20ch; }
-.ka-table tr.is-found .ka-item { border-color: #6fd38c; }
-.ka-table tr.is-missing .ka-item { border-color: #f0819f; background: #fdf1f4; }
-.ka-table tr.is-missing .ka-desc { color: #a03636; font-weight: 600; }
+.ka-table tr.is-found .ka-item { border-color: var(--status-found); }
+.ka-table tr.is-missing .ka-item { border-color: var(--missing-line); background: var(--missing-bg); }
+.ka-table tr.is-missing .ka-desc { color: var(--danger); font-weight: 600; }
 .ka-table tr.is-checking .ka-desc { color: var(--muted); font-style: italic; }
-.ka-remove { border: 1px solid #cbd6df; background: transparent; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; }
+.ka-remove { border: 1px solid var(--line-input); background: transparent; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; }
 .ka-remove:hover { color: var(--accent); border-color: var(--accent-line); }
-.ka-add { margin-top: 12px; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; line-height: 1; cursor: pointer; color: #fff; background: #3fa564; border: 1px solid #6fd38c; }
+.ka-add { margin-top: 12px; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; line-height: 1; cursor: pointer; color: var(--btn-ink-light); background: var(--btn-add); border: 1px solid var(--btn-add-line); }
 .ka-add:hover { opacity: .9; }
 .ka-filter-row th { background: transparent; padding-bottom: 4px; border-bottom: 0; }
 .ka-table tr[hidden] { display: none; }
@@ -59,22 +59,22 @@
 .ka-pager button:disabled { opacity: .4; cursor: default; }
 .ka-pager[hidden] { display: none; }
 
-.ka-drop { margin: 12px 0; padding: 18px; border: 2px dashed var(--accent-line, #f47896); border-radius: 12px; text-align: center; font-size: 13px; color: var(--muted); cursor: pointer; }
+.ka-drop { margin: 12px 0; padding: 18px; border: 2px dashed var(--accent-line); border-radius: 12px; text-align: center; font-size: 13px; color: var(--muted); cursor: pointer; }
 /* Het importvak staat naast de knoppen (in .ka-actions) en neemt de rest van de rij; op een smal scherm komt het eronder. */
 .ka-actions:has(> .ka-drop) { flex-wrap: wrap; }
 .ka-actions > .ka-drop { flex: 1 1 320px; margin: 0; padding: 10px 14px; }
-.ka-drop:hover, .ka-drop:focus-visible, .ka-drop.is-over { background: var(--soft, #f4f7fa); border-color: var(--accent); outline: none; }
-.ka-message--ok { color: #237447; background: #e8f4ed; }
+.ka-drop:hover, .ka-drop:focus-visible, .ka-drop.is-over { background: var(--soft); border-color: var(--accent); outline: none; }
+.ka-message--ok { color: var(--ok); background: var(--status-ok-soft); }
 
 /* Veld Prijslijst (ook gebruikt door Kortingstructuur): zoeken op nummer of naam, met een lijst suggesties eronder (zie pricelist-search.js). */
 .pl-field { position: relative; }
 .ka-form .pl-field input { width: calc(36ch + 26px); }
 .pl-hits {
     position: absolute; top: 100%; left: 0; right: 0; z-index: 20; margin: 4px 0 0; padding: 4px 0; list-style: none;
-    background: #fff; border: 1px solid var(--line-strong, #c9d4de); border-radius: 10px; box-shadow: var(--shadow);
+    background: var(--surface-white); border: 1px solid var(--line-strong); border-radius: 10px; box-shadow: var(--shadow);
     max-height: 360px; overflow-y: auto; font-size: 13px; font-weight: 400;
 }
 .pl-hits[hidden] { display: none; }
 .pl-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pl-hits li strong { display: inline-block; min-width: 6ch; }
-.pl-hits li:hover, .pl-hits li.is-active { background: #fde6ec; }
+.pl-hits li:hover, .pl-hits li.is-active { background: var(--hover-accent); }

@@ -9,7 +9,7 @@
 .ac-fields .ka-input { width: 100%; }
 
 .ac-preview { zoom: 1.8; }
-.ac-preview .accu { box-shadow: 0 0 0 1px #e0516a; border-radius: 1.5mm; background: #fff; }
+.ac-preview .accu { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1.5mm; background: var(--surface-white); }
 .ac-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
 .ac-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
 .ac-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
@@ -19,7 +19,7 @@
     width: 80mm;
     height: 30mm;
     overflow: hidden;
-    color: #000;
+    color: var(--ink-black);
     font-family: Arial, Helvetica, sans-serif;
     font-weight: 700;
     line-height: 1;
@@ -41,7 +41,7 @@
 @page { size: 80mm 30mm; margin: 0; }
 
 @media print {
-    html, body { background: #fff !important; margin: 0; padding: 0; }
+    html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }
     body > *:not(.ac-printsheet) { display: none !important; }
     .ac-printsheet { display: block; }
     .ac-printsheet .accu { break-after: page; page-break-after: always; }

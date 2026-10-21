@@ -2,38 +2,38 @@
 .oi-fields .oi-wide { grid-column: span 2; }
 .oi-fields input { width: 100%; box-sizing: border-box; text-align: left; direction: ltr; }
 .oi-check { min-height: 1.2em; font-size: 12px; font-weight: 600; color: var(--muted); }
-.oi-check.is-ok { color: var(--ok, #237447); }
-.oi-check.is-bad { color: var(--danger, #a03636); }
-#oiTable tr.is-missing td { background: #fde2e2; color: #a03636; font-weight: 600; }
-#oiTable tr.is-incomplete td { background: #fff3d6; color: #8a5a00; }
+.oi-check.is-ok { color: var(--ok); }
+.oi-check.is-bad { color: var(--danger); }
+#oiTable tr.is-missing td { background: var(--status-bad-bg); color: var(--danger); font-weight: 600; }
+#oiTable tr.is-incomplete td { background: var(--status-warn-soft); color: var(--status-warn-ink); }
 #oiTable tr.is-text td { color: var(--muted); font-style: italic; }
 #oiTable td.oi-desc { white-space: normal; min-width: 18ch; }
 #oiTable th.oi-min, #oiTable td.oi-min { text-align: center; width: 1%; white-space: normal; min-width: 16ch; max-width: 16ch; padding-left: 8px; padding-right: 8px; }
 #oiTable tr.is-minorder td.oi-min { font-weight: 700; }
 #oiTable th:nth-child(2), #oiTable td:nth-child(2) { text-align: center; }
-#oiTable input.oi-qty { width: 9ch; box-sizing: border-box; text-align: center; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong, #c9d4de); border-radius: 8px; background: #fff; color: var(--ink); font-weight: 400; }
+#oiTable input.oi-qty { width: 9ch; box-sizing: border-box; text-align: center; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-white); color: var(--ink); font-weight: 400; }
 #oiTable tr.is-empty td { color: var(--muted); font-style: italic; }
-.oi-del { border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 8px; border-radius: 6px; }
-.oi-del:hover { color: var(--danger, #a03636); background: #fde6ec; }
-#oiTable input.oi-code { width: 100%; min-width: 16ch; box-sizing: border-box; text-transform: uppercase; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong, #c9d4de); border-radius: 8px; background: #fff; }
-#oiTable input.oi-sup { width: 100%; min-width: 16ch; box-sizing: border-box; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong, #c9d4de); border-radius: 8px; background: #fff; }
-#oiTable tr.is-missing input.oi-code { border: 1px solid #c17c7c; background: #fff5f5; color: #a03636; font-weight: 700; }
-#oiTable tr.is-incomplete input.oi-code { border: 1px solid #e0b04a; background: #fffbf0; }
+.oi-del { border: 0; background: transparent; color: var(--btn-ink-quiet); font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 8px; border-radius: 6px; }
+.oi-del:hover { color: var(--btn-ink-danger); background: var(--btn-del-hover); }
+#oiTable input.oi-code { width: 100%; min-width: 16ch; box-sizing: border-box; text-transform: uppercase; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-white); }
+#oiTable input.oi-sup { width: 100%; min-width: 16ch; box-sizing: border-box; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-white); }
+#oiTable tr.is-missing input.oi-code { border: 1px solid var(--status-bad-line); background: var(--status-bad-bg-faint); color: var(--danger); font-weight: 700; }
+#oiTable tr.is-incomplete input.oi-code { border: 1px solid var(--status-warn); background: var(--status-incomplete-bg); }
 @media (max-width: 640px) { .oi-fields .oi-wide { grid-column: auto; } }
-.oi-pill-bad { border-color: #c17c7c; background: #fde2e2; color: #a03636; }
-.oi-pill-warn { border-color: #e0b04a; background: #fff3d6; color: #8a5a00; }
-.oi-problems { color: #8a5a00; background: #fff3d6; }
+.oi-pill-bad { border-color: var(--status-bad-line); background: var(--status-bad-bg); color: var(--danger); }
+.oi-pill-warn { border-color: var(--status-warn); background: var(--status-warn-soft); color: var(--status-warn-ink); }
+.oi-problems { color: var(--status-warn-ink); background: var(--status-warn-soft); }
 #oiTable th:first-child, #oiTable td:first-child { width: 1%; padding-left: 8px; padding-right: 8px; text-align: center; }
 #oiTable th:last-child, #oiTable td:last-child { width: 1%; padding-left: 4px; padding-right: 4px; }
 #oiExport:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(.5); }
 /* Alles ingevuld en gecontroleerd: de Exporteer-knop is groen. */
-#oiExport:not(:disabled) { background: var(--btn-green, #c6efd2); border-color: var(--ok-line, #14532d); color: var(--ok-ink, #0f3d22); }
+#oiExport:not(:disabled) { background: var(--btn-green); border-color: var(--btn-green-line); color: var(--btn-green-ink); }
 #oiExport:not(:disabled):hover { opacity: 1; filter: brightness(1.1); }
-.oi-suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; margin: 2px 0 0; padding: 4px 0; list-style: none; background: var(--surface, #fff); border: 1px solid var(--border, #cfd6dd); border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.15); max-height: 280px; overflow-y: auto; }
+.oi-suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; margin: 2px 0 0; padding: 4px 0; list-style: none; background: var(--surface, var(--surface-white)); border: 1px solid var(--line-suggest); border-radius: 8px; box-shadow: 0 6px 18px var(--black-a15); max-height: 280px; overflow-y: auto; }
 .oi-suggest li { padding: 6px 10px; cursor: pointer; font-size: 13px; font-weight: 400; }
-.oi-suggest li:hover, .oi-suggest li.is-active { background: rgba(0,0,0,.07); }
-#oiTable tr.is-minorder td { background: #fff3d6; color: #8a5a00; }
-#oiTable tr.is-minorder input.oi-qty { border: 1px solid #e0b04a; background: #fffbf0; font-weight: 700; }
+.oi-suggest li:hover, .oi-suggest li.is-active { background: var(--black-a07); }
+#oiTable tr.is-minorder td { background: var(--status-warn-soft); color: var(--status-warn-ink); }
+#oiTable tr.is-minorder input.oi-qty { border: 1px solid var(--status-warn); background: var(--status-incomplete-bg); font-weight: 700; }
 .oi-suggest li.is-note { color: var(--muted); cursor: default; font-style: italic; }
 .oi-suggest li.is-note:hover { background: transparent; }
 /* Compacte regels: celpadding staat op .ka-table; hier alleen de eigen invoervelden. */

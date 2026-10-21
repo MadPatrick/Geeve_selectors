@@ -1,5 +1,25 @@
 # Werkafspraken voor Claude in deze repo
 
+## Voorwaarde voor elke nieuwe app: altijd de gedeelde onderdelen gebruiken
+
+Elke app draait **altijd op deze Geeve-server**, naast de portal. Daarom is dit een **voorwaarde, zonder dat Patrick het
+apart hoeft te vragen**: een nieuwe app houdt vanaf de eerste regel rekening met de gedeelde settings, lay-out/CSS,
+centrale CSV-map en printfunctie. Er wordt niets vanzelf geladen; de app moet dit zelf inladen/registreren:
+
+- **Lay-out en CSS:** `shared/head.php` (met `shared/style.css` en `shared/tokens.css`) en `shared/header.php`; voor
+  slangkaarten ook `shared/slangkaart.css`. Geen eigen kleuren, header of knopstijlen.
+- **Versienummer:** `version.php` (root) via `APP_VERSION`.
+- **Data (CSV's):** alleen via `shared/paths.php` in `data/<app>/`, niet in git.
+- **Settings en toegang:** database-inloggegevens via `secureSettingsRead()` (`shared/secure_settings.php`), nooit eigen
+  bestanden; tegel en toegangscode via `TILE_REGISTRY` (`shared/tiles.php`), `tileApiGuard()`/`accessApiGuard()`.
+- **Printen:** `shared/printen.php` (`geevePrinters()`, `geevePrintHtml()`), geen eigen printkoppeling of eigen
+  printerlijst; inlog alleen via `/etc/geeve/smbprint.cred`.
+- **Adressen en registratie:** `geeveUrl()`/`geeveAppUrl()`, en `TILE_REGISTRY` + `GEEVE_APP_URLS` bijwerken.
+- Server-eisen: geen `mb_*`, `AllowOverride All` voor de portalmap.
+
+Volg [`docs/HERGEBRUIK-SHARED.md`](docs/HERGEBRUIK-SHARED.md) (inladen, voorbeeld, printen, data, valkuilen, checklist).
+Wijk alleen af na overleg met Patrick.
+
 ## Nieuwe (sub)app toevoegen - gedeelde layout is de standaard
 
 Elke nieuwe app in deze portal gebruikt **standaard, zonder dit te hoeven vragen**, de gedeelde
@@ -14,6 +34,12 @@ nieuwe app, ook als er niet expliciet naar gevraagd wordt.
 Wat wél per app hoort (zie `shared/README.md`, "Wat hoort in je eigen `assets/style.css`"): eigen
 secties/kaarten, stappenindicatoren, statuspillen e.d. - dat blijft bewust ongedeeld, ook al lijkt
 het oppervlakkig op wat een andere app heeft.
+
+## Hergebruik van `shared/` door een andere app
+
+Wil een (losstaande) app de printfunctie, de centrale CSV's of de gedeelde layout/CSS gebruiken, volg dan
+[`docs/HERGEBRUIK-SHARED.md`](docs/HERGEBRUIK-SHARED.md): inladen, minimaal voorbeeld, printen, data lezen, vereisten en
+valkuilen. Zet daar nooit wachtwoorden in.
 
 ## Data, adressen en CSS-variabelen (standaard)
 
@@ -39,6 +65,10 @@ verticale padding). Geef nieuwe tabellen dus geen eigen, ruimere celpadding of h
 eigen tabelregels per app (kolombreedtes, statuskleuren) mogen wel, de regelafstand blijft gelijk.
 
 ## Knoppen: alle kleuren uit variabelen (standaard)
+
+**Per knopsoort staan vaste variabelen in [`docs/KNOPPEN.md`](docs/KNOPPEN.md)** (Print = `--btn-print*`, PDF = `--btn-pdf*`,
+Hoofdactie = `--btn-primary*`, Tweede keuze = `--btn-secondary*`, Groen = `--btn-green*`, ...). Kies voor een nieuwe knop een
+soort uit die tabel en draai daarna `php tools/check-knoppen.php`.
 
 - **Elke knopkleur komt uit een `--btn-*`-variabele** in `shared/style.css` (`:root`): achtergrond, rand, hover en
   tekst/icoon. Geen losse hex-/rgba-waarden of `--accent-dark`/`--ok-fill` in knopregels; een nieuwe kleur = eerst een

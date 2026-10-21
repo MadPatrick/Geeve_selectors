@@ -312,10 +312,10 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
     min-width: 120px;
     min-height: 44px;
     padding: 0 20px;
-    border: 1px solid var(--ok-soft-line);
+    border: 1px solid var(--btn-print-line);
     border-radius: 999px;
-    background: var(--btn-green);
-    color: var(--ok-ink);
+    background: var(--btn-print);
+    color: var(--btn-print-ink);
     font: inherit;
     font-size: 13px;
     font-weight: 750;
@@ -323,7 +323,7 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
     cursor: pointer;
     transition: background .15s;
 }
-.print-btn:hover { background: var(--btn-green-hover); }
+.print-btn:hover { background: var(--btn-print-hover); }
 .print-btn:disabled { opacity: .5; cursor: default; }
 .print-btn > svg { position: relative; z-index: 1; width: 18px; height: 18px; flex: none; }
 
