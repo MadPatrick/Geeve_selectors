@@ -404,7 +404,6 @@
         button.addEventListener('click', () => {
             if (button.dataset.druk === drukklasse) return;
             setDrukklasse(button.dataset.druk);
-            try { localStorage.setItem('adapters.drukklasse', drukklasse); } catch (e) { /* geen opslag: niet erg */ }
             render();
         });
     });
@@ -479,8 +478,6 @@
         render();
     });
 
-    let startDruk = 'hoog';
-    try { startDruk = localStorage.getItem('adapters.drukklasse') === 'laag' ? 'laag' : 'hoog'; } catch (e) { /* geen opslag */ }
-    setDrukklasse(startDruk);
+    setDrukklasse('hoog');
     render();
 })();
