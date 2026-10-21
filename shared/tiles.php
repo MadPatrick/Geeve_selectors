@@ -45,6 +45,7 @@ const TILE_REGISTRY = [
     'stickers-artikel-groot' => ['stickers', "Accu's", 'stickers/accu/index.php', true, false, true],
     'stickers-kabelmerkers' => ['stickers', 'Kabelmerkers Geel', '', true, false, true],
     'stickers-slanglabels' => ['stickers', 'Slanglabels', 'stickers/slanglabels/index.php', true, false, true],
+    'stickers-ptouch' => ['stickers', 'P-Touch', 'stickers/ptouch/index.php', true, false, true],
 ];
 
 /** @return array<string,array{visible:bool,locked:bool,wip:bool,title:string}> */

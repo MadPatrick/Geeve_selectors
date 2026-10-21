@@ -135,6 +135,21 @@ $csrf = csrfToken();
             <?= tileLockIcon('stickers-slanglabels') ?>
         </a>
         <?php endif; $tileHtml['stickers-slanglabels'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('stickers-ptouch')): ?>
+        <a class="<?= tileClass('stickers-ptouch') ?>" href="<?= h(geeveAppUrl('stickers-ptouch')) ?>"<?= tileAttrs('stickers-ptouch') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 7V5h16v2"></path>
+                    <path d="M12 5v14"></path>
+                    <path d="M9 19h6"></path>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('stickers-ptouch')) ?></h2>
+            <p>Zelf getypte tekst op een sticker, de letter schaalt mee.</p>
+            <span class="tile-cta">Openen</span>
+            <?= tileLockIcon('stickers-ptouch') ?>
+        </a>
+        <?php endif; $tileHtml['stickers-ptouch'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('stickers') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 

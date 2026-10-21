@@ -39,6 +39,7 @@ const GEEVE_PRINT_TILES = [
     'stickers-artikel' => 'Artikelnummer',
     'stickers-artikel-groot' => "Accu's",
     'stickers-slanglabels' => 'Slanglabels',
+    'stickers-ptouch' => 'P-Touch',
 ];
 
 /** Soort printer per tegel: 'a4' (gewone printer, PCL) of 'label' (labelprinter: TSPL of Brother QL). Standaard 'a4'. */
@@ -48,6 +49,7 @@ const GEEVE_PRINT_TILE_SOORT = [
     'stickers-artikel' => 'label',
     'stickers-artikel-groot' => 'label',
     'stickers-slanglabels' => 'label',
+    'stickers-ptouch' => 'label',
 ];
 
 /**
@@ -60,6 +62,7 @@ const GEEVE_PRINT_TILE_PAGE = [
     'stickers-artikel-groot' => ['sheet' => 'acPrintSheet', 'class' => 'ac-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/accu.css']],
     'stickers-artikel' => ['sheet' => 'saPrintSheet', 'class' => 'sa-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/artikel-stickers.css']],
     'stickers-productie' => ['sheet' => 'psPrintSheet', 'class' => 'ps-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/productie-stickers.css']],
+    'stickers-ptouch' => ['sheet' => 'ptPrintSheet', 'class' => 'pt-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/ptouch.css']],
     'stickers-order' => ['sheet' => 'soSheet', 'class' => 'so-preview', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css']],
 ];
 
@@ -73,7 +76,7 @@ const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 27,
  * Sheet-classes van tegels waarvan de labels als één opdracht gaan en de printer pas na het laatste label snijdt
  * (niet na elk label).
  */
-const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet', 'ac-printsheet'];
+const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet', 'ac-printsheet', 'pt-printsheet'];
 
 /** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
 const GEEVE_TSPL_ZWART_IS_NUL = true;
