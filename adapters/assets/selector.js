@@ -254,19 +254,10 @@
         imgTd.className = 'result-table-image-col';
         if (familieCode) {
             const img = document.createElement('img');
-            // images/<familie_code>.png; 3000LBS-/150LBS-familie: anders die van de basisfamilie.
-            const basis = familieCode.replace(/^(?:3000|150)LBS-/, '');
-            const kandidaten = [`${familieCode}.png`];
-            if (basis !== familieCode) kandidaten.push(`${basis}.png`);
-            let nr = 0;
-            img.src = `images/${kandidaten[nr]}`;
+            img.src = `images/${familieCode}.png`;
             img.alt = familieNaam || familieCode;
             img.loading = 'lazy';
-            img.addEventListener('error', () => {
-                nr += 1;
-                if (nr < kandidaten.length) img.src = `images/${kandidaten[nr]}`;
-                else imgTd.replaceChildren();
-            });
+            img.addEventListener('error', () => { imgTd.replaceChildren(); }, { once: true });
             imgTd.appendChild(img);
         }
         return imgTd;
@@ -292,7 +283,8 @@
             // Artikelen zonder familie_code/familie_naam (nog niet in een
             // familie ondergebracht) mogen niet allemaal in één groep vallen
             // - elk zo'n artikel krijgt zijn eigen groep, op artnr.
-            const key = a.familieCode || a.familieNaam || `artnr:${a.artnr}`;
+            // Zelfde familiecode met een andere naam (bv. "Plug" en "Plug 3000LBS") blijft een aparte groep.
+            const key = a.familieCode ? `${a.familieCode}|${a.familieNaam}` : (a.familieNaam || `artnr:${a.artnr}`);
             if (!groups.has(key)) {
                 groups.set(key, {
                     familieCode: a.familieCode,
