@@ -69,6 +69,12 @@ const GEEVE_LABEL_DRAAI = ['sl-printsheet' => 'cw'];
 /** Medium en afdrukinstellingen van de Windows-driver (RTMLBSlanglabels01), per sheet-class: mm, mm/s als TSPL-SPEED (inch/s), zwarting 0-15. */
 const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 27, 'snelheid' => 2, 'zwarting' => 7]];
 
+/**
+ * Sheet-classes van tegels waarvan de labels als één opdracht gaan en de printer pas na het laatste label snijdt
+ * (niet na elk label).
+ */
+const GEEVE_LABEL_SNIJD_EINDE = ['so-preview'];
+
 /** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
 const GEEVE_TSPL_ZWART_IS_NUL = true;
 
@@ -396,7 +402,7 @@ const GEEVE_BROTHER_QL_LABEL = ['maat' => '102x51', 'breedte' => 1164, 'hoogte' 
  * printbare vlak van een 102 x 51 mm-label; de pagina wordt passend verkleind en gecentreerd), brother_ql zet die om
  * in QL-rasteropdrachten en die gaan kaal (raw) naar de share.
  */
-function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, string $title, string $workDir): string
+function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, string $title, string $workDir, bool $snijdEinde = false): string
 {
     $python = GEEVE_BROTHER_QL_DIR . '/bin/python3';
     $create = GEEVE_BROTHER_QL_DIR . '/bin/brother_ql_create';
@@ -427,7 +433,8 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
         if ($fit['code'] !== 0) {
             throw new RuntimeException('Het label kon niet worden klaargemaakt: ' . geeveLastLine($fit['err']));
         }
-        $make = geeveRun([$create, '--model', (string) ($printer['model'] ?? 'QL-1100'), '--label-size', $dots['maat'], $png, $out], 30);
+        $knip = $snijdEinde && $i < count($pages) - 1 ? '--no-cut' : '--cut';
+        $make = geeveRun([$create, '--model', (string) ($printer['model'] ?? 'QL-1100'), '--label-size', $dots['maat'], $knip, $png, $out], 30);
         if ($make['code'] !== 0 || !is_file($out)) {
             throw new RuntimeException('brother_ql kon het label niet omzetten: ' . geeveLastLine($make['err'] . $make['out']));
         }
@@ -458,7 +465,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
     try {
         $pdfFile = geeveRenderPdf($bodyHtml, $cssFiles, $title, $workDir, null, $sheetClass);
         if (($printer['taal'] ?? '') === 'brother') {
-            return geeveBrotherPrint($pdfFile, $printer, $queue, $title, $workDir);
+            return geeveBrotherPrint($pdfFile, $printer, $queue, $title, $workDir, in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true));
         }
         $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', (string) $dpi, $pdfFile, $workDir . '/pagina'], 60);
         $pages = glob($workDir . '/pagina-*.pbm') ?: [];
@@ -467,8 +474,11 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
             throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
         }
         $tspl = '';
-        foreach ($pages as $page) {
-            $tspl .= geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? []);
+        $snijdEinde = in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true);
+        foreach ($pages as $i => $page) {
+            // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste.
+            $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\n") : '';
+            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? []);
         }
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
