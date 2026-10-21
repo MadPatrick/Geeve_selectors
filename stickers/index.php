@@ -145,7 +145,7 @@ $csrf = csrfToken();
                 </svg>
             </div>
             <h2><?= h(tileTitle('stickers-ptouch')) ?></h2>
-            <p>Zelf getypte tekst op een sticker, de letter schaalt mee.</p>
+            <p>Zelf getypte tekst op een sticker, de letter vult de sticker.</p>
             <span class="tile-cta">Openen</span>
             <?= tileLockIcon('stickers-ptouch') ?>
         </a>

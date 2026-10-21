@@ -6,9 +6,9 @@
 
     var align = 'left';
     var alignBox = document.getElementById('ptAlign');
-    var START_PX = 40 * 96 / 72; // standaard lettergrootte: 40 pt (zoals in labelprogramma's), is 53,3 px
+    var MAX_PX = 400;  // bovengrens van de zoekruimte; de sticker zelf begrenst eerder
     var MIN_PX = 6;    // kleiner dan dit schalen we niet; wat dan nog niet past wordt afgeknipt
-    var STEP_PX = 0.5;
+    var SAFETY = 0.97; // 3% marge tegen een iets breder lettertype op de printserver
 
     function esc(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -19,15 +19,24 @@
         return text.innerText.replace(/\r/g, '').replace(/\n+$/, '');
     }
 
-    // Begint op 40 px en zet de letter in stapjes kleiner tot alles op de sticker past (.pt-text heeft max-height 100%,
-    // dus scrollHeight > clientHeight betekent: de tekst is hoger dan het vak). Geeft de gekozen grootte (px).
-    function fit(textEl) {
-        var size = START_PX;
+    // Zoekt de grootste letter waarbij alle regels op de sticker passen: één regel wordt zo groot dat hij de hele sticker vult,
+    // meer regels geven vanzelf een kleinere letter. Regels breken niet af (elke getypte regel blijft één regel). .pt-text heeft
+    // max-height 100%, dus scrollHeight > clientHeight betekent: te hoog; scrollWidth > clientWidth: te breed.
+    // Geeft de gekozen grootte (px) terug, met een kleine marge omdat het lettertype op de printserver iets kan afwijken.
+    function fits(textEl, size) {
         textEl.style.fontSize = size + 'px';
-        while (size > MIN_PX && (textEl.scrollHeight > textEl.clientHeight + 1 || textEl.scrollWidth > textEl.clientWidth + 1)) {
-            size -= STEP_PX;
-            textEl.style.fontSize = size + 'px';
+        return textEl.scrollHeight <= textEl.clientHeight + 1 && textEl.scrollWidth <= textEl.clientWidth + 1;
+    }
+    function fit(textEl) {
+        var lo = MIN_PX, hi = MAX_PX;
+        if (fits(textEl, hi)) { lo = hi; } else {
+            while (hi - lo > 0.25) {
+                var mid = (lo + hi) / 2;
+                if (fits(textEl, mid)) { lo = mid; } else { hi = mid; }
+            }
         }
+        var size = Math.max(MIN_PX, lo * SAFETY);
+        textEl.style.fontSize = size + 'px';
         return size;
     }
 
