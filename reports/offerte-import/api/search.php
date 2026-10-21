@@ -23,6 +23,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !csrfValid($_POST['csrf'] ?
     echo json_encode(['ok' => false, 'error' => 'Ongeldig verzoek (sessie verlopen). Laad de pagina opnieuw.']);
     exit;
 }
+// Sessie vrijgeven, zodat een zoekopdracht (of de controle in validate.php) de rest van de portal niet blokkeert.
+session_write_close();
 
 /** Hoe lang de lijst debiteuren/crediteuren/medewerkers uit Exact bewaard blijft (zie searchCandidates()). */
 const SEARCH_CACHE_SECONDS = 600;
