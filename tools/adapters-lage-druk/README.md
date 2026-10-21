@@ -20,7 +20,7 @@ Terugzetten: de back-up terugkopiëren naar `data/adapters/artikelnummers_adapte
 |---|---|
 | Artcode | `artnr` |
 | ArtOmschrijving | `omschrijving` (ongewijzigd) |
-| (afgeleid uit artikelcode + omschrijving) | `familie_code` (serie, bv. `270`, `90`; bij 3000LBS-/150LBS-artikelen staat de klasse achter de naam, bv. "Plug 3000LBS"), `familie_naam`, `hoek`, `draadsoort_1/2`, `draadmaat_1/2`, `connectie_type_1/2` |
+| (afgeleid uit artikelcode + omschrijving) | `familie_code` (serie, bv. `270`, `90`), `familie_naam`, `hoek`, `draadsoort_1/2`, `draadmaat_1/2`, `connectie_type_1/2` |
 | - | `drukklasse` = `laag` |
 | AG (32), Credcode, ArtcodeLev | niet overgenomen (geen kolom voor; ArtcodeLev is een leverancierscode, geen Parker-kruisverwijzing) |
 | - | leeg: `cross_ref`, `tube_od_mm`, `tube_od_inch`, `bron_pagina` |
@@ -42,3 +42,7 @@ staan. Daarna op de server opnieuw `lage-druk-toevoegen.php` draaien.
 Artikelen zonder familiecode (Union, Cross, Weld elbow, Welding socket, Pipe/flens/overig; 10 stuks) zijn op verzoek
 uit `artikelnummers_lage_druk.csv` verwijderd. `lage-druk-toevoegen.php` verwijdert ze bij opnieuw draaien ook uit de
 server-CSV, want het vervangt alle lage-drukregels.
+
+Artikelen met 3000LBS- of 150LBS- (NPT, 81 stuks) zijn op verzoek verwijderd en worden door `excel-naar-csv.py` overgeslagen.
+Familie 16 (Welding socket) heeft binnendraad aan beide kanten. Na `excel-naar-csv.py` altijd `geeve-com-bijwerken.py --schrijf`
+draaien: het script zet binnendraad op `BSPP` zoals op www.geeve.com.

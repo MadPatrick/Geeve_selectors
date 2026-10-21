@@ -41,7 +41,7 @@ def regels(d, code):
     if re.search(r'GASPIJP|FLENS|BOORDRING|MUURPLAAT', d): return ('Pipe/flens/overig', 'Overige', None, None)
     if 'LASBOCHT' in d: return ('Weld elbow', 'haaks', None, None)
     if 'LASDRAADSOK' in d: return ('Socket weld/thread', 'recht', N, None)
-    if re.search(r'LASSOK|WELDING SOCKET', d): return ('Welding socket', 'recht', None, None)
+    if re.search(r'LASSOK|WELDING SOCKET', d): return ('Welding socket', 'recht', N, N)
     if 'WELDING CAP' in d: return ('Welding cap', 'Cap', None, None)
     if 'TEE,WELDING' in d: return ('Welding tee', 'T-stuk', None, None)
     if 'AANLAS' in d: return ('Weld nipple', 'recht', None, None)
@@ -120,6 +120,7 @@ if __name__ == '__main__':
         seen = set()
         for r in ws.iter_rows(min_row=2, values_only=True):
             if not r[0] or not r[1] or str(r[0]).strip() in seen: continue
+            if re.match(r'^(3000|150)LBS-', str(r[0]).strip()): continue   # NPT-artikelen (3000LBS/150LBS) zijn niet gewenst (Patrick 2026-10-21)
             if str(r[0]).strip().upper().endswith('RVS'): continue   # RVS-artikelen zijn dubbel met staal (Patrick 2026-10-21)
             seen.add(str(r[0]).strip())
             w.writerow(omzetten(str(r[0]).strip(), str(r[1])))
