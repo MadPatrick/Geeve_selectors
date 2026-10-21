@@ -4,6 +4,8 @@
     var printSheet = document.getElementById('ptPrintSheet');
     var printBtn = document.getElementById('ptPrint');
 
+    var align = 'left';
+    var alignBox = document.getElementById('ptAlign');
     var START_PX = 40 * 96 / 72; // standaard lettergrootte: 40 pt (zoals in labelprogramma's), is 53,3 px
     var MIN_PX = 6;    // kleiner dan dit schalen we niet; wat dan nog niet past wordt afgeknipt
     var STEP_PX = 0.5;
@@ -46,6 +48,25 @@
     // Klik op de rand van de sticker zet de cursor in het tekstvak.
     sticker.addEventListener('click', function (e) { if (e.target === sticker) { text.focus(); } });
 
+    // Uitlijnen: links, midden of rechts; geldt voor de hele tekst en gaat mee naar de print. De keuze onthouden we per gebruiker
+    // in een cookie (een jaar), net als de printerkeuze.
+    var ALIGN_COOKIE = 'geeve_ptouch_uitlijnen';
+    function setAlign(value) {
+        if (value !== 'left' && value !== 'center' && value !== 'right') { value = 'left'; }
+        align = value;
+        Array.prototype.forEach.call(alignBox.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b.getAttribute('data-align') === value); });
+        text.style.textAlign = value;
+    }
+    alignBox.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-align]');
+        if (!btn) { return; }
+        setAlign(btn.getAttribute('data-align'));
+        document.cookie = ALIGN_COOKIE + '=' + align + '; path=/; max-age=31536000; SameSite=Lax';
+        text.focus();
+    });
+    var savedAlign = document.cookie.match(new RegExp('(?:^|; )' + ALIGN_COOKIE + '=([^;]*)'));
+    setAlign(savedAlign ? decodeURIComponent(savedAlign[1]) : 'left');
+
     document.getElementById('ptClear').addEventListener('click', function () {
         text.innerHTML = '';
         refresh();
@@ -57,7 +78,7 @@
         if (typed.trim() === '') { return; }
         // De lettergrootte van het voorbeeld gaat mee in de print, zodat de printversie dezelfde regelafbreking heeft.
         var size = fit(text);
-        var one = '<div class="pt-sticker"><div class="pt-text" style="font-size:' + size + 'px">' + esc(typed) + '</div></div>';
+        var one = '<div class="pt-sticker"><div class="pt-text" style="font-size:' + size + 'px;text-align:' + align + '">' + esc(typed) + '</div></div>';
         printSheet.innerHTML = one;
         window.print();
     });

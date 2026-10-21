@@ -1,7 +1,10 @@
 /* Sticker P-Touch (stickers/ptouch): vrije tekst op een sticker van 102 × 51 mm, Arial Black 40 pt, automatisch kleiner als de
    tekst niet past. Scherm, de sticker zelf en de printinstellingen. */
 
-.pt-preview { margin-top: 18px; zoom: 1.25; }
+.pt-edit { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 18px; }
+.pt-preview { zoom: 1.25; }
+.pt-align { display: flex; flex-direction: column; gap: 8px; }
+.pt-align-label { font-weight: 700; }
 .pt-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
 .pt-print .print-group { margin-left: auto; }
 
