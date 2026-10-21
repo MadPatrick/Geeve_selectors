@@ -8,6 +8,7 @@
     var alignBox = document.getElementById('ptAlign');
     var MAX_PX = 400;  // bovengrens van de zoekruimte; de sticker zelf begrenst eerder
     var MIN_PX = 6;    // kleiner dan dit schalen we niet; wat dan nog niet past wordt afgeknipt
+    var LINE_HEIGHT = 1.15; // zelfde als line-height in ptouch.css
     var SAFETY = 0.97; // 3% marge tegen een iets breder lettertype op de printserver
 
     function esc(s) {
@@ -19,20 +20,30 @@
         return text.innerText.replace(/\r/g, '').replace(/\n+$/, '');
     }
 
-    // Zoekt de grootste letter waarbij alle regels op de sticker passen: één regel wordt zo groot dat hij de hele sticker vult,
-    // meer regels geven vanzelf een kleinere letter. Regels breken niet af (elke getypte regel blijft één regel). .pt-text heeft
-    // max-height 100%, dus scrollHeight > clientHeight betekent: te hoog; scrollWidth > clientWidth: te breed.
+    // Aantal regels zoals ze op de sticker staan, inclusief een lege regel waar de cursor staat. Na Enter aan het eind zet de
+    // browser twee nieuwe-regeltekens ("Jan\n\n" is twee regels), daarom telt het laatste teken dan niet mee.
+    function lineCount() {
+        var raw = text.innerText.replace(/\r/g, '');
+        if (raw === '') { return 0; }
+        if (raw.charAt(raw.length - 1) === '\n') { raw = raw.slice(0, -1); }
+        return raw.split('\n').length;
+    }
+
+    // Zoekt de grootste letter waarbij de tekst op de sticker past, gerekend met de regels + één lege regel eronder (minimaal
+    // 2 regels hoog): een lege sticker of één regel begint dus met twee regels groot, Enter maakt er drie. De tekst staat
+    // bovenaan. Regels breken niet af (elke getypte regel blijft één regel); scrollWidth > clientWidth betekent: te breed.
     // Geeft de gekozen grootte (px) terug, met een kleine marge omdat het lettertype op de printserver iets kan afwijken.
-    function fits(textEl, size) {
+    function fits(textEl, size, slots) {
         textEl.style.fontSize = size + 'px';
-        return textEl.scrollHeight <= textEl.clientHeight + 1 && textEl.scrollWidth <= textEl.clientWidth + 1;
+        return slots * size * LINE_HEIGHT <= textEl.clientHeight + 1 && (lineCount() === 0 || textEl.scrollWidth <= textEl.clientWidth + 1); // leeg: de aanwijzing telt niet mee voor de breedte
     }
     function fit(textEl) {
+        var slots = Math.max(2, lineCount() + 1);
         var lo = MIN_PX, hi = MAX_PX;
-        if (fits(textEl, hi)) { lo = hi; } else {
+        if (fits(textEl, hi, slots)) { lo = hi; } else {
             while (hi - lo > 0.25) {
                 var mid = (lo + hi) / 2;
-                if (fits(textEl, mid)) { lo = mid; } else { hi = mid; }
+                if (fits(textEl, mid, slots)) { lo = mid; } else { hi = mid; }
             }
         }
         var size = Math.max(MIN_PX, lo * SAFETY);

@@ -52,7 +52,7 @@ $csrf = csrfToken();
 
     <section class="panel pt-top">
         <h2>Naamstickers</h2>
-        <p class="ka-empty">Typ de tekst rechtstreeks op de sticker (102 × 51 mm). Het lettertype is Arial Black; de letter wordt zo groot dat de tekst de hele sticker vult en wordt vanzelf kleiner bij meer regels. Enter geeft een nieuwe regel.</p>
+        <p class="ka-empty">Typ de tekst rechtstreeks op de sticker (102 × 51 mm). Het lettertype is Verdana Bold, de tekst staat bovenaan. De letter is zo groot dat er minimaal twee regels op de sticker passen en wordt kleiner naarmate je meer regels typt (er blijft steeds één lege regel onder de tekst). Enter geeft een nieuwe regel.</p>
 
         <div class="pt-edit">
         <div class="pt-preview">
