@@ -39,7 +39,7 @@ const GEEVE_PRINT_TILES = [
     'stickers-artikel' => 'Artikelnummer',
     'stickers-artikel-groot' => "Accu's",
     'stickers-slanglabels' => 'Slanglabels',
-    'stickers-ptouch' => 'P-Touch',
+    'stickers-ptouch' => 'Naamstickers',
 ];
 
 /** Soort printer per tegel: 'a4' (gewone printer, PCL) of 'label' (labelprinter: TSPL of Brother QL). Standaard 'a4'. */

@@ -33,7 +33,7 @@ $csrf = csrfToken();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>P-Touch | Geeve Hydraulics</title>
+    <title>Naamstickers | Geeve Hydraulics</title>
     <!-- Knoppen, invoervelden en meldingen zijn dezelfde als in de rapporten. -->
     <?php
     $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/ptouch.css'];   // vanaf de portal-root, in laadvolgorde
@@ -43,7 +43,7 @@ $csrf = csrfToken();
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'P-Touch';
+    $headerTitle = 'Naamstickers';
     $headerImagesPath = geeveUrl('images/');
     $headerHomeHref = geeveAppUrl('stickers');
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
@@ -51,8 +51,8 @@ $csrf = csrfToken();
     ?>
 
     <section class="panel pt-top">
-        <h2>P-Touch</h2>
-        <p class="ka-empty">Typ de tekst rechtstreeks op de sticker (102 × 51 mm). Het lettertype is Arial Black 40 pt; wordt de tekst te veel, dan wordt de letter vanzelf kleiner zodat alles op de sticker past. Enter geeft een nieuwe regel.</p>
+        <h2>Naamstickers</h2>
+        <p class="ka-empty">Typ de tekst rechtstreeks op de sticker (102 × 51 mm). Het lettertype is Arial Black; de letter wordt zo groot dat de tekst de hele sticker vult en wordt vanzelf kleiner bij meer regels. Enter geeft een nieuwe regel.</p>
 
         <div class="pt-edit">
         <div class="pt-preview">
