@@ -179,48 +179,75 @@
     }
 
     // ---- Controle met Exact ----
-    function validate(withItems, quiet) {
-        var body = new URLSearchParams();
-        body.set('csrf', csrf);
-        body.set('verkoper', sellerEl.value.trim());
-        body.set('debiteur', debtorEl.value.trim());
-        body.set('soort', T.soort);
+    // Per verzoek hooguit BATCH_SIZE artikelcodes/leveranciersnummers: PHP kapt een POST boven max_input_vars (standaard 1000) stilzwijgend af,
+    // en een kleiner verzoek houdt de server minder lang bezig. De batches gaan na elkaar; de tabel wordt na elke batch bijgewerkt.
+    var BATCH_SIZE = 400;
+    // all = ook al gecontroleerde artikelen opnieuw (nodig als de leverancier wijzigt: de minimale bestelhoeveelheid hangt daarvan af).
+    function validate(withItems, quiet, all) {
+        var jobs = [];   // {type: 'item'|'sup', value}
         if (withItems) {
             var seen = {};
-            lines.forEach(function (l) { if (cv(l) !== '' && !seen[ck(l)]) { seen[ck(l)] = true; body.append('items[]', cv(l)); } });
+            lines.forEach(function (l) {
+                if (cv(l) !== '' && !seen[ck(l)] && (all || !checked[ck(l)])) { seen[ck(l)] = true; jobs.push({ type: 'item', value: cv(l) }); }
+            });
             var seenSup = {};
             lines.forEach(function (l) {
                 var s = supplierPending(l) ? l.supplier.trim() : '';
-                if (s !== '' && !seenSup[s.toUpperCase()]) { seenSup[s.toUpperCase()] = true; body.append('suppliers[]', s); }
+                if (s !== '' && !seenSup[s.toUpperCase()]) { seenSup[s.toUpperCase()] = true; jobs.push({ type: 'sup', value: s }); }
             });
         }
+        var batches = [];
+        for (var j = 0; j < jobs.length; j += BATCH_SIZE) { batches.push(jobs.slice(j, j + BATCH_SIZE)); }
+        if (!batches.length) { batches.push([]); } // alleen verkoper en debiteur
         var ticket = ++validating;
-        fetch(endpoint, { method: 'POST', body: body })
-            .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
-            .then(function (json) {
-                if (ticket !== validating) { return; }
-                if (!json.ok) { throw new Error(json.error || 'Controle mislukt.'); }
-                sellerInfo = json.verkoper;
-                debtorInfo = json.partij || json.debiteur;
-                if (withItems) {
-                    itemInfo = json.items || {};
-                    // Leveranciersnummers: gevonden artikelnummer invullen als artikelcode (alleen waar die nog leeg is).
-                    var sup = json.suppliers || {};
-                    lines.forEach(function (l) {
-                        if (!supplierPending(l)) { return; }
-                        var hit = sup[l.supplier.trim().toUpperCase()];
-                        supplierInfo[l.supplier.trim().toUpperCase()] = hit || { item: '', matches: [] };
-                        if (hit && hit.item) { l.code = hit.item.toUpperCase(); l.autoCode = true; }
-                    });
-                    lines.forEach(function (l) { if (cv(l) !== '') { checked[ck(l)] = true; } });
-                    if (lines.length && !quiet) { showInfo('Geïmporteerd: ' + importedName + ' (' + pl(lines.length, 'regel', 'regels') + '), gecontroleerd met Exact.'); }
-                }
-                render();
-            })
-            .catch(function (err) {
-                if (ticket !== validating) { return; }
-                showMessage('Controle met Exact mislukt: ' + err.message);
-            });
+
+        function runBatch(n) {
+            var body = new URLSearchParams();
+            body.set('csrf', csrf);
+            body.set('verkoper', sellerEl.value.trim());
+            body.set('debiteur', debtorEl.value.trim());
+            body.set('soort', T.soort);
+            batches[n].forEach(function (job) { body.append(job.type === 'item' ? 'items[]' : 'suppliers[]', job.value); });
+            return fetch(endpoint, { method: 'POST', body: body })
+                .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
+                .then(function (json) {
+                    if (ticket !== validating) { return; }
+                    if (!json.ok) { throw new Error(json.error || 'Controle mislukt.'); }
+                    sellerInfo = json.verkoper;
+                    debtorInfo = json.partij || json.debiteur;
+                    if (withItems) {
+                        var found = json.items || {};
+                        Object.keys(found).forEach(function (k) { itemInfo[k] = found[k]; });
+                        // Leveranciersnummers van deze batch: gevonden artikelnummer invullen als artikelcode (alleen waar die nog leeg is).
+                        var sup = json.suppliers || {};
+                        lines.forEach(function (l) {
+                            if (!supplierPending(l)) { return; }
+                            var key = l.supplier.trim().toUpperCase();
+                            if (!sup[key]) { return; } // hoort bij een andere batch
+                            supplierInfo[key] = sup[key];
+                            if (sup[key].item) { l.code = sup[key].item.toUpperCase(); l.autoCode = true; }
+                        });
+                        batches[n].forEach(function (job) {
+                            if (job.type === 'item') { checked[job.value.toUpperCase()] = true; if (!found[job.value.toUpperCase()]) { delete itemInfo[job.value.toUpperCase()]; } }
+                        });
+                        Object.keys(sup).forEach(function (k) { if (sup[k].item) { checked[sup[k].item.toUpperCase()] = true; } });
+                        if (n + 1 < batches.length && !quiet) {
+                            showInfo('Geïmporteerd: ' + importedName + ' (' + pl(lines.length, 'regel', 'regels') + '). Controle met Exact: ' + Math.min((n + 1) * BATCH_SIZE, jobs.length) + ' van ' + jobs.length + '…');
+                        }
+                    }
+                    render();
+                    if (n + 1 < batches.length) { return runBatch(n + 1); }
+                    if (withItems) {
+                        lines.forEach(function (l) { if (cv(l) !== '') { checked[ck(l)] = true; } });
+                        if (lines.length && !quiet) { showInfo('Geïmporteerd: ' + importedName + ' (' + pl(lines.length, 'regel', 'regels') + '), gecontroleerd met Exact.'); }
+                        render();
+                    }
+                });
+        }
+        runBatch(0).catch(function (err) {
+            if (ticket !== validating) { return; }
+            showMessage('Controle met Exact mislukt: ' + err.message);
+        });
     }
     // Eén artikelcode (na een wijziging in de tabel) opnieuw controleren; verkoper/inkoper en debiteur/leverancier blijven ongemoeid.
     function validateItem(code) {
@@ -244,7 +271,7 @@
     }
     function scheduleValidate() {
         clearTimeout(timer);
-        timer = setTimeout(function () { validate(purchase && lines.length > 0, true); }, 400);
+        timer = setTimeout(function () { validate(purchase && lines.length > 0, true, true); }, 400);
     }
 
     // Regel met alleen een leveranciersnummer waarvan het artikelnummer nog niet is opgezocht.
@@ -292,19 +319,7 @@
         // Tabel
         var states = lines.map(lineState);
         var html = '';
-        lines.forEach(function (l, i) {
-            var st = states[i];
-            var info = st.info || itemInfo[ck(l)] || null;
-            html += '<tr class="' + st.cls + '">' +
-                '<td>' + esc(l.nr) + '</td>' +
-                '<td><input type="text" class="ka-input oi-qty" data-i="' + i + '" value="' + esc(l.qty === null ? '' : l.qty) + '" maxlength="12" inputmode="decimal" autocomplete="off" aria-label="Aantal regel ' + esc(l.nr || (i + 1)) + '"></td>' +
-                (purchase ? '<td class="oi-min">' + (info && info.minOrder > 0 ? esc(info.minOrder) : '') + '</td>' : '') +
-                (useSupplier ? '<td><input type="text" class="ka-input oi-sup" data-i="' + i + '" value="' + esc(l.supplier || '') + '" maxlength="40" autocomplete="off" spellcheck="false" aria-label="Leveranciersnummer regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
-                '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
-                '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
-                '<td>' + esc(st.label) + '</td>' +
-                '<td><button type="button" class="oi-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
-        });
+        lines.forEach(function (l, i) { html += rowHtml(l, i, states[i]); });
         // Staat de cursor in een artikelcode, dan blijft die daar na het opnieuw tekenen van de tabel.
         var active = document.activeElement;
         var focusCls = active && active.classList ? (active.classList.contains('oi-code') ? 'oi-code' : (active.classList.contains('oi-qty') ? 'oi-qty' : (active.classList.contains('oi-sup') ? 'oi-sup' : null))) : null;
@@ -315,7 +330,39 @@
             var again = tbody.querySelector('input.' + focusCls + '[data-i="' + focusIdx + '"]');
             if (again) { again.focus(); if (caret !== null) { again.setSelectionRange(caret, caret); } }
         }
+        renderSummary(states, seller, debtor);
+    }
 
+    function rowHtml(l, i, st) {
+        var info = st.info || itemInfo[ck(l)] || null;
+        return '<tr class="' + st.cls + '">' +
+            '<td>' + esc(l.nr) + '</td>' +
+            '<td><input type="text" class="ka-input oi-qty" data-i="' + i + '" value="' + esc(l.qty === null ? '' : l.qty) + '" maxlength="12" inputmode="decimal" autocomplete="off" aria-label="Aantal regel ' + esc(l.nr || (i + 1)) + '"></td>' +
+            (purchase ? '<td class="oi-min">' + (info && info.minOrder > 0 ? esc(info.minOrder) : '') + '</td>' : '') +
+            (useSupplier ? '<td><input type="text" class="ka-input oi-sup" data-i="' + i + '" value="' + esc(l.supplier || '') + '" maxlength="40" autocomplete="off" spellcheck="false" aria-label="Leveranciersnummer regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
+            '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
+            '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
+            '<td class="oi-status">' + esc(st.label) + '</td>' +
+            '<td><button type="button" class="oi-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
+    }
+
+    // Na typen in één regel: alleen die regel (zonder de invoervelden aan te raken) en de samenvatting bijwerken, niet de hele tabel.
+    function renderRow(i) {
+        var tr = tbody.rows[i];
+        if (!tr) { render(); return; }
+        var states = lines.map(lineState);
+        var st = states[i];
+        var info = st.info || itemInfo[ck(lines[i])] || null;
+        tr.className = st.cls;
+        var min = tr.querySelector('.oi-min');
+        if (min) { min.textContent = info && info.minOrder > 0 ? String(info.minOrder) : ''; }
+        tr.querySelector('.oi-desc').textContent = info && info.found ? info.description : '';
+        tr.querySelector('.oi-status').textContent = st.label;
+        renderSummary(states, sellerEl.value.trim(), debtorEl.value.trim());
+    }
+
+    function renderSummary(states, seller, debtor) {
+        var dateOk = /^\d{4}-\d{2}-\d{2}$/.test(dateEl.value);
         var articles = states.length;
         var missing = states.filter(function (s) { return s.cls === 'is-missing'; }).length;
         var incomplete = states.filter(function (s) { return s.cls === 'is-incomplete'; }).length;
@@ -421,7 +468,7 @@
         var el = e.target;
         if (el.classList && el.classList.contains('oi-qty')) {
             lines[+el.getAttribute('data-i')].qty = el.value;
-            render();
+            renderRow(+el.getAttribute('data-i'));
             return;
         }
         if (el.classList && el.classList.contains('oi-sup')) {
@@ -429,8 +476,7 @@
             var line = lines[+el.getAttribute('data-i')];
             line.supplier = el.value;
             // Een artikelcode die uit het oude leveranciersnummer kwam, hoort daar niet meer bij: leegmaken en opnieuw opzoeken.
-            if (line.autoCode) { line.code = ''; line.autoCode = false; }
-            render();
+            if (line.autoCode) { line.code = ''; line.autoCode = false; render(); } else { renderRow(+el.getAttribute('data-i')); }
             clearTimeout(supTimer);
             supTimer = setTimeout(function () { validate(true, true); }, 500);
             return;
@@ -444,7 +490,7 @@
         lines[i].code = el.value; // ruwe invoer (alleen hoofdletters), zodat een spatie midden in de code niet verdwijnt
         var code = el.value.trim();
         // Rij direct bijwerken (nog niet gecontroleerd), daarna debounce de controle.
-        render();
+        renderRow(i);
         clearTimeout(codeTimers[i]);
         if (code !== '' && !checked[code.toUpperCase()]) {
             codeTimers[i] = setTimeout(function () { validateItem(code); }, 400);

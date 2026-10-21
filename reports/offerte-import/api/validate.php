@@ -26,6 +26,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !csrfValid($_POST['csrf'] ?
     echo json_encode(['ok' => false, 'error' => 'Ongeldig verzoek (sessie verlopen). Laad de pagina opnieuw.']);
     exit;
 }
+// Sessie vrijgeven: de controle kan lang duren en een vastgehouden sessielock laat alle andere pagina's van dezelfde gebruiker wachten.
+session_write_close();
 
 $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
 try {
@@ -79,7 +81,7 @@ try {
     foreach (array_chunk(array_values($suppliers), 500) as $chunk) {
         $stmt = $pdo->prepare(
             'SET NOCOUNT ON; SELECT DISTINCT LTRIM(RTRIM(ItemCodeAccount)) AS s, RTRIM(ItemCode) AS c FROM ItemAccounts'
-            . " WHERE LTRIM(RTRIM(ISNULL(crdnr, ''))) <> '' AND LTRIM(RTRIM(ItemCodeAccount)) IN (" . implode(',', array_fill(0, count($chunk), '?')) . ')'
+            . " WHERE LTRIM(RTRIM(ISNULL(crdnr, ''))) <> '' AND ItemCodeAccount IN (" . implode(',', array_fill(0, count($chunk), '?')) . ')'
         );
         $stmt->execute($chunk);
         foreach ($stmt->fetchAll() as $row) {
