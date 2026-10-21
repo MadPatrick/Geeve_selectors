@@ -38,3 +38,7 @@ hebben geen draad: draadsoort/-maat/-connectie blijven leeg. Materiaal (zwart/RV
 binnendraad altijd BSP (in onze data `BSPP`) en buitendraad altijd BSPT. Wijkt de maat op de site af van het artikelnummer
 of staat de draad niet op de site, dan geldt alleen "binnen = BSPP". NPT/NPTF-artikelen staan niet op de site en blijven
 staan. Daarna op de server opnieuw `lage-druk-toevoegen.php` draaien.
+
+Artikelen zonder familiecode (Union, Cross, Weld elbow, Welding socket, Pipe/flens/overig; 10 stuks) zijn op verzoek
+uit `artikelnummers_lage_druk.csv` verwijderd. `lage-druk-toevoegen.php` verwijdert ze bij opnieuw draaien ook uit de
+server-CSV, want het vervangt alle lage-drukregels.
