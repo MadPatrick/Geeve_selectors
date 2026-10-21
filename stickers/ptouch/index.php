@@ -52,18 +52,24 @@ $csrf = csrfToken();
 
     <section class="panel pt-top">
         <h2>Naamstickers</h2>
-        <p class="ka-empty">Typ de tekst rechtstreeks op de sticker (102 × 51 mm). Het lettertype is Verdana Bold, de tekst staat bovenaan. De letter is zo groot dat er minimaal twee regels op de sticker passen en wordt kleiner naarmate je meer regels typt (er blijft steeds één lege regel onder de tekst). Enter geeft een nieuwe regel.</p>
+        <p class="ka-empty">Typ de tekst rechtstreeks op de sticker (102 × 51 mm). Het lettertype is Verdana Bold, de tekst is horizontaal en verticaal uit te lijnen (standaard midden). De letter is zo groot dat er minimaal twee regels op de sticker passen en wordt kleiner naarmate je meer regels typt (er blijft steeds één lege regel onder de tekst). Enter geeft een nieuwe regel.</p>
 
         <div class="pt-edit">
         <div class="pt-preview">
             <div class="pt-sticker" id="ptSticker"><div class="pt-text" id="ptText" contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-multiline="true" aria-label="Tekst op de sticker" data-placeholder="Typ hier je tekst" autofocus></div></div>
         </div>
         <div class="pt-align">
-            <span class="pt-align-label">Uitlijnen</span>
+            <span class="pt-align-label">Uitlijnen horizontaal</span>
             <div class="rp-toggle" id="ptAlign" role="group" aria-label="Uitlijnen">
-                <button type="button" data-align="left" class="is-active">Links</button>
-                <button type="button" data-align="center">Midden</button>
+                <button type="button" data-align="left">Links</button>
+                <button type="button" data-align="center" class="is-active">Midden</button>
                 <button type="button" data-align="right">Rechts</button>
+            </div>
+            <span class="pt-align-label">Uitlijnen verticaal</span>
+            <div class="rp-toggle" id="ptValign" role="group" aria-label="Uitlijnen verticaal">
+                <button type="button" data-valign="flex-start">Boven</button>
+                <button type="button" data-valign="center" class="is-active">Midden</button>
+                <button type="button" data-valign="flex-end">Onder</button>
             </div>
         </div>
         </div>
