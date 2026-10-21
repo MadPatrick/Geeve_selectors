@@ -482,8 +482,8 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         $tspl = '';
         $snijdEinde = in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true);
         foreach ($pages as $i => $page) {
-            // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste.
-            $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\n") : '';
+            // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste, en dat laatste label doorgevoerd tot de afscheurrand.
+            $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\nSET TEAR ON\r\n") : '';
             $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? []);
         }
         $file = $workDir . '/labels.tspl';
