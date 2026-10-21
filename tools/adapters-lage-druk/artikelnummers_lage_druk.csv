@@ -511,8 +511,8 @@
 90-3/4X1/2,,90,Elbow 90°,"ELBOW 90°, REDUCING, ISO/EN A1",haaks,BSPP,3/4-14,binnen,BSPP,1/2-14,binnen,,,,laag
 90-3/8,,90,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A1",haaks,BSPP,3/8-19,binnen,BSPP,3/8-19,binnen,,,,laag
 92-1,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4",haaks,BSPP,1-11,binnen,BSPT,1-11,buiten,,,,laag
-92-1/2,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4",haaks,BSPP,1/2-14,binnen,BSPP,1/2-14,binnen,,,,laag
-92-1/2ZW,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4 BLACK",haaks,BSPT,1/2-14,buiten,BSPP,1/2-14,binnen,,,,laag
+92-1/2,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4",haaks,BSPP,1/2-14,binnen,BSPT,1/2-14,buiten,,,,laag
+92-1/2ZW,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4 BLACK",haaks,BSPP,1/2-14,binnen,BSPT,1/2-14,buiten,,,,laag
 92-1/4,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4",haaks,BSPP,1/4-19,binnen,BSPT,1/4-19,buiten,,,,laag
 92-1/8,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4",haaks,BSPP,1/8-28,binnen,BSPT,1/8-28,buiten,,,,laag
 92-11/2,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4",haaks,BSPP,1 1/2-11,binnen,BSPT,1 1/2-11,buiten,,,,laag
@@ -525,7 +525,7 @@
 92-3/4X1/2,,92,Elbow 90°,"ELBOW 90°, MALE THREAD REDUCED, ISO/EN A4",haaks,BSPP,3/4-14,binnen,BSPT,1/2-14,buiten,,,,laag
 92-3/4X3/8,,92,Elbow 90°,"ELBOW 90°, MALE THREAD REDUCED, ISO/EN A4",haaks,BSPP,3/4-14,binnen,BSPT,3/8-19,buiten,,,,laag
 92-3/8,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4",haaks,BSPP,3/8-19,binnen,BSPT,3/8-19,buiten,,,,laag
-92-3/8ZW,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4 BLACK",haaks,BSPT,3/8-19,buiten,BSPP,3/8-19,binnen,,,,laag
+92-3/8ZW,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4 BLACK",haaks,BSPP,3/8-19,binnen,BSPT,3/8-19,buiten,,,,laag
 92-4,,92,Elbow 90°,"ELBOW 90°, EQUAL, ISO/EN A4",haaks,BSPP,4-11,binnen,BSPT,4-11,buiten,,,,laag
 94-2,,94,Elbow 90°,"ELBOW 90°, EQUAL, MALE ISO/EN A4",haaks,BSPT,2-11,buiten,BSPT,2-11,buiten,,,,laag
 94-3/8,,94,Elbow 90°,"ELBOW 90°, EQUAL, MALE ISO/EN A4",haaks,BSPT,3/8-19,buiten,BSPT,3/8-19,buiten,,,,laag
