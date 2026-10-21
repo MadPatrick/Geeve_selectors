@@ -1,4 +1,4 @@
-/* Naamstickers (stickers/ptouch): vrije tekst op een sticker van 102 × 51 mm, Arial Black; de letter wordt zo groot dat de tekst
+/* Naamstickers (stickers/ptouch): vrije tekst op een sticker van 102 × 51 mm, Verdana Bold; de letter wordt zo groot dat de tekst
    de sticker vult en wordt kleiner bij meer regels. Scherm, de sticker zelf en de printinstellingen. */
 
 .pt-edit { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 18px; }
@@ -16,11 +16,11 @@
     padding: 2.65mm;
     overflow: hidden;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     color: var(--ink-black);
     background: var(--surface-white);
-    font-family: "Arial Black", "Arial Bold", Arial, "Liberation Sans", sans-serif;
-    font-weight: 900;
+    font-family: Verdana, "DejaVu Sans", Geneva, sans-serif;
+    font-weight: 700;
     font-size: 40pt;
     line-height: 1.15;
 }
@@ -28,7 +28,7 @@
 .pt-preview .pt-sticker { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 2.5mm; cursor: text; }
 .pt-text {
     width: 100%;
-    max-height: 100%;
+    height: 100%;
     outline: none;
     white-space: pre;
     text-align: left;
