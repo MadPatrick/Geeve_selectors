@@ -120,5 +120,6 @@ if __name__ == '__main__':
         seen = set()
         for r in ws.iter_rows(min_row=2, values_only=True):
             if not r[0] or not r[1] or str(r[0]).strip() in seen: continue
+            if str(r[0]).strip().upper().endswith('RVS'): continue   # RVS-artikelen zijn dubbel met staal (Patrick 2026-10-21)
             seen.add(str(r[0]).strip())
             w.writerow(omzetten(str(r[0]).strip(), str(r[1])))
