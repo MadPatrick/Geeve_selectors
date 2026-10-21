@@ -3,8 +3,6 @@
 
 .pt-preview { margin-top: 18px; zoom: 1.25; }
 .pt-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
-.pt-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
-.pt-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
 .pt-print .print-group { margin-left: auto; }
 
 .pt-sticker {

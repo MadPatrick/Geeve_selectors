@@ -2,7 +2,6 @@
     var sticker = document.getElementById('ptSticker');
     var text = document.getElementById('ptText');
     var printSheet = document.getElementById('ptPrintSheet');
-    var copies = document.getElementById('ptCopies');
     var printBtn = document.getElementById('ptPrint');
 
     var START_PX = 40; // standaard lettergrootte
@@ -37,11 +36,6 @@
         printBtn.disabled = value().trim() === '';
     }
 
-    function times() {
-        var n = parseInt(copies.value, 10);
-        return isNaN(n) || n < 1 ? 1 : Math.min(n, 99);
-    }
-
     // Plak altijd als platte tekst (geen opmaak van Word of een webpagina op de sticker).
     text.addEventListener('paste', function (e) {
         e.preventDefault();
@@ -54,7 +48,6 @@
 
     document.getElementById('ptClear').addEventListener('click', function () {
         text.innerHTML = '';
-        copies.value = 1;
         refresh();
         text.focus();
     });
@@ -65,9 +58,7 @@
         // De lettergrootte van het voorbeeld gaat mee in de print, zodat de printversie dezelfde regelafbreking heeft.
         var size = fit(text);
         var one = '<div class="pt-sticker"><div class="pt-text" style="font-size:' + size + 'px">' + esc(typed) + '</div></div>';
-        var all = '';
-        for (var n = 0; n < times(); n++) { all += one; }
-        printSheet.innerHTML = all;
+        printSheet.innerHTML = one;
         window.print();
     });
 

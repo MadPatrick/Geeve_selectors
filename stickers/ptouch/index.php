@@ -59,7 +59,6 @@ $csrf = csrfToken();
         </div>
 
         <div class="pt-print">
-            <label class="pt-copies"><input type="number" id="ptCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
             <button type="button" id="ptClear" class="ka-button ka-button--secondary">Leegmaken</button>
             <div class="print-group">
                 <?= geevePrinterSelectHtml('stickers-ptouch', $csrf) ?>
