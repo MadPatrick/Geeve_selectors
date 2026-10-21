@@ -4,8 +4,10 @@
     var printSheet = document.getElementById('ptPrintSheet');
     var printBtn = document.getElementById('ptPrint');
 
-    var align = 'left';
+    var align = 'center';   // horizontaal: left, center of right
+    var valign = 'center';  // verticaal: flex-start (boven), center of flex-end (onder)
     var alignBox = document.getElementById('ptAlign');
+    var valignBox = document.getElementById('ptValign');
     var MAX_PX = 400;  // bovengrens van de zoekruimte; de sticker zelf begrenst eerder
     var MIN_PX = 6;    // kleiner dan dit schalen we niet; wat dan nog niet past wordt afgeknipt
     var LINE_HEIGHT = 1.15; // zelfde als line-height in ptouch.css
@@ -33,9 +35,13 @@
     // 2 regels hoog): een lege sticker of één regel begint dus met twee regels groot, Enter maakt er drie. De tekst staat
     // bovenaan. Regels breken niet af (elke getypte regel blijft één regel); scrollWidth > clientWidth betekent: te breed.
     // Geeft de gekozen grootte (px) terug, met een kleine marge omdat het lettertype op de printserver iets kan afwijken.
+    function boxHeight() {
+        var cs = getComputedStyle(sticker);
+        return sticker.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    }
     function fits(textEl, size, slots) {
         textEl.style.fontSize = size + 'px';
-        return slots * size * LINE_HEIGHT <= textEl.clientHeight + 1 && (lineCount() === 0 || textEl.scrollWidth <= textEl.clientWidth + 1); // leeg: de aanwijzing telt niet mee voor de breedte
+        return slots * size * LINE_HEIGHT <= boxHeight() + 1 && (lineCount() === 0 || textEl.scrollWidth <= textEl.clientWidth + 1); // leeg: de aanwijzing telt niet mee voor de breedte
     }
     function fit(textEl) {
         var slots = Math.max(2, lineCount() + 1);
@@ -72,7 +78,7 @@
     // in een cookie (een jaar), net als de printerkeuze.
     var ALIGN_COOKIE = 'geeve_ptouch_uitlijnen';
     function setAlign(value) {
-        if (value !== 'left' && value !== 'center' && value !== 'right') { value = 'left'; }
+        if (value !== 'left' && value !== 'center' && value !== 'right') { value = 'center'; }
         align = value;
         Array.prototype.forEach.call(alignBox.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b.getAttribute('data-align') === value); });
         text.style.textAlign = value;
@@ -85,7 +91,25 @@
         text.focus();
     });
     var savedAlign = document.cookie.match(new RegExp('(?:^|; )' + ALIGN_COOKIE + '=([^;]*)'));
-    setAlign(savedAlign ? decodeURIComponent(savedAlign[1]) : 'left');
+    setAlign(savedAlign ? decodeURIComponent(savedAlign[1]) : 'center');
+
+    // Verticaal uitlijnen: boven, midden of onder; zelfde werking en cookie-onthouden als horizontaal.
+    var VALIGN_COOKIE = 'geeve_ptouch_uitlijnen_verticaal';
+    function setValign(value) {
+        if (value !== 'flex-start' && value !== 'center' && value !== 'flex-end') { value = 'center'; }
+        valign = value;
+        Array.prototype.forEach.call(valignBox.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b.getAttribute('data-valign') === value); });
+        sticker.style.alignItems = value;
+    }
+    valignBox.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-valign]');
+        if (!btn) { return; }
+        setValign(btn.getAttribute('data-valign'));
+        document.cookie = VALIGN_COOKIE + '=' + valign + '; path=/; max-age=31536000; SameSite=Lax';
+        text.focus();
+    });
+    var savedValign = document.cookie.match(new RegExp('(?:^|; )' + VALIGN_COOKIE + '=([^;]*)'));
+    setValign(savedValign ? decodeURIComponent(savedValign[1]) : 'center');
 
     document.getElementById('ptClear').addEventListener('click', function () {
         text.innerHTML = '';
@@ -98,7 +122,7 @@
         if (typed.trim() === '') { return; }
         // De lettergrootte van het voorbeeld gaat mee in de print, zodat de printversie dezelfde regelafbreking heeft.
         var size = fit(text);
-        var one = '<div class="pt-sticker"><div class="pt-text" style="font-size:' + size + 'px;text-align:' + align + '">' + esc(typed) + '</div></div>';
+        var one = '<div class="pt-sticker" style="align-items:' + valign + '"><div class="pt-text" style="font-size:' + size + 'px;text-align:' + align + '">' + esc(typed) + '</div></div>';
         printSheet.innerHTML = one;
         window.print();
     });
