@@ -254,10 +254,10 @@
         imgTd.className = 'result-table-image-col';
         if (familieCode) {
             const img = document.createElement('img');
-            // images/<familie_code>.png (hoge druk) of .jpg (lage druk); 3000LBS-/150LBS-familie: die van de basisfamilie.
+            // images/<familie_code>.png; 3000LBS-/150LBS-familie: anders die van de basisfamilie.
             const basis = familieCode.replace(/^(?:3000|150)LBS-/, '');
-            const kandidaten = [`${familieCode}.png`, `${familieCode}.jpg`];
-            if (basis !== familieCode) kandidaten.push(`${basis}.png`, `${basis}.jpg`);
+            const kandidaten = [`${familieCode}.png`];
+            if (basis !== familieCode) kandidaten.push(`${basis}.png`);
             let nr = 0;
             img.src = `images/${kandidaten[nr]}`;
             img.alt = familieNaam || familieCode;
