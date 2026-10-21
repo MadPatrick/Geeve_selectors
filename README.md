@@ -73,6 +73,7 @@ Alle stickers printen via de browser, één sticker per pagina. Posities en mate
 | Artikelnummer | `/stickers/artikel/` | — | `[Exactrapportage].[dbo].[1002_Artikellabels]` |
 | Accu's | `/stickers/accu/` | 80 × 30 mm | geen database (invulsticker) |
 | Slanglabels | `/stickers/slanglabels/` | ALTEC 53000145 | `[Exactrapportage].[dbo].[1655 VW_Alle_OrdersGH]` |
+| P-Touch | `/stickers/ptouch/` | 102 × 51 mm | geen database (vrije tekst, Arial Black 40 pt, schaalt kleiner) |
 | Kabelmerkers Geel | — | — | nog niet gebouwd |
 
 Barcodes zijn Code 128 (JsBarcode, lokaal in `stickers/assets/vendor`).

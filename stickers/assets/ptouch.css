@@ -1,0 +1,49 @@
+/* Sticker P-Touch (stickers/ptouch): vrije tekst op een sticker van 102 × 51 mm, Arial Black 40 pt, automatisch kleiner als de
+   tekst niet past. Scherm, de sticker zelf en de printinstellingen. */
+
+.pt-edit { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 18px; }
+.pt-preview { zoom: 1.25; }
+.pt-align { display: flex; flex-direction: column; gap: 8px; }
+.pt-align-label { font-weight: 700; }
+.pt-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.pt-print .print-group { margin-left: auto; }
+
+.pt-sticker {
+    position: relative;
+    box-sizing: border-box;
+    width: 102mm;
+    height: 51mm;
+    padding: 2.65mm;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    color: var(--ink-black);
+    background: var(--surface-white);
+    font-family: "Arial Black", "Arial Bold", Arial, "Liberation Sans", sans-serif;
+    font-weight: 900;
+    font-size: 40pt;
+    line-height: 1.15;
+}
+/* Op het scherm: afgeronde hoeken en een randje, en een cursor die laat zien dat je hier typt. */
+.pt-preview .pt-sticker { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 2.5mm; cursor: text; }
+.pt-text {
+    width: 100%;
+    max-height: 100%;
+    outline: none;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    text-align: left;
+}
+.pt-text:empty::before { content: attr(data-placeholder); color: var(--muted); }
+
+.pt-printsheet { display: none; }
+
+@page { size: 102mm 51mm; margin: 0; }
+
+@media print {
+    html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }
+    body > *:not(.pt-printsheet) { display: none !important; }
+    .pt-printsheet { display: block; }
+    .pt-printsheet .pt-sticker { break-after: page; page-break-after: always; }
+    .pt-printsheet .pt-sticker:last-child { break-after: auto; page-break-after: auto; }
+}
