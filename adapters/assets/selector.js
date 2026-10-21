@@ -254,10 +254,19 @@
         imgTd.className = 'result-table-image-col';
         if (familieCode) {
             const img = document.createElement('img');
-            img.src = `images/${familieCode}.png`;
+            // images/<familie_code>.png (hoge druk) of .jpg (lage druk); 3000LBS-/150LBS-familie: die van de basisfamilie.
+            const basis = familieCode.replace(/^(?:3000|150)LBS-/, '');
+            const kandidaten = [`${familieCode}.png`, `${familieCode}.jpg`];
+            if (basis !== familieCode) kandidaten.push(`${basis}.png`, `${basis}.jpg`);
+            let nr = 0;
+            img.src = `images/${kandidaten[nr]}`;
             img.alt = familieNaam || familieCode;
             img.loading = 'lazy';
-            img.addEventListener('error', () => { imgTd.replaceChildren(); }, { once: true });
+            img.addEventListener('error', () => {
+                nr += 1;
+                if (nr < kandidaten.length) img.src = `images/${kandidaten[nr]}`;
+                else imgTd.replaceChildren();
+            });
             imgTd.appendChild(img);
         }
         return imgTd;
