@@ -4,7 +4,7 @@
     var printSheet = document.getElementById('ptPrintSheet');
     var printBtn = document.getElementById('ptPrint');
 
-    var START_PX = 40; // standaard lettergrootte
+    var START_PX = 40 * 96 / 72; // standaard lettergrootte: 40 pt (zoals in labelprogramma's), is 53,3 px
     var MIN_PX = 6;    // kleiner dan dit schalen we niet; wat dan nog niet past wordt afgeknipt
     var STEP_PX = 0.5;
 
