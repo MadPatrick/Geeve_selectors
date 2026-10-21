@@ -31,8 +31,11 @@ session_write_close();
 
 $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
 try {
+    @set_time_limit(180); // veel regels: de standaard 30 s is te kort
+    $t0 = microtime(true);
     $pdo = reportConnection();
     $out = ['ok' => true];
+    $ms = ['verbinding' => (int) round((microtime(true) - $t0) * 1000)];
 
     // Verkoper: medewerker (humres.res_id).
     $seller = trim((string) ($_POST['verkoper'] ?? ''));
@@ -68,7 +71,11 @@ try {
     // Leveranciersnummers (artikelcode van de leverancier, ItemAccounts.ItemCodeAccount bij een crediteur) -> ons artikelnummer.
     // Eén artikel gevonden: dat artikel; geen of meerdere verschillende artikelen: geen artikel (bij meerdere de kandidaten).
     $suppliers = [];
-    foreach ((array) ($_POST['suppliers'] ?? []) as $code) {
+    $supplierInput = (array) ($_POST['suppliers'] ?? []);
+    if (isset($_POST['suppliers_list']) && is_string($_POST['suppliers_list'])) {
+        $supplierInput = array_merge($supplierInput, explode("\n", $_POST['suppliers_list']));
+    }
+    foreach ($supplierInput as $code) {
         $code = trim((string) $code);
         if ($code !== '' && strlen($code) <= 60) {
             $suppliers[strtoupper($code)] = $code;
@@ -78,10 +85,11 @@ try {
         throw new RuntimeException('Te veel leveranciersnummers in één controle (maximaal 2000).');
     }
     $supplierHits = [];
-    foreach (array_chunk(array_values($suppliers), 500) as $chunk) {
+    $t1 = microtime(true);
+    foreach (array_chunk(array_values($suppliers), 2000) as $chunk) {
         $stmt = $pdo->prepare(
             'SET NOCOUNT ON; SELECT DISTINCT LTRIM(RTRIM(ItemCodeAccount)) AS s, RTRIM(ItemCode) AS c FROM ItemAccounts'
-            . " WHERE LTRIM(RTRIM(ISNULL(crdnr, ''))) <> '' AND ItemCodeAccount IN (" . implode(',', array_fill(0, count($chunk), '?')) . ')'
+            . " WHERE LTRIM(RTRIM(ISNULL(crdnr, ''))) <> '' AND ItemCodeAccount IN (" . implode(',', array_fill(0, count($chunk), 'CAST(? AS varchar(60))')) . ')'
         );
         $stmt->execute($chunk);
         foreach ($stmt->fetchAll() as $row) {
@@ -91,6 +99,7 @@ try {
             }
         }
     }
+    $ms['leveranciersnummers'] = (int) round((microtime(true) - $t1) * 1000);
     $supplierOut = [];
     foreach (array_keys($suppliers) as $key) {
         $hits = array_values($supplierHits[$key] ?? []);
@@ -116,8 +125,9 @@ try {
         throw new RuntimeException('Te veel artikelen in één controle (maximaal 2000).');
     }
     $items = [];
+    $t2 = microtime(true);
     foreach (array_chunk(array_values($codes), 500) as $chunk) {
-        $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(Description) AS d FROM Items WHERE ItemCode IN (' . implode(',', array_fill(0, count($chunk), '?')) . ')');
+        $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(Description) AS d FROM Items WHERE ItemCode IN (' . implode(',', array_fill(0, count($chunk), 'CAST(? AS varchar(30))')) . ')');
         $stmt->execute($chunk);
         foreach ($stmt->fetchAll() as $row) {
             $items[strtoupper(trim((string) $row['c']))] = ['found' => true, 'description' => trim((string) $row['d'])];
@@ -127,7 +137,7 @@ try {
     if ($creditor && $partyKeys !== [] && $items !== []) {
         $found = array_keys($items);
         foreach (array_chunk($found, 400) as $chunk) {
-            $itemMarks = implode(',', array_fill(0, count($chunk), '?'));
+            $itemMarks = implode(',', array_fill(0, count($chunk), 'CAST(? AS varchar(30))'));
             $keyMarks = implode(',', array_fill(0, count($partyKeys), '?'));
             $stmt = $pdo->prepare(
                 'SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, MAX(PurchaseOrderSize) AS m FROM ItemAccounts WHERE ItemCode IN (' . $itemMarks . ')'
@@ -142,6 +152,8 @@ try {
             }
         }
     }
+    $ms['artikelen'] = (int) round((microtime(true) - $t2) * 1000);
+    $out['ms'] = $ms; // diagnose: milliseconden per onderdeel (zie browserconsole)
     $out['items'] = (object) $items;
 
     echo json_encode($out, $flags);

@@ -196,8 +196,12 @@
                 if (s !== '' && !seenSup[s.toUpperCase()]) { seenSup[s.toUpperCase()] = true; jobs.push({ type: 'sup', value: s }); }
             });
         }
+        // Alle leveranciersnummers in één verzoek (één opzoeking in ItemAccounts op de server, dat is het zwaarste deel); de artikelen daarna in batches.
+        var supJobs = jobs.filter(function (job) { return job.type === 'sup'; });
+        var itemJobs = jobs.filter(function (job) { return job.type === 'item'; });
         var batches = [];
-        for (var j = 0; j < jobs.length; j += BATCH_SIZE) { batches.push(jobs.slice(j, j + BATCH_SIZE)); }
+        if (supJobs.length) { batches.push(supJobs); }
+        for (var j = 0; j < itemJobs.length; j += BATCH_SIZE) { batches.push(itemJobs.slice(j, j + BATCH_SIZE)); }
         if (!batches.length) { batches.push([]); } // alleen verkoper en debiteur
         var ticket = ++validating;
 
@@ -207,12 +211,15 @@
             body.set('verkoper', sellerEl.value.trim());
             body.set('debiteur', debtorEl.value.trim());
             body.set('soort', T.soort);
-            batches[n].forEach(function (job) { body.append(job.type === 'item' ? 'items[]' : 'suppliers[]', job.value); });
+            var sent = batches[n].filter(function (job) { return job.type === 'sup'; }).map(function (job) { return job.value; });
+            if (sent.length) { body.set('suppliers_list', sent.join('\n')); } // één veld, zodat max_input_vars niet meespeelt
+            batches[n].forEach(function (job) { if (job.type === 'item') { body.append('items[]', job.value); } });
             return fetch(endpoint, { method: 'POST', body: body })
                 .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
                 .then(function (json) {
                     if (ticket !== validating) { return; }
                     if (!json.ok) { throw new Error(json.error || 'Controle mislukt.'); }
+                    if (json.ms && window.console) { console.log('Offerte-import controle, ms:', json.ms); }
                     sellerInfo = json.verkoper;
                     debtorInfo = json.partij || json.debiteur;
                     if (withItems) {
