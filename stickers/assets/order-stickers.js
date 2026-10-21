@@ -49,7 +49,7 @@
     function field(cls, text) { return '<div class="f ' + cls + '">' + esc(text) + '</div>'; }
 
     function sticker(r, date) {
-        if (sortBy === 'artikel') { return ArtSticker.html(r.artikelnaam, r.artikelnummer); }
+        if (sortBy === 'artikel') { return ArtSticker.html(r.artikelnaam, r.artikelnummer, true); }
         return '<div class="sticker"><div class="sticker-in">' +
             field('r1 b c-l1', 'Bonnr.:') + field('r1 b c-bonnr', r.bonnr) + field('r1 b c-debnm', r.debnm) +
             field('r2 c-l2', 'Uw referentie:') + field('r2 c-ref', r.uw_ref) +
