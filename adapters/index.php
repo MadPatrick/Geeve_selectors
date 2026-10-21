@@ -106,6 +106,8 @@ function loadAdapterRows(?string $csvFile, array &$errors): array
             'connectieType2' => getColumn($row, 'connectie_type_2'),
             'tubeOdMm'       => getColumn($row, 'tube_od_mm'),
             'tubeOdInch'     => getColumn($row, 'tube_od_inch'),
+            // Kolom ontbreekt of is leeg (oudere CSV): hoge druk.
+            'drukklasse'     => strtolower(getColumn($row, 'drukklasse')) === 'laag' ? 'laag' : 'hoog',
         ];
     }
 
@@ -135,7 +137,10 @@ function assetVersion(string $relativePath): string
 
 $articleCount = count($articles);
 $dataState = $loadErrors === [] ? 'ready' : 'error';
-$dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Controleer databestand';
+$lageDrukCount = count(array_filter($articles, static fn(array $a): bool => $a['drukklasse'] === 'laag'));
+$dataLabel = $loadErrors === []
+    ? sprintf('%d adapters geladen (%d hoge druk, %d lage druk)', $articleCount, $articleCount - $lageDrukCount, $lageDrukCount)
+    : 'Controleer databestand';
 ?>
 <!doctype html>
 <html lang="nl">
@@ -178,6 +183,10 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' adapters geladen' : 'Control
                 <h2>Adapter zoeken</h2>
             </div>
             <div class="section-actions">
+                <div class="druk-toggle" role="group" aria-label="Drukklasse">
+                    <button type="button" data-druk="hoog" class="is-active" aria-pressed="true">Hoge druk</button>
+                    <button type="button" data-druk="laag" aria-pressed="false">Lage druk</button>
+                </div>
                 <div class="status-pill <?= h($dataState) ?>"><?= h($dataLabel) ?></div>
                 <button type="button" id="resetButton" class="pdf-button">Filters wissen</button>
             </div>

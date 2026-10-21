@@ -23,6 +23,12 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 .result-count { color: var(--muted); font-size: 14px; font-weight: 700; }
 .step { display: none !important; }
 
+/* Keuzeschakelaar Hoge druk / Lage druk (zelfde opzet als .rp-toggle in reports/msp; kleuren uit --btn-*). */
+.druk-toggle { display: inline-flex; border: 1px solid var(--btn-blue-line); border-radius: 999px; overflow: hidden; min-height: 44px; background: var(--btn-grey); }
+.druk-toggle button { border: 0; background: transparent; color: var(--btn-ink); font: inherit; font-size: 13px; font-weight: 700; padding: 0 16px; cursor: pointer; }
+.druk-toggle button + button { border-left: 1px solid var(--btn-blue-line); }
+.druk-toggle button.is-active { background: var(--btn-blue); color: var(--btn-ink-light); }
+
 .section-actions { display: flex; align-items: center; gap: var(--btn-gap); flex-wrap: wrap; }
 
 .pdf-button {
