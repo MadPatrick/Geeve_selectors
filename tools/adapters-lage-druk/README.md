@@ -20,7 +20,7 @@ Terugzetten: de back-up terugkopiëren naar `data/adapters/artikelnummers_adapte
 |---|---|
 | Artcode | `artnr` |
 | ArtOmschrijving | `omschrijving` (ongewijzigd) |
-| (afgeleid uit artikelcode + omschrijving) | `familie_code` (serie, bv. `270`, `3000LBS-90`), `familie_naam`, `hoek`, `draadsoort_1/2`, `draadmaat_1/2`, `connectie_type_1/2` |
+| (afgeleid uit artikelcode + omschrijving) | `familie_code` (serie, bv. `270`, `90`; bij 3000LBS-/150LBS-artikelen staat de klasse achter de naam, bv. "Plug 3000LBS"), `familie_naam`, `hoek`, `draadsoort_1/2`, `draadmaat_1/2`, `connectie_type_1/2` |
 | - | `drukklasse` = `laag` |
 | AG (32), Credcode, ArtcodeLev | niet overgenomen (geen kolom voor; ArtcodeLev is een leverancierscode, geen Parker-kruisverwijzing) |
 | - | leeg: `cross_ref`, `tube_od_mm`, `tube_od_inch`, `bron_pagina` |

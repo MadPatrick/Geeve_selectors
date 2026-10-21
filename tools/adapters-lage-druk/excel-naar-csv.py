@@ -106,8 +106,8 @@ def omzetten(artnr, omschr):
         t = TPI[soort].get(mt)
         return f'{mt}-{t}' if t else mt
     return {
-        'artnr': artnr, 'cross_ref': '', 'familie_code': (prefix + '-' if prefix else '') + serie if serie else '',
-        'familie_naam': naam, 'omschrijving': omschr.strip(), 'hoek': hoek,
+        'artnr': artnr, 'cross_ref': '', 'familie_code': serie,
+        'familie_naam': naam + (' ' + prefix if prefix else ''), 'omschrijving': omschr.strip(), 'hoek': hoek,
         'draadsoort_1': soort if e1 else '', 'draadmaat_1': vol(m1) if e1 else '', 'connectie_type_1': e1 or '',
         'draadsoort_2': soort if e2 or (e1 and e2) else '', 'draadmaat_2': vol(m2) if e2 else '',
         'connectie_type_2': e2 or '', 'tube_od_mm': '', 'tube_od_inch': '', 'bron_pagina': '', 'drukklasse': 'laag',
