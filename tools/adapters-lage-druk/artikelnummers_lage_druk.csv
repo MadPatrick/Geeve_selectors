@@ -61,53 +61,19 @@
 131-2,,131,Welding tee,"TEE,WELDING EQUAL,SCH 10",T-stuk,,,,,,,,,,laag
 131-2 XS,,131,Welding tee,"TEE,WELDING EQUAL,SCH XS",T-stuk,,,,,,,,,,laag
 1-4,,1,Long sweep bend 90°,"LONG SWEEP BEND 90°, ISO/EN G4",haaks,BSPT,4-11,buiten,BSPP,4-11,binnen,,,,laag
-150LBS-120-1,,120,Elbow 45° 150LBS,KNIE BIN/BIN 45 DEGR,45°,NPT/NPTF,1-11.5,binnen,NPT/NPTF,1-11.5,binnen,,,,laag
-150LBS-120-1/2,,120,Elbow 45° 150LBS,KNIE BIN/BIN 45 DEGR,45°,NPT/NPTF,1/2-14,binnen,NPT/NPTF,1/2-14,binnen,,,,laag
-150LBS-120-3,,120,Elbow 45° 150LBS,KNIE BIN/BIN 45 DEGR,45°,NPT/NPTF,3-8,binnen,NPT/NPTF,3-8,binnen,,,,laag
-150LBS-130-11/2,,130,Tee 150LBS,TEE EQUAL FEM,T-stuk,NPT/NPTF,1 1/2-11.5,binnen,NPT/NPTF,1 1/2-11.5,binnen,,,,laag
-150LBS-130-11/4,,130,Tee 150LBS,TEE EQUAL FEM,T-stuk,NPT/NPTF,1 1/4-11.5,binnen,NPT/NPTF,1 1/4-11.5,binnen,,,,laag
-150LBS-130-2,,130,Tee 150LBS,T-STUK NPT,T-stuk,NPT/NPTF,2-11.5,binnen,NPT/NPTF,2-11.5,binnen,,,,laag
-150LBS-241-1/2X1/4,,241,Reducing bush 150LBS,VERLOOPRING NPT,recht,NPT/NPTF,1/2-14,buiten,NPT/NPTF,1/4-18,binnen,,,,laag
-150LBS-241-1/2X1/8,,241,Reducing bush 150LBS,VERLOOPRING NPT,recht,NPT/NPTF,1/2-14,buiten,NPT/NPTF,1/8-27,binnen,,,,laag
-150LBS-241-1X3/4,,241,Reducing bush 150LBS,VERLOOPRING NPT,recht,NPT/NPTF,1-11.5,buiten,NPT/NPTF,3/4-14,binnen,,,,laag
-150LBS-241-3X2,,241,Reducing bush 150LBS,VERLOOPRING NPT,recht,NPT/NPTF,3-8,buiten,NPT/NPTF,2-11.5,binnen,,,,laag
-150LBS-245-1X3/4,,245,Nipple 150LBS,DRAADNIPPEL REDUCEER NPT,recht,NPT/NPTF,1-11.5,buiten,NPT/NPTF,3/4-14,buiten,,,,laag
-150LBS-270-2,,270,Socket 150LBS,DRAADSOK NPT,recht,NPT/NPTF,2-11.5,binnen,NPT/NPTF,2-11.5,binnen,,,,laag
-150LBS-280-1,,280,Nipple 150LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,1-11.5,buiten,NPT/NPTF,1-11.5,buiten,,,,laag
-150LBS-280-1/2,,280,Nipple 150LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,1/2-14,buiten,NPT/NPTF,1/2-14,buiten,,,,laag
-150LBS-280-1/4,,280,Nipple 150LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,1/4-18,buiten,NPT/NPTF,1/4-18,buiten,,,,laag
-150LBS-280-11/2,,280,Nipple 150LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,1 1/2-11.5,buiten,NPT/NPTF,1 1/2-11.5,buiten,,,,laag
-150LBS-280-11/4,,280,Nipple 150LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,1 1/4-11.5,buiten,NPT/NPTF,1 1/4-11.5,buiten,,,,laag
-150LBS-280-2,,280,Nipple 150LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,2-11.5,buiten,NPT/NPTF,2-11.5,buiten,,,,laag
-150LBS-280-3,,280,Nipple 150LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,3-8,buiten,NPT/NPTF,3-8,buiten,,,,laag
-150LBS-280-3/4,,280,Nipple 150LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,3/4-14,buiten,NPT/NPTF,3/4-14,buiten,,,,laag
-150LBS-280-3/8,,280,Nipple 150LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,3/8-18,buiten,NPT/NPTF,3/8-18,buiten,,,,laag
-150LBS-290-1/2,,290,Plug 150LBS,DRAADPLUG NPT,Plug,NPT/NPTF,1/2-14,buiten,,,,,,,laag
-150LBS-290-3/4,,290,Plug 150LBS,DRAADPLUG NPT,Plug,NPT/NPTF,3/4-14,buiten,,,,,,,laag
-150LBS-300-1,,300,Cap 150LBS,CAP HEX HEAD  FEM,Cap,NPT/NPTF,1-11.5,binnen,,,,,,,laag
-150LBS-300-1/2,,300,Cap 150LBS,CAP HEX HEAD  FEM,Cap,NPT/NPTF,1/2-14,binnen,,,,,,,laag
-150LBS-300-21/2,,300,Cap 150LBS,CAP HEX HEAD  FEM,Cap,NPT/NPTF,2 1/2-8,binnen,,,,,,,laag
-150LBS-300-3/4,,300,Cap 150LBS,CAP HEX HEAD  FEM,Cap,NPT/NPTF,3/4-14,binnen,,,,,,,laag
-150LBS-340-2,,340,Union (3-delig) 150LBS,KOPPELING 3 DELIG BI-BI NPT,recht,NPT/NPTF,2-11.5,binnen,NPT/NPTF,2-11.5,binnen,,,,laag
-150LBS-90-1,,90,Elbow 90° 150LBS,KNIE BIN/BIN,haaks,NPT/NPTF,1-11.5,binnen,NPT/NPTF,1-11.5,binnen,,,,laag
-150LBS-90-1/2,,90,Elbow 90° 150LBS,KNIE BIN/BIN,haaks,NPT/NPTF,1/2-14,binnen,NPT/NPTF,1/2-14,binnen,,,,laag
-150LBS-90-11/2,,90,Elbow 90° 150LBS,KNIE BIN/BIN,haaks,NPT/NPTF,1 1/2-11.5,binnen,NPT/NPTF,1 1/2-11.5,binnen,,,,laag
-150LBS-92-1/2,,92,Elbow 90° 150LBS,KNIE MALE/ FEM/90 DEGR,haaks,NPT/NPTF,1/2-14,buiten,NPT/NPTF,1/2-14,binnen,,,,laag
-150LBS-92-3/4,,92,Elbow 90° 150LBS,KNIE MALE/ FEM/90 DEGR,haaks,NPT/NPTF,3/4-14,buiten,NPT/NPTF,3/4-14,binnen,,,,laag
-150LBS-92-3/8,,92,Elbow 90° 150LBS,KNIE MALE/ FEM/90 DEGR,haaks,NPT/NPTF,3/8-18,buiten,NPT/NPTF,3/8-18,binnen,,,,laag
-16-1,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1-11,binnen,,,,,,,laag
-16-1 VZ,,16,Welding socket,"WELDING SOCKET,",recht,,,,,,,,,,laag
-16-1/2,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1/2-14,binnen,,,,,,,laag
-16-1/4,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1/4-19,binnen,,,,,,,laag
-16-1/8,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1/8-28,binnen,,,,,,,laag
-16-11/2,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1 1/2-11,binnen,,,,,,,laag
-16-11/4,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1 1/4-11,binnen,,,,,,,laag
-16-11/4 VZ,,16,Welding socket,"WELDING SOCKET,",recht,,,,,,,,,,laag
-16-2,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,2-11,binnen,,,,,,,laag
-16-21/2,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,2 1/2-11,binnen,,,,,,,laag
-16-3,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,3-11,binnen,,,,,,,laag
-16-3/4,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,3/4-14,binnen,,,,,,,laag
-16-3/8,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,3/8-19,binnen,,,,,,,laag
+16-1,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1-11,binnen,BSPP,1-11,binnen,,,,laag
+16-1 VZ,,16,Welding socket,"WELDING SOCKET,",recht,BSPP,1-11,binnen,BSPP,1-11,binnen,,,,laag
+16-1/2,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1/2-14,binnen,BSPP,1/2-14,binnen,,,,laag
+16-1/4,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1/4-19,binnen,BSPP,1/4-19,binnen,,,,laag
+16-1/8,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1/8-28,binnen,BSPP,1/8-28,binnen,,,,laag
+16-11/2,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1 1/2-11,binnen,BSPP,1 1/2-11,binnen,,,,laag
+16-11/4,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1 1/4-11,binnen,BSPP,1 1/4-11,binnen,,,,laag
+16-11/4 VZ,,16,Welding socket,"WELDING SOCKET,",recht,BSPP,1 1/4-11,binnen,BSPP,1 1/4-11,binnen,,,,laag
+16-2,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,2-11,binnen,BSPP,2-11,binnen,,,,laag
+16-21/2,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,2 1/2-11,binnen,BSPP,2 1/2-11,binnen,,,,laag
+16-3,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,3-11,binnen,BSPP,3-11,binnen,,,,laag
+16-3/4,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,3/4-14,binnen,BSPP,3/4-14,binnen,,,,laag
+16-3/8,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,3/8-19,binnen,BSPP,3/8-19,binnen,,,,laag
 165-11/4,,165,Tee,45' TEE ISO/EN C1,T-stuk,BSPP,1 1/4-11,binnen,BSPP,1 1/4-11,binnen,,,,laag
 180-1,,180,Cross,"CROSS, EQUAL, ISO/EN C1",kruis,BSPP,1-11,binnen,BSPP,1-11,binnen,,,,laag
 180-1/2,,180,Cross,"CROSS, EQUAL, ISO/EN C1",kruis,BSPP,1/2-14,binnen,BSPP,1/2-14,binnen,,,,laag
@@ -421,53 +387,6 @@
 290-3/4,,290,Plug,"PLUG, BEADED, ISO/EN T9",Plug,BSPT,3/4-14,buiten,,,,,,,laag
 290-3/8,,290,Plug,"PLUG, BEADED, ISO/EN T9",Plug,BSPT,3/8-19,buiten,,,,,,,laag
 290-4,,290,Plug,"PLUG, BEADED, ISO/EN T9",Plug,BSPT,4-11,buiten,,,,,,,laag
-3000LBS-120-1,,120,Elbow 45° 3000LBS,KNIE BIN / BIN 45DEG NPT,45°,NPT/NPTF,1-11.5,binnen,NPT/NPTF,1-11.5,binnen,,,,laag
-3000LBS-130-1,,130,Tee 3000LBS,T-STUK NPT,T-stuk,NPT/NPTF,1-11.5,binnen,NPT/NPTF,1-11.5,binnen,,,,laag
-3000LBS-130-1/2,,130,Tee 3000LBS,T-STUK NPT,T-stuk,NPT/NPTF,1/2-14,binnen,NPT/NPTF,1/2-14,binnen,,,,laag
-3000LBS-130-2,,130,Tee 3000LBS,T-STUK NPT,T-stuk,NPT/NPTF,2-11.5,binnen,NPT/NPTF,2-11.5,binnen,,,,laag
-3000LBS-130-3,,130,Tee 3000LBS,T-STUK NPT,T-stuk,NPT/NPTF,3-8,binnen,NPT/NPTF,3-8,binnen,,,,laag
-3000LBS-16-1,,16,Welding socket 3000LBS,LASSOK SW,recht,,,,,,,,,,laag
-3000LBS-16-3,,16,Welding socket 3000LBS,LASSOK,recht,,,,,,,,,,laag
-3000LBS-180-1,,180,Cross 3000LBS,KRUIS-STUK NPT,kruis,NPT/NPTF,1-11.5,binnen,NPT/NPTF,1-11.5,binnen,,,,laag
-3000LBS-180-11/2,,180,Cross 3000LBS,KRUIS-STUK NPT,kruis,NPT/NPTF,1 1/2-11.5,binnen,NPT/NPTF,1 1/2-11.5,binnen,,,,laag
-3000LBS-180-3/4,,180,Cross 3000LBS,KRUIS-STUK NPT,kruis,NPT/NPTF,3/4-14,binnen,NPT/NPTF,3/4-14,binnen,,,,laag
-3000LBS-2300-1X100,,2300,Nipple 3000LBS,PIJPNIPPEL NPT,recht,NPT/NPTF,1-11.5,buiten,NPT/NPTF,1-11.5,buiten,,,,laag
-3000LBS-2300-2X305,,2300,Nipple 3000LBS,PIJPNIPPEL NPT,recht,NPT/NPTF,2-11.5,buiten,NPT/NPTF,2-11.5,buiten,,,,laag
-3000LBS-2300-3/4X200,,2300,Nipple 3000LBS,PIJPNIPPEL NPT,recht,NPT/NPTF,3/4-14,buiten,NPT/NPTF,3/4-14,buiten,,,,laag
-3000LBS-241-11/2X11/4,,241,Reducing bush 3000LBS,VERLOOPRING NPT,recht,NPT/NPTF,1 1/2-11.5,buiten,NPT/NPTF,1 1/4-11.5,binnen,,,,laag
-3000LBS-241-3/4X1/4,,241,Reducing bush 3000LBS,VERLOOPRING NPT,recht,NPT/NPTF,3/4-14,buiten,NPT/NPTF,1/4-18,binnen,,,,laag
-3000LBS-241-3/4X3/8,,241,Reducing bush 3000LBS,VERLOOPRING NPT,recht,NPT/NPTF,3/4-14,buiten,NPT/NPTF,3/8-18,binnen,,,,laag
-3000LBS-241-3X2,,241,Reducing bush 3000LBS,VERLOOPRING NPT,recht,NPT/NPTF,3-8,buiten,NPT/NPTF,2-11.5,binnen,,,,laag
-3000LBS-241-3X21/2,,241,Reducing bush 3000LBS,VERLOOPRING NPT,recht,NPT/NPTF,3-8,buiten,NPT/NPTF,2 1/2-8,binnen,,,,laag
-3000LBS-241-4X3,,241,Reducing bush 3000LBS,VERLOOPRING NPT,recht,NPT/NPTF,4-8,buiten,NPT/NPTF,3-8,binnen,,,,laag
-3000LBS-245-1X1/2,,245,Nipple 3000LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,1-11.5,buiten,NPT/NPTF,1/2-14,buiten,,,,laag
-3000LBS-270-3,,270,Socket 3000LBS,DRAADSOK NPT,recht,NPT/NPTF,3-8,binnen,NPT/NPTF,3-8,binnen,,,,laag
-3000LBS-270-4,,270,Socket 3000LBS,DRAADSOK NPT,recht,NPT/NPTF,4-8,binnen,NPT/NPTF,4-8,binnen,,,,laag
-3000LBS-280-1/2,,280,Nipple 3000LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,1/2-14,buiten,NPT/NPTF,1/2-14,buiten,,,,laag
-3000LBS-280-1/4,,280,Nipple 3000LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,1/4-18,buiten,NPT/NPTF,1/4-18,buiten,,,,laag
-3000LBS-280-2,,280,Nipple 3000LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,2-11.5,buiten,NPT/NPTF,2-11.5,buiten,,,,laag
-3000LBS-280-3/4,,280,Nipple 3000LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,3/4-14,buiten,NPT/NPTF,3/4-14,buiten,,,,laag
-3000LBS-280-3/8,,280,Nipple 3000LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,3/8-18,buiten,NPT/NPTF,3/8-18,buiten,,,,laag
-3000LBS-280-4,,280,Nipple 3000LBS,DRAADNIPPEL NPT,recht,NPT/NPTF,4-8,buiten,NPT/NPTF,4-8,buiten,,,,laag
-3000LBS-290-1/4,,290,Plug 3000LBS,DRAADPLUG NPT,Plug,NPT/NPTF,1/4-18,buiten,,,,,,,laag
-3000LBS-290-3/8,,290,Plug 3000LBS,DRAADPLUG NPT,Plug,NPT/NPTF,3/8-18,buiten,,,,,,,laag
-3000LBS-301-1/2,,301,Cap 3000LBS,RONDE DOP BIN NPT,Cap,NPT/NPTF,1/2-14,binnen,,,,,,,laag
-3000LBS-301-2,,301,Cap 3000LBS,RONDE DOP BIN NPT,Cap,NPT/NPTF,2-11.5,binnen,,,,,,,laag
-3000LBS-301-3/4,,301,Cap 3000LBS,RONDE DOP BIN NPT,Cap,NPT/NPTF,3/4-14,binnen,,,,,,,laag
-3000LBS-340-1,,340,Union (3-delig) 3000LBS,KOPPELING 3 DELIG BI-BI NPT,recht,NPT/NPTF,1-11.5,binnen,NPT/NPTF,1-11.5,binnen,,,,laag
-3000LBS-340-1/2,,340,Union (3-delig) 3000LBS,KOPPELING 3 DELIG BI-BI NPT,recht,NPT/NPTF,1/2-14,binnen,NPT/NPTF,1/2-14,binnen,,,,laag
-3000LBS-340-11/2,,340,Union (3-delig) 3000LBS,KOPPELING 3 DELIG BI-BI NPT,recht,NPT/NPTF,1 1/2-11.5,binnen,NPT/NPTF,1 1/2-11.5,binnen,,,,laag
-3000LBS-340-1SW,,340,Union (3-delig) 3000LBS,KOPPELING 3 DELIG BI-BI,recht,,,,,,,,,,laag
-3000LBS-340-2,,340,Union (3-delig) 3000LBS,KOPPELING 3 DELIG BI-BI NPT,recht,NPT/NPTF,2-11.5,binnen,NPT/NPTF,2-11.5,binnen,,,,laag
-3000LBS-340-3,,340,Union (3-delig) 3000LBS,KOPPELING 3 DELIG BI-BI NPT,recht,NPT/NPTF,3-8,binnen,NPT/NPTF,3-8,binnen,,,,laag
-3000LBS-340-3/4,,340,Union (3-delig) 3000LBS,KOPPELING 3 DELIG BI-BI NPT,recht,NPT/NPTF,3/4-14,binnen,NPT/NPTF,3/4-14,binnen,,,,laag
-3000LBS-340-3/4SW,,340,Union (3-delig) 3000LBS,KOPPELING 3 DELIG BI-BI,recht,,,,,,,,,,laag
-3000LBS-90-11/2,,90,Elbow 90° 3000LBS,KNIE BIN / BIN NPT,haaks,NPT/NPTF,1 1/2-11.5,binnen,NPT/NPTF,1 1/2-11.5,binnen,,,,laag
-3000LBS-90-2SW,,90,Elbow 90° 3000LBS,KNIE BIN / BIN SW,haaks,,,,,,,,,,laag
-3000LBS-90-4,,90,Elbow 90° 3000LBS,KNIE BIN / BIN NPT,haaks,NPT/NPTF,4-8,binnen,NPT/NPTF,4-8,binnen,,,,laag
-3000LBS-92-11/4,,92,Elbow 90° 3000LBS,KNIE BIN / BUI NPT,haaks,NPT/NPTF,1 1/4-11.5,binnen,NPT/NPTF,1 1/4-11.5,buiten,,,,laag
-3000LBS-92-2,,92,Elbow 90° 3000LBS,KNIE BIN / BUI NPT,haaks,NPT/NPTF,2-11.5,binnen,NPT/NPTF,2-11.5,buiten,,,,laag
-3000LBS-92-3/4,,92,Elbow 90° 3000LBS,KNIE BIN / BUI NPT,haaks,NPT/NPTF,3/4-14,binnen,NPT/NPTF,3/4-14,buiten,,,,laag
 300-1,,300,Cap,"CAP, ISO/EN T1",Cap,BSPP,1-11,binnen,,,,,,,laag
 300-1/2,,300,Cap,"CAP, ISO/EN T1",Cap,BSPP,1/2-14,binnen,,,,,,,laag
 300-1/4,,300,Cap,"CAP, ISO/EN T1",Cap,BSPP,1/4-19,binnen,,,,,,,laag
