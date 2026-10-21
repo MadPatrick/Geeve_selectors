@@ -41,7 +41,7 @@ kolommen:
 | `drukklasse` | `hoog` (hoge druk) of `laag` (lage druk). Leeg of kolom ontbreekt = `hoog`. De schakelaar "Hoge druk / Lage druk" in de selectie toont alleen artikelen van de gekozen klasse |
 
 Het formaat met 15 kolommen (zonder `drukklasse`) blijft geldig bij upload; alles telt dan als hoge druk.
-Lage druk (draadsoorten `BSPT`, `NPT/NPTF`) komt uit `Malleable gr 32.xlsx`; zie
+Lage druk (draadsoorten `BSPP` (binnen), `BSPT` (buiten), `NPT/NPTF`) komt uit `Malleable gr 32.xlsx`; zie
 `tools/adapters-lage-druk/README.md`.
 
 ## Herkomst van de data
