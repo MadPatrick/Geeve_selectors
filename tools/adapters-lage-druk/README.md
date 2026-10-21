@@ -8,7 +8,7 @@ php tools/adapters-lage-druk/lage-druk-toevoegen.php
 ```
 
 Het script maakt een back-up in `data/backups/adapters/` (`...-voor-lage-druk.csv`), voegt de kolom
-`drukklasse` toe (bestaande artikelen = `hoog`) en voegt de 1000 artikelen uit
+`drukklasse` toe (bestaande artikelen = `hoog`) en voegt de artikelen (zonder RVS-artikelen, die dubbel zijn met staal) uit
 `artikelnummers_lage_druk.csv` toe als `laag`. Opnieuw draaien vervangt alleen de lage-drukregels.
 Terugzetten: de back-up terugkopiëren naar `data/adapters/artikelnummers_adapters.csv`.
 
