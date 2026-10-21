@@ -416,26 +416,31 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
     if ($raster['code'] !== 0 || $pages === []) {
         throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
     }
+    // Eén Python-start voor alle pagina's (PIL laden kost per start merkbaar tijd), daarna de brother_ql-omzettingen
+    // tegelijk i.p.v. na elkaar.
     $pad = 'import sys\nfrom PIL import Image\n'
-        . 'src = Image.open(sys.argv[1]).convert("1")\n'
-        . 'w, h = int(sys.argv[3]), int(sys.argv[4])\n'
-        . 'if src.width > w or src.height > h:\n'
-        . '    f = min(w / src.width, h / src.height)\n'
-        . '    src = src.resize((max(1, int(src.width * f)), max(1, int(src.height * f))))\n'
-        . 'canvas = Image.new("1", (w, h), 1)\n'
-        . 'canvas.paste(src, ((w - src.width) // 2, (h - src.height) // 2))\n'
-        . 'canvas.save(sys.argv[2])\n';
-    $bin = '';
+        . 'w, h = int(sys.argv[1]), int(sys.argv[2])\n'
+        . 'for pad in sys.argv[3:]:\n'
+        . '    src = Image.open(pad).convert("1")\n'
+        . '    if src.width > w or src.height > h:\n'
+        . '        f = min(w / src.width, h / src.height)\n'
+        . '        src = src.resize((max(1, int(src.width * f)), max(1, int(src.height * f))))\n'
+        . '    canvas = Image.new("1", (w, h), 1)\n'
+        . '    canvas.paste(src, ((w - src.width) // 2, (h - src.height) // 2))\n'
+        . '    canvas.save(pad[:-4] + ".png")\n';
+    $fit = geeveRun(array_merge([$python, '-c', str_replace('\\n', "\n", $pad), (string) $dots['breedte'], (string) $dots['hoogte']], $pages), 60);
+    if ($fit['code'] !== 0) {
+        throw new RuntimeException('De labels konden niet worden klaargemaakt: ' . geeveLastLine($fit['err']));
+    }
+    $commands = [];
     foreach ($pages as $i => $page) {
-        $png = $workDir . '/label' . $i . '.png';
-        $out = $workDir . '/label' . $i . '.bin';
-        $fit = geeveRun([$python, '-c', str_replace('\\n', "\n", $pad), $page, $png, (string) $dots['breedte'], (string) $dots['hoogte']], 30);
-        if ($fit['code'] !== 0) {
-            throw new RuntimeException('Het label kon niet worden klaargemaakt: ' . geeveLastLine($fit['err']));
-        }
         // Oudere brother_ql_create kent alleen --no-cut (snijden is de standaard); --cut geeft een fout.
         $opties = $snijdEinde && $i < count($pages) - 1 ? ['--no-cut'] : [];
-        $make = geeveRun(array_merge([$create, '--model', (string) ($printer['model'] ?? 'QL-1100'), '--label-size', $dots['maat']], $opties, [$png, $out]), 30);
+        $commands[$i] = array_merge([$create, '--model', (string) ($printer['model'] ?? 'QL-1100'), '--label-size', $dots['maat']], $opties, [substr($page, 0, -4) . '.png', $workDir . '/label' . $i . '.bin']);
+    }
+    $bin = '';
+    foreach (geeveRunParallel($commands, 60) as $i => $make) {
+        $out = $workDir . '/label' . $i . '.bin';
         if ($make['code'] !== 0 || !is_file($out)) {
             throw new RuntimeException('brother_ql kon het label niet omzetten: ' . geeveLastLine($make['err'] . $make['out']));
         }
@@ -663,6 +668,50 @@ function geeveRun(array $command, int $timeoutSeconds, array $env = []): array
     fclose($pipes[2]);
     proc_close($process);
     return ['code' => $code, 'out' => $out, 'err' => $err];
+}
+
+/** Voert meerdere programma's tegelijk uit (zelfde sleutels als $commands); geeft per sleutel ['code', 'out', 'err']. */
+function geeveRunParallel(array $commands, int $timeoutSeconds): array
+{
+    $running = [];
+    $result = [];
+    foreach ($commands as $key => $command) {
+        $process = @proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, ['PATH' => '/usr/local/bin:/usr/bin:/bin']);
+        if (!is_resource($process)) {
+            $result[$key] = ['code' => 127, 'out' => '', 'err' => 'Programma niet gevonden: ' . $command[0]];
+            continue;
+        }
+        stream_set_blocking($pipes[1], false);
+        stream_set_blocking($pipes[2], false);
+        $running[$key] = ['process' => $process, 'pipes' => $pipes, 'out' => '', 'err' => ''];
+    }
+    $deadline = microtime(true) + $timeoutSeconds;
+    while ($running !== []) {
+        foreach ($running as $key => &$job) {
+            $job['out'] .= (string) stream_get_contents($job['pipes'][1]);
+            $job['err'] .= (string) stream_get_contents($job['pipes'][2]);
+            $status = proc_get_status($job['process']);
+            $timeout = microtime(true) > $deadline;
+            if (!$status['running'] || $timeout) {
+                if ($timeout) {
+                    proc_terminate($job['process'], 9);
+                }
+                $job['out'] .= (string) stream_get_contents($job['pipes'][1]);
+                $job['err'] .= (string) stream_get_contents($job['pipes'][2]);
+                fclose($job['pipes'][1]);
+                fclose($job['pipes'][2]);
+                proc_close($job['process']);
+                $result[$key] = ['code' => $timeout ? 124 : (int) $status['exitcode'], 'out' => $job['out'], 'err' => $job['err']];
+                unset($running[$key]);
+            }
+        }
+        unset($job);
+        if ($running !== []) {
+            usleep(20000);
+        }
+    }
+    ksort($result);
+    return $result;
 }
 
 function geeveLastLine(string $text): string
