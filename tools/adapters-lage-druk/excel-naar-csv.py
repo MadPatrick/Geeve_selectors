@@ -15,7 +15,7 @@ COLS = ['artnr', 'cross_ref', 'familie_code', 'familie_naam', 'omschrijving', 'h
         'connectie_type_2', 'tube_od_mm', 'tube_od_inch', 'bron_pagina', 'drukklasse']
 
 TPI = {
-    'BSP': {'1/8': 28, '1/4': 19, '3/8': 19, '1/2': 14, '3/4': 14, '1': 11, '1 1/4': 11,
+    'BSPT': {'1/8': 28, '1/4': 19, '3/8': 19, '1/2': 14, '3/4': 14, '1': 11, '1 1/4': 11,
             '1 1/2': 11, '2': 11, '2 1/2': 11, '3': 11, '4': 11},
     'NPT/NPTF': {'1/8': 27, '1/4': 18, '3/8': 18, '1/2': 14, '3/4': 14, '1': '11.5',
                  '1 1/4': '11.5', '1 1/2': '11.5', '2': '11.5', '2 1/2': 8, '3': 8, '4': 8},
@@ -97,7 +97,7 @@ def omzetten(artnr, omschr):
                 maten = maten[:1]          # tweede getal is de lengte in mm, geen maat
             if serie == '400': maten = []
     if re.search(r'MUURPLAAT|FLENS|BOORDRING|GASPIJP|LASBOCHT', d): maten = []
-    soort = 'NPT/NPTF' if (prefix or 'NPT' in d) else 'BSP'
+    soort = 'NPT/NPTF' if (prefix or 'NPT' in d) else 'BSPT'
     if e1 is None and e2 is None: soort = ''; maten = []
     m1 = maten[0] if maten else ''
     m2 = maten[1] if len(maten) > 1 else m1

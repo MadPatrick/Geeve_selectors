@@ -25,7 +25,7 @@ Terugzetten: de back-up terugkopiëren naar `data/adapters/artikelnummers_adapte
 | AG (32), Credcode, ArtcodeLev | niet overgenomen (geen kolom voor; ArtcodeLev is een leverancierscode, geen Parker-kruisverwijzing) |
 | - | leeg: `cross_ref`, `tube_od_mm`, `tube_od_inch`, `bron_pagina` |
 
-Afleidregels: `3000LBS-`/`150LBS-` of "NPT" in de omschrijving = `NPT/NPTF`, anders `BSP`. Maat uit de artikelcode
+Afleidregels: `3000LBS-`/`150LBS-` of "NPT" in de omschrijving = `NPT/NPTF`, anders `BSPT`. Maat uit de artikelcode
 (`11/4` = 1 1/4) met spoed erbij (`1 1/4-11`) zoals bij de bestaande artikelen. Uiteinden (buiten/binnen) volgen
 de ISO/EN-code in de omschrijving (A1/G1/M2/B1/C1/U11/UA11/T1 = binnen, N8/G8 = buiten, A4/G4/N4/U12/UA12 = buiten + binnen)
 of de Nederlandse tekst (BIN/BUI, MALE/FEM). Lasproducten (welding socket/cap, lasbochten, flenzen, gaspijp, ...)
