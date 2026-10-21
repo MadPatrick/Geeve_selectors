@@ -52,7 +52,7 @@ $csrf = csrfToken();
 
     <section class="panel pt-top">
         <h2>P-Touch</h2>
-        <p class="ka-empty">Typ de tekst rechtstreeks op de sticker (102 × 51 mm). Het lettertype is Verdana 40 px; wordt de tekst te veel, dan wordt de letter vanzelf kleiner zodat alles op de sticker past. Enter geeft een nieuwe regel.</p>
+        <p class="ka-empty">Typ de tekst rechtstreeks op de sticker (102 × 51 mm). Het lettertype is Arial Black 40 px; wordt de tekst te veel, dan wordt de letter vanzelf kleiner zodat alles op de sticker past. Enter geeft een nieuwe regel.</p>
 
         <div class="pt-preview">
             <div class="pt-sticker" id="ptSticker"><div class="pt-text" id="ptText" contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-multiline="true" aria-label="Tekst op de sticker" data-placeholder="Typ hier je tekst" autofocus></div></div>
