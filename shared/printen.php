@@ -433,8 +433,9 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
         if ($fit['code'] !== 0) {
             throw new RuntimeException('Het label kon niet worden klaargemaakt: ' . geeveLastLine($fit['err']));
         }
-        $knip = $snijdEinde && $i < count($pages) - 1 ? '--no-cut' : '--cut';
-        $make = geeveRun([$create, '--model', (string) ($printer['model'] ?? 'QL-1100'), '--label-size', $dots['maat'], $knip, $png, $out], 30);
+        // Oudere brother_ql_create kent alleen --no-cut (snijden is de standaard); --cut geeft een fout.
+        $opties = $snijdEinde && $i < count($pages) - 1 ? ['--no-cut'] : [];
+        $make = geeveRun(array_merge([$create, '--model', (string) ($printer['model'] ?? 'QL-1100'), '--label-size', $dots['maat']], $opties, [$png, $out]), 30);
         if ($make['code'] !== 0 || !is_file($out)) {
             throw new RuntimeException('brother_ql kon het label niet omzetten: ' . geeveLastLine($make['err'] . $make['out']));
         }
