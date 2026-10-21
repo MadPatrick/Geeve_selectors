@@ -3,12 +3,14 @@ window.ArtSticker = (function () {
     var MODULE_MM = 0.38; // breedte van één streepje in de barcode
     var MAX_BC_MM = 94;   // past binnen de 102 mm met 4 mm marge
 
+    var MAX_BC_70X25_MM = 65; // past binnen de 70 mm met 2,5 mm marge
+
     function esc(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    function html(omschrijving, artikel) {
-        return '<div class="sticker sticker--art">' +
+    function html(omschrijving, artikel, klein) {
+        return '<div class="sticker sticker--art' + (klein ? ' sticker--70x25' : '') + '">' +
             '<div class="f desc">' + esc(omschrijving) + '</div>' +
             '<div class="bc"><svg data-art-code="' + esc(artikel) + '"></svg></div>' +
             '<div class="f art">' + esc(artikel) + '</div>' +
@@ -27,7 +29,7 @@ window.ArtSticker = (function () {
                 svg.setAttribute('preserveAspectRatio', 'none');
                 svg.removeAttribute('style');
                 svg.removeAttribute('height');
-                svg.style.width = Math.min(modules * MODULE_MM, MAX_BC_MM) + 'mm'; // inline, wint van .sticker .bc svg (100%) bij de orderstickers
+                svg.style.width = Math.min(modules * MODULE_MM, svg.closest('.sticker--70x25') ? MAX_BC_70X25_MM : MAX_BC_MM) + 'mm'; // inline, wint van .sticker .bc svg (100%) bij de orderstickers
             } catch (e) {
                 svg.outerHTML = '<span>Geen barcode mogelijk</span>';
             }
