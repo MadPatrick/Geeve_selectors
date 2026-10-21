@@ -1,7 +1,11 @@
 (() => {
     'use strict';
 
-    const articles = Array.isArray(window.ARTICLES) ? window.ARTICLES : [];
+    const allArticles = Array.isArray(window.ARTICLES) ? window.ARTICLES : [];
+    // Drukklasse: 'hoog' (hoge druk, alle bestaande adapters) of 'laag' (lage druk). Een artikel zonder
+    // drukklasse in de CSV telt als hoge druk. Alle lijsten en resultaten gebruiken alleen de gekozen klasse.
+    let drukklasse = 'hoog';
+    let articles = [];
 
     const els = {
         draadsoort1: document.getElementById('draadsoort1'),
@@ -12,6 +16,7 @@
         connectie2: document.getElementById('connectie2'),
         hoek: document.getElementById('hoek'),
     };
+    const drukButtons = [...document.querySelectorAll('.druk-toggle button')];
     const hoekButtons = [...document.querySelectorAll('.hoek-icon')];
     const selectedHoek = new Set();
     const connectie1Buttons = [...document.querySelectorAll('#connectie1 .connectie-icon')];
@@ -116,26 +121,31 @@
 
     // --- static option lists ------------------------------------------
 
-    const draadsoortValues = uniqueSorted(
-        articles.flatMap((a) => [a.draadsoort1, a.draadsoort2]),
-        (a, b) => a.localeCompare(b)
-    );
+    let draadsoortValues = [];
+    let draadmaatBySoort = new Map();
+    let allDraadmaatValues = [];
 
-    const draadmaatBySoort = new Map();
-    draadsoortValues.forEach((soort) => {
-        const maten = uniqueSorted(
-            articles.flatMap((a) => [
-                a.draadsoort1 === soort ? a.draadmaat1 : '',
-                a.draadsoort2 === soort ? a.draadmaat2 : '',
-            ]),
+    function buildLists() {
+        draadsoortValues = uniqueSorted(
+            articles.flatMap((a) => [a.draadsoort1, a.draadsoort2]),
+            (a, b) => a.localeCompare(b)
+        );
+        draadmaatBySoort = new Map();
+        draadsoortValues.forEach((soort) => {
+            const maten = uniqueSorted(
+                articles.flatMap((a) => [
+                    a.draadsoort1 === soort ? a.draadmaat1 : '',
+                    a.draadsoort2 === soort ? a.draadmaat2 : '',
+                ]),
+                (a, b) => sizeSortKey(a) - sizeSortKey(b) || a.localeCompare(b)
+            );
+            draadmaatBySoort.set(soort, maten);
+        });
+        allDraadmaatValues = uniqueSorted(
+            articles.flatMap((a) => [a.draadmaat1, a.draadmaat2]),
             (a, b) => sizeSortKey(a) - sizeSortKey(b) || a.localeCompare(b)
         );
-        draadmaatBySoort.set(soort, maten);
-    });
-    const allDraadmaatValues = uniqueSorted(
-        articles.flatMap((a) => [a.draadmaat1, a.draadmaat2]),
-        (a, b) => sizeSortKey(a) - sizeSortKey(b) || a.localeCompare(b)
-    );
+    }
 
     // --- populate dropdowns --------------------------------------------
 
@@ -145,10 +155,24 @@
         fillSelect(select, values, 'Alle', (value) => draadmaatLabel(soort, value));
     }
 
-    fillSelect(els.draadsoort1, draadsoortValues, 'Alle');
-    fillSelect(els.draadsoort2, draadsoortValues, 'Alle');
-    populateDraadmaat(els.draadmaat1, els.draadsoort1);
-    populateDraadmaat(els.draadmaat2, els.draadsoort2);
+    function populateAll() {
+        fillSelect(els.draadsoort1, draadsoortValues, 'Alle');
+        fillSelect(els.draadsoort2, draadsoortValues, 'Alle');
+        populateDraadmaat(els.draadmaat1, els.draadsoort1);
+        populateDraadmaat(els.draadmaat2, els.draadsoort2);
+    }
+
+    function setDrukklasse(value) {
+        drukklasse = value === 'laag' ? 'laag' : 'hoog';
+        articles = allArticles.filter((a) => (a.drukklasse === 'laag' ? 'laag' : 'hoog') === drukklasse);
+        drukButtons.forEach((button) => {
+            const active = button.dataset.druk === drukklasse;
+            button.classList.toggle('is-active', active);
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        buildLists();
+        populateAll();
+    }
 
     // --- matching --------------------------------------------------------
 
@@ -367,6 +391,15 @@
 
     // --- event wiring --------------------------------------------------
 
+    drukButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            if (button.dataset.druk === drukklasse) return;
+            setDrukklasse(button.dataset.druk);
+            try { localStorage.setItem('adapters.drukklasse', drukklasse); } catch (e) { /* geen opslag: niet erg */ }
+            render();
+        });
+    });
+
     els.draadsoort1.addEventListener('change', () => {
         populateDraadmaat(els.draadmaat1, els.draadsoort1);
         render();
@@ -437,5 +470,8 @@
         render();
     });
 
+    let startDruk = 'hoog';
+    try { startDruk = localStorage.getItem('adapters.drukklasse') === 'laag' ? 'laag' : 'hoog'; } catch (e) { /* geen opslag */ }
+    setDrukklasse(startDruk);
     render();
 })();

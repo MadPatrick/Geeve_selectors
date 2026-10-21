@@ -7,7 +7,7 @@ require_once __DIR__ . '/inc/csv-paths.php';
 $datasets = [
     'adapters' => [
         'candidates' => $csvFileCandidates['adapters'],
-        'columns'    => 15,
+        'columns'    => [15, 16],   // 15 = oud formaat (alles hoge druk), 16 = met kolom drukklasse
         'label'      => 'Adapters',
     ],
 ];
@@ -70,19 +70,22 @@ $handle = fopen($tmpPath, 'r');
 if ($handle === false) {
     redirectWithMessage('error', 'Geüpload bestand kan niet worden gelezen.');
 }
-$headerLine = fgetcsv($handle, 0, ';');
+$firstLine = (string) fgets($handle);
 fclose($handle);
+// De app leest komma-gescheiden bestanden; een met Excel opgeslagen bestand is vaak puntkomma-gescheiden.
+$delimiter = substr_count($firstLine, ';') > substr_count($firstLine, ',') ? ';' : ',';
+$headerLine = str_getcsv($firstLine, $delimiter, '"', '');
 
 if ($headerLine === false) {
     redirectWithMessage('error', 'Geüpload bestand bevat geen geldige kopregel.');
 }
 
 $expectedColumns = $datasets[$dataset]['columns'];
-if (count($headerLine) !== $expectedColumns) {
+if (!in_array(count($headerLine), $expectedColumns, true)) {
     redirectWithMessage('error', sprintf(
-        'Kopregel heeft %d kolom(men), verwacht %d voor %s. Bestand is niet opgeslagen.',
+        'Kopregel heeft %d kolom(men), verwacht %s voor %s. Bestand is niet opgeslagen.',
         count($headerLine),
-        $expectedColumns,
+        implode(' of ', $expectedColumns),
         $datasets[$dataset]['label']
     ));
 }

@@ -38,6 +38,11 @@ kolommen:
 | `draadsoort_2`, `draadmaat_2`, `connectie_type_2` | Aansluiting 2: idem (leeg bij 1-zijdige artikelen zoals pluggen/doppen) |
 | `tube_od_mm`, `tube_od_inch` | Buitendiameter van de leidingzijde (alleen relevant voor de Triple-Lok/O-Lok buis-fitting-reeks) |
 | `bron_pagina` | Paginanummer in de brondocument-PDF, voor traceerbaarheid |
+| `drukklasse` | `hoog` (hoge druk) of `laag` (lage druk). Leeg of kolom ontbreekt = `hoog`. De schakelaar "Hoge druk / Lage druk" in de selectie toont alleen artikelen van de gekozen klasse |
+
+Het formaat met 15 kolommen (zonder `drukklasse`) blijft geldig bij upload; alles telt dan als hoge druk.
+Lage druk (draadsoorten `BSPT`, `NPT/NPTF`) komt uit `Malleable gr 32.xlsx`; zie
+`tools/adapters-lage-druk/README.md`.
 
 ## Herkomst van de data
 
