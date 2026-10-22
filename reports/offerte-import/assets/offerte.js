@@ -310,12 +310,30 @@
         return { cls: '', label: 'Ja', ok: true, export: true, info: info };
     }
 
+    // De verkoper wordt onthouden in een cookie (1 jaar), per soort pagina, en alleen bewaard als Exact hem kent.
+    var sellerCookie = 'oi_verkoper_' + (purchase ? 'inkoop' : 'offerte');
+    function readSellerCookie() {
+        try {
+            var m = document.cookie.match(new RegExp('(?:^|; )' + sellerCookie + '=([^;]*)'));
+            return m ? decodeURIComponent(m[1]) : '';
+        } catch (e) { return ''; }
+    }
+    function saveSellerCookie(v) {
+        try {
+            if (readSellerCookie() === v) { return; }
+            document.cookie = sellerCookie + '=' + encodeURIComponent(v) + '; max-age=31536000; path=/; SameSite=Lax';
+        } catch (e) { /* cookies geblokkeerd: niet erg */ }
+    }
+
     function render() {
         // Veldcontroles
         var seller = sellerEl.value.trim();
         if (seller === '') { setCheck(checks.seller, '', true); }
         else if (!sellerInfo) { setCheck(checks.seller, 'Wordt gecontroleerd…', true); checks.seller.className = 'oi-check'; }
-        else { setCheck(checks.seller, sellerInfo.found ? '✓ ' + sellerInfo.name : '✗ ' + T.Seller + ' niet gevonden', sellerInfo.found); }
+        else {
+            setCheck(checks.seller, sellerInfo.found ? '✓ ' + sellerInfo.name : '✗ ' + T.Seller + ' niet gevonden', sellerInfo.found);
+            if (sellerInfo.found) { saveSellerCookie(seller); }
+        }
         var debtor = debtorEl.value.trim();
         if (debtor === '') { setCheck(checks.debtor, '', true); }
         else if (!debtorInfo) { setCheck(checks.debtor, 'Wordt gecontroleerd…', true); checks.debtor.className = 'oi-check'; }
@@ -524,14 +542,14 @@
     // wat er naar Exact zou gaan; pas na een tweede klik (bevestigen) wordt er echt geschreven.
     // Entiteit- en veldnamen staan hier bij elkaar. Vastgesteld in $metadata van de Entity Service op tst19 (22-10-2026): een
     // offerte is QuotationHeader met QuotationLine (SalesOrderHeader heeft geen ordersoort en geeft een verkooporder). Let op de
-    // spelling Itemcode (kleine c) en Description1 (er is geen Description). QuotationNumber laten we weg: Exact nummert zelf.
+    // spelling Itemcode (kleine c) en Description1 (er is geen Description). De omschrijving uit de app gaat ook naar Reference: dat is het veld Referentie in Exact (22-10-2026, Patrick), net als bij de XML-import. QuotationNumber laten we weg: Exact nummert zelf.
     // Een afwijzing door Exact komt als melding in beeld; veldnamen aanpassen kan hier, zonder wijziging in Slangkaart.Web.
     var EXACT = {
         kopEntiteit: 'QuotationHeader', regelEntiteit: 'QuotationLine',
         kop: function (date) {
             var debtor = debtorEl.value.trim();
             var seller = sellerEl.value.trim();
-            var k = { Description1: descEl.value.trim(), OrderDebtor: debtor, DeliveryDebtor: debtor, InvoiceDebtor: debtor, SalesOrderDate: date, DeliveryDate: date };
+            var k = { Reference: descEl.value.trim(), Description1: descEl.value.trim(), OrderDebtor: debtor, DeliveryDebtor: debtor, InvoiceDebtor: debtor, SalesOrderDate: date, DeliveryDate: date };
             if (/^\d+$/.test(seller)) { k.Resource = parseInt(seller, 10); }   // Resource is een nummer
             return k;
         },
@@ -739,5 +757,8 @@
     [descEl, dateEl].forEach(function (el) { el.addEventListener('input', render); });
     dateEl.value = todayIso();
     descEl.value = 'Import';
+    var savedSeller = readSellerCookie();
+    if (savedSeller !== '') { sellerEl.value = savedSeller; }
     render();
+    if (savedSeller !== '') { scheduleValidate(); }   // controleert de onthouden verkoper met Exact
 })();
