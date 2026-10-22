@@ -542,19 +542,19 @@
     // wat er naar Exact zou gaan; pas na een tweede klik (bevestigen) wordt er echt geschreven.
     // Entiteit- en veldnamen staan hier bij elkaar. Vastgesteld in $metadata van de Entity Service op tst19 (22-10-2026): een
     // offerte is QuotationHeader met QuotationLine (SalesOrderHeader heeft geen ordersoort en geeft een verkooporder). Let op de
-    // spelling Itemcode (kleine c) en Description1 (er is geen Description). De omschrijving uit de app gaat ook naar Reference: dat is het veld Referentie in Exact (22-10-2026, Patrick), net als bij de XML-import. QuotationNumber laten we weg: Exact nummert zelf.
+    // spelling Itemcode (kleine c). De omschrijving uit de app gaat naar YourReference, het veld "Uw referentie" in Exact, en niet naar Omschrijving (Description1), zoals Patrick wil (22-10-2026). QuotationNumber laten we weg: Exact nummert zelf.
     // Een afwijzing door Exact komt als melding in beeld; veldnamen aanpassen kan hier, zonder wijziging in Slangkaart.Web.
     var EXACT = {
         kopEntiteit: 'QuotationHeader', regelEntiteit: 'QuotationLine',
         kop: function (date) {
             var debtor = debtorEl.value.trim();
             var seller = sellerEl.value.trim();
-            var k = { Reference: descEl.value.trim(), Description1: descEl.value.trim(), OrderDebtor: debtor, DeliveryDebtor: debtor, InvoiceDebtor: debtor, SalesOrderDate: date, DeliveryDate: date };
+            var k = { YourReference: descEl.value.trim(), OrderDebtor: debtor, DeliveryDebtor: debtor, InvoiceDebtor: debtor, SalesOrderDate: date, DeliveryDate: date };
             if (/^\d+$/.test(seller)) { k.Resource = parseInt(seller, 10); }   // Resource is een nummer
             return k;
         },
         regel: function (l, n) { return { LineNumber: l.nr !== '' && isFinite(parseInt(l.nr, 10)) ? parseInt(l.nr, 10) : n, Itemcode: cv(l), Quantity: qtyOf(l.qty) }; },
-        dubbel: function (date) { return { Description1: descEl.value.trim(), OrderDebtor: debtorEl.value.trim(), SalesOrderDate: date }; }
+        dubbel: function (date) { return { YourReference: descEl.value.trim(), OrderDebtor: debtorEl.value.trim(), SalesOrderDate: date }; }
     };
     var exactPending = false;
     var exactBusy = false;
