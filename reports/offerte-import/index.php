@@ -33,7 +33,7 @@ $csrf = csrfToken();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Offerte Import | Geeve Hydraulics</title>
+    <title>Import Offerte | Geeve Hydraulics</title>
     <!-- Knoppen, tabel, meldingen en de sleepzone zijn dezelfde als in Klant Artikelnummers. -->
     <?php
     $headCss = ['assets/style.css', 'klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'reports/offerte-import/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
@@ -43,7 +43,7 @@ $csrf = csrfToken();
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Offerte Import';
+    $headerTitle = 'Import Offerte';
     $headerImagesPath = geeveUrl('images/');
     $headerHomeHref = geeveAppUrl('templates'); // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
@@ -51,7 +51,7 @@ $csrf = csrfToken();
     ?>
 
     <section class="panel" id="oiApp" data-validate="api/validate.php" data-kind="offerte" data-csrf="<?= h($csrf) ?>">
-        <h2>Offerte importeren via Excel</h2>
+        <h2>Import Offerte</h2>
         <p class="ka-empty">Download de lege template (Regelnr, Aantal, Artikelcode, Leveranciersnummer), vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). 
             <br>Verkoper, debiteurnummer, omschrijving en datum vul je hieronder in. 
             <br>Weet je alleen het artikelnummer van de leverancier, laat dan de artikelcode leeg en vul het leveranciersnummer in: ons artikelnummer wordt in Exact opgezocht (zonder match blijft de artikelcode leeg). 

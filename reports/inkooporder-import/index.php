@@ -33,7 +33,7 @@ $csrf = csrfToken();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Inkooporder Import | Geeve Hydraulics</title>
+    <title>Import Inkooporder | Geeve Hydraulics</title>
     <!-- Knoppen, tabel, meldingen en de sleepzone zijn dezelfde als in Klant Artikelnummers. -->
     <?php
     $headCss = ['assets/style.css', 'klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'reports/offerte-import/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
@@ -43,7 +43,7 @@ $csrf = csrfToken();
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Inkooporder Import';
+    $headerTitle = 'Import Inkooporder';
     $headerImagesPath = geeveUrl('images/');
     $headerHomeHref = geeveAppUrl('templates'); // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
@@ -51,7 +51,7 @@ $csrf = csrfToken();
     ?>
 
     <section class="panel" id="oiApp" data-validate="<?= h(geeveUrl('reports/offerte-import/api/validate.php')) ?>" data-kind="inkoop" data-csrf="<?= h($csrf) ?>">
-        <h2>Inkooporder importeren via Excel</h2>
+        <h2>Import Inkooporder</h2>
         <p class="ka-empty">Download de lege template (Regelnr, Aantal, Artikelcode), vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). 
             (br>Inkoper, leveranciernummer, omschrijving en datum vul je hieronder in. 
             <br>De velden en artikelen worden gecontroleerd met Exact: de artikelomschrijving komt uit Exact, en artikelen die niet bestaan staan rood. 
