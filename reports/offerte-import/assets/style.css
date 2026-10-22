@@ -25,10 +25,10 @@
 .oi-problems { color: var(--status-warn-ink); background: var(--status-warn-soft); }
 #oiTable th:first-child, #oiTable td:first-child { width: 1%; padding-left: 8px; padding-right: 8px; text-align: center; }
 #oiTable th:last-child, #oiTable td:last-child { width: 1%; padding-left: 4px; padding-right: 4px; }
-#oiExport:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(.5); }
+#oiExport:disabled, #oiExact:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(.5); }
 /* Alles ingevuld en gecontroleerd: de Exporteer-knop is groen. */
-#oiExport:not(:disabled) { background: var(--btn-green); border-color: var(--btn-green-line); color: var(--btn-green-ink); }
-#oiExport:not(:disabled):hover { opacity: 1; filter: brightness(1.1); }
+#oiExport:not(:disabled), #oiExact:not(:disabled) { background: var(--btn-green); border-color: var(--btn-green-line); color: var(--btn-green-ink); }
+#oiExport:not(:disabled):hover, #oiExact:not(:disabled):hover { opacity: 1; filter: brightness(1.1); }
 .oi-suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; margin: 2px 0 0; padding: 4px 0; list-style: none; background: var(--surface, var(--surface-white)); border: 1px solid var(--line-suggest); border-radius: 8px; box-shadow: 0 6px 18px var(--black-a15); max-height: 280px; overflow-y: auto; }
 .oi-suggest li { padding: 6px 10px; cursor: pointer; font-size: 13px; font-weight: 400; }
 .oi-suggest li:hover, .oi-suggest li.is-active { background: var(--black-a07); }

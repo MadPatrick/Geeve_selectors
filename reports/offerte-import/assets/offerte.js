@@ -397,8 +397,9 @@
         var ready = lines.length > 0 && problems.length === 0;
         exportBtn.disabled = !ready;
         exportBtn.title = ready || !lines.length ? '' : 'Eerst oplossen: ' + problems.join(', ');
+        readyState = ready;
         if (exactBtn) {
-            exactBtn.disabled = !ready;
+            exactBtn.disabled = !ready || exactBusy;
             exactBtn.title = exportBtn.title;
             exactReset();   // elke wijziging of nieuwe controle: eerst opnieuw een proef
         }
@@ -539,6 +540,7 @@
     };
     var exactPending = false;
     var exactBusy = false;
+    var readyState = false;   // alle controles groen, net als bij Exporteer XML (gezet in renderSummary)
     function exactReset() {
         exactPending = false;
         if (exactBtn) { exactBtn.textContent = 'Naar Exact'; }
@@ -573,7 +575,7 @@
         var write = exactPending;
         exactBusy = true; exactBtn.disabled = true;
         postExact(exactBody(write)).then(function (j) {
-            exactBusy = false; exactBtn.disabled = false;
+            exactBusy = false; exactBtn.disabled = !readyState;   // alleen actief als alles klopt, zoals Exporteer XML
             if (!j.ok) {
                 exactReset();
                 showMessage((j.fout || 'Onbekende fout van de slangkaart-app.') + (j.stand ? ' Stand in Exact: ' + j.stand : ''));
