@@ -57,10 +57,11 @@ $csrf = csrfToken();
             <br>Weet je alleen het artikelnummer van de leverancier, laat dan de artikelcode leeg en vul het leveranciersnummer in: ons artikelnummer wordt in Exact opgezocht (zonder match blijft de artikelcode leeg). 
             <br>De velden en artikelen worden gecontroleerd met Exact: de artikelomschrijving komt uit Exact, en artikelen die niet bestaan staan rood. 
             <br>
-            <br>Is alles in orde, dan maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Logistieke import</strong>).</p>
+            <br>Is alles in orde, dan schrijf je de offerte met <strong>Naar Exact</strong> direct naar Exact (eerst een proef, dan bevestigen), of maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Logistieke import</strong>).</p>
         <div class="ka-actions">
             <button type="button" id="oiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
             <button type="button" id="oiExport" class="ka-button" disabled>Exporteer XML</button>
+            <button type="button" id="oiExact" class="ka-button" disabled data-url="<?= h(geeveUrl('slangkaarten/api/exact/schrijf')) ?>">Naar Exact</button>
             <div id="oiDrop" class="ka-drop" tabindex="0" role="button">
                 <strong>Excel importeren</strong> - sleep een ingevulde template hierheen of <u>kies een bestand</u>
                 <input type="file" id="oiFile" accept=".xlsx,.xls,.xlsm,.xltm" hidden>
