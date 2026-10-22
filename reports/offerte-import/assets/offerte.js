@@ -457,6 +457,46 @@
         out.push('</eExact>');
         return out.join('\r\n') + '\r\n';
     }
+    // Export Excel: de lijst zoals hij nu in de tabel staat (ook handmatige wijzigingen), met dezelfde kolommen.
+    function exportExcel() {
+        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return; }
+        if (!lines.length) { showMessage('Er zijn nog geen regels om te exporteren.'); return; }
+        showMessage('');
+        var states = lines.map(lineState);
+        var head = ['Regelnr', 'Aantal'];
+        if (useSupplier) { head.push('Leveranciersnummer'); }
+        head.push('Artikelcode', 'Artikelregelomschrijving', 'Artikel in Exact');
+        var rows = [head];
+        lines.forEach(function (l, i) {
+            var info = states[i].info || itemInfo[ck(l)] || null;
+            var q = qtyOf(l.qty);
+            var row = [l.nr === undefined || l.nr === null ? '' : String(l.nr).trim(), q !== null ? q : (l.qty === null || l.qty === undefined ? '' : String(l.qty))];
+            if (useSupplier) { row.push(l.supplier ? String(l.supplier).trim() : ''); }
+            row.push(cv(l), info && info.found ? info.description : '', states[i].label);
+            rows.push(row);
+        });
+        var ws = XLSX.utils.aoa_to_sheet(rows);
+        var cols = useSupplier ? 6 : 5;
+        var style = { font: { bold: true, color: { rgb: 'FFFFFFFF' } }, fill: { patternType: 'solid', fgColor: { rgb: 'FF1F4E78' } }, alignment: { horizontal: 'center' } };
+        for (var c = 0; c < cols; c++) {
+            ws[XLSX.utils.encode_cell({ r: 0, c: c })].s = style;
+        }
+        // Artikelcodes en leveranciersnummers altijd als tekst (voorloopnullen blijven staan).
+        var textCols = useSupplier ? [0, 2, 3] : [0, 2];
+        for (var r = 1; r < rows.length; r++) {
+            textCols.forEach(function (tc) {
+                var cell = ws[XLSX.utils.encode_cell({ r: r, c: tc })];
+                if (cell) { cell.t = 's'; cell.v = String(cell.v); cell.z = '@'; }
+            });
+        }
+        ws['!cols'] = (useSupplier ? [10, 10, 28, 28, 50, 40] : [10, 10, 28, 50, 40]).map(function (w) { return { wch: w }; });
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Lijst');
+        var party = debtorEl.value.trim().replace(/[^A-Za-z0-9._-]+/g, '_');
+        XLSX.writeFile(wb, T.filePrefix + '-lijst' + (party ? '-' + party : '') + '.xlsx');
+        showInfo('Excel-bestand gemaakt (' + pl(lines.length, 'regel', 'regels') + ').');
+    }
+
     function exportXml() {
         if (exportBtn.disabled) { return; }
         var blob = new Blob([buildXml()], { type: 'application/xml;charset=utf-8' });
@@ -528,6 +568,8 @@
         downloadTemplate();
     });
     exportBtn.addEventListener('click', exportXml);
+    var excelBtn = document.getElementById('oiExportExcel');
+    if (excelBtn) { excelBtn.addEventListener('click', exportExcel); }
     dropEl.addEventListener('click', function () { fileEl.click(); });
     dropEl.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileEl.click(); } });
     fileEl.addEventListener('change', function () { if (fileEl.files[0]) { importFile(fileEl.files[0]); fileEl.value = ''; } });
