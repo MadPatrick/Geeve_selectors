@@ -521,19 +521,21 @@
     // Schrijven doet de slangkaart-app (Slangkaart.Web, algemene schrijfdeur POST /slangkaarten/api/exact/schrijf), met de
     // beveiligingen van de slangkaarten (alleen testserver, productie geblokkeerd). Eerst altijd een proef: de app geeft terug
     // wat er naar Exact zou gaan; pas na een tweede klik (bevestigen) wordt er echt geschreven.
-    // Entiteit- en veldnamen staan hier bij elkaar. Ze zijn nog niet op tst19 bevestigd: wijzigen kan hier, zonder wijziging
-    // in Slangkaart.Web zolang de entiteiten in EntityService:Entiteiten staan.
+    // Entiteit- en veldnamen staan hier bij elkaar. Vastgesteld in $metadata van de Entity Service op tst19 (22-10-2026): een
+    // offerte is QuotationHeader met QuotationLine (SalesOrderHeader heeft geen ordersoort en geeft een verkooporder). Let op de
+    // spelling Itemcode (kleine c) en Description1 (er is geen Description). QuotationNumber laten we weg: Exact nummert zelf.
+    // Een afwijzing door Exact komt als melding in beeld; veldnamen aanpassen kan hier, zonder wijziging in Slangkaart.Web.
     var EXACT = {
-        kopEntiteit: 'SalesOrderHeader', regelEntiteit: 'SalesOrderLine',
-        orderType: 'Q',
+        kopEntiteit: 'QuotationHeader', regelEntiteit: 'QuotationLine',
         kop: function (date) {
             var debtor = debtorEl.value.trim();
-            var k = { OrderType: EXACT.orderType, Description: descEl.value.trim(), OrderedBy: debtor, DeliverTo: debtor, InvoiceTo: debtor, OrderDate: date, DeliveryDate: date };
-            if (sellerEl.value.trim() !== '') { k.Resource = sellerEl.value.trim(); }
+            var seller = sellerEl.value.trim();
+            var k = { Description1: descEl.value.trim(), OrderDebtor: debtor, DeliveryDebtor: debtor, InvoiceDebtor: debtor, SalesOrderDate: date, DeliveryDate: date };
+            if (/^\d+$/.test(seller)) { k.Resource = parseInt(seller, 10); }   // Resource is een nummer
             return k;
         },
-        regel: function (l, n) { return { LineNumber: l.nr !== '' && isFinite(parseInt(l.nr, 10)) ? parseInt(l.nr, 10) : n, ItemCode: cv(l), Quantity: qtyOf(l.qty) }; },
-        dubbel: function (date) { return { Description: descEl.value.trim(), OrderedBy: debtorEl.value.trim(), OrderDate: date }; }
+        regel: function (l, n) { return { LineNumber: l.nr !== '' && isFinite(parseInt(l.nr, 10)) ? parseInt(l.nr, 10) : n, Itemcode: cv(l), Quantity: qtyOf(l.qty) }; },
+        dubbel: function (date) { return { Description1: descEl.value.trim(), OrderDebtor: debtorEl.value.trim(), SalesOrderDate: date }; }
     };
     var exactPending = false;
     var exactBusy = false;
