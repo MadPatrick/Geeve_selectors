@@ -54,7 +54,7 @@ $csrf = csrfToken();
     <section class="panel sa-top">
         <div class="sa-form">
             <h2>Artikelnummer</h2>
-            <p class="ka-empty">Zoek op (een deel van) een artikelnummer. Klik een regel aan voor het voorbeeld; vink regels aan om er meer tegelijk te printen (zonder vinkjes wordt de aangeklikte regel geprint).</p>
+            <p class="ka-empty">Zoek op (een deel van) een artikelnummer; label 70 × 25 mm (ALTEC 72000496). Klik een regel aan voor het voorbeeld; vink regels aan om er meer tegelijk te printen (zonder vinkjes wordt de aangeklikte regel geprint).</p>
             <div class="ka-actions" id="saActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
                 <label class="msp-field">
                     <span>Zoek op artikelnr</span>

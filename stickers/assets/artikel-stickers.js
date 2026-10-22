@@ -24,7 +24,7 @@
 
     function build(container, list, times) {
         var html = '';
-        list.forEach(function (r) { for (var n = 0; n < times; n++) { html += ArtSticker.html(r.omschrijving, r.artikel); } });
+        list.forEach(function (r) { for (var n = 0; n < times; n++) { html += ArtSticker.html(r.omschrijving, r.artikel, true); } });
         container.innerHTML = html;
         ArtSticker.barcodes(container);
     }

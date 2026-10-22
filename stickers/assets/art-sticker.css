@@ -1,4 +1,4 @@
-/* Artikelsticker (102 × 54 mm): omschrijving (max. 2 regels), Code 128-barcode en artikelnummer groot, gecentreerd.
+/* Artikelsticker (standaard 102 × 54 mm, of 70 × 25 mm met .sticker--70x25): omschrijving (max. 2 regels), Code 128-barcode en artikelnummer groot, gecentreerd.
    Gedeeld door Stickers op Artikelnummer (stickers/artikel) en de optie "Artikelsticker" van Artikelstickers per Verkooporder
    (stickers/order). Selectors met .sticker.sticker--art, zodat ze winnen van de orderstickerregels (.sticker .f). */
 
@@ -26,3 +26,13 @@
 .sticker.sticker--art .art { top: 33mm; height: 12mm; font-size: 10mm; white-space: nowrap; }
 .sticker.sticker--art .bc { position: absolute; left: 4mm; right: 4mm; top: 16.5mm; width: auto; height: 15.5mm; display: flex; justify-content: center; }
 .sticker.sticker--art .bc svg { display: block; height: 100%; shape-rendering: crispEdges; }
+
+/* De artikelsticker (optie van Artikelen per Verkooporder en tegel Artikelnummer) is het ALTEC-label 72000496 (70 × 25 mm): eigen pagina, zodat ook de PDF voor de
+   labelprinter dat formaat krijgt. */
+@page sticker70x25 { size: 70mm 25mm; margin: 0; }
+
+.sticker.sticker--art.sticker--70x25 { width: 70mm; height: 25mm; page: sticker70x25; }
+.sticker.sticker--art.sticker--70x25 .f { left: 2.5mm; right: 2.5mm; }
+.sticker.sticker--art.sticker--70x25 .desc { top: 1.2mm; height: 7.6mm; font-size: 3.3mm; }
+.sticker.sticker--art.sticker--70x25 .bc { left: 2.5mm; right: 2.5mm; top: 9.2mm; height: 7mm; }
+.sticker.sticker--art.sticker--70x25 .art { top: 17.2mm; height: 6.6mm; font-size: 5.4mm; }
