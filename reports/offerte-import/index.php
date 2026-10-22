@@ -101,6 +101,7 @@ $csrf = csrfToken();
         <div class="oi-summary-bar">
             <div class="msp-summary" id="oiSummary"></div>
             <button type="button" id="oiAdd" class="ka-button ka-button--secondary">Regel toevoegen</button>
+            <button type="button" id="oiExportExcel" class="ka-button ka-button--secondary">Export Excel</button>
         </div>
         <div class="ka-table-wrap msp-scroll">
             <table class="ka-table" id="oiTable">
