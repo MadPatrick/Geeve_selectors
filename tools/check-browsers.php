@@ -7,9 +7,9 @@ declare(strict_types=1);
  * JS en CSS op functies die in oudere browsers niet werken zonder fallback, en PHP op mb_* (geen mbstring op de server).
  * Alleen lezen. Dit is een statische controle op bekende patronen, GEEN vervanging van een test in een echte browser.
  *
- * Gebruik:  php tools/check-browsers.php [--doel=ie11|edge|modern] [--alles] [--gewijzigd] [--baseline-schrijven]
- *   --doel      oudste browser die moet werken. ie11 = alles melden (standaard), edge = Edge Legacy (EdgeHTML 18) en
- *               Firefox ESR 60 en nieuwer, modern = alleen wat ook in browsers van ~2019/2020 stukgaat.
+ * Gebruik:  php tools/check-browsers.php [--doel=modern|edge|ie11] [--alles] [--gewijzigd] [--baseline-schrijven]
+ *   --doel      oudste browser die moet werken. modern = Chrome/Firefox/Edge van de laatste jaren (standaard; IE11 hoeft niet meer te werken,
+ *               Patrick 2026-10-22), edge = ook Edge Legacy (EdgeHTML 18) en Firefox ESR 60, ie11 = alles melden.
  *   --alles     elke vondst met bestand en regel tonen i.p.v. drie voorbeelden per regel.
  *   --gewijzigd alleen bestanden die verschillen van origin/main (voor een snelle check vlak voor een push).
  *   --baseline-schrijven  huidige stand vastleggen in tools/check-browsers-baseline.json. Daarna faalt de check (exitcode 1)
@@ -20,7 +20,7 @@ $root = dirname(__DIR__);
 $baselineFile = __DIR__ . '/check-browsers-baseline.json';
 $opts = getopt('', ['doel::', 'alles', 'gewijzigd', 'baseline-schrijven']);
 $doelNamen = ['ie11' => 1, 'edge' => 2, 'modern' => 3];
-$doelNaam = (string) ($opts['doel'] ?? 'ie11');
+$doelNaam = (string) ($opts['doel'] ?? 'modern');
 if (!isset($doelNamen[$doelNaam])) {
     fwrite(STDERR, "Onbekend --doel. Kies ie11, edge of modern.\n");
     exit(2);
