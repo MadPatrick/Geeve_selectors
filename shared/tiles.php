@@ -108,9 +108,6 @@ function tileLocked(string $id): bool
 function tileCleanTitle(string $title): string
 {
     $title = trim($title);
-    if (function_exists('mb_substr')) {
-        return mb_substr($title, 0, 60);
-    }
     return preg_match('/^.{0,60}/su', $title, $m) === 1 ? $m[0] : substr($title, 0, 60);
 }
 

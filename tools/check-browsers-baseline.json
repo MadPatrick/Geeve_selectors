@@ -1,0 +1,21 @@
+{
+    "css-aspect|assets/style.css": 1,
+    "css-colormix|configurator/assets/style.css": 1,
+    "css-focusvisible|assets/style.css": 4,
+    "css-focusvisible|hoses/assets/style.css": 1,
+    "css-focusvisible|klantartikel/assets/style.css": 1,
+    "css-focusvisible|stickers/assets/style.css": 2,
+    "css-has|assets/style.css": 1,
+    "css-has|hoses/assets/style.css": 3,
+    "css-has|klantartikel/assets/style.css": 4,
+    "css-has|shared/style.css": 1,
+    "css-inset|assets/style.css": 1,
+    "css-inset|shared/style.css": 4,
+    "css-inset|stauff/assets/style.css": 1,
+    "css-is|klantartikel/assets/style.css": 1,
+    "css-textwrap|stauff/assets/style.css": 1,
+    "js-nullish|hoses/assets/selector.js": 14,
+    "js-nullish|shared/pcnaam.php": 2,
+    "js-nullish|stauff/assets/selector.js": 2,
+    "js-optchain|stauff/assets/selector.js": 1
+}

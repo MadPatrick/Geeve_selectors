@@ -32,9 +32,9 @@ const SEARCH_CACHE_SECONDS = 600;
 /** Kleine letters, zonder accenten en leestekens, als losse woorden. */
 function searchWords(string $text): array
 {
-    $text = function_exists('mb_strtolower') ? mb_strtolower($text, 'UTF-8') : strtolower($text);
+    $text = strtolower($text);
     // Veelvoorkomende letters met accent zonder iconv (die werkt niet overal).
-    $text = strtr($text, ['é' => 'e', 'è' => 'e', 'ë' => 'e', 'ê' => 'e', 'á' => 'a', 'à' => 'a', 'ä' => 'a', 'â' => 'a', 'í' => 'i', 'ï' => 'i', 'ó' => 'o', 'ö' => 'o', 'ô' => 'o', 'ú' => 'u', 'ü' => 'u', 'û' => 'u', 'ç' => 'c', 'ñ' => 'n', 'ß' => 'ss', 'É' => 'e', 'Ë' => 'e', 'Ö' => 'o', 'Ü' => 'u']);
+    $text = strtr($text, ['é' => 'e', 'è' => 'e', 'ë' => 'e', 'ê' => 'e', 'á' => 'a', 'à' => 'a', 'ä' => 'a', 'â' => 'a', 'í' => 'i', 'ï' => 'i', 'ó' => 'o', 'ö' => 'o', 'ô' => 'o', 'ú' => 'u', 'ü' => 'u', 'û' => 'u', 'ç' => 'c', 'ñ' => 'n', 'ß' => 'ss', 'É' => 'e', 'È' => 'e', 'Ê' => 'e', 'Ë' => 'e', 'Á' => 'a', 'À' => 'a', 'Ä' => 'a', 'Â' => 'a', 'Í' => 'i', 'Ï' => 'i', 'Ó' => 'o', 'Ô' => 'o', 'Ö' => 'o', 'Ú' => 'u', 'Ü' => 'u', 'Û' => 'u', 'Ç' => 'c', 'Ñ' => 'n']);
     $text = preg_replace('/[^a-z0-9]+/', ' ', $text) ?? '';
     return array_values(array_filter(explode(' ', trim($text)), static fn ($w) => $w !== ''));
 }
