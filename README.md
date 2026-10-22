@@ -53,7 +53,7 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 |---|---|---|
 | Klant Artikelnummers | `/klantartikel/` | Debiteuren op een prijslijst met hun klantartikelnummers; Excel in, XML (DEBTORS.xml) uit |
 | Kortingstructuur | `/klantkorting/` | Kortingstructuur per prijslijst (in opbouw) |
-| Inkooporder naar Excel | `/reports/inkooporder/` | Inkooporder met regels uit Exact ophalen en als Excel downloaden |
+| Export Inkooporder naar Excel | `/reports/inkooporder/` | Inkooporder met regels uit Exact ophalen en als Excel downloaden |
 | Export Order/Offerte naar Excel | `/reports/order-offerte/` | Order of offerte als Excel |
 | Offerte Import | `/reports/offerte-import/` | Excel-offerte controleren met Exact en als XML exporteren |
 | Inkooporder Import | `/reports/inkooporder-import/` | Idem voor inkooporders |

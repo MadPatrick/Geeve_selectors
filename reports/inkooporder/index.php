@@ -33,7 +33,7 @@ $csrf = csrfToken();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Inkooporder naar Excel | Geeve Hydraulics</title>
+    <title>Export Inkooporder naar Excel | Geeve Hydraulics</title>
     <!-- Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers. -->
     <?php
     $headCss = ['assets/style.css', 'klantartikel/assets/style.css', 'reports/msp/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
@@ -43,7 +43,7 @@ $csrf = csrfToken();
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Inkooporder naar Excel';
+    $headerTitle = 'Export Inkooporder naar Excel';
     $headerImagesPath = geeveUrl('images/');
     $headerHomeHref = geeveAppUrl('templates'); // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
@@ -51,7 +51,7 @@ $csrf = csrfToken();
     ?>
 
     <section class="panel">
-        <h2>Inkooporder naar Excel</h2>
+        <h2>Export Inkooporder naar Excel</h2>
         <p class="ka-empty">Haalt de inkooporder met regels uit Exact op (dezelfde gegevens als het Excel-bestand "Exact Inkooporder naar Excel"). Vul het ordernummer in, haal de gegevens op en download ze daarna als Excel-bestand.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="Ordernummer" data-sheet="Inkooporder" data-file="Inkooporder">
             <label class="msp-field">
