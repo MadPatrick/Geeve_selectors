@@ -1,5 +1,5 @@
 /* Stickers op Artikelnummer (stickers/artikel): scherm en printinstellingen; de sticker zelf staat in art-sticker.css. Knoppen/tabel/velden komen uit klantartikel/ en reports/msp/ (zie stickers/artikel/index.php).
-   Posities en lettergroottes in mm, nagemaakt van de NiceLabel-template; bijstellen na een proefprint. */
+   Label: ALTEC 72000496 (70 × 25 mm), opmaak in art-sticker.css. Posities en lettergroottes in mm, nagemaakt van de NiceLabel-template; bijstellen na een proefprint. */
 
 /* Invoer + tabel links, voorbeeld en printknoppen rechts (op smalle schermen eronder). */
 .sa-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
@@ -26,7 +26,7 @@
 
 .sa-printsheet { display: none; }
 
-@page { size: 102mm 54mm; margin: 0; }
+@page { size: 70mm 25mm; margin: 0; }
 
 @media print {
     html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }

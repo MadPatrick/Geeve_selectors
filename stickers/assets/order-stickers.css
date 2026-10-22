@@ -80,15 +80,6 @@
 .sticker .c-loop { left: 78.4mm; width: 22.4mm; }
 
 @page { size: 102mm 54mm; margin: 0; }
-/* De artikelsticker van deze tegel is het ALTEC-label 72000496 (70 × 25 mm): eigen pagina, zodat ook de PDF voor de
-   labelprinter dat formaat krijgt. */
-@page sticker70x25 { size: 70mm 25mm; margin: 0; }
-
-.sticker.sticker--art.sticker--70x25 { width: 70mm; height: 25mm; page: sticker70x25; }
-.sticker.sticker--art.sticker--70x25 .f { left: 2.5mm; right: 2.5mm; }
-.sticker.sticker--art.sticker--70x25 .desc { top: 1.2mm; height: 7.6mm; font-size: 3.3mm; }
-.sticker.sticker--art.sticker--70x25 .bc { left: 2.5mm; right: 2.5mm; top: 9.2mm; height: 7mm; }
-.sticker.sticker--art.sticker--70x25 .art { top: 17.2mm; height: 6.6mm; font-size: 5.4mm; }
 
 @media print {
     html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }
