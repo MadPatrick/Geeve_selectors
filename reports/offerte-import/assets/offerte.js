@@ -22,6 +22,7 @@
     var messageEl = document.getElementById('oiMessage');
     var infoEl = document.getElementById('oiInfo');
     var exportBtn = document.getElementById('oiExport');
+    var exactBtn = document.getElementById('oiExact');   // alleen op de offertepagina
     var problemsEl = document.getElementById('oiProblems');
     var resultEl = document.getElementById('oiResult');
     var summaryEl = document.getElementById('oiSummary');
@@ -396,6 +397,11 @@
         var ready = lines.length > 0 && problems.length === 0;
         exportBtn.disabled = !ready;
         exportBtn.title = ready || !lines.length ? '' : 'Eerst oplossen: ' + problems.join(', ');
+        if (exactBtn) {
+            exactBtn.disabled = !ready;
+            exactBtn.title = exportBtn.title;
+            exactReset();   // elke wijziging of nieuwe controle: eerst opnieuw een proef
+        }
         // Zichtbaar wat er nog ontbreekt zolang er regels zijn en de export nog niet kan.
         if (lines.length && !ready) {
             problemsEl.innerHTML = '<strong>Exporteren kan pas als alles klopt en is ingevuld.</strong> Nog nodig: ' + problems.map(esc).join('; ') + '.';
@@ -510,6 +516,87 @@
         showInfo('XML-bestand gemaakt. Importeer het in Exact via Systeem\\Importeren XML\\Logistieke import.');
     }
 
+
+    // ---- Direct naar Exact (22-10-2026) ----
+    // Schrijven doet de slangkaart-app (Slangkaart.Web, algemene schrijfdeur POST /slangkaarten/api/exact/schrijf), met de
+    // beveiligingen van de slangkaarten (alleen testserver, productie geblokkeerd). Eerst altijd een proef: de app geeft terug
+    // wat er naar Exact zou gaan; pas na een tweede klik (bevestigen) wordt er echt geschreven.
+    // Entiteit- en veldnamen staan hier bij elkaar. Ze zijn nog niet op tst19 bevestigd: wijzigen kan hier, zonder wijziging
+    // in Slangkaart.Web zolang de entiteiten in EntityService:Entiteiten staan.
+    var EXACT = {
+        kopEntiteit: 'SalesOrderHeader', regelEntiteit: 'SalesOrderLine',
+        orderType: 'Q',
+        kop: function (date) {
+            var debtor = debtorEl.value.trim();
+            var k = { OrderType: EXACT.orderType, Description: descEl.value.trim(), OrderedBy: debtor, DeliverTo: debtor, InvoiceTo: debtor, OrderDate: date, DeliveryDate: date };
+            if (sellerEl.value.trim() !== '') { k.Resource = sellerEl.value.trim(); }
+            return k;
+        },
+        regel: function (l, n) { return { LineNumber: l.nr !== '' && isFinite(parseInt(l.nr, 10)) ? parseInt(l.nr, 10) : n, ItemCode: cv(l), Quantity: qtyOf(l.qty) }; },
+        dubbel: function (date) { return { Description: descEl.value.trim(), OrderedBy: debtorEl.value.trim(), OrderDate: date }; }
+    };
+    var exactPending = false;
+    var exactBusy = false;
+    function exactReset() {
+        exactPending = false;
+        if (exactBtn) { exactBtn.textContent = 'Naar Exact'; }
+    }
+    function exactBody(write) {
+        var date = dateEl.value;
+        var out = [];
+        lines.forEach(function (l) {
+            if (!lineState(l).export) { return; }
+            out.push(EXACT.regel(l, out.length + 1));
+        });
+        return {
+            kopEntiteit: EXACT.kopEntiteit, kop: EXACT.kop(date),
+            regelEntiteit: EXACT.regelEntiteit, regels: out,
+            dubbelcontrole: { entiteit: EXACT.kopEntiteit, velden: EXACT.dubbel(date) },
+            schrijven: write
+        };
+    }
+    function postExact(body) {
+        return fetch(exactBtn.getAttribute('data-url'), {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), cache: 'no-store'
+        }).then(function (r) {
+            if (r.status === 404) {
+                return { ok: false, fout: 'De slangkaart-app kent "Naar Exact" voor offertes nog niet. Dat komt met de volgende uitrol van die app (Hans).' };
+            }
+            return r.json().catch(function () { return { ok: false, fout: 'Onverwacht antwoord van de slangkaart-app (HTTP ' + r.status + ').' }; });
+        }, function () { return { ok: false, fout: 'De slangkaart-app is niet bereikbaar.' }; });
+    }
+    function exactClick() {
+        if (exactBtn.disabled || exactBusy) { return; }
+        showMessage(''); showInfo('');
+        var write = exactPending;
+        exactBusy = true; exactBtn.disabled = true;
+        postExact(exactBody(write)).then(function (j) {
+            exactBusy = false; exactBtn.disabled = false;
+            if (!j.ok) {
+                exactReset();
+                showMessage((j.fout || 'Onbekende fout van de slangkaart-app.') + (j.stand ? ' Stand in Exact: ' + j.stand : ''));
+                return;
+            }
+            if (write) {
+                exactReset();
+                exactBtn.disabled = true;   // niet nog een keer; een wijziging maakt de knop weer vrij
+                showInfo('Offerte naar Exact geschreven (' + j.server + '): ' + pl(j.regels, 'regel', 'regels') + '.');
+                return;
+            }
+            if (!j.schrijvenAan) {
+                showInfo('Proef gelukt: ' + pl(j.regels.length, 'regel', 'regels') + ' zouden naar Exact gaan, maar schrijven staat in de slangkaart-app uit. Gebruik zolang "Exporteer XML".');
+                return;
+            }
+            if (j.bestaatAl > 0) {
+                showMessage('Deze offerte staat al in Exact (' + j.server + '): dezelfde ' + T.party + ', omschrijving en datum. Pas de omschrijving of datum aan als het toch een nieuwe offerte is.');
+                return;
+            }
+            exactPending = true;
+            exactBtn.textContent = 'Bevestig: schrijf naar ' + j.server;
+            showInfo('Proef gelukt: ' + pl(j.regels.length, 'regel', 'regels') + ' voor ' + T.party + ' ' + debtorEl.value.trim() + ' gaan naar Exact (' + j.server + '). Klik nogmaals om te schrijven.');
+        });
+    }
+
     // Artikelcode wijzigen in de tabel: altijd hoofdletters, en na een korte pauze opnieuw controleren met Exact.
     tbody.addEventListener('input', function (e) {
         var el = e.target;
@@ -568,6 +655,7 @@
         downloadTemplate();
     });
     exportBtn.addEventListener('click', exportXml);
+    if (exactBtn) { exactBtn.addEventListener('click', exactClick); }
     var excelBtn = document.getElementById('oiExportExcel');
     if (excelBtn) { excelBtn.addEventListener('click', exportExcel); }
     dropEl.addEventListener('click', function () { fileEl.click(); });
