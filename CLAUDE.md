@@ -87,6 +87,18 @@ soort uit die tabel en draai daarna `php tools/check-knoppen.php`.
 - **Elke Print-knop** gebruikt de gedeelde `.print-btn` uit `shared/style.css`: lichtgroen, printer-icoon ervoor, tekst
   "Print" (markup in `shared/README.md`). Geen eigen printknopstijl per app.
 
+## Browsercompatibiliteit (Patrick 2026-10-22)
+
+Bij **elke aanpassing** aan een app of tegel moet het werken in Chrome, Firefox, Edge en oudere browsers (Internet Explorer).
+Gebruik geen CSS/JS-functies die daar niet werken zonder fallback. Draai vóór elke push:
+
+- `php tools/check-browsers.php` - statische scan op bekende incompatibele patronen (pijlfuncties, `??`, `?.`, `:has`, `gap`,
+  `var()` zonder fallback, `mb_*`, ...). Er staat een baseline in `tools/check-browsers-baseline.json`: nieuwe vondsten
+  (exitcode 1) los je op of motiveer je. `mb_*` mag nooit. Snel op alleen je wijzigingen: `--gewijzigd`.
+- `node tools/browsertest.js` - rooktest in headless Chromium (zie het bestand voor het starten van `php -S`).
+  Firefox/WebKit alleen als Playwright die lokaal heeft; IE11 en Edge Legacy zijn niet testbaar.
+- Meld in de PR wat gecontroleerd is en wat niet (met name: niet in een echte IE/Firefox/Edge getest).
+
 ## Versienummer (alle apps)
 
 Eén gedeeld versienummer in `version.php` (root) voor het hoofdscherm en alle subapps - zie
