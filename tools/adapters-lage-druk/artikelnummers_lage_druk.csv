@@ -58,8 +58,6 @@
 130-3X11/2X3,,130,Tee,"TEE, REDUCING OR INCREASING, ISO/EN B1",T-stuk,BSPP,3-11,binnen,BSPP,1 1/2-11,binnen,,,,laag
 130-3X2X3,,130,Tee,"TEE, REDUCING OR INCREASING, ISO/EN B1",T-stuk,BSPP,3-11,binnen,BSPP,2-11,binnen,,,,laag
 130-4,,130,Tee,"TEE, EQUAL, ISO/EN B1",T-stuk,BSPP,4-11,binnen,BSPP,4-11,binnen,,,,laag
-131-2,,131,Welding tee,"TEE,WELDING EQUAL,SCH 10",T-stuk,,,,,,,,,,laag
-131-2 XS,,131,Welding tee,"TEE,WELDING EQUAL,SCH XS",T-stuk,,,,,,,,,,laag
 1-4,,1,Long sweep bend 90°,"LONG SWEEP BEND 90°, ISO/EN G4",haaks,BSPT,4-11,buiten,BSPP,4-11,binnen,,,,laag
 16-1,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,1-11,binnen,BSPP,1-11,binnen,,,,laag
 16-1 VZ,,16,Welding socket,"WELDING SOCKET,",recht,BSPP,1-11,binnen,BSPP,1-11,binnen,,,,laag
@@ -74,7 +72,6 @@
 16-3,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,3-11,binnen,BSPP,3-11,binnen,,,,laag
 16-3/4,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,3/4-14,binnen,BSPP,3/4-14,binnen,,,,laag
 16-3/8,,16,Welding socket,"WELDING SOCKET, BLACK",recht,BSPP,3/8-19,binnen,BSPP,3/8-19,binnen,,,,laag
-165-11/4,,165,Tee,45' TEE ISO/EN C1,T-stuk,BSPP,1 1/4-11,binnen,BSPP,1 1/4-11,binnen,,,,laag
 180-1,,180,Cross,"CROSS, EQUAL, ISO/EN C1",kruis,BSPP,1-11,binnen,BSPP,1-11,binnen,,,,laag
 180-1/2,,180,Cross,"CROSS, EQUAL, ISO/EN C1",kruis,BSPP,1/2-14,binnen,BSPP,1/2-14,binnen,,,,laag
 180-1/4,,180,Cross,"CROSS, EQUAL, ISO/EN C1",kruis,BSPP,1/4-19,binnen,BSPP,1/4-19,binnen,,,,laag
@@ -93,7 +90,6 @@
 220-3/4,,220,Y-piece,Y-PIECE,Overige,BSPP,3/4-14,binnen,BSPP,3/4-14,binnen,,,,laag
 220-3/8,,220,Y-piece,Y-PIECE,Overige,BSPP,3/8-19,binnen,BSPP,3/8-19,binnen,,,,laag
 2-21/2,,2,Long sweep bend 90°,"LONG SWEEP BEND 90°, ISO/EN G1",haaks,BSPP,2 1/2-11,binnen,BSPP,2 1/2-11,binnen,,,,laag
-221-12,,221,Side outlet elbow,"SIDE OUTLET ELBOW, ISO/EN ZA1",Overige,BSPP,1/2-14,binnen,BSPP,1/2-14,binnen,,,,laag
 223-1,,223,Side outlet tee,"SIDE OUTLET TEE, ISO/EN ZA2",Overige,BSPP,1-11,binnen,BSPP,1-11,binnen,,,,laag
 223-1/2,,223,Side outlet tee,"SIDE OUTLET TEE, ISO/EN ZA2",Overige,BSPP,1/2-14,binnen,BSPP,1/2-14,binnen,,,,laag
 223-11/4,,223,Side outlet tee,"SIDE OUTLET TEE, ISO/EN ZA2",Overige,BSPP,1 1/4-11,binnen,BSPP,1 1/4-11,binnen,,,,laag
@@ -458,7 +454,6 @@
 342-1/2REV,,342,Union,"UNION FLAT SEAT, SPARE SEAL",recht,,,,,,,,,,laag
 342-1/4REV,,342,Union,"UNION FLAT SEAT, SPARE SEAL",recht,,,,,,,,,,laag
 342-1REV,,342,Union,"UNION FLAT SEAT, SPARE SEAL",recht,,,,,,,,,,laag
-344-11/2,,344,Union,"UNION TAPER SEAT, ISO/EN U12",recht,BSPT,1 1/2-11,buiten,BSPP,1 1/2-11,binnen,,,,laag
 400-1/2-40,,400,Pipe/flens/overig,GELASTE GASPIJP EN-10255SM/S195ST-21.3X2.65 VZ,Overige,,,,,,,,,,laag
 400-1/4-40,,400,Pipe/flens/overig,GELASTE GASPIJP EN-10255SM/S195ST-13.5X2.35 VZ,Overige,,,,,,,,,,laag
 400-11/2-40,,400,Pipe/flens/overig,GELASTE GASPIJP EN-10255SM/S195ST-48.3X3.25 VZ,Overige,,,,,,,,,,laag
