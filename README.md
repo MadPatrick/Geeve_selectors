@@ -116,7 +116,19 @@ slangkaarten/              Plaatshouder; het adres /slangkaarten/ is van Slangka
 **Server:** Debian, Apache met PHP 8 in `/var/www/html` (een git-checkout van deze repo). PHP
 heeft geen `mbstring`; gebruik nergens `mb_*`-functies.
 
-**Bijwerken:** `git pull` in `/var/www/html`. Er is geen update-knop meer in Config.
+**Bijwerken:** `bash tools/update.sh` in `/var/www/html`. Er is geen update-knop meer in Config.
+
+```bash
+cd /var/www/html
+bash tools/update.sh --dry-run   # eerst bekijken (geen pull, niets geschreven)
+bash tools/update.sh             # bijwerken
+```
+
+Het script controleert dat je op `main` zit zonder lokale wijzigingen, doet `git pull --ff-only`, controleert de
+gewijzigde PHP-bestanden (`php -l`), werkt de lage-druk-adapters bij (`tools/adapters-lage-druk/lage-druk-toevoegen.php`, met
+back-up in `data/backups/adapters/`; alleen als de pull die map raakte of de kolom `drukklasse` nog ontbreekt, anders met
+`--lage-druk`) en meldt het nieuwe versienummer. Het stopt bij de eerste fout en verwijdert of installeert niets. Een gewone
+`git pull` blijft ook werken.
 
 **Alleen op de server, niet in git:**
 
