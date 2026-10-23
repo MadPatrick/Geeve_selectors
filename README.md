@@ -113,7 +113,7 @@ slangkaarten/              Plaatshouder; het adres /slangkaarten/ is van Slangka
 
 ## 3. Installeren en bijwerken
 
-**Nieuwe server opzetten:** zie [`docs/SERVER-INSTALLATIE.md`](docs/SERVER-INSTALLATIE.md) en `tools/server-installeren.sh`.
+**Nieuwe server opzetten:** zie [`docs/SERVER-OPZETTEN.md`](docs/SERVER-OPZETTEN.md) en `tools/install-server.sh`.
 
 **Server:** Debian, Apache met PHP 8 in `/var/www/html` (een git-checkout van deze repo). PHP
 heeft geen `mbstring`; gebruik nergens `mb_*`-functies.
