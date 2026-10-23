@@ -1,6 +1,6 @@
 # Adapters lage druk toevoegen
 
-Eenmalig op de server (`/var/www/html`), na `git pull` van deze wijziging:
+Dit gebeurt automatisch met `bash tools/update.sh` (zie README, "Bijwerken"). Handmatig op de server (`/var/www/html`), na `git pull`:
 
 ```bash
 php tools/adapters-lage-druk/lage-druk-toevoegen.php --dry-run   # eerst bekijken
