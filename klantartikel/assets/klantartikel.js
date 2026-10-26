@@ -44,7 +44,22 @@
     filterItem.addEventListener('input', function () { applyFilter(true); });
     filterCode.addEventListener('input', function () { applyFilter(true); });
 
-    function updateCount() { count.textContent = '(' + tbody.rows.length + ')'; }
+    function updateCount() { count.textContent = '(' + tbody.rows.length + ')'; updateExportState(); }
+
+    // "Exporteer XML" (alleen wijzigingen) is alleen actief als er een nieuwe of gewijzigde regel is;
+    // "Export XML Compleet" blijft altijd beschikbaar.
+    function rowChanged(row) {
+        var item = row.querySelector('.ka-item').value.trim();
+        var code = row.querySelector('.ka-code').value.trim();
+        if (item === '' && code === '') { return false; }
+        return !row.hasAttribute('data-orig') || code !== row.getAttribute('data-orig');
+    }
+    function updateExportState() {
+        var any = false;
+        Array.prototype.forEach.call(tbody.rows, function (row) { if (!any && rowChanged(row)) { any = true; } });
+        document.getElementById('kaExport').disabled = !any;
+    }
+    form.addEventListener('input', updateExportState);
 
     function setState(row, state, description) {
         row.classList.remove('is-found', 'is-missing', 'is-checking');
@@ -128,6 +143,7 @@
         var code = row.querySelector('.ka-code').value.trim();
         return !row.hasAttribute('data-orig') || code !== row.getAttribute('data-orig');
     }
+    updateExportState();
 
     form.addEventListener('submit', function (e) {
         var problems = [];

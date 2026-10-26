@@ -78,3 +78,4 @@
 .pl-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pl-hits li strong { display: inline-block; min-width: 6ch; }
 .pl-hits li:hover, .pl-hits li.is-active { background: var(--hover-accent); }
+.ka-button:disabled { opacity: .4; cursor: default; }
