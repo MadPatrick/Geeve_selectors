@@ -117,7 +117,14 @@
     });
 
     // Alleen nieuwe regels (geen data-orig) en regels met een gewijzigd klantartikelnummer gaan mee in de XML.
+    // Bij "Export XML Compleet" (hidden veld kaCompleet = 1) gaan alle ingevulde regels mee.
+    var completeFlag = document.getElementById('kaCompleet');
+    function exportAll() { return completeFlag.value === '1'; }
+    document.getElementById('kaExport').addEventListener('click', function () { completeFlag.value = ''; });
+    document.getElementById('kaExportAll').addEventListener('click', function () { completeFlag.value = '1'; });
+
     function isChanged(row) {
+        if (exportAll()) { return true; }
         var code = row.querySelector('.ka-code').value.trim();
         return !row.hasAttribute('data-orig') || code !== row.getAttribute('data-orig');
     }
@@ -138,7 +145,7 @@
             e.preventDefault();
             message.textContent = problems.length
                 ? 'Export niet mogelijk: ' + problems.slice(0, 5).join('; ') + (problems.length > 5 ? ' (+' + (problems.length - 5) + ' meer)' : '') + '.'
-                : 'Er zijn geen gewijzigde of nieuwe regels om te exporteren.';
+                : (exportAll() ? 'Er zijn geen regels om te exporteren.' : 'Er zijn geen gewijzigde of nieuwe regels om te exporteren.');
             message.hidden = false;
             return;
         }
