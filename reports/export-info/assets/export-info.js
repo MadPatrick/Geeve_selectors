@@ -19,7 +19,7 @@
             { h: 'Ordernumber', k: 'Ordernumber', t: 't' }, { h: 'Line number', k: 'Line number', t: 't' }, { h: 'Quantity', k: 'Quantity', t: 'n' },
             { h: 'Artcode', k: 'Artcode', t: 't' }, { h: 'Item description', k: 'Item description', t: 't', desc: true },
             { h: 'Collo nr', k: 'Collo nr', t: 't', e: true }, { h: 'Collo Type', k: 'Collo Type', t: 't', e: true },
-            { h: 'Weight', k: 'Weight', t: 'n', e: true }, { h: 'Length (cm)', k: 'Length (cm)', t: 'n', e: true },
+            { h: 'Weight', k: 'Weight', t: 'n', e: true }, { h: 'Nett weight', calc: 'nett', t: 'n' }, { h: 'Length (cm)', k: 'Length (cm)', t: 'n', e: true },
             { h: 'Width (cm)', k: 'Width (cm)', t: 'n', e: true }, { h: 'Height (cm)', k: 'Height (cm)', t: 'n', e: true },
             { h: 'Unit Price', k: 'Unit Price', t: 'e' }, { h: 'Total price', k: 'Total price', t: 'e' },
             { h: 'HS code', k: 'HS code', t: 't' }, { h: 'Country of Origin', k: 'Country of Origin', t: 't' },
@@ -45,7 +45,12 @@
     function nlNum(n) { return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 4 }); }
     function euro(n) { return '€ ' + Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
     function showMessage(text) { messageEl.textContent = text; messageEl.hidden = !text; }
-    function val(row, col) { return col.v !== undefined ? col.v : row[col.k]; }
+    // Nett weight = aantal x gewicht; leeg als aantal of gewicht ontbreekt of niet groter dan 0 is.
+    function nettWeight(row) {
+        var q = toNum(row['Quantity']), w = toNum(row['Weight']);
+        return q > 0 && w > 0 ? Math.round(q * w * 10000) / 10000 : '';
+    }
+    function val(row, col) { return col.calc ? nettWeight(row) : (col.v !== undefined ? col.v : row[col.k]); }
     function toNum(v) {
         if (typeof v === 'number') { return v; }
         var t = String(v === null || v === undefined ? '' : v).trim().replace(/\s/g, '');
@@ -77,7 +82,7 @@
                     return '<td><input type="text" class="ka-input ei-in' + (c.t === 'n' ? ' ei-num' : '') + '" data-i="' + i + '" data-k="' + esc(c.k) + '" data-n="' + (c.t === 'n' ? 1 : 0) + '" value="' + esc(shown) + '" autocomplete="off" aria-label="' + esc(c.h) + ' regel ' + esc(r['Line number']) + '"></td>';
                 }
                 var text = c.t === 'e' && v !== '' && v !== null ? euro(v) : (c.t === 'n' && v !== '' && v !== null ? nlNum(v) : v);
-                return '<td' + (cls ? ' class="' + cls.trim() + '"' : '') + '>' + esc(text) + '</td>';
+                return '<td' + (cls ? ' class="' + cls.trim() + '"' : '') + (c.calc ? ' data-nett="' + i + '"' : '') + '>' + esc(text) + '</td>';
             }).join('') + '</tr>';
         });
         tableEl.innerHTML = html + '</tbody>';
@@ -97,6 +102,8 @@
         } else {
             r[key] = el.value;
         }
+        var nettCell = tableEl.querySelector('td[data-nett="' + el.getAttribute('data-i') + '"]');
+        if (nettCell) { var nw = nettWeight(r); nettCell.textContent = nw === '' ? '' : nlNum(nw); }
         renderSummary();
     });
     viewBox.addEventListener('click', function (e) {
@@ -165,7 +172,7 @@
                 if (!cell) { cell = ws[L + (hr + 1 + i)] = { t: 's', v: '' }; }
                 if (c.t === 't') { cell.t = 's'; cell.z = '@'; }
                 else if (c.t === 'e') { cell.z = EURO; }
-                else if (c.k === 'Weight') { cell.z = '0.0000'; }
+                else if (c.k === 'Weight' || c.calc) { cell.z = '0.0000'; }
             }
         });
         if (offset) {
