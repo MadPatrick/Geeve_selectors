@@ -86,8 +86,8 @@
             .then(function () { fetchBtn.disabled = false; });
     });
 
-    downloadBtn.addEventListener('click', function () {
-        if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return; }
+    GeeveProgress.onClick(downloadBtn, 'Excel maken…', function () {
+        if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return false; }
         var cols = data.columns;
         var aoa = [cols];
         data.rows.forEach(function (r) {

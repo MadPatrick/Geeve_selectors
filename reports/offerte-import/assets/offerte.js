@@ -484,8 +484,8 @@
     }
     // Export Excel: de lijst zoals hij nu in de tabel staat (ook handmatige wijzigingen), met dezelfde kolommen.
     function exportExcel() {
-        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return; }
-        if (!lines.length) { showMessage('Er zijn nog geen regels om te exporteren.'); return; }
+        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return false; }
+        if (!lines.length) { showMessage('Er zijn nog geen regels om te exporteren.'); return false; }
         showMessage('');
         var states = lines.map(lineState);
         var head = ['Regelnr', 'Aantal'];
@@ -592,7 +592,10 @@
         showMessage(''); showInfo('');
         var write = exactPending;
         exactBusy = true; exactBtn.disabled = true;
+        // Voortgangsbalk: één verzoek aan de slangkaart-app, dus een lopende balk (geen voortgang per regel).
+        var bar = GeeveProgress.start(write ? 'Offerte naar Exact schrijven…' : 'Proef naar Exact…');
         postExact(exactBody(write)).then(function (j) {
+            if (j.ok) { bar.finish(write ? 'Naar Exact geschreven' : 'Proef gelukt'); } else { bar.fail('Naar Exact mislukt'); }
             exactBusy = false; exactBtn.disabled = !readyState;   // alleen actief als alles klopt, zoals Exporteer XML
             if (!j.ok) {
                 exactReset();
@@ -672,14 +675,14 @@
     });
 
     // ---- Koppelingen ----
-    document.getElementById('oiTemplate').addEventListener('click', function () {
-        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return; }
+    GeeveProgress.onClick(document.getElementById('oiTemplate'), 'Template maken…', function () {
+        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return false; }
         downloadTemplate();
     });
-    exportBtn.addEventListener('click', exportXml);
+    GeeveProgress.onClick(exportBtn, 'XML maken…', exportXml);
     if (exactBtn) { exactBtn.addEventListener('click', exactClick); }
     var excelBtn = document.getElementById('oiExportExcel');
-    if (excelBtn) { excelBtn.addEventListener('click', exportExcel); }
+    if (excelBtn) { GeeveProgress.onClick(excelBtn, 'Excel maken…', exportExcel); }
     dropEl.addEventListener('click', function () { fileEl.click(); });
     dropEl.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileEl.click(); } });
     fileEl.addEventListener('change', function () { if (fileEl.files[0]) { importFile(fileEl.files[0]); fileEl.value = ''; } });

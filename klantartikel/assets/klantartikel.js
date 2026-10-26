@@ -157,6 +157,7 @@
             return;
         }
         message.hidden = true;
+        GeeveProgress.download(form, 'XML maken…');
         // Ongewijzigde regels uitzetten zodat ze niet worden meegestuurd (beide velden, zodat de volgorde klopt).
         var disabled = [];
         Array.prototype.forEach.call(tbody.rows, function (row) {
@@ -180,8 +181,8 @@
         box.hidden = false;
     }
 
-    document.getElementById('kaTemplate').addEventListener('click', function () {
-        if (typeof XLSX === 'undefined') { showInfo('Excel-bibliotheek niet geladen.', true); return; }
+    GeeveProgress.onClick(document.getElementById('kaTemplate'), 'Template maken…', function () {
+        if (typeof XLSX === 'undefined') { showInfo('Excel-bibliotheek niet geladen.', true); return false; }
         var ws = XLSX.utils.aoa_to_sheet([['Artikelnummer', 'Klantartikelnummer']]);
         // Tekstformaat (@) op de invulcellen zodat artikelnummers met voorloopnullen intact blijven.
         for (var r = 2; r <= 1001; r++) {
@@ -204,8 +205,8 @@
     });
 
     // Download lijst: alle regels van de lijst zoals ze nu in het scherm staan (ook de verborgen door het filter), als Excel.
-    document.getElementById('kaDownloadList').addEventListener('click', function () {
-        if (typeof XLSX === 'undefined') { showInfo('Excel-bibliotheek niet geladen.', true); return; }
+    GeeveProgress.onClick(document.getElementById('kaDownloadList'), 'Lijst maken…', function () {
+        if (typeof XLSX === 'undefined') { showInfo('Excel-bibliotheek niet geladen.', true); return false; }
         var data = [['Artikelnummer', 'Omschrijving', 'Klantartikelnummer']];
         Array.prototype.forEach.call(tbody.rows, function (row) {
             var item = row.querySelector('.ka-item').value.trim();

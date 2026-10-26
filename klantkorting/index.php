@@ -79,6 +79,8 @@ try {
             while (ob_get_level() > 0) {
                 ob_end_clean();
             }
+            require_once __DIR__ . '/../shared/progress.php';
+            geeveProgressDownloadDone();   // laat de voortgangsbalk weten dat het bestand begint
             header('Content-Type: application/xml; charset=utf-8');
             header('Content-Disposition: attachment; filename="ITEMPRICES.xml"');
             echo $xml;

@@ -11,6 +11,7 @@ declare(strict_types=1);
  * Vóór het includen zetten:
  *   $headCss (list<string>, optioneel) - stylesheets vanaf de portal-root, in laadvolgorde,
  *                                        bijv. ['shared/slangkaart.css', 'slkprinten/assets/style.css'].
+ * Laadt ook shared/progress.js (GeeveProgress, voortgangsbalk).
  * Gebruikt h() van de app zelf (zoals shared/header.php).
  */
 
@@ -32,3 +33,4 @@ $headCss = $headCss ?? [];
 <?php foreach ($headCss as $cssPath): ?>
     <link rel="stylesheet" href="<?= h(geeveAssetHref($cssPath)) ?>">
 <?php endforeach; ?>
+    <script src="<?= h(geeveAssetHref('shared/progress.js')) ?>"></script>

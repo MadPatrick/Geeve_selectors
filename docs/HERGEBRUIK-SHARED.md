@@ -271,6 +271,18 @@ de eigen `assets/style.css`. `shared/head.php` doet dat in de goede volgorde.
 - `csrfToken()` / `csrfValid()` (`shared/csrf.php`): bescherming voor elk formulier of elke API die iets wijzigt.
 - `tileApiGuard($tegelId)` en `accessApiGuard($scope)`: API's die bij een beveiligde tegel horen moeten dit aanroepen,
   anders is de data ook zonder de toegangscode op te halen.
+- **Voortgangsbalk** (`shared/progress.js`, CSS in `shared/style.css`, kleuren `--progress-*` in `tokens.css`): `shared/head.php`
+  laadt het script, dus elke pagina met `head.php` heeft `GeeveProgress`. Gebruik het bij elke knop die een export, download,
+  import of "Naar Exact" start:
+  - Werk in de browser (Excel/XML maken): `GeeveProgress.onClick(knop, 'Excel maken…', functie)` in plaats van
+    `knop.addEventListener('click', functie)`. De balk verschijnt eerst, daarna loopt `functie`. Geef `false` terug als er niets
+    gedaan is (bijv. na een melding): dan verdwijnt de balk. Voortgang per stap: `function (e, p) { p.set(3, 10); }`
+    (zonder `p.set` is de balk een lopende, onbepaalde balk).
+  - Verzoek aan een server (fetch): `var bar = GeeveProgress.start('Naar Exact schrijven…');` en daarna `bar.finish()` of
+    `bar.fail('tekst')`; of geef in `GeeveProgress.run(label, function () { return fetch(...); }, {button: knop})` de belofte terug.
+  - Download via een formulier-POST: `GeeveProgress.download(form, 'XML maken…')` in de submit-handler (na de controle) en in PHP
+    vlak voor de `Content-Disposition`-header `require_once shared/progress.php; geeveProgressDownloadDone();`.
+  De knop zelf blijft ongemoeid (zijn eigen `disabled`-logica werkt door); een tweede klik tijdens de balk wordt genegeerd.
 - Database-inloggegevens (Exact en `DB_USER`): via `secureSettingsRead()` (`shared/secure_settings.php`), die ook
   `/etc/geeve/portal.json` combineert. Lees die nooit uit een eigen bestand en toon ze nergens.
 
@@ -356,5 +368,6 @@ De PHP-functies (printen, data, header) zijn daar niet bruikbaar. Wat wel gedeel
 - [ ] Links via `geeveUrl()` / `geeveAppUrl()`; tegel in `TILE_REGISTRY` en `GEEVE_APP_URLS` als de app op het hoofdscherm moet.
 - [ ] Printen: printerkeuze uit `geevePrinters()`, formulier met `csrfToken()`/`csrfValid()`, afdrukblok zonder scripts,
       getest op papier op de gekozen printer.
+- [ ] Export-, download-, import- en "Naar Exact"-knoppen tonen de voortgangsbalk (`GeeveProgress`, paragraaf 7).
 - [ ] Beveiligde API's roepen `tileApiGuard()` of `accessApiGuard()` aan.
 - [ ] `version.php` laat het laatste getal bij elke push met 1 omhoog gaan; de eerste drie alleen op verzoek.

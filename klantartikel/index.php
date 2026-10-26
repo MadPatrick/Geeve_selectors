@@ -57,6 +57,8 @@ if ($priceList !== '') {
             while (ob_get_level() > 0) {
                 ob_end_clean();
             }
+            require_once __DIR__ . '/../shared/progress.php';
+            geeveProgressDownloadDone();   // laat de voortgangsbalk weten dat het bestand begint
             header('Content-Type: application/xml; charset=utf-8');
             // Exact verwacht altijd dezelfde bestandsnaam (ook in de Excel-template: DEBTORS.xml).
             header('Content-Disposition: attachment; filename="DEBTORS.xml"');

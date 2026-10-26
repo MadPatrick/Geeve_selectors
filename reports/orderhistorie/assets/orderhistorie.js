@@ -245,8 +245,8 @@
     });
 
     // ---- Excel: de regels zoals ze na het filteren en sorteren op het scherm staan (alle, niet alleen de eerste 1000) ----
-    downloadBtn.addEventListener('click', function () {
-        if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return; }
+    GeeveProgress.onClick(downloadBtn, 'Excel maken…', function () {
+        if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return false; }
         var HR = 3; // rij 0 titel, rij 1 datum, rij 2 leeg, rij 3 kolomkop
         var now = new Date();
         var aoa = [['Orderhistorie ' + (data.klantNaam || '')], [now.toLocaleDateString('nl-NL')], [], data.columns];
