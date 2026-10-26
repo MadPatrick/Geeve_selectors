@@ -8,7 +8,7 @@ tileApiGuard('inkoop-groep');
 
 /**
  * Inkoop per Artikelgroep: per artikel van een artikelgroep (Items.Assortment, zoals bij Kortingstructuur) het aantal dat in de
- * gekozen periode op inkooporders is besteld. Inkoopprijs per stuk = gewogen gemiddelde netto orderprijs (orsrg.prijs_n) over de regels in de periode, gedeeld door het besteld aantal; leeg bij aantal 0. Lees-query op orkrg (orderkop) + orsrg (orderregels) + Items in database 005,
+ * gekozen periode op inkooporders is besteld. Laatste inkoopprijs = netto orderprijs (orsrg.prijs_n) van de laatste inkoopregel van het artikel in de periode (nieuwste orderdatum); leeg als de prijs ontbreekt. Lees-query op orkrg (orderkop) + orsrg (orderregels) + Items in database 005,
  * dezelfde tabellen als de view 1655 VW_Alle_Ordersplus_verkoop_inkoop in Exactrapportage.
  */
 
@@ -49,18 +49,22 @@ reportApi(function (array $in): array {
     // Periode: orderdatum van "van" tot en met "tot". Eenheid: verkoopeenheid, anders "meet eenheid" (vrij veld 4), anders de verpakking.
     $stmt = $pdo->prepare(
         'SET NOCOUNT ON; ' .
-        'SELECT RTRIM(i.ItemCode) AS [Artikelnummer], RTRIM(i.Description) AS [Omschrijving], COALESCE(NULLIF(LTRIM(RTRIM(i.eenh_verk)), \'\'), NULLIF(LTRIM(RTRIM(i.UserField_04)), \'\'), NULLIF(LTRIM(RTRIM(i.PackageDescription)), \'\'), \'\') AS [Eenheid], ' .
-        'SUM(ISNULL(r.esr_aantal, 0)) AS [Besteld], COUNT(DISTINCT k.ordernr) AS [Aantal orders], ' .
-        'SUM(ISNULL(r.prijs_n, 0) * ISNULL(r.esr_aantal, 0)) / NULLIF(SUM(ISNULL(r.esr_aantal, 0)), 0) AS [Inkoopprijs per stuk] ' .
+        'WITH l AS (' .
+        'SELECT i.ItemCode, i.Description, i.eenh_verk, i.UserField_04, i.PackageDescription, k.ordernr, r.esr_aantal, r.prijs_n, ' .
+        'ROW_NUMBER() OVER (PARTITION BY i.ItemCode ORDER BY k.orddat DESC, k.ordernr DESC, r.ID DESC) AS rn ' .
         'FROM orkrg k WITH (NOLOCK) ' .
         'INNER JOIN orsrg r WITH (NOLOCK) ON r.ordernr = k.ordernr ' .
         'INNER JOIN Items i WITH (NOLOCK) ON i.ItemCode = r.artcode ' .
-        'WHERE k.ord_soort = ? AND LTRIM(RTRIM(i.Assortment)) = ? AND k.orddat >= ? AND k.orddat < DATEADD(day, 1, ?) ' .
-        'GROUP BY i.ItemCode, i.Description, i.eenh_verk, i.UserField_04, i.PackageDescription ORDER BY i.ItemCode'
+        'WHERE k.ord_soort = ? AND LTRIM(RTRIM(i.Assortment)) = ? AND k.orddat >= ? AND k.orddat < DATEADD(day, 1, ?)' .
+        ') ' .
+        'SELECT RTRIM(ItemCode) AS [Artikelnummer], RTRIM(Description) AS [Omschrijving], COALESCE(NULLIF(LTRIM(RTRIM(eenh_verk)), \'\'), NULLIF(LTRIM(RTRIM(UserField_04)), \'\'), NULLIF(LTRIM(RTRIM(PackageDescription)), \'\'), \'\') AS [Eenheid], ' .
+        'SUM(ISNULL(esr_aantal, 0)) AS [Besteld], COUNT(DISTINCT ordernr) AS [Aantal orders], ' .
+        'MAX(CASE WHEN rn = 1 THEN prijs_n END) AS [Laatste inkoopprijs] ' .
+        'FROM l GROUP BY ItemCode, Description, eenh_verk, UserField_04, PackageDescription ORDER BY ItemCode'
     );
     $stmt->execute([PURCHASE_ORDER_TYPE, $group, $from->format('Y-m-d'), $to->format('Y-m-d')]);
 
-    $columns = ['Artikelnummer', 'Omschrijving', 'Eenheid', 'Besteld', 'Aantal orders', 'Inkoopprijs per stuk'];
+    $columns = ['Artikelnummer', 'Omschrijving', 'Eenheid', 'Besteld', 'Aantal orders', 'Laatste inkoopprijs'];
     $rows = [];
     $total = 0.0;
     while ($r = $stmt->fetch(PDO::FETCH_NUM)) {
@@ -80,7 +84,7 @@ reportApi(function (array $in): array {
         'columns' => $columns,
         'numeric' => [false, false, false, true, true, true],
         'dates' => [false, false, false, false, false, false],
-        'currency' => ['Inkoopprijs per stuk'],
+        'currency' => ['Laatste inkoopprijs'],
         'rows' => $rows,
         'text' => ['Artikelnummer'],
         'kop' => $kop,
