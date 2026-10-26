@@ -44,22 +44,20 @@
     filterItem.addEventListener('input', function () { applyFilter(true); });
     filterCode.addEventListener('input', function () { applyFilter(true); });
 
-    function updateCount() { count.textContent = '(' + tbody.rows.length + ')'; updateExportState(); }
+    function updateCount() { count.textContent = '(' + tbody.rows.length + ')'; }
 
-    // "Exporteer XML" (alleen wijzigingen) is alleen actief als er een nieuwe of gewijzigde regel is;
-    // "Export XML Compleet" blijft altijd beschikbaar.
+    // Een regel telt als gewijzigd als hij nieuw is of een ander klantartikelnummer heeft dan het origineel (lege regels niet).
     function rowChanged(row) {
         var item = row.querySelector('.ka-item').value.trim();
         var code = row.querySelector('.ka-code').value.trim();
         if (item === '' && code === '') { return false; }
         return !row.hasAttribute('data-orig') || code !== row.getAttribute('data-orig');
     }
-    function updateExportState() {
+    function hasChanges() {
         var any = false;
         Array.prototype.forEach.call(tbody.rows, function (row) { if (!any && rowChanged(row)) { any = true; } });
-        document.getElementById('kaExport').disabled = !any;
+        return any;
     }
-    form.addEventListener('input', updateExportState);
 
     function setState(row, state, description) {
         row.classList.remove('is-found', 'is-missing', 'is-checking');
@@ -131,21 +129,14 @@
         }
     });
 
-    // Alleen nieuwe regels (geen data-orig) en regels met een gewijzigd klantartikelnummer gaan mee in de XML.
-    // Bij "Export XML Compleet" (hidden veld kaCompleet = 1) gaan alle ingevulde regels mee.
-    var completeFlag = document.getElementById('kaCompleet');
-    function exportAll() { return completeFlag.value === '1'; }
-    document.getElementById('kaExport').addEventListener('click', function () { completeFlag.value = ''; });
-    document.getElementById('kaExportAll').addEventListener('click', function () { completeFlag.value = '1'; });
-
+    // Met wijzigingen: alleen nieuwe en gewijzigde regels. Zonder wijzigingen: de complete lijst (nooit een lege export).
+    var exportAll = false;
     function isChanged(row) {
-        if (exportAll()) { return true; }
-        var code = row.querySelector('.ka-code').value.trim();
-        return !row.hasAttribute('data-orig') || code !== row.getAttribute('data-orig');
+        return exportAll || rowChanged(row);
     }
-    updateExportState();
 
     form.addEventListener('submit', function (e) {
+        exportAll = !hasChanges();
         var problems = [];
         var changed = 0;
         Array.prototype.forEach.call(tbody.rows, function (row) {
@@ -161,7 +152,7 @@
             e.preventDefault();
             message.textContent = problems.length
                 ? 'Export niet mogelijk: ' + problems.slice(0, 5).join('; ') + (problems.length > 5 ? ' (+' + (problems.length - 5) + ' meer)' : '') + '.'
-                : (exportAll() ? 'Er zijn geen regels om te exporteren.' : 'Er zijn geen gewijzigde of nieuwe regels om te exporteren.');
+                : 'Er zijn geen regels om te exporteren.';
             message.hidden = false;
             return;
         }
