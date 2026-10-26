@@ -126,6 +126,14 @@
     --status-warn-ink: #8a5a00;
     --status-ok-soft: #e8f4ed;
 
+    /* ---- Voortgangsbalk (shared/progress.js) ---- */
+    --progress-surface: var(--surface-white);
+    --progress-track: var(--btn-green);
+    --progress-fill: var(--btn-green-line);
+    --progress-ink: var(--ink);
+    --progress-error: var(--status-error);
+    --progress-shadow: rgba(15, 30, 45, .22);
+
     /* ---- Vorm en maat ---- */
     --radius-sm: 10px;                  /* invoervelden, kleine kaders */
     --radius-md: 14px;

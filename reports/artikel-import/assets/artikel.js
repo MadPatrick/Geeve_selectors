@@ -467,11 +467,11 @@
     });
 
     // ---- Koppelingen ----
-    document.getElementById('aiTemplate').addEventListener('click', function () {
-        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return; }
+    GeeveProgress.onClick(document.getElementById('aiTemplate'), 'Template maken…', function () {
+        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return false; }
         downloadTemplate();
     });
-    exportBtn.addEventListener('click', exportXml);
+    GeeveProgress.onClick(exportBtn, 'XML maken…', exportXml);
     dropEl.addEventListener('click', function () { fileEl.click(); });
     dropEl.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileEl.click(); } });
     fileEl.addEventListener('change', function () { if (fileEl.files[0]) { importFile(fileEl.files[0]); fileEl.value = ''; } });

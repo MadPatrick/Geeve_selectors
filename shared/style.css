@@ -360,3 +360,17 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
 .print-group .direct-print-status { position: absolute; top: 100%; left: 0; white-space: nowrap; }
 .direct-print-status { font-weight: 500; color: var(--muted); }
 .direct-print-status.is-error { color: var(--btn-danger, #a03636); }
+
+/* Voortgangsbalk bij export-/import-/"Naar Exact"-knoppen (shared/progress.js, GeeveProgress). */
+.geeve-progress-host { position: fixed; left: 50%; bottom: 20px; z-index: 1000; width: 360px; max-width: calc(100% - 32px); margin-left: -180px; }
+.geeve-progress { margin-top: 8px; padding: 10px 14px 12px; border: 1px solid var(--line-input); border-radius: var(--radius-sm); background: var(--progress-surface); color: var(--progress-ink); box-shadow: 0 6px 18px var(--progress-shadow); font-size: 13px; font-weight: 600; }
+.geeve-progress-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.geeve-progress-pct { color: var(--muted); font-weight: 500; }
+.geeve-progress-track { position: relative; height: 8px; overflow: hidden; border: 1px solid var(--progress-fill); border-radius: 6px; background: var(--progress-track); }
+.geeve-progress-fill { height: 100%; width: 0; background: var(--progress-fill); transition: width .2s linear; }
+.geeve-progress.is-indeterminate .geeve-progress-fill { position: absolute; left: 0; width: 35%; transition: none; -webkit-animation: geeve-progress-run 1.1s ease-in-out infinite; animation: geeve-progress-run 1.1s ease-in-out infinite; }
+.geeve-progress.is-error { border-color: var(--progress-error); }
+.geeve-progress.is-error .geeve-progress-fill { background: var(--progress-error); }
+.geeve-progress.is-error .geeve-progress-track { border-color: var(--progress-error); }
+@-webkit-keyframes geeve-progress-run { 0% { -webkit-transform: translateX(-100%); } 100% { -webkit-transform: translateX(290%); } }
+@keyframes geeve-progress-run { 0% { transform: translateX(-100%); } 100% { transform: translateX(290%); } }

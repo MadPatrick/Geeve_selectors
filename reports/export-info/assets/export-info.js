@@ -140,7 +140,7 @@
 
     // ---- Excel ----
     function exportExcel() {
-        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return; }
+        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return false; }
         var view = VIEWS[current];
         var cols = view.cols;
         var offset = current === 'orders' ? 2 : 0; // orders: rij 1 = Total weight, rij 2 leeg
@@ -181,5 +181,5 @@
         XLSX.utils.book_append_sheet(wb, ws, view.name);
         XLSX.writeFile(wb, 'Export_info_' + order + '_' + view.name + '.xlsx');
     }
-    exportBtn.addEventListener('click', exportExcel);
+    GeeveProgress.onClick(exportBtn, 'Excel maken…', exportExcel);
 })();

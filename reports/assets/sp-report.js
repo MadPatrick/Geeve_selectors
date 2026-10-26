@@ -200,8 +200,8 @@
         el.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); fetchData(); } });
     });
 
-    downloadBtn.addEventListener('click', function () {
-        if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return; }
+    GeeveProgress.onClick(downloadBtn, 'Excel maken…', function () {
+        if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return false; }
         var titles = (data.titles || []).map(function (line) { return line.replace('{meting}', measure || ''); });
         // Bovenaan de titelregels (nummer en naam), dan een lege regel en daarna de tabelkop op rij HR+1.
         var HR = titles.length ? titles.length + 1 : 0;

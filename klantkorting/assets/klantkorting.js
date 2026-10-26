@@ -146,6 +146,7 @@
             return;
         }
         message.hidden = true;
+        GeeveProgress.download(form, 'XML maken…');
         // Alle te exporteren regels als één JSON-veld: met losse velden per regel (12 stuks) kapt PHP
         // (max_input_vars = 1000) bij ruim 80 regels de rest stilzwijgend af.
         var rows = [];
@@ -181,8 +182,8 @@
     }
     function cellText(v) { return v === undefined || v === null ? '' : String(v).trim(); }
 
-    document.getElementById('kkTemplate').addEventListener('click', function () {
-        if (typeof XLSX === 'undefined') { showInfo('Excel-bibliotheek niet geladen.', true); return; }
+    GeeveProgress.onClick(document.getElementById('kkTemplate'), 'Template maken…', function () {
+        if (typeof XLSX === 'undefined') { showInfo('Excel-bibliotheek niet geladen.', true); return false; }
         var rows = [['Artikelgroep', 'Omschrijving', 'Debiteurcode', 'Geldig van', 'Geldig tot', 'Aantal', 'Korting']];
         Array.prototype.forEach.call(tbody.rows, function (row) {
             var v = rowValues(row);
