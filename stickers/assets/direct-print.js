@@ -40,6 +40,18 @@
         sortToggle.addEventListener('click', function () { setTimeout(selectSaved, 0); });
     }
 
+    // Snelheid en zwarting (alleen op tegels die ze tonen): per browser onthouden, leeg = standaard van de printer.
+    var snelheid = document.getElementById('directSnelheid');
+    var zwarting = document.getElementById('directZwarting');
+    [snelheid, zwarting].forEach(function (veld) {
+        if (!veld) { return; }
+        var sleutel = 'geeve_' + veld.id + '_' + box.getAttribute('data-tile');
+        try { veld.value = window.localStorage.getItem(sleutel) || ''; } catch (e) { /* opslag niet beschikbaar */ }
+        veld.addEventListener('change', function () {
+            try { window.localStorage.setItem(sleutel, veld.value); } catch (e) { /* opslag niet beschikbaar */ }
+        });
+    });
+
     function say(text, error) {
         status.textContent = text;
         status.className = 'direct-print-status' + (error ? ' is-error' : '');
@@ -54,7 +66,8 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
-            body: JSON.stringify({ tile: box.getAttribute('data-tile'), printer: select.value, groep: group(), html: sheet.innerHTML, csrf: box.getAttribute('data-csrf') })
+            body: JSON.stringify({ tile: box.getAttribute('data-tile'), printer: select.value, groep: group(), html: sheet.innerHTML, csrf: box.getAttribute('data-csrf'),
+                snelheid: snelheid ? snelheid.value : '', zwarting: zwarting ? zwarting.value : '' })
         }).then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
             .then(function (d) { say(d.ok ? 'Verstuurd naar ' + d.printer + '.' : (d.error || 'Printen mislukt.'), !d.ok); })
             .catch(function () { say('Geen verbinding met de server.', true); });

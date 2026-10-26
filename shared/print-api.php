@@ -50,8 +50,19 @@ if (!is_string($html) || trim($html) === '' || strlen($html) > 2_500_000) {
     printApiFail(400, 'Er is niets om te printen.');
 }
 
+// Optioneel: printsnelheid (1-12 inch/s) en zwarting (0-15) voor TSPL-labelprinters; buiten het bereik of leeg = niet meesturen.
+$afdruk = [];
+if (in_array($tile, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true)) {
+    foreach (['snelheid' => [1, 12], 'zwarting' => [0, 15]] as $naam => [$min, $max]) {
+        $waarde = $body[$naam] ?? null;
+        if ((is_int($waarde) || (is_string($waarde) && preg_match('/^\d{1,2}$/', $waarde) === 1)) && (int) $waarde >= $min && (int) $waarde <= $max) {
+            $afdruk[$naam] = (int) $waarde;
+        }
+    }
+}
+
 try {
-    $job = geevePrintHtml($html, $page['css'], $queue, GEEVE_PRINT_TILES[$tile], null, $page['class']);
+    $job = geevePrintHtml($html, $page['css'], $queue, GEEVE_PRINT_TILES[$tile], null, $page['class'], $afdruk);
 } catch (RuntimeException $e) {
     printApiFail(500, $e->getMessage());
 }
