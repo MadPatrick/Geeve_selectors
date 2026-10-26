@@ -594,18 +594,20 @@
         exactBusy = true; exactBtn.disabled = true;
         // Voortgangsbalk: één verzoek aan de slangkaart-app, dus een lopende balk (geen voortgang per regel).
         var bar = GeeveProgress.start(write ? 'Offerte naar Exact schrijven…' : 'Proef naar Exact…', exactBtn);
+        var t0 = new Date().getTime();
         postExact(exactBody(write)).then(function (j) {
+            var duur = ' Duur: ' + (Math.round((new Date().getTime() - t0) / 100) / 10).toString().replace('.', ',') + ' s.';
             if (j.ok) { bar.finish(write ? 'Naar Exact geschreven' : 'Proef gelukt'); } else { bar.fail('Naar Exact mislukt'); }
             exactBusy = false; exactBtn.disabled = !readyState;   // alleen actief als alles klopt, zoals Exporteer XML
             if (!j.ok) {
                 exactReset();
-                showMessage((j.fout || 'Onbekende fout van de slangkaart-app.') + (j.stand ? ' Stand in Exact: ' + j.stand : ''));
+                showMessage((j.fout || 'Onbekende fout van de slangkaart-app.') + (j.stand ? ' Stand in Exact: ' + j.stand : '') + duur);
                 return;
             }
             if (write) {
                 exactReset();
                 exactBtn.disabled = true;   // niet nog een keer; een wijziging maakt de knop weer vrij
-                showInfo('Offerte naar Exact geschreven (' + j.server + '): ' + pl(j.regels, 'regel', 'regels') + '.');
+                showInfo('Offerte naar Exact geschreven (' + j.server + '): ' + pl(j.regels, 'regel', 'regels') + '.' + duur);
                 return;
             }
             if (!j.schrijvenAan) {
