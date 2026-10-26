@@ -732,12 +732,12 @@
         }
         function search() {
             var q = inputEl.value.trim();
-            if (q.length < 2) { results = []; show(); return; }
-            if (/^\d+$/.test(q) && q.length > 6) { results = []; show(); return; }
+            if (q.length < 2) { results = []; show(); return Promise.resolve(); }
+            if (/^\d+$/.test(q) && q.length > 6) { results = []; show(); return Promise.resolve(); }
             var my = ++seq;
             var body = new URLSearchParams();
             body.set('csrf', csrf); body.set('q', q); body.set('soort', kind);
-            fetch(endpoint.replace('validate.php', 'search.php'), { method: 'POST', body: body, credentials: 'same-origin' })
+            return fetch(endpoint.replace('validate.php', 'search.php'), { method: 'POST', body: body, credentials: 'same-origin' })
                 .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
                 .then(function (j) {
                     if (my !== seq) { return; }
@@ -749,10 +749,17 @@
         }
         inputEl.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 250); });
         inputEl.addEventListener('keydown', function (e) {
+            // Enter: de bovenste (of gemarkeerde) regel uit de lijst nemen en doorgaan.
+            if (GeeveEnterTop.handle(e, {
+                isOpen: function () { return !box.hidden; },
+                count: function () { return results.length; },
+                active: function () { return active; },
+                pick: pick,
+                search: function () { clearTimeout(timer); return search(); }
+            })) { return; }
             if (box.hidden) { return; }
             if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, results.length - 1); mark(); }
             else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); mark(); }
-            else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); pick(active); }
             else if (e.key === 'Escape') { close(); }
         });
         inputEl.addEventListener('blur', function () { setTimeout(close, 100); });

@@ -1473,12 +1473,11 @@
         }
 
         if (event.key === 'Enter') {
-            if (selectedIndex >= 0 && currentMatches[selectedIndex]) {
+            // Gemarkeerde regel, anders de bovenste uit de lijst.
+            const top = selectedIndex >= 0 ? currentMatches[selectedIndex] : currentMatches[0];
+            if (top && !suggestions.hidden) {
                 event.preventDefault();
-                selectArticle(currentMatches[selectedIndex]);
-            } else if (currentMatches.length === 1) {
-                event.preventDefault();
-                selectArticle(currentMatches[0]);
+                selectArticle(top);
             }
             return;
         }
