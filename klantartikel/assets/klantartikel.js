@@ -46,6 +46,19 @@
 
     function updateCount() { count.textContent = '(' + tbody.rows.length + ')'; }
 
+    // Een regel telt als gewijzigd als hij nieuw is of een ander klantartikelnummer heeft dan het origineel (lege regels niet).
+    function rowChanged(row) {
+        var item = row.querySelector('.ka-item').value.trim();
+        var code = row.querySelector('.ka-code').value.trim();
+        if (item === '' && code === '') { return false; }
+        return !row.hasAttribute('data-orig') || code !== row.getAttribute('data-orig');
+    }
+    function hasChanges() {
+        var any = false;
+        Array.prototype.forEach.call(tbody.rows, function (row) { if (!any && rowChanged(row)) { any = true; } });
+        return any;
+    }
+
     function setState(row, state, description) {
         row.classList.remove('is-found', 'is-missing', 'is-checking');
         if (state) { row.classList.add(state); }
@@ -116,13 +129,14 @@
         }
     });
 
-    // Alleen nieuwe regels (geen data-orig) en regels met een gewijzigd klantartikelnummer gaan mee in de XML.
+    // Met wijzigingen: alleen nieuwe en gewijzigde regels. Zonder wijzigingen: de complete lijst (nooit een lege export).
+    var exportAll = false;
     function isChanged(row) {
-        var code = row.querySelector('.ka-code').value.trim();
-        return !row.hasAttribute('data-orig') || code !== row.getAttribute('data-orig');
+        return exportAll || rowChanged(row);
     }
 
     form.addEventListener('submit', function (e) {
+        exportAll = !hasChanges();
         var problems = [];
         var changed = 0;
         Array.prototype.forEach.call(tbody.rows, function (row) {
@@ -138,7 +152,7 @@
             e.preventDefault();
             message.textContent = problems.length
                 ? 'Export niet mogelijk: ' + problems.slice(0, 5).join('; ') + (problems.length > 5 ? ' (+' + (problems.length - 5) + ' meer)' : '') + '.'
-                : 'Er zijn geen gewijzigde of nieuwe regels om te exporteren.';
+                : 'Er zijn geen regels om te exporteren.';
             message.hidden = false;
             return;
         }
