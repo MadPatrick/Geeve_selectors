@@ -1794,7 +1794,7 @@
         ui.exactBody.innerHTML = '<p class="exact-note">Controleren wat er naar Exact gaat…</p>';
         ui.exactOverlay.hidden = false;
 
-        const bar = GeeveProgress.start('Proef naar Exact…');
+        const bar = GeeveProgress.start('Proef naar Exact…', ui.exactWriteButton);
         const result = await postExact({ ...exactRequest, schrijven: false });
         if (result.ok) bar.finish('Proef gelukt'); else bar.fail('Proef mislukt');
         if (!result.ok) {
@@ -1825,7 +1825,7 @@
         ui.exactConfirm.disabled = true;
         ui.exactCancel.textContent = 'Sluiten';
         ui.exactBody.insertAdjacentHTML('beforeend', '<p class="exact-note">Bezig met schrijven naar Exact…</p>');
-        const bar = GeeveProgress.start('Naar Exact schrijven…');
+        const bar = GeeveProgress.start('Naar Exact schrijven…', ui.exactConfirm);
         const result = await postExact({ ...exactRequest, schrijven: true });
         if (result.ok) bar.finish('Naar Exact geschreven'); else bar.fail('Naar Exact mislukt');
         ui.exactConfirm.hidden = true;

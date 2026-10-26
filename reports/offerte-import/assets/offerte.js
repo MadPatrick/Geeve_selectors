@@ -593,7 +593,7 @@
         var write = exactPending;
         exactBusy = true; exactBtn.disabled = true;
         // Voortgangsbalk: één verzoek aan de slangkaart-app, dus een lopende balk (geen voortgang per regel).
-        var bar = GeeveProgress.start(write ? 'Offerte naar Exact schrijven…' : 'Proef naar Exact…');
+        var bar = GeeveProgress.start(write ? 'Offerte naar Exact schrijven…' : 'Proef naar Exact…', exactBtn);
         postExact(exactBody(write)).then(function (j) {
             if (j.ok) { bar.finish(write ? 'Naar Exact geschreven' : 'Proef gelukt'); } else { bar.fail('Naar Exact mislukt'); }
             exactBusy = false; exactBtn.disabled = !readyState;   // alleen actief als alles klopt, zoals Exporteer XML
