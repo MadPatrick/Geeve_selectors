@@ -8,7 +8,7 @@ tileApiGuard('inkoop-groep');
 
 /**
  * Inkoop per Artikelgroep: per artikel van een artikelgroep (Items.Assortment, zoals bij Kortingstructuur) het aantal dat in de
- * gekozen periode op inkooporders is besteld. Lees-query op orkrg (orderkop) + orsrg (orderregels) + Items in database 005,
+ * gekozen periode op inkooporders is besteld. Inkoopprijs per stuk = gewogen gemiddelde netto orderprijs (orsrg.prijs_n) over de regels in de periode, gedeeld door het besteld aantal; leeg bij aantal 0. Lees-query op orkrg (orderkop) + orsrg (orderregels) + Items in database 005,
  * dezelfde tabellen als de view 1655 VW_Alle_Ordersplus_verkoop_inkoop in Exactrapportage.
  */
 
@@ -50,7 +50,8 @@ reportApi(function (array $in): array {
     $stmt = $pdo->prepare(
         'SET NOCOUNT ON; ' .
         'SELECT RTRIM(i.ItemCode) AS [Artikelnummer], RTRIM(i.Description) AS [Omschrijving], COALESCE(NULLIF(LTRIM(RTRIM(i.eenh_verk)), \'\'), NULLIF(LTRIM(RTRIM(i.UserField_04)), \'\'), NULLIF(LTRIM(RTRIM(i.PackageDescription)), \'\'), \'\') AS [Eenheid], ' .
-        'SUM(ISNULL(r.esr_aantal, 0)) AS [Besteld], COUNT(DISTINCT k.ordernr) AS [Aantal orders] ' .
+        'SUM(ISNULL(r.esr_aantal, 0)) AS [Besteld], COUNT(DISTINCT k.ordernr) AS [Aantal orders], ' .
+        'SUM(ISNULL(r.prijs_n, 0) * ISNULL(r.esr_aantal, 0)) / NULLIF(SUM(ISNULL(r.esr_aantal, 0)), 0) AS [Inkoopprijs per stuk] ' .
         'FROM orkrg k WITH (NOLOCK) ' .
         'INNER JOIN orsrg r WITH (NOLOCK) ON r.ordernr = k.ordernr ' .
         'INNER JOIN Items i WITH (NOLOCK) ON i.ItemCode = r.artcode ' .
@@ -59,13 +60,13 @@ reportApi(function (array $in): array {
     );
     $stmt->execute([PURCHASE_ORDER_TYPE, $group, $from->format('Y-m-d'), $to->format('Y-m-d')]);
 
-    $columns = ['Artikelnummer', 'Omschrijving', 'Eenheid', 'Besteld', 'Aantal orders'];
+    $columns = ['Artikelnummer', 'Omschrijving', 'Eenheid', 'Besteld', 'Aantal orders', 'Inkoopprijs per stuk'];
     $rows = [];
     $total = 0.0;
     while ($r = $stmt->fetch(PDO::FETCH_NUM)) {
         $qty = is_numeric($r[3]) ? $r[3] + 0 : 0;
         $total += $qty;
-        $rows[] = [rtrim((string) $r[0]), rtrim((string) $r[1]), rtrim((string) $r[2]), $qty, (int) $r[4]];
+        $rows[] = [rtrim((string) $r[0]), rtrim((string) $r[1]), rtrim((string) $r[2]), $qty, (int) $r[4], is_numeric($r[5]) ? round((float) $r[5], 4) : ''];
     }
 
     $period = $from->format('d-m-Y') . ' t/m ' . $to->format('d-m-Y');
@@ -77,8 +78,9 @@ reportApi(function (array $in): array {
 
     return [
         'columns' => $columns,
-        'numeric' => [false, false, false, true, true],
-        'dates' => [false, false, false, false, false],
+        'numeric' => [false, false, false, true, true, true],
+        'dates' => [false, false, false, false, false, false],
+        'currency' => ['Inkoopprijs per stuk'],
         'rows' => $rows,
         'text' => ['Artikelnummer'],
         'kop' => $kop,
