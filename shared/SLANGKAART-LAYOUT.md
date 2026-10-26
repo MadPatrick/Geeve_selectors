@@ -82,3 +82,10 @@ Een lege waarde toont een streepje (`&mdash;`), behalve de notitie (blijft leeg)
 | Labels (kleine hoofdletters) | `--muted` |
 | Waarden | `--ink` |
 | Achtergrond van de kaart | `--surface-white` |
+
+## Gelijk houden met Slangkaart.Web
+
+Slangkaart.Web (rubix-bnl/slangkaart-web) heeft een eigen kopie van deze opmaak in `wwwroot/app.css`. Een wijziging hier moet
+daar ook gebeuren (via een PR voor Hans). Controle: `php tools/check-slangkaart-css.php [pad naar app.css]` meldt
+`.card-*`- en `.coupling-*`-regels die uit elkaar lopen; bekende, bewuste verschillen staan in
+`tools/check-slangkaart-css-baseline.json`.
