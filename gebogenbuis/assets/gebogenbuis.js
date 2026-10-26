@@ -72,21 +72,18 @@
 
         input.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 250); });
         input.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && list.hidden && input.value.trim().length >= 2) {
-                // Lijst nog niet getoond (net getypt): meteen zoeken en de bovenste waarde nemen.
-                e.preventDefault();
-                clearTimeout(timer);
-                search().then(function () { if (hits.length) { pick(0); } });
-                return;
-            }
+            if (GeeveEnterTop.handle(e, {
+                isOpen: function () { return !list.hidden; },
+                count: function () { return hits.length; },
+                active: function () { return active; },
+                pick: pick,
+                search: function () { clearTimeout(timer); return search(); }
+            })) { return; }
             if (list.hidden) { return; }
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                 e.preventDefault();
                 active = (active + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length;
                 render();
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                pick(active >= 0 ? active : 0);
             } else if (e.key === 'Escape') {
                 close();
             }
