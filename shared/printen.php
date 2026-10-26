@@ -81,6 +81,12 @@ const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet',
 /** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
 const GEEVE_TSPL_ZWART_IS_NUL = true;
 
+/**
+ * Tegels waar naast de printknop velden "Snelheid" en "Zwarting" staan (TSPL-labelprinters; Brother negeert ze). Leeg =
+ * de printer gebruikt zijn eigen standaard (of de vaste waarden uit GEEVE_LABEL_MEDIUM). Voor testen met de printsnelheid.
+ */
+const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-artikel'];
+
 /** Het soort van een printer ('a4' of 'label'). */
 function geevePrinterSoort(array $printer): string
 {
@@ -378,14 +384,14 @@ function geeveWorkDir(): string
  * $passend: optioneel [selector, maximale hoogte in mm]. Elk element dat in de print hoger is dan die hoogte, wordt
  * met CSS-zoom precies zo veel verkleind dat het op één pagina past (bijv. een slangkaart met een lange notitie).
  */
-function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string $title, ?array $passend = null, string $sheetClass = ''): string
+function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string $title, ?array $passend = null, string $sheetClass = '', array $afdruk = []): string
 {
     $printer = geevePrinterList()[$queue] ?? null;
     if ($printer === null) {
         throw new RuntimeException('Onbekende printer: ' . $queue);
     }
     if (geevePrinterSoort($printer) === 'label') {
-        return geevePrintLabels($bodyHtml, $cssFiles, $queue, $title, $sheetClass);
+        return geevePrintLabels($bodyHtml, $cssFiles, $queue, $title, $sheetClass, $afdruk);
     }
     $workDir = geeveWorkDir();
     try {
@@ -459,7 +465,7 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
  * per pagina een zwart-wit bitmap op de resolutie van de printer, als BITMAP-opdracht naar de share.
  * Heeft pdftoppm (poppler-utils) nodig.
  */
-function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, string $title, string $sheetClass = ''): string
+function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, string $title, string $sheetClass = '', array $afdruk = []): string
 {
     $printer = geevePrinterList()[$queue] ?? null;
     if ($printer === null || geevePrinterSoort($printer) !== 'label') {
@@ -487,7 +493,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         foreach ($pages as $i => $page) {
             // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste, en dat laatste label doorgevoerd tot de afscheurrand.
             $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\nSET TEAR ON\r\n") : '';
-            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? []);
+            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk);
         }
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
@@ -550,7 +556,7 @@ function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $n
 }
 
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
-function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = []): string
+function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = [], array $afdruk = []): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -591,8 +597,16 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     $mm = static fn(int $dots): float => abs($dots / $dpi * 25.4 - round($dots / $dpi * 25.4)) < 0.3 ? round($dots / $dpi * 25.4) : round($dots / $dpi * 25.4, 1);
     $widthMm = $mm($width);
     $heightMm = $mm($height);
-    $instelling = isset($medium['snelheid'], $medium['zwarting'])
-        ? 'SPEED ' . $medium['snelheid'] . "\r\nDENSITY " . $medium['zwarting'] . "\r\n" : '';
+    // Snelheid (inch/s) en zwarting (0-15): de waarden uit het scherm gaan voor op die van het medium.
+    $instelling = '';
+    $snelheid = $afdruk['snelheid'] ?? $medium['snelheid'] ?? null;
+    $zwarting = $afdruk['zwarting'] ?? $medium['zwarting'] ?? null;
+    if ($snelheid !== null) {
+        $instelling .= 'SPEED ' . $snelheid . "\r\n";
+    }
+    if ($zwarting !== null) {
+        $instelling .= 'DENSITY ' . $zwarting . "\r\n";
+    }
     // Met een vast medium geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte, net als de Windows-driver.
     $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : '';
     return 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gap . $instelling . "DIRECTION 0\r\nCLS\r\n"
@@ -785,5 +799,10 @@ function geevePrinterSelectHtml(string $tileId, string $csrf): string
     $options = geevePrinterOptionsHtml($tileId, $printers);
     return '<label class="direct-print" id="directPrint" data-tile="' . $h($tileId) . '" data-sheet="' . $h($page['sheet'])
         . '" data-endpoint="' . $h(geeveUrl('shared/print-api.php')) . '" data-csrf="' . $h($csrf) . '">'
-        . '<span>Printer</span><select id="directPrinter">' . $options . '</select><span class="direct-print-status" id="directPrintStatus"></span></label>';
+        . '<span>Printer</span><select id="directPrinter">' . $options . '</select>'
+        . (in_array($tileId, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true)
+            ? '<span class="direct-print-instelling" id="directPrintAfdruk"><label>Snelheid <input type="number" id="directSnelheid" min="1" max="12" step="1" placeholder="std" title="Printsnelheid in inch/s (1-12); leeg = standaard van de printer"></label>'
+                . '<label>Zwarting <input type="number" id="directZwarting" min="0" max="15" step="1" placeholder="std" title="Zwarting (0-15); leeg = standaard van de printer"></label></span>'
+            : '')
+        . '<span class="direct-print-status" id="directPrintStatus"></span></label>';
 }

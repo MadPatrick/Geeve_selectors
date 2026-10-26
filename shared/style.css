@@ -358,6 +358,10 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
 .print-group .direct-print { display: flex; position: relative; }
 .print-group .direct-print > span:first-child { display: none; }
 .print-group .direct-print-status { position: absolute; top: 100%; left: 0; white-space: nowrap; }
+.direct-print-instelling { display: inline-flex; gap: 8px; align-items: center; font-weight: 500; }
+.direct-print-instelling label { display: inline-flex; gap: 4px; align-items: center; }
+.direct-print-instelling input { width: 56px; }
+.print-group .direct-print { flex-wrap: wrap; align-items: center; gap: 8px; }
 .direct-print-status { font-weight: 500; color: var(--muted); }
 .direct-print-status.is-error { color: var(--btn-danger, #a03636); }
 
