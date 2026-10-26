@@ -374,3 +374,11 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
 .geeve-progress.is-error .geeve-progress-track { border-color: var(--progress-error); }
 @-webkit-keyframes geeve-progress-run { 0% { -webkit-transform: translateX(-100%); } 100% { -webkit-transform: translateX(290%); } }
 @keyframes geeve-progress-run { 0% { transform: translateX(-100%); } 100% { transform: translateX(290%); } }
+
+/* Voortgang IN een knop (shared/progress.js): de eigen tekst blijft staan maar is onzichtbaar, een laag toont vulling + "Bezig…"/percentage. */
+.geeve-busy.geeve-busy.geeve-busy { position: relative; overflow: hidden; color: transparent; cursor: progress; }
+.geeve-btn-progress { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; white-space: nowrap; color: var(--btn-progress-ink); font-weight: 600; }
+.geeve-btn-progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--btn-progress-fill); transition: width .2s linear; }
+.geeve-btn-progress-text { position: relative; }
+.geeve-btn-progress.is-indeterminate .geeve-btn-progress-fill { width: 35%; transition: none; -webkit-animation: geeve-progress-run 1.1s ease-in-out infinite; animation: geeve-progress-run 1.1s ease-in-out infinite; }
+.geeve-btn-progress.is-error .geeve-btn-progress-fill { background: var(--btn-progress-error); opacity: .35; }

@@ -131,6 +131,9 @@
     --progress-track: var(--btn-green);
     --progress-fill: var(--btn-green-line);
     --progress-ink: var(--ink);
+    --btn-progress-ink: var(--progress-ink);       /* tekst in de knop tijdens voortgang */
+    --btn-progress-error: var(--progress-error);
+    --btn-progress-fill: rgba(20, 83, 45, .3);   /* vulling in de knop: donkergroen, doorschijnend */
     --progress-error: var(--status-error);
     --progress-shadow: rgba(15, 30, 45, .22);
 

@@ -282,7 +282,7 @@ de eigen `assets/style.css`. `shared/head.php` doet dat in de goede volgorde.
     `bar.fail('tekst')`; of geef in `GeeveProgress.run(label, function () { return fetch(...); }, {button: knop})` de belofte terug.
   - Download via een formulier-POST: `GeeveProgress.download(form, 'XML maken…')` in de submit-handler (na de controle) en in PHP
     vlak voor de `Content-Disposition`-header `require_once shared/progress.php; geeveProgressDownloadDone();`.
-  De knop zelf blijft ongemoeid (zijn eigen `disabled`-logica werkt door); een tweede klik tijdens de balk wordt genegeerd.
+  De voortgang staat in de knop zelf (vulling + percentage, of "Bezig…" als het aantal stappen onbekend is); geef bij `start` de knop mee: `GeeveProgress.start(label, knop)`. Zonder knop komt een zwevende balk onderaan. De knop zelf blijft verder ongemoeid (zijn eigen `disabled`-logica werkt door); een tweede klik tijdens de balk wordt genegeerd.
 - Database-inloggegevens (Exact en `DB_USER`): via `secureSettingsRead()` (`shared/secure_settings.php`), die ook
   `/etc/geeve/portal.json` combineert. Lees die nooit uit een eigen bestand en toon ze nergens.
 
