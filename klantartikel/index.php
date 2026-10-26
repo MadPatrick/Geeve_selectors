@@ -158,7 +158,7 @@ if ($priceList !== '') {
                     </div>
                 </div>
                 <p class="ka-empty">Geldt voor alle <?= count($customers) ?> klanten op deze prijslijst.<br>
-                    <strong>Export XML</strong> bevat de gewijzigde en nieuwe regels; zijn er geen wijzigingen, dan bevat hij de complete lijst. Importeer het bestand (DEBTORS.xml) in Exact via <strong>Systeem\Importeren XML</strong>.<br>
+                    <strong>Export XML</strong> bevat de gewijzigde en nieuwe regels; zijn er geen wijzigingen, dan bevat hij de complete lijst. Importeer het bestand (DEBTORS.xml) in Exact via <strong>XML\Debiteuren</strong>.<br>
                     <strong>Download Template</strong> geeft een invulbaar sjabloon, <strong>Download lijst</strong> de huidige lijst als Excel. Het ingevulde bestand importeer je hieronder.<br>
                     Het klantartikelnummer is te wijzigen. Met <strong>Nieuwe regel</strong> voeg je bovenaan een regel toe; het artikelnummer wordt direct in Exact gecontroleerd.</p>
                 <div id="kaMessage" class="ka-message ka-message--error" hidden></div>
