@@ -4,8 +4,8 @@
 //  1. alle getypte woorden komen in het klantnummer of de naam voor (hoofdletters, spaties, punten, accenten tellen niet mee, volgorde vrij);
 //  2. de getypte letters staan in die volgorde in de naam ("plfngr" -> Palfinger);
 //  3. tikfouten: elk woord lijkt op het begin van een woord in de naam (1 fout, of 2 bij langere woorden).
-// Een keuze vult de naam in en zoekt meteen; Enter zonder keuze zoekt op wat er getypt is, zoals voorheen (een getypt
-// klantnummer wordt daarbij omgezet naar de naam van die klant).
+// Een keuze vult de naam in en zoekt meteen; Enter met een getypte naam neemt de bovenste klant uit de lijst; Enter met een getypt
+// klantnummer zoekt zoals voorheen (het nummer wordt daarbij omgezet naar de naam van die klant).
 (function () {
     var input = document.getElementById('klant');
     var list = document.getElementById('klantHits');
@@ -140,9 +140,10 @@
             e.preventDefault();
             active = (active + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length;
             render();
-        } else if (e.key === 'Enter' && active >= 0) {
+        } else if (e.key === 'Enter' && (active >= 0 || !/^\d+$/.test(input.value.trim()))) {
+            // Gekozen klant, of een naam getypt: neem de bovenste klant uit de lijst (een nummer werkt zoals voorheen).
             e.preventDefault();
-            pick(active);
+            pick(active >= 0 ? active : 0);
         } else if (e.key === 'Escape') {
             close();
         }

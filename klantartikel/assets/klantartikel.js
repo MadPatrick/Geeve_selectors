@@ -121,6 +121,16 @@
     tbody.addEventListener('input', function (e) {
         if (e.target.classList.contains('ka-item')) { schedule(e.target.closest('tr')); }
     });
+    // Enter in het artikelnummer: meteen controleren in Exact (niet op de wachttijd wachten); bij een treffer
+    // gaat lookup() door naar het klantartikelnummer.
+    tbody.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && e.target.classList.contains('ka-item') && e.target.type !== 'hidden') {
+            e.preventDefault();
+            var row = e.target.closest('tr');
+            clearTimeout(timers.get(row));
+            lookup(row);
+        }
+    });
     tbody.addEventListener('click', function (e) {
         if (e.target.classList.contains('ka-remove')) {
             e.target.closest('tr').remove();

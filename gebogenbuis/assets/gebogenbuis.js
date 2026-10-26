@@ -58,9 +58,9 @@
         }
         function search() {
             var q = input.value.trim();
-            if (q.length < 2) { hits = []; close(); return; }
+            if (q.length < 2) { hits = []; close(); return Promise.resolve(); }
             var mine = ++seq;
-            getJson(endpoint + '?q=' + encodeURIComponent(q)).then(function (json) {
+            return getJson(endpoint + '?q=' + encodeURIComponent(q)).then(function (json) {
                 if (mine !== seq) { return; }
                 if (!json.ok) { showError(json.error || 'Zoeken mislukt.'); hits = []; close(); return; }
                 showError('');
@@ -72,6 +72,13 @@
 
         input.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 250); });
         input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && list.hidden && input.value.trim().length >= 2) {
+                // Lijst nog niet getoond (net getypt): meteen zoeken en de bovenste waarde nemen.
+                e.preventDefault();
+                clearTimeout(timer);
+                search().then(function () { if (hits.length) { pick(0); } });
+                return;
+            }
             if (list.hidden) { return; }
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                 e.preventDefault();
@@ -102,6 +109,8 @@
                 ? 'Korting uit prijslijst <strong>' + esc(k.prijslijst) + '</strong> van deze klant.'
                 : 'Deze klant heeft geen prijslijst: geen korting.';
             fetchKorting();
+            // Enter ging door naar het volgende veld: het artikelveld van de eerste regel.
+            if (rows.length) { rows[0].tr.querySelector('.gb-item').focus(); }
         });
     klantInput.addEventListener('input', function () {
         if (klant && klantInput.value !== klant.debnr + ' ' + klant.naam) {
@@ -142,6 +151,10 @@
                 input.value = a.code;
                 refresh(r);
                 fetchKorting();
+                // Door naar het aantal.
+                var qty = r.tr.querySelector('.gb-qty');
+                qty.focus();
+                if (qty.select) { qty.select(); }
             });
         input.addEventListener('input', function () {
             if (r.item && input.value !== r.item.code) { r.item = null; refresh(r); fetchKorting(); }
