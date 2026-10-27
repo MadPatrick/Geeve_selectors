@@ -40,24 +40,27 @@
     // (bijv. "032304" moet ook "0323-04" vinden).
     const normalizeArtnr = (value) => normalize(value).replace(/-/g, '');
 
+    const NUMERIC_PATTERN = /^\d+([.,]\d+)?$/;
+
+    // Kale waarde zonder eenheid ("26 mm" -> "26"), zodat ook CSV-waarden met
+    // een mm-suffix als getal herkend worden.
+    function stripMillimetres(value) {
+        return String(value == null ? '' : value).trim().replace(/\s*mm$/i, '');
+    }
+
+    // Weergave in de kaarten: altijd komma met 1 decimaal + " mm".
     function formatMillimetres(value) {
-        const text = String(value ?? '').trim();
+        const text = stripMillimetres(value);
         if (!text) {
             return '';
         }
-        return /mm$/i.test(text) ? text : `${text} mm`;
-    }
-
-    // Result-screen measurements (Persmaat, Schilmaat, Insteekdiepte): like formatMeasurement() but with " mm" behind it.
-    function formatMillimetresDecimal(value) {
-        const text = formatMeasurement(value);
-        return text ? `${text} mm` : '';
+        return `${NUMERIC_PATTERN.test(text) ? formatMeasurement(text) : text} mm`;
     }
 
     // Print-table measurements: no "mm" suffix, always exactly 1 decimal
     // (including for 0), using the comma decimal convention.
     function formatMeasurement(value) {
-        const text = String(value ?? '').trim();
+        const text = stripMillimetres(value);
         if (!text) {
             return '';
         }
@@ -321,12 +324,19 @@
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'fact-edit-input';
-        input.value = String(value ?? '').trim();
         input.autocomplete = 'off';
         if (material) input.dataset.material = material;
         if (type) input.dataset.type = type;
         if (number !== undefined && number !== null) input.dataset.number = String(number);
         input.dataset.field = field;
+        input.value = String(value ?? '').trim();
+        if (isNumericInput(input)) {
+            input.value = normalizeNumericValue(input.value);
+            input.inputMode = 'decimal';
+            input.addEventListener('blur', () => {
+                input.value = normalizeNumericValue(input.value);
+            });
+        }
         if (placeholder) input.placeholder = placeholder;
         return input;
     }
@@ -565,7 +575,7 @@
             const entry = {};
             fieldKeys.forEach((field) => {
                 const input = card ? card.querySelector(`.fact-edit-input[data-field="${field}"]`) : null;
-                entry[field] = input ? input.value : '';
+                entry[field] = input ? normalizeNumericValue(input.value) : '';
             });
             entries[number] = entry;
         }
@@ -575,7 +585,7 @@
     function collectEditPayload() {
         const accessoires = {};
         accessoryGrid.querySelectorAll('.fact-edit-input[data-material="accessoires"]').forEach((input) => {
-            accessoires[input.dataset.field] = input.value;
+            accessoires[input.dataset.field] = isNumericInput(input) ? normalizeNumericValue(input.value) : input.value;
         });
 
         return {
@@ -657,7 +667,13 @@
     // bij: dat veld bevat vaak een alfanumerieke koppelingscode (VS, V4,
     // V6, WB, 100V4-20C, ...) i.p.v. een getal, zie AGENTS.md §5.
     const NUMERIC_FIELDS = new Set(['persmaat', 'schilIntern', 'schilExtern', 'insteekdiepte']);
-    const NUMERIC_PATTERN = /^\d+([.,]\d+)?$/;
+
+    // Punt of komma als invoer; opgeslagen en getoond als komma met 1 decimaal
+    // (54 -> 54,0). Leeg of ongeldig blijft ongemoeid (validatie vangt dat op).
+    function normalizeNumericValue(value) {
+        const text = stripMillimetres(value);
+        return NUMERIC_PATTERN.test(text) ? formatMeasurement(text) : String(value == null ? '' : value).trim();
+    }
 
     function isNumericInput(input) {
         return NUMERIC_FIELDS.has(input.dataset.field)
@@ -759,9 +775,9 @@
 
         card.appendChild(createFactsRow([
             createFact('Huls', variant.huls, true),
-            createFact('Persmaat', formatMillimetresDecimal(variant.persmaat)),
-            createFact('Schilmaat intern', formatMillimetresDecimal(variant.schilIntern)),
-            createFact('Schilmaat extern', formatMillimetresDecimal(variant.schilExtern)),
+            createFact('Persmaat', formatMillimetres(variant.persmaat)),
+            createFact('Schilmaat intern', formatMillimetres(variant.schilIntern)),
+            createFact('Schilmaat extern', formatMillimetres(variant.schilExtern)),
         ], seriesBadge(variant.pilaar)));
 
         return card;
@@ -772,10 +788,10 @@
         card.className = 'fitting-card coupling-card';
 
         card.appendChild(createFactsRow([
-            createFact('Persmaat', formatMillimetresDecimal(variant.persmaat)),
-            createFact('Insteekdiepte', formatMillimetresDecimal(variant.insteekdiepte)),
-            createFact('Schilmaat intern', formatMillimetresDecimal(variant.schilIntern)),
-            createFact('Schilmaat extern', formatMillimetresDecimal(variant.schilExtern)),
+            createFact('Persmaat', formatMillimetres(variant.persmaat)),
+            createFact('Insteekdiepte', formatMillimetres(variant.insteekdiepte)),
+            createFact('Schilmaat intern', formatMillimetres(variant.schilIntern)),
+            createFact('Schilmaat extern', formatMillimetres(variant.schilExtern)),
         ], seriesBadge(variant.koppeling)));
 
         return card;
