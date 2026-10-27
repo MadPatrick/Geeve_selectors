@@ -43,7 +43,7 @@ reportApi(function (array $in): array {
         $params[] = $like($nummer);
     }
     $stmt = $pdo->prepare(
-        'SET NOCOUNT ON; SELECT LTRIM(RTRIM(Nummer)) AS Nummer, LTRIM(RTRIM(DebiteurNaam)) AS DebiteurNaam, LTRIM(RTRIM(Debiteur)) AS Debiteur, PrijsBerekend ' .
+        'SET NOCOUNT ON; SELECT LTRIM(RTRIM(Nummer)) AS Nummer, LTRIM(RTRIM(DebiteurNaam)) AS DebiteurNaam, LTRIM(RTRIM(Debiteur)) AS Debiteur, PrijsBerekend, Datum ' .
         'FROM [Slangkaarten].[dbo].[Slangkaarten] WITH (NOLOCK) WHERE ' . implode(' AND ', $where) . ' ORDER BY Nummer'
     );
     $stmt->execute($params);
@@ -54,12 +54,13 @@ reportApi(function (array $in): array {
             reportNormalizeValue($r[1], false),
             reportNormalizeValue($r[2], false),
             reportNormalizeValue($r[3], true),
+            reportNormalizeValue($r[4], false, true),
         ];
     }
     return [
-        'columns' => ['Slangassemblage', 'Klantnaam', 'Klantnr', 'Nettoprijs'],
-        'numeric' => [false, false, false, true],
-        'dates' => [false, false, false, false],
+        'columns' => ['Slangassemblage', 'Klantnaam', 'Klantnr', 'Nettoprijs', 'Aanmaakdatum'],
+        'numeric' => [false, false, false, true, false],
+        'dates' => [false, false, false, false, true],
         'rows' => $rows,
         'tijden' => ['ophalen' => (int) round((microtime(true) - $t) * 1000)],
     ];

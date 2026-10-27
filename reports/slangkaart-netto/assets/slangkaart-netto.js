@@ -19,6 +19,7 @@
     var sortDesc = false;
     var MAXREGELS = 1000;              // meer regels op het scherm laat de browser vastlopen; Excel krijgt alles
     var cache = [];
+    var ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
     var loading = false;
 
     function esc(s) {
@@ -28,6 +29,7 @@
     function fail(text) { message.textContent = text || ''; message.hidden = !text; }
     function cellText(v, i) {
         if (v === null || v === undefined) { return ''; }
+        if (data.dates[i] && typeof v === 'string' && ISO_DATE.test(v)) { return v.split('-').reverse().join('-'); }
         if (data.numeric[i] && typeof v === 'number') { return Number(v).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
         return String(v);
     }
@@ -182,7 +184,10 @@
                 var addr = XLSX.utils.encode_cell({ r: r, c: c });
                 var cell = ws[addr];
                 if (!cell) { cell = ws[addr] = { t: 's', v: '' }; }
-                if (!data.numeric[c]) { cell.t = 's'; cell.v = String(cell.v); cell.z = '@'; } // slangnummers als tekst
+                if (data.dates[c] && cell.t === 's' && ISO_DATE.test(cell.v)) {
+                    var dp = cell.v.split('-');
+                    cell = ws[addr] = { t: 'n', v: Math.round(Date.UTC(+dp[0], +dp[1] - 1, +dp[2]) / 86400000) + 25569, z: 'dd-mm-yyyy' };
+                } else if (!data.numeric[c]) { cell.t = 's'; cell.v = String(cell.v); cell.z = '@'; } // slangnummers als tekst
                 cell.s = { border: BORDER, alignment: { vertical: 'center' } };
             }
         }
