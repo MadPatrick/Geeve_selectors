@@ -18,3 +18,5 @@
 .oh-table td.num { text-align: right; }
 .oh-table td.oh-omsc { white-space: nowrap; }
 #ohMessage { white-space: pre-wrap; }
+#ohTable thead th { position: sticky; top: 0; z-index: 2; background: var(--soft); }
+#ohTable thead tr.oh-filterrow th { background: var(--surface-white); box-shadow: 0 1px 0 var(--line-table-row); }

@@ -151,6 +151,7 @@
                 buildHead();
                 refresh();
                 result.hidden = false;
+                plakFilterrij();
                 downloadBtn.disabled = data.rows.length === 0;
                 status.textContent = (data.rows.length === 0 ? 'Geen regels gevonden' : 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })) +
                     ' (' + Math.round((Date.now() - started) / 100) / 10 + ' s' +
@@ -171,6 +172,13 @@
                 return '<th><input type="text" class="ka-input" data-filter="' + i + '" placeholder="Zoek…" aria-label="Filter ' + esc(c) + '" autocomplete="off"></th>';
             }).join('') + '</tr></thead><tbody></tbody>';
         table.innerHTML = html;
+    }
+
+    // De filterrij plakt direct onder de kolomnamen als de pagina scrolt; meten kan pas als de tabel zichtbaar is.
+    function plakFilterrij() {
+        var kop = table.querySelector('thead tr:first-child');
+        if (!kop) { return; }
+        Array.prototype.forEach.call(table.querySelectorAll('tr.oh-filterrow th'), function (th) { th.style.top = kop.offsetHeight + 'px'; });
     }
 
     function matches(ri) {
