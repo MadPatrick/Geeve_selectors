@@ -17,6 +17,7 @@
     var colFilters = [];
     var sortCol = NAAMKOLOM;
     var sortDesc = false;
+    var MAXREGELS = 1000;              // meer regels op het scherm laat de browser vastlopen; Excel krijgt alles
     var cache = [];
     var loading = false;
 
@@ -38,6 +39,8 @@
         fail('');
         var body = new URLSearchParams();
         body.set('csrf', app.dataset.csrf);
+        body.set('klant', document.getElementById('snKlant').value);
+        body.set('nummer', document.getElementById('snNummer').value);
         return fetch(app.dataset.endpoint, { method: 'POST', body: body })
             .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
             .then(function (json) {
@@ -93,7 +96,7 @@
         for (var i = 0; i < data.rows.length; i++) { if (matches(i)) { shown.push(i); } }
         if (sortCol >= 0) { shown.sort(compare); }
         var html = '';
-        shown.forEach(function (ri) {
+        shown.slice(0, MAXREGELS).forEach(function (ri) {
             html += '<tr>' + data.rows[ri].map(function (v, i) {
                 if (data.numeric[i]) { return '<td class="num">' + esc(cache[ri][i]) + '</td>'; }
                 return '<td>' + esc(cache[ri][i]) + '</td>';
@@ -105,7 +108,8 @@
             th.classList.toggle('is-desc', i === sortCol && sortDesc);
         });
         var filtered = shown.length !== data.rows.length;
-        summary.innerHTML = '<span class="msp-pill"><strong>' + nl(shown.length) + '</strong> productieorders' + (filtered ? ' van ' + nl(data.rows.length) : '') + '</span>';
+        summary.innerHTML = '<span class="msp-pill"><strong>' + nl(shown.length) + '</strong> slangassemblages' + (filtered ? ' van ' + nl(data.rows.length) : '') + '</span>' +
+            (shown.length > MAXREGELS ? ' <span class="msp-pill">Scherm toont de eerste ' + nl(MAXREGELS) + '; verfijn het filter of download de Excel voor alles.</span>' : '');
         downloadBtn.disabled = shown.length === 0;
     }
 
