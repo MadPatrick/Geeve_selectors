@@ -17,8 +17,6 @@
     const accessoryGrid = document.getElementById('accessoryGrid');
     const pdfButton = document.getElementById('pdfButton');
     const pdfMenu = document.getElementById('pdfMenu');
-    const pdfTypeInput = document.getElementById('pdfTypeInput');
-    const pdfTypeButton = document.getElementById('pdfTypeButton');
     const clearFilterButton = document.getElementById('clearFilterButton');
     const printSheet = document.getElementById('printSheet');
     const editToggleButton = document.getElementById('editToggleButton');
@@ -909,24 +907,7 @@
         };
     }
 
-    // `onlyType`, when given, limits the groups to that one hose type
-    // (see matchesHoseType()).
-    // Typed hose type ("0477", "477", "r42") against a group type from
-    // hoseTypeInfo(); a missing leading zero is tolerated for digit-only
-    // input. ST/TC/SN variants are already merged into the bare type.
-    function matchesHoseType(type, wanted) {
-        const want = String(wanted).replace(/\s+/g, '').toUpperCase();
-        if (!want) {
-            return false;
-        }
-        const have = String(type).toUpperCase();
-        if (have === want) {
-            return true;
-        }
-        return /^\d+$/.test(want) && have === '0' + want;
-    }
-
-    function groupArticlesByType(materialKey, onlyType) {
+    function groupArticlesByType(materialKey) {
         const groups = new Map();
         articles.forEach((article) => {
             const variants = Array.isArray(article[materialKey]) ? article[materialKey] : [];
@@ -935,9 +916,6 @@
             }
 
             const { type, rawPrefix, displayArtnr } = hoseTypeInfo(article.artnr);
-            if (onlyType && !matchesHoseType(type, onlyType)) {
-                return;
-            }
             if (!groups.has(type)) {
                 groups.set(type, { rawPrefixes: new Set(), entries: [] });
             }
@@ -1410,9 +1388,7 @@
         if (!hasAnyChapter) {
             const empty = document.createElement('p');
             empty.className = 'print-empty';
-            empty.textContent = onlyType
-                ? `Geen artikelen gevonden voor slangtype ${onlyType}.`
-                : 'Er zijn geen artikelen beschikbaar.';
+            empty.textContent = 'Er zijn geen artikelen beschikbaar.';
             printSheet.appendChild(empty);
         }
 
@@ -1571,11 +1547,9 @@
         pdfButton.setAttribute('aria-expanded', 'true');
     }
 
-    function printCatalog(scope, hoseType) {
-        document.title = scope === 'type'
-            ? `Geeve Hydraulics - Perslijst ${hoseType}`
-            : (scopeTitles[scope] || scopeTitles.all);
-        renderCatalogPrintSheet(scope, hoseType);
+    function printCatalog(scope) {
+        document.title = scopeTitles[scope] || scopeTitles.all;
+        renderCatalogPrintSheet(scope);
         window.print();
     }
 
@@ -1623,19 +1597,7 @@
             }
         });
 
-        if (pdfTypeButton) {
-            pdfTypeButton.addEventListener('click', printHoseType);
-        }
-        if (pdfTypeInput) {
-            pdfTypeInput.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    printHoseType();
-                }
-            });
-        }
-
-        pdfMenu.querySelectorAll('.pdf-menu-item[data-scope]').forEach((item) => {
+        pdfMenu.querySelectorAll('.pdf-menu-item').forEach((item) => {
             item.addEventListener('click', () => {
                 closePdfMenu();
                 printCatalog(item.dataset.scope || 'all');
