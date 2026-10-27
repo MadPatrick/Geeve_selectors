@@ -12,7 +12,7 @@
     var table = document.getElementById('poTable');
     var REFRESH_MS = 60 * 60 * 1000;   // de Excel ververste elk uur (interval 60 minuten)
     var TITEL = 'OVERZICHT GEREED TE MELDEN PRODUCTIE ORDERS';
-    var NAAMKOLOM = 1;                 // projectnm: standaardsortering, zoals in de Excel
+    var NAAMKOLOM = 2;                 // projectnm (kolom 1 is Moederproject): standaardsortering, zoals in de Excel
 
     var data = null;
     var shown = [];
@@ -46,6 +46,7 @@
             .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
             .then(function (json) {
                 if (!json.ok) { throw new Error(json.error || 'Ophalen mislukt.'); }
+                fail(json.waarschuwing || '');
                 var oud = colFilters;
                 data = json;
                 colFilters = data.columns.map(function (c, i) { return oud[i] || ''; });
