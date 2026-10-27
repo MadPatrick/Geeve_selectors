@@ -85,7 +85,7 @@ const GEEVE_TSPL_ZWART_IS_NUL = true;
  * Tegels waar naast de printknop velden "Snelheid" en "Zwarting" staan (TSPL-labelprinters; Brother negeert ze). Leeg =
  * de printer gebruikt zijn eigen standaard (of de vaste waarden uit GEEVE_LABEL_MEDIUM). Voor testen met de printsnelheid.
  */
-const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-artikel'];
+const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch'];
 
 /** Het soort van een printer ('a4' of 'label'). */
 function geevePrinterSoort(array $printer): string
@@ -800,9 +800,18 @@ function geevePrinterSelectHtml(string $tileId, string $csrf): string
     return '<label class="direct-print" id="directPrint" data-tile="' . $h($tileId) . '" data-sheet="' . $h($page['sheet'])
         . '" data-endpoint="' . $h(geeveUrl('shared/print-api.php')) . '" data-csrf="' . $h($csrf) . '">'
         . '<span>Printer</span><select id="directPrinter">' . $options . '</select>'
-        . (in_array($tileId, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true)
-            ? '<span class="direct-print-instelling" id="directPrintAfdruk"><label>Snelheid <input type="number" id="directSnelheid" min="1" max="12" step="1" placeholder="std" title="Printsnelheid in inch/s (1-12); leeg = standaard van de printer"></label>'
-                . '<label>Zwarting <input type="number" id="directZwarting" min="0" max="15" step="1" placeholder="std" title="Zwarting (0-15); leeg = standaard van de printer"></label></span>'
-            : '')
         . '<span class="direct-print-status" id="directPrintStatus"></span></label>';
+}
+
+/**
+ * De velden "Snelheid" en "Zwarting" voor tegels in GEEVE_PRINT_TILE_AFDRUK_INSTELLING; de pagina zet ze boven de
+ * printerkeuze en printknop (direct-print.js zoekt de velden op id). Leeg voor andere tegels.
+ */
+function geevePrintAfdrukInstellingHtml(string $tileId): string
+{
+    if (!in_array($tileId, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true) || geevePrinters($tileId) === []) {
+        return '';
+    }
+    return '<div class="direct-print-instelling" id="directPrintAfdruk"><label>Snelheid <input type="number" id="directSnelheid" min="1" max="12" step="1" placeholder="std" title="Printsnelheid (1-12); leeg = standaard van de printer"></label>'
+        . '<label>Zwarting <input type="number" id="directZwarting" min="0" max="15" step="1" placeholder="std" title="Zwarting (0-15); leeg = standaard van de printer"></label></div>';
 }
