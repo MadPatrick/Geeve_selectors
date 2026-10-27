@@ -128,7 +128,6 @@ const GEEVE_APP_URLS = [
     'slangkaarten-app' => 'slangkaarten/index.php', // map slangkaarten/ deelt het adres met de Apache-proxy naar Slangkaart.Web
     'stickers' => 'stickers/',
     'stauff' => 'stauff/',
-    'gebogenbuis' => 'gebogenbuis/',
     'reports' => 'reports/',
     'templates' => 'templates/',
     'configurator' => 'configurator/',

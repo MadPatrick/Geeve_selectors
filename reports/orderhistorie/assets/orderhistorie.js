@@ -43,7 +43,7 @@
         return String(v);
     }
 
-    // ---- Klant: zoekveld met keuzelijst (zoals bij Gebogen buis) ----
+    // ---- Klant: zoekveld met keuzelijst ----
     (function () {
         var hits = [];
         var active = -1;
