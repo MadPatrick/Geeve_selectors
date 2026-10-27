@@ -60,6 +60,7 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 | Export info | `/reports/export-info/` | Orderregels met collo, gewicht en afmetingen voor de exportdocumenten |
 | Artikelgegevens Import | `/reports/artikel-import/` | Artikelgegevens controleren met Exact en als XML (`<Items>`) exporteren |
 | Orderhistorie | `/reports/orderhistorie/` | Geleverde orderregels per klant sinds de eerste order, filter per kolom, Download Excel |
+| Productie Orders | `/reports/productieorders/` | Gereed te melden productieorders (SP_SQLQuery_ProductieordersGereed_te_melden), filter per kolom, Download Excel |
 
 ### Stickers
 

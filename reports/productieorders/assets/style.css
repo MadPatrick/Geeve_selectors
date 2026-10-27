@@ -1,0 +1,3 @@
+/* Productie Orders: tabel, filterrij en meldingen komen uit klantartikel/assets/style.css en reports/orderhistorie/assets/style.css. */
+#poMessage { white-space: pre-wrap; }
+.oh-table td.po-naam { white-space: nowrap; }
