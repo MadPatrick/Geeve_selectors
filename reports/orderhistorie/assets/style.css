@@ -18,3 +18,8 @@
 .oh-table td.num { text-align: right; }
 .oh-table td.oh-omsc { white-space: nowrap; }
 #ohMessage { white-space: pre-wrap; }
+
+/* Eén scrollbalk: de lijst scrolt met de pagina (geen eigen scrollvenster in de pagina); de kop blijft plakken tegen de bovenkant. */
+#ohResult .ka-table-wrap { overflow: visible; max-height: none; }
+#ohTable thead th { position: sticky; top: 0; z-index: 2; background: var(--soft); }
+#ohTable thead tr.oh-filterrow th { background: var(--surface-white); box-shadow: 0 1px 0 var(--line-table-row); }
