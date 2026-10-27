@@ -145,6 +145,7 @@ const GEEVE_APP_URLS = [
     'export-info' => 'reports/export-info/',
     'artikel-import' => 'reports/artikel-import/',
     'orderhistorie' => 'reports/orderhistorie/',
+    'productieorders' => 'reports/productieorders/',
     'stickers-order' => 'stickers/order/',
     'stickers-productie' => 'stickers/productie/',
     'stickers-artikel' => 'stickers/artikel/',

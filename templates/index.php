@@ -178,6 +178,20 @@ $csrf = csrfToken();
             <?= tileLockIcon('orderhistorie') ?>
         </a>
         <?php endif; $tileHtml['orderhistorie'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('productieorders')): ?>
+        <a class="<?= tileClass('productieorders') ?>" href="<?= h(geeveAppUrl('productieorders')) ?>"<?= tileAttrs('productieorders') ?>>
+            <div class="tile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+                    <polyline points="8 10 10.5 12.5 16 7"></polyline>
+                    <line x1="8" y1="17" x2="16" y2="17"></line>
+                </svg>
+            </div>
+            <h2><?= h(tileTitle('productieorders')) ?></h2>
+            <p>Overzicht van de gereed te melden productieorders, te filteren en te downloaden als Excel</p>
+            <?= tileLockIcon('productieorders') ?>
+        </a>
+        <?php endif; $tileHtml['productieorders'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('templates') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 

@@ -45,19 +45,25 @@ function reportOrderNumber(mixed $value): string
 }
 
 /**
- * Roept een stored procedure aan met één tekstparameter en geeft de eerste resultaatset terug.
+ * Roept een stored procedure aan met één tekstparameter (of zonder, bij $value null) en geeft de eerste resultaatset terug.
  * $procedure is een vaste, in de code bepaalde naam (nooit gebruikersinvoer).
  * $map (optioneel): bron-kolom => nieuwe naam; alleen deze kolommen, in deze volgorde.
  *
  * @param array<string,string>|null $map
  * @return array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>}
  */
-function reportCallProcedure(string $procedure, string $param, string $value, ?array $map = null): array
+function reportCallProcedure(string $procedure, string $param, ?string $value, ?array $map = null): array
 {
     $pdo = reportConnection();
     // Lege $param: de waarde positioneel doorgeven (zoals Excel/Power Query), zonder de parameternaam te kennen.
-    $stmt = $pdo->prepare($param === '' ? "SET NOCOUNT ON;\nEXEC {$procedure} ?;" : "SET NOCOUNT ON;\nEXEC {$procedure} {$param} = ?;");
-    $stmt->execute([$value]);
+    // $value null: procedure zonder parameter.
+    if ($value === null) {
+        $stmt = $pdo->prepare("SET NOCOUNT ON;\nEXEC {$procedure};");
+        $stmt->execute();
+    } else {
+        $stmt = $pdo->prepare($param === '' ? "SET NOCOUNT ON;\nEXEC {$procedure} ?;" : "SET NOCOUNT ON;\nEXEC {$procedure} {$param} = ?;");
+        $stmt->execute([$value]);
+    }
 
     // Eerste resultaatset met kolommen (eventuele "rows affected"-sets overslaan).
     while ($stmt->columnCount() === 0 && $stmt->nextRowset()) {
