@@ -71,6 +71,10 @@ function sanitizeFieldValue($value, string $fieldKey = ''): string
     if (in_array($fieldKey, NUMERIC_FIELD_KEYS, true) && preg_match('/^\d+([.,]\d+)?$/', $text) !== 1) {
         throw new InvalidArgumentException("Ongeldig getal voor '{$fieldKey}': \"{$text}\" (verwacht bijvoorbeeld 54 of 54,3).");
     }
+    if (in_array($fieldKey, NUMERIC_FIELD_KEYS, true)) {
+        // Altijd komma als decimaalteken en precies 1 decimaal (54 -> 54,0).
+        return number_format((float) str_replace(',', '.', $text), 1, ',', '');
+    }
     return $text;
 }
 

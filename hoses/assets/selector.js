@@ -40,12 +40,18 @@
     // (bijv. "032304" moet ook "0323-04" vinden).
     const normalizeArtnr = (value) => normalize(value).replace(/-/g, '');
 
+    const NUMERIC_PATTERN = /^\d+([.,]\d+)?$/;
+
     function formatMillimetres(value) {
         const text = String(value ?? '').trim();
         if (!text) {
             return '';
         }
-        return /mm$/i.test(text) ? text : `${text} mm`;
+        if (/mm$/i.test(text)) {
+            return text;
+        }
+        // Zuiver getal (komma of punt): altijd met komma en 1 decimaal.
+        return `${NUMERIC_PATTERN.test(text) ? formatMeasurement(text) : text} mm`;
     }
 
     // Print-table measurements: no "mm" suffix, always exactly 1 decimal
@@ -315,12 +321,19 @@
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'fact-edit-input';
-        input.value = String(value ?? '').trim();
         input.autocomplete = 'off';
         if (material) input.dataset.material = material;
         if (type) input.dataset.type = type;
         if (number !== undefined && number !== null) input.dataset.number = String(number);
         input.dataset.field = field;
+        input.value = String(value ?? '').trim();
+        if (isNumericInput(input)) {
+            input.value = normalizeNumericValue(input.value);
+            input.inputMode = 'decimal';
+            input.addEventListener('blur', () => {
+                input.value = normalizeNumericValue(input.value);
+            });
+        }
         if (placeholder) input.placeholder = placeholder;
         return input;
     }
@@ -559,7 +572,7 @@
             const entry = {};
             fieldKeys.forEach((field) => {
                 const input = card ? card.querySelector(`.fact-edit-input[data-field="${field}"]`) : null;
-                entry[field] = input ? input.value : '';
+                entry[field] = input ? normalizeNumericValue(input.value) : '';
             });
             entries[number] = entry;
         }
@@ -569,7 +582,7 @@
     function collectEditPayload() {
         const accessoires = {};
         accessoryGrid.querySelectorAll('.fact-edit-input[data-material="accessoires"]').forEach((input) => {
-            accessoires[input.dataset.field] = input.value;
+            accessoires[input.dataset.field] = isNumericInput(input) ? normalizeNumericValue(input.value) : input.value;
         });
 
         return {
@@ -651,7 +664,13 @@
     // bij: dat veld bevat vaak een alfanumerieke koppelingscode (VS, V4,
     // V6, WB, 100V4-20C, ...) i.p.v. een getal, zie AGENTS.md §5.
     const NUMERIC_FIELDS = new Set(['persmaat', 'schilIntern', 'schilExtern', 'insteekdiepte']);
-    const NUMERIC_PATTERN = /^\d+([.,]\d+)?$/;
+
+    // Punt of komma als invoer; opgeslagen en getoond als komma met 1 decimaal
+    // (54 -> 54,0). Leeg of ongeldig blijft ongemoeid (validatie vangt dat op).
+    function normalizeNumericValue(value) {
+        const text = String(value == null ? '' : value).trim();
+        return NUMERIC_PATTERN.test(text) ? formatMeasurement(text) : text;
+    }
 
     function isNumericInput(input) {
         return NUMERIC_FIELDS.has(input.dataset.field)
