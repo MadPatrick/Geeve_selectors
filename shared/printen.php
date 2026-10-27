@@ -82,10 +82,11 @@ const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet',
 const GEEVE_TSPL_ZWART_IS_NUL = true;
 
 /**
- * Tegels waar boven de printknop de velden "Snelheid" en "Zwarting" staan (alleen voor Brother QL-labelprinters; andere
- * printers negeren ze). Leeg = standaard. Zie geevePrintAfdrukInstellingenHtml().
+ * Tegels waar boven de printknop de velden "Snelheid" en "Zwarting" staan, met de soort labelprinter waarvoor ze gelden:
+ * 'brother' (Brother QL: Zwarting = grijsdrempel in %, Snelheid = Standaard/Snel) of 'tspl' (Altec/TSC: SPEED 1-12 en
+ * DENSITY 0-15 als cijfers). Andere printers negeren ze. Leeg = standaard. Zie geevePrintAfdrukInstellingenHtml().
  */
-const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch'];
+const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch' => 'brother', 'stickers-order' => 'tspl'];
 
 /** Het soort van een printer ('a4' of 'label'). */
 function geevePrinterSoort(array $printer): string
@@ -499,7 +500,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         foreach ($pages as $i => $page) {
             // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste, en dat laatste label doorgevoerd tot de afscheurrand.
             $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\nSET TEAR ON\r\n") : '';
-            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? []);
+            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk);
         }
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
@@ -562,7 +563,7 @@ function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $n
 }
 
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
-function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = []): string
+function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = [], array $afdruk = []): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -603,8 +604,16 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     $mm = static fn(int $dots): float => abs($dots / $dpi * 25.4 - round($dots / $dpi * 25.4)) < 0.3 ? round($dots / $dpi * 25.4) : round($dots / $dpi * 25.4, 1);
     $widthMm = $mm($width);
     $heightMm = $mm($height);
-    $instelling = isset($medium['snelheid'], $medium['zwarting'])
-        ? 'SPEED ' . $medium['snelheid'] . "\r\nDENSITY " . $medium['zwarting'] . "\r\n" : '';
+    // Snelheid (inch/s) en zwarting (0-15): de waarden uit het scherm gaan voor op die van het medium.
+    $instelling = '';
+    $snelheid = $afdruk['snelheid'] ?? $medium['snelheid'] ?? null;
+    $zwarting = $afdruk['zwarting'] ?? $medium['zwarting'] ?? null;
+    if ($snelheid !== null) {
+        $instelling .= 'SPEED ' . $snelheid . "\r\n";
+    }
+    if ($zwarting !== null) {
+        $instelling .= 'DENSITY ' . $zwarting . "\r\n";
+    }
     // Met een vast medium geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte, net als de Windows-driver.
     $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : '';
     return 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gap . $instelling . "DIRECTION 0\r\nCLS\r\n"
@@ -802,14 +811,22 @@ function geevePrinterSelectHtml(string $tileId, string $csrf): string
 }
 
 /**
- * De velden "Snelheid" (Standaard of Snel = lagere kwaliteit) en "Zwarting" (10-90 %, standaard 50) voor Brother QL-labelprinters,
- * om boven de printerkeuze en de Print-knop te zetten. Alleen voor tegels in GEEVE_PRINT_TILE_AFDRUK_INSTELLING; anders leeg.
+ * De velden "Snelheid" en "Zwarting" om boven de printerkeuze en de Print-knop te zetten; alleen voor tegels in
+ * GEEVE_PRINT_TILE_AFDRUK_INSTELLING, anders leeg. Brother QL: Snelheid Standaard/Snel (lagere kwaliteit), Zwarting 10-90 %
+ * (standaard 50). TSPL (Altec/TSC): Snelheid 1-12 en Zwarting 0-15, leeg = standaard van de printer.
  * stickers/assets/direct-print.js stuurt de waarden mee naar shared/print-api.php.
  */
 function geevePrintAfdrukInstellingenHtml(string $tileId): string
 {
-    if (!in_array($tileId, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true)) {
+    $soort = GEEVE_PRINT_TILE_AFDRUK_INSTELLING[$tileId] ?? null;
+    if ($soort === null) {
         return '';
+    }
+    if ($soort === 'tspl') {
+        return '<div class="direct-print-instelling" id="directPrintAfdruk">'
+            . '<label>Snelheid <input type="number" id="directSnelheid" min="1" max="12" step="1" placeholder="std" title="Printsnelheid in inch/s (1-12); leeg = standaard van de printer"></label>'
+            . '<label>Zwarting <input type="number" id="directZwarting" min="0" max="15" step="1" placeholder="std" title="Zwarting (0-15); leeg = standaard van de printer"></label>'
+            . '</div>';
     }
     return '<div class="direct-print-instelling" id="directPrintAfdruk">'
         . '<label>Snelheid <select id="directSnelheid" title="Snel = lagere afdrukkwaliteit (Brother QL)"><option value="">Standaard</option><option value="1">Snel</option></select></label>'
