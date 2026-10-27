@@ -53,6 +53,7 @@
                 buildHead();
                 refresh();
                 result.hidden = false;
+                plakFilterrij();
                 status.textContent = 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) +
                     ' (' + Math.round((Date.now() - started) / 100) / 10 + ' s).';
             })
@@ -70,6 +71,11 @@
             '<tr class="oh-filterrow">' + data.columns.map(function (c, i) {
                 return '<th><input type="text" class="ka-input" data-filter="' + i + '" placeholder="Zoek…" aria-label="Filter ' + esc(c) + '" autocomplete="off" value="' + esc(vals[i] || '') + '"></th>';
             }).join('') + '</tr></thead><tbody></tbody>';
+    }
+    // De filterrij plakt direct onder de kolomnamen als de lijst scrolt; meten kan pas als de tabel zichtbaar is.
+    function plakFilterrij() {
+        var kop = table.querySelector('thead tr:first-child');
+        Array.prototype.forEach.call(table.querySelectorAll('tr.oh-filterrow th'), function (th) { th.style.top = kop.offsetHeight + 'px'; });
     }
 
     function matches(ri) {
