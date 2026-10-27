@@ -53,11 +53,7 @@ $csrf = csrfToken();
     <div class="tile-grid">
         <?php ob_start(); if (tileVisible('stickers-order')): ?>
         <a class="<?= tileClass('stickers-order') ?>" href="<?= h(geeveAppUrl('stickers-order')) ?>"<?= tileAttrs('stickers-order') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M3 5v14M7 5v14M10 5v14M14 5v14M17 5v14M21 5v14"></path>
-                </svg>
-            </div>
+            <?= tileIcon('stickers-order') ?>
             <h2><?= h(tileTitle('stickers-order')) ?></h2>
             <p>Per orderregel een artikelsticker, op volgorde van orderregel of looplocatie.</p>
             <span class="tile-cta">Openen</span>
@@ -66,12 +62,7 @@ $csrf = csrfToken();
         <?php endif; $tileHtml['stickers-order'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-artikel')): ?>
         <a class="<?= tileClass('stickers-artikel') ?>" href="<?= h(geeveAppUrl('stickers-artikel')) ?>"<?= tileAttrs('stickers-artikel') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
-                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                </svg>
-            </div>
+            <?= tileIcon('stickers-artikel') ?>
             <h2><?= h(tileTitle('stickers-artikel')) ?></h2>
             <p>Sticker met omschrijving en barcode, zoeken op artikelnummer.</p>
             <span class="tile-cta">Openen</span>
@@ -80,12 +71,7 @@ $csrf = csrfToken();
         <?php endif; $tileHtml['stickers-artikel'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-productie')): ?>
         <a class="<?= tileClass('stickers-productie') ?>" href="<?= h(geeveAppUrl('stickers-productie')) ?>"<?= tileAttrs('stickers-productie') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
-                </svg>
-            </div>
+            <?= tileIcon('stickers-productie') ?>
             <h2><?= h(tileTitle('stickers-productie')) ?></h2>
             <p>Per productieorder in een verkooporder een sticker met aantal, artikelnummer en barcode.</p>
             <span class="tile-cta">Openen</span>
@@ -94,13 +80,7 @@ $csrf = csrfToken();
         <?php endif; $tileHtml['stickers-productie'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-artikel-groot')): ?>
         <a class="<?= tileClass('stickers-artikel-groot') ?>" href="<?= h(geeveAppUrl('stickers-artikel-groot')) ?>"<?= tileAttrs('stickers-artikel-groot') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path>
-                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                    <path d="M14 4h6v6M20 4l-5 5"></path>
-                </svg>
-            </div>
+            <?= tileIcon('stickers-artikel-groot') ?>
             <h2><?= h(tileTitle('stickers-artikel-groot')) ?></h2>
             <p>Sticker voor op een accu: bedrijfsnaam, datum, voorvuldruk en een vrij veld.</p>
             <span class="tile-cta">Openen</span>
@@ -109,13 +89,7 @@ $csrf = csrfToken();
         <?php endif; $tileHtml['stickers-artikel-groot'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-kabelmerkers')): ?>
         <div class="<?= tileClass('stickers-kabelmerkers') ?> tile-disabled" aria-disabled="true">
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M2 12h5M17 12h5"></path>
-                    <rect x="7" y="8" width="10" height="8" rx="1.5"></rect>
-                    <path d="M10 8v8M14 8v8"></path>
-                </svg>
-            </div>
+            <?= tileIcon('stickers-kabelmerkers') ?>
             <h2><?= h(tileTitle('stickers-kabelmerkers')) ?></h2>
             <p>Gele kabelmerkers printen.</p>
             <span class="tile-cta">Binnenkort beschikbaar</span>
@@ -123,12 +97,7 @@ $csrf = csrfToken();
         <?php endif; $tileHtml['stickers-kabelmerkers'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-slanglabels')): ?>
         <a class="<?= tileClass('stickers-slanglabels') ?>" href="<?= h(geeveAppUrl('stickers-slanglabels')) ?>"<?= tileAttrs('stickers-slanglabels') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M3 17c4 0 4-10 9-10s5 10 9 10"></path>
-                    <rect x="9" y="3" width="6" height="4" rx="1"></rect>
-                </svg>
-            </div>
+            <?= tileIcon('stickers-slanglabels') ?>
             <h2><?= h(tileTitle('stickers-slanglabels')) ?></h2>
             <p>Labels voor op een slang, per order op te halen en aan te passen.</p>
             <span class="tile-cta">Openen</span>
@@ -137,13 +106,7 @@ $csrf = csrfToken();
         <?php endif; $tileHtml['stickers-slanglabels'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-ptouch')): ?>
         <a class="<?= tileClass('stickers-ptouch') ?>" href="<?= h(geeveAppUrl('stickers-ptouch')) ?>"<?= tileAttrs('stickers-ptouch') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M4 7V5h16v2"></path>
-                    <path d="M12 5v14"></path>
-                    <path d="M9 19h6"></path>
-                </svg>
-            </div>
+            <?= tileIcon('stickers-ptouch') ?>
             <h2><?= h(tileTitle('stickers-ptouch')) ?></h2>
             <p>Zelf getypte tekst op een sticker, de letter vult de sticker.</p>
             <span class="tile-cta">Openen</span>

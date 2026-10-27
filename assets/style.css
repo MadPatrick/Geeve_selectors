@@ -56,7 +56,7 @@
     justify-content: center;
     flex: 0 0 auto;
 }
-.tile-icon svg { width: 22px; height: 22px; }
+.tile-icon svg { width: 26px; height: 26px; }
 
 .tile h2 { margin: 0; font-size: 15px; line-height: 1.2; }
 .tile p { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.35; }
