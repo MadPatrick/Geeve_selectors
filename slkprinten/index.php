@@ -191,7 +191,9 @@ const CARD_DETAIL_FIELDS = [
 const CARD_FLAG_SLOTS = [
     ['Labelen', ['Labelen']], ['Testen/spoelen', ['TestenSpoelen', 'Testen/spoelen', 'Testen spoelen']], ['DNV Certificaat', ['DNVCertificaat', 'DNV Certificaat']],
     ['Graveren', ['Graveren']], ['Pin prikken', ['PinPrikken', 'Pin prikken']], ['Snijlengte', ['SnijlengteJN', 'Snijlengte']],
-    ['Testen', ['Testen']], ['Proppen', ['ProppenJN', 'Proppen']], null,
+    ['Testen', ['Testen']], ['Proppen', ['ProppenJN', 'Proppen']],
+    // Vaste tekst (geen kolom in de slangkaart): staat altijd op de kaart, onder Snijlengte.
+    ['Afdoppen', 'Ja'],
 ];
 
 const AANTAL_CANDIDATES = ['Aantal', 'Aantal slangen', 'AantalSlangen'];
@@ -1011,8 +1013,8 @@ function renderHoseCard(array $card): string
                 <h4>Bewerkingen</h4>
                 <div class="card-flags">
                     <?php foreach (CARD_FLAG_SLOTS as $slot): ?>
-                        <?php if ($slot === null): ?>
-                            <div class="card-flag card-flag-empty"></div>
+                        <?php if (is_string($slot[1])): ?>
+                            <div class="card-flag"><span><?= h($slot[0]) ?></span><strong><?= h($slot[1]) ?></strong></div>
                         <?php else: ?>
                             <div class="card-flag"><span><?= h($slot[0]) ?></span><strong><?= h(formatFlag(pick($row, $slot[1]))) ?></strong></div>
                         <?php endif; ?>
