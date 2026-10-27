@@ -13,6 +13,19 @@
  */
 
 :root {
+    /* Pictogrammen op de tegels: kleur per groep (zie tileIcon() in shared/tiles.php): ink = icoon, bg = vlak, line = rand. */
+    --tile-home-ink: #b90d32;
+    --tile-home-bg: #fde8ed;
+    --tile-home-line: #f47896;
+    --tile-reports-ink: #1d5fb8;
+    --tile-reports-bg: #e6f0fc;
+    --tile-reports-line: #8db8ee;
+    --tile-templates-ink: #237447;
+    --tile-templates-bg: #e6f5ec;
+    --tile-templates-line: #8fd0a8;
+    --tile-stickers-ink: #a15c00;
+    --tile-stickers-bg: #fff1d9;
+    --tile-stickers-line: #f0c274;
     --bg: #adadad;
     --panel: #f2f2f2;
     --ink: #1f2328;

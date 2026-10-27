@@ -386,3 +386,10 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
 .geeve-btn-progress-text { position: relative; }
 .geeve-btn-progress.is-indeterminate .geeve-btn-progress-fill { width: 35%; transition: none; -webkit-animation: geeve-progress-run 1.1s ease-in-out infinite; animation: geeve-progress-run 1.1s ease-in-out infinite; }
 .geeve-btn-progress.is-error .geeve-btn-progress-fill { background: var(--btn-progress-error); opacity: .35; }
+
+/* Tegelpictogrammen per groep (kleuren in tokens.css, markup via tileIcon() in shared/tiles.php); fallback-waarde voor oudere browsers. */
+.tile-icon.g-home { background: #fde8ed; background: var(--tile-home-bg, #fde8ed); border-color: #f47896; border-color: var(--tile-home-line, #f47896); color: #b90d32; color: var(--tile-home-ink, #b90d32); }
+.tile-icon.g-reports { background: #e6f0fc; background: var(--tile-reports-bg, #e6f0fc); border-color: #8db8ee; border-color: var(--tile-reports-line, #8db8ee); color: #1d5fb8; color: var(--tile-reports-ink, #1d5fb8); }
+.tile-icon.g-templates { background: #e6f5ec; background: var(--tile-templates-bg, #e6f5ec); border-color: #8fd0a8; border-color: var(--tile-templates-line, #8fd0a8); color: #237447; color: var(--tile-templates-ink, #237447); }
+.tile-icon.g-stickers { background: #fff1d9; background: var(--tile-stickers-bg, #fff1d9); border-color: #f0c274; border-color: var(--tile-stickers-line, #f0c274); color: #a15c00; color: var(--tile-stickers-ink, #a15c00); }
+.tile-icon svg { display: block; }
