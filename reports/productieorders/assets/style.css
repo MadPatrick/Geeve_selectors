@@ -1,3 +1,7 @@
 /* Productie Orders: tabel, filterrij en meldingen komen uit klantartikel/assets/style.css en reports/orderhistorie/assets/style.css. */
 #poMessage { white-space: pre-wrap; }
 .oh-table td.po-naam { white-space: nowrap; }
+
+/* Tabelkop (kolomnamen en filterrij) blijft staan als de lijst scrollt; de top van de filterrij zet productieorders.js. */
+#poTable thead th { position: sticky; top: 0; z-index: 2; background: var(--soft); }
+#poTable thead tr.oh-filterrow th { background: var(--surface-white); box-shadow: 0 1px 0 var(--line-table-row); }
