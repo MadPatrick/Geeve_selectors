@@ -41,7 +41,6 @@
         body.set('csrf', app.dataset.csrf);
         body.set('klant', document.getElementById('snKlant').value);
         body.set('nummer', document.getElementById('snNummer').value);
-        body.set('korting', document.getElementById('snKorting').checked ? '1' : '0');
         return fetch(app.dataset.endpoint, { method: 'POST', body: body })
             .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
             .then(function (json) {

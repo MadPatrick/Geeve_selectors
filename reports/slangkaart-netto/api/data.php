@@ -20,12 +20,10 @@ reportApi(function (array $in): array {
     }
     $t = microtime(true);
     $pdo = reportConnection();
-    // De tabel heeft ruim 217.000 kaarten, bijna allemaal met een nettoprijs: filteren op de server voorkomt dat de browser vastloopt.
-    $where = ['PrijsNetto IS NOT NULL', 'PrijsNetto > 0'];
+    // Nettoprijs = het veld "Netto afspraak" van het slangkaartscherm = kolom PrijsBerekend (Patrick 2026-10-27, voorbeeld 03-3212-0300 = 14,50).
+    // De tabel heeft ruim 217.000 kaarten; filteren op de server voorkomt dat de browser vastloopt.
+    $where = ['PrijsBerekend IS NOT NULL', 'PrijsBerekend > 0'];
     $params = [];
-    if (($in['korting'] ?? '1') === '1') {
-        $where[] = 'ISNULL(PrijsKorting, 0) <> 0';
-    }
     foreach (['klant' => 'DebiteurNaam', 'nummer' => 'Nummer'] as $veld => $kolom) {
         $waarde = trim((string) ($in[$veld] ?? ''));
         if ($waarde !== '') {
@@ -34,7 +32,7 @@ reportApi(function (array $in): array {
         }
     }
     $stmt = $pdo->prepare(
-        'SET NOCOUNT ON; SELECT LTRIM(RTRIM(Nummer)) AS Nummer, LTRIM(RTRIM(DebiteurNaam)) AS DebiteurNaam, PrijsNetto ' .
+        'SET NOCOUNT ON; SELECT LTRIM(RTRIM(Nummer)) AS Nummer, LTRIM(RTRIM(DebiteurNaam)) AS DebiteurNaam, PrijsBerekend ' .
         'FROM [Slangkaarten].[dbo].[Slangkaarten] WITH (NOLOCK) WHERE ' . implode(' AND ', $where) . ' ORDER BY Nummer'
     );
     $stmt->execute($params);

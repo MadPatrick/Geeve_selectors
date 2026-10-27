@@ -1,6 +1,4 @@
 /* Slangkaart nettoprijzen: tabel, filterrij en meldingen komen uit klantartikel/assets/style.css en reports/orderhistorie/assets/style.css. */
-.sn-keuze { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
-.sn-keuze input[type="checkbox"] { width: 14px; height: 14px; min-height: 0; margin: 0; padding: 0; flex: none; }
 #snMessage { white-space: pre-wrap; }
 
 /* Tabelkop (kolomnamen en filterrij) blijft staan als de lijst scrolt; de top van de filterrij zet slangkaart-netto.js. */
