@@ -7,4 +7,5 @@
 #poTable thead tr.oh-filterrow th { background: var(--surface-white); box-shadow: 0 1px 0 var(--line-table-row); }
 
 .po-groep-keuze { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.po-groep-keuze input { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; flex: 0 0 auto; }
 .oh-table tr.po-groep td { font-weight: 750; background: var(--soft); border-top: 2px solid var(--line-table-row); }

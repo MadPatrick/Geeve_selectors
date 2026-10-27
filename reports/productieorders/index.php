@@ -45,12 +45,11 @@ $csrf = csrfToken();
 
     <section class="panel" id="poApp" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
         <h2>Overzicht gereed te melden productieorders</h2>
-        <p class="ka-empty">De productieorders die gereed gemeld moeten worden, rechtstreeks uit Exact (zelfde gegevens als de Excel "Overzicht gereed te melden productieorders"). De lijst wordt bij het openen en daarna elk uur ververst. Klik op een kolomkop om te sorteren, gebruik de zoekvelden onder de kop om te filteren.</p>
+        <p class="ka-empty">De productieorders die gereed gemeld moeten worden, rechtstreeks uit Exact (zelfde gegevens als de Excel "Overzicht gereed te melden productieorders"). Klik op Vernieuwen om de lijst op te halen. Klik op een kolomkop om te sorteren, gebruik de zoekvelden onder de kop om te filteren.</p>
         <div class="ka-actions">
             <button type="button" id="poVernieuw" class="ka-button">Vernieuwen</button>
             <button type="button" id="poDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
             <label class="po-groep-keuze"><input type="checkbox" id="poGroep" checked> Groeperen op moederproject</label>
-            <span id="poStatus" class="msp-status"></span>
         </div>
         <div id="poMessage" class="ka-message ka-message--error" hidden></div>
     </section>

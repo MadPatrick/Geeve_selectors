@@ -5,12 +5,10 @@
 
     var vernieuwBtn = document.getElementById('poVernieuw');
     var downloadBtn = document.getElementById('poDownload');
-    var status = document.getElementById('poStatus');
     var message = document.getElementById('poMessage');
     var result = document.getElementById('poResult');
     var summary = document.getElementById('poSummary');
     var table = document.getElementById('poTable');
-    var REFRESH_MS = 60 * 60 * 1000;   // de Excel ververste elk uur (interval 60 minuten)
     var TITEL = 'OVERZICHT GEREED TE MELDEN PRODUCTIE ORDERS';
     var NAAMKOLOM = 2;                 // projectnm (kolom 0 is Moederproject, kolom 1 ProjectNr): standaardsortering, zoals in de Excel
 
@@ -35,36 +33,31 @@
         return String(v);
     }
 
+    // Ophalen alleen op de knop (niet bij het openen); de voortgang staat in de knop zelf.
     function laad() {
         if (loading) { return; }
         loading = true;
         fail('');
-        vernieuwBtn.disabled = true;
-        var started = Date.now();
-        status.textContent = 'Bezig met ophalen…';
         var body = new URLSearchParams();
         body.set('csrf', app.dataset.csrf);
-        fetch(app.dataset.endpoint, { method: 'POST', body: body })
-            .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
-            .then(function (json) {
-                if (!json.ok) { throw new Error(json.error || 'Ophalen mislukt.'); }
-                fail(json.waarschuwing || '');
-                var oud = colFilters;
-                data = json;
-                colFilters = data.columns.map(function (c, i) { return oud[i] || ''; });
-                cache = data.rows.map(function (row) { return row.map(cellText); });
-                buildHead();
-                refresh();
-                result.hidden = false;
-                plakFilterrij();
-                status.textContent = 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) +
-                    ' (' + Math.round((Date.now() - started) / 100) / 10 + ' s).';
-            })
-            .catch(function (err) {
-                status.textContent = 'Mislukt na ' + Math.round((Date.now() - started) / 100) / 10 + ' s.';
-                fail(err.message);
-            })
-            .then(function () { loading = false; vernieuwBtn.disabled = false; });
+        GeeveProgress.run('Ophalen…', function () {
+            return fetch(app.dataset.endpoint, { method: 'POST', body: body })
+                .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
+                .then(function (json) {
+                    if (!json.ok) { throw new Error(json.error || 'Ophalen mislukt.'); }
+                    var oud = colFilters;
+                    data = json;
+                    fail(json.waarschuwing || '');
+                    colFilters = data.columns.map(function (c, i) { return oud[i] || ''; });
+                    cache = data.rows.map(function (row) { return row.map(cellText); });
+                    buildHead();
+                    refresh();
+                    result.hidden = false;
+                    plakFilterrij();
+                })
+                .catch(function (err) { fail(err.message); })
+                .then(function () { loading = false; });
+        }, { button: vernieuwBtn });
     }
 
     function buildHead() {
@@ -160,8 +153,6 @@
 
     groepKeuze.addEventListener('change', function () { if (data) { refresh(); } });
     vernieuwBtn.addEventListener('click', laad);
-    laad();
-    setInterval(laad, REFRESH_MS);
 
     // ---- Excel: opmaak als de sheet van Carl (blauwe titelbalk over alle kolommen, kolomkop met filter, kolombreedtes), regels zoals op het scherm ----
     GeeveProgress.onClick(downloadBtn, 'Excel maken…', function () {
