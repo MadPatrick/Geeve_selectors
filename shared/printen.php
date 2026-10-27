@@ -822,10 +822,10 @@ function geevePrintAfdrukInstellingenHtml(string $tileId): string
     if (!in_array($tileId, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true)) {
         return '';
     }
-    $keuzes = static function (string $id, string $titel, array $waarden): string {
-        $opties = '<option value="">Standaard</option>';
+    $keuzes = static function (string $id, string $titel, array $waarden, string $standaard = ''): string {
+        $opties = '<option value=""' . ($standaard === '' ? ' selected' : '') . '>Standaard</option>';
         foreach ($waarden as $waarde => $tekst) {
-            $opties .= '<option value="' . $waarde . '">' . $tekst . '</option>';
+            $opties .= '<option value="' . $waarde . '"' . ((string) $waarde === $standaard ? ' selected' : '') . '>' . $tekst . '</option>';
         }
         return '<select id="' . $id . '" title="' . $titel . '">' . $opties . '</select>';
     };
@@ -837,7 +837,7 @@ function geevePrintAfdrukInstellingenHtml(string $tileId): string
         . '<label>Snelheid ' . $snelheid . '</label><label>Zwarting ' . $zwarting . '</label></div>';
     return '<div id="directPrintAfdruk">'
         . $set('brother',
-            $keuzes('directSnelheid-brother', 'Snel = lagere afdrukkwaliteit (Brother QL)', [1 => 'Snel']),
+            $keuzes('directSnelheid-brother', 'Snel = lagere afdrukkwaliteit (Brother QL); voorgeselecteerd', [1 => 'Snel'], '1'),
             $keuzes('directZwarting-brother', 'Zwarting in % (hoger = zwarter); Standaard = 50 %', $procenten))
         . $set('tspl',
             $keuzes('directSnelheid-tspl', 'Printsnelheid in inch/s (1-12); Standaard = standaard van de printer', array_combine(range(1, 12), range(1, 12))),

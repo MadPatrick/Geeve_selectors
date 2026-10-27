@@ -46,7 +46,10 @@
     Array.prototype.forEach.call(sets, function (set) {
         Array.prototype.forEach.call(set.querySelectorAll('select'), function (veld) {
             var sleutel = 'geeve_' + veld.id + '_' + box.getAttribute('data-tile');
-            try { veld.value = window.localStorage.getItem(sleutel) || ''; } catch (e) { /* opslag niet beschikbaar */ }
+            try {
+                var bewaard = window.localStorage.getItem(sleutel);
+                if (bewaard !== null) { veld.value = bewaard; } // anders blijft de voorgeselecteerde keuze staan
+            } catch (e) { /* opslag niet beschikbaar */ }
             veld.addEventListener('change', function () {
                 try { window.localStorage.setItem(sleutel, veld.value); } catch (e) { /* opslag niet beschikbaar */ }
             });
