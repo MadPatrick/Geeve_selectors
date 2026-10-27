@@ -42,22 +42,25 @@
 
     const NUMERIC_PATTERN = /^\d+([.,]\d+)?$/;
 
+    // Kale waarde zonder eenheid ("26 mm" -> "26"), zodat ook CSV-waarden met
+    // een mm-suffix als getal herkend worden.
+    function stripMillimetres(value) {
+        return String(value == null ? '' : value).trim().replace(/\s*mm$/i, '');
+    }
+
+    // Weergave in de kaarten: altijd komma met 1 decimaal + " mm".
     function formatMillimetres(value) {
-        const text = String(value ?? '').trim();
+        const text = stripMillimetres(value);
         if (!text) {
             return '';
         }
-        if (/mm$/i.test(text)) {
-            return text;
-        }
-        // Zuiver getal (komma of punt): altijd met komma en 1 decimaal.
         return `${NUMERIC_PATTERN.test(text) ? formatMeasurement(text) : text} mm`;
     }
 
     // Print-table measurements: no "mm" suffix, always exactly 1 decimal
     // (including for 0), using the comma decimal convention.
     function formatMeasurement(value) {
-        const text = String(value ?? '').trim();
+        const text = stripMillimetres(value);
         if (!text) {
             return '';
         }
@@ -668,8 +671,8 @@
     // Punt of komma als invoer; opgeslagen en getoond als komma met 1 decimaal
     // (54 -> 54,0). Leeg of ongeldig blijft ongemoeid (validatie vangt dat op).
     function normalizeNumericValue(value) {
-        const text = String(value == null ? '' : value).trim();
-        return NUMERIC_PATTERN.test(text) ? formatMeasurement(text) : text;
+        const text = stripMillimetres(value);
+        return NUMERIC_PATTERN.test(text) ? formatMeasurement(text) : String(value == null ? '' : value).trim();
     }
 
     function isNumericInput(input) {
