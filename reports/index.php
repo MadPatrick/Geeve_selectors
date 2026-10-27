@@ -84,6 +84,14 @@ $csrf = csrfToken();
             <?= tileLockIcon('artikel-marge') ?>
         </a>
         <?php endif; $tileHtml['artikel-marge'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('slangkaart-netto')): ?>
+        <a class="<?= tileClass('slangkaart-netto') ?>" href="<?= h(geeveAppUrl('slangkaart-netto')) ?>"<?= tileAttrs('slangkaart-netto') ?>>
+            <?= tileIcon('slangkaart-netto') ?>
+            <h2><?= h(tileTitle('slangkaart-netto')) ?></h2>
+            <p>Slangassemblages met nettoprijs: nummer, klantnaam en nettoprijs, te filteren en te downloaden als Excel</p>
+            <?= tileLockIcon('slangkaart-netto') ?>
+        </a>
+        <?php endif; $tileHtml['slangkaart-netto'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('reports') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 
