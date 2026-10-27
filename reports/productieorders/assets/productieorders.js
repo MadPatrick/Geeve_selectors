@@ -12,7 +12,7 @@
     var table = document.getElementById('poTable');
     var REFRESH_MS = 60 * 60 * 1000;   // de Excel ververste elk uur (interval 60 minuten)
     var TITEL = 'OVERZICHT GEREED TE MELDEN PRODUCTIE ORDERS';
-    var NAAMKOLOM = 2;                 // projectnm (kolom 1 is Moederproject): standaardsortering, zoals in de Excel
+    var NAAMKOLOM = 2;                 // projectnm (kolom 0 is Moederproject, kolom 1 ProjectNr): standaardsortering, zoals in de Excel
 
     var data = null;
     var shown = [];
