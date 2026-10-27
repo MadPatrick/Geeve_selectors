@@ -82,8 +82,8 @@ const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet',
 const GEEVE_TSPL_ZWART_IS_NUL = true;
 
 /**
- * Tegels waar naast de printknop velden "Snelheid" en "Zwarting" staan (TSPL-labelprinters; Brother negeert ze). Leeg =
- * de printer gebruikt zijn eigen standaard (of de vaste waarden uit GEEVE_LABEL_MEDIUM). Voor testen met de printsnelheid.
+ * Tegels waar boven de printknop de velden "Snelheid" en "Zwarting" staan (alleen voor Brother QL-labelprinters; andere
+ * printers negeren ze). Leeg = standaard. Zie geevePrintAfdrukInstellingenHtml().
  */
 const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch'];
 
@@ -411,7 +411,7 @@ const GEEVE_BROTHER_QL_LABEL = ['maat' => '102x51', 'breedte' => 1164, 'hoogte' 
  * printbare vlak van een 102 x 51 mm-label; de pagina wordt passend verkleind en gecentreerd), brother_ql zet die om
  * in QL-rasteropdrachten en die gaan kaal (raw) naar de share.
  */
-function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, string $title, string $workDir, bool $snijdEinde = false): string
+function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, string $title, string $workDir, bool $snijdEinde = false, array $afdruk = []): string
 {
     $python = GEEVE_BROTHER_QL_DIR . '/bin/python3';
     $create = GEEVE_BROTHER_QL_DIR . '/bin/brother_ql_create';
@@ -419,8 +419,8 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
         throw new RuntimeException('brother_ql staat niet op de server (' . GEEVE_BROTHER_QL_DIR . '), Brother-labelprinters kunnen daardoor niet printen.');
     }
     $dots = GEEVE_BROTHER_QL_LABEL;
-    $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', '300', '-scale-to-y', (string) $dots['hoogte'], '-scale-to-x', '-1', $pdfFile, $workDir . '/ql'], 60);
-    $pages = glob($workDir . '/ql-*.pbm') ?: [];
+    $raster = geeveRun(['/usr/bin/pdftoppm', '-gray', '-r', '300', '-scale-to-y', (string) $dots['hoogte'], '-scale-to-x', '-1', $pdfFile, $workDir . '/ql'], 60);
+    $pages = glob($workDir . '/ql-*.pgm') ?: [];
     sort($pages);
     if ($raster['code'] !== 0 || $pages === []) {
         throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
@@ -428,16 +428,19 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
     // Eén Python-start voor alle pagina's (PIL laden kost per start merkbaar tijd), daarna de brother_ql-omzettingen
     // tegelijk i.p.v. na elkaar.
     $pad = 'import sys\nfrom PIL import Image\n'
-        . 'w, h = int(sys.argv[1]), int(sys.argv[2])\n'
-        . 'for pad in sys.argv[3:]:\n'
-        . '    src = Image.open(pad).convert("1")\n'
+        . 'w, h, grens = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3])\n'
+        . 'for pad in sys.argv[4:]:\n'
+        . '    src = Image.open(pad).convert("L")\n'
         . '    if src.width > w or src.height > h:\n'
         . '        f = min(w / src.width, h / src.height)\n'
         . '        src = src.resize((max(1, int(src.width * f)), max(1, int(src.height * f))))\n'
+        . '    src = src.point(lambda p: 0 if p < grens else 255).convert("1")\n'
         . '    canvas = Image.new("1", (w, h), 1)\n'
         . '    canvas.paste(src, ((w - src.width) // 2, (h - src.height) // 2))\n'
         . '    canvas.save(pad[:-4] + ".png")\n';
-    $fit = geeveRun(array_merge([$python, '-c', str_replace('\\n', "\n", $pad), (string) $dots['breedte'], (string) $dots['hoogte']], $pages), 60);
+    // Zwarting: zwart worden de beeldpunten die donkerder zijn dan deze grijswaarde (50 % = 128 is de standaard).
+    $grens = (int) round(($afdruk['zwarting'] ?? 50) / 100 * 255);
+    $fit = geeveRun(array_merge([$python, '-c', str_replace('\\n', "\n", $pad), (string) $dots['breedte'], (string) $dots['hoogte'], (string) $grens], $pages), 60);
     if ($fit['code'] !== 0) {
         throw new RuntimeException('De labels konden niet worden klaargemaakt: ' . geeveLastLine($fit['err']));
     }
@@ -445,6 +448,9 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
     foreach ($pages as $i => $page) {
         // Oudere brother_ql_create kent alleen --no-cut (snijden is de standaard); --cut geeft een fout.
         $opties = $snijdEinde && $i < count($pages) - 1 ? ['--no-cut'] : [];
+        if (($afdruk['snelheid'] ?? 0) === 1) {
+            $opties[] = '--lq'; // lagere afdrukkwaliteit, sneller
+        }
         $commands[$i] = array_merge([$create, '--model', (string) ($printer['model'] ?? 'QL-1100'), '--label-size', $dots['maat']], $opties, [substr($page, 0, -4) . '.png', $workDir . '/label' . $i . '.bin']);
     }
     $bin = '';
@@ -480,7 +486,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
     try {
         $pdfFile = geeveRenderPdf($bodyHtml, $cssFiles, $title, $workDir, null, $sheetClass);
         if (($printer['taal'] ?? '') === 'brother') {
-            return geeveBrotherPrint($pdfFile, $printer, $queue, $title, $workDir, in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true));
+            return geeveBrotherPrint($pdfFile, $printer, $queue, $title, $workDir, in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true), $afdruk);
         }
         $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', (string) $dpi, $pdfFile, $workDir . '/pagina'], 60);
         $pages = glob($workDir . '/pagina-*.pbm') ?: [];
@@ -493,7 +499,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         foreach ($pages as $i => $page) {
             // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste, en dat laatste label doorgevoerd tot de afscheurrand.
             $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\nSET TEAR ON\r\n") : '';
-            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk);
+            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? []);
         }
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
@@ -556,7 +562,7 @@ function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $n
 }
 
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
-function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = [], array $afdruk = []): string
+function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = []): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -597,16 +603,8 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     $mm = static fn(int $dots): float => abs($dots / $dpi * 25.4 - round($dots / $dpi * 25.4)) < 0.3 ? round($dots / $dpi * 25.4) : round($dots / $dpi * 25.4, 1);
     $widthMm = $mm($width);
     $heightMm = $mm($height);
-    // Snelheid (inch/s) en zwarting (0-15): de waarden uit het scherm gaan voor op die van het medium.
-    $instelling = '';
-    $snelheid = $afdruk['snelheid'] ?? $medium['snelheid'] ?? null;
-    $zwarting = $afdruk['zwarting'] ?? $medium['zwarting'] ?? null;
-    if ($snelheid !== null) {
-        $instelling .= 'SPEED ' . $snelheid . "\r\n";
-    }
-    if ($zwarting !== null) {
-        $instelling .= 'DENSITY ' . $zwarting . "\r\n";
-    }
+    $instelling = isset($medium['snelheid'], $medium['zwarting'])
+        ? 'SPEED ' . $medium['snelheid'] . "\r\nDENSITY " . $medium['zwarting'] . "\r\n" : '';
     // Met een vast medium geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte, net als de Windows-driver.
     $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : '';
     return 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gap . $instelling . "DIRECTION 0\r\nCLS\r\n"
@@ -804,14 +802,17 @@ function geevePrinterSelectHtml(string $tileId, string $csrf): string
 }
 
 /**
- * De velden "Snelheid" en "Zwarting" voor tegels in GEEVE_PRINT_TILE_AFDRUK_INSTELLING; de pagina zet ze boven de
- * printerkeuze en printknop (direct-print.js zoekt de velden op id). Leeg voor andere tegels.
+ * De velden "Snelheid" (Standaard of Snel = lagere kwaliteit) en "Zwarting" (10-90 %, standaard 50) voor Brother QL-labelprinters,
+ * om boven de printerkeuze en de Print-knop te zetten. Alleen voor tegels in GEEVE_PRINT_TILE_AFDRUK_INSTELLING; anders leeg.
+ * stickers/assets/direct-print.js stuurt de waarden mee naar shared/print-api.php.
  */
-function geevePrintAfdrukInstellingHtml(string $tileId): string
+function geevePrintAfdrukInstellingenHtml(string $tileId): string
 {
-    if (!in_array($tileId, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true) || geevePrinters($tileId) === []) {
+    if (!in_array($tileId, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true)) {
         return '';
     }
-    return '<div class="direct-print-instelling" id="directPrintAfdruk"><label>Snelheid <input type="number" id="directSnelheid" min="1" max="12" step="1" placeholder="std" title="Printsnelheid (1-12); leeg = standaard van de printer"></label>'
-        . '<label>Zwarting <input type="number" id="directZwarting" min="0" max="15" step="1" placeholder="std" title="Zwarting (0-15); leeg = standaard van de printer"></label></div>';
+    return '<div class="direct-print-instelling" id="directPrintAfdruk">'
+        . '<label>Snelheid <select id="directSnelheid" title="Snel = lagere afdrukkwaliteit (Brother QL)"><option value="">Standaard</option><option value="1">Snel</option></select></label>'
+        . '<label>Zwarting <input type="number" id="directZwarting" min="10" max="90" step="1" placeholder="50" title="Zwarting in % (10-90, hoger = zwarter); leeg = 50"></label>'
+        . '</div>';
 }
