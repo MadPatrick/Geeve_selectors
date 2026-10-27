@@ -40,6 +40,7 @@ const TILE_REGISTRY = [
     'productieorders' => ['templates', 'Productie Orders', 'reports/productieorders/index.php', true, false, false],
     'slangkaart-netto' => ['templates', 'Slangkaart Nettoprijzen', 'reports/slangkaart-netto/index.php', true, false, false],
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
+    'slangkaart-netto' => 'currency-eur',
     'stickers-order' => ['stickers', 'Artikelen per Verkooporder', 'stickers/order/index.php', true, false, true],
     'stickers-productie' => ['stickers', 'Artikelen per Productieorder', 'stickers/productie/index.php', true, false, true],
     'stickers-artikel' => ['stickers', 'Artikelnummer', 'stickers/artikel/index.php', true, false, true],
@@ -127,6 +128,57 @@ function tileWip(string $id): bool
 function tileClass(string $id): string
 {
     return 'tile' . (tileWip($id) ? ' tile--wip' : '');
+}
+
+/**
+ * Pictogram per tegel: Phosphor "duotone" (MIT, zie shared/icons/LICENSE-phosphor.txt), als bestand in shared/icons/ en inline
+ * in de pagina gezet zodat de kleur (currentColor) uit de CSS komt. De kleur hangt af van de groep waartoe de tegel hoort
+ * (home, reports, templates, stickers): variabelen --tile-<groep>-* in shared/tokens.css, klassen .tile-icon.g-<groep>.
+ * De drie hoofdschermtegels naar Reports, Templates en Stickers hebben de kleur van hun eigen groep.
+ */
+const TILE_ICONS = [
+    'hoses' => 'wave-sine',
+    'adapters' => 'plugs-connected',
+    'slangkaarten' => 'printer',
+    'slangkaarten-app' => 'list-checks',
+    'stickers' => 'sticker',
+    'stauff' => 'gear',
+    'reports' => 'chart-bar',
+    'templates' => 'files',
+    'klantartikel' => 'identification-card',
+    'klantkorting' => 'percent',
+    'inkooporder' => 'file-xls',
+    'order-offerte' => 'file-arrow-down',
+    'offerte-import' => 'file-arrow-up',
+    'inkooporder-import' => 'file-arrow-up',
+    'export-info' => 'info',
+    'artikel-import' => 'upload-simple',
+    'orderhistorie' => 'clock-counter-clockwise',
+    'productieorders' => 'factory',
+    'msp' => 'chart-pie',
+    'inkoop-groep' => 'shopping-cart',
+    'productiviteit' => 'gauge',
+    'artikel-marge' => 'trend-up',
+    'stickers-order' => 'receipt',
+    'stickers-artikel' => 'barcode',
+    'stickers-productie' => 'package',
+    'stickers-artikel-groot' => 'battery-charging',
+    'stickers-kabelmerkers' => 'tag',
+    'stickers-slanglabels' => 'tag-simple',
+    'stickers-ptouch' => 'identification-badge',
+];
+
+function tileIcon(string $id): string
+{
+    static $cache = [];
+    if (!isset($cache[$id])) {
+        $file = __DIR__ . '/icons/' . (TILE_ICONS[$id] ?? 'square') . '.svg';
+        $svg = is_readable($file) ? (string) file_get_contents($file) : '';
+        $svg = str_replace('<svg ', '<svg aria-hidden="true" focusable="false" ', $svg);
+        $cache[$id] = $svg;
+    }
+    $group = in_array($id, ['reports', 'templates', 'stickers'], true) ? $id : (TILE_REGISTRY[$id][0] ?? 'home');
+    return '<div class="tile-icon g-' . $group . '">' . $cache[$id] . '</div>';
 }
 
 /** Extra attributen van de tegel: data-lock bij een beveiligde tegel (de popup vraagt dan om de code). */
