@@ -49,6 +49,7 @@ $csrf = csrfToken();
         <div class="ka-actions">
             <button type="button" id="poVernieuw" class="ka-button">Vernieuwen</button>
             <button type="button" id="poDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
+            <label class="po-groep-keuze"><input type="checkbox" id="poGroep" checked> Groeperen op moederproject</label>
             <span id="poStatus" class="msp-status"></span>
         </div>
         <div id="poMessage" class="ka-message ka-message--error" hidden></div>
