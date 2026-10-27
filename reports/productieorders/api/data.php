@@ -57,7 +57,7 @@ reportApi(function (array $in): array {
     $t = microtime(true);
     $data = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_SQLQuery_ProductieordersGereed_te_melden]', '', null, PRODUCTIEORDERS_KOLOMMEN);
 
-    // Kolom Moederproject direct achter ProjectNr. Lukt het opzoeken niet, dan blijft de lijst werken met een lege kolom en een melding.
+    // Kolom Moederproject als eerste kolom. Lukt het opzoeken niet, dan blijft de lijst werken met een lege kolom en een melding.
     $moeders = [];
     $waarschuwing = '';
     try {
@@ -66,11 +66,11 @@ reportApi(function (array $in): array {
         $waarschuwing = 'Moederproject kon niet worden opgezocht: ' . $e->getMessage();
     }
     foreach ($data['rows'] as $i => $r) {
-        array_splice($data['rows'][$i], 1, 0, [$moeders[trim((string) $r[0])] ?? '']);
+        array_splice($data['rows'][$i], 0, 0, [$moeders[trim((string) $r[0])] ?? '']);
     }
-    array_splice($data['columns'], 1, 0, ['Moederproject']);
-    array_splice($data['numeric'], 1, 0, [false]);
-    array_splice($data['dates'], 1, 0, [false]);
+    array_splice($data['columns'], 0, 0, ['Moederproject']);
+    array_splice($data['numeric'], 0, 0, [false]);
+    array_splice($data['dates'], 0, 0, [false]);
     $data['waarschuwing'] = $waarschuwing;
     $data['tijden'] = ['ophalen' => (int) round((microtime(true) - $t) * 1000)];
     return $data;
