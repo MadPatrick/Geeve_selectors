@@ -1333,13 +1333,32 @@
         return fragment;
     }
 
-    function addMaterialChapter(material, couplingGroups, comboGroups) {
+    // Keeps only the groups of one hose type (case-insensitive), e.g. '0477'.
+    function filterGroupsByType(groups, typeFilter) {
+        if (!typeFilter) {
+            return groups;
+        }
+        const wanted = typeFilter.toUpperCase();
+        const filtered = new Map();
+        groups.forEach((group, type) => {
+            if (String(type).toUpperCase() === wanted) {
+                filtered.set(type, group);
+            }
+        });
+        return filtered;
+    }
+
+    function addMaterialChapter(material, couplingGroups, comboGroups, typeFilter) {
         if (couplingGroups.size === 0 && comboGroups.size === 0) {
             return false;
         }
 
         const materialLabel = material === 'STAAL' ? 'Staal' : material;
-        printSheet.appendChild(buildDividerPage(material, ['Perslijst', `Slangkoppelingen ${materialLabel}`]));
+        const titleLines = ['Perslijst', `Slangkoppelingen ${materialLabel}`];
+        if (typeFilter) {
+            titleLines.push(`Type ${typeFilter}`);
+        }
+        printSheet.appendChild(buildDividerPage(material, titleLines));
 
         if (couplingGroups.size > 0) {
             printSheet.appendChild(buildChapterPages('1-delig', '1-delige koppelingen', buildCouplingTable(couplingGroups)));
@@ -1355,13 +1374,14 @@
     // scope: 'all' (default), 'accessoires', 'staal' or 'rvs' - limits the
     // printed catalogue to just that chapter for the matching download
     // option.
-    // scope 'type': only the hose type given in `hoseType` (Staal + RVS).
-    function renderCatalogPrintSheet(scope, hoseType) {
+    // scope 'type' prints only the Staal and RVS chapters (all sizes) of the
+    // hose type in `typeFilter`. Returns whether anything was rendered.
+    function renderCatalogPrintSheet(scope, typeFilter) {
         if (!printSheet) {
-            return;
+            return false;
         }
         const effectiveScope = scope || 'all';
-        const onlyType = effectiveScope === 'type' ? hoseType : '';
+        const onlyType = effectiveScope === 'type' ? String(typeFilter || '').trim() : '';
 
         printSheet.innerHTML = '';
 
@@ -1376,13 +1396,13 @@
         }
 
         if (effectiveScope === 'all' || effectiveScope === 'staal' || effectiveScope === 'type') {
-            if (addMaterialChapter('STAAL', groupArticlesByType('koppelingStaal', onlyType), groupArticlesByType('comboStaal', onlyType))) {
+            if (addMaterialChapter('STAAL', filterGroupsByType(groupArticlesByType('koppelingStaal'), onlyType), filterGroupsByType(groupArticlesByType('comboStaal'), onlyType), onlyType)) {
                 hasAnyChapter = true;
             }
         }
 
         if (effectiveScope === 'all' || effectiveScope === 'rvs' || effectiveScope === 'type') {
-            if (addMaterialChapter('RVS', groupArticlesByType('koppelingRvs', onlyType), groupArticlesByType('comboRvs', onlyType))) {
+            if (addMaterialChapter('RVS', filterGroupsByType(groupArticlesByType('koppelingRvs'), onlyType), filterGroupsByType(groupArticlesByType('comboRvs'), onlyType), onlyType)) {
                 hasAnyChapter = true;
             }
         }
@@ -1400,6 +1420,7 @@
         footer.className = 'print-footer';
         footer.textContent = 'Geeve Hydraulics — know how in hydraulics';
         printSheet.appendChild(footer);
+        return hasAnyChapter;
     }
 
     function selectArticle(article) {
@@ -1558,16 +1579,38 @@
         window.print();
     }
 
+    // "Alleen slangtype": Perslijst (Staal en RVS, alle maten) van één slangtype, in te vullen als bijv. 0477.
+    const pdfTypeInput = document.getElementById('pdfTypeInput');
+    const pdfTypeButton = document.getElementById('pdfTypeButton');
+    const pdfTypeMessage = document.getElementById('pdfTypeMessage');
+
     function printHoseType() {
-        const wanted = pdfTypeInput ? pdfTypeInput.value.trim() : '';
-        if (!wanted) {
-            if (pdfTypeInput) {
-                pdfTypeInput.focus();
-            }
+        const type = pdfTypeInput.value.trim();
+        pdfTypeMessage.textContent = '';
+        if (type === '') {
+            pdfTypeMessage.textContent = 'Vul een slangtype in.';
+            pdfTypeInput.focus();
+            return;
+        }
+        if (!renderCatalogPrintSheet('type', type)) {
+            printSheet.innerHTML = '';
+            pdfTypeMessage.textContent = `Geen slangtype ${type} gevonden.`;
             return;
         }
         closePdfMenu();
-        printCatalog('type', wanted);
+        document.title = `Geeve Hydraulics - Perslijst type ${type}`;
+        window.print();
+    }
+
+    if (pdfTypeInput && pdfTypeButton && pdfTypeMessage) {
+        pdfTypeButton.addEventListener('click', printHoseType);
+        pdfTypeInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                printHoseType();
+            }
+        });
+        pdfTypeInput.addEventListener('input', () => { pdfTypeMessage.textContent = ''; });
     }
 
     if (pdfButton && pdfMenu) {
