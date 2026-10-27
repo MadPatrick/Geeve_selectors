@@ -5,3 +5,6 @@
 /* Tabelkop (kolomnamen en filterrij) blijft staan als de lijst scrollt; de top van de filterrij zet productieorders.js. */
 #poTable thead th { position: sticky; top: 0; z-index: 2; background: var(--soft); }
 #poTable thead tr.oh-filterrow th { background: var(--surface-white); box-shadow: 0 1px 0 var(--line-table-row); }
+
+.po-groep-keuze { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.oh-table tr.po-groep td { font-weight: 750; background: var(--soft); border-top: 2px solid var(--line-table-row); }

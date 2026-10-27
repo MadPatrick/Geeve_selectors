@@ -21,6 +21,8 @@
     var sortDesc = false;
     var cache = [];
     var loading = false;
+    var groepKeuze = document.getElementById('poGroep');
+    var MOEDERKOLOM = 0;
 
     function esc(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -97,9 +99,33 @@
     function refresh() {
         shown = [];
         for (var i = 0; i < data.rows.length; i++) { if (matches(i)) { shown.push(i); } }
-        if (sortCol >= 0) { shown.sort(compare); }
+        var groeperen = groepKeuze.checked;
+        if (groeperen) {
+            // Eerst op moederproject (leeg achteraan), daarbinnen op de gekozen kolom.
+            shown.sort(function (a, b) {
+                var ma = cache[a][MOEDERKOLOM];
+                var mb = cache[b][MOEDERKOLOM];
+                if (ma !== mb) {
+                    if (ma === '') { return 1; }
+                    if (mb === '') { return -1; }
+                    return ma.localeCompare(mb, 'nl', { numeric: true, sensitivity: 'base' });
+                }
+                return sortCol >= 0 ? compare(a, b) : 0;
+            });
+        } else if (sortCol >= 0) {
+            shown.sort(compare);
+        }
         var html = '';
+        var groepen = {};
+        shown.forEach(function (ri) { groepen[cache[ri][MOEDERKOLOM]] = (groepen[cache[ri][MOEDERKOLOM]] || 0) + 1; });
+        var vorige = null;
         shown.forEach(function (ri) {
+            var moeder = cache[ri][MOEDERKOLOM];
+            if (groeperen && moeder !== vorige) {
+                vorige = moeder;
+                html += '<tr class="po-groep"><td colspan="' + data.columns.length + '">' + (moeder === '' ? 'Zonder moederproject' : 'Moederproject ' + esc(moeder)) +
+                    ' <span class="msp-status">(' + groepen[moeder] + ' productieorder' + (groepen[moeder] === 1 ? '' : 's') + ')</span></td></tr>';
+            }
             html += '<tr>' + data.rows[ri].map(function (v, i) {
                 if (data.numeric[i]) { return '<td class="num">' + esc(cache[ri][i]) + '</td>'; }
                 return '<td' + (i === NAAMKOLOM ? ' class="po-naam"' : '') + '>' + esc(cache[ri][i]) + '</td>';
@@ -132,6 +158,7 @@
         refresh();
     });
 
+    groepKeuze.addEventListener('change', function () { if (data) { refresh(); } });
     vernieuwBtn.addEventListener('click', laad);
     laad();
     setInterval(laad, REFRESH_MS);
