@@ -4,7 +4,8 @@
     display: inline-flex; gap: 6px; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px;
     font-size: 13px; border: 1px solid var(--accent-line); color: var(--ink);
 }
-.msp-scroll { max-height: 70vh; overflow: auto; }
+/* Eén scrollbalk: de lijst scrolt met de pagina; tabelkoppen blijven plakken (sticky) tegen de bovenkant van het scherm. */
+.msp-scroll { max-height: none; overflow: visible; }
 #mspTable thead th { position: sticky; top: 0; background: var(--soft); z-index: 1; }
 #mspTable td.num { text-align: right; font-variant-numeric: tabular-nums; }
 #mspTable td:nth-child(2) { white-space: nowrap; }
