@@ -40,6 +40,7 @@ const TILE_REGISTRY = [
     'productieorders' => ['templates', 'Productie Orders', 'reports/productieorders/index.php', true, false, false],
     'slangkaart-netto' => ['templates', 'Slangkaart Nettoprijzen', 'reports/slangkaart-netto/index.php', true, false, false],
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
+    'slangkaart-netto' => 'currency-eur',
     'stickers-order' => ['stickers', 'Artikelen per Verkooporder', 'stickers/order/index.php', true, false, true],
     'stickers-productie' => ['stickers', 'Artikelen per Productieorder', 'stickers/productie/index.php', true, false, true],
     'stickers-artikel' => ['stickers', 'Artikelnummer', 'stickers/artikel/index.php', true, false, true],
