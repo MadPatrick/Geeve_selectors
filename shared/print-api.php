@@ -53,7 +53,7 @@ if (!is_string($html) || trim($html) === '' || strlen($html) > 2_500_000) {
 // Optioneel: snelheid en zwarting. Brother QL: snelheid "1" = snel, zwarting 10-90 %. TSPL: snelheid 1-12, zwarting 0-15.
 // Alles buiten het bereik of leeg wordt niet meegestuurd.
 $afdruk = [];
-$afdrukSoort = GEEVE_PRINT_TILE_AFDRUK_INSTELLING[$tile] ?? null;
+$afdrukSoort = in_array($tile, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true) ? (geevePrinterList()[$queue]['taal'] ?? null) : null;
 if ($afdrukSoort === 'brother') {
     $snelheid = $body['snelheid'] ?? null;
     if ($snelheid === 1 || $snelheid === '1') {
