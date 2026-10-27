@@ -7,6 +7,7 @@
 .pt-align-label { font-weight: 700; }
 .pt-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
 .pt-print .print-group { margin-left: auto; }
+.pt-print .direct-print-instelling { flex: 0 0 100%; margin-bottom: 0; }
 
 .pt-sticker {
     position: relative;
