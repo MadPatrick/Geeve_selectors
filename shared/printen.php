@@ -822,14 +822,26 @@ function geevePrintAfdrukInstellingenHtml(string $tileId): string
     if ($soort === null) {
         return '';
     }
+    $keuzes = static function (string $id, string $titel, array $waarden): string {
+        $opties = '<option value="">Standaard</option>';
+        foreach ($waarden as $waarde => $tekst) {
+            $opties .= '<option value="' . $waarde . '">' . $tekst . '</option>';
+        }
+        return '<select id="' . $id . '" title="' . $titel . '">' . $opties . '</select>';
+    };
     if ($soort === 'tspl') {
-        return '<div class="direct-print-instelling" id="directPrintAfdruk">'
-            . '<label>Snelheid <input type="number" id="directSnelheid" min="1" max="12" step="1" placeholder="std" title="Printsnelheid in inch/s (1-12); leeg = standaard van de printer"></label>'
-            . '<label>Zwarting <input type="number" id="directZwarting" min="0" max="15" step="1" placeholder="std" title="Zwarting (0-15); leeg = standaard van de printer"></label>'
-            . '</div>';
+        $snelheid = $keuzes('directSnelheid', 'Printsnelheid in inch/s (1-12); Standaard = standaard van de printer', array_combine(range(1, 12), range(1, 12)));
+        $zwarting = $keuzes('directZwarting', 'Zwarting (0-15, hoger = zwarter); Standaard = standaard van de printer', array_combine(range(0, 15), range(0, 15)));
+    } else {
+        $snelheid = $keuzes('directSnelheid', 'Snel = lagere afdrukkwaliteit (Brother QL)', [1 => 'Snel']);
+        $procenten = [];
+        foreach (range(10, 90, 10) as $procent) {
+            $procenten[$procent] = $procent . ' %';
+        }
+        $zwarting = $keuzes('directZwarting', 'Zwarting in % (hoger = zwarter); Standaard = 50 %', $procenten);
     }
     return '<div class="direct-print-instelling" id="directPrintAfdruk">'
-        . '<label>Snelheid <select id="directSnelheid" title="Snel = lagere afdrukkwaliteit (Brother QL)"><option value="">Standaard</option><option value="1">Snel</option></select></label>'
-        . '<label>Zwarting <input type="number" id="directZwarting" min="10" max="90" step="1" placeholder="50" title="Zwarting in % (10-90, hoger = zwarter); leeg = 50"></label>'
+        . '<label>Snelheid ' . $snelheid . '</label>'
+        . '<label>Zwarting ' . $zwarting . '</label>'
         . '</div>';
 }
