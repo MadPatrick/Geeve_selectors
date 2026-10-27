@@ -24,15 +24,26 @@ reportApi(function (array $in): array {
     // De tabel heeft ruim 217.000 kaarten; filteren op de server voorkomt dat de browser vastloopt.
     $where = ['PrijsBerekend IS NOT NULL', 'PrijsBerekend > 0'];
     $params = [];
-    foreach (['klant' => 'DebiteurNaam', 'nummer' => 'Nummer'] as $veld => $kolom) {
-        $waarde = trim((string) ($in[$veld] ?? ''));
-        if ($waarde !== '') {
-            $where[] = $kolom . " LIKE ? ESCAPE '\\'";
-            $params[] = '%' . str_replace(['\\', '%', '_', '['], ['\\\\', '\\%', '\\_', '\\['], $waarde) . '%';
+    $like = static fn (string $w): string => '%' . str_replace(['\\', '%', '_', '['], ['\\\\', '\\%', '\\_', '\\['], $w) . '%';
+    // Klant: losse woorden in willekeurige volgorde, hoofdletters en leestekens (. , - ') tellen niet mee; elk woord moet in de
+    // klantnaam of in het klantnummer (Debiteur) voorkomen. De vergelijking is zo ruim als de collation van de database.
+    $naamZonder = "REPLACE(REPLACE(REPLACE(REPLACE(DebiteurNaam, '.', ''), ',', ''), '-', ''), '''', '')";
+    foreach (preg_split('/\s+/', trim((string) ($in['klant'] ?? ''))) ?: [] as $woord) {
+        $zonder = str_replace(['.', ',', '-', "'"], '', $woord);
+        if ($zonder === '') {
+            continue;
         }
+        $where[] = "(" . $naamZonder . " LIKE ? ESCAPE '\\' OR LTRIM(RTRIM(Debiteur)) LIKE ? ESCAPE '\\')";
+        $params[] = $like($zonder);
+        $params[] = $like($zonder);
+    }
+    $nummer = trim((string) ($in['nummer'] ?? ''));
+    if ($nummer !== '') {
+        $where[] = "Nummer LIKE ? ESCAPE '\\'";
+        $params[] = $like($nummer);
     }
     $stmt = $pdo->prepare(
-        'SET NOCOUNT ON; SELECT LTRIM(RTRIM(Nummer)) AS Nummer, LTRIM(RTRIM(DebiteurNaam)) AS DebiteurNaam, PrijsBerekend ' .
+        'SET NOCOUNT ON; SELECT LTRIM(RTRIM(Nummer)) AS Nummer, LTRIM(RTRIM(DebiteurNaam)) AS DebiteurNaam, LTRIM(RTRIM(Debiteur)) AS Debiteur, PrijsBerekend ' .
         'FROM [Slangkaarten].[dbo].[Slangkaarten] WITH (NOLOCK) WHERE ' . implode(' AND ', $where) . ' ORDER BY Nummer'
     );
     $stmt->execute($params);
@@ -41,13 +52,14 @@ reportApi(function (array $in): array {
         $rows[] = [
             reportNormalizeValue($r[0], false),
             reportNormalizeValue($r[1], false),
-            reportNormalizeValue($r[2], true),
+            reportNormalizeValue($r[2], false),
+            reportNormalizeValue($r[3], true),
         ];
     }
     return [
-        'columns' => ['Slangassemblage', 'Klantnaam', 'Nettoprijs'],
-        'numeric' => [false, false, true],
-        'dates' => [false, false, false],
+        'columns' => ['Slangassemblage', 'Klantnaam', 'Klantnr', 'Nettoprijs'],
+        'numeric' => [false, false, false, true],
+        'dates' => [false, false, false, false],
         'rows' => $rows,
         'tijden' => ['ophalen' => (int) round((microtime(true) - $t) * 1000)],
     ];

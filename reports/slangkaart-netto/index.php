@@ -47,7 +47,7 @@ $csrf = csrfToken();
         <h2>Slangassemblages met nettoprijs</h2>
         <p class="ka-empty">Slangkaarten met een netto afspraak, met slangassemblagenummer, klantnaam en nettoprijs (alleen lezen, rechtstreeks uit de Slangkaarten-database). De nettoprijs is het veld "Netto afspraak" van de slangkaart. De lijst wordt pas opgehaald als je op Vernieuwen klikt; op het scherm staan maximaal 1.000 regels, de Excel bevat alles. Klik op een kolomkop om te sorteren, gebruik de zoekvelden onder de kop om te filteren.</p>
         <div class="ka-actions">
-            <input type="text" id="snKlant" class="ka-input" placeholder="Klantnaam…" aria-label="Klantnaam" autocomplete="off">
+            <input type="text" id="snKlant" class="ka-input" placeholder="Klantnaam of klantnr…" aria-label="Klantnaam of klantnummer" title="Losse woorden in willekeurige volgorde, of een klantnummer" autocomplete="off">
             <input type="text" id="snNummer" class="ka-input" placeholder="Slangnummer…" aria-label="Slangnummer" autocomplete="off">
             <button type="button" id="snVernieuw" class="ka-button">Vernieuwen</button>
             <button type="button" id="snDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
