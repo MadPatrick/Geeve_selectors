@@ -48,6 +48,12 @@
         return /mm$/i.test(text) ? text : `${text} mm`;
     }
 
+    // Result-screen measurements (Persmaat, Schilmaat, Insteekdiepte): like formatMeasurement() but with " mm" behind it.
+    function formatMillimetresDecimal(value) {
+        const text = formatMeasurement(value);
+        return text ? `${text} mm` : '';
+    }
+
     // Print-table measurements: no "mm" suffix, always exactly 1 decimal
     // (including for 0), using the comma decimal convention.
     function formatMeasurement(value) {
@@ -753,9 +759,9 @@
 
         card.appendChild(createFactsRow([
             createFact('Huls', variant.huls, true),
-            createFact('Persmaat', formatMillimetres(variant.persmaat)),
-            createFact('Schilmaat intern', formatMillimetres(variant.schilIntern)),
-            createFact('Schilmaat extern', formatMillimetres(variant.schilExtern)),
+            createFact('Persmaat', formatMillimetresDecimal(variant.persmaat)),
+            createFact('Schilmaat intern', formatMillimetresDecimal(variant.schilIntern)),
+            createFact('Schilmaat extern', formatMillimetresDecimal(variant.schilExtern)),
         ], seriesBadge(variant.pilaar)));
 
         return card;
@@ -766,10 +772,10 @@
         card.className = 'fitting-card coupling-card';
 
         card.appendChild(createFactsRow([
-            createFact('Persmaat', formatMillimetres(variant.persmaat)),
-            createFact('Insteekdiepte', formatMillimetres(variant.insteekdiepte)),
-            createFact('Schilmaat intern', formatMillimetres(variant.schilIntern)),
-            createFact('Schilmaat extern', formatMillimetres(variant.schilExtern)),
+            createFact('Persmaat', formatMillimetresDecimal(variant.persmaat)),
+            createFact('Insteekdiepte', formatMillimetresDecimal(variant.insteekdiepte)),
+            createFact('Schilmaat intern', formatMillimetresDecimal(variant.schilIntern)),
+            createFact('Schilmaat extern', formatMillimetresDecimal(variant.schilExtern)),
         ], seriesBadge(variant.koppeling)));
 
         return card;
