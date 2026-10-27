@@ -31,6 +31,7 @@
         if (v === null || v === undefined) { return ''; }
         if (data.dates[i] && typeof v === 'string' && ISO_DATE.test(v)) { return v.split('-').reverse().join('-'); }
         if (data.numeric[i] && typeof v === 'number') { return Number(v).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        if (data.dates && data.dates[i] && /^\d{4}-\d{2}-\d{2}$/.test(v)) { return v.substr(8, 2) + '-' + v.substr(5, 2) + '-' + v.substr(0, 4); } // op het scherm dd-mm-jjjj; Excel houdt jjjj-mm-dd (sorteert goed)
         return String(v);
     }
 
