@@ -132,6 +132,14 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 }
 .pdf-menu-item:hover, .pdf-menu-item:focus-visible { background: var(--btn-white-hover); color: var(--accent); }
 
+.pdf-menu-type { display: flex; flex-direction: column; gap: 4px; padding: 8px 12px 6px; border-top: 1px solid var(--line-menu); margin-top: 4px; }
+.pdf-menu-type label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.pdf-menu-type-row { display: flex; gap: 6px; align-items: center; }
+.pdf-type-input { width: 110px; min-width: 0; }
+.pdf-type-button { appearance: none; border: 1px solid var(--btn-green-line, var(--line-menu)); background: var(--btn-green); color: var(--ink); font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+.pdf-type-button:hover { background: var(--btn-green-hover); }
+.pdf-type-message { font-size: 12px; color: var(--btn-danger, #a03636); min-height: 1em; }
+
 .data-panel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .data-panel-block p { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.4; }
 .data-panel-block h3 { margin: 0 0 8px; font-size: 15px; }

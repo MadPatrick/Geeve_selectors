@@ -70,6 +70,14 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
             <button type="button" class="pdf-menu-item" data-scope="accessoires">Accessoires</button>
             <button type="button" class="pdf-menu-item" data-scope="staal">Staal</button>
             <button type="button" class="pdf-menu-item" data-scope="rvs">RVS</button>
+            <div class="pdf-menu-type">
+                <label for="pdfTypeInput">Alleen slangtype (Staal en RVS)</label>
+                <div class="pdf-menu-type-row">
+                    <input type="text" id="pdfTypeInput" class="pdf-type-input" placeholder="bijv. 0477" autocomplete="off" maxlength="20">
+                    <button type="button" id="pdfTypeButton" class="pdf-type-button">Print</button>
+                </div>
+                <span id="pdfTypeMessage" class="pdf-type-message" role="status"></span>
+            </div>
         </div>
     </div>
     <button type="button" id="editToggleButton" class="header-icon-button" title="Gegevens wijzigen" aria-label="Gegevens wijzigen" disabled>
