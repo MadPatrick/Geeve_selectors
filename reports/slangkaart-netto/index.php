@@ -5,7 +5,7 @@ declare(strict_types=1);
 // Tegel-toegang (Config > Tegels): is de tegel beveiligd, dan terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
-tileRequirePage('slangkaart-netto', geeveAppUrl('templates'));
+tileRequirePage('slangkaart-netto', geeveAppUrl('reports'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
 
@@ -38,7 +38,7 @@ $csrf = csrfToken();
     <?php
     $headerTitle = 'Slangkaart Nettoprijzen';
     $headerImagesPath = geeveUrl('images/');
-    $headerHomeHref = geeveAppUrl('templates'); // tegel staat onder Templates
+    $headerHomeHref = geeveAppUrl('reports'); // tegel staat onder Reports
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
