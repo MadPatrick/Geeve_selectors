@@ -32,6 +32,34 @@
         return String(v);
     }
 
+    // Zoeken tijdens het typen: kort na de laatste toets (en op Enter) starten. Loopt er nog een zoekopdracht (of toont de knop
+    // nog zijn voortgangsbalk), dan wachten we tot de knop weer vrij is; laad() leest de velden pas bij het starten.
+    var zoekTimer = null;
+    var wacht = false;
+    function startZoeken() {
+        if (loading || vernieuwBtn.geeveBusy) {
+            if (!wacht) { wacht = true; setTimeout(function () { wacht = false; startZoeken(); }, 120); }
+            return;
+        }
+        vernieuwBtn.click();
+    }
+    function zoekMetTekst() {
+        var klant = document.getElementById('snKlant').value.trim();
+        var nummer = document.getElementById('snNummer').value.trim();
+        if (klant.length < 2 && nummer.length < 2) { return; } // te weinig tekst: niet de hele lijst ophalen
+        startZoeken();
+    }
+    ['snKlant', 'snNummer'].forEach(function (id) {
+        var el = document.getElementById(id);
+        el.addEventListener('input', function () {
+            clearTimeout(zoekTimer);
+            zoekTimer = setTimeout(zoekMetTekst, 400);
+        });
+        el.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { clearTimeout(zoekTimer); zoekMetTekst(); }
+        });
+    });
+
     // Alleen op de knop Vernieuwen: de voortgangsbalk zit in de knop zelf.
     function laad() {
         if (loading) { return false; }
@@ -131,26 +159,6 @@
     });
 
     GeeveProgress.onClick(vernieuwBtn, 'Ophalen…', laad);
-
-    // Zoeken tijdens het typen in Klantnaam/Slangnummer (en met Enter); leeg veld haalt niet alles op.
-    var zoekTimer = null;
-    function zoekStart() {
-        clearTimeout(zoekTimer);
-        if (loading) { zoekTimer = setTimeout(zoekStart, 300); return; }
-        vernieuwBtn.click();
-    }
-    ['snKlant', 'snNummer'].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (!el) { return; }
-        el.addEventListener('input', function () {
-            clearTimeout(zoekTimer);
-            if (document.getElementById('snKlant').value.trim() === '' && document.getElementById('snNummer').value.trim() === '') { return; }
-            zoekTimer = setTimeout(zoekStart, 400);
-        });
-        el.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); clearTimeout(zoekTimer); zoekStart(); }
-        });
-    });
 
     // ---- Excel: opmaak als de sheet van Carl (blauwe titelbalk over alle kolommen, kolomkop met filter, kolombreedtes), regels zoals op het scherm ----
     GeeveProgress.onClick(downloadBtn, 'Excel maken…', function () {
