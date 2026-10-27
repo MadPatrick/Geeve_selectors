@@ -50,14 +50,16 @@ if (!is_string($html) || trim($html) === '' || strlen($html) > 2_500_000) {
     printApiFail(400, 'Er is niets om te printen.');
 }
 
-// Optioneel: printsnelheid (1-12 inch/s) en zwarting (0-15) voor TSPL-labelprinters; buiten het bereik of leeg = niet meesturen.
+// Optioneel (Brother QL): snelheid ("1" = snel) en zwarting (10-90 %); alles buiten het bereik of leeg wordt niet meegestuurd.
 $afdruk = [];
 if (in_array($tile, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true)) {
-    foreach (['snelheid' => [1, 12], 'zwarting' => [0, 15]] as $naam => [$min, $max]) {
-        $waarde = $body[$naam] ?? null;
-        if ((is_int($waarde) || (is_string($waarde) && preg_match('/^\d{1,2}$/', $waarde) === 1)) && (int) $waarde >= $min && (int) $waarde <= $max) {
-            $afdruk[$naam] = (int) $waarde;
-        }
+    $snelheid = $body['snelheid'] ?? null;
+    if ($snelheid === 1 || $snelheid === '1') {
+        $afdruk['snelheid'] = 1;
+    }
+    $zwarting = $body['zwarting'] ?? null;
+    if ((is_int($zwarting) || (is_string($zwarting) && preg_match('/^\d{1,3}$/', $zwarting) === 1)) && (int) $zwarting >= 10 && (int) $zwarting <= 90) {
+        $afdruk['zwarting'] = (int) $zwarting;
     }
 }
 
