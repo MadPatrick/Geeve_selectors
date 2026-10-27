@@ -160,6 +160,26 @@
 
     GeeveProgress.onClick(vernieuwBtn, 'Ophalen…', laad);
 
+    // Zoeken tijdens het typen in Klantnaam/Slangnummer (en met Enter); leeg veld haalt niet alles op.
+    var zoekTimer = null;
+    function zoekStart() {
+        clearTimeout(zoekTimer);
+        if (loading) { zoekTimer = setTimeout(zoekStart, 300); return; }
+        vernieuwBtn.click();
+    }
+    ['snKlant', 'snNummer'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) { return; }
+        el.addEventListener('input', function () {
+            clearTimeout(zoekTimer);
+            if (document.getElementById('snKlant').value.trim() === '' && document.getElementById('snNummer').value.trim() === '') { return; }
+            zoekTimer = setTimeout(zoekStart, 400);
+        });
+        el.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); clearTimeout(zoekTimer); zoekStart(); }
+        });
+    });
+
     // ---- Excel: opmaak als de sheet van Carl (blauwe titelbalk over alle kolommen, kolomkop met filter, kolombreedtes), regels zoals op het scherm ----
     GeeveProgress.onClick(downloadBtn, 'Excel maken…', function () {
         if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return false; }
