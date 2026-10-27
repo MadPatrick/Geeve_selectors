@@ -149,20 +149,6 @@ $lockRoot = '';
             <?= tileLockIcon('stauff') ?>
         </a>
         <?php endif; $tileHtml['stauff'] = ob_get_clean(); ?>
-        <?php ob_start(); if (tileVisible('gebogenbuis')): ?>
-        <a class="<?= tileClass('gebogenbuis') ?>" href="<?= h(geeveAppUrl('gebogenbuis')) ?>"<?= tileAttrs('gebogenbuis') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M4 5h6a6 6 0 0 1 6 6v8"></path>
-                    <path d="M13 19h6"></path>
-                    <path d="M4 9h2"></path>
-                </svg>
-            </div>
-            <h2><?= h(tileTitle('gebogenbuis')) ?></h2>
-            <p>Bereken de prijs van gebogen buis: artikelen met klantkorting, montage en notities.</p>
-            <?= tileLockIcon('gebogenbuis') ?>
-        </a>
-        <?php endif; $tileHtml['gebogenbuis'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('reports')): ?>
         <a class="<?= tileClass('reports') ?>" href="<?= h(geeveAppUrl('reports')) ?>"<?= tileAttrs('reports') ?>>
             <div class="tile-icon">

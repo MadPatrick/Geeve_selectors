@@ -8,7 +8,7 @@
  */
 const base = (process.argv[2] || 'http://127.0.0.1:8099').replace(/\/$/, '');
 const naam = process.argv[3] || 'chromium';
-const paden = ['/', '/hoses/', '/adapters/', '/stauff/', '/configurator/', '/slkprinten/', '/gebogenbuis/', '/klantartikel/',
+const paden = ['/', '/hoses/', '/adapters/', '/stauff/', '/configurator/', '/slkprinten/', '/klantartikel/',
   '/klantkorting/', '/reports/offerte-import/', '/reports/orderhistorie/', '/reports/productieorders/', '/reports/msp/', '/stickers/'];
 
 (async () => {
