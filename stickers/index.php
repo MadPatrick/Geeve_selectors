@@ -36,9 +36,9 @@ $csrf = csrfToken();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>Stickers | Geeve Hydraulics</title>
-    <!-- Popup voor beveiligde tegels en de "IN PROGRESS"-stempel komen uit de stijl van het hoofdscherm. -->
+    <!-- Tegel-layout (.tile-grid/.tile), popup en "IN PROGRESS"-stempel komen uit de stijl van het hoofdscherm (assets/style.css), zodat alle tegels even groot zijn. -->
     <?php
-    $headCss = ['assets/style.css', 'stickers/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['assets/style.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../shared/head.php';
     ?>
 </head>
