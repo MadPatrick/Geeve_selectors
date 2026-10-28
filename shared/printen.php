@@ -71,12 +71,12 @@ const GEEVE_LABEL_DRAAI = ['sl-printsheet' => 'cw'];
 
 /**
  * Medium en afdrukinstellingen van de Windows-driver (RTMLBSlanglabels01), per sheet-class: mm, mm/s als TSPL-SPEED (inch/s),
- * zwarting 0-15. Optioneel: 'gap' => mm tussenruimte tussen de labels (zoals in de driver), 'tear' => true (na elk label doorvoeren tot de afscheurrand, SET TEAR ON), 'offset' => mm extra
+ * zwarting 0-15. Optioneel: 'supersample' => n (omzetten naar zwart-wit via n x n hogere resolutie, scherpere letters) met 'drempel' => 0-255 (hoger = vettere letters), 'gap' => mm tussenruimte tussen de labels (zoals in de driver), 'tear' => true (na elk label doorvoeren tot de afscheurrand, SET TEAR ON), 'offset' => mm extra
  * doorvoer na het label (TSPL OFFSET, voor fijnstellen van de afscheurrand), 'verschuifX' / 'verschuifY' => de afdruk in mm
  * naar rechts / omlaag schuiven op het medium (fijnstellen van het midden; negatief = andere kant op).
  */
 // Steek 31 mm = hoogte 29 + gap 2 (opgemeten op de rol); het printvlak van 25 mm komt verticaal in het midden van die 29 mm.
-const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 29, 'snelheid' => 2, 'zwarting' => 7, 'gap' => 2, 'tear' => true, 'offset' => 0, 'verschuifX' => 0, 'verschuifY' => 0]];
+const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 29, 'snelheid' => 2, 'zwarting' => 7, 'supersample' => 3, 'drempel' => 150, 'gap' => 2, 'tear' => true, 'offset' => 0, 'verschuifX' => 0, 'verschuifY' => 0]];
 
 /**
  * Sheet-classes van tegels waarvan de labels als één opdracht gaan en de printer pas na het laatste label snijdt
@@ -495,9 +495,18 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         if (($printer['taal'] ?? '') === 'brother') {
             return geeveBrotherPrint($pdfFile, $printer, $queue, $title, $workDir, in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true), $afdruk);
         }
-        $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', (string) $dpi, $pdfFile, $workDir . '/pagina'], 60);
-        $pages = glob($workDir . '/pagina-*.pbm') ?: [];
-        sort($pages);
+        $medium = GEEVE_LABEL_MEDIUM[$sheetClass] ?? [];
+        $factor = (int) ($medium['supersample'] ?? 0);
+        if ($factor > 1) {
+            // Scherper dan -mono: eerst in grijstinten op een hoger raster, daarna per punt middelen en met een drempel zwart/wit maken.
+            $raster = geeveRun(['/usr/bin/pdftoppm', '-gray', '-r', (string) ($dpi * $factor), $pdfFile, $workDir . '/pagina'], 60);
+            $pages = glob($workDir . '/pagina-*.pgm') ?: [];
+            sort($pages);
+        } else {
+            $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', (string) $dpi, $pdfFile, $workDir . '/pagina'], 60);
+            $pages = glob($workDir . '/pagina-*.pbm') ?: [];
+            sort($pages);
+        }
         if ($raster['code'] !== 0 || $pages === []) {
             throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
         }
@@ -506,7 +515,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         foreach ($pages as $i => $page) {
             // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste, en dat laatste label doorgevoerd tot de afscheurrand.
             $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\nSET TEAR ON\r\n") : '';
-            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk, $i === count($pages) - 1);
+            $tspl .= $snijder . geevePbmToTspl($factor > 1 ? geevePgmNaarPbm((string) file_get_contents($page), $factor, (int) ($medium['drempel'] ?? 128)) : (string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk, $i === count($pages) - 1);
         }
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
@@ -566,6 +575,44 @@ function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $n
         }
     }
     return [pack('C*', ...$out), $newW, $newH];
+}
+
+/**
+ * Zet een 8-bit grijs PGM (P5) op een $factor-voud van de printerresolutie om in een 1-bit PBM (P4, 1 = zwart) op de
+ * printerresolutie: per punt het gemiddelde van $factor x $factor beeldpunten, zwart als dat onder $drempel (0-255) ligt.
+ * Een drempel boven 128 maakt dunne lijntjes en kleine letters dikker.
+ */
+function geevePgmNaarPbm(string $pgm, int $factor, int $drempel): string
+{
+    if (preg_match('/^P5\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s+255\s/', $pgm, $m, PREG_OFFSET_CAPTURE) !== 1) {
+        throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
+    }
+    $bigW = (int) $m[1][0];
+    $bigH = (int) $m[2][0];
+    $data = substr($pgm, $m[0][1] + strlen($m[0][0]), $bigW * $bigH);
+    if (strlen($data) !== $bigW * $bigH) {
+        throw new RuntimeException('De afbeelding van het label is onvolledig.');
+    }
+    $width = intdiv($bigW, $factor);
+    $height = intdiv($bigH, $factor);
+    $rowBytes = intdiv($width + 7, 8);
+    $grens = $drempel * $factor * $factor;
+    $out = array_fill(0, $rowBytes * $height, 0);
+    for ($y = 0; $y < $height; $y++) {
+        for ($x = 0; $x < $width; $x++) {
+            $som = 0;
+            for ($dy = 0; $dy < $factor; $dy++) {
+                $start = ($y * $factor + $dy) * $bigW + $x * $factor;
+                for ($dx = 0; $dx < $factor; $dx++) {
+                    $som += ord($data[$start + $dx]);
+                }
+            }
+            if ($som < $grens) {
+                $out[$y * $rowBytes + ($x >> 3)] |= 1 << (7 - ($x & 7));
+            }
+        }
+    }
+    return "P4\n" . $width . ' ' . $height . "\n" . pack('C*', ...$out);
 }
 
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
