@@ -96,7 +96,7 @@ $csrf = csrfToken();
         <a class="<?= tileClass('inkoopprijzen-gr14-gr55') ?>" href="<?= h(geeveAppUrl('inkoopprijzen-gr14-gr55')) ?>"<?= tileAttrs('inkoopprijzen-gr14-gr55') ?>>
             <?= tileIcon('inkoopprijzen-gr14-gr55') ?>
             <h2><?= h(tileTitle('inkoopprijzen-gr14-gr55')) ?></h2>
-            <p>Inkoopprijzen hoofdleverancier van artikelgroep 14 naast groep 55 (Zoekcode + VZ/VZX), te downloaden als Excel</p>
+            <p>Inkoop- en verkoopprijzen van artikelgroep 14 naast groep 55 (Zoekcode + VZ/VZX), te downloaden als Excel</p>
             <?= tileLockIcon('inkoopprijzen-gr14-gr55') ?>
         </a>
         <?php endif; $tileHtml['inkoopprijzen-gr14-gr55'] = ob_get_clean(); ?>
