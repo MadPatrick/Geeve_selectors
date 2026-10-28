@@ -13,15 +13,13 @@ slangnummer, zie hieronder):
 
 1. **Zoeken** - op ordernummer, slangnummer (artikelnummer van de slang - kolom `GHnr`, zie
    `HOSE_KEY_COLUMNS` in `inc/queries.php`), óf (een deel van) de klantnaam. Bij zoeken op
-   slangnummer worden alleen artikelen uit artikelgroep 0 (echte slangen) getoond - zie
-   `findArtikelItemGroepenBatch()`/`findLinesByHoseNumber()` in `inc/queries.php` en "Picklijst-
-   locatie & voorraad" hieronder voor de gebruikte Exact-tabel. Het slangnummer-veld zoekt "fuzzy":
-   koppeltekens/spaties/punten in zowel de zoekterm als de kolomwaarde worden genegeerd
-   (`tryColumnsFuzzyLikeQuery()`), dus "482953010" vindt ook "48295-30-10".
-2. **Order kiezen** (bij zoeken op klantnaam of slangnummer) - een klant kan meerdere orders
-   hebben, en hetzelfde slangnummer kan in meerdere orders/klanten voorkomen (het is het
-   hose-artikelnummer, geen order-unieke sleutel) - dus eerst een lijst met resultaten (nieuwste
-   order eerst) om er 1 te kiezen. Bij zoeken op ordernummer wordt deze stap overgeslagen.
+   slangnummer geeft de pagina **alleen de slangkaart van precies dat slangnummer** (exacte match,
+   `findHoseNumbersWithoutOrder(..., $exact = true)`), geen bijbehorende orders; de kaart wordt
+   rechtstreeks geprint (`findHoseCardsByKeys(..., $cardOnly = true)`). Koppeltekens/spaties/punten
+   worden genegeerd, dus "482953010" vindt "48295-30-10", maar "4829" vindt niets.
+2. **Order kiezen** (bij zoeken op klantnaam) - een klant kan meerdere orders hebben, dus eerst een
+   lijst met resultaten (nieuwste order eerst) om er 1 te kiezen. Bij zoeken op ordernummer wordt
+   deze stap overgeslagen; bij zoeken op slangnummer is er geen orderkeuze (zie stap 1).
 3. **Regels selecteren** - een overzicht van de slangregels van de gekozen order (regel, aantal,
    slangnummer, GHnm, slang type, lengte, koppeling A/B - elk koppelonderdeel in een eigen
    kolom), elk met een aangevinkte checkbox. Ordernummer en klantnaam staan in de koptekst, niet
