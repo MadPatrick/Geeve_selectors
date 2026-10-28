@@ -28,7 +28,13 @@ reportApi(function (array $in): array {
     // Klant: losse woorden in willekeurige volgorde, hoofdletters en leestekens (. , - ') tellen niet mee; elk woord moet in de
     // klantnaam of in het klantnummer (Debiteur) voorkomen. De vergelijking is zo ruim als de collation van de database.
     $naamZonder = "REPLACE(REPLACE(REPLACE(REPLACE(DebiteurNaam, '.', ''), ',', ''), '-', ''), '''', '')";
-    foreach (preg_split('/\s+/', trim((string) ($in['klant'] ?? ''))) ?: [] as $woord) {
+    // Gekozen uit de klantlijst: exact dit klantnummer (100 geeft dus niet ook 1000 en 1100).
+    $debnr = trim((string) ($in['debnr'] ?? ''));
+    if ($debnr !== '') {
+        $where[] = 'LTRIM(RTRIM(Debiteur)) = ?';
+        $params[] = $debnr;
+    }
+    foreach ($debnr !== '' ? [] : (preg_split('/\s+/', trim((string) ($in['klant'] ?? ''))) ?: []) as $woord) {
         $zonder = str_replace(['.', ',', '-', "'"], '', $woord);
         if ($zonder === '') {
             continue;

@@ -39,6 +39,9 @@
     // nog zijn voortgangsbalk), dan wachten we tot de knop weer vrij is; laad() leest de velden pas bij het starten.
     var zoekTimer = null;
     var wacht = false;
+    var klantInput = document.getElementById('snKlant');
+    var klantHits = document.getElementById('snKlantHits');
+    var klantSel = null;               // {debnr, naam}: gekozen uit de lijst
     function startZoeken() {
         if (loading || vernieuwBtn.geeveBusy) {
             if (!wacht) { wacht = true; setTimeout(function () { wacht = false; startZoeken(); }, 120); }
@@ -46,22 +49,90 @@
         }
         vernieuwBtn.click();
     }
-    function zoekMetTekst() {
-        var klant = document.getElementById('snKlant').value.trim();
-        var nummer = document.getElementById('snNummer').value.trim();
-        if (klant.length < 2 && nummer.length < 2) { return; } // te weinig tekst: niet de hele lijst ophalen
-        startZoeken();
-    }
-    ['snKlant', 'snNummer'].forEach(function (id) {
-        var el = document.getElementById(id);
-        el.addEventListener('input', function () {
-            clearTimeout(zoekTimer);
-            zoekTimer = setTimeout(zoekMetTekst, 400);
-        });
-        el.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') { clearTimeout(zoekTimer); zoekMetTekst(); }
-        });
+    var nummerInput = document.getElementById('snNummer');
+    nummerInput.addEventListener('input', function () {
+        clearTimeout(zoekTimer);
+        zoekTimer = setTimeout(function () {
+            if (nummerInput.value.trim().length >= 2 || klantSel) { startZoeken(); }
+        }, 400);
     });
+    nummerInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { clearTimeout(zoekTimer); startZoeken(); }
+    });
+
+    // ---- Klant: zoekveld met keuzelijst (typen toont klanten, Enter kiest de bovenste en zoekt) ----
+    (function () {
+        var hits = [];
+        var active = -1;
+        var timer = null;
+        var seq = 0;
+        var lastQuery = '';
+
+        function close() { klantHits.hidden = true; active = -1; klantInput.setAttribute('aria-expanded', 'false'); }
+        function render() {
+            klantHits.innerHTML = hits.map(function (hit, i) {
+                return '<li role="option" data-i="' + i + '"' + (i === active ? ' class="is-active"' : '') + '><strong>' + esc(hit.debnr) + '</strong> ' + esc(hit.naam) + '</li>';
+            }).join('');
+            klantHits.hidden = hits.length === 0;
+            klantInput.setAttribute('aria-expanded', hits.length ? 'true' : 'false');
+        }
+        function pick(i) {
+            if (!hits[i]) { return; }
+            klantSel = hits[i];
+            klantInput.value = klantSel.debnr + ' ' + klantSel.naam;
+            close();
+        }
+        function search() {
+            var q = klantInput.value.trim();
+            if (q.length < 1) { hits = []; lastQuery = ''; close(); return Promise.resolve(); }
+            var mine = ++seq;
+            lastQuery = q;
+            return fetch(app.dataset.klanten + '?q=' + encodeURIComponent(q), { credentials: 'same-origin' })
+                .then(function (r) { return r.json(); })
+                .then(function (json) {
+                    if (mine !== seq) { return; }
+                    if (!json.ok) { fail(json.error || 'Zoeken mislukt.'); hits = []; close(); return; }
+                    fail('');
+                    hits = json.rows;
+                    active = -1;
+                    render();
+                })
+                .catch(function () { if (mine === seq) { fail('Zoeken mislukt.'); } });
+        }
+        // Enter: de bovenste (of gemarkeerde) klant uit de lijst kiezen en meteen zoeken.
+        function enter() {
+            var q = klantInput.value.trim();
+            clearTimeout(timer);
+            if (klantSel) { startZoeken(); return; }
+            function kies() {
+                if (hits.length) { pick(active >= 0 ? active : 0); }
+                startZoeken();
+            }
+            if (hits.length && lastQuery === q) { kies(); } else { search().then(kies); }
+        }
+
+        klantInput.addEventListener('input', function () {
+            if (klantSel && klantInput.value !== klantSel.debnr + ' ' + klantSel.naam) { klantSel = null; }
+            clearTimeout(timer);
+            timer = setTimeout(search, 250);
+        });
+        klantInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); enter(); return; }
+            if (klantHits.hidden) { return; }
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                active = (active + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length;
+                render();
+            } else if (e.key === 'Escape') {
+                close();
+            }
+        });
+        klantHits.addEventListener('mousedown', function (e) {
+            var li = e.target.closest ? e.target.closest('li') : null;
+            if (li) { e.preventDefault(); pick(parseInt(li.getAttribute('data-i'), 10)); startZoeken(); }
+        });
+        klantInput.addEventListener('blur', function () { setTimeout(close, 120); });
+    })();
 
     // Alleen op de knop Vernieuwen: de voortgangsbalk zit in de knop zelf.
     function laad() {
@@ -70,7 +141,7 @@
         fail('');
         var body = new URLSearchParams();
         body.set('csrf', app.dataset.csrf);
-        body.set('klant', document.getElementById('snKlant').value);
+        if (klantSel) { body.set('debnr', klantSel.debnr); } else { body.set('klant', klantInput.value); }
         body.set('nummer', document.getElementById('snNummer').value);
         return fetch(app.dataset.endpoint, { method: 'POST', body: body })
             .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })

@@ -43,11 +43,14 @@ $csrf = csrfToken();
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel" id="snApp" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
+    <section class="panel" id="snApp" data-endpoint="api/data.php" data-klanten="api/klanten.php" data-csrf="<?= h($csrf) ?>">
         <h2>Slangassemblages met nettoprijs</h2>
         <p class="ka-empty">Slangkaarten met een netto afspraak, met slangassemblagenummer, klantnaam en nettoprijs (alleen lezen, rechtstreeks uit de Slangkaarten-database). De nettoprijs is het veld "Netto afspraak" van de slangkaart. De lijst wordt pas opgehaald als je op Vernieuwen klikt; op het scherm staan maximaal 1.000 regels, de Excel bevat alles. Klik op een kolomkop om te sorteren, gebruik de zoekvelden onder de kop om te filteren.</p>
         <div class="ka-actions">
-            <input type="text" id="snKlant" class="ka-input" placeholder="Klantnaam of klantnr…" aria-label="Klantnaam of klantnummer" title="Losse woorden in willekeurige volgorde, of een klantnummer" autocomplete="off">
+            <div class="oh-klant">
+                <input type="text" id="snKlant" class="ka-input" placeholder="Klantnaam of klantnr…" aria-label="Klantnaam of klantnummer" title="Typ een klantnummer of (delen van) de naam, kies uit de lijst of druk op Enter voor de bovenste" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="snKlantHits">
+                <ul class="oh-hits" id="snKlantHits" role="listbox" hidden></ul>
+            </div>
             <input type="text" id="snNummer" class="ka-input" placeholder="Slangnummer…" aria-label="Slangnummer" autocomplete="off">
             <button type="button" id="snVernieuw" class="ka-button">Vernieuwen</button>
             <button type="button" id="snDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
