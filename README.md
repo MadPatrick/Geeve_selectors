@@ -59,7 +59,7 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 | Export info | `/reports/export-info/` | Orderregels met collo, gewicht en afmetingen voor de exportdocumenten |
 | Artikelgegevens Import | `/reports/artikel-import/` | Artikelgegevens controleren met Exact en als XML (`<Items>`) exporteren |
 | Orderhistorie | `/reports/orderhistorie/` | Geleverde orderregels per klant sinds de eerste order, filter per kolom, Download Excel |
-| Inkoopprijzen GR14 / GR55 | `/reports/inkoopprijzen-gr14-gr55/` | Standaard inkoopprijs (hoofdleverancier) van artikelgroep 14 naast groep 55, gekoppeld op Zoekcode (GR55 = GR14 zonder `VZ`), Download Excel |
+| Inkoopprijzen GR14 / GR55 | `/reports/inkoopprijzen-gr14-gr55/` | Standaard inkoopprijs (hoofdleverancier) van artikelgroep 14 naast groep 55, gekoppeld op Zoekcode (GR55 = GR14 + `VZ`/`VZX`), Download Excel |
 | Slangkaart Nettoprijzen | `/reports/slangkaart-netto/` | Slangassemblages met nettoprijs (database Slangkaarten, tabel Slangkaarten: Nummer, DebiteurNaam, PrijsBerekend = Netto afspraak), filter per kolom, Download Excel |
 | Productie Orders | `/reports/productieorders/` | Gereed te melden productieorders (SP_SQLQuery_ProductieordersGereed_te_melden), filter per kolom, Download Excel |
 
