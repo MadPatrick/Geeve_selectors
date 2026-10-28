@@ -69,8 +69,13 @@ const GEEVE_PRINT_TILE_PAGE = [
 /** Labels die 90° gedraaid in de printer liggen, per sheet-class van de tegel: 'ccw' of 'cw'. */
 const GEEVE_LABEL_DRAAI = ['sl-printsheet' => 'cw'];
 
-/** Medium en afdrukinstellingen van de Windows-driver (RTMLBSlanglabels01), per sheet-class: mm, mm/s als TSPL-SPEED (inch/s), zwarting 0-15. */
-const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 27, 'snelheid' => 2, 'zwarting' => 7]];
+/**
+ * Medium en afdrukinstellingen van de Windows-driver (RTMLBSlanglabels01), per sheet-class: mm, mm/s als TSPL-SPEED (inch/s),
+ * zwarting 0-15. Optioneel: 'tear' => true (na elk label doorvoeren tot de afscheurrand, SET TEAR ON), 'offset' => mm extra
+ * doorvoer na het label (TSPL OFFSET, voor fijnstellen van de afscheurrand), 'verschuifX' / 'verschuifY' => de afdruk in mm
+ * naar rechts / omlaag schuiven op het medium (fijnstellen van het midden; negatief = andere kant op).
+ */
+const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 27, 'snelheid' => 2, 'zwarting' => 7, 'tear' => true, 'offset' => 0, 'verschuifX' => 0, 'verschuifY' => 0]];
 
 /**
  * Sheet-classes van tegels waarvan de labels als één opdracht gaan en de printer pas na het laatste label snijdt
@@ -540,13 +545,13 @@ function geevePbmDraai(string $data, int $width, int $height, bool $clockwise): 
  *
  * @return array{0: string, 1: int, 2: int}
  */
-function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $newH): array
+function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $newH, int $shiftX = 0, int $shiftY = 0): array
 {
     $rowBytes = intdiv($width + 7, 8);
     $newRowBytes = intdiv($newW + 7, 8);
     $out = array_fill(0, $newRowBytes * $newH, 0);
-    $dx = $newW - $width;
-    $dy = intdiv($newH - $height, 2);
+    $dx = $newW - $width + $shiftX;
+    $dy = intdiv($newH - $height, 2) + $shiftY;
     for ($y = 0; $y < $height; $y++) {
         $ny = $y + $dy;
         if ($ny < 0 || $ny >= $newH) {
@@ -585,7 +590,9 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
         // de hoogte aanvullen en de afdruk daarin verticaal centreren.
         $newW = (int) round($medium['breedte'] / 25.4 * $dpi);
         $newH = (int) round($medium['hoogte'] / 25.4 * $dpi);
-        [$data, $width, $height] = geevePbmCanvas($data, $width, $height, $newW, $newH);
+        $shiftX = (int) round((float) ($medium['verschuifX'] ?? 0) / 25.4 * $dpi);
+        $shiftY = (int) round((float) ($medium['verschuifY'] ?? 0) / 25.4 * $dpi);
+        [$data, $width, $height] = geevePbmCanvas($data, $width, $height, $newW, $newH, $shiftX, $shiftY);
         $rowBytes = intdiv($width + 7, 8);
     }
     if (GEEVE_TSPL_ZWART_IS_NUL) {
@@ -616,6 +623,13 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     }
     // Met een vast medium geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte, net als de Windows-driver.
     $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : '';
+    // Zonder snijder: het label na het printen doorvoeren tot de afscheurrand (anders stopt het aan de printkop).
+    if (!empty($medium['tear'])) {
+        $gap .= "SET CUTTER OFF\r\nSET TEAR ON\r\n";
+        if (($medium['offset'] ?? 0) != 0) {
+            $gap .= 'OFFSET ' . round((float) $medium['offset'], 1) . " mm\r\n";
+        }
+    }
     return 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gap . $instelling . "DIRECTION 0\r\nCLS\r\n"
         . 'BITMAP 0,0,' . $rowBytes . ',' . $height . ',0,' . $data . "\r\nPRINT 1,1\r\n";
 }
