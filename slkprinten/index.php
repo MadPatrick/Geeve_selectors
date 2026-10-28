@@ -1241,6 +1241,7 @@ function renderHoseCardsWithoutOrderForm(array $hoseLines): string
                         <td>
                             <form method="post" action="index.php">
                                 <input type="hidden" name="slangnummers[]" value="<?= h($hoseKey) ?>">
+                                <input type="hidden" name="alleen_kaart" value="1">
                                 <button type="submit" class="link-button">Kaart printen</button>
                             </form>
                         </td>
@@ -1516,7 +1517,7 @@ $errorMessage = null;
 if ($selectedKeys !== []) {
     try {
         $pdo = getPdoConnection();
-        $hoseCards = findHoseCardsByKeys($pdo, $selectedKeys, $orderNumber);
+        $hoseCards = findHoseCardsByKeys($pdo, $selectedKeys, $orderNumber, ($_POST['alleen_kaart'] ?? '') === '1');
         // Kaarten + picklijst hier al opbouwen (niet pas onderaan in de HTML),
         // zodat een fout in de gegevens van een slangkaart een nette melding
         // geeft i.p.v. een half geladen pagina zonder printvenster.
@@ -1577,19 +1578,12 @@ if ($selectedKeys !== []) {
         $errorMessage = $exception->getMessage();
     }
 } elseif ($hoseNumberSearch !== '') {
-    // Zoeken op slangnummer (artikelnummer) is geen order-unieke sleutel
-    // (zie findLinesByHoseNumber()) - toont daarom ook een tussenstap met
-    // de gevonden regels (mogelijk uit meerdere orders/klanten), waarna
-    // de gebruiker een order kiest om verder te gaan naar stap 2.
+    // Zoeken op slangnummer geeft alleen de slangkaart van precies dit
+    // slangnummer (exacte match), niet de bijbehorende orders: geen
+    // orderkeuze meer, de kaart wordt rechtstreeks geprint.
     try {
         $pdo = getPdoConnection();
-        $hoseNumberResults = findLinesByHoseNumber($pdo, $hoseNumberSearch);
-        // Ook slangkaarten die nog in geen enkele order/offerte zitten.
-        $hoseCardsWithoutOrder = findHoseNumbersWithoutOrder(
-            $pdo,
-            $hoseNumberSearch,
-            array_map(static fn(array $row): string => pick($row, HOSE_KEY_COLUMNS), $hoseNumberResults)
-        );
+        $hoseCardsWithoutOrder = findHoseNumbersWithoutOrder($pdo, $hoseNumberSearch, [], true);
     } catch (DatabaseConfigException $exception) {
         $errorMessage = $exception->getMessage();
     }
@@ -1616,7 +1610,7 @@ if ($selectedKeys !== []) {
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Slangkaarten bij order';
+    $headerTitle = 'Slangkaarten printen';
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../shared/header.php';
     ?>
@@ -1822,8 +1816,8 @@ if ($selectedKeys !== []) {
             <section class="panel result-panel">
                 <div class="section-heading">
                     <div>
-                        <span class="step">Zonder order</span>
-                        <h2><?= count($hoseCardsWithoutOrder) ?> slangkaart<?= count($hoseCardsWithoutOrder) === 1 ? '' : 'en' ?> zonder order of offerte</h2>
+                        <span class="step">Slangkaart</span>
+                        <h2>Slangkaart <?= h(pick($hoseCardsWithoutOrder[0], HOSE_KEY_COLUMNS)) ?></h2>
                     </div>
                 </div>
                 <?= renderHoseCardsWithoutOrderForm($hoseCardsWithoutOrder) ?>

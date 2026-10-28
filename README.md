@@ -27,7 +27,7 @@ van deze portal. Apache stuurt `/slangkaarten/` door naar die app.
 |---|---|---|---|---|
 | Slangen fitting Selector | `/hoses/` | `hoses/` | nee | Slang en koppelingen kiezen; data in `data/hoses/` |
 | Adapters Selector | `/adapters/` | `adapters/` | nee | Adapter zoeken op draad en vorm; data in `data/adapters/` |
-| Slangkaarten Printen | `/slkprinten/` | `slkprinten/` | ja | Order of klant opzoeken en slangkaarten + picklijst printen (zie `slkprinten/README.md`) |
+| Slangkaarten printen | `/slkprinten/` | `slkprinten/` | ja | Order of klant opzoeken en slangkaarten + picklijst printen (zie `slkprinten/README.md`) |
 | Slangkaarten | `/slangkaarten/` | — | — | Slangkaart.Web (aparte .NET-app, via Apache) |
 | Stickers | `/stickers/` | `stickers/` | — | Overzicht met stickertegels, zie hieronder |
 | Stauff Selector | `/stauff/` | `stauff/` | ja | Beugelconfigurator op Exact artikelgroep 67, "Naar Exact" via Slangkaart.Web |

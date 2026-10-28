@@ -843,7 +843,7 @@ function isZeroPlaceholder(string $value): bool
  * Bij een leeg ordernummer (zou niet moeten voorkomen, het regel-
  * overzicht geeft het altijd mee) wordt niet op order gefilterd.
  */
-function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''): array
+function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = '', bool $cardOnly = false): array
 {
     $hoseKeys = array_values(array_unique(array_filter(
         $hoseKeys,
@@ -854,7 +854,11 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
         return [];
     }
 
-    $mainRows = $orderNumber !== ''
+    // $cardOnly: zoeken op slangnummer geeft alleen de slangkaart zelf, geen orderregels; dan worden alle sleutels
+    // hieronder via de "zonder order"-route opgebouwd (1 kaart per slangnummer).
+    $mainRows = $cardOnly
+        ? []
+        : ($orderNumber !== ''
         ? tryColumnsInQueryWithEquals(
             $pdo,
             '2500 Slangkaarten bij order',
@@ -863,7 +867,7 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
             ORDER_NUMBER_COLUMNS,
             $orderNumber
         )
-        : tryColumnsInQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseKeys);
+        : tryColumnsInQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseKeys));
     $sideARows = tryColumnsInQuery($pdo, '93004 hv 3001 Slangonderdelen Zijde A', HOSE_KEY_COLUMNS, $hoseKeys);
     $sideBRows = tryColumnsInQuery($pdo, '93004 hv 3001 Slangonderdelen Zijde B', HOSE_KEY_COLUMNS, $hoseKeys);
     $groupedA = groupRowsByHoseKey($sideARows);
@@ -1021,7 +1025,7 @@ function findCouplingRowsFromDetails(PDO $pdo, array $hoseKeys): array
  *
  * @param string[] $excludeKeys
  */
-function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $excludeKeys): array
+function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $excludeKeys, bool $exact = false): array
 {
     $normalizedTerm = preg_replace('/[-\s._]+/', '', $searchTerm) ?? $searchTerm;
     if ($normalizedTerm === '') {
@@ -1041,6 +1045,14 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
             ["[{$column}] LIKE :value", $prefix],
             ["REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '') LIKE :value", '%' . $normalizedTerm . '%'],
         ];
+        if ($exact) {
+            // Alleen dit ene slangnummer: gelijk aan de zoekterm (hoofdletterongevoelig door de collation), anders gelijk
+            // zonder koppeltekens/spaties/punten. Geen "begint met"/"bevat".
+            $steps = [
+                ["[{$column}] = :value", trim($searchTerm)],
+                ["REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '') = :value", $normalizedTerm],
+            ];
+        }
         $found = [];
         foreach ($steps as [$condition, $value]) {
             try {
@@ -1055,7 +1067,7 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
             } catch (PDOException $exception) {
                 break;
             }
-            if (count($found) >= 50) {
+            if (count($found) >= 50 || ($exact && $found !== [])) {
                 break;
             }
         }
