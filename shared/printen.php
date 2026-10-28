@@ -505,7 +505,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         foreach ($pages as $i => $page) {
             // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste, en dat laatste label doorgevoerd tot de afscheurrand.
             $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\nSET TEAR ON\r\n") : '';
-            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk);
+            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk, $i === count($pages) - 1);
         }
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
@@ -568,7 +568,7 @@ function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $n
 }
 
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
-function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = [], array $afdruk = []): string
+function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = [], array $afdruk = [], bool $laatste = true): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -623,10 +623,11 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     }
     // Met een vast medium geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte, net als de Windows-driver.
     $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : '';
-    // Zonder snijder: het label na het printen doorvoeren tot de afscheurrand (anders stopt het aan de printkop).
+    // Zonder snijder: alleen na het laatste label doorvoeren tot de afscheurrand. Tussen de labels niet: bij elk label
+    // doorvoeren en weer terugtrekken gaf een andere startpositie per label (tekst ging van label tot label heen en weer).
     if (!empty($medium['tear'])) {
-        $gap .= "SET CUTTER OFF\r\nSET TEAR ON\r\n";
-        if (($medium['offset'] ?? 0) != 0) {
+        $gap .= "SET CUTTER OFF\r\n" . ($laatste ? "SET TEAR ON\r\n" : "SET TEAR OFF\r\n");
+        if ($laatste && ($medium['offset'] ?? 0) != 0) {
             $gap .= 'OFFSET ' . round((float) $medium['offset'], 1) . " mm\r\n";
         }
     }
