@@ -37,6 +37,12 @@ reportApi(function (array $in): array {
         $params[] = $like($zonder);
         $params[] = $like($zonder);
     }
+    // Gekozen klant uit de keuzelijst: exact op klantnummer (dus 100 vindt niet ook 1000 of 1100).
+    $debnr = trim((string) ($in['debnr'] ?? ''));
+    if ($debnr !== '') {
+        $where[] = 'LTRIM(RTRIM(Debiteur)) = ?';
+        $params[] = $debnr;
+    }
     $nummer = trim((string) ($in['nummer'] ?? ''));
     if ($nummer !== '') {
         $where[] = "Nummer LIKE ? ESCAPE '\\'";
