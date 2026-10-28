@@ -71,11 +71,11 @@ const GEEVE_LABEL_DRAAI = ['sl-printsheet' => 'cw'];
 
 /**
  * Medium en afdrukinstellingen van de Windows-driver (RTMLBSlanglabels01), per sheet-class: mm, mm/s als TSPL-SPEED (inch/s),
- * zwarting 0-15. Optioneel: 'tear' => true (na elk label doorvoeren tot de afscheurrand, SET TEAR ON), 'offset' => mm extra
+ * zwarting 0-15. Optioneel: 'gap' => mm tussenruimte tussen de labels (zoals in de driver), 'tear' => true (na elk label doorvoeren tot de afscheurrand, SET TEAR ON), 'offset' => mm extra
  * doorvoer na het label (TSPL OFFSET, voor fijnstellen van de afscheurrand), 'verschuifX' / 'verschuifY' => de afdruk in mm
  * naar rechts / omlaag schuiven op het medium (fijnstellen van het midden; negatief = andere kant op).
  */
-const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 27, 'snelheid' => 2, 'zwarting' => 7, 'tear' => true, 'offset' => 0, 'verschuifX' => 0, 'verschuifY' => 0]];
+const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 27, 'snelheid' => 2, 'zwarting' => 7, 'gap' => 2, 'tear' => true, 'offset' => 0, 'verschuifX' => 0, 'verschuifY' => 0]];
 
 /**
  * Sheet-classes van tegels waarvan de labels als één opdracht gaan en de printer pas na het laatste label snijdt
@@ -621,8 +621,9 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     if ($zwarting !== null) {
         $instelling .= 'DENSITY ' . $zwarting . "\r\n";
     }
-    // Met een vast medium geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte, net als de Windows-driver.
-    $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : '';
+    // Met een vast medium zonder 'gap' geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte. Met 'gap' (mm) staat
+    // die vast, zoals in de Windows-driver (Gap/Mark size 2 mm, offset 0).
+    $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : (isset($medium['gap']) ? 'GAP ' . $medium['gap'] . " mm,0 mm\r\n" : '');
     // Zonder snijder: alleen na het laatste label doorvoeren tot de afscheurrand. Tussen de labels niet: bij elk label
     // doorvoeren en weer terugtrekken gaf een andere startpositie per label (tekst ging van label tot label heen en weer).
     if (!empty($medium['tear'])) {
