@@ -76,7 +76,7 @@ const GEEVE_LABEL_DRAAI = ['sl-printsheet' => 'cw'];
  * naar rechts / omlaag schuiven op het medium (fijnstellen van het midden; negatief = andere kant op).
  */
 // Steek 31 mm = hoogte 29 + gap 2 (opgemeten op de rol); het printvlak van 25 mm komt verticaal in het midden van die 29 mm.
-const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 29, 'snelheid' => 2, 'zwarting' => 7, 'supersample' => 3, 'drempel' => 150, 'gap' => 2, 'tear' => true, 'offset' => 0, 'verschuifX' => 0, 'verschuifY' => 0]];
+const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 29, 'snelheid' => 1, 'zwarting' => 12, 'supersample' => 3, 'drempel' => 150, 'gap' => 2, 'tear' => true, 'offset' => 0, 'verschuifX' => 0, 'verschuifY' => 0]];
 
 /**
  * Sheet-classes van tegels waarvan de labels als één opdracht gaan en de printer pas na het laatste label snijdt
