@@ -11,7 +11,8 @@ tileApiGuard('inkoopprijzen-gr14-gr55');
  * bijbehorende artikel in groep 55. Koppeling op Zoekcode (Items.SearchCode): de Zoekcode van het GR55-artikel is die van het
  * GR14-artikel met "VZ" (of "VZX") aan het eind. Inkoopprijs = ItemAccounts.PurchasePrice van de hoofdleverancier
  * (MainAccount = 1); gelijk aan "ink_pr per st" uit de view 1000 artikelen + standaard ink_pr, maar die view is veel te traag
- * (17 s per 500 artikelen). Alleen lezen. Een artikel zonder tegenhanger krijgt een lege cel.
+ * (17 s per 500 artikelen). Verkoopprijs = standaard verkoopprijs (staffl, prijslijst "salesprice", nieuwste geldige; zelfde bron
+ * als Artikelgegevens Import). Alleen lezen. Een artikel zonder tegenhanger krijgt een lege cel.
  */
 
 require_once __DIR__ . '/../../inc.php';
@@ -61,6 +62,31 @@ reportApi(function (array $in): array {
     $stmt->execute([IP_GROUP_A, IP_GROUP_B]);
     $items = $stmt->fetchAll(PDO::FETCH_NUM);
 
+    // Standaard verkoopprijs per artikel (staffl, prijslijst "salesprice"): de nieuwste geldige, in blokken per artikelnummer.
+    $codes = array_values(array_unique(array_map(static fn ($r) => trim((string) $r[2]), $items)));
+    $stmt = $pdo->prepare('SELECT name FROM sys.columns WHERE object_id = OBJECT_ID(?)');
+    $stmt->execute(['staffl']);
+    $hasValidFrom = false;
+    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $column) {
+        if (strcasecmp((string) $column, 'validfrom') === 0) {
+            $hasValidFrom = true;
+        }
+    }
+    $sales = [];
+    foreach (array_chunk($codes, 500) as $chunk) {
+        $stmt = $pdo->prepare(
+            "SET NOCOUNT ON; SELECT RTRIM(artcode) AS c, prijs83 AS p FROM staffl WITH (NOLOCK) WHERE prijslijst = 'salesprice' AND artcode IN ("
+            . implode(',', array_fill(0, count($chunk), '?')) . ')'
+            . ($hasValidFrom ? ' AND (validfrom IS NULL OR validfrom <= GETDATE()) ORDER BY validfrom' : '')
+        );
+        $stmt->execute($chunk);
+        while ($r = $stmt->fetch(PDO::FETCH_NUM)) {
+            if (is_numeric($r[1])) {
+                $sales[trim((string) $r[0])] = round((float) $r[1], 4); // gesorteerd op validfrom: de laatste wint
+            }
+        }
+    }
+
     $a = [];
     $b = [];
     $seen = [];
@@ -69,18 +95,18 @@ reportApi(function (array $in): array {
         $item = ($isA ? 'A' : 'B') . '|' . trim((string) $r[2]);
         $price = is_numeric($r[3]) ? round((float) $r[3], 4) : null;
         if (!isset($seen[$item])) {
-            $seen[$item] = [trim((string) $r[1]), $isA, $price];
+            $seen[$item] = [trim((string) $r[1]), $isA, $price, $sales[trim((string) $r[2])] ?? null];
         } elseif ($seen[$item][2] === null) {
             $seen[$item][2] = $price;
         }
     }
     foreach ($seen as $entry) {
-        [$code, $isA, $price] = $entry;
+        [$code, $isA, $price, $sale] = $entry;
         $key = inkoopprijzenKey($code, !$isA);
         if ($isA) {
-            $a[$key][] = [$code, $price];
+            $a[$key][] = [$code, $price, $sale];
         } else {
-            $b[$key][] = [$code, $price];
+            $b[$key][] = [$code, $price, $sale];
         }
     }
 
@@ -101,16 +127,18 @@ reportApi(function (array $in): array {
             } elseif ($y === null) {
                 $onlyA++;
             }
-            $rows[] = [$x !== null ? $x[0] : $y[0], $x !== null ? $x[1] : '', $y !== null ? $y[1] : ''];
+            $rows[] = [
+                $x !== null ? $x[0] : $y[0],
+                $x[1] ?? '', $y[1] ?? '', $x[2] ?? '', $y[2] ?? '',
+            ];
         }
     }
-    $rows = array_map(static fn ($r) => [$r[0], $r[1] ?? '', $r[2] ?? ''], $rows);
 
     return [
-        'columns' => ['Artikel', 'GR14', 'GR55'],
-        'numeric' => [false, true, true],
-        'dates' => [false, false, false],
-        'currency' => ['GR14', 'GR55'],
+        'columns' => ['Artikel', 'Inkoop GR14', 'Inkoop GR55', 'Verkoop GR14', 'Verkoop GR55'],
+        'numeric' => [false, true, true, true, true],
+        'dates' => [false, false, false, false, false],
+        'currency' => ['Inkoop GR14', 'Inkoop GR55', 'Verkoop GR14', 'Verkoop GR55'],
         'text' => ['Artikel'],
         'rows' => $rows,
         'kop' => [
@@ -118,7 +146,7 @@ reportApi(function (array $in): array {
             ['label' => 'Alleen in GR14', 'value' => (string) $onlyA],
             ['label' => 'Alleen in GR55', 'value' => (string) $onlyB],
         ],
-        'titles' => ['Inkoopprijzen hoofdleverancier GR14 naast GR55', 'Artikel = Zoekcode van GR14 (GR55 = Zoekcode met VZ of VZX erachter)'],
+        'titles' => ['Inkoop- en verkoopprijzen GR14 naast GR55', 'Artikel = Zoekcode van GR14 (GR55 = Zoekcode met VZ of VZX erachter)'],
         'fileTag' => 'GR14_GR55_' . date('Y-m-d'),
     ];
 }, false);
