@@ -33,6 +33,7 @@
     background: repeating-linear-gradient(45deg, var(--label-tail-bg) 0 2mm, var(--surface-white) 2mm 4mm);
 }
 .sl-print { display: flex; align-items: center; gap: 12px; }
+.sl-printkolom { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
 
 /* ALTEC 53000145: 25 mm breed, 95 mm lang. Alleen een vlak van 25 × 25 mm wordt bedrukt, de rest is een
    doorzichtige plakrand die om de slang wordt gewikkeld. De tekst staat recht (0°) in dat vlak; de printer draait het label zelf (bevestigd na proefprint).
