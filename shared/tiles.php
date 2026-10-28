@@ -17,7 +17,7 @@ require_once __DIR__ . '/access.php';
 const TILE_REGISTRY = [
     'hoses' => ['home', 'Slangen fitting Selector', 'hoses/index.php', true, false, false],
     'adapters' => ['home', 'Adapters Selector', 'adapters/index.php', true, false, false],
-    'slangkaarten' => ['home', 'Slangkaarten Printen', 'slkprinten/index.php', true, false, false],
+    'slangkaarten' => ['home', 'Slangkaarten printen', 'slkprinten/index.php', true, false, false],
     // Nieuwe app Slangkaarten (map slangkaarten, in voorbereiding) - eigen id, want 'slangkaarten' is Slangkaarten Printen.
     'slangkaarten-app' => ['home', 'Slangkaarten', 'slangkaarten/index.php', true, false, true],
     'stickers' => ['home', 'Stickers', 'stickers/index.php', true, false, false],

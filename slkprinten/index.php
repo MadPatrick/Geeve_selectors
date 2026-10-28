@@ -1610,7 +1610,7 @@ if ($selectedKeys !== []) {
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Slangkaarten bij order';
+    $headerTitle = 'Slangkaarten printen';
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../shared/header.php';
     ?>

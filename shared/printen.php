@@ -33,7 +33,7 @@ const GEEVE_SMB_CACHE_SECONDEN = 1800;
  * tegel waar een printknop bijkomt, hier toevoegen.
  */
 const GEEVE_PRINT_TILES = [
-    'slangkaarten' => 'Slangkaarten Printen',
+    'slangkaarten' => 'Slangkaarten printen',
     'stickers-order' => 'Artikelen per Verkooporder',
     'stickers-productie' => 'Artikelen per Productieorder',
     'stickers-artikel' => 'Artikelnummer',
