@@ -45,31 +45,42 @@ reportApi(function (array $in): array {
         throw new RuntimeException('Kolom SearchCode (Zoekcode) niet gevonden op tabel Items.');
     }
 
+    // Eerst alleen de artikelen van de twee groepen (klein), daarna de prijzen uit de view in blokken per artikelnummer:
+    // een join met de hele view (ca. 70.000 regels) is veel te traag.
     $stmt = $pdo->prepare(
-        'SET NOCOUNT ON; SELECT LTRIM(RTRIM(i.Assortment)) AS g, RTRIM(i.[' . $searchColumn . ']) AS z, RTRIM(i.ItemCode) AS c, v.[ink_pr per st] AS p ' .
+        'SET NOCOUNT ON; SELECT LTRIM(RTRIM(i.Assortment)) AS g, RTRIM(i.[' . $searchColumn . ']) AS z, RTRIM(i.ItemCode) AS c ' .
         'FROM Items i WITH (NOLOCK) ' .
-        'LEFT JOIN [Exactrapportage].[dbo].[1000 artikelen + standaard verk_pr + standaard ink_pr] v WITH (NOLOCK) ON LTRIM(RTRIM(v.[Artnr])) = LTRIM(RTRIM(i.ItemCode)) ' .
         'WHERE LTRIM(RTRIM(i.Assortment)) IN (?, ?) AND LTRIM(RTRIM(ISNULL(i.[' . $searchColumn . '], \'\'))) <> \'\' ' .
         'ORDER BY i.[' . $searchColumn . '], i.ItemCode'
     );
     $stmt->execute([IP_GROUP_A, IP_GROUP_B]);
+    $items = $stmt->fetchAll(PDO::FETCH_NUM);
 
-    // sleutel => lijst [Zoekcode, prijs]; per artikel de eerste prijs uit de view die gevuld is.
+    $prices = [];
+    $codes = array_values(array_unique(array_map(static fn ($r) => trim((string) $r[2]), $items)));
+    foreach (array_chunk($codes, 500) as $chunk) {
+        $stmt = $pdo->prepare(
+            'SET NOCOUNT ON; SELECT RTRIM([Artnr]) AS c, [ink_pr per st] AS p FROM [Exactrapportage].[dbo].[1000 artikelen + standaard verk_pr + standaard ink_pr] WITH (NOLOCK) ' .
+            'WHERE [Artnr] IN (' . implode(',', array_fill(0, count($chunk), '?')) . ')'
+        );
+        $stmt->execute($chunk);
+        while ($r = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key = trim((string) $r[0]);
+            if (is_numeric($r[1]) && !isset($prices[$key])) {
+                $prices[$key] = round((float) $r[1], 4);
+            }
+        }
+    }
+
     $a = [];
     $b = [];
     $seen = [];
-    while ($r = $stmt->fetch(PDO::FETCH_NUM)) {
+    foreach ($items as $r) {
         $isA = trim((string) $r[0]) === IP_GROUP_A;
-        $code = trim((string) $r[1]);
-        $price = is_numeric($r[3]) ? round((float) $r[3], 4) : null;
         $item = ($isA ? 'A' : 'B') . '|' . trim((string) $r[2]);
-        if (isset($seen[$item])) {
-            if ($price !== null && $seen[$item][2] === null) {
-                $seen[$item][2] = $price;
-            }
-            continue;
+        if (!isset($seen[$item])) {
+            $seen[$item] = [trim((string) $r[1]), $isA, $prices[trim((string) $r[2])] ?? null];
         }
-        $seen[$item] = [$code, $isA, $price];
     }
     foreach ($seen as $entry) {
         [$code, $isA, $price] = $entry;
