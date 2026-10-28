@@ -1209,6 +1209,53 @@ function renderCustomerOrdersForm(array $customerOrders, bool $showCreated = fal
 }
 
 /**
+ * Script bij de printerkeuze + Print-knop boven de tabel (#hoseLinesForm, #printerChoice, #printSelectedButton):
+ * onthoudt de printer in een cookie en toont een laadstatus op de knop. Gedeeld door stap 2 (order) en de
+ * slangkaart-zoekactie op slangnummer.
+ */
+function renderPrintFormScript(): string
+{
+    return <<<'HTML'
+<script>
+            (function () {
+                var form = document.getElementById('hoseLinesForm');
+                var button = document.getElementById('printSelectedButton');
+                var label = button ? button.querySelector('.button-label') : null;
+                if (!form || !button || !label) { return; }
+
+                var originalLabel = label.textContent;
+                // De gekozen printer onthouden we per gebruiker in een cookie; de pagina zet hem de volgende keer voorgeselecteerd.
+                var printer = document.getElementById('printerChoice');
+                if (printer) {
+                    printer.addEventListener('change', function () {
+                        document.cookie = 'geeve_printer_slangkaarten=' + encodeURIComponent(printer.value === '' ? 'browser' : printer.value) + '; path=/; max-age=31536000; SameSite=Lax';
+                    });
+                }
+                form.addEventListener('submit', function () {
+                    button.classList.add('loading');
+                    button.disabled = true;
+                    label.textContent = 'Slangkaarten worden opgehaald…';
+                    // Geeft de server na een minuut nog steeds niets terug,
+                    // dan niet eindeloos blijven "laden" maar het melden.
+                    window.setTimeout(function () {
+                        button.classList.remove('loading');
+                        button.disabled = false;
+                        label.textContent = 'Geen antwoord van de server - opnieuw proberen';
+                    }, 60000);
+                });
+                // Zie de zoekknop hierboven: knop resetten als Firefox de
+                // pagina via Terug uit zijn cache herstelt.
+                window.addEventListener('pageshow', function () {
+                    button.classList.remove('loading');
+                    button.disabled = false;
+                    label.textContent = originalLabel;
+                });
+            })();
+        </script>
+HTML;
+}
+
+/**
  * Slangkaarten die wel bestaan maar nog in geen enkele order of offerte
  * zitten (zie findHoseNumbersWithoutOrder()): slangnummer + koppelonderdelen,
  * met een knop die de kaart rechtstreeks print (zonder ordernummer).
@@ -1217,6 +1264,11 @@ function renderHoseCardsWithoutOrderForm(array $hoseLines): string
 {
     ob_start();
     ?>
+    <form method="post" action="index.php" class="lines-form" id="hoseLinesForm">
+    <?php foreach ($hoseLines as $line): ?>
+        <input type="hidden" name="slangnummers[]" value="<?= h(pick($line, HOSE_KEY_COLUMNS)) ?>">
+    <?php endforeach; ?>
+    <input type="hidden" name="alleen_kaart" value="1">
     <div class="lines-table-wrap">
         <table class="lines-table">
             <thead>
@@ -1226,7 +1278,6 @@ function renderHoseCardsWithoutOrderForm(array $hoseLines): string
                     <th>Lengte</th>
                     <th>Koppeling A</th>
                     <th>Koppeling B</th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -1238,18 +1289,12 @@ function renderHoseCardsWithoutOrderForm(array $hoseLines): string
                         <td><?= h(pick($line, LENGTE_CANDIDATES)) ?: '&mdash;' ?></td>
                         <td><?= h(implode(', ', $line['_KoppelingAList'] ?? [])) ?: '&mdash;' ?></td>
                         <td><?= h(implode(', ', $line['_KoppelingBList'] ?? [])) ?: '&mdash;' ?></td>
-                        <td>
-                            <form method="post" action="index.php">
-                                <input type="hidden" name="slangnummers[]" value="<?= h($hoseKey) ?>">
-                                <input type="hidden" name="alleen_kaart" value="1">
-                                <button type="submit" class="link-button">Kaart printen</button>
-                            </form>
-                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
+    </form>
     <?php
     return (string) ob_get_clean();
 }
@@ -1765,42 +1810,7 @@ if ($selectedKeys !== []) {
             </div>
             <?= renderHoseLinesForm($hoseLines, $orderNumber, $customerName) ?>
         </section>
-        <script>
-            (function () {
-                var form = document.getElementById('hoseLinesForm');
-                var button = document.getElementById('printSelectedButton');
-                var label = button ? button.querySelector('.button-label') : null;
-                if (!form || !button || !label) { return; }
-
-                var originalLabel = label.textContent;
-                // De gekozen printer onthouden we per gebruiker in een cookie; de pagina zet hem de volgende keer voorgeselecteerd.
-                var printer = document.getElementById('printerChoice');
-                if (printer) {
-                    printer.addEventListener('change', function () {
-                        document.cookie = 'geeve_printer_slangkaarten=' + encodeURIComponent(printer.value === '' ? 'browser' : printer.value) + '; path=/; max-age=31536000; SameSite=Lax';
-                    });
-                }
-                form.addEventListener('submit', function () {
-                    button.classList.add('loading');
-                    button.disabled = true;
-                    label.textContent = 'Slangkaarten worden opgehaald…';
-                    // Geeft de server na een minuut nog steeds niets terug,
-                    // dan niet eindeloos blijven "laden" maar het melden.
-                    window.setTimeout(function () {
-                        button.classList.remove('loading');
-                        button.disabled = false;
-                        label.textContent = 'Geen antwoord van de server - opnieuw proberen';
-                    }, 60000);
-                });
-                // Zie de zoekknop hierboven: knop resetten als Firefox de
-                // pagina via Terug uit zijn cache herstelt.
-                window.addEventListener('pageshow', function () {
-                    button.classList.remove('loading');
-                    button.disabled = false;
-                    label.textContent = originalLabel;
-                });
-            })();
-        </script>
+        <?= renderPrintFormScript() ?>
     <?php elseif ($customerOrders !== []): ?>
         <section class="panel result-panel">
             <div class="section-heading">
@@ -1819,9 +1829,25 @@ if ($selectedKeys !== []) {
                         <span class="step">Slangkaart</span>
                         <h2>Slangkaart <?= h(pick($hoseCardsWithoutOrder[0], HOSE_KEY_COLUMNS)) ?></h2>
                     </div>
+                    <div class="print-actions">
+                    <?php if ($printers !== []): ?>
+                        <label class="printer-choice">
+                            <span>Printer</span>
+                            <select name="printer" form="hoseLinesForm" id="printerChoice">
+                                <?= geevePrinterOptionsHtml('slangkaarten', $printers) ?>
+                            </select>
+                        </label>
+                    <?php endif; ?>
+                    <button type="submit" form="hoseLinesForm" class="print-btn" id="printSelectedButton">
+                        <span class="button-fill" aria-hidden="true"></span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        <span class="button-label">Print slangkaart</span>
+                    </button>
+                    </div>
                 </div>
                 <?= renderHoseCardsWithoutOrderForm($hoseCardsWithoutOrder) ?>
             </section>
+            <?= renderPrintFormScript() ?>
         <?php endif; ?>
         <?php if ($hoseNumberResults !== []): ?>
             <section class="panel result-panel">
