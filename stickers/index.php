@@ -56,7 +56,6 @@ $csrf = csrfToken();
             <?= tileIcon('stickers-order') ?>
             <h2><?= h(tileTitle('stickers-order')) ?></h2>
             <p>Per orderregel een artikelsticker, op volgorde van orderregel of looplocatie.</p>
-            <span class="tile-cta">Openen</span>
             <?= tileLockIcon('stickers-order') ?>
         </a>
         <?php endif; $tileHtml['stickers-order'] = ob_get_clean(); ?>
@@ -65,7 +64,6 @@ $csrf = csrfToken();
             <?= tileIcon('stickers-artikel') ?>
             <h2><?= h(tileTitle('stickers-artikel')) ?></h2>
             <p>Sticker met omschrijving en barcode, zoeken op artikelnummer.</p>
-            <span class="tile-cta">Openen</span>
             <?= tileLockIcon('stickers-artikel') ?>
         </a>
         <?php endif; $tileHtml['stickers-artikel'] = ob_get_clean(); ?>
@@ -74,7 +72,6 @@ $csrf = csrfToken();
             <?= tileIcon('stickers-productie') ?>
             <h2><?= h(tileTitle('stickers-productie')) ?></h2>
             <p>Per productieorder in een verkooporder een sticker met aantal, artikelnummer en barcode.</p>
-            <span class="tile-cta">Openen</span>
             <?= tileLockIcon('stickers-productie') ?>
         </a>
         <?php endif; $tileHtml['stickers-productie'] = ob_get_clean(); ?>
@@ -83,7 +80,6 @@ $csrf = csrfToken();
             <?= tileIcon('stickers-artikel-groot') ?>
             <h2><?= h(tileTitle('stickers-artikel-groot')) ?></h2>
             <p>Sticker voor op een accu: bedrijfsnaam, datum, voorvuldruk en een vrij veld.</p>
-            <span class="tile-cta">Openen</span>
             <?= tileLockIcon('stickers-artikel-groot') ?>
         </a>
         <?php endif; $tileHtml['stickers-artikel-groot'] = ob_get_clean(); ?>
@@ -100,7 +96,6 @@ $csrf = csrfToken();
             <?= tileIcon('stickers-slanglabels') ?>
             <h2><?= h(tileTitle('stickers-slanglabels')) ?></h2>
             <p>Labels voor op een slang, per order op te halen en aan te passen.</p>
-            <span class="tile-cta">Openen</span>
             <?= tileLockIcon('stickers-slanglabels') ?>
         </a>
         <?php endif; $tileHtml['stickers-slanglabels'] = ob_get_clean(); ?>
@@ -109,7 +104,6 @@ $csrf = csrfToken();
             <?= tileIcon('stickers-ptouch') ?>
             <h2><?= h(tileTitle('stickers-ptouch')) ?></h2>
             <p>Zelf getypte tekst op een sticker, de letter vult de sticker.</p>
-            <span class="tile-cta">Openen</span>
             <?= tileLockIcon('stickers-ptouch') ?>
         </a>
         <?php endif; $tileHtml['stickers-ptouch'] = ob_get_clean(); ?>
