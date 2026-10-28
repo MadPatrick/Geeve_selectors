@@ -60,23 +60,35 @@
     top: var(--sl-area-top);
     width: var(--sl-area);
     height: var(--sl-area);
+    box-sizing: border-box;
+    padding: 0 1mm;
     transform: rotate(var(--sl-rotate));
+    /* De regels staan als één blok precies in het midden van het printvlak (ook zonder datum), niet op vaste afstand van de bovenrand. */
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: center;
+    justify-content: center;
 }
 .slanglabel .f {
-    position: absolute;
-    left: 1mm;
-    right: 1mm;
+    -webkit-flex: none;
+    flex: none;
+    display: -webkit-flex;
     display: flex;
+    -webkit-align-items: center;
     align-items: center;
+    -webkit-justify-content: center;
     justify-content: center;
+    margin: 0.25mm 0;
     text-align: center;
     overflow: hidden;
 }
-.slanglabel .nr { top: 1.5mm; height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
-.slanglabel .ref { top: 5.5mm; height: 2.5mm; font-size: 1.6mm; white-space: nowrap; }
-.slanglabel .len { top: 8.75mm; height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
-.slanglabel .dat { top: 12.25mm; height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
-.slanglabel .kl { top: 17mm; height: 6mm; font-size: 1.5mm; white-space: normal; }
+.slanglabel .nr { height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
+.slanglabel .ref { height: 2.5mm; font-size: 1.6mm; white-space: nowrap; }
+.slanglabel .len { height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
+.slanglabel .dat { height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
+.slanglabel .kl { height: 6mm; font-size: 1.5mm; white-space: normal; }
 
 .sl-printsheet { display: none; }
 
@@ -86,6 +98,7 @@
     html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }
     body > *:not(.sl-printsheet) { display: none !important; }
     .sl-printsheet { display: block; }
-    .sl-printsheet .slanglabel { break-after: page; page-break-after: always; }
+    /* Net onder de paginahoogte (95 mm): de pdf-maat wordt afgerond, een label van precies 95 mm gaf een extra lege pagina (en dus een extra label uit de printer). */
+    .sl-printsheet .slanglabel { height: 94mm; break-after: page; page-break-after: always; }
     .sl-printsheet .slanglabel:last-child { break-after: auto; page-break-after: auto; }
 }
