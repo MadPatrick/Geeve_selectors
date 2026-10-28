@@ -85,10 +85,10 @@
     overflow: hidden;
 }
 .slanglabel .nr { height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
-.slanglabel .ref { height: 2.5mm; font-size: 1.6mm; white-space: nowrap; }
+.slanglabel .ref { height: 3.2mm; font-size: 2.3mm; white-space: nowrap; }
 .slanglabel .len { height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
 .slanglabel .dat { height: 3.5mm; font-size: 2.8mm; white-space: nowrap; }
-.slanglabel .kl { height: 6mm; font-size: 1.5mm; white-space: normal; }
+.slanglabel .kl { height: 6mm; font-size: 2.2mm; white-space: normal; }
 
 .sl-printsheet { display: none; }
 
