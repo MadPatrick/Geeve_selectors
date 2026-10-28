@@ -55,6 +55,10 @@ reportApi(function (string $nummer): array {
                 }
             }
         }
+        // Is in Exact het klantartikelnummer ingevuld, dan staat dat op het label in plaats van de referentie.
+        if ($out['artnr_kl'] !== '') {
+            $out['referentie'] = $out['artnr_kl'];
+        }
         $rows[] = $out;
     }
 
