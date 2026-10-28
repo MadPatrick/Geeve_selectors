@@ -1226,7 +1226,6 @@ function renderHoseCardsWithoutOrderForm(array $hoseLines): string
                     <th>Lengte</th>
                     <th>Koppeling A</th>
                     <th>Koppeling B</th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -1238,13 +1237,6 @@ function renderHoseCardsWithoutOrderForm(array $hoseLines): string
                         <td><?= h(pick($line, LENGTE_CANDIDATES)) ?: '&mdash;' ?></td>
                         <td><?= h(implode(', ', $line['_KoppelingAList'] ?? [])) ?: '&mdash;' ?></td>
                         <td><?= h(implode(', ', $line['_KoppelingBList'] ?? [])) ?: '&mdash;' ?></td>
-                        <td>
-                            <form method="post" action="index.php">
-                                <input type="hidden" name="slangnummers[]" value="<?= h($hoseKey) ?>">
-                                <input type="hidden" name="alleen_kaart" value="1">
-                                <button type="submit" class="link-button">Kaart printen</button>
-                            </form>
-                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -1819,7 +1811,34 @@ if ($selectedKeys !== []) {
                         <span class="step">Slangkaart</span>
                         <h2>Slangkaart <?= h(pick($hoseCardsWithoutOrder[0], HOSE_KEY_COLUMNS)) ?></h2>
                     </div>
+                    <form method="post" action="index.php" class="print-actions" id="hoseCardForm">
+                        <input type="hidden" name="alleen_kaart" value="1">
+                        <?php foreach ($hoseCardsWithoutOrder as $cardLine): ?>
+                            <input type="hidden" name="slangnummers[]" value="<?= h(pick($cardLine, HOSE_KEY_COLUMNS)) ?>">
+                        <?php endforeach; ?>
+                        <?php if ($printers !== []): ?>
+                            <label class="printer-choice">
+                                <span>Printer</span>
+                                <select name="printer" id="printerChoiceCard">
+                                    <?= geevePrinterOptionsHtml('slangkaarten', $printers) ?>
+                                </select>
+                            </label>
+                        <?php endif; ?>
+                        <button type="submit" class="print-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                            <span>Print</span>
+                        </button>
+                    </form>
                 </div>
+                <script>
+                    (function () {
+                        var printer = document.getElementById('printerChoiceCard');
+                        if (!printer) { return; }
+                        printer.addEventListener('change', function () {
+                            document.cookie = 'geeve_printer_slangkaarten=' + encodeURIComponent(printer.value === '' ? 'browser' : printer.value) + '; path=/; max-age=31536000; SameSite=Lax';
+                        });
+                    })();
+                </script>
                 <?= renderHoseCardsWithoutOrderForm($hoseCardsWithoutOrder) ?>
             </section>
         <?php endif; ?>
