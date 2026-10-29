@@ -73,11 +73,10 @@
     function refresh() {
         var typed = value();
         var size = 0;
-        Array.prototype.forEach.call(stickers, function (sticker) {
-            var textEl = sticker.querySelector('.km-tekst');
-            textEl.textContent = typed;
-            size = typed === '' ? 0 : fit(sticker, textEl);
-        });
+        // Alleen de bovenste sticker toont de tekst; de andere twee blijven leeg (voorbeeld, later Excel-import).
+        var textEl = stickers[0].querySelector('.km-tekst');
+        textEl.textContent = typed;
+        size = typed === '' ? 0 : fit(stickers[0], textEl);
         printBtn.disabled = typed.trim() === '';
         return size;
     }

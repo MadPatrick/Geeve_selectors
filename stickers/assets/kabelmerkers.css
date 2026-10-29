@@ -5,6 +5,7 @@
 .km-regel { display: flex; flex-direction: column; gap: 6px; width: 260px; }
 .km-regel h3 { margin: 0 0 4px; font-size: 24px; }
 .km-regel .ka-input { width: 100%; }
+.km-regel--voorbeeld { margin-left: auto; width: auto; }
 .km-aantal { width: 90px; }
 .km-preview { zoom: 1.2; margin-top: 8px; }
 .km-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
@@ -30,7 +31,6 @@
 .km-preview .km-sticker { margin-bottom: 2mm; box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1.5mm; }
 .km-preview .km-sticker:last-child { margin-bottom: 0; }
 .km-tekst { width: 100%; white-space: pre; text-align: center; }
-.km-preview .km-tekst:empty::before { content: "Typ hier je tekst"; color: var(--muted); font-size: 12px; font-weight: 400; }
 
 .km-printsheet { display: none; }
 

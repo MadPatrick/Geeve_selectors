@@ -52,7 +52,7 @@ $csrf = csrfToken();
 
     <section class="panel km-top">
         <h2>Kabelmerkers Geel</h2>
-        <p class="ka-empty">Label ALTEC 72001207 (TTP ADC, 70 × 15 mm, A235), lichtgeel. Vul de velden in: regel 1 bestaat uit A1/A2/A3, regel 2 uit Datum/B2/B3 (lege velden worden overgeslagen, de delen staan gescheiden door een schuine streep). Het voorbeeld toont de sticker zoals hij er op het label uitziet, drie stuks onder elkaar.</p>
+        <p class="ka-empty">Label ALTEC 72001207 (TTP ADC, 70 × 15 mm, A235), lichtgeel. Vul de velden in: regel 1 bestaat uit A1/A2/A3, regel 2 uit Datum/B2/B3 (lege velden worden overgeslagen, de delen staan gescheiden door een schuine streep). Het voorbeeld toont de sticker zoals hij er op het label uitziet, de tekst staat op de bovenste; de andere twee zijn lege voorbeelden (later te vullen met een Excel-import).</p>
 
         <div class="km-edit">
             <div class="km-regel">
@@ -73,10 +73,10 @@ $csrf = csrfToken();
                 <label for="kmB3">Regel B3</label>
                 <input type="text" id="kmB3" class="ka-input" maxlength="30" spellcheck="false">
             </div>
-            <div class="km-regel">
+            <div class="km-regel km-regel--voorbeeld">
                 <h3>Voorbeeld</h3>
                 <label for="kmAantal">Aantal</label>
-                <input type="number" id="kmAantal" class="ka-input km-aantal" min="1" max="99" value="3">
+                <input type="number" id="kmAantal" class="ka-input km-aantal" min="1" max="99" value="1">
                 <div class="km-preview" id="kmPreview" aria-label="Voorbeeld van de sticker">
                     <div class="km-sticker"><div class="km-tekst"></div></div>
                     <div class="km-sticker"><div class="km-tekst"></div></div>
