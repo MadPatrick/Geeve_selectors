@@ -23,8 +23,8 @@
     var infoEl = document.getElementById('oiInfo');
     var exportBtn = document.getElementById('oiExport');
     var exactBtn = document.getElementById('oiExact');   // alleen op de offertepagina
-    var EXACT_MAX_LINES = 500;   // limiet van de schrijfdeur in de slangkaart-app (ExactEntiteitControle.MaxRegels); Export XML heeft deze limiet niet
-    var exactWarned = false;
+    var EXACT_MAX_REGELS = 500;   // limiet van Exact per keer "Naar Exact"
+    var tooManyShown = false;     // de melding maar één keer per overschrijding
     var problemsEl = document.getElementById('oiProblems');
     var resultEl = document.getElementById('oiResult');
     var summaryEl = document.getElementById('oiSummary');
@@ -424,13 +424,17 @@
         exportBtn.title = ready || !lines.length ? '' : 'Eerst oplossen: ' + problems.join(', ');
         readyState = ready;
         if (exactBtn) {
-            var tooMany = lines.length > EXACT_MAX_LINES;
+            // Exact neemt maximaal EXACT_MAX_REGELS regels per keer aan: daarboven "Naar Exact" uit; Exporteer XML blijft werken.
+            var exactCount = states.filter(function (s) { return s.export; }).length;
+            var tooMany = exactCount > EXACT_MAX_REGELS;
             exactBtn.disabled = !ready || exactBusy || tooMany;
-            exactBtn.title = tooMany ? 'Naar Exact kan maximaal ' + EXACT_MAX_LINES + ' regels; gebruik Export XML.' : exportBtn.title;
-            if (tooMany && !exactWarned) {
-                exactWarned = true;
-                window.setTimeout(function () { alert('Let op: er staan ' + lines.length + ' regels in de lijst. Naar Exact kan maximaal ' + EXACT_MAX_LINES + ' regels versturen, dus die knop is uitgeschakeld.\n\nExport XML werkt wel en heeft deze limiet niet.'); }, 0);
-            } else if (!tooMany) { exactWarned = false; }
+            exactBtn.title = tooMany ? 'Naar Exact kan maximaal ' + EXACT_MAX_REGELS + ' regels per keer. Gebruik Exporteer XML.' : exportBtn.title;
+            if (tooMany && !tooManyShown) {
+                tooManyShown = true;
+                window.alert('Er staan ' + exactCount + ' regels in deze offerte. Naar Exact kan maximaal ' + EXACT_MAX_REGELS + ' regels per keer verwerken, daarom is die knop uitgeschakeld.\n\nExporteer XML blijft wel beschikbaar.');
+            } else if (!tooMany) {
+                tooManyShown = false;
+            }
             exactReset();   // elke wijziging of nieuwe controle: eerst opnieuw een proef
         }
         // Zichtbaar wat er nog ontbreekt zolang er regels zijn en de export nog niet kan.
@@ -610,7 +614,7 @@
         postExact(exactBody(write)).then(function (j) {
             var duur = ' Duur: ' + (Math.round((new Date().getTime() - t0) / 100) / 10).toString().replace('.', ',') + ' s.';
             if (j.ok) { bar.finish(write ? 'Naar Exact geschreven' : 'Proef gelukt'); } else { bar.fail('Naar Exact mislukt'); }
-            exactBusy = false; exactBtn.disabled = !readyState || lines.length > EXACT_MAX_LINES;   // alleen actief als alles klopt, zoals Exporteer XML
+            exactBusy = false; exactBtn.disabled = !readyState;   // alleen actief als alles klopt, zoals Exporteer XML
             if (!j.ok) {
                 exactReset();
                 showMessage((j.fout || 'Onbekende fout van de slangkaart-app.') + (j.stand ? ' Stand in Exact: ' + j.stand : '') + duur);
