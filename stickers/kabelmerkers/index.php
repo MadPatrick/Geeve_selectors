@@ -88,8 +88,8 @@ $csrf = csrfToken();
             <div class="km-print-rechts">
             <div class="print-group">
                 <?= geevePrinterSelectHtml('stickers-kabelmerkers', $csrf) ?>
-                <input type="number" id="kmAantal" class="ka-input km-aantal" min="1" max="99" value="1" title="Aantal" aria-label="Aantal">
                 <button type="button" id="kmPrint" class="print-btn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
+                <input type="number" id="kmAantal" class="ka-input km-aantal" min="1" max="99" value="1" title="Aantal" aria-label="Aantal">
             </div>
             </div>
         </div>
