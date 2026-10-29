@@ -76,9 +76,9 @@ $csrf = csrfToken();
             <div class="km-regel km-regel--voorbeeld">
                 <h3>Voorbeeld</h3>
                 <div class="km-preview" id="kmPreview" aria-label="Voorbeeld van de sticker">
-                    <div class="km-sticker"><div class="km-tekst"></div></div>
-                    <div class="km-sticker"><div class="km-tekst"></div></div>
-                    <div class="km-sticker"><div class="km-tekst"></div></div>
+                    <div class="km-sticker"><div class="km-tekst"></div><span class="km-gaten" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+                    <div class="km-sticker"><div class="km-tekst"></div><span class="km-gaten" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+                    <div class="km-sticker"><div class="km-tekst"></div><span class="km-gaten" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
                 </div>
             </div>
         </div>
