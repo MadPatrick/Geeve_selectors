@@ -3,11 +3,11 @@
 
 .km-edit { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 18px; }
 .km-regel { display: flex; flex-direction: column; gap: 6px; width: 260px; }
+.km-regel--voorbeeld { margin-left: auto; width: auto; align-items: flex-end; }
 .km-regel h3 { margin: 0 0 4px; font-size: 24px; }
 .km-regel .ka-input { width: 100%; }
-.km-regel--voorbeeld { margin-left: auto; width: auto; }
 .km-aantal { width: 90px; }
-.km-preview { zoom: 1.2; margin-top: 8px; }
+.km-preview { zoom: 1.2; margin-top: 8px; padding: 2mm 2.5mm; background: var(--kabelmerker-drager); border-radius: 1.5mm; }
 .km-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
 .km-print-rechts { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
