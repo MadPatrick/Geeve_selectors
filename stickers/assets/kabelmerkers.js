@@ -7,7 +7,7 @@
     var MAX_PX = 60;       // bovengrens van de zoekruimte; de sticker zelf begrenst eerder
     var MIN_PX = 5;
     var LINE_HEIGHT = 1.1;  // zelfde als line-height in kabelmerkers.css
-    var KLEINER_PX = 2 * 96 / 72;   // lettertype 2 pt kleiner dan het grootste dat past (1 pt = 96/72 px)
+    var STANDAARD_PX = 12 * 96 / 72;   // standaard lettergrootte (12 pt); alleen kleiner als de tekst niet in 55 mm past
     var SAFETY = 0.97;      // 3% marge tegen een iets breder lettertype op de printserver
 
     function esc(s) {
@@ -28,7 +28,7 @@
     }
 
     // Max. tekens per hele regel (de schuine strepen niet meegeteld; de datum telt als dd-mm-jj = 8 tekens). Print: 55 mm tussen de transportgaten.
-    var MAX_REGEL = 16;
+    var MAX_REGEL = 20;
     var REGELS = [['kmA1', 'kmA2', 'kmA3'], ['kmDatum', 'kmB2', 'kmB3']];
     function lengte(id) {
         return (id === 'kmDatum' ? datumTekst() : el(id).value).replace(/^\s+|\s+$/g, '').length;
@@ -82,7 +82,7 @@
                 if (fits(mid)) { lo = mid; } else { hi = mid; }
             }
         }
-        var size = Math.max(MIN_PX, lo * SAFETY - KLEINER_PX);
+        var size = Math.min(STANDAARD_PX, Math.max(MIN_PX, lo * SAFETY));
         textEl.style.fontSize = size + 'px';
         return size;
     }
