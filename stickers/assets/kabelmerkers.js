@@ -1,11 +1,10 @@
 (function () {
-    var input = document.getElementById('kmText');
     var aantal = document.getElementById('kmAantal');
     var preview = document.getElementById('kmPreview');
     var printSheet = document.getElementById('kmPrintSheet');
     var printBtn = document.getElementById('kmPrint');
     var stickers = preview.querySelectorAll('.km-sticker');
-    var MAX_PX = 120;       // bovengrens van de zoekruimte; de sticker zelf begrenst eerder
+    var MAX_PX = 60;       // bovengrens van de zoekruimte; de sticker zelf begrenst eerder
     var MIN_PX = 5;
     var LINE_HEIGHT = 1.1;  // zelfde als line-height in kabelmerkers.css
     var SAFETY = 0.97;      // 3% marge tegen een iets breder lettertype op de printserver
@@ -14,10 +13,38 @@
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    // Maximaal twee regels; lege regels aan het eind weg.
+    function el(id) { return document.getElementById(id); }
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+    // Datumlijst: vandaag (voorgeselecteerd) met 30 dagen ervoor en erna, als dd-mm-jj.
+    var datum = el('kmDatum');
+    var nu = new Date();
+    for (var d = -30; d <= 30; d++) {
+        var dag = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() + d);
+        var tekst = pad(dag.getDate()) + '-' + pad(dag.getMonth() + 1) + '-' + pad(dag.getFullYear() % 100);
+        var optie = document.createElement('option');
+        optie.value = tekst;
+        optie.appendChild(document.createTextNode(tekst));
+        if (d === 0) { optie.selected = true; }
+        datum.appendChild(optie);
+    }
+
+    function join(ids) {
+        var delen = [];
+        for (var i = 0; i < ids.length; i++) {
+            var v = el(ids[i]).value.replace(/^\s+|\s+$/g, '');
+            if (v !== '') { delen.push(v); }
+        }
+        return delen.join('/');
+    }
+
+    // Regel 1 = A1/A2/A3, regel 2 = Datum/B2/B3; lege velden worden overgeslagen.
     function value() {
-        var lines = input.value.replace(/\r/g, '').replace(/\n+$/, '').split('\n');
-        return lines.slice(0, 2).join('\n');
+        var r1 = join(['kmA1', 'kmA2', 'kmA3']);
+        var r2 = join(['kmDatum', 'kmB2', 'kmB3']);
+        // De datum staat altijd ingevuld; zonder een van de andere velden is er niets te printen.
+        if (r1 === '' && join(['kmB2', 'kmB3']) === '') { return ''; }
+        return r1 === '' ? r2 : r1 + '\n' + r2;
     }
 
     function count() {
@@ -58,13 +85,16 @@
         return size;
     }
 
-    input.addEventListener('input', refresh);
-    aantal.addEventListener('input', function () { /* alleen bij het printen van belang */ });
+    var velden = ['kmA1', 'kmA2', 'kmA3', 'kmDatum', 'kmB2', 'kmB3'];
+    for (var v = 0; v < velden.length; v++) {
+        el(velden[v]).addEventListener('input', refresh);
+        el(velden[v]).addEventListener('change', refresh);
+    }
 
     document.getElementById('kmClear').addEventListener('click', function () {
-        input.value = '';
+        for (var i = 0; i < velden.length; i++) { if (velden[i] !== 'kmDatum') { el(velden[i]).value = ''; } }
         refresh();
-        input.focus();
+        el('kmA1').focus();
     });
 
     printBtn.addEventListener('click', function () {
@@ -79,5 +109,4 @@
     });
 
     refresh();
-    input.focus();
 }());

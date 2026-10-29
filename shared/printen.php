@@ -97,6 +97,9 @@ const GEEVE_TSPL_ZWART_IS_NUL = true;
  */
 const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch', 'stickers-order', 'stickers-slanglabels'];
 
+/** Voorgeselecteerde printer per tegel (naam van de printerwachtrij), voor wie nog geen eigen keuze (cookie) heeft. */
+const GEEVE_PRINT_TILE_STANDAARD_PRINTER = ['stickers-kabelmerkers' => 'RTMLBGeenKunstof01'];
+
 /** Het soort van een printer ('a4' of 'label'). */
 function geevePrinterSoort(array $printer): string
 {
@@ -848,7 +851,14 @@ function geevePrinterOptionsHtml(string $tileId, array $printers): string
 {
     $h = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $saved = (string) ($_COOKIE['geeve_printer_' . $tileId] ?? '');
-    $selected = $saved === 'browser' || isset($printers[$saved]) ? $saved : (string) array_key_first($printers);
+    $standaard = GEEVE_PRINT_TILE_STANDAARD_PRINTER[$tileId] ?? '';
+    foreach ($printers as $queue => $name) {
+        if ($standaard !== '' && strcasecmp((string) $queue, $standaard) === 0) {
+            $standaard = (string) $queue;
+            break;
+        }
+    }
+    $selected = $saved === 'browser' || isset($printers[$saved]) ? $saved : (isset($printers[$standaard]) ? $standaard : (string) array_key_first($printers));
     $options = '';
     foreach ($printers as $queue => $name) {
         $taal = (string) (geevePrinterList()[$queue]['taal'] ?? '');

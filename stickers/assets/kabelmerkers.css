@@ -2,11 +2,11 @@
    onder elkaar) en de sticker zelf. Op papier komt alleen de tekst: het label is zelf geel. */
 
 .km-edit { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 18px; }
-.km-invoer { display: flex; flex-direction: column; gap: 6px; min-width: 260px; }
-.km-invoer label { font-weight: 700; }
-.km-invoer textarea { width: 100%; min-height: 60px; resize: vertical; font-family: Verdana, "DejaVu Sans", Geneva, sans-serif; }
+.km-regel { display: flex; flex-direction: column; gap: 6px; width: 260px; }
+.km-regel h3 { margin: 0 0 4px; font-size: 24px; }
+.km-regel .ka-input { width: 100%; }
 .km-aantal { width: 90px; }
-.km-preview { zoom: 1.5; }
+.km-preview { zoom: 1.2; margin-top: 8px; }
 .km-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
 .km-print-rechts { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
@@ -21,9 +21,9 @@
     align-items: center;
     color: var(--ink-black);
     background: var(--kabelmerker-geel);
-    font-family: Verdana, "DejaVu Sans", Geneva, sans-serif;
+    font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
     font-weight: 700;
-    font-size: 20pt;
+    font-size: 12pt;
     line-height: 1.1;
 }
 /* Op het scherm: afgeronde hoeken, een randje en een tussenruimte, zoals de losse labels op de rol. */

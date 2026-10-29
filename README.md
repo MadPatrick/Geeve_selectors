@@ -76,7 +76,7 @@ Alle stickers printen via de browser, één sticker per pagina. Posities en mate
 | Accu's | `/stickers/accu/` | 80 × 30 mm | geen database (invulsticker) |
 | Slanglabels | `/stickers/slanglabels/` | ALTEC 53000145 | `[Exactrapportage].[dbo].[1655 VW_Alle_OrdersGH]` |
 | Naamstickers | `/stickers/ptouch/` | 102 × 51 mm | geen database (vrije tekst, Verdana Bold, uitlijning instelbaar (standaard midden/midden), letter groot voor 2 regels en kleiner bij meer regels) |
-| Kabelmerkers Geel | `/stickers/kabelmerkers/` | 70 × 15 mm | ALTEC 72001207 (70 × 15 mm, lichtgeel), tekst + aantal, voorbeeld 3 stuks |
+| Kabelmerkers Geel | `/stickers/kabelmerkers/` | 70 × 15 mm | ALTEC 72001207 (70 × 15 mm, lichtgeel), invulvelden A1-A3 en Datum/B2-B3 (regel 1 = A1/A2/A3, regel 2 = Datum/B2/B3), standaardprinter RTMLBGeenKunstof01 |
 
 Barcodes zijn Code 128 (JsBarcode, lokaal in `stickers/assets/vendor`).
 
