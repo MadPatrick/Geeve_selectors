@@ -7,6 +7,7 @@
     var MAX_PX = 60;       // bovengrens van de zoekruimte; de sticker zelf begrenst eerder
     var MIN_PX = 5;
     var LINE_HEIGHT = 1.1;  // zelfde als line-height in kabelmerkers.css
+    var KLEINER_PX = 2 * 96 / 72;   // lettertype 2 pt kleiner dan het grootste dat past (1 pt = 96/72 px)
     var SAFETY = 0.97;      // 3% marge tegen een iets breder lettertype op de printserver
 
     function esc(s) {
@@ -65,7 +66,7 @@
                 if (fits(mid)) { lo = mid; } else { hi = mid; }
             }
         }
-        var size = Math.max(MIN_PX, lo * SAFETY);
+        var size = Math.max(MIN_PX, lo * SAFETY - KLEINER_PX);
         textEl.style.fontSize = size + 'px';
         return size;
     }
