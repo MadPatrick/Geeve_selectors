@@ -16,23 +16,20 @@
     function el(id) { return document.getElementById(id); }
     function pad(n) { return (n < 10 ? '0' : '') + n; }
 
-    // Datumlijst: vandaag (voorgeselecteerd) met 30 dagen ervoor en erna, als dd-mm-jj.
+    // Datum: kalender om op te klikken, standaard vandaag. In de sticker als dd-mm-jj. Een oude browser zonder datumveld toont een
+    // tekstveld; daar typ je jjjj-mm-dd.
     var datum = el('kmDatum');
     var nu = new Date();
-    for (var d = -30; d <= 30; d++) {
-        var dag = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() + d);
-        var tekst = pad(dag.getDate()) + '-' + pad(dag.getMonth() + 1) + '-' + pad(dag.getFullYear() % 100);
-        var optie = document.createElement('option');
-        optie.value = tekst;
-        optie.appendChild(document.createTextNode(tekst));
-        if (d === 0) { optie.selected = true; }
-        datum.appendChild(optie);
+    datum.value = nu.getFullYear() + '-' + pad(nu.getMonth() + 1) + '-' + pad(nu.getDate());
+    function datumTekst() {
+        var m = datum.value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        return m ? m[3] + '-' + m[2] + '-' + m[1].slice(2) : '';
     }
 
     function join(ids) {
         var delen = [];
         for (var i = 0; i < ids.length; i++) {
-            var v = el(ids[i]).value.replace(/^\s+|\s+$/g, '');
+            var v = (ids[i] === 'kmDatum' ? datumTekst() : el(ids[i]).value).replace(/^\s+|\s+$/g, '');
             if (v !== '') { delen.push(v); }
         }
         return delen.join('/');

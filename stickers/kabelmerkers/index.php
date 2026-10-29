@@ -67,7 +67,7 @@ $csrf = csrfToken();
             <div class="km-regel">
                 <h3>Regel 2</h3>
                 <label for="kmDatum">Datum</label>
-                <select id="kmDatum" class="ka-input"></select>
+                <input type="date" id="kmDatum" class="ka-input" required>
                 <label for="kmB2">Regel B2</label>
                 <input type="text" id="kmB2" class="ka-input" maxlength="30" spellcheck="false">
                 <label for="kmB3">Regel B3</label>
