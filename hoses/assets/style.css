@@ -136,9 +136,9 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 .pdf-menu-type label { font-size: 12px; font-weight: 600; color: var(--muted); }
 .pdf-menu-type-row { display: flex; gap: 6px; align-items: center; }
 .pdf-type-input { width: 110px; min-width: 0; }
-.pdf-type-button { appearance: none; border: 1px solid var(--btn-green-line, var(--line-menu)); background: var(--btn-green); color: var(--ink); font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+.pdf-type-button { appearance: none; border: 1px solid var(--btn-green-line, var(--line-menu)); background: var(--btn-green); color: var(--btn-green-ink); font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
 .pdf-type-button:hover { background: var(--btn-green-hover); }
-.pdf-type-message { font-size: 12px; color: var(--btn-danger, #a03636); min-height: 1em; }
+.pdf-type-message { font-size: 12px; color: var(--btn-danger); min-height: 1em; }
 /* Het Perslijst-menu hangt onder de topbalk: de gedeelde overflow:hidden van .brand-panel kapte het af. De glans (::before) vult de
    balk al volledig (inset: 0), dus zichtbaar overflow geeft hier geen uitloop. */
 .brand-panel { overflow: visible; }
