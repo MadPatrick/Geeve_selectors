@@ -163,6 +163,11 @@
                     var supCol = useSupplier ? (cols['leveranciersnummer'] || cols['leveranciernummer']) : null;
                     if (supCol && line.code === '') { line.supplier = cellText(val(supCol + row)); }
                     if (line.code === '' && line.supplier === '' && (line.qty === null || line.qty === '')) { continue; }
+                    // Template heeft alleen regelnummers 1-100 voorgevuld: ontbreekt het nummer, dan doornummeren vanaf de vorige regel.
+                    if (line.nr === '') {
+                        var prev = lines.length ? parseInt(lines[lines.length - 1].nr, 10) : 0;
+                        line.nr = String((isFinite(prev) ? prev : lines.length) + 1);
+                    }
                     lines.push(line);
                 }
                 itemInfo = {};
