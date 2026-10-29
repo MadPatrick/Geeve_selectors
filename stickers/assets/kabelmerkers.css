@@ -16,7 +16,7 @@
     box-sizing: border-box;
     width: 70mm;
     height: 15mm;
-    padding: 1.5mm 2mm;
+    padding: 1mm 2mm;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -30,17 +30,13 @@
 }
 /* Op het scherm: afgeronde hoeken, een randje en een tussenruimte, zoals de losse labels op de rol. */
 .km-preview .km-sticker { margin-bottom: 2mm; box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1.5mm; }
-/* Uitsparingen zoals op het echte label (alleen voorbeeld): 4 sleuven bij de hoeken (55 mm tussen de binnenkanten) en 2 uitsparingen in het midden van de lange randen. */
-.km-gaten { position: absolute; left: 0; top: 0; right: 0; bottom: 0; pointer-events: none; }
-.km-gaten i { position: absolute; background: var(--kabelmerker-drager); border-radius: 0.6mm; }
-.km-gaten i:nth-child(-n+4) { width: 3.4mm; height: 1.7mm; }
-.km-gaten i:nth-child(odd) { left: 4.1mm; }
-.km-gaten i:nth-child(even) { right: 4.1mm; }
-.km-gaten i:nth-child(-n+2) { top: 1.65mm; }
-.km-gaten i:nth-child(3), .km-gaten i:nth-child(4) { bottom: 1.65mm; }
-.km-gaten i:nth-child(n+5) { left: 50%; width: 8.5mm; height: 3mm; margin-left: -4.25mm; border-radius: 1.5mm; }
-.km-gaten i:nth-child(5) { top: -1.5mm; }
-.km-gaten i:nth-child(6) { bottom: -1.5mm; }
+.km-preview .km-sticker::before, .km-preview .km-sticker::after {
+    /* twee sleuven per uiteinde (boven en onder), de tweede is de schaduwkopie 7 mm lager */
+    content: ""; position: absolute; top: 4mm; width: 4mm; height: 2mm; margin-top: -1mm; border-radius: 0.6mm;
+    background: var(--kabelmerker-drager); box-shadow: 0 7mm 0 0 var(--kabelmerker-drager);
+}
+.km-preview .km-sticker::before { left: 3.5mm; }
+.km-preview .km-sticker::after { right: 3.5mm; }
 .km-preview .km-sticker:last-child { margin-bottom: 0; }
 .km-tekst { width: 55mm; max-width: 55mm; white-space: pre; text-align: center; }
 
