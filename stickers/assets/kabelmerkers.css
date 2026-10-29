@@ -1,0 +1,45 @@
+/* Kabelmerkers Geel (stickers/kabelmerkers): ALTEC 72001207 (TTP ADC, 70 × 15 mm, A235), lichtgeel label. Scherm (drie voorbeeldstickers
+   onder elkaar) en de sticker zelf. Op papier komt alleen de tekst: het label is zelf geel. */
+
+.km-edit { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 18px; }
+.km-invoer { display: flex; flex-direction: column; gap: 6px; min-width: 260px; }
+.km-invoer label { font-weight: 700; }
+.km-invoer textarea { width: 100%; min-height: 60px; resize: vertical; font-family: Verdana, "DejaVu Sans", Geneva, sans-serif; }
+.km-aantal { width: 90px; }
+.km-preview { zoom: 1.5; }
+.km-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.km-print-rechts { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+.km-sticker {
+    position: relative;
+    box-sizing: border-box;
+    width: 70mm;
+    height: 15mm;
+    padding: 1mm 2mm;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    color: var(--ink-black);
+    background: var(--kabelmerker-geel);
+    font-family: Verdana, "DejaVu Sans", Geneva, sans-serif;
+    font-weight: 700;
+    font-size: 20pt;
+    line-height: 1.1;
+}
+/* Op het scherm: afgeronde hoeken, een randje en een tussenruimte, zoals de losse labels op de rol. */
+.km-preview .km-sticker { margin-bottom: 2mm; box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1.5mm; }
+.km-preview .km-sticker:last-child { margin-bottom: 0; }
+.km-tekst { width: 100%; white-space: pre; text-align: center; }
+.km-preview .km-tekst:empty::before { content: "Typ hier je tekst"; color: var(--muted); font-size: 12px; font-weight: 400; }
+
+.km-printsheet { display: none; }
+
+@page { size: 70mm 15mm; margin: 0; }
+
+@media print {
+    html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }
+    body > *:not(.km-printsheet) { display: none !important; }
+    .km-printsheet { display: block; }
+    .km-printsheet .km-sticker { background: var(--surface-white); break-after: page; page-break-after: always; }
+    .km-printsheet .km-sticker:last-child { break-after: auto; page-break-after: auto; }
+}

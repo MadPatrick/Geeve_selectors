@@ -153,6 +153,7 @@ const GEEVE_APP_URLS = [
     'stickers-artikel-groot' => 'stickers/accu/',
     'stickers-slanglabels' => 'stickers/slanglabels/',
     'stickers-ptouch' => 'stickers/ptouch/',
+    'stickers-kabelmerkers' => 'stickers/kabelmerkers/',
 ];
 
 function geeveAppUrl(string $id): string

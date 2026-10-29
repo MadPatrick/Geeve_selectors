@@ -84,11 +84,12 @@ $csrf = csrfToken();
         </a>
         <?php endif; $tileHtml['stickers-artikel-groot'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-kabelmerkers')): ?>
-        <div class="<?= tileClass('stickers-kabelmerkers') ?> tile-disabled" aria-disabled="true">
+        <a class="<?= tileClass('stickers-kabelmerkers') ?>" href="<?= h(geeveAppUrl('stickers-kabelmerkers')) ?>"<?= tileAttrs('stickers-kabelmerkers') ?>>
             <?= tileIcon('stickers-kabelmerkers') ?>
             <h2><?= h(tileTitle('stickers-kabelmerkers')) ?></h2>
-            <p>Gele kabelmerkers printen (binnenkort beschikbaar).</p>
-        </div>
+            <p>Gele kabelmerkers (70 × 15 mm) printen.</p>
+            <?= tileLockIcon('stickers-kabelmerkers') ?>
+        </a>
         <?php endif; $tileHtml['stickers-kabelmerkers'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stickers-slanglabels')): ?>
         <a class="<?= tileClass('stickers-slanglabels') ?>" href="<?= h(geeveAppUrl('stickers-slanglabels')) ?>"<?= tileAttrs('stickers-slanglabels') ?>>

@@ -40,6 +40,7 @@ const GEEVE_PRINT_TILES = [
     'stickers-artikel-groot' => "Accu's",
     'stickers-slanglabels' => 'Slanglabels',
     'stickers-ptouch' => 'Naamstickers',
+    'stickers-kabelmerkers' => 'Kabelmerkers Geel',
 ];
 
 /** Soort printer per tegel: 'a4' (gewone printer, PCL) of 'label' (labelprinter: TSPL of Brother QL). Standaard 'a4'. */
@@ -50,6 +51,7 @@ const GEEVE_PRINT_TILE_SOORT = [
     'stickers-artikel-groot' => 'label',
     'stickers-slanglabels' => 'label',
     'stickers-ptouch' => 'label',
+    'stickers-kabelmerkers' => 'label',
 ];
 
 /**
@@ -63,6 +65,7 @@ const GEEVE_PRINT_TILE_PAGE = [
     'stickers-artikel' => ['sheet' => 'saPrintSheet', 'class' => 'sa-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/artikel-stickers.css']],
     'stickers-productie' => ['sheet' => 'psPrintSheet', 'class' => 'ps-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/productie-stickers.css']],
     'stickers-ptouch' => ['sheet' => 'ptPrintSheet', 'class' => 'pt-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/ptouch.css']],
+    'stickers-kabelmerkers' => ['sheet' => 'kmPrintSheet', 'class' => 'km-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/kabelmerkers.css']],
     'stickers-order' => ['sheet' => 'soSheet', 'class' => 'so-preview', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css']],
 ];
 
@@ -82,7 +85,7 @@ const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 29,
  * Sheet-classes van tegels waarvan de labels als één opdracht gaan en de printer pas na het laatste label snijdt
  * (niet na elk label).
  */
-const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet', 'ac-printsheet', 'pt-printsheet'];
+const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet', 'ac-printsheet', 'pt-printsheet', 'km-printsheet'];
 
 /** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
 const GEEVE_TSPL_ZWART_IS_NUL = true;
