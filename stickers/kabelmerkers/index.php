@@ -83,6 +83,18 @@ $csrf = csrfToken();
             </div>
         </div>
 
+        <div id="kmMelding" class="ka-message ka-message--error km-melding" role="alert" hidden></div>
+
+        <div class="ka-actions km-import">
+            <button type="button" id="kmTemplate" class="ka-button ka-button--secondary">Download lege template</button>
+            <div id="kmDrop" class="ka-drop" tabindex="0" role="button">
+                <strong>Excel importeren</strong> - sleep een ingevulde template hierheen of <u>kies een bestand</u> (kolommen Tekst A1, A2, A3, B1, B2, B3)
+                <input type="file" id="kmFile" accept=".xlsx,.xls,.xlsm,.xltm" hidden>
+            </div>
+        </div>
+        <div id="kmImportMelding" class="ka-message" hidden></div>
+        <div id="kmImportTabel" hidden></div>
+
         <div class="km-print">
             <button type="button" id="kmClear" class="ka-button ka-button--secondary">Leegmaken</button>
             <div class="km-print-rechts">
@@ -99,6 +111,7 @@ $csrf = csrfToken();
 </main>
 <!-- Alleen voor het printen: hier komen de stickers (aantal keer) vlak voor window.print(). -->
 <div id="kmPrintSheet" class="km-printsheet" aria-hidden="true"></div>
+<script src="<?= h(geeveUrl('reports/assets/vendor/xlsx-style.min.js')) ?>"></script>
 <script src="<?= h(geeveUrl('stickers/assets/kabelmerkers.js')) ?>?v=<?= h(assetVersion('../assets/kabelmerkers.js')) ?>"></script>
 <script src="<?= h(geeveUrl('stickers/assets/direct-print.js')) ?>?v=<?= h(assetVersion('../assets/direct-print.js')) ?>"></script>
 </body>
