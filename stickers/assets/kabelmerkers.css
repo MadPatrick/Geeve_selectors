@@ -31,7 +31,7 @@
 /* Op het scherm: afgeronde hoeken, een randje en een tussenruimte, zoals de losse labels op de rol. */
 .km-preview .km-sticker { margin-bottom: 2mm; box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1.5mm; }
 .km-preview .km-sticker::before, .km-preview .km-sticker::after {
-    content: ""; position: absolute; top: 50%; width: 4mm; height: 4mm; margin-top: -2mm; border-radius: 50%;
+    content: ""; position: absolute; top: 50%; width: 4mm; height: 2.5mm; margin-top: -1.25mm; border-radius: 0.6mm;
     background: var(--kabelmerker-drager); box-shadow: inset 0 0 0 1px var(--sticker-preview-shadow);
 }
 .km-preview .km-sticker::before { left: 3.5mm; }
