@@ -70,7 +70,7 @@
     function fit(sticker, textEl, tekst) {
         var cs = getComputedStyle(sticker);
         var boxH = sticker.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-        var lines = Math.max(1, tekst.split('\n').length);
+        var lines = 2;   // standaardlettergrootte: altijd voor twee regels gerekend; alleen als de tekst niet in 55 mm past wordt de letter kleiner
         function fits(size) {
             textEl.style.fontSize = size + 'px';
             return lines * size * LINE_HEIGHT <= boxH + 1 && textEl.scrollWidth <= textEl.clientWidth + 1;
