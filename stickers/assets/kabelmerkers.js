@@ -27,6 +27,22 @@
         return m ? m[3] + '-' + m[2] + '-' + m[1].slice(2) : '';
     }
 
+    // Max. tekens per hele regel (de schuine strepen niet meegeteld; de datum telt als dd-mm-jj = 8 tekens). Print: 55 mm tussen de transportgaten.
+    var MAX_REGEL = 16;
+    var REGELS = [['kmA1', 'kmA2', 'kmA3'], ['kmDatum', 'kmB2', 'kmB3']];
+    function lengte(id) {
+        return (id === 'kmDatum' ? datumTekst() : el(id).value).replace(/^\s+|\s+$/g, '').length;
+    }
+    function limiteer(actief) {
+        for (var r = 0; r < REGELS.length; r++) {
+            var ids = REGELS[r], rest = MAX_REGEL;
+            if (ids.indexOf(actief) === -1) { continue; }
+            for (var i = 0; i < ids.length; i++) { if (ids[i] !== actief) { rest -= lengte(ids[i]); } }
+            rest = Math.max(0, rest);
+            if (actief !== 'kmDatum' && el(actief).value.length > rest) { el(actief).value = el(actief).value.slice(0, rest); }
+        }
+    }
+
     function join(ids) {
         var delen = [];
         for (var i = 0; i < ids.length; i++) {
@@ -84,8 +100,11 @@
 
     var velden = ['kmA1', 'kmA2', 'kmA3', 'kmDatum', 'kmB2', 'kmB3'];
     for (var v = 0; v < velden.length; v++) {
-        el(velden[v]).addEventListener('input', refresh);
-        el(velden[v]).addEventListener('change', refresh);
+        (function (id) {
+            var onder = function () { limiteer(id); refresh(); };
+            el(id).addEventListener('input', onder);
+            el(id).addEventListener('change', onder);
+        }(velden[v]));
     }
 
     document.getElementById('kmClear').addEventListener('click', function () {
