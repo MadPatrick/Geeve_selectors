@@ -71,8 +71,10 @@ $csrf = csrfToken();
                 <label class="msp-field"><span>Lengte</span><input type="text" class="ka-input" data-field="lengte" maxlength="20"></label>
                 <label class="msp-field"><span>Datum</span><input type="text" class="ka-input" data-field="datum" maxlength="20"></label>
                 <label class="msp-field sl-klant"><span>Klantnaam</span><input type="text" class="ka-input" data-field="klantnaam" maxlength="80"></label>
+                <div class="sl-aantalrij">
                 <label class="msp-field sl-aantal"><span>Aantal</span><input type="number" class="ka-input" data-field="aantal" min="1" max="99"></label>
                 <div class="msp-field sl-printen"><span>Printen Datum</span><label class="sl-check"><input type="checkbox" id="slWithDate" checked> Datum op label</label></div>
+                </div>
             </div>
         </div>
 
