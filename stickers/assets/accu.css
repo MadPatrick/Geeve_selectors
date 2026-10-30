@@ -1,5 +1,5 @@
 /* Sticker Accu's (stickers/accu): scherm, de sticker zelf en de printinstellingen.
-   Stickerformaat 80 × 30 mm (aanname, nagemaakt van de oude app); posities in mm, bijstellen na een proefprint. */
+   Stickerformaat 70 × 32 mm (afmeting van het echte label, Patrick 2026-10-30); posities in mm, bijstellen na een proefprint. */
 
 .ac-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
 .ac-form { flex: 1 1 420px; min-width: 0; }
@@ -16,8 +16,8 @@
 
 .accu {
     position: relative;
-    width: 80mm;
-    height: 30mm;
+    width: 70mm;
+    height: 32mm;
     overflow: hidden;
     color: var(--ink-black);
     font-family: Arial, Helvetica, sans-serif;
@@ -26,19 +26,19 @@
 }
 .accu svg { position: absolute; }
 /* Beide symbolen even hoog (18 mm) op dezelfde boven- en onderlijn; viewBoxen zijn allebei 34 hoog. */
-.accu .warn { left: 2mm; top: 5mm; width: 20.1mm; height: 18mm; }
-.accu .acc { left: 23.5mm; top: 5mm; width: 6.9mm; height: 18mm; }
+.accu .warn { left: 1.5mm; top: 7mm; width: 20.1mm; height: 18mm; }
+.accu .acc { left: 22.5mm; top: 7mm; width: 6.9mm; height: 18mm; }
 .accu .f { position: absolute; display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
-/* Alle tekst even groot en links uitgelijnd, 10px (2,65 mm) rechts van het accu-symbool (dat eindigt op 30,4 mm). */
-.accu .r { left: 33.05mm; right: 2mm; height: 5mm; font-size: 3.2mm; }
-.accu .r1 { top: 2.5mm; }
-.accu .r2 { top: 8.5mm; }
-.accu .r3 { top: 14.5mm; }
-.accu .r4 { top: 20.5mm; }
+/* Alle tekst even groot en links uitgelijnd, 10px (2,65 mm) rechts van het accu-symbool (dat eindigt op 29,4 mm). */
+.accu .r { left: 32.05mm; right: 1.5mm; height: 5mm; font-size: 3.2mm; }
+.accu .r1 { top: 3.5mm; }
+.accu .r2 { top: 9.5mm; }
+.accu .r3 { top: 15.5mm; }
+.accu .r4 { top: 21.5mm; }
 
 .ac-printsheet { display: none; }
 
-@page { size: 80mm 30mm; margin: 0; }
+@page { size: 70mm 32mm; margin: 0; }
 
 @media print {
     html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }
