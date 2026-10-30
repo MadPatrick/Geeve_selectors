@@ -3,6 +3,7 @@
     var text = document.getElementById('ptText');
     var printSheet = document.getElementById('ptPrintSheet');
     var printBtn = document.getElementById('ptPrint');
+    var aantal = document.getElementById('ptAantal');
 
     var align = 'center';   // horizontaal: left, center of right
     var valign = 'center';  // verticaal: flex-start (boven), center of flex-end (onder)
@@ -12,6 +13,12 @@
     var MIN_PX = 6;    // kleiner dan dit schalen we niet; wat dan nog niet past wordt afgeknipt
     var LINE_HEIGHT = 1.15; // zelfde als line-height in ptouch.css
     var SAFETY = 0.97; // 3% marge tegen een iets breder lettertype op de printserver
+
+    // Aantal stickers om te printen: 1 t/m 99, een ongeldige invoer telt als 1.
+    function count() {
+        var n = parseInt(aantal.value, 10);
+        return isNaN(n) || n < 1 ? 1 : Math.min(n, 99);
+    }
 
     function esc(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -123,7 +130,9 @@
         // De lettergrootte van het voorbeeld gaat mee in de print, zodat de printversie dezelfde regelafbreking heeft.
         var size = fit(text);
         var one = '<div class="pt-sticker" style="align-items:' + valign + '"><div class="pt-text" style="font-size:' + size + 'px;text-align:' + align + '">' + esc(typed) + '</div></div>';
-        printSheet.innerHTML = one;
+        var html = '';
+        for (var i = 0; i < count(); i++) { html += one; }
+        printSheet.innerHTML = html;
         window.print();
     });
 

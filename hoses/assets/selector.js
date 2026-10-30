@@ -575,7 +575,7 @@
             const entry = {};
             fieldKeys.forEach((field) => {
                 const input = card ? card.querySelector(`.fact-edit-input[data-field="${field}"]`) : null;
-                entry[field] = input ? normalizeNumericValue(input.value) : '';
+                entry[field] = input ? (isNumericInput(input) ? normalizeNumericValue(input.value) : input.value) : '';
             });
             entries[number] = entry;
         }
