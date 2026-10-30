@@ -8,8 +8,8 @@
 #soTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
 #soTable th:first-child, #soTable td:first-child { width: 1%; }
 
-/* Schakelaar Compleet / Backorders op een eigen rij onder Gegevens ophalen en de volgorde-keuze. */
-.so-filterrij { flex: 0 0 100%; }
+/* Volgorde-keuze met de schakelaar Compleet / Backorders direct eronder, links uitgelijnd. */
+.so-keuzes { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
 
 /* Print stickers helemaal rechts in de rij met knoppen. */
 .so-print { margin-left: auto; }
