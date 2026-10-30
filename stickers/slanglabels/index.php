@@ -69,25 +69,22 @@ $csrf = csrfToken();
                 <label class="msp-field"><span>Slangnummer</span><input type="text" class="ka-input" data-field="slangnummer" maxlength="40"></label>
                 <label class="msp-field"><span>Uw referentie</span><input type="text" class="ka-input" data-field="referentie" maxlength="60"></label>
                 <label class="msp-field"><span>Lengte</span><input type="text" class="ka-input" data-field="lengte" maxlength="20"></label>
-                <div class="msp-field"><span class="sl-datehead">Datum <label class="sl-check"><input type="checkbox" id="slWithDate" checked> printen</label></span><input type="text" class="ka-input" data-field="datum" maxlength="20" aria-label="Datum"></div>
-                <label class="msp-field sl-wide"><span>Klantnaam</span><input type="text" class="ka-input" data-field="klantnaam" maxlength="80"></label>
-                <label class="msp-field"><span>Aantal</span><input type="number" class="ka-input" data-field="aantal" min="1" max="99"></label>
+                <label class="msp-field"><span>Datum</span><input type="text" class="ka-input" data-field="datum" maxlength="20"></label>
+                <div class="msp-field sl-printen"><span>Printen</span><label class="sl-check"><input type="checkbox" id="slWithDate" checked> Datum op label</label></div>
+                <label class="msp-field sl-klant"><span>Klantnaam</span><input type="text" class="ka-input" data-field="klantnaam" maxlength="80"></label>
+                <label class="msp-field sl-aantal"><span>Aantal</span><input type="number" class="ka-input" data-field="aantal" min="1" max="99"></label>
             </div>
         </div>
 
-        <!-- Voorbeeld van het label met daaronder de printknop. -->
+        <!-- Printopties links, het labelvoorbeeld rechts ernaast. -->
         <div class="sl-side">
-            <div class="sl-preview" id="slSheet"></div>
             <div class="sl-print">
                 <span id="slPrintInfo" class="msp-status"></span>
-                <div class="sl-printkolom">
                 <?= geevePrintAfdrukInstellingenHtml('stickers-slanglabels') ?>
-                <div class="print-group">
-                    <?= geevePrinterSelectHtml('stickers-slanglabels', $csrf) ?>
-                    <button type="button" id="slPrint" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
-                </div>
-                </div>
+                <?= geevePrinterSelectHtml('stickers-slanglabels', $csrf) ?>
+                <button type="button" id="slPrint" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
             </div>
+            <div class="sl-preview" id="slSheet"></div>
         </div>
     </section>
 

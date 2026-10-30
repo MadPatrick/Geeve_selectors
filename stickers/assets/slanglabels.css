@@ -4,12 +4,17 @@
 
 .sl-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
 .sl-form { flex: 1 1 520px; min-width: 0; }
-.sl-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
+.sl-side { margin-left: auto; display: flex; flex-direction: row; align-items: flex-start; gap: 24px; }
 
-.sl-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px 16px; margin-top: 18px; }
-.sl-fields .sl-wide { grid-column: span 2; }
+/* Drie rijen: Slangnummer + Uw referentie / Lengte + Datum + Printen / Klantnaam + Aantal (3 tekens breed). */
+.sl-fields { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) auto; grid-auto-flow: row; gap: 12px 16px; margin-top: 18px; align-items: start; }
 .sl-fields .ka-input { width: 100%; }
-.sl-datehead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+/* Rij 1: slangnummer + referentie; rij 2: lengte + datum + printen; rij 3: klantnaam + aantal. */
+.sl-fields > :nth-child(1), .sl-fields > :nth-child(3), .sl-fields > :nth-child(6) { grid-column: 1; }
+.sl-fields > :nth-child(2), .sl-fields > :nth-child(4), .sl-fields > :nth-child(7) { grid-column: 2; }
+.sl-fields .sl-printen { grid-column: 3; }
+.sl-fields .sl-aantal .ka-input { width: 5em; }
+.sl-printen .sl-check { min-height: 28px; white-space: nowrap; }
 .sl-check { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; cursor: pointer; }
 .sl-check input { width: 14px; height: 14px; min-height: 0; margin: 0; padding: 0; }
 .sl-fields .ka-input:disabled { opacity: .5; }
@@ -32,8 +37,15 @@
     height: calc(var(--sl-h) - var(--sl-area));
     background: repeating-linear-gradient(45deg, var(--label-tail-bg) 0 2mm, var(--surface-white) 2mm 4mm);
 }
-.sl-print { display: flex; align-items: center; gap: 12px; }
-.sl-printkolom { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+/* Printopties onder elkaar in een vaste kolom links van het label; alles links uitgelijnd en even breed. */
+.sl-print { display: flex; flex-direction: column; align-items: stretch; gap: 10px; width: 230px; }
+.sl-print .msp-status { order: 5; text-align: left; }
+.sl-print .direct-print-instelling { flex-direction: column; align-items: stretch; gap: 8px; }
+.sl-print .direct-print-instelling label { display: flex; justify-content: space-between; }
+.sl-print .direct-print { display: flex; }
+.sl-print .direct-print select { width: 100%; min-width: 0; }
+.sl-print .direct-print > span:first-child { display: none; }
+.sl-print .print-btn { width: 100%; justify-content: center; }
 
 /* ALTEC 53000145: 25 mm breed, 95 mm lang. Alleen een vlak van 25 × 25 mm wordt bedrukt, de rest is een
    doorzichtige plakrand die om de slang wordt gewikkeld. De tekst staat recht (0°) in dat vlak; de printer draait het label zelf (bevestigd na proefprint).
