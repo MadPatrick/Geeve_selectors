@@ -9,7 +9,9 @@
 #soTable th:first-child, #soTable td:first-child { width: 1%; }
 
 /* Volgorde-keuze met de schakelaar Compleet / Backorders direct eronder, links uitgelijnd. */
-.so-keuzes { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.so-keuzes { position: relative; }
+.so-keuzes #soFilter { position: absolute; left: 0; top: 100%; margin-top: 8px; }   /* hangt onder de volgorde-keuze, zonder de rij met veld en knop hoger te maken */
+#soActions { margin-bottom: 56px; }                                                  /* ruimte voor de schakelaar eronder */
 
 /* Print stickers helemaal rechts in de rij met knoppen. */
 .so-print { margin-left: auto; }
