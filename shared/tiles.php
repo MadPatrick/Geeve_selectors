@@ -40,6 +40,7 @@ const TILE_REGISTRY = [
     'artikel-import' => ['templates', 'Artikelgegevens Import', 'reports/artikel-import/index.php', true, false, false],
     'orderhistorie' => ['templates', 'Orderhistorie', 'reports/orderhistorie/index.php', true, false, true],
     'productieorders' => ['templates', 'Productie Orders', 'reports/productieorders/index.php', true, false, false],
+    'barcode' => ['templates', 'Barcode', 'reports/barcode/index.php', true, false, true],
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
     'stickers-order' => ['stickers', 'Artikelen per Verkooporder', 'stickers/order/index.php', true, false, true],
     'stickers-productie' => ['stickers', 'Artikelen per Productieorder', 'stickers/productie/index.php', true, false, true],
@@ -163,6 +164,7 @@ const TILE_ICONS = [
     'slangkaart-netto' => 'currency-eur',
     'stickers-order' => 'receipt',
     'stickers-artikel' => 'barcode',
+    'barcode' => 'barcode',
     'stickers-productie' => 'package',
     'stickers-artikel-groot' => 'battery-charging',
     'stickers-kabelmerkers' => 'tag',

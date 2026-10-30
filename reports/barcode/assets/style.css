@@ -1,0 +1,8 @@
+/* Barcode inkoopontvangst: invoerrij en resultaat; knoppen, tabel en meldingen komen uit klantartikel/assets/style.css. */
+.bc-leverancier { margin: 0 0 8px; }
+.bc-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin: 12px 0; }
+.bc-veld { display: flex; flex-direction: column; font-size: 13px; font-weight: 650; }
+.bc-veld .ka-input { min-width: 220px; }
+.bc-tabel { width: auto; }
+.bc-tabel th { text-align: left; padding-right: 24px; }
+.bc-regel { margin: 12px 0 6px; }
