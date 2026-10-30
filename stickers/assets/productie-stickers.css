@@ -10,6 +10,7 @@
 
 /* Eerste blok: invoer links, voorbeeld + printen helemaal rechts (op smalle schermen eronder). */
 .ps-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.ps-intro { flex: 0 0 100%; }   /* kop en uitleg over de volle breedte: formulier en voorbeeld beginnen daaronder op dezelfde hoogte */
 .ps-form { flex: 1 1 420px; min-width: 0; }
 .ps-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
 .ps-side[hidden] { display: none; }
@@ -23,8 +24,10 @@
 .ps-nav .ka-button:disabled { opacity: .4; cursor: default; }
 .ps-nav .msp-status { min-width: 12ch; text-align: center; }
 
-/* Aantal en printknop naast elkaar, onder het ordernummer. */
+/* Printopties onder het ordernummer: aantal, snelheid + zwarting (twee kolommen), printer en printknop. */
 .ps-print { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 14px; }
+.ps-print[hidden] { display: none; }
+.ps-print #directPrintAfdruk { flex: 0 0 100%; }
 .ps-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
 .ps-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
 

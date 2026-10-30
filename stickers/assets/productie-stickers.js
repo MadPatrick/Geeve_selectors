@@ -9,6 +9,7 @@
     var tbody = document.querySelector('#psTable tbody');
     var all = document.getElementById('psAll');
     var side = document.getElementById('psSide');
+    var printBlock = document.getElementById('psPrintBlock');
     var sheet = document.getElementById('psSheet');
     var printSheet = document.getElementById('psPrintSheet');
     var prevBtn = document.getElementById('psPrev');
@@ -94,6 +95,7 @@
     function renderPreview() {
         var list = selected();
         build(sheet, list, 1);
+        printBlock.hidden = list.length === 0;
         side.hidden = list.length === 0; // eerst zichtbaar maken, anders kan fit() niets meten
         sheet.classList.add('is-measuring');
         fit(sheet);
@@ -153,6 +155,7 @@
                 if (rows.length === 0) {
                     result.hidden = true;
                     side.hidden = true;
+                    printBlock.hidden = true;
                     fail('Geen productieorderregels gevonden voor order ' + nummer + '.');
                     return;
                 }

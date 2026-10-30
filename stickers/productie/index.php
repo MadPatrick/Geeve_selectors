@@ -52,9 +52,11 @@ $csrf = csrfToken();
     ?>
 
     <section class="panel ps-top">
-        <div class="ps-form">
+        <div class="ps-intro">
             <h2>Artikelen per Productieorder</h2>
             <p class="ka-empty">Vul een verkoopordernummer in: je krijgt per productieorderregel een sticker (102 × 54 mm). Vink regels uit die je niet wilt printen.</p>
+        </div>
+        <div class="ps-form">
             <div class="ka-actions" id="psActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
                 <label class="msp-field">
                     <span>Ordernummer</span>
@@ -64,9 +66,20 @@ $csrf = csrfToken();
                 <span id="psStatus" class="msp-status"></span>
             </div>
             <div id="psMessage" class="ka-message ka-message--error" hidden></div>
+
+            <!-- Printopties onder het Ordernummer-veld, links naast het voorbeeld: aantal, snelheid en zwarting, printer en Print. -->
+            <div class="ps-print" id="psPrintBlock" hidden>
+                <label class="ps-copies"><input type="number" id="psCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
+                <?= geevePrintAfdrukInstellingenHtml('stickers-productie') ?>
+                <div class="print-group">
+                    <?= geevePrinterSelectHtml('stickers-productie', $csrf) ?>
+                    <button type="button" id="psPrint" class="print-btn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
+                </div>
+                <span id="psPrintInfo" class="msp-status"></span>
+            </div>
         </div>
 
-        <!-- Voorbeeld: één sticker tegelijk, met daaronder < >. -->
+        <!-- Voorbeeld: één sticker tegelijk, bovenaan gelijk met het Ordernummer-veld. -->
         <div class="ps-side" id="psSide" hidden>
             <div class="ps-preview" id="psSheet"></div>
             <!-- Vorige/volgende sticker en "Sticker x van y": verborgen (het script gebruikt ze nog). -->
@@ -76,16 +89,6 @@ $csrf = csrfToken();
                 <span id="psPreviewCount" class="msp-status"></span>
                 <button type="button" id="psNext" class="ka-button ka-button--secondary" aria-label="Volgende sticker">&gt;</button>
             </div>
-            </div>
-            <!-- Aantal, printerkeuze en printknop onder het voorbeeld. -->
-            <div class="ps-print">
-                <label class="ps-copies"><input type="number" id="psCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
-                <?= geevePrintAfdrukInstellingenHtml('stickers-productie') ?>
-                <div class="print-group">
-                    <?= geevePrinterSelectHtml('stickers-productie', $csrf) ?>
-                    <button type="button" id="psPrint" class="print-btn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
-                </div>
-                <span id="psPrintInfo" class="msp-status"></span>
             </div>
         </div>
     </section>
