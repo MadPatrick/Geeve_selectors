@@ -117,7 +117,7 @@
         locationFilterClear: el('locationFilterClear'),
     };
 
-    const norm = value => String(value ?? '').trim();
+    const norm = value => String(value == null ? '' : value).trim();
     const upper = value => norm(value).toUpperCase();
     const unique = arr => [...new Set(arr.filter(v => norm(v) !== ''))];
     const escapeHtml = value => norm(value).replace(/[&<>"']/g, c => ({
@@ -449,7 +449,7 @@
 
     // Leid de image-map af van de URL van selector.js zelf. Dit blijft correct
     // wanneer de Stauff-app in een submap of via een andere route wordt geopend.
-    const selectorScriptUrl = document.currentScript?.src || new URL('assets/selector.js', window.location.href).href;
+    const selectorScriptUrl = (document.currentScript && document.currentScript.src) || new URL('assets/selector.js', window.location.href).href;
     const SHAPE_IMAGE_DIR = new URL('../images/', selectorScriptUrl).href;
 
     // Welk plaatje (images/<key>.png) hoort bij een gekozen rij. Lasplaat,
@@ -861,7 +861,7 @@
         pairs.forEach(([select, aantalInput]) => {
             if (!select || !aantalInput) return;
             const code = norm(select.value);
-            const previous = aantalInput.dataset.glijmoerCode ?? '';
+            const previous = aantalInput.dataset.glijmoerCode == null ? '' : aantalInput.dataset.glijmoerCode;
             if (code === previous) return;
             aantalInput.dataset.glijmoerCode = code;
             if (isGlijmoer(code)) {

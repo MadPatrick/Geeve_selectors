@@ -35,7 +35,7 @@
     let editMode = false;
     let saveInFlight = false;
 
-    const normalize = (value) => String(value ?? '').trim().toLowerCase();
+    const normalize = (value) => String(value == null ? '' : value).trim().toLowerCase();
     // Voor het zoeken op artikelnummer mag het streepje weggelaten worden
     // (bijv. "032304" moet ook "0323-04" vinden).
     const normalizeArtnr = (value) => normalize(value).replace(/-/g, '');
@@ -72,7 +72,7 @@
     }
 
     function articleMaat(artnr) {
-        const text = String(artnr ?? '');
+        const text = String(artnr == null ? '' : artnr);
         const dashIndex = text.indexOf('-');
         // The size is the number right after the first dash (e.g. "03" in
         // "2440D-03V32", where "V32" is a separate code, not the size).
@@ -203,12 +203,12 @@
     }
 
     function formatSeries(value) {
-        const text = String(value ?? '').trim();
+        const text = String(value == null ? '' : value).trim();
         return text ? `${text}-serie` : '–';
     }
 
     function createFact(label, value, primary = false) {
-        const text = String(value ?? '').trim() || '-';
+        const text = String(value == null ? '' : value).trim() || '-';
 
         const fact = document.createElement('div');
         fact.className = `fitting-fact${primary ? ' primary' : ''}`;
@@ -229,6 +229,9 @@
     function createFactsRow(facts, badge) {
         const row = document.createElement('div');
         row.className = 'fitting-facts';
+        if (facts.some((fact) => fact.classList.contains('fact-edit'))) {
+            row.classList.add('fitting-facts--edit');
+        }
         if (badge) {
             row.appendChild(badge);
         }
@@ -237,7 +240,7 @@
     }
 
     function createAccessoryFact(label, value, imageKey, valueTitle) {
-        const text = String(value ?? '').trim() || '-';
+        const text = String(value == null ? '' : value).trim() || '-';
         const item = document.createElement('div');
         item.className = 'accessory-fact';
 
@@ -279,7 +282,7 @@
     }
 
     function joinValues(...values) {
-        return values.map((v) => String(v ?? '').trim()).filter(Boolean).join(', ');
+        return values.map((v) => String(v == null ? '' : v).trim()).filter(Boolean).join(', ');
     }
 
     function renderAccessories(article) {
@@ -304,7 +307,7 @@
             ['Huls Texsleeve (RVS)', accessories.hulsTexRvs, '19001', null],
         ];
 
-        const hasAccessoryData = fields.some(([, value]) => String(value ?? '').trim() !== '');
+        const hasAccessoryData = fields.some(([, value]) => String(value == null ? '' : value).trim() !== '');
         if (!hasAccessoryData) {
             accessorySection.hidden = true;
             return false;
@@ -329,7 +332,7 @@
         if (type) input.dataset.type = type;
         if (number !== undefined && number !== null) input.dataset.number = String(number);
         input.dataset.field = field;
-        input.value = String(value ?? '').trim();
+        input.value = String(value == null ? '' : value).trim();
         if (isNumericInput(input)) {
             input.value = normalizeNumericValue(input.value);
             input.inputMode = 'decimal';
@@ -861,12 +864,12 @@
     }
 
     function fieldValue(value) {
-        const text = String(value ?? '').trim();
+        const text = String(value == null ? '' : value).trim();
         return text === '' ? '-' : text;
     }
 
     function hoseTypeInfo(artnr) {
-        const text = String(artnr ?? '').trim();
+        const text = String(artnr == null ? '' : artnr).trim();
 
         // Parker multi-spiral hoses (SR25/SR29/SR35/SR45/SRI42) share one
         // combined "SR/SRI" group regardless of the number, with ST/TC/SN
@@ -1094,7 +1097,7 @@
     // De eigen dash-maat van een artnr ("0811-03" -> "03"), voor het
     // herkennen van de hulsfamilie hieronder.
     function dashMaat(artnr) {
-        const match = /^[^-]*-(\d+)/.exec(String(artnr ?? ''));
+        const match = /^[^-]*-(\d+)/.exec(String(artnr == null ? '' : artnr));
         return match ? match[1] : null;
     }
 
@@ -1230,7 +1233,7 @@
                 accessories.hulsTexStaal,
                 accessories.hulsTexRvs,
             ];
-            const hasData = values.some((value) => String(value ?? '').trim() !== '');
+            const hasData = values.some((value) => String(value == null ? '' : value).trim() !== '');
             if (!hasData) {
                 return;
             }

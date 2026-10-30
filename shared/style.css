@@ -56,6 +56,7 @@ button, input, select { font: inherit; }
 .page-header { margin-bottom: 18px; }
 /* Voettekst ("(c) 2026 PdB - Geeve Hydraulics") altijd onderaan de pagina: bij weinig inhoud staat hij onderaan het scherm,
    bij veel inhoud gewoon onder de inhoud. 46px = marges boven (6px) en onder (40px) van .page-shell. */
+/* Zonder :has() (oudere browsers) volgt de voettekst gewoon de inhoud. */
 .page-shell:has(> .page-footer) { min-height: calc(100vh - 46px); display: flex; flex-direction: column; }
 .page-footer { margin: auto 4px 0; padding-top: 30px; color: var(--muted); font-size: 12px; text-align: center; }
 
