@@ -241,6 +241,7 @@
     --status-pill-bg: #e7edf2;
     --sticker-preview-shadow: #e0516a;
     --kabelmerker-geel: #fff6a8;   /* lichtgeel label ALTEC 72001207 (Kabelmerkers Geel) */
+    --sticker-accu-geel: #fff6a8;  /* lichtgeel accu-label (alleen voorbeeld op het scherm, niet in de print) */
     --kabelmerker-drager: #c9c9c9;   /* drager/rol waar de labels op zitten (voorbeeld Kabelmerkers Geel) */
     --table-head-bg: #f6f9fb;
     --tile-disabled-bg: #eef0f3;
