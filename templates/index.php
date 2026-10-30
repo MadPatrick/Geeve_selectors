@@ -132,6 +132,14 @@ $csrf = csrfToken();
             <?= tileLockIcon('productieorders') ?>
         </a>
         <?php endif; $tileHtml['productieorders'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('barcode')): ?>
+        <a class="<?= tileClass('barcode') ?>" href="<?= h(geeveAppUrl('barcode')) ?>"<?= tileAttrs('barcode') ?>>
+            <?= tileIcon('barcode') ?>
+            <h2><?= h(tileTitle('barcode')) ?></h2>
+            <p>Inkooporder en artikel opzoeken en het open aantal zien, om een ontvangst te boeken</p>
+            <?= tileLockIcon('barcode') ?>
+        </a>
+        <?php endif; $tileHtml['barcode'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('templates') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 
