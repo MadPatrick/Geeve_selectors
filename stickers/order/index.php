@@ -60,17 +60,19 @@ $csrf = csrfToken();
                 <span>Ordernummer</span>
                 <input type="text" id="soNumber" class="ka-input" inputmode="numeric" maxlength="18" autocomplete="off" autofocus>
             </label>
+            <button type="button" id="soFetch" class="ka-button">Gegevens ophalen</button>
             <div class="rp-toggle" id="soSort" role="group" aria-label="Volgorde">
                 <button type="button" data-sort="regel">Orderregel</button>
                 <button type="button" data-sort="loop" class="is-active">Looplocatie</button>
                 <button type="button" data-sort="artikel">Artikelsticker</button>
             </div>
-            <div class="rp-toggle" id="soFilter" role="group" aria-label="Regels">
-                <button type="button" data-filter="compleet">Compleet</button>
-                <button type="button" data-filter="backorders" class="is-active">Backorders</button>
-            </div>
-            <button type="button" id="soFetch" class="ka-button">Gegevens ophalen</button>
             <span id="soStatus" class="msp-status"></span>
+            <div class="so-filterrij">
+                <div class="rp-toggle" id="soFilter" role="group" aria-label="Regels">
+                    <button type="button" data-filter="compleet">Compleet</button>
+                    <button type="button" data-filter="backorders" class="is-active">Backorders</button>
+                </div>
+            </div>
         </div>
         <div id="soMessage" class="ka-message ka-message--error" hidden></div>
         </div>
