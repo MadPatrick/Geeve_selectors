@@ -11,7 +11,7 @@
 /* Eerste blok: invoer links, voorbeeld + printen helemaal rechts (op smalle schermen eronder). */
 .ps-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
 .ps-intro { flex: 0 0 100%; }   /* kop en uitleg over de volle breedte: formulier en voorbeeld beginnen daaronder op dezelfde hoogte */
-.ps-form { flex: 1 1 420px; min-width: 0; }
+.ps-form { flex: 1 1 360px; min-width: 0; }
 .ps-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
 .ps-side[hidden] { display: none; }
 
@@ -24,12 +24,15 @@
 .ps-nav .ka-button:disabled { opacity: .4; cursor: default; }
 .ps-nav .msp-status { min-width: 12ch; text-align: center; }
 
-/* Printopties onder het ordernummer: aantal, snelheid + zwarting (twee kolommen), printer en printknop. */
-.ps-print { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 14px; }
+/* Printopties onder het ordernummer, links naast het voorbeeld: rij 1 aantal + Print, rij 2 Snelheid + Zwarting (twee kolommen),
+   rij 3 de printerkeuze, even breed als rij 2. */
+.ps-print { display: flex; flex-direction: column; align-items: stretch; gap: 12px; width: -moz-max-content; width: max-content; max-width: 100%; margin-top: 14px; }
 .ps-print[hidden] { display: none; }
-.ps-print #directPrintAfdruk { flex: 0 0 100%; }
+.ps-rij { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
 .ps-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
 .ps-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
+.ps-print .ps-printer { display: block; }
+.ps-print .ps-printer .direct-print, .ps-print .ps-printer select { display: block; width: 100%; min-width: 0; box-sizing: border-box; }
 
 /* De sticker */
 .sticker {

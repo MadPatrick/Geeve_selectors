@@ -17,7 +17,6 @@
     var previewCount = document.getElementById('psPreviewCount');
     var copies = document.getElementById('psCopies');
     var printBtn = document.getElementById('psPrint');
-    var printInfo = document.getElementById('psPrintInfo');
     var rows = [];
     var asked = '';
     var current = 0; // welke sticker het voorbeeld toont
@@ -89,7 +88,6 @@
     function updateInfo(list) {
         var n = list.length * times();
         printBtn.disabled = n === 0;
-        printInfo.textContent = n === 0 ? '' : n + (n === 1 ? ' sticker' : ' stickers') + (times() > 1 ? ' (' + list.length + ' regels)' : '');
     }
 
     function renderPreview() {
