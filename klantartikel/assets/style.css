@@ -45,12 +45,12 @@
 .ka-filter-row th { background: transparent; padding-bottom: 4px; border-bottom: 0; }
 .ka-table tr[hidden] { display: none; }
 
-.ka-actions { display: flex; gap: var(--btn-gap); align-items: center; }
+.ka-actions { display: flex; gap: var(--btn-gap); align-items: center; flex-wrap: wrap; }
 /* Met invulvelden (label boven het veld): velden en knoppen zijn even hoog (44px) en onderaan uitgelijnd, dus de knop staat
    verticaal precies naast het veld (niet naast label + veld). Statustekst staat ook op die hoogte. */
-.ka-actions:has(.msp-field) { align-items: flex-end; flex-wrap: wrap; }
-.ka-actions:has(.msp-field) .msp-field :is(input, select) { min-height: 44px; }
-.ka-actions:has(.msp-field) > .msp-status { min-height: 44px; display: flex; align-items: center; }
+.ka-actions:has(.msp-field) { align-items: flex-end; }
+.ka-actions .msp-field input, .ka-actions .msp-field select { min-height: 44px; }
+.ka-actions > .msp-status { min-height: 44px; display: flex; align-items: center; }
 .ka-add { margin: 0; flex: none; }
 .ka-itemtext { font-weight: 600; }
 .ka-table tr.is-found .ka-itemtext { color: var(--ink); }
@@ -61,7 +61,6 @@
 
 .ka-drop { margin: 12px 0; padding: 18px; border: 2px dashed var(--accent-line); border-radius: 12px; text-align: center; font-size: 13px; color: var(--muted); cursor: pointer; }
 /* Het importvak staat naast de knoppen (in .ka-actions) en neemt de rest van de rij; op een smal scherm komt het eronder. */
-.ka-actions:has(> .ka-drop) { flex-wrap: wrap; }
 .ka-actions > .ka-drop { flex: 1 1 320px; margin: 0; padding: 10px 14px; }
 .ka-drop:hover, .ka-drop:focus-visible, .ka-drop.is-over { background: var(--soft); border-color: var(--accent); outline: none; }
 .ka-message--ok { color: var(--ok); background: var(--status-ok-soft); }
