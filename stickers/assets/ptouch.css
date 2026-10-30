@@ -6,6 +6,7 @@
 .pt-align { display: flex; flex-direction: column; gap: 8px; }
 .pt-align-label { font-weight: 700; }
 .pt-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.pt-aantal { width: 3.6em; flex: 0 0 auto; text-align: center; }
 .pt-print-rechts { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
 .pt-sticker {
