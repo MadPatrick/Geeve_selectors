@@ -174,7 +174,7 @@
         renderPreview();
     });
 
-    // Print: de printer kies je in het printvenster van de browser. De datum is de printdatum.
+    // Print: de printer en de afdrukinstellingen kies je in het scherm (direct-print.js); de datum is de printdatum.
     printBtn.addEventListener('click', function () {
         var list = selected();
         if (list.length === 0) { return; }

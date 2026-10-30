@@ -212,7 +212,7 @@
             result.hidden = true;
             previewPanel.hidden = true;
             printBtn.disabled = true;
-            fail('Alle regels van order ' + asked + ' zijn al geleverd (geen backorders).');
+            fail('Alle regels van order ' + asked + ' zijn al geleverd (geen backorders). Kies Compleet om toch alle regels te zien.');
             return;
         }
         message.hidden = true;
