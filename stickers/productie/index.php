@@ -67,7 +67,9 @@ $csrf = csrfToken();
             </div>
             <div id="psMessage" class="ka-message ka-message--error" hidden></div>
 
-            <!-- Printopties onder het Ordernummer-veld, links naast het voorbeeld: aantal, snelheid en zwarting, printer en Print. -->
+        </div>
+
+        <!-- Printopties: links naast het voorbeeld, bovenaan op dezelfde hoogte als het Ordernummer-veld. -->
             <div class="ps-print" id="psPrintBlock" hidden>
                 <div class="ps-rij">
                     <label class="ps-copies"><input type="number" id="psCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
@@ -78,7 +80,6 @@ $csrf = csrfToken();
                     <?= geevePrinterSelectHtml('stickers-productie', $csrf) ?>
                 </div>
             </div>
-        </div>
 
         <!-- Voorbeeld: één sticker tegelijk, bovenaan gelijk met het Ordernummer-veld. -->
         <div class="ps-side" id="psSide" hidden>

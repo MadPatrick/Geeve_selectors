@@ -26,7 +26,7 @@
 
 /* Printopties onder het ordernummer, links naast het voorbeeld: rij 1 aantal + Print, rij 2 Snelheid + Zwarting (twee kolommen),
    rij 3 de printerkeuze, even breed als rij 2. */
-.ps-print { display: flex; flex-direction: column; align-items: stretch; gap: 12px; width: 340px; max-width: 100%; margin: 14px 0 0 auto; }   /* rechts in de kolom: tegen het voorbeeld aan */
+.ps-print { display: flex; flex-direction: column; align-items: stretch; gap: 12px; width: 340px; max-width: 100%; margin: 0; padding-top: 19px; }   /* naast het voorbeeld; de 19px = hoogte van het label "Ordernummer", zodat "x afdrukken" op gelijke hoogte met het veld staat */
 .ps-print[hidden] { display: none; }
 .ps-rij { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
 .ps-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
