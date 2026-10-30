@@ -80,6 +80,7 @@ $csrf = csrfToken();
             <!-- Aantal, printerkeuze en printknop onder het voorbeeld. -->
             <div class="ps-print">
                 <label class="ps-copies"><input type="number" id="psCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
+                <?= geevePrintAfdrukInstellingenHtml('stickers-productie') ?>
                 <div class="print-group">
                     <?= geevePrinterSelectHtml('stickers-productie', $csrf) ?>
                     <button type="button" id="psPrint" class="print-btn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>

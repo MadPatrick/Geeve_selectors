@@ -54,7 +54,7 @@ $csrf = csrfToken();
     <section class="panel so-top">
         <div class="so-form">
         <h2>Artikelen per Verkooporder</h2>
-        <p class="ka-empty">Vul een ordernummer in: je krijgt per orderregel een sticker (102 × 54 mm), in de volgorde van de order of van de looplocatie, of als artikelsticker (70 × 25 mm, ALTEC 72000496: omschrijving, barcode en artikelnummer). Vink regels uit die je niet wilt printen.</p>
+        <p class="ka-empty">Vul een ordernummer in: je krijgt per orderregel een sticker (102 × 54 mm), in de volgorde van de order of van de looplocatie, of als artikelsticker (70 × 25 mm, ALTEC 72000496: omschrijving, barcode en artikelnummer). Vink regels uit die je niet wilt printen. Met &ldquo;Backorders&rdquo; aan krijg je alleen de regels die nog niet (helemaal) geleverd zijn.</p>
         <div class="ka-actions" id="soActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
             <label class="msp-field">
                 <span>Ordernummer</span>
@@ -65,6 +65,7 @@ $csrf = csrfToken();
                 <button type="button" data-sort="loop" class="is-active">Looplocatie</button>
                 <button type="button" data-sort="artikel">Artikelsticker</button>
             </div>
+            <label class="so-backorders"><input type="checkbox" id="soBackorders"> Backorders</label>
             <button type="button" id="soFetch" class="ka-button">Gegevens ophalen</button>
             <span id="soStatus" class="msp-status"></span>
         </div>
