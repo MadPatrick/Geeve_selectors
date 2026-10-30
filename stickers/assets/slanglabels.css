@@ -6,13 +6,13 @@
 .sl-form { flex: 1 1 520px; min-width: 0; }
 .sl-side { margin-left: auto; display: flex; flex-direction: row; align-items: flex-end; gap: 24px; }
 
-/* Drie rijen: Slangnummer + Uw referentie / Lengte + Datum + Printen / Klantnaam + Aantal (3 tekens breed). */
+/* Drie rijen: Slangnummer + Uw referentie / Lengte + Datum / Klantnaam + Aantal (3 tekens breed) + Printen Datum. */
 .sl-fields { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) auto; grid-auto-flow: row; gap: 12px 16px; margin-top: 18px; align-items: start; }
 .sl-fields .ka-input { width: 100%; }
-/* Rij 1: slangnummer + referentie; rij 2: lengte + datum + printen; rij 3: klantnaam + aantal. */
-.sl-fields > :nth-child(1), .sl-fields > :nth-child(3), .sl-fields > :nth-child(6) { grid-column: 1; }
-.sl-fields > :nth-child(2), .sl-fields > :nth-child(4), .sl-fields > :nth-child(7) { grid-column: 2; }
-.sl-fields .sl-printen { grid-column: 3; }
+/* Rij 1: slangnummer + referentie; rij 2: lengte + datum; rij 3: klantnaam + aantal + printen datum. */
+.sl-fields > :nth-child(1), .sl-fields > :nth-child(3), .sl-fields > :nth-child(5) { grid-column: 1; }
+.sl-fields > :nth-child(2), .sl-fields > :nth-child(4), .sl-fields > :nth-child(6) { grid-column: 2; }
+.sl-fields .sl-printen { grid-column: 3; grid-row: 3; }
 .sl-fields .sl-aantal .ka-input { width: 5em; }
 .sl-printen .sl-check { min-height: 28px; white-space: nowrap; }
 .sl-check { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; cursor: pointer; }
