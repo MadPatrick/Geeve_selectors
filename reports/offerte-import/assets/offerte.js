@@ -590,8 +590,32 @@
             kopEntiteit: EXACT.kopEntiteit, kop: EXACT.kop(date),
             regelEntiteit: EXACT.regelEntiteit, regels: out,
             dubbelcontrole: { entiteit: EXACT.kopEntiteit, velden: EXACT.dubbel(date) },
-            schrijven: write
+            schrijven: write,
+            achtergrond: write   // nieuwe slangkaart-app: taaknummer terug en de stand per regel opvragen (30-10-2026)
         };
+    }
+    // Wacht tot een achtergrondtaak af is en meldt tussendoor "klaar van totaal". Een oudere slangkaart-app negeert
+    // "achtergrond" en geeft meteen het eindantwoord (zonder taak): dan is er niets te volgen en gaat het als vroeger.
+    function exactVolg(j, bar) {
+        if (!j || !j.ok || !j.taak) { return Promise.resolve(j); }
+        var url = exactBtn.getAttribute('data-url') + '/' + encodeURIComponent(j.taak);
+        var fouten = 0;
+        bar.set(0, j.totaal, '0/' + j.totaal + ' regels');
+        return new Promise(function (resolve) {
+            (function stap() {
+                fetch(url, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (s) {
+                    fouten = 0;
+                    if (!s.ok) { resolve({ ok: false, fout: s.fout || 'Stand van het schrijven niet op te vragen.' }); return; }
+                    if (!s.bezig) { resolve(s.uitkomst.body); return; }
+                    bar.set(s.klaar, s.totaal, s.klaar + '/' + s.totaal + ' regels');
+                    setTimeout(stap, 500);
+                }).catch(function () {
+                    fouten += 1;
+                    if (fouten >= 10) { resolve({ ok: false, fout: 'Verbinding met de slangkaart-app weg tijdens het schrijven; de stand in Exact is onbekend.' }); return; }
+                    setTimeout(stap, 1000);
+                });
+            })();
+        });
     }
     function postExact(body) {
         return fetch(exactBtn.getAttribute('data-url'), {
@@ -608,10 +632,10 @@
         showMessage(''); showInfo('');
         var write = exactPending;
         exactBusy = true; exactBtn.disabled = true;
-        // Voortgangsbalk: één verzoek aan de slangkaart-app, dus een lopende balk (geen voortgang per regel).
+        // Voortgangsbalk: bij de proef een lopende balk; bij schrijven "12/20 regels" (de app meldt de klare regels).
         var bar = GeeveProgress.start(write ? 'Offerte naar Exact schrijven…' : 'Proef naar Exact…', exactBtn);
         var t0 = new Date().getTime();
-        postExact(exactBody(write)).then(function (j) {
+        postExact(exactBody(write)).then(function (j) { return write ? exactVolg(j, bar) : j; }).then(function (j) {
             var duur = ' Duur: ' + (Math.round((new Date().getTime() - t0) / 100) / 10).toString().replace('.', ',') + ' s.';
             if (j.ok) { bar.finish(write ? 'Naar Exact geschreven' : 'Proef gelukt'); } else { bar.fail('Naar Exact mislukt'); }
             exactBusy = false; exactBtn.disabled = !readyState;   // alleen actief als alles klopt, zoals Exporteer XML
