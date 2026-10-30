@@ -31,6 +31,7 @@
 .ps-rij { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
 .ps-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
 .ps-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
+.ps-print .direct-print-instelling label { flex-direction: column; align-items: flex-start; gap: 4px; }   /* Snelheid / Zwarting boven hun veld */
 .ps-print .ps-printer { display: block; }
 .ps-print .ps-printer .direct-print, .ps-print .ps-printer select { display: block; width: 100%; min-width: 0; box-sizing: border-box; }
 
