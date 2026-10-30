@@ -23,7 +23,8 @@
     var pageNext = document.getElementById('soPageNext');
     var rows = [];
     var alleRows = [];   // alle regels van de order; rows is daarvan de selectie (bij "Backorders" alleen wat nog niet geleverd is)
-    var backorders = document.getElementById('soBackorders');
+    var filterToggle = document.getElementById('soFilter');
+    var backorders = true; // 'Backorders' (standaard) of 'Compleet'
     var asked = '';
     var sortBy = 'loop'; // 'loop' (looplocatie, standaard), 'regel' (orderregelnummer) of 'artikel' (artikelsticker, op orderregel)
     var BC_MODULE_MM = 0.38; // breedte van één streepje in de barcode, zelfde als de artikelsticker
@@ -205,7 +206,7 @@
         return isNaN(besteld) || isNaN(geleverd) || geleverd < besteld;
     }
     function applyFilter() {
-        rows = backorders.checked ? alleRows.filter(nogTeLeveren) : alleRows.slice();
+        rows = backorders ? alleRows.filter(nogTeLeveren) : alleRows.slice();
         if (alleRows.length === 0) { return; }
         if (rows.length === 0) {
             result.hidden = true;
@@ -217,7 +218,13 @@
         message.hidden = true;
         render(rows[0]);
     }
-    backorders.addEventListener('change', applyFilter);
+    filterToggle.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-filter]');
+        if (!btn) { return; }
+        backorders = btn.getAttribute('data-filter') === 'backorders';
+        Array.prototype.forEach.call(filterToggle.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b === btn); });
+        applyFilter();
+    });
 
     function load() {
         var nummer = input.value.trim();
