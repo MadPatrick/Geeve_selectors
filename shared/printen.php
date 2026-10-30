@@ -95,7 +95,7 @@ const GEEVE_TSPL_ZWART_IS_NUL = true;
  * 'brother' (Brother QL: Zwarting = grijsdrempel in %, Snelheid = Standaard/Snel) of 'tspl' (Altec/TSC: SPEED 1-12 en
  * DENSITY 0-15 als cijfers). Andere printers negeren ze. Leeg = standaard. Zie geevePrintAfdrukInstellingenHtml().
  */
-const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch', 'stickers-order', 'stickers-slanglabels'];
+const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch', 'stickers-order', 'stickers-productie', 'stickers-slanglabels'];
 
 /** Voorgeselecteerde printer per tegel (naam van de printerwachtrij), voor wie nog geen eigen keuze (cookie) heeft. */
 const GEEVE_PRINT_TILE_STANDAARD_PRINTER = ['stickers-kabelmerkers' => 'RTMLBGeelKunstof01'];
