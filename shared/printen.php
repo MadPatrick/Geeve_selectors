@@ -903,10 +903,11 @@ function geevePrintAfdrukInstellingenHtml(string $tileId): string
     $sheet = GEEVE_PRINT_TILE_PAGE[$tileId]['class'] ?? '';
     $medium = GEEVE_LABEL_MEDIUM[$sheet] ?? [];
     $keuzes = static function (string $id, string $titel, array $waarden, string $standaard = '', ?int $vet = null): string {
-        $opties = '<option value=""' . ($standaard === '' ? ' selected' : '') . '>Standaard</option>';
+        // Is de standaardwaarde van de printer bekend, dan heet de optie "Standaard" zo (bv. "12 (standaard)") en staat vet.
+        $opties = '<option value=""' . ($standaard === '' ? ' selected' : '')
+            . ($vet !== null ? ' class="is-standaard" style="font-weight:bold">' . ($waarden[$vet] ?? $vet) . ' (standaard)' : '>Standaard') . '</option>';
         foreach ($waarden as $waarde => $tekst) {
-            $opties .= '<option value="' . $waarde . '"' . ((string) $waarde === $standaard ? ' selected' : '')
-                . ($vet !== null && (int) $waarde === $vet ? ' style="font-weight:bold" data-vet="1"' : '') . '>' . $tekst . '</option>';
+            $opties .= '<option value="' . $waarde . '"' . ((string) $waarde === $standaard ? ' selected' : '') . '>' . $tekst . '</option>';
         }
         return '<select id="' . $id . '" title="' . $titel . '">' . $opties . '</select>';
     };
@@ -923,12 +924,5 @@ function geevePrintAfdrukInstellingenHtml(string $tileId): string
         . $set('tspl',
             $keuzes('directSnelheid-tspl', 'Printsnelheid in inch/s (1-12); Standaard = standaard van de printer', array_combine(range(1, 12), range(1, 12)), '', isset($medium['snelheid']) ? (int) $medium['snelheid'] : null),
             $keuzes('directZwarting-tspl', 'Zwarting (0-15, hoger = zwarter); Standaard = standaard van de printer', array_combine(range(0, 15), range(0, 15)), '', isset($medium['zwarting']) ? (int) $medium['zwarting'] : null))
-        . '</div>'
-        // De gekozen waarde staat in de uitgeklapte lijst ook vetgedrukt (naast de standaardwaarde, die altijd vet is).
-        . '<script>(function(){var d=document.getElementById("directPrintAfdruk");if(!d){return;}'
-        . 'var s=d.getElementsByTagName("select");for(var i=0;i<s.length;i++){(function(el){'
-        . 'function m(){for(var j=0;j<el.options.length;j++){var o=el.options[j];'
-        . 'if(!o.getAttribute("data-vet")&&o.value!==""){o.style.fontWeight=(o.selected?"bold":"normal");}'
-        . 'else if(o.value===""){o.style.fontWeight=el.selectedIndex===0?"bold":"normal";}}}'
-        . 'el.addEventListener("change",m);m();})(s[i]);}})();</script>';
+        . '</div>';
 }

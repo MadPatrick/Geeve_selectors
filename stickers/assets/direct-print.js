@@ -50,7 +50,14 @@
                 var bewaard = window.localStorage.getItem(sleutel);
                 if (bewaard !== null) { veld.value = bewaard; } // anders blijft de voorgeselecteerde keuze staan
             } catch (e) { /* opslag niet beschikbaar */ }
+            // Staat de standaardoptie (vet) gekozen, dan toont ook het gesloten veld de waarde vet.
+            function vetMarkering() {
+                var gekozen = veld.options[veld.selectedIndex];
+                veld.style.fontWeight = gekozen && gekozen.className === 'is-standaard' ? 'bold' : '';
+            }
+            vetMarkering();
             veld.addEventListener('change', function () {
+                vetMarkering();
                 try { window.localStorage.setItem(sleutel, veld.value); } catch (e) { /* opslag niet beschikbaar */ }
             });
         });
