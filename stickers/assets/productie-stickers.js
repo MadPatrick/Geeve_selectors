@@ -93,8 +93,6 @@
     function renderPreview() {
         var list = selected();
         build(sheet, list, 1);
-        printBlock.hidden = list.length === 0;
-        side.hidden = list.length === 0; // eerst zichtbaar maken, anders kan fit() niets meten
         sheet.classList.add('is-measuring');
         fit(sheet);
         sheet.classList.remove('is-measuring');
@@ -152,8 +150,6 @@
                 asked = nummer;
                 if (rows.length === 0) {
                     result.hidden = true;
-                    side.hidden = true;
-                    printBlock.hidden = true;
                     fail('Geen productieorderregels gevonden voor order ' + nummer + '.');
                     return;
                 }

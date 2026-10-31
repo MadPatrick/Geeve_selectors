@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../shared/helpers.php';
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
 require_once __DIR__ . '/../../shared/printen.php';
+require_once __DIR__ . '/../../shared/stickers_kaart.php';
 tileRequirePage('stickers-order', geeveAppUrl('stickers'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
@@ -27,7 +28,7 @@ $csrf = csrfToken();
     <title>Artikelen per Verkooporder | Geeve Hydraulics</title>
     <!-- Knoppen, tabel, invoerveld en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -41,16 +42,17 @@ $csrf = csrfToken();
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel so-top">
-        <div class="so-form">
-        <h2>Artikelen per Verkooporder</h2>
-        <p class="ka-empty">Vul een ordernummer in: je krijgt per orderregel een sticker (102 × 54 mm), in de volgorde van de order of van de looplocatie, of als artikelsticker (70 × 25 mm, ALTEC 72000496: omschrijving, barcode en artikelnummer). Vink regels uit die je niet wilt printen. Met &ldquo;Backorders&rdquo; (standaard) krijg je alleen de regels die nog niet (helemaal) geleverd zijn; met &ldquo;Compleet&rdquo; alle regels van de order.</p>
-        <div class="ka-actions" id="soActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
-            <label class="msp-field">
-                <span>Ordernummer</span>
-                <input type="text" id="soNumber" class="ka-input" inputmode="numeric" maxlength="18" autocomplete="off" autofocus>
-            </label>
-            <button type="button" id="soFetch" class="ka-button">Gegevens ophalen</button>
+    <section class="panel sk-top">
+        <div class="sk-invoer">
+            <?= stickerTitelHtml('Artikelen per Verkooporder', '102 × 54 mm', 'Vul een ordernummer in: je krijgt per orderregel een sticker. Vink regels uit die je niet wilt printen.', 'De sticker staat in de volgorde van de order of van de looplocatie, of als artikelsticker (70 × 25 mm, ALTEC 72000496: omschrijving, barcode en artikelnummer). Met "Backorders" (standaard) krijg je alleen de regels die nog niet (helemaal) geleverd zijn; met "Compleet" alle regels van de order.') ?>
+            <div class="ka-actions" id="soActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
+                <label class="msp-field">
+                    <span>Ordernummer</span>
+                    <input type="text" id="soNumber" class="ka-input" inputmode="numeric" maxlength="18" autocomplete="off" autofocus>
+                </label>
+                <button type="button" id="soFetch" class="ka-button">Gegevens ophalen</button>
+                <span id="soStatus" class="msp-status"></span>
+            </div>
             <div class="so-keuzes">
                 <div class="rp-toggle" id="soSort" role="group" aria-label="Volgorde">
                     <button type="button" data-sort="regel">Orderregel</button>
@@ -62,32 +64,22 @@ $csrf = csrfToken();
                     <button type="button" data-filter="backorders" class="is-active">Backorders</button>
                 </div>
             </div>
-            <span id="soStatus" class="msp-status"></span>
+            <div id="soMessage" class="ka-message ka-message--error" hidden></div>
         </div>
-        <div id="soMessage" class="ka-message ka-message--error" hidden></div>
-        </div>
-
-        <!-- Voorbeeld: rechts in dit blok, één sticker tegelijk. -->
-        <div class="so-side" id="soPreviewPanel" hidden>
-            <div class="so-preview" id="soSheet"></div>
-            <!-- Vorige/volgende sticker en "Sticker x van y": verborgen (het script gebruikt ze nog). -->
-            <div hidden>
+        <?= stickerKaartHtml([
+            'id' => 'soPreviewPanel', 'tileId' => 'stickers-order', 'csrf' => $csrf,
+            'preview' => '<div class="so-preview" id="soSheet"></div>',
+            'printId' => 'soPrint', 'printClass' => 'so-print', 'printDisabled' => true,
+        ]) ?>
+        <!-- Vorige/volgende sticker en "Sticker x van y": verborgen (het script gebruikt ze nog). -->
+        <div hidden>
             <div class="so-nav" id="soNav">
                 <button type="button" id="soPrev" class="ka-button ka-button--secondary" aria-label="Vorige sticker">&lt;</button>
                 <span id="soPreviewCount" class="msp-status"></span>
                 <button type="button" id="soNext" class="ka-button ka-button--secondary" aria-label="Volgende sticker">&gt;</button>
             </div>
-            </div>
-            <div class="so-print-rechts">
-            <?= geevePrintAfdrukInstellingenHtml('stickers-order') ?>
-            <div class="print-group so-printrow">
-                <?= geevePrinterSelectHtml('stickers-order', $csrf) ?>
-                <button type="button" id="soPrint" class="print-btn so-print" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
-            </div>
-            </div>
         </div>
     </section>
-
     <section class="panel" id="soResult" hidden>
         <div class="msp-summary" id="soSummary"></div>
         <div class="ka-table-wrap">
