@@ -23,6 +23,15 @@
         var pad = function (n) { return (n < 10 ? '0' : '') + n; };
         return { slangnummer: '', referentie: '', lengte: '', datum: pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + '-' + d.getFullYear(), klantnaam: '', aantal: '1', artnr_kl: '' };
     }
+    // Het datumveld is een kalenderkeuze (waarde jjjj-mm-dd); op het label en in de tabel staat dd-mm-jjjj.
+    function naarIso(d) {
+        var m = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(String(d).trim());
+        return m ? m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2) : '';
+    }
+    function vanIso(v) {
+        var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+        return m ? m[3] + '-' + m[2] + '-' + m[1] : '';
+    }
     function esc(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
@@ -82,7 +91,10 @@
 
     function fill() {
         var r = active();
-        Array.prototype.forEach.call(fields, function (el) { el.value = r[el.getAttribute('data-field')]; });
+        Array.prototype.forEach.call(fields, function (el) {
+            var v = r[el.getAttribute('data-field')];
+            el.value = el.type === 'date' ? naarIso(v) : v;
+        });
         preview();
     }
 
@@ -103,7 +115,7 @@
     Array.prototype.forEach.call(fields, function (el) {
         el.addEventListener('input', function () {
             var r = active();
-            r[el.getAttribute('data-field')] = el.value;
+            r[el.getAttribute('data-field')] = el.type === 'date' ? vanIso(el.value) : el.value;
             if (current >= 0) {
                 var cb = tbody.querySelector('input[data-i="' + current + '"]');
                 var on = cb && cb.checked;
