@@ -1,4 +1,4 @@
-/* Artikelgegevens Import: eigen tabelregels; knoppen, tabel (.ka-table, compacte regels) en meldingen komen uit klantartikel. */
+/* Import Artikelgegevens: eigen tabelregels; knoppen, tabel (.ka-table, compacte regels) en meldingen komen uit klantartikel. */
 #aiTable thead th { position: sticky; top: 0; background: var(--soft); z-index: 1; white-space: normal; vertical-align: bottom; }
 #aiTable td { vertical-align: middle; }
 /* De tabel past altijd in de breedte (geen schuifbalk): vaste kolomverdeling, velden vullen hun kolom. */

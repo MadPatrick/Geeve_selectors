@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../shared/tiles.php';
 tileApiGuard('artikel-import');
 
 /**
- * Artikelgegevens Import: controleert artikelcodes, leveranciers (crediteuren) en artikelgroepen tegen Exact en geeft de
+ * Import Artikelgegevens: controleert artikelcodes, leveranciers (crediteuren) en artikelgroepen tegen Exact en geeft de
  * huidige waarden uit Exact terug, zodat het dashboard ze naast de nieuwe waarden kan tonen.
  * POST met csrf, items[], suppliers[] en groups[]; antwoord:
  * {"ok":true,

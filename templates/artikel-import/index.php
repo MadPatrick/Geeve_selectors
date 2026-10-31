@@ -23,7 +23,7 @@ $csrf = csrfToken();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Artikelgegevens Import | Geeve Hydraulics</title>
+    <title>Import Artikelgegevens | Geeve Hydraulics</title>
     <!-- Knoppen, tabel, meldingen en de sleepzone zijn dezelfde als in Klant Artikelnummers en Inkooporder Import. -->
     <?php
     $headCss = ['assets/style.css', 'klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'templates/artikel-import/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
@@ -33,7 +33,7 @@ $csrf = csrfToken();
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Artikelgegevens Import';
+    $headerTitle = 'Import Artikelgegevens';
     $headerImagesPath = geeveUrl('images/');
     $headerHomeHref = geeveAppUrl('templates'); // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel

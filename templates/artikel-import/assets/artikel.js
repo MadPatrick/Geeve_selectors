@@ -94,7 +94,7 @@
             ['I', 'Artikelgroep', 'Leeg = oude waarde blijft staan.'],
             ['J', 'Omschrijving', 'Leeg = oude waarde blijft staan.'],
             [],
-            ['', 'Importeren', 'Importeer het bestand in Reports > Artikelgegevens Import: elk artikel wordt gecontroleerd met Exact, de huidige waarden worden getoond en de velden zijn daar nog aan te passen.']
+            ['', 'Importeren', 'Importeer het bestand in Reports > Import Artikelgegevens: elk artikel wordt gecontroleerd met Exact, de huidige waarden worden getoond en de velden zijn daar nog aan te passen.']
         ]);
         help['!cols'] = [{ wch: 6 }, { wch: 24 }, { wch: 120 }];
         var wb = XLSX.utils.book_new();
