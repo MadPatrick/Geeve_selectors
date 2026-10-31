@@ -12,6 +12,20 @@
     </IfModule>
 </FilesMatch>
 
+# Documentatie, scripts en werkbestanden staan in git naast de apps, maar zijn niet voor de browser bedoeld (README's,
+# beheer-/auditscripts, SQL, losse CSV/Excel-lijsten, licentieteksten). De apps lezen ze waar nodig zelf van schijf
+# (bijv. reports/msp/sql/msp_query.sql) of bieden een download via een eigen .php (bijv. hoses/download.php).
+# PDF's in docs/ blijven wel bereikbaar. tools/ en tmp/ hebben daarnaast een eigen .htaccess die alles afsluit.
+<FilesMatch "(?i)\.(md|sh|py|mjs|sql|csv|txt|xlsx|xls)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
 # Cache: CSS, JS en afbeeldingen elke keer bij de server navragen (304 als ze niet veranderd zijn),
 # zodat na een git pull meteen de nieuwe versie geladen wordt - ook van bestanden zonder ?v=, zoals
 # shared/tokens.css (via @import in shared/style.css) en de logo's. Werkt alleen met mod_headers.
