@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 // Endpoint voor de "wijzigen"-modus in index.php: slaat de bewerkte
 // koppeling-/accessoirevelden van precies één artikel op in de bron-CSV's.
-// Zelfde toegangsmodel als de rest van de app (IP-restrictie via .htaccess,
+// Zelfde toegangsmodel als de rest van de app (tegelvergrendeling via tileApiGuard,
 // geen aparte login) en hetzelfde back-up-patroon als upload.php (kopie
 // naar data/backups/ vóór elke vervanging).
 
 header('Content-Type: application/json; charset=utf-8');
+
+// Zelfde tegelvergrendeling als de selector (Config > Tegels): vergrendeld = 403.
+require_once __DIR__ . '/../shared/tiles.php';
+tileApiGuard('hoses');
 
 require_once __DIR__ . '/inc/csv-paths.php';
 require_once __DIR__ . '/inc/data-loader.php';

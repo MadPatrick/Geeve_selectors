@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../shared/helpers.php';
 
+// Zelfde tegelvergrendeling als de selector (Config > Tegels): zonder ontgrendelen terug naar het hoofdscherm.
+require_once __DIR__ . '/../shared/tiles.php';
+tileRequirePage('adapters', '../index.php');
+
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt (bv.
 // deze map los buiten de portal gedeployed).
