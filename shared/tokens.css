@@ -189,7 +189,7 @@
     --black-a30: rgba(0, 0, 0, .3);
     --block-bg: #fbfcfd;
     --box-bg: #f5f8fa;
-    --box-bg-accent: var(--status-accent-soft); /* roze vak in Stauff-boxen (vaste waarde, prijs): zelfde kleur als de nummerbox 1-6 */
+    --box-bg-accent: #8fbfef;           /* achtergrond in de Stauff-zoekboxen (beugel, materiaal soort, zoekresultaten) */
     --btn-choice: #edf2f6;
     --draw-nut-fill: #d8d2c4;
     --draw-nut-line: #b8b09a;
