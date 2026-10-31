@@ -5,7 +5,7 @@ declare(strict_types=1);
 // Endpoint voor de "wijzigen"-modus in index.php: slaat de bewerkte
 // koppeling-/accessoirevelden van precies één artikel op in de bron-CSV's.
 // Zelfde toegangsmodel als de rest van de app (tegelvergrendeling via tileApiGuard,
-// geen aparte login) en hetzelfde back-up-patroon als upload.php (kopie
+// CSRF-token van de pagina, geen aparte login) en hetzelfde back-up-patroon als upload.php (kopie
 // naar data/backups/ vóór elke vervanging).
 
 header('Content-Type: application/json; charset=utf-8');
@@ -24,6 +24,12 @@ function respond(array $payload, int $status = 200): void
     exit;
 }
 
+// Vers token voor de pagina als de sessie verlopen is (pagina lang open). Een andere website kan dit antwoord niet lezen.
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'GET' && isset($_GET['token'])) {
+    header('Cache-Control: no-store');
+    respond(['ok' => true, 'csrf' => csrfToken()]);
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     respond(['ok' => false, 'error' => 'Alleen POST toegestaan.'], 405);
 }
@@ -38,6 +44,13 @@ $payload = json_decode((string) $raw, true);
 if (!is_array($payload)) {
     respond(['ok' => false, 'error' => 'Ongeldige of ontbrekende JSON-body.'], 400);
 }
+
+// CSRF: alleen de Slangen-pagina zelf mag opslaan. De Content-Type-controle hierboven is daarvoor niet genoeg: een andere
+// website kan zonder voorafgaande controle van de browser 'text/plain;application/json' versturen.
+if (!csrfValid($payload['csrf'] ?? null)) {
+    respond(['ok' => false, 'error' => 'Sessie verlopen: laad de pagina opnieuw en sla nog een keer op.', 'tokenVerlopen' => true], 403);
+}
+csrfReleaseSession();
 
 $artnr = isset($payload['artnr']) ? trim((string) $payload['artnr']) : '';
 if ($artnr === '') {
