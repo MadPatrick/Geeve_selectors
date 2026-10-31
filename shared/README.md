@@ -23,6 +23,10 @@ gaat dieper en is bedoeld als checklist/kopieersjabloon.
 - **`shared/printsaneren.php`** - `geeveSaneerPrintHtml()`: witte lijst voor HTML die een browser naar `shared/print-api.php`
   stuurt. Heeft een afdrukblok een nieuwe tag of attribuut nodig, voeg die toe in `GEEVE_PRINT_TAGS` / `GEEVE_PRINT_ATTRIBUTEN` en
   draai `php tools/test-printsaneren.php`.
+- **Excel (SheetJS)** - inlezen altijd met `klantartikel/assets/vendor/xlsx.core.min.js` (SheetJS 0.20.3, lees-kwetsbaarheden
+  van 0.18.5 opgelost). Schrijven met opmaak gaat met `reports/assets/vendor/xlsx-style.min.js` (xlsx-js-style, op 0.18.5).
+  Heeft een pagina beide nodig, laad dan `xlsx.core.min.js`, `reports/assets/vendor/xlsx-lezen.js` en daarna `xlsx-style.min.js`,
+  en lees in met `(window.XLSX_LEZEN || XLSX).read(...)`; zie `reports/offerte-import/`.
 - **`shared/slangkaart.css`** - de vastgelegde slangkaart-layout, zie
   [`SLANGKAART-LAYOUT.md`](SLANGKAART-LAYOUT.md).
 - **`shared/style.css`** - CSS-resets, de header/brand-panel-chrome en de meest

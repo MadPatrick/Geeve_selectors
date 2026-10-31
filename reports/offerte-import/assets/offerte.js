@@ -122,25 +122,27 @@
         var reader = new FileReader();
         reader.onload = function (e) {
             try {
-                var wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                // Inlezen met de bijgewerkte SheetJS (zie reports/assets/vendor/xlsx-lezen.js); schrijven blijft via xlsx-style.
+                var X = window.XLSX_LEZEN || XLSX;
+                var wb = X.read(new Uint8Array(e.target.result), { type: 'array' });
                 var name = wb.SheetNames.indexOf('Order') !== -1 ? 'Order' : wb.SheetNames[0];
                 var ws = wb.Sheets[name];
                 var val = function (a) { return ws[a] ? ws[a].v : null; };
-                var range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
+                var range = X.utils.decode_range(ws['!ref'] || 'A1:A1');
                 var last = Math.min(range.e.r + 1, 2000);
 
                 // De kop met Artikelcode zoeken (nieuwe template: rij 1; oude template: rij 11) en de kolommen op naam bepalen.
                 var headRow = 0, cols = {};
                 for (var hr = 1; hr <= Math.min(last, 40) && !headRow; hr++) {
                     for (var c = 0; c <= Math.min(range.e.c, 15); c++) {
-                        var addr = XLSX.utils.encode_col(c) + hr;
+                        var addr = X.utils.encode_col(c) + hr;
                         if (String(val(addr) || '').trim().toLowerCase() === 'artikelcode') { headRow = hr; }
                     }
                 }
                 if (!headRow) { throw new Error('Geen kolom "Artikelcode" gevonden. Gebruik de template (Regelnr, Aantal, Artikelcode).'); }
                 for (var cc = 0; cc <= Math.min(range.e.c, 15); cc++) {
-                    var colName = String(val(XLSX.utils.encode_col(cc) + headRow) || '').trim().toLowerCase();
-                    if (colName) { cols[colName] = XLSX.utils.encode_col(cc); }
+                    var colName = String(val(X.utils.encode_col(cc) + headRow) || '').trim().toLowerCase();
+                    if (colName) { cols[colName] = X.utils.encode_col(cc); }
                 }
                 if (!cols['aantal']) { throw new Error('Geen kolom "Aantal" gevonden. Gebruik de template (Regelnr, Aantal, Artikelcode).'); }
 

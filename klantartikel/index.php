@@ -199,7 +199,7 @@ if ($priceList !== '') {
                 </table></div>
             <?php endif; ?>
         </section>
-        <script src="assets/vendor/xlsx.core.min.js"></script>
+        <script src="assets/vendor/xlsx.core.min.js?v=<?= h(assetVersion('assets/vendor/xlsx.core.min.js')) ?>"></script>
         <script src="assets/klantartikel.js?v=<?= h(assetVersion('assets/klantartikel.js')) ?>"></script>
     <?php endif; ?>
 
