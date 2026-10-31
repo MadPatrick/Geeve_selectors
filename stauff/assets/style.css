@@ -117,7 +117,7 @@ button.location-number { cursor: pointer; }
 .location-content { padding: 14px 16px; display: grid; grid-template-columns: minmax(190px, .75fr) 64px minmax(0, 1.25fr) auto 34px; align-items: center; gap: 18px; }
 .location-title strong, .location-title span { display: block; }
 .location-title span { color: var(--muted); font-size: 12px; margin-top: 2px; }
-.fixed-value { min-height: 44px; border-radius: 10px; padding: 11px 13px; background: var(--box-bg); border: 1px solid var(--line-box); font-weight: 800; }
+.fixed-value { min-height: 44px; border-radius: 10px; padding: 11px 13px; background: var(--box-bg-accent, #fdeaee); border: 1px solid var(--line-box); font-weight: 800; }
 
 /* Aantal per locatie (1-6) - links van het artikel-/waardeveld. Standaard
    1, behalve bij Bout (locatie 5) waar 2 de norm is (zie index.php). Telt
@@ -141,7 +141,7 @@ button.location-number { cursor: pointer; }
     min-width: 54px;
     border-radius: 10px;
     padding: 11px 10px;
-    background: var(--box-bg);
+    background: var(--box-bg-accent, #fdeaee);
     border: 1px solid var(--line-box);
     font-weight: 500;
     color: var(--accent-dark);
