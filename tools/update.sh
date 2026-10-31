@@ -10,7 +10,7 @@
 #  1. controles: portal-map, branch main, geen lokale wijzigingen in gevolgde bestanden, php aanwezig;
 #  2. git fetch + git pull --ff-only (nooit een merge, rebase of force);
 #  3. php -l op de gewijzigde PHP-bestanden;
-#  4. adapters lage druk bijwerken (tools/adapters-lage-druk/lage-druk-toevoegen.php, met back-up in
+#  4. adapters lage druk bijwerken (adapters/onderhoud/lage-druk-toevoegen.php, met back-up in
 #     data/backups/adapters/) - alleen als de pull die map raakte, de adapters-CSV de kolom drukklasse nog mist,
 #     of met --lage-druk;
 #  5. controle dat data/ bestaat en schrijfbaar is voor de webserver, en melding van het nieuwe versienummer.
@@ -82,8 +82,8 @@ csv="data/adapters/artikelnummers_adapters.csv"
 reden=""
 if [ "$LAGE_DRUK" = 1 ]; then
     reden="optie --lage-druk"
-elif printf '%s\n' "$gewijzigd" | grep -q '^tools/adapters-lage-druk/'; then
-    reden="de pull wijzigde tools/adapters-lage-druk/"
+elif printf '%s\n' "$gewijzigd" | grep -q '^adapters/onderhoud/'; then
+    reden="de pull wijzigde adapters/onderhoud/"
 elif [ -f "$csv" ] && ! head -n 1 "$csv" | grep -q 'drukklasse'; then
     reden="de adapters-CSV heeft de kolom drukklasse nog niet"
 fi
@@ -91,10 +91,10 @@ if [ -z "$reden" ]; then
     echo "Niet nodig (geen wijziging in de bronbestanden). Forceren kan met --lage-druk."
 elif [ "$DRY" = 1 ]; then
     echo "Dry-run, reden: $reden"
-    php tools/adapters-lage-druk/lage-druk-toevoegen.php --dry-run
+    php adapters/onderhoud/lage-druk-toevoegen.php --dry-run
 else
     echo "Reden: $reden"
-    php tools/adapters-lage-druk/lage-druk-toevoegen.php
+    php adapters/onderhoud/lage-druk-toevoegen.php
 fi
 
 stap "5. Data en versie"

@@ -3,8 +3,8 @@
 Dit gebeurt automatisch met `bash tools/update.sh` (zie README, "Bijwerken"). Handmatig op de server (`/var/www/html`), na `git pull`:
 
 ```bash
-php tools/adapters-lage-druk/lage-druk-toevoegen.php --dry-run   # eerst bekijken
-php tools/adapters-lage-druk/lage-druk-toevoegen.php
+php adapters/onderhoud/lage-druk-toevoegen.php --dry-run   # eerst bekijken
+php adapters/onderhoud/lage-druk-toevoegen.php
 ```
 
 Het script maakt een back-up in `data/backups/adapters/` (`...-voor-lage-druk.csv`), voegt de kolom

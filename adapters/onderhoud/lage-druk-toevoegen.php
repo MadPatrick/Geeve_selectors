@@ -12,8 +12,8 @@ declare(strict_types=1);
  *  - Er komt altijd eerst een back-up in data/backups/adapters/.
  *
  * Gebruik (op de server, in /var/www/html):
- *   php tools/adapters-lage-druk/lage-druk-toevoegen.php --dry-run   # alleen laten zien wat er zou gebeuren
- *   php tools/adapters-lage-druk/lage-druk-toevoegen.php
+ *   php adapters/onderhoud/lage-druk-toevoegen.php --dry-run   # alleen laten zien wat er zou gebeuren
+ *   php adapters/onderhoud/lage-druk-toevoegen.php
  */
 
 if (PHP_SAPI !== 'cli') {

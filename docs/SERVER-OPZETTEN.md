@@ -143,7 +143,7 @@ Voortaan uitrollen met `cd /var/www/html && bash tools/update.sh --dry-run` en d
 - `AllowOverride All` voor `/var/www/html`, anders werken de `.htaccess`-beveiligingen niet en zijn dotfiles en `data/`
   bereikbaar (op 19-10-2026 is dit gebeurd en opgelost met `geeve-htaccess.conf`).
 - Rechten op `data/` en `data/backups/*`: `www-data` moet er schrijven (back-ups bij opslaan in de apps). Mappen die door
-  `root` zijn aangemaakt (bijv. door `tools/adapters-lage-druk/lage-druk-toevoegen.php` als root, of een script) geven dan
+  `root` zijn aangemaakt (bijv. door `adapters/onderhoud/lage-druk-toevoegen.php` als root, of een script) geven dan
   fouten: op de huidige server is `data/backups/adapters` `root:root`. Herstel met `chown -R www-data:www-data data`;
   `install-server.sh` zet ze goed.
 - `git pull` weigert bij lokale wijzigingen in gevolgde bestanden (zo ook `tools/update.sh`): wijzig niets rechtstreeks op de

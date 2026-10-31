@@ -42,7 +42,7 @@ kolommen:
 
 Het formaat met 15 kolommen (zonder `drukklasse`) blijft geldig bij upload; alles telt dan als hoge druk.
 Lage druk (draadsoorten `BSPP` (binnen), `BSPT` (buiten), `NPT/NPTF`) komt uit `Malleable gr 32.xlsx`; zie
-`tools/adapters-lage-druk/README.md`.
+`adapters/onderhoud/README.md`.
 
 ## Herkomst van de data
 
