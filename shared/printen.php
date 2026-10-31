@@ -14,6 +14,8 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/paths.php';
+require_once __DIR__ . '/run.php';
+require_once __DIR__ . '/printsaneren.php';
 
 /** De printserver en het begin van de sharenamen die in de apps te kiezen zijn. */
 const GEEVE_SMB_SERVER = 'SVNL-VWP-PS01';
@@ -330,7 +332,11 @@ function geeveRenderPdf(string $bodyHtml, array $cssFiles, string $title, string
     $htmlFile = $workDir . '/print.html';
     $pdfFile = $workDir . '/print.pdf';
 
-    $links = '';
+    // Vangnet naast het saneren van ingestuurde HTML (shared/printsaneren.php): de pagina mag zelf niets van elders ophalen
+    // of uitvoeren, alleen de eigen stylesheets (file:), afbeeldingen/lettertypen van schijf en het meetscript hieronder.
+    $nonce = bin2hex(random_bytes(12));
+    $links = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\' file:; '
+        . 'img-src data: file:; font-src file:; script-src \'nonce-' . $nonce . '\'; base-uri \'none\'; form-action \'none\'">' . "\n";
     $printRegels = '';
     foreach (array_merge(['shared/style.css'], $cssFiles) as $css) {
         $path = geevePortalDir() . '/' . ltrim($css, '/');
@@ -342,7 +348,7 @@ function geeveRenderPdf(string $bodyHtml, array $cssFiles, string $title, string
         // Meten kan alleen op "scherm"; daarom gelden de printregels hier ook op scherm, bij de printbreedte
         // (vaste breedte 186 mm = A4 min 2 x 12 mm marge). Het script zet daarna per te hoog element een zoom.
         $links .= "<style>@media screen {\n" . $printRegels . "\nhtml, body { margin: 0; padding: 0; background: none; }\n#printSheet { width: 186mm; }\n}</style>\n";
-        $passendScript = '<script>(function () {'
+        $passendScript = '<script nonce="' . $nonce . '">(function () {'
             . 'var max = ' . (float) $passend[1] . ' * 96 / 25.4;'
             . 'document.querySelectorAll(' . json_encode((string) $passend[0]) . ').forEach(function (el) {'
             . 'var hoogte = el.scrollHeight;'
@@ -725,43 +731,6 @@ function geeveChromiumBinary(): ?string
     }
     $configured = getenv('GEEVE_CHROMIUM');
     return is_string($configured) && $configured !== '' && is_executable($configured) ? $configured : null;
-}
-
-/** Voert een programma uit zonder shell; geeft ['code', 'out', 'err']. Code 124 = tijdslimiet. */
-function geeveRun(array $command, int $timeoutSeconds, array $env = []): array
-{
-    $environment = array_merge(['PATH' => '/usr/local/bin:/usr/bin:/bin'], $env);
-    $process = @proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, $environment);
-    if (!is_resource($process)) {
-        return ['code' => 127, 'out' => '', 'err' => 'Programma niet gevonden: ' . $command[0]];
-    }
-    stream_set_blocking($pipes[1], false);
-    stream_set_blocking($pipes[2], false);
-    $out = '';
-    $err = '';
-    $deadline = microtime(true) + $timeoutSeconds;
-    while (true) {
-        $out .= (string) stream_get_contents($pipes[1]);
-        $err .= (string) stream_get_contents($pipes[2]);
-        $status = proc_get_status($process);
-        if (!$status['running']) {
-            $out .= (string) stream_get_contents($pipes[1]);
-            $err .= (string) stream_get_contents($pipes[2]);
-            $code = (int) $status['exitcode'];
-            break;
-        }
-        if (microtime(true) > $deadline) {
-            proc_terminate($process, 9);
-            $code = 124;
-            $err .= 'Tijdslimiet van ' . $timeoutSeconds . ' seconden overschreden.';
-            break;
-        }
-        usleep(50000);
-    }
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    proc_close($process);
-    return ['code' => $code, 'out' => $out, 'err' => $err];
 }
 
 /** Voert meerdere programma's tegelijk uit (zelfde sleutels als $commands); geeft per sleutel ['code', 'out', 'err']. */
