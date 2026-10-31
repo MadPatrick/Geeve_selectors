@@ -23,6 +23,16 @@ if (!class_exists('DatabaseConfigException', false)) {
     }
 }
 
+/**
+ * Tabel- of kolomnaam veilig tussen blokhaken voor SQL Server: [naam], met een ] in de naam verdubbeld. Gebruik dit overal waar
+ * een naam (geen waarde: die gaan altijd als parameter) in een query wordt gezet. Voor een naam zonder ] is het resultaat gelijk
+ * aan '[' . $naam . ']'.
+ */
+function geeveSqlNaam(string $naam): string
+{
+    return '[' . str_replace(']', ']]', $naam) . ']';
+}
+
 function geeveDbFoutBestand(): string
 {
     return geeveDataDir() . '/db/verbinding-mislukt.json';

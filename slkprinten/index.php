@@ -1412,7 +1412,7 @@ if (isset($_GET['diagnose'])) {
         foreach ($sources as [$table, $column]) {
             $out .= '<h2>' . h($table) . ' (' . h($column) . ' LIKE ' . h($like) . ')</h2>';
             try {
-                $stmt = $pdo->prepare("SELECT TOP 50 * FROM [dbo].[{$table}] WHERE [{$column}] LIKE :v");
+                $stmt = $pdo->prepare('SELECT TOP 50 * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($column) . ' LIKE :v');
                 $stmt->execute(['v' => $like]);
                 $out .= $renderRows($stmt->fetchAll());
             } catch (Throwable $exception) {
@@ -1438,8 +1438,8 @@ if (isset($_GET['diagnose'])) {
             echo ' ';
             flush();
             try {
-                $stmt = $pdo->prepare('SELECT COUNT(*) FROM [dbo].[' . str_replace(']', ']]', (string) $candidate['TABLE_NAME']) . '] WHERE ['
-                    . str_replace(']', ']]', (string) $candidate['COLUMN_NAME']) . '] LIKE :v');
+                $stmt = $pdo->prepare('SELECT COUNT(*) FROM [dbo].' . geeveSqlNaam((string) $candidate['TABLE_NAME']) . ' WHERE '
+                    . geeveSqlNaam((string) $candidate['COLUMN_NAME']) . ' LIKE :v');
                 $stmt->execute(['v' => $like]);
                 $count = (int) $stmt->fetchColumn();
                 $found[] = ['tabel' => $candidate['TABLE_NAME'], 'kolom' => $candidate['COLUMN_NAME'], 'rijen' => $count];

@@ -65,6 +65,7 @@ function productiviteitFirstId(callable $probe, string $timestamp, int $maxId): 
  */
 function productiviteitIdRange(PDO $pdo, string $table, DateTimeImmutable $from, DateTimeImmutable $to, string $idCol = 'ID', string $dateCol = 'syscreated'): array
 {
+    [$table, $idCol, $dateCol] = [geeveSqlNaam($table), geeveSqlNaam($idCol), geeveSqlNaam($dateCol)];
     $probeStmt = $pdo->prepare("SET NOCOUNT ON; SELECT TOP 1 CONVERT(char(19), {$dateCol}, 120) AS t FROM {$table} WITH (NOLOCK) WHERE {$idCol} >= ? ORDER BY {$idCol}");
     $probe = function (int $id) use ($probeStmt): ?string {
         $probeStmt->execute([$id]);
@@ -96,7 +97,7 @@ function productiviteitProductionCte(PDO $pdo): string
 /** Aantal orderregels van de productieorders bij een verkooporder, als subquery (kolom $orderCol uit de omringende query). */
 function productiviteitProductionLinesSql(string $orderCol): string
 {
-    $count = fn (string $table): string => "(SELECT COUNT(*) FROM p INNER JOIN {$table} pr WITH (NOLOCK) ON pr.ordernr = p.prodnr " .
+    $count = fn (string $table): string => '(SELECT COUNT(*) FROM p INNER JOIN ' . geeveSqlNaam($table) . ' pr WITH (NOLOCK) ON pr.ordernr = p.prodnr ' .
         "WHERE p.verkoop = {$orderCol} AND LTRIM(RTRIM(ISNULL(pr.artcode, ''))) <> '')";
     return $count('orsrg') . ' + ' . $count('orhsrg');
 }

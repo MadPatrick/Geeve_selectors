@@ -109,7 +109,7 @@ function tryColumnsQuery(PDO $pdo, string $table, array $candidateColumns, strin
     $lastException = null;
 
     foreach ($candidateColumns as $column) {
-        $sql = "SELECT * FROM [dbo].[{$table}] WHERE [{$column}] = :value";
+        $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($column) . ' = :value';
 
         try {
             $statement = $pdo->prepare($sql);
@@ -135,7 +135,7 @@ function tryColumnsLikeQuery(PDO $pdo, string $table, array $candidateColumns, s
     $lastException = null;
 
     foreach ($candidateColumns as $column) {
-        $sql = "SELECT * FROM [dbo].[{$table}] WHERE [{$column}] LIKE :value";
+        $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($column) . ' LIKE :value';
 
         try {
             $statement = $pdo->prepare($sql);
@@ -171,8 +171,8 @@ function tryColumnsFuzzyLikeQuery(PDO $pdo, string $table, array $candidateColum
     $lastException = null;
 
     foreach ($candidateColumns as $column) {
-        $normalizedColumn = "REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '')";
-        $sql = "SELECT * FROM [dbo].[{$table}] WHERE {$normalizedColumn} LIKE :value";
+        $normalizedColumn = "REPLACE(REPLACE(REPLACE(REPLACE(" . geeveSqlNaam($column) . ", '-', ''), ' ', ''), '.', ''), '_', '')";
+        $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . " WHERE {$normalizedColumn} LIKE :value";
 
         try {
             $statement = $pdo->prepare($sql);
@@ -214,7 +214,7 @@ function tryColumnsInQuery(PDO $pdo, string $table, array $candidateColumns, arr
             $params[$placeholder] = $value;
         }
 
-        $sql = "SELECT * FROM [dbo].[{$table}] WHERE [{$column}] IN (" . implode(', ', $placeholders) . ')';
+        $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($column) . ' IN (' . implode(', ', $placeholders) . ')';
 
         try {
             $statement = $pdo->prepare($sql);
@@ -264,8 +264,8 @@ function tryColumnsInQueryWithEquals(
             }
             $params['equalsValue'] = $equalsValue;
 
-            $sql = "SELECT * FROM [dbo].[{$table}] WHERE [{$inColumn}] IN (" . implode(', ', $placeholders) . ")" .
-                " AND [{$equalsColumn}] = :equalsValue";
+            $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($inColumn) . ' IN (' . implode(', ', $placeholders) . ')' .
+                ' AND ' . geeveSqlNaam($equalsColumn) . ' = :equalsValue';
 
             try {
                 $statement = $pdo->prepare($sql);
@@ -1041,24 +1041,25 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
     $prefix = str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], trim($searchTerm)) . '%';
     $keys = [];
     foreach ([['2500 Slangkaarten', 'Nummer'], ['Details slangen', 'GHnr']] as [$table, $column]) {
+        $kolom = geeveSqlNaam($column);
         $steps = [
-            ["[{$column}] LIKE :value", $prefix],
-            ["REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '') LIKE :value", '%' . $normalizedTerm . '%'],
+            [$kolom . ' LIKE :value', $prefix],
+            ["REPLACE(REPLACE(REPLACE(REPLACE({$kolom}, '-', ''), ' ', ''), '.', ''), '_', '') LIKE :value", '%' . $normalizedTerm . '%'],
         ];
         if ($exact) {
             // Alleen dit ene slangnummer: gelijk aan de zoekterm (hoofdletterongevoelig door de collation), anders gelijk
             // zonder koppeltekens/spaties/punten. Geen "begint met"/"bevat".
             $steps = [
-                ["[{$column}] = :value", trim($searchTerm)],
-                ["REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '') = :value", $normalizedTerm],
+                [$kolom . ' = :value', trim($searchTerm)],
+                ["REPLACE(REPLACE(REPLACE(REPLACE({$kolom}, '-', ''), ' ', ''), '.', ''), '_', '') = :value", $normalizedTerm],
             ];
         }
         $found = [];
         foreach ($steps as [$condition, $value]) {
             try {
                 $statement = $pdo->prepare(
-                    "SELECT TOP 50 [{$column}] FROM [dbo].[{$table}] WHERE {$condition} " .
-                    "GROUP BY [{$column}] ORDER BY [{$column}]"
+                    "SELECT TOP 50 {$kolom} FROM [dbo]." . geeveSqlNaam($table) . " WHERE {$condition} " .
+                    "GROUP BY {$kolom} ORDER BY {$kolom}"
                 );
                 $statement->execute(['value' => $value]);
                 foreach ($statement->fetchAll(PDO::FETCH_COLUMN) as $hit) {
