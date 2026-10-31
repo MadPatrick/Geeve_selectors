@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../shared/helpers.php';
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
 require_once __DIR__ . '/../../shared/printen.php';
+require_once __DIR__ . '/../../shared/stickers_kaart.php';
 tileRequirePage('stickers-slanglabels', geeveAppUrl('stickers'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
@@ -27,7 +28,7 @@ $csrf = csrfToken();
     <title>Slanglabels | Geeve Hydraulics</title>
     <!-- Knoppen, tabel, invoerveld en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/slanglabels.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/slanglabels.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -41,10 +42,9 @@ $csrf = csrfToken();
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel sl-top">
-        <div class="sl-form">
-            <h2>Slanglabels</h2>
-            <p class="ka-empty">Vul een ordernummer in en haal de slangen op. Klik een regel aan om de velden te vullen; je kunt ze daarna nog aanpassen. Alle regels staan aangevinkt en worden geprint (elk met het eigen aantal); vink uit wat je niet wilt. Zonder vinkjes wordt de aangeklikte regel geprint. Met het vinkje bij Datum kies je met of zonder datum op het label.</p>
+    <section class="panel sk-top">
+        <div class="sk-invoer">
+            <?= stickerTitelHtml('Slanglabels', '25 × 95 mm', 'Vul een ordernummer in en haal de slangen op. Klik een regel aan om de velden te vullen; je kunt ze daarna nog aanpassen.', 'Alle regels staan aangevinkt en worden geprint (elk met het eigen aantal); vink uit wat je niet wilt. Zonder vinkjes wordt de aangeklikte regel geprint. Met het vinkje bij Datum kies je met of zonder datum op het label. Printvlak 25 × 25 mm bovenaan, de rest is plakrand.') ?>
             <div class="ka-actions" id="slActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
                 <label class="msp-field">
                     <span>Ordernummer</span>
@@ -67,19 +67,13 @@ $csrf = csrfToken();
                 </div>
             </div>
         </div>
-
-        <!-- Printopties links, het labelvoorbeeld rechts ernaast. -->
-        <div class="sl-side">
-            <div class="sl-print">
-                <span id="slPrintInfo" class="msp-status"></span>
-                <?= geevePrintAfdrukInstellingenHtml('stickers-slanglabels') ?>
-                <?= geevePrinterSelectHtml('stickers-slanglabels', $csrf) ?>
-                <button type="button" id="slPrint" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
-            </div>
-            <div class="sl-preview" id="slSheet"></div>
-        </div>
+        <?= stickerKaartHtml([
+            'tileId' => 'stickers-slanglabels', 'csrf' => $csrf,
+            'preview' => '<div class="sl-preview" id="slSheet"></div>',
+            'extra' => '<span id="slPrintInfo" class="msp-status"></span>',
+            'printId' => 'slPrint',
+        ]) ?>
     </section>
-
     <section class="panel" id="slResult" hidden>
         <div class="ka-table-wrap">
             <table class="ka-table" id="slTable">

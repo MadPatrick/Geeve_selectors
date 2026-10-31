@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
 require_once __DIR__ . '/../../shared/csrf.php';
 require_once __DIR__ . '/../../shared/printen.php';
+require_once __DIR__ . '/../../shared/stickers_kaart.php';
 tileRequirePage('stickers-ptouch', geeveAppUrl('stickers'));
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
@@ -26,7 +27,7 @@ $csrf = csrfToken();
     <title>Naamstickers | Geeve Hydraulics</title>
     <!-- Knoppen, invoervelden en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/ptouch.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/ptouch.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -40,43 +41,30 @@ $csrf = csrfToken();
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel pt-top">
-        <h2>Naamstickers</h2>
-        <p class="ka-empty">Typ de tekst rechtstreeks op de sticker (102 × 51 mm). Het lettertype is Verdana Bold, de tekst is horizontaal en verticaal uit te lijnen (standaard midden). De letter is zo groot dat er minimaal twee regels op de sticker passen en wordt kleiner naarmate je meer regels typt (er blijft steeds één lege regel onder de tekst). Enter geeft een nieuwe regel.</p>
-
-        <div class="pt-edit">
-        <div class="pt-preview">
-            <div class="pt-sticker" id="ptSticker"><div class="pt-text" id="ptText" contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-multiline="true" aria-label="Tekst op de sticker" data-placeholder="Typ hier je tekst" autofocus></div></div>
-        </div>
-        <div class="pt-align">
-            <span class="pt-align-label">Uitlijnen horizontaal</span>
-            <div class="rp-toggle" id="ptAlign" role="group" aria-label="Uitlijnen">
-                <button type="button" data-align="left">Links</button>
-                <button type="button" data-align="center" class="is-active">Midden</button>
-                <button type="button" data-align="right">Rechts</button>
-            </div>
-            <span class="pt-align-label">Uitlijnen verticaal</span>
-            <div class="rp-toggle" id="ptValign" role="group" aria-label="Uitlijnen verticaal">
-                <button type="button" data-valign="flex-start">Boven</button>
-                <button type="button" data-valign="center" class="is-active">Midden</button>
-                <button type="button" data-valign="flex-end">Onder</button>
+    <section class="panel sk-top">
+        <div class="sk-invoer">
+            <?= stickerTitelHtml('Naamstickers', '102 × 51 mm', 'Typ de tekst rechtstreeks op de sticker; de letter schaalt mee. Enter geeft een nieuwe regel.', 'Het lettertype is Verdana Bold, de tekst is horizontaal en verticaal uit te lijnen (standaard midden). De letter is zo groot dat er minimaal twee regels op de sticker passen en wordt kleiner naarmate je meer regels typt (er blijft steeds één lege regel onder de tekst).') ?>
+            <div class="pt-align">
+                <span class="pt-align-label">Uitlijnen horizontaal</span>
+                <div class="rp-toggle" id="ptAlign" role="group" aria-label="Uitlijnen">
+                    <button type="button" data-align="left">Links</button>
+                    <button type="button" data-align="center" class="is-active">Midden</button>
+                    <button type="button" data-align="right">Rechts</button>
+                </div>
+                <span class="pt-align-label">Uitlijnen verticaal</span>
+                <div class="rp-toggle" id="ptValign" role="group" aria-label="Uitlijnen verticaal">
+                    <button type="button" data-valign="flex-start">Boven</button>
+                    <button type="button" data-valign="center" class="is-active">Midden</button>
+                    <button type="button" data-valign="flex-end">Onder</button>
+                </div>
             </div>
         </div>
-        </div>
-
-        <div class="pt-print">
-            <button type="button" id="ptClear" class="ka-button ka-button--secondary">Leegmaken</button>
-            <div class="pt-print-rechts">
-            <?= geevePrintAfdrukInstellingenHtml('stickers-ptouch') ?>
-            <div class="print-group">
-                <?= geevePrinterSelectHtml('stickers-ptouch', $csrf) ?>
-                <button type="button" id="ptPrint" class="print-btn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
-                <input type="number" id="ptAantal" class="ka-input pt-aantal" min="1" max="99" value="1" title="Aantal" aria-label="Aantal">
-            </div>
-            </div>
-        </div>
+        <?= stickerKaartHtml([
+            'tileId' => 'stickers-ptouch', 'csrf' => $csrf,
+            'preview' => '<div class="pt-preview"><div class="pt-sticker" id="ptSticker"><div class="pt-text" id="ptText" contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-multiline="true" aria-label="Tekst op de sticker" data-placeholder="Typ hier je tekst" autofocus></div></div></div>',
+            'copiesId' => 'ptAantal', 'clearId' => 'ptClear', 'printId' => 'ptPrint', 'printDisabled' => true,
+        ]) ?>
     </section>
-
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 <!-- Alleen voor het printen: hier komen de stickers (aantal keer) vlak voor window.print(). -->

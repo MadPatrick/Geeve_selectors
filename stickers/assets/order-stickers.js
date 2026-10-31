@@ -108,7 +108,6 @@
             }
         });
         ArtSticker.barcodes(sheet);
-        previewPanel.hidden = list.length === 0; // eerst zichtbaar maken, anders kan fit() niets meten
         sheet.classList.add('is-measuring'); // alle stickers even zichtbaar voor fit(), daarna weer één
         Array.prototype.forEach.call(sheet.querySelectorAll('.sticker:not(.sticker--art) .f'), fit);
         ArtSticker.fit(sheet);
@@ -210,7 +209,6 @@
         if (alleRows.length === 0) { return; }
         if (rows.length === 0) {
             result.hidden = true;
-            previewPanel.hidden = true;
             printBtn.disabled = true;
             fail('Alle regels van order ' + asked + ' zijn al geleverd (geen backorders). Kies Compleet om toch alle regels te zien.');
             return;
@@ -245,8 +243,7 @@
                 rows = alleRows;
                 if (rows.length === 0) {
                     result.hidden = true;
-                    previewPanel.hidden = true;
-                    fail('Geen regels gevonden voor order ' + nummer + '.');
+                            fail('Geen regels gevonden voor order ' + nummer + '.');
                     return;
                 }
                 applyFilter();

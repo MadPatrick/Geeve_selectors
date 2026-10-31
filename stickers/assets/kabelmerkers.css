@@ -1,20 +1,16 @@
 /* Kabelmerkers Geel (stickers/kabelmerkers): ALTEC 72001207 (TTP ADC, 70 × 15 mm, A235), lichtgeel label. Scherm (drie voorbeeldstickers
    onder elkaar) en de sticker zelf. Op papier komt alleen de tekst: het label is zelf geel. */
 
-.km-edit { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 18px; }
+.km-edit { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 14px; }
 .km-regel { display: flex; flex-direction: column; gap: 6px; width: 260px; }
-.km-regel--voorbeeld { margin-left: auto; width: auto; align-items: flex-end; }
 .km-regel h3 { margin: 0 0 4px; font-size: 24px; }
 .km-regel .ka-input { width: 100%; }
 .km-regel .km-aantal, .km-aantal { width: 3.6em; flex: 0 0 auto; text-align: center; }
 .km-preview { zoom: 1.2; margin-top: 8px; padding: 2mm 2.5mm; background: var(--kabelmerker-drager); border-radius: 1.5mm; }
 .km-melding { margin-top: 12px; }
-.km-import { margin-top: 18px; }
+.km-import { margin-top: 8px; }
 .km-vink { width: 32px; text-align: center; }
 .km-te-lang td { color: var(--danger); }
-
-.km-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
-.km-print-rechts { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
 .km-sticker {
     position: relative;
