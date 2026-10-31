@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/printen.php';
 
-function stickerTitelHtml(string $titel, string $maat, string $uitleg, string $meer = ''): string
+function stickerTitelHtml(string $titel, string $maat, string $uitleg, string $meer = '', string $maatId = ''): string
 {
     $h = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    return '<div class="sk-titel"><h2>' . $h($titel) . '</h2><span class="sk-maat">' . $h($maat) . '</span></div>'
+    return '<div class="sk-titel"><h2>' . $h($titel) . '</h2><span class="sk-maat"' . ($maatId !== '' ? ' id="' . $h($maatId) . '"' : '') . '>' . $h($maat) . '</span></div>'
         . '<p class="sk-uitleg">' . $h($uitleg) . '</p>'
         . ($meer !== '' ? '<details class="sk-meer"><summary>Uitleg</summary><p>' . $h($meer) . '</p></details>' : '');
 }

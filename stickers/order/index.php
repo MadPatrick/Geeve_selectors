@@ -44,7 +44,7 @@ $csrf = csrfToken();
 
     <section class="panel sk-top">
         <div class="sk-invoer">
-            <?= stickerTitelHtml('Artikelen per Verkooporder', '102 × 54 mm', 'Vul een ordernummer in: je krijgt per orderregel een sticker. Vink regels uit die je niet wilt printen.', 'De sticker staat in de volgorde van de order of van de looplocatie, of als artikelsticker (70 × 25 mm, ALTEC 72000496: omschrijving, barcode en artikelnummer). Met "Backorders" (standaard) krijg je alleen de regels die nog niet (helemaal) geleverd zijn; met "Compleet" alle regels van de order.') ?>
+            <?= stickerTitelHtml('Artikelen per Verkooporder', '102 × 54 mm', 'Vul een ordernummer in: je krijgt per orderregel een sticker. Vink regels uit die je niet wilt printen.', 'De stickers staan in de volgorde van de orderregels of in de loopvolgorde, of als artikelsticker (70 × 25 mm, ALTEC 72000496: omschrijving, barcode en artikelnummer). Met "Backorders" (standaard) krijg je alleen de regels die nog niet (helemaal) geleverd zijn; met "Compleet" alle regels van de order.', 'soMaat') ?>
             <div class="ka-actions" id="soActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
                 <label class="msp-field">
                     <span>Ordernummer</span>
@@ -56,7 +56,7 @@ $csrf = csrfToken();
             <div class="so-keuzes">
                 <div class="rp-toggle" id="soSort" role="group" aria-label="Volgorde">
                     <button type="button" data-sort="regel">Orderregel</button>
-                    <button type="button" data-sort="loop" class="is-active">Looplocatie</button>
+                    <button type="button" data-sort="loop" class="is-active">Loopvolgorde</button>
                     <button type="button" data-sort="artikel">Artikelsticker</button>
                 </div>
                 <div class="rp-toggle" id="soFilter" role="group" aria-label="Regels">
