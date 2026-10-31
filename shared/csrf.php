@@ -10,7 +10,8 @@ declare(strict_types=1);
  */
 function csrfStartSession(): void
 {
-    if (session_status() === PHP_SESSION_NONE) {
+    // Na csrfReleaseSession() opnieuw openen kan alleen zolang er nog geen uitvoer is verstuurd.
+    if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
         session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
     }
 }
@@ -31,4 +32,17 @@ function csrfValid(mixed $submitted): bool
         && isset($_SESSION['csrf_token'])
         && is_string($_SESSION['csrf_token'])
         && hash_equals($_SESSION['csrf_token'], $submitted);
+}
+
+/**
+ * Geeft het sessiebestand vrij (session_write_close). PHP sluit de sessie anders pas aan het eind van het script af en
+ * blokkeert zolang elke andere aanvraag van dezelfde browser: een trage API-aanroep (Exact/SQL, soms minuten) liet een
+ * klik op een tegel dan wachten tot die klaar was. Aanroepen zodra de sessie niet meer nodig is; csrfStartSession()
+ * opent hem zo nodig weer.
+ */
+function csrfReleaseSession(): void
+{
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
 }

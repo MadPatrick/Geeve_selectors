@@ -22,6 +22,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !csrfValid($_POST['csrf'] ?
     echo json_encode(['ok' => false, 'error' => 'Ongeldig verzoek (sessie verlopen). Laad de pagina opnieuw.']);
     exit;
 }
+csrfReleaseSession(); // sessie vrijgeven: trage verwerking mag andere tegels niet blokkeren
 
 @set_time_limit(300);
 

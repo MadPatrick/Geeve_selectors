@@ -31,6 +31,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !csrfValid($_POST['csrf'] ?
     echo json_encode(['ok' => false, 'error' => 'Ongeldig verzoek (sessie verlopen). Laad de pagina opnieuw.']);
     exit;
 }
+csrfReleaseSession(); // sessie vrijgeven: trage verwerking mag andere tegels niet blokkeren
 
 /** Niet-lege, unieke waarden uit een POST-lijst (sleutel = hoofdletters). @return array<string,string> */
 function artikelImportList(string $name, int $maxLength): array
