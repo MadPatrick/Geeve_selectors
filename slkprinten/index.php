@@ -29,7 +29,7 @@ register_shutdown_function(static function (): void {
     if ($error === null || !in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
         return;
     }
-    echo '<div style="margin:16px;padding:15px 18px;border:1px solid #e8b1b1;border-radius:12px;background:#fff1f1;color:#7d2f2f;font:14px Arial,sans-serif">'
+    echo '<div style="margin:16px;padding:15px 18px;border:1px solid var(--error-box-line);border-radius:12px;background:var(--warning-bg);color:var(--error-box-ink);font:14px Arial,sans-serif">'
         . '<strong>Fout bij het opbouwen van de slangkaarten:</strong><br>'
         . htmlspecialchars($error['message'] . ' (' . basename($error['file']) . ':' . $error['line'] . ')', ENT_QUOTES)
         . '</div>';
@@ -306,8 +306,8 @@ function renderAngleSvg(?float $degrees): string
     // opvallen terwijl het vlak zelf grijs blijft.
     $angleLines = $wedge !== ''
         ? sprintf(
-            '<line x1="%1$s" y1="%2$s" x2="%3$s" y2="%4$s" stroke="#111" stroke-width="2.2"></line>'
-            . '<line x1="%1$s" y1="%2$s" x2="%5$s" y2="%6$s" stroke="#111" stroke-width="2.2"></line>',
+            '<line class="angle-edge" x1="%1$s" y1="%2$s" x2="%3$s" y2="%4$s" stroke-width="2.2"></line>'
+            . '<line class="angle-edge" x1="%1$s" y1="%2$s" x2="%5$s" y2="%6$s" stroke-width="2.2"></line>',
             $cx,
             $cy,
             round($startX, 2),
@@ -318,12 +318,12 @@ function renderAngleSvg(?float $degrees): string
         : '';
 
     return '<svg class="angle-diagram" viewBox="0 0 100 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
-        . '<circle cx="50" cy="50" r="' . $radius . '" fill="none" stroke="#999" stroke-width="1.2"></circle>'
-        . ($wedge !== '' ? '<path d="' . $wedge . '" fill="#999"></path>' : '')
-        . '<line x1="8" y1="50" x2="92" y2="50" stroke="#ccc" stroke-width="0.8"></line>'
-        . '<line x1="50" y1="8" x2="50" y2="92" stroke="#ccc" stroke-width="0.8"></line>'
+        . '<circle class="angle-ring" cx="50" cy="50" r="' . $radius . '" fill="none" stroke-width="1.2"></circle>'
+        . ($wedge !== '' ? '<path class="angle-wedge" d="' . $wedge . '"></path>' : '')
+        . '<line class="angle-axis" x1="8" y1="50" x2="92" y2="50" stroke-width="0.8"></line>'
+        . '<line class="angle-axis" x1="50" y1="8" x2="50" y2="92" stroke-width="0.8"></line>'
         . $angleLines
-        . '<text x="50" y="108" text-anchor="middle" font-size="11" fill="#111">Hoek ' . h($degreesLabel) . '</text>'
+        . '<text class="angle-label" x="50" y="108" text-anchor="middle" font-size="11">Hoek ' . h($degreesLabel) . '</text>'
         . '</svg>';
 }
 
@@ -1365,7 +1365,7 @@ if (isset($_GET['diagnose'])) {
     $needle = trim((string) $_GET['diagnose']);
     $out = '<!doctype html><meta charset="utf-8"><title>Diagnose ' . h($needle) . '</title>'
         . '<style>body{font:13px Arial,sans-serif;margin:20px}table{border-collapse:collapse;margin:6px 0 18px}'
-        . 'td,th{border:1px solid #ccc;padding:3px 6px;text-align:left;white-space:nowrap}h2{font-size:15px;margin:18px 0 4px}</style>'
+        . 'td,th{border:1px solid;padding:3px 6px;text-align:left;white-space:nowrap}h2{font-size:15px;margin:18px 0 4px}</style>'
         . '<h1>Diagnose slangnummer &quot;' . h($needle) . '&quot;</h1>';
     $renderRows = static function (array $rows): string {
         if ($rows === []) {
