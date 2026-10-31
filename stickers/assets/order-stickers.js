@@ -185,6 +185,8 @@
         var btn = e.target.closest('button[data-sort]');
         if (!btn || btn.getAttribute('data-sort') === sortBy) { return; }
         sortBy = btn.getAttribute('data-sort');
+        var maat = document.getElementById('soMaat'); // labelmaat in de titel: de artikelsticker is een ander label
+        if (maat) { maat.textContent = sortBy === 'artikel' ? '70 × 25 mm' : '102 × 54 mm'; }
         Array.prototype.forEach.call(sortToggle.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b === btn); });
         if (rows.length === 0) { return; }
         rows.forEach(function (r, i) {
