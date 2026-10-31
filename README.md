@@ -104,7 +104,6 @@ shared/                    Gedeeld door alle apps - zie shared/README.md
   slangkaart.css           Vastgelegde slangkaart-layout, zie SLANGKAART-LAYOUT.md
 data/                      Centrale data (CSV's, back-ups) - NIET in git, zie hoofdstuk 4
 tools/                     Beheerscripts (niet via de browser)
-adapters/onderhoud/        Beheerscripts en brongegevens lage-druk-adapters (geblokkeerd voor de browser)
 assets/, images/           Opmaak en logo's van het hoofdscherm
 docs/                      Referentie-PDF's en voorstellen; wordt niet door de apps gelezen
 hoses/ adapters/ stauff/ slkprinten/ configurator/ klantartikel/ klantkorting/
@@ -130,9 +129,7 @@ bash tools/update.sh             # bijwerken
 ```
 
 Het script controleert dat je op `main` zit zonder lokale wijzigingen, doet `git pull --ff-only`, controleert de
-gewijzigde PHP-bestanden (`php -l`), werkt de lage-druk-adapters bij (`adapters/onderhoud/lage-druk-toevoegen.php`, met
-back-up in `data/backups/adapters/`; alleen als de pull die map raakte of de kolom `drukklasse` nog ontbreekt, anders met
-`--lage-druk`) en meldt het nieuwe versienummer. Het stopt bij de eerste fout en verwijdert of installeert niets. Een gewone
+gewijzigde PHP-bestanden (`php -l`), controleert `data/` en meldt het nieuwe versienummer. Het stopt bij de eerste fout en verwijdert of installeert niets. Een gewone
 `git pull` blijft ook werken.
 
 **Alleen op de server, niet in git:**

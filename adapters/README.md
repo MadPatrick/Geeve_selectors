@@ -41,8 +41,8 @@ kolommen:
 | `drukklasse` | `hoog` (hoge druk) of `laag` (lage druk). Leeg of kolom ontbreekt = `hoog`. De schakelaar "Hoge druk / Lage druk" in de selectie toont alleen artikelen van de gekozen klasse |
 
 Het formaat met 15 kolommen (zonder `drukklasse`) blijft geldig bij upload; alles telt dan als hoge druk.
-Lage druk (draadsoorten `BSPP` (binnen), `BSPT` (buiten), `NPT/NPTF`) komt uit `Malleable gr 32.xlsx`; zie
-`adapters/onderhoud/README.md`.
+Lage druk (draadsoorten `BSPP` (binnen), `BSPT` (buiten), `NPT/NPTF`) kwam uit `Malleable gr 32.xlsx`; de data staat nu
+in de CSV zelf (het importscript is op 31-10-2026 verwijderd en staat nog in de git-historie).
 
 ## Herkomst van de data
 
