@@ -19,7 +19,7 @@ h2 { margin: 4px 0 0; font-size: 22px; }
    .exact-live-results ernaast, zodat beide boxen op elkaar lijken en
    even hoog zijn. */
 .diameter-box { flex: 0 0 auto; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-.diameter-box-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; padding: 14px 15px; background: var(--box-bg-accent, #60809f); }
+.diameter-box-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; padding: 14px 15px; background: var(--box-bg-accent, rgba(96, 128, 159, .63)); }
 
 /* "Materiaal soort"-box: uitsluitend de Staal/RVS-switch (de W-code-select
    staat nu bij locatie 6 zelf, zie rebuildMaterialCodes()/
@@ -63,10 +63,10 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 .exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 600px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: var(--soft); font-size: 13px; font-weight: 750; color: var(--muted); }
 .exact-live-status.error { color: var(--danger); }
-.exact-live-list { flex: 1 1 auto; list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; background: var(--box-bg-accent, #60809f); }
+.exact-live-list { flex: 1 1 auto; list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; background: var(--box-bg-accent, rgba(96, 128, 159, .63)); }
 .exact-live-list li { border-top: 1px solid var(--line); }
 .exact-live-list li:first-child { border-top: 0; }
-.exact-live-list button { display: block; width: 100%; padding: 10px 15px; border: 0; background: var(--box-bg-accent, #60809f); text-align: left; cursor: pointer; font-size: 16px; font-weight: 800; color: var(--btn-ink-accent); }
+.exact-live-list button { display: block; width: 100%; padding: 10px 15px; border: 0; background: var(--box-bg-accent, rgba(96, 128, 159, .63)); text-align: left; cursor: pointer; font-size: 16px; font-weight: 800; color: var(--btn-ink-accent); }
 .exact-live-list button:hover { background: var(--btn-white-hover); }
 
 /* Weergave van het gekozen artikel (na klikken op een zoekresultaat) -

@@ -13,7 +13,7 @@ declare(strict_types=1);
 // Opbouw: <major>.<minor>.<patch>.<build>. Het laatste nummer (build) gaat bij elke push naar
 // GitHub automatisch 1 omhoog; de eerste drie alleen als Patrick daarom vraagt.
 
-$versie = '0.4.5.294';
+$versie = '0.4.5.295';
 
 // Extra: de korte hash van de commit die op deze server uitgecheckt staat,
 // live gelezen uit .git (geen exec/shell nodig, geen mb_*). Staat er geen
