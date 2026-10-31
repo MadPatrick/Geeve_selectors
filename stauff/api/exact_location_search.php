@@ -103,7 +103,7 @@ try {
     $pdo = getPdoConnection();
 } catch (Throwable $exception) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => $exception->getMessage()], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['ok' => false, 'error' => geeveFoutTekst($exception)], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -177,7 +177,7 @@ try {
     $rawRows = $stmt->fetchAll();
 } catch (Throwable $exception) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => $exception->getMessage()], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['ok' => false, 'error' => geeveFoutTekst($exception)], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

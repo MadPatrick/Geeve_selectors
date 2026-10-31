@@ -2,9 +2,16 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../shared/helpers.php';
+
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
 tileRequirePage('hoses', '../index.php');
+
+// Token voor Opslaan in de wijzigen-modus (save.php controleert het); daarna de sessie meteen vrijgeven, zodat het laden
+// van deze pagina andere tegels niet ophoudt.
+$csrf = csrfToken();
+csrfReleaseSession();
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt (bv.
@@ -24,21 +31,6 @@ $csvFiles = [
 $accessoryCsvFile = findFirstReadableFile($accessoryCsvCandidates);
 
 $articles = loadMergedArticlesCached($csvFiles, $accessoryCsvFile, $loadErrors);
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-// Cache-busting op basis van de laatste wijzigingsdatum van het bestand
-// zelf, zodat elke aanpassing aan style.css/selector.js automatisch een
-// nieuwe URL krijgt - geen handmatige versie-ophoging meer nodig.
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 $articleCount = count($articles);
 $dataState = $loadErrors === [] ? 'ready' : 'error';
@@ -80,7 +72,7 @@ $dataLabel = $loadErrors === [] ? $articleCount . ' artikelen geladen' : 'Contro
             </div>
         </div>
     </div>
-    <button type="button" id="editToggleButton" class="header-icon-button" title="Gegevens wijzigen" aria-label="Gegevens wijzigen" disabled>
+    <button type="button" id="editToggleButton" class="header-icon-button" title="Gegevens wijzigen" aria-label="Gegevens wijzigen" data-csrf="<?= h($csrf) ?>" disabled>
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 20h9"></path>
             <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>

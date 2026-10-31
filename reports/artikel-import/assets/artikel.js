@@ -113,24 +113,26 @@
         var reader = new FileReader();
         reader.onload = function (e) {
             try {
-                var wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                // Inlezen met de bijgewerkte SheetJS (zie reports/assets/vendor/xlsx-lezen.js); schrijven blijft via xlsx-style.
+                var X = window.XLSX_LEZEN || XLSX;
+                var wb = X.read(new Uint8Array(e.target.result), { type: 'array' });
                 var name = wb.SheetNames.indexOf('Items') !== -1 ? 'Items' : wb.SheetNames[0];
                 var ws = wb.Sheets[name];
                 var val = function (a) { return ws[a] ? ws[a].v : null; };
-                var range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
+                var range = X.utils.decode_range(ws['!ref'] || 'A1:A1');
                 var last = Math.min(range.e.r + 1, 5000);
                 var lastCol = Math.min(range.e.c, 30);
 
                 var headRow = 0, cols = {};
                 for (var hr = 1; hr <= Math.min(last, 40) && !headRow; hr++) {
                     for (var c = 0; c <= lastCol; c++) {
-                        if (String(val(XLSX.utils.encode_col(c) + hr) || '').trim().toLowerCase() === 'artikelcode') { headRow = hr; break; }
+                        if (String(val(X.utils.encode_col(c) + hr) || '').trim().toLowerCase() === 'artikelcode') { headRow = hr; break; }
                     }
                 }
                 if (!headRow) { throw new Error('Geen kolom "Artikelcode" gevonden. Gebruik de template.'); }
                 for (var cc = 0; cc <= lastCol; cc++) {
-                    var colName = String(val(XLSX.utils.encode_col(cc) + headRow) || '').trim().replace(/\s+/g, ' ').toLowerCase();
-                    if (COLUMN_KEYS[colName] && !cols[COLUMN_KEYS[colName]]) { cols[COLUMN_KEYS[colName]] = XLSX.utils.encode_col(cc); }
+                    var colName = String(val(X.utils.encode_col(cc) + headRow) || '').trim().replace(/\s+/g, ' ').toLowerCase();
+                    if (COLUMN_KEYS[colName] && !cols[COLUMN_KEYS[colName]]) { cols[COLUMN_KEYS[colName]] = X.utils.encode_col(cc); }
                 }
 
                 lines = [];

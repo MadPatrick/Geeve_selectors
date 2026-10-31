@@ -65,6 +65,12 @@
 
 .angle-block { display: flex; align-items: center; justify-content: center; }
 .angle-diagram { width: 100px; height: auto; }
+/* Kleuren van het hoekdiagram (opgebouwd in slkprinten/index.php, renderAngleDiagram): grijze ring en vlak, lichte assen, zwarte hoeklijnen. */
+.angle-diagram .angle-ring { fill: none; stroke: var(--angle-fill); }
+.angle-diagram .angle-wedge { fill: var(--angle-fill); }
+.angle-diagram .angle-axis { stroke: var(--print-line); }
+.angle-diagram .angle-edge { stroke: var(--ink-print); }
+.angle-diagram .angle-label { fill: var(--ink-print); }
 
 /* Bewerkingen (opties zoals labelen/graveren) staat over de volle breedte
    van het blad, met dezelfde koptekststijl als Krimpmaten/Extra artikelen. */
@@ -122,7 +128,7 @@
         /* Kaderranden in de print donkergrijs, donkergrijs --line-print (was #999; Patrick, 19-10-2026, zodat ze op de Canon blijven staan); op
            scherm blijven ze lichtgrijs (--line uit tokens.css). Geldt voor alle kaders: kaart, tabellen, vinkjes,
            footerlijn, picklijst. */
-        --line: var(--line-print, #000); /* terugval: een verouderde tokens.css in de browsercache kent --line-print nog niet, en dan vervalt elke kaderlijn */
+        --line: var(--line-print, var(--ink-black)); /* terugval: een verouderde tokens.css in de browsercache kent --line-print nog niet, en dan vervalt elke kaderlijn */
     }
     /* Alle kaders in de print even dun (1px, --line-print): geen dikkere buitenkaders meer, zodat de lijnen
        gelijkmatig uitkomen (Patrick, 19-10-2026). */

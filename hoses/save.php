@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 // Endpoint voor de "wijzigen"-modus in index.php: slaat de bewerkte
 // koppeling-/accessoirevelden van precies één artikel op in de bron-CSV's.
-// Zelfde toegangsmodel als de rest van de app (IP-restrictie via .htaccess,
-// geen aparte login) en hetzelfde back-up-patroon als upload.php (kopie
+// Zelfde toegangsmodel als de rest van de app (tegelvergrendeling via tileApiGuard,
+// CSRF-token van de pagina, geen aparte login) en hetzelfde back-up-patroon als upload.php (kopie
 // naar data/backups/ vóór elke vervanging).
 
 header('Content-Type: application/json; charset=utf-8');
+
+// Zelfde tegelvergrendeling als de selector (Config > Tegels): vergrendeld = 403.
+require_once __DIR__ . '/../shared/tiles.php';
+tileApiGuard('hoses');
 
 require_once __DIR__ . '/inc/csv-paths.php';
 require_once __DIR__ . '/inc/data-loader.php';
@@ -18,6 +22,12 @@ function respond(array $payload, int $status = 200): void
     http_response_code($status);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
+}
+
+// Vers token voor de pagina als de sessie verlopen is (pagina lang open). Een andere website kan dit antwoord niet lezen.
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'GET' && isset($_GET['token'])) {
+    header('Cache-Control: no-store');
+    respond(['ok' => true, 'csrf' => csrfToken()]);
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
@@ -34,6 +44,13 @@ $payload = json_decode((string) $raw, true);
 if (!is_array($payload)) {
     respond(['ok' => false, 'error' => 'Ongeldige of ontbrekende JSON-body.'], 400);
 }
+
+// CSRF: alleen de Slangen-pagina zelf mag opslaan. De Content-Type-controle hierboven is daarvoor niet genoeg: een andere
+// website kan zonder voorafgaande controle van de browser 'text/plain;application/json' versturen.
+if (!csrfValid($payload['csrf'] ?? null)) {
+    respond(['ok' => false, 'error' => 'Sessie verlopen: laad de pagina opnieuw en sla nog een keer op.', 'tokenVerlopen' => true], 403);
+}
+csrfReleaseSession();
 
 $artnr = isset($payload['artnr']) ? trim((string) $payload['artnr']) : '';
 if ($artnr === '') {
@@ -334,7 +351,12 @@ try {
         $savedParts[] = 'accessoires';
     }
 } catch (Throwable $e) {
-    respond(['ok' => false, 'error' => $e->getMessage(), 'savedParts' => $savedParts], 400);
+    // Eigen meldingen (RuntimeException/InvalidArgumentException) zijn voor het scherm bedoeld; een onverwachte fout gaat naar het log.
+    $bedoeld = $e instanceof RuntimeException || $e instanceof InvalidArgumentException;
+    if (!$bedoeld) {
+        error_log('[geeve] hoses/save.php: ' . get_class($e) . ': ' . $e->getMessage());
+    }
+    respond(['ok' => false, 'error' => $bedoeld ? $e->getMessage() : 'Onverwachte fout bij het opslaan. Details staan in het PHP-serverlog.', 'savedParts' => $savedParts], 400);
 }
 
 $freshErrors = [];

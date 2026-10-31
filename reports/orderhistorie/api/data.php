@@ -78,7 +78,7 @@ function orderhistorieDiagnose(PDO $pdo, string $debnr): string
                 $out[] = '  ' . implode(' | ', array_map(static fn ($v): string => $v instanceof DateTimeInterface ? $v->format('Y-m-d') : trim((string) $v), $r));
             }
         } catch (Throwable $e) {
-            $out[] = $label . ': FOUT ' . $e->getMessage();
+            $out[] = $label . ': FOUT ' . geeveFoutTekst($e);
         }
     };
     $run('Totaal orderkoppen / oudste en nieuwste pakbondatum', 'SELECT COUNT(*), MIN(pakbon_dat), MAX(pakbon_dat) FROM orhkrg WITH (NOLOCK)', []);

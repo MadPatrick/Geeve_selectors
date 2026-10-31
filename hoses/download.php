@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Zelfde tegelvergrendeling als de selector (Config > Tegels): zonder ontgrendelen terug naar het hoofdscherm.
+require_once __DIR__ . '/../shared/tiles.php';
+tileRequirePage('hoses', '../index.php');
+
 require_once __DIR__ . '/inc/csv-paths.php';
 
 $datasets = [

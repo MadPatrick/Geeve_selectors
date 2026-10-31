@@ -219,14 +219,16 @@
         var reader = new FileReader();
         reader.onload = function (e) {
             try {
-                var wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                // Inlezen met de bijgewerkte SheetJS (zie reports/assets/vendor/xlsx-lezen.js); schrijven blijft via xlsx-style.
+                var X = window.XLSX_LEZEN || XLSX;
+                var wb = X.read(new Uint8Array(e.target.result), { type: 'array' });
                 var ws = wb.Sheets[wb.SheetNames[0]];
-                var range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
+                var range = X.utils.decode_range(ws['!ref'] || 'A1:A1');
                 var cols = {}, headRow = -1, c, r;
                 // De kop zoeken: een van de eerste 10 rijen met "Tekst A1" e.d. (spaties en hoofdletters maken niet uit).
                 for (r = range.s.r; r <= Math.min(range.e.r, range.s.r + 9) && headRow < 0; r++) {
                     for (c = range.s.c; c <= range.e.c; c++) {
-                        var naam = celTekst(ws[XLSX.utils.encode_cell({ r: r, c: c })]).toLowerCase().replace(/\s+/g, '');
+                        var naam = celTekst(ws[X.utils.encode_cell({ r: r, c: c })]).toLowerCase().replace(/\s+/g, '');
                         for (var k = 0; k < KOLOMMEN.length; k++) {
                             if (naam === 'tekst' + KOLOMMEN[k].toLowerCase()) { cols[KOLOMMEN[k]] = c; headRow = r; }
                         }
@@ -238,7 +240,7 @@
                     var rij = {}, leeg = true;
                     for (var j = 0; j < KOLOMMEN.length; j++) {
                         var col = cols[KOLOMMEN[j]];
-                        rij[KOLOMMEN[j]] = col === undefined ? '' : celTekst(ws[XLSX.utils.encode_cell({ r: r, c: col })]);
+                        rij[KOLOMMEN[j]] = col === undefined ? '' : celTekst(ws[X.utils.encode_cell({ r: r, c: col })]);
                         if (rij[KOLOMMEN[j]] !== '') { leeg = false; }
                     }
                     if (!leeg) { importRijen.push(rij); }

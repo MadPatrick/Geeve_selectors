@@ -26,5 +26,5 @@ if ($code === '' || strlen($code) > 60) {
 try {
     echo json_encode(lookupItem(getPdoConnection(), $code), JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
-    echo json_encode(['found' => false, 'code' => $code, 'description' => '', 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['found' => false, 'code' => $code, 'description' => '', 'error' => geeveFoutTekst($e)], JSON_UNESCAPED_UNICODE);
 }

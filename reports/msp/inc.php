@@ -6,32 +6,17 @@ declare(strict_types=1);
 // stored procedure dbo.SP_MSP (de Excel "MSP CLAIM"), maar dan als één lees-query (sql/msp_query.sql) die in
 // "005" draait en niets in de database aanmaakt of wegschrijft: het app-account heeft dus alleen leesrechten nodig.
 require_once __DIR__ . '/../../stauff/inc/config.php';
+require_once __DIR__ . '/../../shared/db.php';
 
 /** Kolommen waarvan de waarde als getal wordt teruggegeven (rest blijft tekst). */
 const MSP_NUMERIC_COLUMNS = ['qty', 'FINartgrp', 'Invoice Price'];
 
 function mspConnection(): PDO
 {
-    if (!in_array('sqlsrv', PDO::getAvailableDrivers(), true)) {
-        throw new RuntimeException('De PDO_SQLSRV driver is niet geinstalleerd op deze PHP-omgeving (zie slkprinten/README.md).');
-    }
-
-    $db = appConfig()['db'];
-    if ($db['user'] === null || $db['password'] === null) {
-        throw new RuntimeException('Database-inloggegevens ontbreken: vul ze in via Config in het hoofdmenu.');
-    }
-
-    $server = $db['host'] . ($db['port'] !== null ? ',' . $db['port'] : '');
-    $dsn = "sqlsrv:Server={$server};Database={$db['name']};Encrypt=yes;TrustServerCertificate={$db['trustServerCertificate']};LoginTimeout=15";
-
-    try {
-        return new PDO($dsn, $db['user'], $db['password'], [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]);
-    } catch (PDOException $e) {
-        throw new RuntimeException('Kan geen verbinding maken met database ' . $db['name'] . ': ' . $e->getMessage(), 0, $e);
-    }
+    return geeveSqlServerConnect(
+        appConfig()['db'],
+        'Database-inloggegevens ontbreken: vul ze in via Config in het hoofdmenu.'
+    );
 }
 
 /**

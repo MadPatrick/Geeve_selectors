@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../shared/helpers.php';
+
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
 tileRequirePage('klantartikel', '../templates/index.php');
@@ -12,18 +14,6 @@ define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __
 
 require_once __DIR__ . '/inc/db.php';
 require_once __DIR__ . '/inc/queries.php';
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 $priceList = trim((string) ($_GET['prijslijst'] ?? $_POST['prijslijst'] ?? ''));
 $priceColumn = trim((string) ($_GET['pcol'] ?? ''));
@@ -80,7 +70,7 @@ if ($priceList !== '') {
             $diag = diagnoseItemAccounts($pdo, $schema, $priceList);
         }
     } catch (Throwable $e) {
-        $error = $e->getMessage();
+        $error = geeveFoutTekst($e);
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'export') {
             // Een export-fout mag nooit als HTML-pagina in een .xml-download terechtkomen.
             http_response_code(500);
@@ -209,7 +199,7 @@ if ($priceList !== '') {
                 </table></div>
             <?php endif; ?>
         </section>
-        <script src="assets/vendor/xlsx.core.min.js"></script>
+        <script src="assets/vendor/xlsx.core.min.js?v=<?= h(assetVersion('assets/vendor/xlsx.core.min.js')) ?>"></script>
         <script src="assets/klantartikel.js?v=<?= h(assetVersion('assets/klantartikel.js')) ?>"></script>
     <?php endif; ?>
 
