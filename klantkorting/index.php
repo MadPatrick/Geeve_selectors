@@ -90,7 +90,7 @@ try {
         $lines = findDiscountLines($pdo, $priceList);
     }
 } catch (Throwable $e) {
-    $error = $e->getMessage();
+    $error = geeveFoutTekst($e);
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         http_response_code(500);
         header('Content-Type: text/plain; charset=utf-8');

@@ -20,5 +20,5 @@ try {
     usort($lists, fn ($a, $b) => strnatcmp($a['nr'], $b['nr']));
     echo json_encode(['ok' => true, 'lists' => $lists], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
 } catch (Throwable $e) {
-    echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['ok' => false, 'error' => geeveFoutTekst($e)], JSON_UNESCAPED_UNICODE);
 }

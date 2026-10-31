@@ -80,7 +80,7 @@ if ($priceList !== '') {
             $diag = diagnoseItemAccounts($pdo, $schema, $priceList);
         }
     } catch (Throwable $e) {
-        $error = $e->getMessage();
+        $error = geeveFoutTekst($e);
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'export') {
             // Een export-fout mag nooit als HTML-pagina in een .xml-download terechtkomen.
             http_response_code(500);

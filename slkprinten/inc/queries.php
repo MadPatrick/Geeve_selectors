@@ -125,7 +125,7 @@ function tryColumnsQuery(PDO $pdo, string $table, array $candidateColumns, strin
         "Kon tabel \"{$table}\" niet filteren - geen van de verwachte kolomnamen (" .
         implode(', ', $candidateColumns) . ') bestaat in die tabel. Zet de echte ' .
         'kolomnaam vooraan in ORDER_NUMBER_COLUMNS / HOSE_KEY_COLUMNS in inc/queries.php. ' .
-        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+        'Laatste SQL-foutmelding: ' . ($lastException !== null ? geeveFoutTekst($lastException) : 'onbekend')
     );
 }
 
@@ -150,7 +150,7 @@ function tryColumnsLikeQuery(PDO $pdo, string $table, array $candidateColumns, s
     throw new DatabaseConfigException(
         "Kon tabel \"{$table}\" niet filteren - geen van de verwachte kolomnamen (" .
         implode(', ', $candidateColumns) . ') bestaat in die tabel. ' .
-        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+        'Laatste SQL-foutmelding: ' . ($lastException !== null ? geeveFoutTekst($lastException) : 'onbekend')
     );
 }
 
@@ -187,7 +187,7 @@ function tryColumnsFuzzyLikeQuery(PDO $pdo, string $table, array $candidateColum
     throw new DatabaseConfigException(
         "Kon tabel \"{$table}\" niet filteren - geen van de verwachte kolomnamen (" .
         implode(', ', $candidateColumns) . ') bestaat in die tabel. ' .
-        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+        'Laatste SQL-foutmelding: ' . ($lastException !== null ? geeveFoutTekst($lastException) : 'onbekend')
     );
 }
 
@@ -229,7 +229,7 @@ function tryColumnsInQuery(PDO $pdo, string $table, array $candidateColumns, arr
     throw new DatabaseConfigException(
         "Kon tabel \"{$table}\" niet filteren - geen van de verwachte kolomnamen (" .
         implode(', ', $candidateColumns) . ') bestaat in die tabel. ' .
-        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+        'Laatste SQL-foutmelding: ' . ($lastException !== null ? geeveFoutTekst($lastException) : 'onbekend')
     );
 }
 
@@ -282,7 +282,7 @@ function tryColumnsInQueryWithEquals(
         "Kon tabel \"{$table}\" niet filteren - geen combinatie van de verwachte " .
         'kolomnamen (' . implode(', ', $inCandidateColumns) . ' / ' .
         implode(', ', $equalsCandidateColumns) . ') bestaat in die tabel. ' .
-        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+        'Laatste SQL-foutmelding: ' . ($lastException !== null ? geeveFoutTekst($lastException) : 'onbekend')
     );
 }
 

@@ -334,7 +334,12 @@ try {
         $savedParts[] = 'accessoires';
     }
 } catch (Throwable $e) {
-    respond(['ok' => false, 'error' => $e->getMessage(), 'savedParts' => $savedParts], 400);
+    // Eigen meldingen (RuntimeException/InvalidArgumentException) zijn voor het scherm bedoeld; een onverwachte fout gaat naar het log.
+    $bedoeld = $e instanceof RuntimeException || $e instanceof InvalidArgumentException;
+    if (!$bedoeld) {
+        error_log('[geeve] hoses/save.php: ' . get_class($e) . ': ' . $e->getMessage());
+    }
+    respond(['ok' => false, 'error' => $bedoeld ? $e->getMessage() : 'Onverwachte fout bij het opslaan. Details staan in het PHP-serverlog.', 'savedParts' => $savedParts], 400);
 }
 
 $freshErrors = [];

@@ -1535,14 +1535,14 @@ if ($selectedKeys !== []) {
                 $directPrint = ['printer' => $printers[$printerChoice], 'job' => $job];
                 geeveRememberPrinter('slangkaarten', $printerChoice);
             } catch (Throwable $exception) {
-                $directPrintError = $exception->getMessage();
+                $directPrintError = geeveFoutTekst($exception);
             }
         }
     } catch (Throwable $exception) {
         $hoseCards = [];
         $errorMessage = $exception instanceof DatabaseConfigException
-            ? $exception->getMessage()
-            : 'De slangkaarten konden niet worden opgebouwd, daarom is er niet geprint. Foutmelding: ' . $exception->getMessage();
+            ? geeveFoutTekst($exception)
+            : 'De slangkaarten konden niet worden opgebouwd, daarom is er niet geprint. Foutmelding: ' . geeveFoutTekst($exception);
     }
 } elseif ($orderNumber !== '') {
     try {
@@ -1556,7 +1556,7 @@ if ($selectedKeys !== []) {
                 (int) pick($a, REGELNUMMER_CANDIDATES) <=> (int) pick($b, REGELNUMMER_CANDIDATES)
         );
     } catch (DatabaseConfigException $exception) {
-        $errorMessage = $exception->getMessage();
+        $errorMessage = geeveFoutTekst($exception);
     }
 } elseif ($customerName !== '') {
     // Zoeken op klant gaat via een tussenstap: eerst een orderkeuze
@@ -1567,7 +1567,7 @@ if ($selectedKeys !== []) {
         $pdo = getPdoConnection();
         $customerOrders = findOrdersByCustomer($pdo, $customerName);
     } catch (DatabaseConfigException $exception) {
-        $errorMessage = $exception->getMessage();
+        $errorMessage = geeveFoutTekst($exception);
     }
 } elseif ($hoseNumberSearch !== '') {
     // Zoeken op slangnummer geeft alleen de slangkaart van precies dit
@@ -1577,7 +1577,7 @@ if ($selectedKeys !== []) {
         $pdo = getPdoConnection();
         $hoseCardsWithoutOrder = findHoseNumbersWithoutOrder($pdo, $hoseNumberSearch, [], true);
     } catch (DatabaseConfigException $exception) {
-        $errorMessage = $exception->getMessage();
+        $errorMessage = geeveFoutTekst($exception);
     }
 } else {
     // Nog niet gezocht: de laatste 10 orders/offertes worden na het laden van

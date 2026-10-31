@@ -2009,7 +2009,7 @@
             return;
         }
         ui.warningBox.hidden = false;
-        ui.warningBox.innerHTML = `<strong>Let op:</strong><ul>${messages.map(m => `<li>${m}</li>`).join('')}</ul>`;
+        ui.warningBox.innerHTML = `<strong>Let op:</strong><ul>${messages.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ul>`;
     }
 
     function clearAssembly() {
