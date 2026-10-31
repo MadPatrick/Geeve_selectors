@@ -103,7 +103,7 @@ h2 { margin: 4px 0 0; font-size: 22px; }
    gewone (niet-klikbare) div. Bewust geen apart hover/actief-uiterlijk -
    alle nummerboxen (1-6) blijven visueel gelijk, klikbaar of niet. */
 button.location-number { cursor: pointer; }
-.location-image { display: flex; align-items: center; justify-content: center; padding: 6px; border-right: 1px solid var(--line); background: var(--block-bg); }
+.location-image { display: flex; align-items: center; justify-content: center; padding: 6px; border-right: 1px solid var(--line); background: var(--box-bg-accent, #fdeaee); }
 .location-image img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
 .location-image-placeholder { display: none; color: var(--muted); font-size: 20px; }
 .location-image.is-empty { opacity: .5; }
