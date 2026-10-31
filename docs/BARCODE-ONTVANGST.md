@@ -1,6 +1,6 @@
 # Barcode inkoopontvangst: opzoeken en boeken
 
-Tegel `barcode` (Templates, IN PROGRESS), map `reports/barcode/`.
+Tegel `barcode` (Templates, IN PROGRESS), map `templates/barcode/`.
 
 ## Wat nu werkt (alleen lezen)
 

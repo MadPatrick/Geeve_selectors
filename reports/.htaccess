@@ -1,0 +1,5 @@
+# De Templates-apps stonden eerder in reports/ en staan nu in templates/ (zelfde mapnaam).
+# Oude adressen en bladwijzers sturen we door (301), inclusief eventuele extra pad-delen en query.
+<IfModule mod_alias.c>
+    RedirectMatch 301 ^(.*)/reports/(inkooporder-import|inkooporder|order-offerte|offerte-import|export-info|artikel-import|orderhistorie|productieorders|barcode)(/.*)?$ $1/templates/$2$3
+</IfModule>
