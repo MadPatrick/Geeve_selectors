@@ -189,7 +189,7 @@
     --black-a30: rgba(0, 0, 0, .3);
     --block-bg: #fbfcfd;
     --box-bg: #f5f8fa;
-    --box-bg-accent: rgba(96, 128, 159, .63);          /* achtergrond in de Stauff-zoekboxen (beugel, materiaal soort, zoekresultaten) */
+    --box-bg-accent: rgba(96, 128, 159, .4);          /* achtergrond in de Stauff-zoekboxen (beugel, materiaal soort, zoekresultaten) */
     --btn-choice: #edf2f6;
     --draw-nut-fill: #d8d2c4;
     --draw-nut-line: #b8b09a;
