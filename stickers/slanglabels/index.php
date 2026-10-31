@@ -59,7 +59,7 @@ $csrf = csrfToken();
                 <label class="msp-field"><span>Slangnummer</span><input type="text" class="ka-input" data-field="slangnummer" maxlength="40"></label>
                 <label class="msp-field"><span>Uw referentie</span><input type="text" class="ka-input" data-field="referentie" maxlength="60"></label>
                 <label class="msp-field"><span>Lengte</span><input type="text" class="ka-input" data-field="lengte" maxlength="20"></label>
-                <label class="msp-field"><span>Datum</span><input type="text" class="ka-input" data-field="datum" maxlength="20"></label>
+                <label class="msp-field"><span>Datum</span><input type="date" class="ka-input" data-field="datum"></label>
                 <label class="msp-field sl-klant"><span>Klantnaam</span><input type="text" class="ka-input" data-field="klantnaam" maxlength="80"></label>
                 <div class="sl-aantalrij">
                 <label class="msp-field sl-aantal"><span>Aantal</span><input type="number" class="ka-input" data-field="aantal" min="1" max="99"></label>
