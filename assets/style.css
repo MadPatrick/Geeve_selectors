@@ -22,7 +22,7 @@
     aspect-ratio: 1 / 1;
     text-decoration: none;
     color: var(--ink);
-    transition: transform .15s, box-shadow .15s, border-color .15s;
+    transition: box-shadow .15s, border-color .15s;
     position: relative;
     overflow: hidden;
 }
@@ -36,13 +36,15 @@
     transform-origin: left;
     transition: transform .18s;
 }
-.tile:hover, .tile:focus-visible {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 34px var(--black-a10);
-    border-color: var(--line-hover);
-    outline: none;
+/* Geen translateY op hover: de tegel schoof dan 3px onder de muisaanwijzer weg, waardoor de hover aan de onderrand
+   steeds aan/uit sloeg en een klik daar soms niet werd geteld (2x klikken). Alleen schaduw/rand/balk veranderen.
+   Hover alleen voor echte muisaanwijzers: op een aanraakscherm kost een "plakkende" hover anders een extra tik. */
+.tile:focus-visible { box-shadow: 0 16px 34px var(--black-a10); border-color: var(--line-hover); outline: none; }
+.tile:focus-visible::after { transform: scaleX(1); }
+@media (hover: hover) {
+    .tile:hover { box-shadow: 0 16px 34px var(--black-a10); border-color: var(--line-hover); }
+    .tile:hover::after { transform: scaleX(1); }
 }
-.tile:hover::after, .tile:focus-visible::after { transform: scaleX(1); }
 
 .tile-icon {
     width: 38px;

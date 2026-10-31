@@ -94,4 +94,5 @@ function accessApiGuard(string $scope): void
         echo json_encode(['ok' => false, 'error' => 'Vergrendeld: open de pagina en vul de toegangscode in.']);
         exit;
     }
+    csrfReleaseSession(); // trage API's houden de sessie anders vast en blokkeren andere tegels
 }
