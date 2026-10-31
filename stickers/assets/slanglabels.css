@@ -21,7 +21,10 @@
 #slTable th:first-child, #slTable td:first-child { width: 1%; }
 #slTable td.num { text-align: right; }
 
-.sl-preview { zoom: 1.4; }
+.sl-preview { zoom: 1.2; position: relative; width: calc(25mm + 2px); padding: 1px; max-height: 245px; overflow: hidden; }
+/* Het voorbeeld is ingekort (kaart even hoog als het formulier): onderaan een afbreekmarkering van twee schuine streeplijnen. */
+.sl-preview::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: var(--surface-white); z-index: 1; }
+.sl-preview::after { content: ""; position: absolute; left: -10%; width: 120%; bottom: 8px; height: 14px; z-index: 2; background: var(--surface-white); border-top: 1px dashed var(--ink-black); border-bottom: 1px dashed var(--ink-black); transform: rotate(-4deg); }
 .sl-preview .slanglabel { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1mm; background: var(--surface-white); }
 /* In het voorbeeld de doorzichtige plakrand gearceerd, zodat duidelijk is waar niet geprint wordt. */
 .sl-preview .slanglabel::after {
