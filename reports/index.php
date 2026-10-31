@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../shared/helpers.php';
+
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 require_once __DIR__ . '/../shared/tiles.php';
@@ -11,18 +13,6 @@ require_once __DIR__ . '/../shared/paths.php';
 tileRequirePage('reports', '../index.php');
 
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 // Beveiligde tegels: elke keer dat dit overzicht opent, vragen ze opnieuw om de code.
 tilesRelock('reports');

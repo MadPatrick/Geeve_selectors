@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/shared/helpers.php';
+
 session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
@@ -12,21 +14,6 @@ require_once __DIR__ . '/shared/sneeuw.php';
 require_once __DIR__ . '/shared/access.php';
 require_once __DIR__ . '/shared/tiles.php';
 require_once __DIR__ . '/shared/printen.php';
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-// Cache-busting op basis van de laatste wijzigingsdatum van het bestand
-// zelf, zodat elke aanpassing aan style.css automatisch een nieuwe URL
-// krijgt - geen handmatige versie-ophoging meer nodig.
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 $requestError = false;
 
@@ -98,12 +85,11 @@ if (!accessUnlocked('config')) {
 $settingsMessage = null;
 $dbFromFile = secureSettingsFileValues() !== null;
 
-if (empty($_SESSION['config_csrf'])) {
-    $_SESSION['config_csrf'] = bin2hex(random_bytes(16));
-}
+// Formulieren op deze pagina gebruiken hetzelfde CSRF-token als de rest van de portal (shared/csrf.php).
+$configCsrf = csrfToken();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-settings') {
-    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+    if (!csrfValid($_POST['csrf'] ?? null)) {
         $requestError = true;
     } else {
         $values = secureSettingsReadStored();
@@ -136,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
 
 $sneeuwMessage = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-sneeuw') {
-    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+    if (!csrfValid($_POST['csrf'] ?? null)) {
         $requestError = true;
     } else {
         $values = secureSettingsReadStored();
@@ -155,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
 
 $tilesMessage = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-tiles') {
-    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+    if (!csrfValid($_POST['csrf'] ?? null)) {
         $requestError = true;
     } else {
         $flags = [];
@@ -230,7 +216,7 @@ $storedSettings = secureSettingsRead();
 
         <form method="post" class="update-form settings-form" autocomplete="off">
             <input type="hidden" name="action" value="save-settings">
-            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <input type="hidden" name="csrf" value="<?= h($configCsrf) ?>">
             <?php
             $val = static fn (string $k): string => $storedSettings[$k] ?? '';
             $trustOn = strtolower($val('EXACT_DB_TRUST_SERVER_CERT') ?: 'yes') !== 'no';
@@ -322,7 +308,7 @@ $storedSettings = secureSettingsRead();
 
         <form method="post" class="update-form sneeuw-form" autocomplete="off">
             <input type="hidden" name="action" value="save-sneeuw">
-            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <input type="hidden" name="csrf" value="<?= h($configCsrf) ?>">
             <?php $sneeuwMaanden = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']; ?>
             <?php foreach (['SNEEUW' => 'Sneeuw rond de kerst', 'NIEUWJAAR' => 'Vuurwerk met Nieuwjaar', 'PASEN' => 'Paaseieren met Pasen'] as $naam => $titel):
                 $i = topbalkInstellingen($naam);
@@ -364,7 +350,7 @@ $storedSettings = secureSettingsRead();
 
         <form method="post" class="update-form tiles-form" autocomplete="off">
             <input type="hidden" name="action" value="save-tiles">
-            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <input type="hidden" name="csrf" value="<?= h($configCsrf) ?>">
             <div class="tiles-table" role="table">
                 <div class="tiles-row tiles-head" role="row">
                     <span role="columnheader">Tegel</span>

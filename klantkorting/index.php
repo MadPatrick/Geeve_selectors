@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../shared/helpers.php';
+
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
 tileRequirePage('klantkorting', '../templates/index.php');
@@ -11,18 +13,6 @@ tileRequirePage('klantkorting', '../templates/index.php');
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
 
 require_once __DIR__ . '/inc.php';
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 $priceList = trim((string) ($_GET['prijslijst'] ?? $_POST['prijslijst'] ?? ''));
 $priceColumn = trim((string) ($_GET['pcol'] ?? ''));

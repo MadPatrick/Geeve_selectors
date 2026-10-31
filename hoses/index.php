@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../shared/helpers.php';
+
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
 tileRequirePage('hoses', '../index.php');
@@ -24,21 +26,6 @@ $csvFiles = [
 $accessoryCsvFile = findFirstReadableFile($accessoryCsvCandidates);
 
 $articles = loadMergedArticlesCached($csvFiles, $accessoryCsvFile, $loadErrors);
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-// Cache-busting op basis van de laatste wijzigingsdatum van het bestand
-// zelf, zodat elke aanpassing aan style.css/selector.js automatisch een
-// nieuwe URL krijgt - geen handmatige versie-ophoging meer nodig.
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 $articleCount = count($articles);
 $dataState = $loadErrors === [] ? 'ready' : 'error';

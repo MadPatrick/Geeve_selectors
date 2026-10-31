@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../shared/helpers.php';
+
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
 require_once __DIR__ . '/../shared/paths.php';
@@ -35,18 +37,6 @@ register_shutdown_function(static function (): void {
         . '</div>';
 });
 require_once __DIR__ . '/inc/queries.php';
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 /**
  * Zorgt dat een decimaal getal kleiner dan 1 altijd met een voorloop-0
