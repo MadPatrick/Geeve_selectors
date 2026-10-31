@@ -120,7 +120,7 @@ function detectSchema(PDO $pdo, ?string $priceListColumnOverride = null): array
 
 function q(string $identifier): string
 {
-    return '[' . str_replace(']', ']]', $identifier) . ']';
+    return geeveSqlNaam($identifier);
 }
 
 /**

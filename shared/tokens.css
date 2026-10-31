@@ -198,6 +198,11 @@
     --focus-ring-error: rgba(160, 54, 54, .12);
     --hover-accent: #fde6ec;
     --hover-accent-soft: #fff3f6;
+    --angle-fill: #999999;               /* hoekdiagram op de slangkaart: ring en vlak */
+    --brand-panel-bg: #000000;           /* topbalk (brand-panel) */
+    --brand-panel-ink: #ffffff;
+    --error-box-ink: #7d2f2f;            /* foutmelding onderaan een pagina bij een PHP-fout */
+    --error-box-line: #e8b1b1;
     --ink-black: #000000;
     --ink-empty: #8c98a6;
     --ink-on-dark-soft: #f1f1f1;
@@ -259,4 +264,8 @@
     --white-a55: rgba(255, 255, 255, .55);
     --white-a80: rgba(255, 255, 255, .8);
     --white-a93: rgba(255,255,255,.93);
+    --shine-edge: rgba(255, 255, 255, 0);      /* glans over de topbalk */
+    --shine-mid: rgba(255, 255, 255, .22);
+    --title-ink: #fff6ea;                      /* titel in de topbalk */
+    --title-shade: #b9b9b9;
 }

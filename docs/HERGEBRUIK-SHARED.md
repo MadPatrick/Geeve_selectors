@@ -269,8 +269,9 @@ de eigen `assets/style.css`. `shared/head.php` doet dat in de goede volgorde.
   server aan. Kent de DNS het IP niet, dan is het resultaat het IP-adres. Niet geverifieerd dat de DNS op de
   Geeve-server pc-namen teruggeeft.
 - `csrfToken()` / `csrfValid()` (`shared/csrf.php`): bescherming voor elk formulier of elke API die iets wijzigt.
-- `tileApiGuard($tegelId)` en `accessApiGuard($scope)`: API's die bij een beveiligde tegel horen moeten dit aanroepen,
-  anders is de data ook zonder de toegangscode op te halen.
+- `tileRequirePage($tegelId, $terug)` bovenaan elke pagina van de app (ook beheer-, upload- en downloadpagina's) en
+  `tileApiGuard($tegelId)` / `accessApiGuard($scope)` in elke API, anders is de pagina of de data ook zonder de toegangscode
+  te openen. Een tegel in een groep (Reports, Templates, Stickers) is ook dicht zolang de groepstegel vergrendeld is.
 - **Voortgangsbalk** (`shared/progress.js`, CSS in `shared/style.css`, kleuren `--progress-*` in `tokens.css`): `shared/head.php`
   laadt het script, dus elke pagina met `head.php` heeft `GeeveProgress`. Gebruik het bij elke knop die een export, download,
   import of "Naar Exact" start:
@@ -369,5 +370,5 @@ De PHP-functies (printen, data, header) zijn daar niet bruikbaar. Wat wel gedeel
 - [ ] Printen: printerkeuze uit `geevePrinters()`, formulier met `csrfToken()`/`csrfValid()`, afdrukblok zonder scripts,
       getest op papier op de gekozen printer.
 - [ ] Export-, download-, import- en "Naar Exact"-knoppen tonen de voortgangsbalk (`GeeveProgress`, paragraaf 7).
-- [ ] Beveiligde API's roepen `tileApiGuard()` of `accessApiGuard()` aan.
+- [ ] Elke pagina van de app roept `tileRequirePage()` aan, elke API `tileApiGuard()` of `accessApiGuard()`.
 - [ ] `version.php` laat het laatste getal bij elke push met 1 omhoog gaan; de eerste drie alleen op verzoek.

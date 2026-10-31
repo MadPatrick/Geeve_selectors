@@ -6,32 +6,17 @@ declare(strict_types=1);
 // (Inkooporder naar Excel, Order of Offerte naar Excel). Zelfde SQL Server en inloggegevens (via Config) als /stauff;
 // de procedure wordt met een 3-delige naam aangeroepen, dus het app-account heeft EXECUTE nodig op die procedure.
 require_once __DIR__ . '/../stauff/inc/config.php';
+require_once __DIR__ . '/../shared/db.php';
 
 const SP_NUMERIC_TYPES = ['int', 'bigint', 'smallint', 'tinyint', 'decimal', 'numeric', 'float', 'real', 'money', 'smallmoney'];
 const SP_DATE_TYPES = ['date', 'datetime', 'datetime2', 'smalldatetime'];
 
 function reportConnection(): PDO
 {
-    if (!in_array('sqlsrv', PDO::getAvailableDrivers(), true)) {
-        throw new RuntimeException('De PDO_SQLSRV driver is niet geinstalleerd op deze PHP-omgeving (zie slkprinten/README.md).');
-    }
-
-    $db = appConfig()['db'];
-    if ($db['user'] === null || $db['password'] === null) {
-        throw new RuntimeException('Database-inloggegevens ontbreken: vul ze in via Config in het hoofdmenu.');
-    }
-
-    $server = $db['host'] . ($db['port'] !== null ? ',' . $db['port'] : '');
-    $dsn = "sqlsrv:Server={$server};Database={$db['name']};Encrypt=yes;TrustServerCertificate={$db['trustServerCertificate']};LoginTimeout=15";
-
-    try {
-        return new PDO($dsn, $db['user'], $db['password'], [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]);
-    } catch (PDOException $e) {
-        throw new RuntimeException('Kan geen verbinding maken met database ' . $db['name'] . ': ' . $e->getMessage(), 0, $e);
-    }
+    return geeveSqlServerConnect(
+        appConfig()['db'],
+        'Database-inloggegevens ontbreken: vul ze in via Config in het hoofdmenu.'
+    );
 }
 
 /** Alleen cijfers (zoals in de Excel-sjabloon), anders melding. */
@@ -149,7 +134,7 @@ function reportApi(callable $fetch, bool $numberOnly = true): void
         echo json_encode(['ok' => true] + $data, $flags);
     } catch (Throwable $e) {
         http_response_code(500);
-        echo json_encode(['ok' => false, 'error' => $e->getMessage()], $flags);
+        echo json_encode(['ok' => false, 'error' => geeveFoutTekst($e)], $flags);
     }
 }
 

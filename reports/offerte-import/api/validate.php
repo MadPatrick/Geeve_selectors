@@ -159,5 +159,5 @@ try {
     echo json_encode($out, $flags);
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => $e->getMessage()], $flags);
+    echo json_encode(['ok' => false, 'error' => geeveFoutTekst($e)], $flags);
 }

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../shared/helpers.php';
+
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt (bv.
 // deze map los buiten de portal gedeployed).
@@ -236,21 +238,6 @@ $hoses = loadHoseRows(findFirstReadableFile($csvFileCandidates['artikelnummers']
 $couplings = loadCouplingRows(findFirstReadableFile($csvFileCandidates['slangkoppelingen']), $loadErrors);
 
 usort($hoses, static fn(array $a, array $b): int => strnatcasecmp($a['artnr'], $b['artnr']));
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-// Cache-busting op basis van de laatste wijzigingsdatum van het bestand
-// zelf, zodat elke aanpassing aan style.css/selector.js automatisch een
-// nieuwe URL krijgt - geen handmatige versie-ophoging meer nodig.
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 // De "stand"-kolom in slangkoppelingen.csv is de hoek van de koppeling: 0
 // (recht), 45 of 90 graden.

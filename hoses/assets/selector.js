@@ -716,13 +716,33 @@
         setEditStatus('Bezig met opslaan…');
 
         const payload = collectEditPayload();
+        // Token tegen verzoeken vanaf een andere website (save.php weigert zonder geldig token). Stond de pagina zo lang open
+        // dat de sessie verlopen is, dan haalt de pagina één keer een vers token op en verstuurt de wijzigingen opnieuw.
+        const send = (token) => {
+            payload.csrf = token;
+            return fetch('save.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            }).then((response) => response.json().catch(() => ({ ok: false, error: `Onverwachte serverfout (${response.status}).` })));
+        };
 
-        fetch('save.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        })
-            .then((response) => response.json().catch(() => ({ ok: false, error: `Onverwachte serverfout (${response.status}).` })))
+        send(editToggleButton ? (editToggleButton.getAttribute('data-csrf') || '') : '')
+            .then((data) => {
+                if (!data || data.ok === true || !data.tokenVerlopen) {
+                    return data;
+                }
+                return fetch('save.php?token=1', { cache: 'no-store' })
+                    .then((response) => response.json())
+                    .then((fresh) => {
+                        if (!fresh || !fresh.csrf) {
+                            return data;
+                        }
+                        if (editToggleButton) editToggleButton.setAttribute('data-csrf', fresh.csrf);
+                        return send(fresh.csrf);
+                    })
+                    .catch(() => data);
+            })
             .then((data) => {
                 if (!data || data.ok !== true) {
                     throw new Error((data && data.error) || 'Opslaan is mislukt.');

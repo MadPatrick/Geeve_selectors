@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../shared/helpers.php';
+
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
 require_once __DIR__ . '/../shared/paths.php';
@@ -29,24 +31,12 @@ register_shutdown_function(static function (): void {
     if ($error === null || !in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
         return;
     }
-    echo '<div style="margin:16px;padding:15px 18px;border:1px solid #e8b1b1;border-radius:12px;background:#fff1f1;color:#7d2f2f;font:14px Arial,sans-serif">'
+    echo '<div style="margin:16px;padding:15px 18px;border:1px solid var(--error-box-line);border-radius:12px;background:var(--warning-bg);color:var(--error-box-ink);font:14px Arial,sans-serif">'
         . '<strong>Fout bij het opbouwen van de slangkaarten:</strong><br>'
         . htmlspecialchars($error['message'] . ' (' . basename($error['file']) . ':' . $error['line'] . ')', ENT_QUOTES)
         . '</div>';
 });
 require_once __DIR__ . '/inc/queries.php';
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 /**
  * Zorgt dat een decimaal getal kleiner dan 1 altijd met een voorloop-0
@@ -306,8 +296,8 @@ function renderAngleSvg(?float $degrees): string
     // opvallen terwijl het vlak zelf grijs blijft.
     $angleLines = $wedge !== ''
         ? sprintf(
-            '<line x1="%1$s" y1="%2$s" x2="%3$s" y2="%4$s" stroke="#111" stroke-width="2.2"></line>'
-            . '<line x1="%1$s" y1="%2$s" x2="%5$s" y2="%6$s" stroke="#111" stroke-width="2.2"></line>',
+            '<line class="angle-edge" x1="%1$s" y1="%2$s" x2="%3$s" y2="%4$s" stroke-width="2.2"></line>'
+            . '<line class="angle-edge" x1="%1$s" y1="%2$s" x2="%5$s" y2="%6$s" stroke-width="2.2"></line>',
             $cx,
             $cy,
             round($startX, 2),
@@ -318,12 +308,12 @@ function renderAngleSvg(?float $degrees): string
         : '';
 
     return '<svg class="angle-diagram" viewBox="0 0 100 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
-        . '<circle cx="50" cy="50" r="' . $radius . '" fill="none" stroke="#999" stroke-width="1.2"></circle>'
-        . ($wedge !== '' ? '<path d="' . $wedge . '" fill="#999"></path>' : '')
-        . '<line x1="8" y1="50" x2="92" y2="50" stroke="#ccc" stroke-width="0.8"></line>'
-        . '<line x1="50" y1="8" x2="50" y2="92" stroke="#ccc" stroke-width="0.8"></line>'
+        . '<circle class="angle-ring" cx="50" cy="50" r="' . $radius . '" fill="none" stroke-width="1.2"></circle>'
+        . ($wedge !== '' ? '<path class="angle-wedge" d="' . $wedge . '"></path>' : '')
+        . '<line class="angle-axis" x1="8" y1="50" x2="92" y2="50" stroke-width="0.8"></line>'
+        . '<line class="angle-axis" x1="50" y1="8" x2="50" y2="92" stroke-width="0.8"></line>'
         . $angleLines
-        . '<text x="50" y="108" text-anchor="middle" font-size="11" fill="#111">Hoek ' . h($degreesLabel) . '</text>'
+        . '<text class="angle-label" x="50" y="108" text-anchor="middle" font-size="11">Hoek ' . h($degreesLabel) . '</text>'
         . '</svg>';
 }
 
@@ -1365,7 +1355,7 @@ if (isset($_GET['diagnose'])) {
     $needle = trim((string) $_GET['diagnose']);
     $out = '<!doctype html><meta charset="utf-8"><title>Diagnose ' . h($needle) . '</title>'
         . '<style>body{font:13px Arial,sans-serif;margin:20px}table{border-collapse:collapse;margin:6px 0 18px}'
-        . 'td,th{border:1px solid #ccc;padding:3px 6px;text-align:left;white-space:nowrap}h2{font-size:15px;margin:18px 0 4px}</style>'
+        . 'td,th{border:1px solid;padding:3px 6px;text-align:left;white-space:nowrap}h2{font-size:15px;margin:18px 0 4px}</style>'
         . '<h1>Diagnose slangnummer &quot;' . h($needle) . '&quot;</h1>';
     $renderRows = static function (array $rows): string {
         if ($rows === []) {
@@ -1412,7 +1402,7 @@ if (isset($_GET['diagnose'])) {
         foreach ($sources as [$table, $column]) {
             $out .= '<h2>' . h($table) . ' (' . h($column) . ' LIKE ' . h($like) . ')</h2>';
             try {
-                $stmt = $pdo->prepare("SELECT TOP 50 * FROM [dbo].[{$table}] WHERE [{$column}] LIKE :v");
+                $stmt = $pdo->prepare('SELECT TOP 50 * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($column) . ' LIKE :v');
                 $stmt->execute(['v' => $like]);
                 $out .= $renderRows($stmt->fetchAll());
             } catch (Throwable $exception) {
@@ -1438,8 +1428,8 @@ if (isset($_GET['diagnose'])) {
             echo ' ';
             flush();
             try {
-                $stmt = $pdo->prepare('SELECT COUNT(*) FROM [dbo].[' . str_replace(']', ']]', (string) $candidate['TABLE_NAME']) . '] WHERE ['
-                    . str_replace(']', ']]', (string) $candidate['COLUMN_NAME']) . '] LIKE :v');
+                $stmt = $pdo->prepare('SELECT COUNT(*) FROM [dbo].' . geeveSqlNaam((string) $candidate['TABLE_NAME']) . ' WHERE '
+                    . geeveSqlNaam((string) $candidate['COLUMN_NAME']) . ' LIKE :v');
                 $stmt->execute(['v' => $like]);
                 $count = (int) $stmt->fetchColumn();
                 $found[] = ['tabel' => $candidate['TABLE_NAME'], 'kolom' => $candidate['COLUMN_NAME'], 'rijen' => $count];
@@ -1535,14 +1525,14 @@ if ($selectedKeys !== []) {
                 $directPrint = ['printer' => $printers[$printerChoice], 'job' => $job];
                 geeveRememberPrinter('slangkaarten', $printerChoice);
             } catch (Throwable $exception) {
-                $directPrintError = $exception->getMessage();
+                $directPrintError = geeveFoutTekst($exception);
             }
         }
     } catch (Throwable $exception) {
         $hoseCards = [];
         $errorMessage = $exception instanceof DatabaseConfigException
-            ? $exception->getMessage()
-            : 'De slangkaarten konden niet worden opgebouwd, daarom is er niet geprint. Foutmelding: ' . $exception->getMessage();
+            ? geeveFoutTekst($exception)
+            : 'De slangkaarten konden niet worden opgebouwd, daarom is er niet geprint. Foutmelding: ' . geeveFoutTekst($exception);
     }
 } elseif ($orderNumber !== '') {
     try {
@@ -1556,7 +1546,7 @@ if ($selectedKeys !== []) {
                 (int) pick($a, REGELNUMMER_CANDIDATES) <=> (int) pick($b, REGELNUMMER_CANDIDATES)
         );
     } catch (DatabaseConfigException $exception) {
-        $errorMessage = $exception->getMessage();
+        $errorMessage = geeveFoutTekst($exception);
     }
 } elseif ($customerName !== '') {
     // Zoeken op klant gaat via een tussenstap: eerst een orderkeuze
@@ -1567,7 +1557,7 @@ if ($selectedKeys !== []) {
         $pdo = getPdoConnection();
         $customerOrders = findOrdersByCustomer($pdo, $customerName);
     } catch (DatabaseConfigException $exception) {
-        $errorMessage = $exception->getMessage();
+        $errorMessage = geeveFoutTekst($exception);
     }
 } elseif ($hoseNumberSearch !== '') {
     // Zoeken op slangnummer geeft alleen de slangkaart van precies dit
@@ -1577,7 +1567,7 @@ if ($selectedKeys !== []) {
         $pdo = getPdoConnection();
         $hoseCardsWithoutOrder = findHoseNumbersWithoutOrder($pdo, $hoseNumberSearch, [], true);
     } catch (DatabaseConfigException $exception) {
-        $errorMessage = $exception->getMessage();
+        $errorMessage = geeveFoutTekst($exception);
     }
 } else {
     // Nog niet gezocht: de laatste 10 orders/offertes worden na het laden van

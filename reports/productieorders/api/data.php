@@ -63,7 +63,7 @@ reportApi(function (array $in): array {
     try {
         $moeders = productieordersMoeders(array_map(static fn ($r): string => trim((string) $r[0]), $data['rows']));
     } catch (Throwable $e) {
-        $waarschuwing = 'Moederproject kon niet worden opgezocht: ' . $e->getMessage();
+        $waarschuwing = 'Moederproject kon niet worden opgezocht: ' . geeveFoutTekst($e);
     }
     foreach ($data['rows'] as $i => $r) {
         array_splice($data['rows'][$i], 0, 0, [$moeders[trim((string) $r[0])] ?? '']);

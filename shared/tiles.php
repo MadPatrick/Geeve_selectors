@@ -6,7 +6,8 @@ declare(strict_types=1);
  * Overzicht van alle tegels (hoofdscherm, Reports, Templates en Stickers) met per tegel drie opties die in Config worden ingesteld:
  *  - zichtbaar: uit = de tegel staat niet op het overzicht (de pagina zelf blijft via de directe link bereikbaar);
  *  - beveiligd: een klik op de tegel vraagt om de toegangscode (zie shared/access.php); de pagina en de bijbehorende API's
- *    zijn zonder ontgrendelen ook niet te openen;
+ *    zijn zonder ontgrendelen ook niet te openen. Een beveiligde groepstegel (Reports, Templates, Stickers) geldt ook voor
+ *    alle tegels in die groep, ook als je hun adres direct opent;
  *  - in progress: de tegel krijgt de stempel "IN PROGRESS" (alleen visueel).
  * De instellingen staan versleuteld in de Config-instellingen (sleutel TILE_FLAGS, JSON); ontbreekt een tegel daarin, dan gelden
  * de standaardwaarden uit TILE_REGISTRY.
@@ -212,11 +213,28 @@ function tilesRelock(string $group): void
     }
 }
 
-/** True als een van de tegels niet beveiligd is of ontgrendeld is. */
+/** Groepstegel waar een tegel onder valt ('reports', 'templates' of 'stickers'), of null voor een tegel op het hoofdscherm. */
+function tileParent(string $id): ?string
+{
+    $group = TILE_REGISTRY[$id][0] ?? 'home';
+    return $group !== 'home' && $group !== $id && isset(TILE_REGISTRY[$group]) ? $group : null;
+}
+
+/** True als de tegel zelf open is (niet beveiligd of ontgrendeld). */
+function tileOwnLockOpen(string $id): bool
+{
+    return !tileLocked($id) || accessUnlocked($id);
+}
+
+/**
+ * True als een van de tegels open is: niet beveiligd of ontgrendeld, en de groepstegel erboven ook (een vergrendelde Reports
+ * houdt dus ook MSP e.d. dicht, ook via een bladwijzer of direct adres).
+ */
 function tileAccessible(string ...$ids): bool
 {
     foreach ($ids as $id) {
-        if (!tileLocked($id) || accessUnlocked($id)) {
+        $parent = tileParent($id);
+        if (($parent === null || tileOwnLockOpen($parent)) && tileOwnLockOpen($id)) {
             return true;
         }
     }
@@ -225,14 +243,22 @@ function tileAccessible(string ...$ids): bool
 
 /**
  * Voor de pagina van een tegel (bovenaan, vóór enige uitvoer): is de tegel beveiligd en nog niet ontgrendeld, dan terug naar het
- * overzicht, waar de popup meteen om de code vraagt.
+ * overzicht, waar de popup meteen om de code vraagt. Is de groepstegel erboven nog dicht, dan eerst naar het hoofdscherm, dat om
+ * de code van de groep vraagt.
  */
 function tileRequirePage(string $id, string $backHref): void
 {
-    if (!tileAccessible($id)) {
-        header('Location: ' . $backHref . (str_contains($backHref, '?') ? '&' : '?') . 'unlock=' . rawurlencode($id));
-        exit;
+    if (tileAccessible($id)) {
+        return;
     }
+    $parent = tileParent($id);
+    if ($parent !== null && !tileOwnLockOpen($parent)) {
+        require_once __DIR__ . '/paths.php';
+        $id = $parent;
+        $backHref = geeveAppUrl(TILE_REGISTRY[$parent][0]);
+    }
+    header('Location: ' . $backHref . (str_contains($backHref, '?') ? '&' : '?') . 'unlock=' . rawurlencode($id));
+    exit;
 }
 
 /** Voor API-scripts: stopt met een 403 als geen van de tegels waar deze API bij hoort is ontgrendeld. */

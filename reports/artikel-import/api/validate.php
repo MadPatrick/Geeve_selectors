@@ -131,7 +131,7 @@ try {
                 }
             }
         } catch (Throwable $e) {
-            $out['warnings'][] = 'Verkoopprijs uit Exact kon niet worden opgehaald: ' . $e->getMessage();
+            $out['warnings'][] = 'Verkoopprijs uit Exact kon niet worden opgehaald: ' . geeveFoutTekst($e);
         }
 
         // Leveranciergegevens per artikel (ItemAccounts, gekoppeld op crdnr).
@@ -168,7 +168,7 @@ try {
                 }
             }
         } catch (Throwable $e) {
-            $out['warnings'][] = 'Leveranciergegevens uit Exact konden niet worden opgehaald: ' . $e->getMessage();
+            $out['warnings'][] = 'Leveranciergegevens uit Exact konden niet worden opgehaald: ' . geeveFoutTekst($e);
         }
     }
     foreach ($items as $key => $item) {
@@ -204,5 +204,5 @@ try {
     echo json_encode($out, $flags);
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => $e->getMessage()], $flags);
+    echo json_encode(['ok' => false, 'error' => geeveFoutTekst($e)], $flags);
 }

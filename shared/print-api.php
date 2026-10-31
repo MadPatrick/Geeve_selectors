@@ -49,6 +49,11 @@ $html = $body['html'] ?? null;
 if (!is_string($html) || trim($html) === '' || strlen($html) > 2_500_000) {
     printApiFail(400, 'Er is niets om te printen.');
 }
+// De HTML komt uit de browser: alleen bekende tags en attributen laten staan (zie shared/printsaneren.php).
+$html = geeveSaneerPrintHtml($html);
+if (trim($html) === '') {
+    printApiFail(400, 'Er is niets om te printen.');
+}
 
 // Optioneel: snelheid en zwarting. Brother QL: snelheid "1" = snel, zwarting 10-90 %. TSPL: snelheid 1-12, zwarting 0-15.
 // Alles buiten het bereik of leeg wordt niet meegestuurd.

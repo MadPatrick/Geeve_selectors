@@ -39,8 +39,8 @@ body::before {
     z-index: -1;
     background: url("../images/achtergrond.jpg") center 30% / cover no-repeat;
     opacity: .15;
-    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, var(--ink-black) 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, var(--ink-black) 55%, transparent 100%);
     pointer-events: none;
 }
 @media (max-width: 980px) {
@@ -61,8 +61,8 @@ button, input, select { font: inherit; }
 .page-footer { margin: auto 4px 0; padding-top: 30px; color: var(--muted); font-size: 12px; text-align: center; }
 
 .brand-panel {
-    background: #000;
-    color: #fff;
+    background: var(--brand-panel-bg);
+    color: var(--brand-panel-ink);
     border-radius: 18px 18px 0 0;
     padding: 10px 20px 14px;
     display: grid;
@@ -88,7 +88,7 @@ button, input, select { font: inherit; }
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(100deg, rgba(255, 255, 255, 0) 42%, rgba(255, 255, 255, .22) 50%, rgba(255, 255, 255, 0) 58%) no-repeat;
+    background: linear-gradient(100deg, var(--shine-edge) 42%, var(--shine-mid) 50%, var(--shine-edge) 58%) no-repeat;
     background-size: 250% 100%;
     background-position: 100% 0;
     pointer-events: none;
@@ -205,7 +205,7 @@ button, input, select { font: inherit; }
     gap: 5px;
     font-size: 12px;
     font-weight: 700;
-    color: #f1f1f1;
+    color: var(--ink-on-dark-soft);
     opacity: .92;
     white-space: nowrap;
 }
@@ -214,7 +214,7 @@ button, input, select { font: inherit; }
 .version-inline {
     font-size: 12px;
     font-weight: 700;
-    color: #f1f1f1;
+    color: var(--ink-on-dark-soft);
     opacity: .92;
     white-space: nowrap;
 }
@@ -265,8 +265,8 @@ h1 {
     margin: 2px 0 3px;
     line-height: 1.2;
     letter-spacing: -.02em;
-    color: #fff6ea;
-    background: linear-gradient(90deg, #b9b9b9 0%, #ffffff 45%, #b9b9b9 100%);
+    color: var(--title-ink);
+    background: linear-gradient(90deg, var(--title-shade) 0%, var(--surface-white) 45%, var(--title-shade) 100%);
     -webkit-background-clip: text;
     background-clip: text;
 }
@@ -364,7 +364,7 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
 .direct-print-instelling label { display: inline-flex; gap: 6px; align-items: center; }
 .direct-print-instelling select { width: 120px; min-width: 120px; }
 .direct-print-status { font-weight: 500; color: var(--muted); }
-.direct-print-status.is-error { color: var(--btn-danger, #a03636); }
+.direct-print-status.is-error { color: var(--btn-danger, var(--danger)); }
 
 /* Voortgangsbalk bij export-/import-/"Naar Exact"-knoppen (shared/progress.js, GeeveProgress). */
 .geeve-progress-host { position: fixed; left: 50%; bottom: 20px; z-index: 1000; width: 360px; max-width: calc(100% - 32px); margin-left: -180px; }
@@ -388,9 +388,9 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
 .geeve-btn-progress.is-indeterminate .geeve-btn-progress-fill { width: 35%; transition: none; -webkit-animation: geeve-progress-run 1.1s ease-in-out infinite; animation: geeve-progress-run 1.1s ease-in-out infinite; }
 .geeve-btn-progress.is-error .geeve-btn-progress-fill { background: var(--btn-progress-error); opacity: .35; }
 
-/* Tegelpictogrammen per groep (kleuren in tokens.css, markup via tileIcon() in shared/tiles.php); fallback-waarde voor oudere browsers. */
-.tile-icon.g-home { background: #fde8ed; background: var(--tile-home-bg, #fde8ed); border-color: #f47896; border-color: var(--tile-home-line, #f47896); color: #b90d32; color: var(--tile-home-ink, #b90d32); }
-.tile-icon.g-reports { background: #e6f0fc; background: var(--tile-reports-bg, #e6f0fc); border-color: #8db8ee; border-color: var(--tile-reports-line, #8db8ee); color: #1d5fb8; color: var(--tile-reports-ink, #1d5fb8); }
-.tile-icon.g-templates { background: #e6f5ec; background: var(--tile-templates-bg, #e6f5ec); border-color: #8fd0a8; border-color: var(--tile-templates-line, #8fd0a8); color: #237447; color: var(--tile-templates-ink, #237447); }
-.tile-icon.g-stickers { background: #fff1d9; background: var(--tile-stickers-bg, #fff1d9); border-color: #f0c274; border-color: var(--tile-stickers-line, #f0c274); color: #a15c00; color: var(--tile-stickers-ink, #a15c00); }
+/* Tegelpictogrammen per groep (kleuren in tokens.css, markup via tileIcon() in shared/tiles.php). */
+.tile-icon.g-home { background: var(--tile-home-bg); border-color: var(--tile-home-line); color: var(--tile-home-ink); }
+.tile-icon.g-reports { background: var(--tile-reports-bg); border-color: var(--tile-reports-line); color: var(--tile-reports-ink); }
+.tile-icon.g-templates { background: var(--tile-templates-bg); border-color: var(--tile-templates-line); color: var(--tile-templates-ink); }
+.tile-icon.g-stickers { background: var(--tile-stickers-bg); border-color: var(--tile-stickers-line); color: var(--tile-stickers-ink); }
 .tile-icon svg { display: block; }
