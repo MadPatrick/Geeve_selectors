@@ -65,7 +65,7 @@ $csrf = csrfToken();
             <button type="button" id="eiExport" class="ka-button">Export naar Excel</button>
         </div>
         <div class="msp-summary" id="eiSummary"></div>
-        <div class="ka-table-wrap msp-scroll"><table class="ka-table" id="eiTable"></table></div>
+        <div class="ka-table-wrap ei-scroll"><table class="ka-table" id="eiTable"></table></div>
     </section>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
