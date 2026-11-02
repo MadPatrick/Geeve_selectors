@@ -114,6 +114,14 @@ $csrf = csrfToken();
             <?= tileLockIcon('barcode') ?>
         </a>
         <?php endif; $tileHtml['barcode'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('klantkorting')): ?>
+        <a class="<?= tileClass('klantkorting') ?>" href="<?= h(geeveAppUrl('klantkorting')) ?>"<?= tileAttrs('klantkorting') ?>>
+            <?= tileIcon('klantkorting') ?>
+            <h2><?= h(tileTitle('klantkorting')) ?></h2>
+            <p>Bekijk en pas de kortingstructuur van klanten aan op basis van hun prijslijst.</p>
+            <?= tileLockIcon('klantkorting') ?>
+        </a>
+        <?php endif; $tileHtml['klantkorting'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('templates') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 

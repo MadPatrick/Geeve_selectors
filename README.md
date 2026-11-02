@@ -46,12 +46,12 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 | Productiviteit | `/reports/productiviteit/` | Beveiligd met een toegangscode |
 | Artikelmarges | `/reports/artikel-marge/` | Verkoopprijs, inkoopprijs en marge |
 | Klant Artikelnummers | `/klantartikel/` | Debiteuren op een prijslijst met hun klantartikelnummers; Excel in, XML (DEBTORS.xml) uit |
-| Kortingstructuur | `/klantkorting/` | Kortingstructuur per prijslijst (in opbouw) |
 
 ### Templates
 
 | Tegel | Adres | Wat het doet |
 |---|---|---|
+| Kortingstructuur | `/klantkorting/` | Kortingstructuur per prijslijst (in opbouw) |
 | Export Inkooporder naar Excel | `/templates/inkooporder/` | Inkooporder met regels uit Exact ophalen en als Excel downloaden |
 | Export Order/Offerte naar Excel | `/templates/order-offerte/` | Order of offerte als Excel |
 | Import Offerte | `/templates/offerte-import/` | Excel-offerte controleren met Exact en als XML exporteren |
