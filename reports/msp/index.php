@@ -68,7 +68,7 @@ $thisYear = (int) date('Y');
                 </select>
             </label>
             <button type="button" id="mspFetch" class="ka-button">Gegevens ophalen</button>
-            <label class="msp-field msp-merge"><span>Weergave</span><span class="msp-check"><input type="checkbox" id="mspMerge"> Samenvoegen per klant, factuur en artikel</span></label>
+            <div class="msp-field msp-merge"><span>Weergave</span><label class="msp-check"><input type="checkbox" id="mspMerge"><span>Samenvoegen per klant, factuur en artikel</span></label></div>
             <button type="button" id="mspDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
             <button type="button" id="mspUpload" class="ka-button ka-button--secondary" disabled>Export voor MSP-upload</button>
             <span id="mspStatus" class="msp-status"></span>
