@@ -12,6 +12,8 @@ declare(strict_types=1);
  *    kan er een test-database komen (EXACT_DB_NAME_TEST in Config).
  *  - slangkaarten: de eigen database "Slangkaarten". Alleen lezen.
  *
+ * Tegels die nu al schrijven (Stauff, Import Offerte: "Naar Exact" via Slangkaart.Web) staan in GEEVE_TILE_SCHRIJVEN_VIA_WEB.
+ *
  * Per tegel en per bron die de tegel gebruikt (GEEVE_TILE_DB) staan twee keuzes in de instelling DB_KEUZE (JSON, versleuteld in
  * .settings.enc zoals de overige tegelinstellingen):
  *  - lezen:    main (standaard) of test;
@@ -62,6 +64,26 @@ const GEEVE_TILE_DB = [
     'stickers-artikel' => ['exact'],
     'stickers-slanglabels' => ['exact'],
 ];
+
+/**
+ * Tegels die al naar Exact schrijven, en wel via de slangkaart-app (Slangkaart.Web, "Naar Exact"). Dat doel (server) staat in de
+ * configuratie van Slangkaart.Web (EntityService:Schrijfservers, nu alleen de testserver tst19; productie is daar in de code
+ * geblokkeerd). Voor deze tegels geldt dus: schrijven staat standaard op "test" (zoals het nu werkt), "main" is niet te kiezen
+ * en "geen" zet de knop "Naar Exact" uit. De portal zelf maakt voor deze tegels geen schrijfverbinding.
+ */
+const GEEVE_TILE_SCHRIJVEN_VIA_WEB = ['stauff', 'offerte-import'];
+
+/** True als de tegel via Slangkaart.Web naar Exact schrijft. */
+function geeveDbSchrijftViaWeb(string $tegel): bool
+{
+    return in_array($tegel, GEEVE_TILE_SCHRIJVEN_VIA_WEB, true);
+}
+
+/** Standaardkeuze zonder instelling: lezen uit main; schrijven uit, behalve voor tegels die via Slangkaart.Web schrijven (test). */
+function geeveDbStandaard(string $tegel, string $bron): array
+{
+    return ['lezen' => 'main', 'schrijven' => $bron === 'exact' && geeveDbSchrijftViaWeb($tegel) ? 'test' : 'geen'];
+}
 
 /** Instelling uit een omgevingsvariabele of uit Config (.settings.enc / serverbestand); leeg = null. */
 function geeveDbWaarde(string $sleutel): ?string
@@ -143,21 +165,30 @@ function geeveDbKeuzes(): array
             if (!is_string($bron) || !isset(GEEVE_DB_BRONNEN[$bron]) || !is_array($keuze)) {
                 continue;
             }
-            $lezen = $keuze['lezen'] ?? 'main';
-            $schrijven = $keuze['schrijven'] ?? 'geen';
+            $std = geeveDbStandaard($tegel, $bron);
+            $lezen = $keuze['lezen'] ?? $std['lezen'];
+            $schrijven = $keuze['schrijven'] ?? $std['schrijven'];
+            $schrijfOk = GEEVE_DB_BRONNEN[$bron][1] && in_array($schrijven, GEEVE_DB_BRONNEN[$bron][2], true)
+                && !($schrijven === 'main' && geeveDbSchrijftViaWeb($tegel)); // main is via Slangkaart.Web (nog) geblokkeerd
             $cache[$tegel][$bron] = [
                 'lezen' => in_array($lezen, GEEVE_DB_BRONNEN[$bron][2], true) ? $lezen : 'main',
-                'schrijven' => GEEVE_DB_BRONNEN[$bron][1] && in_array($schrijven, GEEVE_DB_BRONNEN[$bron][2], true) ? $schrijven : 'geen',
+                'schrijven' => $schrijfOk ? $schrijven : 'geen',
             ];
         }
     }
     return $cache;
 }
 
-/** De keuze voor één tegel en bron; zonder instelling: lezen uit main, schrijven geen. @return array{lezen:string,schrijven:string} */
+/** De keuze voor één tegel en bron; zonder instelling de standaard (geeveDbStandaard). @return array{lezen:string,schrijven:string} */
 function geeveDbKeuze(string $tegel, string $bron): array
 {
-    return geeveDbKeuzes()[$tegel][$bron] ?? ['lezen' => 'main', 'schrijven' => 'geen'];
+    return geeveDbKeuzes()[$tegel][$bron] ?? geeveDbStandaard($tegel, $bron);
+}
+
+/** Mag deze tegel naar Exact schrijven (keuze is niet "geen")? Gebruik dit voor de knop "Naar Exact" van een tegel. */
+function geeveDbSchrijvenAan(string $tegel): bool
+{
+    return geeveDbKeuze($tegel, 'exact')['schrijven'] !== 'geen';
 }
 
 /** Tekst voor als de inloggegevens van een bron ontbreken. */
@@ -183,6 +214,9 @@ function geeveDbVerbinding(string $tegel, string $bron, string $doel = 'lezen', 
     if ($doel === 'schrijven') {
         if (!GEEVE_DB_BRONNEN[$bron][1]) {
             throw new DatabaseConfigException('De ' . GEEVE_DB_BRONNEN[$bron][0] . ' is alleen-lezen: hier kan niet in geschreven worden.');
+        }
+        if (geeveDbSchrijftViaWeb($tegel)) {
+            throw new DatabaseConfigException('Deze tegel schrijft via de slangkaart-app (Slangkaart.Web), niet via een eigen databaseverbinding.');
         }
         if ($keuze['schrijven'] === 'geen') {
             throw new DatabaseConfigException('Schrijven naar de ' . GEEVE_DB_BRONNEN[$bron][0] . ' staat uit voor deze tegel. Kies een test- of main-database in Config > Databases per tegel.');

@@ -175,7 +175,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 $schrijven = (string) ($rij['schrijven'] ?? 'geen');
                 $lezen = in_array($lezen, GEEVE_DB_BRONNEN[$bron][2], true) ? $lezen : 'main';
                 $schrijven = GEEVE_DB_BRONNEN[$bron][1] && in_array($schrijven, GEEVE_DB_BRONNEN[$bron][2], true) ? $schrijven : 'geen';
-                if ($lezen !== 'main' || $schrijven !== 'geen') {
+                $std = geeveDbStandaard($tileId, $bron);
+                if ($lezen !== $std['lezen'] || $schrijven !== $std['schrijven']) {
                     $keuzes[$tileId][$bron] = ['lezen' => $lezen, 'schrijven' => $schrijven];
                 }
             }
@@ -392,7 +393,7 @@ $storedSettings = secureSettingsRead();
                     <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($storedSettings['EXACT_DB_NAME_TEST'] ?? '') ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
                 </label>
             </div>
-            <p class="settings-help">Zelfde server en login als de Exact-database; alleen de databasenaam verschilt. Zolang dit leeg is, kan niet voor Test gekozen worden.</p>
+            <p class="settings-help">Zelfde server en login als de Exact-database; alleen de databasenaam verschilt. Zolang dit leeg is, kan niet voor Test gekozen worden. Stauff en Import Offerte schrijven al via "Naar Exact" in de slangkaart-app (Slangkaart.Web): daar staat schrijven op Test (de testserver van die app) en Main is geblokkeerd; kies je Geen, dan verdwijnt de knop "Naar Exact". De server waarnaar die app schrijft stelt Slangkaart.Web zelf in.</p>
             <div class="tiles-table" role="table">
                 <div class="tiles-row tiles-head" role="row">
                     <span role="columnheader">Tegel</span>
@@ -434,9 +435,12 @@ $storedSettings = secureSettingsRead();
                                         </select>
                                         <?php if ($bronInfo[1]): ?>
                                         <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][schrijven]" aria-label="<?= h($tile[1] . ' - ' . $bronInfo[0] . ': schrijven naar') ?>">
-                                            <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>Schrijven: geen</option>
+                                            <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>Schrijven: geen<?= geeveDbSchrijftViaWeb($tileId) ? ' (knop uit)' : '' ?></option>
                                             <?php foreach ($bronInfo[2] as $omg): ?>
-                                                <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['schrijven'] === $omg ? '' : ' disabled' ?>>Schrijven: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
+                                                <?php $viaWeb = geeveDbSchrijftViaWeb($tileId);
+                                                // Via Slangkaart.Web: test = de testserver van die app (altijd beschikbaar), main = daar geblokkeerd.
+                                                $schrijfBeschikbaar = $viaWeb ? $omg === 'test' : geeveDbOmgevingBeschikbaar($bron, $omg); ?>
+                                                <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= $schrijfBeschikbaar ? '' : ' disabled' ?>>Schrijven: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) . ($viaWeb && $omg === 'main' ? ' (geblokkeerd)' : '') ?></option>
                             <?php endforeach; ?>
                                         </select>
                                         <?php else: ?>

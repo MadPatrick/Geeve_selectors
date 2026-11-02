@@ -6,6 +6,7 @@ require_once __DIR__ . '/../shared/helpers.php';
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
+require_once __DIR__ . '/../shared/databases.php';
 tileRequirePage('stauff', '../index.php');
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
@@ -228,7 +229,12 @@ define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __
         </div>
         <div class="code-actions">
             <button id="copyButton" type="button" class="copy-button" disabled>Kopieer code</button>
+            <?php if (geeveDbSchrijvenAan('stauff')): ?>
             <button id="exactWriteButton" type="button" class="exact-write-button" disabled>Naar Exact</button>
+            <?php else: ?>
+            <button id="exactWriteButton" type="button" class="exact-write-button" disabled hidden style="display:none">Naar Exact</button>
+            <span class="settings-help">Schrijven naar Exact staat uit voor deze tegel (Config &gt; Tegels).</span>
+            <?php endif; ?>
         </div>
     </section>
 

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../shared/helpers.php';
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
+require_once __DIR__ . '/../../shared/databases.php';
 require_once __DIR__ . '/../../shared/paths.php';
 tileRequirePage('offerte-import', geeveAppUrl('templates'));
 
@@ -51,7 +52,7 @@ $csrf = csrfToken();
         <div class="ka-actions">
             <button type="button" id="oiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
             <button type="button" id="oiExport" class="ka-button" disabled>Exporteer XML</button>
-            <button type="button" id="oiExact" class="ka-button" disabled data-url="<?= h(geeveUrl('slangkaarten/api/exact/schrijf')) ?>">Naar Exact</button>
+            <button type="button" id="oiExact" class="ka-button" disabled data-url="<?= h(geeveUrl('slangkaarten/api/exact/schrijf')) ?>"<?= geeveDbSchrijvenAan('offerte-import') ? '' : ' hidden style="display:none" title="Schrijven naar Exact staat uit (Config &gt; Tegels)"' ?>>Naar Exact</button>
             <div id="oiDrop" class="ka-drop" tabindex="0" role="button">
                 <strong>Excel importeren</strong> - sleep een ingevulde template hierheen of <u>kies een bestand</u>
                 <input type="file" id="oiFile" accept=".xlsx,.xls,.xlsm,.xltm" hidden>
