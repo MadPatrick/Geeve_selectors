@@ -34,7 +34,7 @@ reportApi(function (array $in): array {
         'SET NOCOUNT ON; ' .
         'WITH st AS (' .
         'SELECT ItemCode, SUM(Quantity) AS Voorraad FROM StockBalances WITH (NOLOCK) WHERE [Date] <= GETDATE() ' .
-        'GROUP BY ItemCode HAVING SUM(Quantity) < 0' .
+        'GROUP BY ItemCode HAVING ROUND(SUM(Quantity), 2) < 0' .
         '), ov AS (' . $open('V') .
         '), op AS (' . $open('A') .
         '), oi AS (' . $open('B') .
@@ -54,7 +54,7 @@ reportApi(function (array $in): array {
     );
     $stmt->execute();
 
-    $num = static fn ($v) => is_numeric($v) ? round((float) $v, 4) + 0 : 0;
+    $num = static fn ($v) => is_numeric($v) ? round((float) $v, 2) + 0 : 0;   // 2 decimalen: reken-ruis als -0,00001 wordt anders "-0"
     $rows = [];
     $zonderOrder = 0;
     $nietBesteld = 0;
