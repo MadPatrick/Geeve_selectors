@@ -11,6 +11,7 @@ session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 require_once __DIR__ . '/shared/secure_settings.php';
 require_once __DIR__ . '/shared/sneeuw.php';
+require_once __DIR__ . '/shared/achtergrond.php';
 require_once __DIR__ . '/shared/access.php';
 require_once __DIR__ . '/shared/tiles.php';
 require_once __DIR__ . '/shared/databases.php';
@@ -137,6 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
             $values[$naam . '_VOOR'] = (string) topbalkDagen($_POST[$naam . '_VOOR'] ?? null, $std['voor']);
             $values[$naam . '_NA'] = (string) topbalkDagen($_POST[$naam . '_NA'] ?? null, $std['na']);
         }
+        $values['ACHTERGROND_MINUTEN'] = (string) max(1, min(1440, (int) ($_POST['ACHTERGROND_MINUTEN'] ?? ACHTERGROND_STANDAARD_MINUTEN)));
         $sneeuwMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Topbalk-instellingen opgeslagen.']
             : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
@@ -395,6 +397,10 @@ $storedSettings = secureSettingsRead();
             </div>
             <?php endforeach; ?>
             <p class="settings-help">Nu actief in de topbalk: <strong><?= h(nieuwjaarActief() ? 'vuurwerk (Nieuwjaar)' : (sneeuwActief() ? 'sneeuw (kerst)' : (paasActief() ? 'paaseieren (Pasen)' : 'geen, de glow'))) ?></strong> (datum op de server: <?= h(date('d-m-Y')) ?>).</p>
+            <div class="settings-row sneeuw-row">
+                <label class="sneeuw-dagen"><span>Rouleer tijd achtergrond</span><input type="number" name="ACHTERGROND_MINUTEN" value="<?= achtergrondMinuten() ?>" min="1" max="1440"><span>minuten</span></label>
+            </div>
+            <p class="settings-help">De achtergrondfoto onder de topbalk wisselt na deze tijd (standaard 60 minuten) naar de volgende foto uit <code>images/achtergrond_N</code> (nu <?= count(achtergrondBestanden()) ?> foto's; nu in beeld: <strong><?= h(achtergrondNu() ?? 'geen') ?></strong>).</p>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
     </section>

@@ -54,6 +54,8 @@ const SECURE_SETTINGS_KEYS = [
     'NIEUWJAAR_DATUM',
     'NIEUWJAAR_VOOR',
     'NIEUWJAAR_NA',
+    // Rouleertijd van de achtergrondfoto in minuten (zie shared/achtergrond.php); ingesteld via Config > Topbalk.
+    'ACHTERGROND_MINUTEN',
 ];
 
 /** Sleutels die uit het serverbestand komen (zie secureSettingsFilePath()); die velden verdwijnen dan uit Config. */

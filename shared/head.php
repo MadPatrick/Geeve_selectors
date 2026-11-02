@@ -16,6 +16,7 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/paths.php';
+require_once __DIR__ . '/achtergrond.php';
 
 if (!function_exists('geeveAssetHref')) {
     /** Absoluut adres + ?v=<wijzigingsdatum> van een bestand vanaf de portal-root. */
@@ -33,5 +34,6 @@ $headCss = $headCss ?? [];
 <?php foreach ($headCss as $cssPath): ?>
     <link rel="stylesheet" href="<?= h(geeveAssetHref($cssPath)) ?>">
 <?php endforeach; ?>
+    <?= achtergrondStijl() ?>
     <script src="<?= h(geeveAssetHref('shared/progress.js')) ?>"></script>
     <script src="<?= h(geeveAssetHref('shared/enter-top.js')) ?>"></script>

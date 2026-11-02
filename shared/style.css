@@ -37,7 +37,8 @@ body::before {
     width: min(1400px, calc(100% - 28px));
     height: 640px;
     z-index: -1;
-    background: url("../images/achtergrond.jpg") center 30% / cover no-repeat;
+    /* background-image zet shared/head.php (roterende foto, shared/achtergrond.php) */
+    background: center 30% / cover no-repeat;
     opacity: .15;
     -webkit-mask-image: linear-gradient(to bottom, var(--ink-black) 55%, transparent 100%);
     mask-image: linear-gradient(to bottom, var(--ink-black) 55%, transparent 100%);
