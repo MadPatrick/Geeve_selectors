@@ -400,7 +400,7 @@ $storedSettings = secureSettingsRead();
             <div class="settings-row sneeuw-row">
                 <label class="sneeuw-dagen"><span>Rouleer tijd achtergrond</span><input type="number" name="ACHTERGROND_MINUTEN" value="<?= achtergrondMinuten() ?>" min="1" max="1440"><span>minuten</span></label>
             </div>
-            <p class="settings-help">De achtergrondfoto onder de topbalk wisselt na deze tijd (standaard 60 minuten) naar de volgende foto uit <code>images/achtergrond_N</code> (nu <?= count(achtergrondBestanden()) ?> foto's; nu in beeld: <strong><?= h(achtergrondNu() ?? 'geen') ?></strong>).</p>
+            <p class="settings-help">De achtergrondfoto onder de topbalk wisselt na deze tijd (standaard 60 minuten) naar de volgende foto uit <code>images/achtergrond_N</code>.</p>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
     </section>
