@@ -253,25 +253,11 @@ $storedSettings = secureSettingsRead();
             <h3 class="settings-subtitle">Databases</h3>
             <ul class="settings-help">
                 <li>Exact-database: <?= h(($fileValues['EXACT_DB_HOST'] ?? 'GEEVE-SQL-2019') . (isset($fileValues['EXACT_DB_PORT']) ? ':' . $fileValues['EXACT_DB_PORT'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME'] ?? '005') . ', gebruiker ' . ($fileValues['EXACT_DB_USER'] ?? '(niet ingesteld)') . ', wachtwoord ' . (isset($fileValues['EXACT_DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt')) ?></li>
-                <li>Slangkaarten-database: gebruiker <?= h($fileValues['DB_USER'] ?? '(niet ingesteld)') ?>, wachtwoord <?= isset($fileValues['DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt' ?></li>
+                <li>Slangkaarten-database: <?= h($fileValues['DB_NAME'] ?? 'Slangkaarten') ?>, gebruiker <?= h($fileValues['DB_USER'] ?? '(niet ingesteld)') ?>, wachtwoord <?= isset($fileValues['DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt' ?></li>
+                <li>Exact test-database: <?= h($fileValues['EXACT_DB_NAME_TEST'] ?? '(niet ingesteld)') ?></li>
+                <li>Rapportage-database: <?= h($fileValues['EXACT_DB_RAPPORTAGE'] ?? 'Exactrapportage') ?>; data-database: <?= h($fileValues['EXACT_DB_DATA'] ?? '005_Data_Geeve') ?></li>
             </ul>
-            <div class="settings-row">
-                <label class="update-code-field">
-                    <span>Exact database (Test)</span>
-                    <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($val('EXACT_DB_NAME_TEST')) ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
-                </label>
-            </div>
-            <div class="settings-row">
-                <label class="update-code-field">
-                    <span>Rapportage-database</span>
-                    <input type="text" name="EXACT_DB_RAPPORTAGE" value="<?= h($val('EXACT_DB_RAPPORTAGE')) ?>" placeholder="Exactrapportage" size="20" autocomplete="off">
-                </label>
-                <label class="update-code-field">
-                    <span>Data-database</span>
-                    <input type="text" name="EXACT_DB_DATA" value="<?= h($val('EXACT_DB_DATA')) ?>" placeholder="005_Data_Geeve" size="20" autocomplete="off">
-                </label>
-            </div>
-            <p class="settings-help">Alleen de naam; server en login zijn die van de Exact-database. Zonder naam kan bij Tegels niet voor Test gekozen worden.</p>
+            <p class="settings-help">Deze instellingen staan in <code><?= h(secureSettingsFilePath()) ?></code> en zijn alleen op de server te wijzigen. Ontbreekt een naam daarin, dan geldt de standaardnaam.</p>
             <?php else: ?>
             <h3 class="settings-subtitle">Exact-database</h3>
             <p class="settings-help">Server, poort en certificaat gelden ook voor de Slangkaarten-database.</p>
@@ -327,6 +313,7 @@ $storedSettings = secureSettingsRead();
             <?php endif; ?>
                 </div>
                 <div class="settings-col">
+            <?php if (!$dbFromFile): ?>
             <h3 class="settings-subtitle">Slangkaarten-database</h3>
             <div class="settings-row">
                 <label class="update-code-field">
@@ -334,7 +321,6 @@ $storedSettings = secureSettingsRead();
                     <input type="text" name="DB_NAME" value="<?= h($val('DB_NAME')) ?>" placeholder="Slangkaarten" size="20" autocomplete="off">
                 </label>
             </div>
-            <?php if (!$dbFromFile): ?>
             <p class="settings-help">Eigen account voor de database <code>Slangkaarten</code> (slangkaarten, orders en kaartgegevens). Server, poort en certificaat zijn dezelfde als hierboven.</p>
             <div class="settings-row">
                 <label class="update-code-field">

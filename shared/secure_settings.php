@@ -64,6 +64,11 @@ const SECURE_SETTINGS_FILE_KEYS = [
     'EXACT_DB_TRUST_SERVER_CERT',
     'DB_USER',
     'DB_PASSWORD',
+    // Databasenamen (zie shared/databases.php); alleen als ze in het serverbestand staan, anders gelden de standaardnamen.
+    'EXACT_DB_NAME_TEST',
+    'DB_NAME',
+    'EXACT_DB_RAPPORTAGE',
+    'EXACT_DB_DATA',
 ];
 
 /**
