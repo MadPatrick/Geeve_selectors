@@ -49,15 +49,38 @@ function achtergrondNu(?int $tijd = null, ?int $minuten = null): ?string
     return $lijst[intdiv($tijd, $periode) % count($lijst)];
 }
 
-/** <style>-blok dat de foto voor body::before zet (leeg als er geen achtergrond is). */
+/** Adres (met ?v=<wijzigingsdatum>) van een bestand uit images/. */
+function achtergrondUrl(string $naam): string
+{
+    $pad = 'images/' . $naam;
+    $mtime = @filemtime(geevePortalDir() . '/' . $pad);
+    return geeveUrl($pad) . '?v=' . ($mtime !== false ? (string) $mtime : '0');
+}
+
+/**
+ * <style>- en <script>-blok voor de <head> (leeg als er geen achtergrond is). De stijl zet de foto van dit moment via
+ * --achtergrond-url voor body::before; het script wisselt de foto in een open pagina op het wisselmoment (bij geen of
+ * één foto doet het niets), ook als de pagina lang openstaat.
+ */
 function achtergrondStijl(): string
 {
+    $lijst = achtergrondBestanden();
     $naam = achtergrondNu();
     if ($naam === null) {
         return '';
     }
-    $pad = 'images/' . $naam;
-    $mtime = @filemtime(geevePortalDir() . '/' . $pad);
-    $url = geeveUrl($pad) . '?v=' . ($mtime !== false ? (string) $mtime : '0');
-    return '<style>body::before { background-image: url("' . str_replace('"', '%22', $url) . '"); }</style>';
+    $urls = array_map('achtergrondUrl', $lijst);
+    $css = '<style>:root { --achtergrond-url: url("' . str_replace('"', '%22', achtergrondUrl($naam)) . '"); } body::before { background-image: var(--achtergrond-url); }</style>';
+    if (count($lijst) < 2) {
+        return $css;
+    }
+    $periode = achtergrondMinuten() * 60;
+    $nu = time();
+    $nog = $periode - (($nu + (int) date('Z', $nu)) % $periode); // seconden tot het volgende wisselmoment
+    $js = json_encode(['urls' => $urls, 'index' => (int) array_search($naam, $lijst, true), 'periode' => $periode, 'nog' => $nog]);
+    return $css . '<script>(function(){var c=' . $js . ';var t=Date.now()+c.nog*1000,i=c.index,p=c.periode*1000;'
+        . 'function w(){var n=Math.floor((Date.now()-t)/p)+1;if(n<1){n=1;}i=(i+n)%c.urls.length;t+=n*p;'
+        . 'document.documentElement.style.setProperty("--achtergrond-url","url(\\""+c.urls[i]+"\\")");'
+        . 'new Image().src=c.urls[(i+1)%c.urls.length];setTimeout(w,Math.max(1000,t-Date.now()));}'
+        . 'setTimeout(w,Math.max(1000,t-Date.now()));new Image().src=c.urls[(i+1)%c.urls.length];})();</script>';
 }
