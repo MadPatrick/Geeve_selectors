@@ -26,7 +26,7 @@ $csrf = csrfToken();
     <title>Export Inkooporder naar Excel | Geeve Hydraulics</title>
     <!-- Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers. -->
     <?php
-    $headCss = ['assets/style.css', 'shared/tabel.css', 'shared/rapport.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['templates/inkooporder/assets/style.css', 'shared/tabel.css', 'shared/rapport.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
