@@ -3,18 +3,18 @@
 declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen geen gegevens.
-require_once __DIR__ . '/../../shared/tiles.php';
-tileApiGuard('klantkorting');
+require_once __DIR__ . '/../../../shared/tiles.php';
+tileApiGuard('klantartikel');
 
-/** Alle staffel-prijslijsten (stfoms, type 'S') met omschrijving, voor het zoekveld Prijslijstnummer. */
+/** Alle prijslijsten (stfoms, elk type) met omschrijving, voor het zoekveld Prijslijst. */
 
-require_once __DIR__ . '/../inc.php';
+require_once __DIR__ . '/../inc/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 try {
     $rows = getPdoConnection()->query(
-        "SELECT LTRIM(RTRIM(prijslijst)) AS nr, MAX(LTRIM(RTRIM(ISNULL(oms30_0, '')))) AS oms FROM stfoms WHERE type = 'S' GROUP BY LTRIM(RTRIM(prijslijst))"
+        "SELECT LTRIM(RTRIM(prijslijst)) AS nr, MAX(LTRIM(RTRIM(ISNULL(oms30_0, '')))) AS oms FROM stfoms GROUP BY LTRIM(RTRIM(prijslijst))"
     )->fetchAll();
     $lists = array_map(fn ($r) => ['nr' => (string) $r['nr'], 'oms' => (string) $r['oms']], $rows);
     usort($lists, fn ($a, $b) => strnatcmp($a['nr'], $b['nr']));

@@ -28,7 +28,7 @@ $csrf = csrfToken();
     <title>Accu's | Geeve Hydraulics</title>
     <!-- Knoppen, invoervelden en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/accu.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/accu.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>

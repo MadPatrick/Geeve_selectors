@@ -252,7 +252,7 @@ de eigen `assets/style.css`. `shared/head.php` doet dat in de goede volgorde.
 - **Knoppen:** alle kleuren uit de `--btn-*`-variabelen. Rand 1px en altijd donkerder dan de vulling. Groen = lichtgroen
   (`--btn-green`), rood = één rood (`--btn-red`). **Printknop**: de gedeelde `.print-btn` uit `shared/style.css`
   (markup in `shared/README.md`), geen eigen printknopstijl.
-- **Tabellen:** de compacte `.ka-table` en `.ka-input` uit `klantartikel/assets/style.css` (3px celpadding,
+- **Tabellen:** de compacte `.ka-table` en `.ka-input` uit `templates/klantartikel/assets/style.css` (3px celpadding,
   invoervelden 28px hoog). Dat bestand is geen onderdeel van `shared/`; laad het via `$headCss` als je die klassen wilt.
 - **Slangkaart:** wil de app slangkaarten tonen of printen, laad `shared/slangkaart.css` en bouw de markup zoals in
   [`SLANGKAART-LAYOUT.md`](../shared/SLANGKAART-LAYOUT.md) (referentie: `renderHoseCard()` en `renderPicklist()` in

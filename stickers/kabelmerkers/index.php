@@ -27,7 +27,7 @@ $csrf = csrfToken();
     <title>Kabelmerkers Geel | Geeve Hydraulics</title>
     <!-- Knoppen, invoervelden en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/kabelmerkers.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/kabelmerkers.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -92,7 +92,7 @@ $csrf = csrfToken();
 </main>
 <!-- Alleen voor het printen: hier komen de stickers (aantal keer) vlak voor window.print(). -->
 <div id="kmPrintSheet" class="km-printsheet" aria-hidden="true"></div>
-<script src="<?= h(geeveUrl('klantartikel/assets/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../../klantartikel/assets/vendor/xlsx.core.min.js')) ?>"></script>
+<script src="<?= h(geeveUrl('templates/klantartikel/assets/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../../templates/klantartikel/assets/vendor/xlsx.core.min.js')) ?>"></script>
 <script src="<?= h(geeveUrl('reports/assets/vendor/xlsx-lezen.js')) ?>?v=<?= h(assetVersion('../../reports/assets/vendor/xlsx-lezen.js')) ?>"></script>
 <script src="<?= h(geeveUrl('reports/assets/vendor/xlsx-style.min.js')) ?>"></script>
 <script src="<?= h(geeveUrl('stickers/assets/kabelmerkers.js')) ?>?v=<?= h(assetVersion('../assets/kabelmerkers.js')) ?>"></script>

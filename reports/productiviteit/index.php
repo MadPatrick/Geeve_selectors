@@ -50,7 +50,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
     <title>Productiviteit per medewerker | Geeve Hydraulics</title>
     <!-- Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers. -->
     <?php
-    $headCss = ['assets/style.css', 'klantartikel/assets/style.css', 'reports/msp/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['assets/style.css', 'templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>

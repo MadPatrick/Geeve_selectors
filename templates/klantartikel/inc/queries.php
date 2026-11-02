@@ -85,7 +85,7 @@ function detectSchema(PDO $pdo, ?string $priceListColumnOverride = null): array
         throw new RuntimeException(
             'Geen prijslijst-kolom gevonden op cicmpy. Kolommen die op prijs lijken: ' .
             ($like === [] ? '(geen)' : implode(', ', $like)) .
-            '. Voeg de juiste naam toe aan PRICELIST_COLUMN_CANDIDATES in klantartikel/inc/queries.php of gebruik ?pcol=<kolom>.'
+            '. Voeg de juiste naam toe aan PRICELIST_COLUMN_CANDIDATES in templates/klantartikel/inc/queries.php of gebruik ?pcol=<kolom>.'
         );
     }
 

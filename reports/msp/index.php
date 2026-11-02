@@ -33,7 +33,7 @@ $thisYear = (int) date('Y');
     <title>MSP report | Geeve Hydraulics</title>
     <!-- Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers. -->
     <?php
-    $headCss = ['assets/style.css', 'klantartikel/assets/style.css', 'reports/msp/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['assets/style.css', 'templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -83,7 +83,7 @@ $thisYear = (int) date('Y');
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
-<script src="<?= h(geeveUrl('klantartikel/assets/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../../klantartikel/assets/vendor/xlsx.core.min.js')) ?>"></script>
+<script src="<?= h(geeveUrl('templates/klantartikel/assets/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../../templates/klantartikel/assets/vendor/xlsx.core.min.js')) ?>"></script>
 <script src="assets/msp.js?v=<?= h(assetVersion('assets/msp.js')) ?>"></script>
 </body>
 </html>

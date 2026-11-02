@@ -27,7 +27,7 @@ $csrf = csrfToken();
     <title>Naamstickers | Geeve Hydraulics</title>
     <!-- Knoppen, invoervelden en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/ptouch.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/ptouch.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>

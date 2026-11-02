@@ -122,6 +122,14 @@ $csrf = csrfToken();
             <?= tileLockIcon('klantkorting') ?>
         </a>
         <?php endif; $tileHtml['klantkorting'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('klantartikel')): ?>
+        <a class="<?= tileClass('klantartikel') ?>" href="<?= h(geeveAppUrl('klantartikel')) ?>"<?= tileAttrs('klantartikel') ?>>
+            <?= tileIcon('klantartikel') ?>
+            <h2><?= h(tileTitle('klantartikel')) ?></h2>
+            <p>Zoek op prijslijstnummer de gekoppelde klanten en hun artikelen met klantartikelnummer uit Exact.</p>
+            <?= tileLockIcon('klantartikel') ?>
+        </a>
+        <?php endif; $tileHtml['klantartikel'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('templates') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 
