@@ -435,12 +435,12 @@ $storedSettings = secureSettingsRead();
                                         </select>
                                         <?php if ($bronInfo[1]): ?>
                                         <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][schrijven]" aria-label="<?= h($tile[1] . ' - ' . $bronInfo[0] . ': schrijven naar') ?>">
-                                            <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>Schrijven: geen<?= geeveDbSchrijftViaWeb($tileId) ? ' (knop uit)' : '' ?></option>
+                                            <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>Schrijven: geen</option>
                                             <?php foreach ($bronInfo[2] as $omg): ?>
                                                 <?php $viaWeb = geeveDbSchrijftViaWeb($tileId);
                                                 // Via Slangkaart.Web: test = de testserver van die app (altijd beschikbaar), main = daar geblokkeerd.
                                                 $schrijfBeschikbaar = $viaWeb ? $omg === 'test' : geeveDbOmgevingBeschikbaar($bron, $omg); ?>
-                                                <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= $schrijfBeschikbaar ? '' : ' disabled' ?>>Schrijven: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) . ($viaWeb && $omg === 'main' ? ' (geblokkeerd)' : '') ?></option>
+                                                <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= $schrijfBeschikbaar ? '' : ' disabled' ?>>Schrijven: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
                             <?php endforeach; ?>
                                         </select>
                                         <?php else: ?>
