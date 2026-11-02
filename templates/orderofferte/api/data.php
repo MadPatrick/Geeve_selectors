@@ -58,7 +58,7 @@ function fillFromItems(array $data): array
         return $data;
     }
 
-    $pdo = reportConnection();
+    $pdo = reportConnection('order-offerte');
     $hasWeight = (int) $pdo->query("SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('Items') AND name = 'NetWeight'")->fetchColumn() > 0;
     $weightSql = $hasWeight ? 'NetWeight' : 'NULL';
     $items = [];
@@ -90,7 +90,7 @@ function fillFromItems(array $data): array
 }
 
 reportApi(function (string $nummer): array {
-    $raw = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer);
+    $raw = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer, null, 'order-offerte');
 
     // Titelregels voor de Excel: "Offerte 198572" / "Order 35020024" en de naam van de klant.
     $soort = strtoupper((string) reportFirstValue($raw, 'kop_ord_soort'));

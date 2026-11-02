@@ -361,7 +361,7 @@ reportApi(function (array $in): array {
         }
     }
 
-    $pdo = reportConnection();
+    $pdo = reportConnection('productiviteit');
 
     // Details achter een getal: de orders van één medewerker in (een deel van) de periode.
     if (isset($in['detail'])) {

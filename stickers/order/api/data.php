@@ -22,7 +22,7 @@ const STICKER_COLUMNS = [
 reportApi(function (string $nummer): array {
     $columns = implode(', ', array_map(fn ($c) => '[' . $c . ']', STICKER_COLUMNS));
     // bonnr kan een char-kolom met opvulspaties zijn: daarom LTRIM/RTRIM.
-    $stmt = reportConnection()->prepare(
+    $stmt = reportConnection('stickers-order')->prepare(
         "SET NOCOUNT ON; SELECT {$columns} FROM [005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order] WHERE LTRIM(RTRIM([bonnr])) = ?"
     );
     $stmt->execute([$nummer]);

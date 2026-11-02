@@ -13,7 +13,7 @@ require_once __DIR__ . '/../inc/db.php';
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $rows = getPdoConnection()->query(
+    $rows = getPdoConnection('klantartikel')->query(
         "SELECT LTRIM(RTRIM(prijslijst)) AS nr, MAX(LTRIM(RTRIM(ISNULL(oms30_0, '')))) AS oms FROM stfoms GROUP BY LTRIM(RTRIM(prijslijst))"
     )->fetchAll();
     $lists = array_map(fn ($r) => ['nr' => (string) $r['nr'], 'oms' => (string) $r['oms']], $rows);

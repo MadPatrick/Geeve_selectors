@@ -41,7 +41,7 @@ try {
         $params[] = $words[0] . '%';
     }
     // DebiteurNaam staat per kaart (kan per kaart verschillen, bijv. bij kontant verkoop): per klantnummer de meest voorkomende naam tonen.
-    $stmt = reportConnection()->prepare(
+    $stmt = reportConnection('slangkaart-netto')->prepare(
         'SET NOCOUNT ON; SELECT TOP 20 debnr, naam FROM (' .
         'SELECT debnr, naam, ROW_NUMBER() OVER (PARTITION BY debnr ORDER BY aantal DESC, naam) AS rn FROM (' .
         'SELECT LTRIM(RTRIM(Debiteur)) AS debnr, LTRIM(RTRIM(DebiteurNaam)) AS naam, COUNT(*) AS aantal ' .

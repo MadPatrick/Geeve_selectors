@@ -33,7 +33,7 @@ const EXPORT_INFO_COLUMNS = [
 ];
 
 reportApi(function (string $nummer): array {
-    $raw = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel_export]', '', $nummer);
+    $raw = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel_export]', '', $nummer, null, 'export-info');
     $customer = reportFirstValue($raw, 'kop_ord_debtor_name');
     $data = reportSelect($raw, EXPORT_INFO_COLUMNS);
 
@@ -64,7 +64,7 @@ reportApi(function (string $nummer): array {
     }
     $origin = [];
     if ($codes !== []) {
-        $pdo = reportConnection();
+        $pdo = reportConnection('export-info');
         foreach (array_chunk(array_keys($codes), 500) as $chunk) {
             $in = implode(',', array_fill(0, count($chunk), '?'));
             $stmt = $pdo->prepare("SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, RTRIM(UserField_03) AS l FROM Items WHERE ItemCode IN ({$in})");

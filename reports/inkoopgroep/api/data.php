@@ -37,7 +37,7 @@ reportApi(function (array $in): array {
         throw new RuntimeException('De datum "van" ligt na de datum "tot".');
     }
 
-    $pdo = reportConnection();
+    $pdo = reportConnection('inkoop-groep');
     $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT TOP 1 ISNULL(RTRIM(Description_0), \'\') AS d FROM ItemAssortment WHERE LTRIM(RTRIM(Assortment)) = ?');
     $stmt->execute([$group]);
     $row = $stmt->fetch();

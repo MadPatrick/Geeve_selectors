@@ -21,7 +21,7 @@ tileApiGuard('negatieve-voorraad');
 require_once __DIR__ . '/../../inc.php';
 
 reportApi(function (array $in): array {
-    $pdo = reportConnection();
+    $pdo = reportConnection('negatieve-voorraad');
 
     $open = static function (string $soort): string {
         return 'SELECT s.artcode AS ItemCode, SUM(s.esr_aantal - s.aant_gelev) AS Aantal, COUNT(DISTINCT s.ordernr) AS AantalOrders ' .

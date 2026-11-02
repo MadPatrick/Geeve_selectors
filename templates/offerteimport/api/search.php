@@ -87,7 +87,7 @@ function searchCandidates(string $kind): array
         ? "SET NOCOUNT ON; SELECT RTRIM(crdnr) AS nr, RTRIM(crdcode) AS code, RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(ISNULL(crdnr, ''))) <> '' OR LTRIM(RTRIM(ISNULL(crdcode, ''))) <> ''"
         : "SET NOCOUNT ON; SELECT RTRIM(debnr) AS nr, RTRIM(debcode) AS code, RTRIM(cmp_name) AS naam FROM cicmpy WHERE LTRIM(RTRIM(ISNULL(debnr, ''))) <> '' OR LTRIM(RTRIM(ISNULL(debcode, ''))) <> ''");
     $candidates = [];
-    foreach (reportConnection()->query($sql)->fetchAll() as $row) {
+    foreach (reportConnection('offerte-import')->query($sql)->fetchAll() as $row) {
         $number = trim((string) $row['nr']) !== '' ? trim((string) $row['nr']) : trim((string) $row['code']);
         if ($number === '') {
             continue;

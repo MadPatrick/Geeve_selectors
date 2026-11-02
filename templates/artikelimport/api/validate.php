@@ -80,7 +80,7 @@ function artikelImportNumber(mixed $value): string
 
 $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
 try {
-    $pdo = reportConnection();
+    $pdo = reportConnection('artikel-import');
     $out = ['ok' => true, 'items' => [], 'suppliers' => [], 'groups' => [], 'warnings' => []];
 
     // ---- Artikelen: bestaan ze, met omschrijving, status, gewicht en artikelgroep ----

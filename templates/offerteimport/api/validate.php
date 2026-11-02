@@ -33,7 +33,7 @@ $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
 try {
     @set_time_limit(180); // veel regels: de standaard 30 s is te kort
     $t0 = microtime(true);
-    $pdo = reportConnection();
+    $pdo = reportConnection('offerte-import');
     $out = ['ok' => true];
     $ms = ['verbinding' => (int) round((microtime(true) - $t0) * 1000)];
 

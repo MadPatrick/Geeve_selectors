@@ -23,6 +23,10 @@ const SECURE_SETTINGS_KEYS = [
     'EXACT_DB_USER',
     'EXACT_DB_PASSWORD',
     'EXACT_DB_TRUST_SERVER_CERT',
+    // Naam van de Exact test-database (zelfde server en login als de gewone Exact-database); zie shared/databases.php.
+    'EXACT_DB_NAME_TEST',
+    // Per tegel: uit welke database (main/test) gelezen en naar welke geschreven wordt (JSON, zie shared/databases.php).
+    'DB_KEUZE',
     // Eigen database van /slkprinten (database "Slangkaarten"); server en certificaat volgen de Exact-instellingen.
     'DB_USER',
     'DB_PASSWORD',

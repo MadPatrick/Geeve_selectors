@@ -40,7 +40,7 @@ reportApi(function (array $in): array {
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_write_close();
     }
-    $pdo = reportConnection();
+    $pdo = reportConnection('barcode');
 
     $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT TOP 1 * FROM orkrg WITH (NOLOCK) WHERE LTRIM(RTRIM(ordernr)) = ? AND ord_soort = ?');
     $stmt->execute([$order, BARCODE_INKOOP_SOORT]);

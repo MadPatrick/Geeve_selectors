@@ -30,7 +30,7 @@ const PRODUCTIE_COLUMNS = [
 ];
 
 reportApi(function (string $nummer): array {
-    $data = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_productie_label]', '@ordernr', $nummer);
+    $data = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_productie_label]', '@ordernr', $nummer, null, 'stickers-productie');
 
     $key = fn (string $name): string => strtolower(str_replace([' ', '_'], '', $name));
     $index = [];

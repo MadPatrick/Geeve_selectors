@@ -37,7 +37,7 @@ function inkoopprijzenKey(string $searchCode, bool $stripSuffix): string
 }
 
 reportApi(function (array $in): array {
-    $pdo = reportConnection();
+    $pdo = reportConnection('inkoopprijzen-gr14-gr55');
 
     $stmt = $pdo->prepare('SELECT name FROM sys.columns WHERE object_id = OBJECT_ID(?)');
     $stmt->execute(['Items']);

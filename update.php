@@ -13,6 +13,7 @@ require_once __DIR__ . '/shared/secure_settings.php';
 require_once __DIR__ . '/shared/sneeuw.php';
 require_once __DIR__ . '/shared/access.php';
 require_once __DIR__ . '/shared/tiles.php';
+require_once __DIR__ . '/shared/databases.php';
 require_once __DIR__ . '/shared/printen.php';
 
 $requestError = false;
@@ -94,8 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
     } else {
         $values = secureSettingsReadStored();
         foreach (SECURE_SETTINGS_KEYS as $settingKey) {
-            if ($settingKey === 'TILE_FLAGS' || str_starts_with($settingKey, 'SNEEUW_')) {
-                continue; // worden apart opgeslagen (formulieren Tegels en Topbalk)
+            if (in_array($settingKey, ['TILE_FLAGS', 'DB_KEUZE', 'EXACT_DB_NAME_TEST'], true) || str_starts_with($settingKey, 'SNEEUW_')) {
+                continue; // worden apart opgeslagen (formulieren Tegels, Databases per tegel en Topbalk)
             }
             if ($dbFromFile && in_array($settingKey, SECURE_SETTINGS_FILE_KEYS, true)) {
                 continue; // beheerd op de server (/etc/geeve/portal.json)
@@ -136,6 +137,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         $sneeuwMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Topbalk-instellingen opgeslagen.']
             : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
+    }
+}
+
+$databasesMessage = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-databases') {
+    if (!csrfValid($_POST['csrf'] ?? null)) {
+        $requestError = true;
+    } else {
+        $testNaam = trim((string) ($_POST['EXACT_DB_NAME_TEST'] ?? ''));
+        // Een databasenaam: letters, cijfers, punt, streepje en underscore (komt later in een DSN en in 3-delige namen terecht).
+        if ($testNaam !== '' && preg_match('/^[A-Za-z0-9_.-]{1,128}$/', $testNaam) !== 1) {
+            $databasesMessage = ['ok' => false, 'text' => 'Ongeldige naam voor de test-database (alleen letters, cijfers, punt, streepje en underscore).'];
+        } else {
+            $keuzes = [];
+            foreach (GEEVE_TILE_DB as $tileId => $bronnen) {
+                foreach ($bronnen as $bron) {
+                    $rij = $_POST['db'][$tileId][$bron] ?? [];
+                    $lezen = (string) ($rij['lezen'] ?? 'main');
+                    $schrijven = (string) ($rij['schrijven'] ?? 'geen');
+                    $lezen = in_array($lezen, GEEVE_DB_BRONNEN[$bron][2], true) ? $lezen : 'main';
+                    $schrijven = GEEVE_DB_BRONNEN[$bron][1] && in_array($schrijven, GEEVE_DB_BRONNEN[$bron][2], true) ? $schrijven : 'geen';
+                    // Alleen afwijkingen van de standaard bewaren.
+                    if ($lezen !== 'main' || $schrijven !== 'geen') {
+                        $keuzes[$tileId][$bron] = ['lezen' => $lezen, 'schrijven' => $schrijven];
+                    }
+                }
+            }
+            $values = secureSettingsReadStored();
+            if ($testNaam === '') {
+                unset($values['EXACT_DB_NAME_TEST']);
+            } else {
+                $values['EXACT_DB_NAME_TEST'] = $testNaam;
+            }
+            if ($keuzes === []) {
+                unset($values['DB_KEUZE']);
+            } else {
+                $values['DB_KEUZE'] = (string) json_encode($keuzes);
+            }
+            $databasesMessage = secureSettingsWrite($values)
+                ? ['ok' => true, 'text' => 'Database-keuzes opgeslagen.']
+                : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
+        }
     }
 }
 
@@ -336,6 +379,68 @@ $storedSettings = secureSettingsRead();
             </div>
             <?php endforeach; ?>
             <p class="settings-help">Nu actief in de topbalk: <strong><?= h(nieuwjaarActief() ? 'vuurwerk (Nieuwjaar)' : (sneeuwActief() ? 'sneeuw (kerst)' : (paasActief() ? 'paaseieren (Pasen)' : 'geen, de glow'))) ?></strong> (datum op de server: <?= h(date('d-m-Y')) ?>).</p>
+            <button type="submit" class="update-submit">Opslaan</button>
+        </form>
+    </section>
+
+    <section class="update-panel">
+        <h2>Databases per tegel</h2>
+        <p>Kies per tegel uit welke database gelezen wordt en, voor de Exact-database, naar welke geschreven mag worden. <strong>Lezen</strong>: Main (standaard) of Test. <strong>Schrijven</strong>: Geen (standaard), Test of Main; de Slangkaarten-database is alleen-lezen. Gebruikt een tegel beide databases, dan staan ze allebei onder de tegel. Zonder wijziging verandert er niets. De PHP-apps schrijven nu nog nergens naar Exact: de keuze staat klaar voor tegels die dat straks wel gaan doen.</p>
+
+        <?php if ($databasesMessage !== null): ?>
+            <div class="update-message <?= $databasesMessage['ok'] ? 'ok' : 'error' ?>"><?= h($databasesMessage['text']) ?></div>
+        <?php endif; ?>
+
+        <form method="post" class="update-form settings-form db-form" autocomplete="off">
+            <input type="hidden" name="action" value="save-databases">
+            <input type="hidden" name="csrf" value="<?= h($configCsrf) ?>">
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Exact test-database (naam)</span>
+                    <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($storedSettings['EXACT_DB_NAME_TEST'] ?? '') ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
+                </label>
+            </div>
+            <p class="settings-help">Zelfde server en login als de Exact-database; alleen de databasenaam verschilt. Zolang dit leeg is, kan niet voor Test gekozen worden. De Main-database is de naam bij Exact-database hierboven (standaard 005).</p>
+            <div class="db-table" role="table">
+                <div class="db-row db-head" role="row">
+                    <span role="columnheader">Tegel</span>
+                    <span role="columnheader">Database</span>
+                    <span role="columnheader">Lezen uit</span>
+                    <span role="columnheader">Schrijven naar</span>
+                </div>
+                <?php foreach (TILE_REGISTRY as $tileId => $tile):
+                    if (!isset(GEEVE_TILE_DB[$tileId])) { continue; }
+                    foreach (GEEVE_TILE_DB[$tileId] as $bronIndex => $bron):
+                        $bronInfo = GEEVE_DB_BRONNEN[$bron];
+                        $keuze = geeveDbKeuze($tileId, $bron);
+                ?>
+                    <div class="db-row" role="row">
+                        <span role="cell" class="db-tile"><?= $bronIndex === 0 ? h(tileTitle($tileId)) : '' ?></span>
+                        <span role="cell"><?= h($bronInfo[0]) ?></span>
+                        <span role="cell">
+                            <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][lezen]" aria-label="<?= h(tileTitle($tileId) . ' - ' . $bronInfo[0] . ': lezen uit') ?>">
+                                <?php foreach ($bronInfo[2] as $omg):
+                                    $beschikbaar = geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['lezen'] === $omg; ?>
+                                    <option value="<?= h($omg) ?>"<?= $keuze['lezen'] === $omg ? ' selected' : '' ?><?= $beschikbaar ? '' : ' disabled' ?>><?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </span>
+                        <span role="cell">
+                            <?php if ($bronInfo[1]): ?>
+                            <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][schrijven]" aria-label="<?= h(tileTitle($tileId) . ' - ' . $bronInfo[0] . ': schrijven naar') ?>">
+                                <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>Geen</option>
+                                <?php foreach ($bronInfo[2] as $omg):
+                                    $beschikbaar = geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['schrijven'] === $omg; ?>
+                                    <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= $beschikbaar ? '' : ' disabled' ?>><?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <?php else: ?>
+                            <span class="db-readonly">Alleen lezen</span>
+                            <?php endif; ?>
+                        </span>
+                    </div>
+                <?php endforeach; endforeach; ?>
+            </div>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
     </section>

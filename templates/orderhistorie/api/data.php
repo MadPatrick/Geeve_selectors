@@ -110,7 +110,7 @@ reportApi(function (array $in): array {
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_write_close();
     }
-    $pdo = reportConnection();
+    $pdo = reportConnection('orderhistorie');
 
     if (($in['diagnose'] ?? '') !== '') {
         throw new RuntimeException(orderhistorieDiagnose($pdo, $debnr));

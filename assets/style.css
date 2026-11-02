@@ -251,3 +251,13 @@
 .sneeuw-dagen { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
 .sneeuw-dagen input { width: 76px; min-height: 43px; font-size: 15px; text-align: center; }
 .sneeuw-form { flex-direction: column; align-items: flex-start; } /* elke animatie op een eigen regel */
+
+/* Config > Databases per tegel */
+.db-form { flex-direction: column; align-items: flex-start; }
+.db-table { width: 100%; max-width: 860px; display: flex; flex-direction: column; margin-top: 8px; }
+.db-row { display: grid; grid-template-columns: minmax(180px, 1.3fr) minmax(150px, 1fr) 110px 130px; gap: 12px; align-items: center; padding: 7px 4px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.db-head { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.db-tile { font-weight: 650; }
+.db-readonly { color: var(--muted); font-size: 13px; }
+.db-row select { width: 100%; min-height: 34px; font-size: 14px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-white); }
+@media (max-width: 640px) { .db-row { grid-template-columns: minmax(110px, 1fr) minmax(90px, 1fr) 78px 92px; gap: 6px; } .db-head { font-size: 10px; } }

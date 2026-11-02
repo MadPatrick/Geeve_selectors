@@ -23,7 +23,7 @@ $lines = [];
 $listDescription = null;
 
 try {
-    $pdo = getPdoConnection();
+    $pdo = getPdoConnection('klantkorting');
     if ($priceList !== '') {
         $schema = detectSchema($pdo, $priceColumn);
         $customers = findCustomersByPriceList($pdo, $schema, $priceList);

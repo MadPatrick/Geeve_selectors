@@ -27,7 +27,7 @@ $error = null;
 
 if ($priceList !== '') {
     try {
-        $pdo = getPdoConnection();
+        $pdo = getPdoConnection('klantartikel');
         $schema = detectSchema($pdo, $priceColumn);
         $customers = findCustomersByPriceList($pdo, $schema, $priceList);
 

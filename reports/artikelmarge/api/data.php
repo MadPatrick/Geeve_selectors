@@ -65,7 +65,7 @@ reportApi(function (array $in): array {
     }
 
     $select = implode(', ', array_map('geeveSqlNaam', MARGE_COLUMNS));
-    $stmt = reportConnection()->prepare(
+    $stmt = reportConnection('artikel-marge')->prepare(
         'SET NOCOUNT ON; SELECT ' . $select . ' FROM [Exactrapportage].[dbo].[1000 artikelen + standaard verk_pr + standaard ink_pr] WITH (NOLOCK)' .
         ($where ? ' WHERE ' . implode(' AND ', $where) : '') . ' ORDER BY [Artnr]'
     );

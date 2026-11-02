@@ -33,7 +33,7 @@ const SLANGLABEL_COLUMNS = [
 ];
 
 reportApi(function (string $nummer): array {
-    $stmt = reportConnection()->prepare('SET NOCOUNT ON; ' . SLANGLABEL_SQL);
+    $stmt = reportConnection('stickers-slanglabels')->prepare('SET NOCOUNT ON; ' . SLANGLABEL_SQL);
     $stmt->execute([$nummer]);
 
     $rows = [];

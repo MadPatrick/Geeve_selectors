@@ -7,16 +7,14 @@ declare(strict_types=1);
 // "005" draait en niets in de database aanmaakt of wegschrijft: het app-account heeft dus alleen leesrechten nodig.
 require_once __DIR__ . '/../../stauff/inc/config.php';
 require_once __DIR__ . '/../../shared/db.php';
+require_once __DIR__ . '/../../shared/databases.php';
 
 /** Kolommen waarvan de waarde als getal wordt teruggegeven (rest blijft tekst). */
 const MSP_NUMERIC_COLUMNS = ['qty', 'FINartgrp', 'Invoice Price'];
 
 function mspConnection(): PDO
 {
-    return geeveSqlServerConnect(
-        appConfig()['db'],
-        'Database-inloggegevens ontbreken: vul ze in via Config in het hoofdmenu.'
-    );
+    return geeveDbVerbinding('msp', 'exact');
 }
 
 /**

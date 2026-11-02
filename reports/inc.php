@@ -7,16 +7,15 @@ declare(strict_types=1);
 // de procedure wordt met een 3-delige naam aangeroepen, dus het app-account heeft EXECUTE nodig op die procedure.
 require_once __DIR__ . '/../stauff/inc/config.php';
 require_once __DIR__ . '/../shared/db.php';
+require_once __DIR__ . '/../shared/databases.php';
 
 const SP_NUMERIC_TYPES = ['int', 'bigint', 'smallint', 'tinyint', 'decimal', 'numeric', 'float', 'real', 'money', 'smallmoney'];
 const SP_DATE_TYPES = ['date', 'datetime', 'datetime2', 'smalldatetime'];
 
-function reportConnection(): PDO
+/** Leesverbinding met de Exact-database voor een tegel (id uit TILE_REGISTRY); de database (main/test) kiest Config > Databases per tegel. */
+function reportConnection(string $tegel = ''): PDO
 {
-    return geeveSqlServerConnect(
-        appConfig()['db'],
-        'Database-inloggegevens ontbreken: vul ze in via Config in het hoofdmenu.'
-    );
+    return geeveDbVerbinding($tegel, 'exact');
 }
 
 /** Alleen cijfers (zoals in de Excel-sjabloon), anders melding. */
@@ -37,9 +36,9 @@ function reportOrderNumber(mixed $value): string
  * @param array<string,string>|null $map
  * @return array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<string|int|float|null>>}
  */
-function reportCallProcedure(string $procedure, string $param, ?string $value, ?array $map = null): array
+function reportCallProcedure(string $procedure, string $param, ?string $value, ?array $map = null, string $tegel = ''): array
 {
-    $pdo = reportConnection();
+    $pdo = reportConnection($tegel);
     // Lege $param: de waarde positioneel doorgeven (zoals Excel/Power Query), zonder de parameternaam te kennen.
     // $value null: procedure zonder parameter.
     if ($value === null) {

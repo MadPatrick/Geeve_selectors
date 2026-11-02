@@ -19,7 +19,7 @@ reportApi(function (array $in): array {
         session_write_close();
     }
     $t = microtime(true);
-    $pdo = reportConnection();
+    $pdo = reportConnection('slangkaart-netto');
     // Nettoprijs = het veld "Netto afspraak" van het slangkaartscherm = kolom PrijsBerekend (Patrick 2026-10-27, voorbeeld 03-3212-0300 = 14,50).
     // De tabel heeft ruim 217.000 kaarten; filteren op de server voorkomt dat de browser vastloopt.
     $where = ['PrijsBerekend IS NOT NULL', 'PrijsBerekend > 0'];

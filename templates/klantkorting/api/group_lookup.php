@@ -19,7 +19,7 @@ if ($code === '' || strlen($code) > 20) {
 }
 
 try {
-    echo json_encode(lookupItemGroup(getPdoConnection(), $code), JSON_UNESCAPED_UNICODE);
+    echo json_encode(lookupItemGroup(getPdoConnection('klantkorting'), $code), JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
     echo json_encode(['found' => false, 'code' => $code, 'description' => '', 'error' => geeveFoutTekst($e)], JSON_UNESCAPED_UNICODE);
 }
