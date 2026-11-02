@@ -155,8 +155,7 @@
     mergeBox.addEventListener('change', function () { if (data) { render(); } });
 
     // Export in het formaat van het MSP-uploadsjabloon (Parker): zes kolommen, geen opvulspaties, datum als tekst dd/mm/jjjj.
-    GeeveProgress.onClick(uploadBtn, 'Export maken…', function () {
-        if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return false; }
+    function uploadWorkbook() {
         var cols = data.columns;
         var ci = cols.indexOf('End Customer Number'), pi = cols.indexOf('Part Number'), qi = cols.indexOf('qty');
         var ni = cols.indexOf('Invoice Number'), di = cols.indexOf('Invoice Date (DD/MM/YYYY)');
@@ -168,7 +167,32 @@
         ws['!cols'] = [{ wch: 22 }, { wch: 26 }, { wch: 10 }, { wch: 16 }, { wch: 26 }, { wch: 26 }];
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        return wb;
+    }
+
+    // Chrome en Edge: opslaan-venster waarin je map en bestandsnaam kiest. Firefox kent dat niet en downloadt gewoon
+    // naar de downloadmap (of vraagt zelf, als "Vraag waar bestanden moeten worden opgeslagen" aanstaat in de browser).
+    uploadBtn.addEventListener('click', function () {
+        if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return; }
+        message.hidden = true;
         var stamp = period.year + '-' + ('0' + period.month).slice(-2);
-        XLSX.writeFile(wb, 'MSP_upload_' + stamp + (mergeBox.checked ? '_samengevoegd' : '') + '.xls', { bookType: 'biff8' });
+        var name = 'MSP_upload_' + stamp + (mergeBox.checked ? '_samengevoegd' : '') + '.xls';
+        if (!window.showSaveFilePicker) {
+            XLSX.writeFile(uploadWorkbook(), name, { bookType: 'biff8' });
+            return;
+        }
+        // Het venster moet direct op de klik worden geopend (voor het bestand wordt gemaakt).
+        window.showSaveFilePicker({
+            suggestedName: name,
+            types: [{ description: 'Excel 97-2003 (.xls)', accept: { 'application/vnd.ms-excel': ['.xls'] } }]
+        }).then(function (handle) {
+            var bytes = XLSX.write(uploadWorkbook(), { bookType: 'biff8', type: 'array' });
+            return handle.createWritable().then(function (w) {
+                return w.write(new Blob([bytes], { type: 'application/vnd.ms-excel' })).then(function () { return w.close(); });
+            }).then(function () { status.textContent = 'Opgeslagen als ' + handle.name + '.'; });
+        }).catch(function (err) {
+            if (err && err.name === 'AbortError') { status.textContent = 'Opslaan geannuleerd.'; return; }
+            fail('Opslaan mislukt: ' + (err && err.message ? err.message : err));
+        });
     });
 })();
