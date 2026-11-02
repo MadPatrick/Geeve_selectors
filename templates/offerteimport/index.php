@@ -43,10 +43,10 @@ $csrf = csrfToken();
 
     <section class="panel" id="oiApp" data-validate="api/validate.php" data-kind="offerte" data-csrf="<?= h($csrf) ?>">
         <h2>Import Offerte</h2>
-        <p class="ka-empty">Download de lege template (Regelnr, Aantal, Artikelcode, Leveranciersnummer, Artikelklant), vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). 
+        <p class="ka-empty">Download de lege template (Regelnr, Aantal, Artikelcode, Leveranciersnummer, Klantartikelnr.), vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). 
             <br>Verkoper, debiteurnummer, omschrijving en datum vul je hieronder in. 
             <br>Weet je alleen het artikelnummer van de leverancier, laat dan de artikelcode leeg en vul het leveranciersnummer in: ons artikelnummer wordt in Exact opgezocht (zonder match blijft de artikelcode leeg). 
-            <br>Weet je alleen het artikelnummer van de klant, vul dan de artikelklant in: ons artikelnummer wordt gezocht bij de klantartikelen van het debiteurnummer hieronder (artikelcode en leveranciersnummer gaan voor). 
+            <br>Weet je alleen het artikelnummer van de klant, vul dan de klantartikelnr. in: ons artikelnummer wordt gezocht bij de klantartikelen van het debiteurnummer hieronder (artikelcode en leveranciersnummer gaan voor). 
             <br>De velden en artikelen worden gecontroleerd met Exact: de artikelomschrijving komt uit Exact, en artikelen die niet bestaan staan rood. 
             <br>
             <br>Is alles in orde, dan schrijf je de offerte met <strong>Naar Exact</strong> direct naar Exact (eerst een proef, dan bevestigen), of maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Logistieke import</strong>).</p>
@@ -100,7 +100,7 @@ $csrf = csrfToken();
             <table class="ka-table" id="oiTable">
                 <thead>
                     <tr>
-                        <th>Regelnr</th><th>Aantal</th><th>Leveranciersnummer</th><th>Artikelklant</th><th>Artikelcode</th><th>Artikelomschrijving</th>
+                        <th>Regelnr</th><th>Aantal</th><th>Leveranciersnummer</th><th>Klantartikelnr.</th><th>Artikelcode</th><th>Artikelomschrijving</th>
                         <th>Artikel in Exact</th><th></th>
                     </tr>
                 </thead>

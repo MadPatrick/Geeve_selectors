@@ -35,7 +35,7 @@
     // ons artikelnummer op en vult het in; zonder (eenduidige) match blijft de artikelcode leeg.
     var useSupplier = !purchase;
     var supplierInfo = {};   // LEVERANCIERSNUMMER (hoofdletters) -> {item, matches}
-    // Offerte: ook een optionele kolom Artikelklant (het artikelnummer van de klant). Werkt als het leveranciersnummer, maar zoekt in de
+    // Offerte: ook een optionele kolom Klantartikelnr. (het artikelnummer van de klant). Werkt als het leveranciersnummer, maar zoekt in de
     // klantartikelen van de ingevulde debiteur; de artikelcode en het leveranciersnummer gaan voor.
     var customerInfo = {};   // ARTIKELKLANT (hoofdletters) -> {item, matches}, geldig voor de debiteur in lastDebtor
     var lastDebtor = '';
@@ -88,22 +88,22 @@
 
     // ---- Template: alleen de regels (Regelnr, Aantal, Artikelcode, bij offertes ook Leveranciersnummer); de kopvelden vul je in op het dashboard ----
     function downloadTemplate() {
-        var rows = [useSupplier ? ['Regelnr', 'Aantal', 'Artikelcode', 'Leveranciersnummer', 'Artikelklant'] : ['Regelnr', 'Aantal', 'Artikelcode']];
+        var rows = [useSupplier ? ['Regelnr', 'Aantal', 'Artikelcode', 'Leveranciersnummer', 'Klantartikelnr.'] : ['Regelnr', 'Aantal', 'Artikelcode']];
         for (var i = 1; i <= 100; i++) { rows.push(useSupplier ? [i, '', '', '', ''] : [i, '', '']); }
         var ws = XLSX.utils.aoa_to_sheet(rows);
         var head = { font: { bold: true, color: { rgb: 'FFFFFFFF' } }, fill: { patternType: 'solid', fgColor: { rgb: 'FF1F4E78' } }, alignment: { horizontal: 'center' } };
         (useSupplier ? ['A1', 'B1', 'C1', 'D1', 'E1'] : ['A1', 'B1', 'C1']).forEach(function (a) { ws[a].s = head; });
         for (var r = 2; r <= 101; r++) {
             ws['C' + r] = { t: 's', v: '', z: '@' }; // artikelcodes altijd als tekst
-            if (useSupplier) { ws['D' + r] = { t: 's', v: '', z: '@' }; ws['E' + r] = { t: 's', v: '', z: '@' }; } // leveranciersnummers en artikelklant ook (voorloopnullen blijven staan)
+            if (useSupplier) { ws['D' + r] = { t: 's', v: '', z: '@' }; ws['E' + r] = { t: 's', v: '', z: '@' }; } // leveranciersnummers en klantartikelnr. ook (voorloopnullen blijven staan)
         }
         ws['!cols'] = useSupplier ? [{ wch: 10 }, { wch: 10 }, { wch: 28 }, { wch: 28 }, { wch: 28 }] : [{ wch: 10 }, { wch: 10 }, { wch: 28 }];
         ws['!ref'] = useSupplier ? 'A1:E101' : 'A1:C101';
         var help = XLSX.utils.aoa_to_sheet(useSupplier ? [
             [1, 'Geef per regel het aantal (kolom B) en de artikelcode (kolom C) in'],
             [2, 'Weet je alleen het artikelnummer van de leverancier? Laat de artikelcode leeg en vul het leveranciersnummer (kolom D) in; ons artikelnummer wordt dan in Exact opgezocht'],
-            [3, 'Weet je alleen het artikelnummer van de klant? Laat de artikelcode leeg en vul de artikelklant (kolom E) in; dat wordt opgezocht bij de klantartikelen van het debiteurnummer dat je op het dashboard invult'],
-            [4, 'Staan artikelcode, leveranciersnummer en/of artikelklant ingevuld, dan geldt eerst de artikelcode, dan het leveranciersnummer, dan de artikelklant'],
+            [3, 'Weet je alleen het artikelnummer van de klant? Laat de artikelcode leeg en vul de klantartikelnr. (kolom E) in; dat wordt opgezocht bij de klantartikelen van het debiteurnummer dat je op het dashboard invult'],
+            [4, 'Staan artikelcode, leveranciersnummer en/of klantartikelnr. ingevuld, dan geldt eerst de artikelcode, dan het leveranciersnummer, dan de klantartikelnr.'],
             [5, 'Meer dan 100 regels? Nummer de regelnummers gewoon door'],
             [6, 'Verkoper, debiteurnummer, omschrijving en datum vul je in op het dashboard (Offerte Import)'],
             [7, 'Importeer het bestand in Offerte Import; de artikelen worden gecontroleerd met Exact en de artikelomschrijving wordt opgehaald']
@@ -170,7 +170,7 @@
                     };
                     var supCol = useSupplier ? (cols['leveranciersnummer'] || cols['leveranciernummer']) : null;
                     if (supCol && line.code === '') { line.supplier = cellText(val(supCol + row)); }
-                    var custCol = useSupplier ? (cols['artikelklant'] || cols['klantartikel']) : null;
+                    var custCol = useSupplier ? (cols['klantartikelnr.'] || cols['klantartikelnr'] || cols['klantartikel'] || cols['artikelklant']) : null;
                     if (custCol && line.code === '') { line.custArt = cellText(val(custCol + row)); }
                     if (line.code === '' && line.supplier === '' && line.custArt === '' && (line.qty === null || line.qty === '')) { continue; }
                     // Template heeft alleen regelnummers 1-100 voorgevuld: ontbreekt het nummer, dan doornummeren vanaf de vorige regel.
@@ -222,7 +222,7 @@
             });
         }
         // Alle leveranciersnummers in één verzoek (één opzoeking in ItemAccounts op de server, dat is het zwaarste deel); de artikelen daarna in batches.
-        var supJobs = jobs.filter(function (job) { return job.type !== 'item'; });   // leveranciersnummers en artikelklanten
+        var supJobs = jobs.filter(function (job) { return job.type !== 'item'; });   // leveranciersnummers en klantartikelnrs
         var itemJobs = jobs.filter(function (job) { return job.type === 'item'; });
         var batches = [];
         if (supJobs.length) { batches.push(supJobs); }
@@ -261,7 +261,7 @@
                             supplierInfo[key] = sup[key];
                             if (sup[key].item) { l.code = sup[key].item.toUpperCase(); l.autoCode = true; l.autoSrc = 'sup'; }
                         });
-                        // Artikelklanten (alleen waar de artikelcode nog leeg is, dus het leveranciersnummer en de artikelcode gaan voor).
+                        // Klantartikelnrs (alleen waar de artikelcode nog leeg is, dus het leveranciersnummer en de artikelcode gaan voor).
                         var cus = json.customers || {};
                         lines.forEach(function (l) {
                             if (!customerPending(l)) { return; }
@@ -322,7 +322,7 @@
         }, 400);
     }
 
-    // Regel met alleen een artikelklant (geen artikelcode, en geen leveranciersnummer dat nog wordt opgezocht) waarvan het artikelnummer nog niet is opgezocht.
+    // Regel met alleen een klantartikelnr. (geen artikelcode, en geen leveranciersnummer dat nog wordt opgezocht) waarvan het artikelnummer nog niet is opgezocht.
     function customerPending(l) {
         return useSupplier && cv(l) === '' && !!l.custArt && l.custArt.trim() !== '' && !customerInfo[l.custArt.trim().toUpperCase()];
     }
@@ -355,12 +355,12 @@
         if (cv(l) === '' && (sup !== '' || cus !== '')) {
             var si = sup !== '' ? supplierInfo[sup.toUpperCase()] : null;
             var ci = cus !== '' ? customerInfo[cus.toUpperCase()] : null;
-            if ((sup !== '' && !si) || (cus !== '' && !ci)) { return { cls: '', label: (sup !== '' && !si ? 'Leveranciersnummer' : 'Artikelklant') + ' wordt opgezocht…', ok: false, export: false, pending: true }; }
+            if ((sup !== '' && !si) || (cus !== '' && !ci)) { return { cls: '', label: (sup !== '' && !si ? 'Leveranciersnummer' : 'Klantartikelnr.') + ' wordt opgezocht…', ok: false, export: false, pending: true }; }
             if (si && si.matches && si.matches.length > 1) { return { cls: 'is-incomplete', label: 'Leveranciersnummer hoort bij meerdere artikelen (' + si.matches.join(', ') + '): vul de artikelcode in', ok: false, export: false }; }
-            if (ci && ci.matches && ci.matches.length > 1) { return { cls: 'is-incomplete', label: 'Artikelklant hoort bij meerdere artikelen (' + ci.matches.join(', ') + '): vul de artikelcode in', ok: false, export: false }; }
+            if (ci && ci.matches && ci.matches.length > 1) { return { cls: 'is-incomplete', label: 'Klantartikelnr. hoort bij meerdere artikelen (' + ci.matches.join(', ') + '): vul de artikelcode in', ok: false, export: false }; }
             if ((si && si.item) || (ci && ci.item)) { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
-            if (sup === '' && !(debtorInfo && debtorInfo.found)) { return { cls: 'is-incomplete', label: 'Vul een geldig debiteurnummer in om de artikelklant op te zoeken', ok: false, export: false }; }
-            return { cls: 'is-incomplete', label: sup === '' ? 'Geen artikelklant' : 'Geen artikel bij ' + (cus !== '' ? 'leveranciersnummer of artikelklant' : 'leveranciersnummer') + ': vul de artikelcode in', ok: false, export: false };
+            if (sup === '' && !(debtorInfo && debtorInfo.found)) { return { cls: 'is-incomplete', label: 'Vul een geldig debiteurnummer in om de klantartikelnr. op te zoeken', ok: false, export: false }; }
+            return { cls: 'is-incomplete', label: sup === '' ? 'Geen klantartikelnr.' : 'Geen artikel bij ' + (cus !== '' ? 'leveranciersnummer of klantartikelnr.' : 'leveranciersnummer') + ': vul de artikelcode in', ok: false, export: false };
         }
         if (cv(l) === '') { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
         if (qtyOf(l.qty) === null) { return { cls: 'is-incomplete', label: 'Aantal ontbreekt of is ongeldig', ok: false, export: false }; }
@@ -430,7 +430,7 @@
             '<td><input type="text" class="ka-input oi-qty" data-i="' + i + '" value="' + esc(l.qty === null ? '' : l.qty) + '" maxlength="12" inputmode="decimal" autocomplete="off" aria-label="Aantal regel ' + esc(l.nr || (i + 1)) + '"></td>' +
             (purchase ? '<td class="oi-min">' + (info && info.minOrder > 0 ? esc(info.minOrder) : '') + '</td>' : '') +
             (useSupplier ? '<td><input type="text" class="ka-input oi-sup" data-i="' + i + '" value="' + esc(l.supplier || '') + '" maxlength="40" autocomplete="off" spellcheck="false" aria-label="Leveranciersnummer regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
-            (useSupplier ? '<td><input type="text" class="ka-input oi-cus" data-i="' + i + '" value="' + esc(l.custArt || '') + '" maxlength="60" autocomplete="off" spellcheck="false" aria-label="Artikelklant regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
+            (useSupplier ? '<td><input type="text" class="ka-input oi-cus" data-i="' + i + '" value="' + esc(l.custArt || '') + '" maxlength="60" autocomplete="off" spellcheck="false" aria-label="Klantartikelnr. regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
             '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
             '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
             '<td class="oi-status"><div class="oi-status-text">' + esc(st.label) + '</div></td>' +
@@ -563,7 +563,7 @@
         showMessage('');
         var states = lines.map(lineState);
         var head = ['Regelnr', 'Aantal'];
-        if (useSupplier) { head.push('Leveranciersnummer', 'Artikelklant'); }
+        if (useSupplier) { head.push('Leveranciersnummer', 'Klantartikelnr.'); }
         head.push('Artikelcode', 'Artikelomschrijving', 'Artikel in Exact');
         var rows = [head];
         lines.forEach(function (l, i) {
@@ -741,7 +741,7 @@
             return;
         }
         if (el.classList && el.classList.contains('oi-cus')) {
-            // Artikelklant gewijzigd: is de artikelcode leeg, dan na een korte pauze ons artikelnummer opnieuw opzoeken.
+            // Klantartikelnr. gewijzigd: is de artikelcode leeg, dan na een korte pauze ons artikelnummer opnieuw opzoeken.
             var cline = lines[+el.getAttribute('data-i')];
             cline.custArt = el.value;
             if (cline.autoCode && cline.autoSrc === 'cust') { cline.code = ''; cline.autoCode = false; render(); } else { renderRow(+el.getAttribute('data-i')); }
