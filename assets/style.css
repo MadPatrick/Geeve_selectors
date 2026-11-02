@@ -252,13 +252,13 @@
 .sneeuw-dagen input { width: 76px; min-height: 43px; font-size: 15px; text-align: center; }
 .sneeuw-form { flex-direction: column; align-items: flex-start; } /* elke animatie op een eigen regel */
 
-/* Config > Tegels: database per tegel */
-.tiles-table { max-width: 1080px; }
-.tiles-row { grid-template-columns: minmax(180px, 1fr) repeat(3, 110px) minmax(300px, 1.4fr); }
+/* Config > Tegels: database per tegel (compact, elke database op 1 regel) */
+.tiles-table { max-width: 1100px; }
+.tiles-row { grid-template-columns: minmax(180px, 1fr) repeat(3, 90px) minmax(0, 420px); }
 .tiles-head .tiles-dbhead { text-align: left; justify-self: start; }
-.tiles-db { display: flex; flex-direction: column; gap: 4px; }
-.tiles-db-bron { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.tiles-db-naam { font-size: 12px; font-weight: 700; color: var(--muted); min-width: 120px; }
-.tiles-db select { min-height: 30px; font-size: 13px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-white); }
+.tiles-db { display: flex; flex-direction: column; gap: 3px; }
+.tiles-db-bron { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
+.tiles-db-naam { font-size: 12px; font-weight: 700; color: var(--muted); flex: 0 0 96px; white-space: nowrap; }
+.tiles-db select { width: auto; min-width: 0; min-height: 26px; height: 26px; padding: 0 4px; font-size: 12px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface-white); }
 .db-readonly { color: var(--muted); font-size: 12px; }
-@media (max-width: 900px) { .tiles-row { grid-template-columns: minmax(120px, 1fr) repeat(3, 64px); } .tiles-db, .tiles-dbhead { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .tiles-row { grid-template-columns: minmax(120px, 1fr) repeat(3, 64px); } .tiles-db, .tiles-dbhead { grid-column: 1 / -1; } .tiles-db-bron { flex-wrap: wrap; } }

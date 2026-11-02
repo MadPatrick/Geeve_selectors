@@ -429,14 +429,14 @@ $storedSettings = secureSettingsRead();
                                         <span class="tiles-db-naam"><?= h($bronInfo[0]) ?></span>
                                         <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][lezen]" aria-label="<?= h($tile[1] . ' - ' . $bronInfo[0] . ': lezen uit') ?>">
                                             <?php foreach ($bronInfo[2] as $omg): ?>
-                                                <option value="<?= h($omg) ?>"<?= $keuze['lezen'] === $omg ? ' selected' : '' ?><?= geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['lezen'] === $omg ? '' : ' disabled' ?>>Lezen: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
+                                                <option value="<?= h($omg) ?>"<?= $keuze['lezen'] === $omg ? ' selected' : '' ?><?= geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['lezen'] === $omg ? '' : ' disabled' ?>>L: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
                             <?php endforeach; ?>
                                         </select>
                                         <?php if ($bronInfo[1]): ?>
                                         <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][schrijven]" aria-label="<?= h($tile[1] . ' - ' . $bronInfo[0] . ': schrijven naar') ?>">
-                                            <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>Schrijven: geen</option>
+                                            <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>S: geen</option>
                                             <?php foreach ($bronInfo[2] as $omg): ?>
-                                                <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['schrijven'] === $omg ? '' : ' disabled' ?>>Schrijven: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
+                                                <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['schrijven'] === $omg ? '' : ' disabled' ?>>S: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
                             <?php endforeach; ?>
                                         </select>
                                         <?php else: ?>
