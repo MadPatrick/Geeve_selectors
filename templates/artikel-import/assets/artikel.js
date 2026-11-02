@@ -113,7 +113,7 @@
         var reader = new FileReader();
         reader.onload = function (e) {
             try {
-                // Inlezen met de bijgewerkte SheetJS (zie reports/assets/vendor/xlsx-lezen.js); schrijven blijft via xlsx-style.
+                // Inlezen met de bijgewerkte SheetJS (zie shared/vendor/xlsx-lezen.js); schrijven blijft via xlsx-style.
                 var X = window.XLSX_LEZEN || XLSX;
                 var wb = X.read(new Uint8Array(e.target.result), { type: 'array' });
                 var name = wb.SheetNames.indexOf('Items') !== -1 ? 'Items' : wb.SheetNames[0];

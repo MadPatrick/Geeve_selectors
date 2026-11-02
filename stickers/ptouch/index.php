@@ -27,7 +27,7 @@ $csrf = csrfToken();
     <title>Naamstickers | Geeve Hydraulics</title>
     <!-- Knoppen, invoervelden en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/ptouch.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['shared/tabel.css', 'shared/rapport.css', 'shared/stickers.css', 'stickers/assets/ptouch.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -70,6 +70,6 @@ $csrf = csrfToken();
 <!-- Alleen voor het printen: hier komen de stickers (aantal keer) vlak voor window.print(). -->
 <div id="ptPrintSheet" class="pt-printsheet" aria-hidden="true"></div>
 <script src="<?= h(geeveUrl('stickers/assets/ptouch.js')) ?>?v=<?= h(assetVersion('../assets/ptouch.js')) ?>"></script>
-<script src="<?= h(geeveUrl('stickers/assets/direct-print.js')) ?>?v=<?= h(assetVersion('../assets/direct-print.js')) ?>"></script>
+<script src="<?= h(geeveUrl('shared/direct-print.js')) ?>?v=<?= h(assetVersion('../../shared/direct-print.js')) ?>"></script>
 </body>
 </html>

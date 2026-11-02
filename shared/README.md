@@ -23,9 +23,9 @@ gaat dieper en is bedoeld als checklist/kopieersjabloon.
 - **`shared/printsaneren.php`** - `geeveSaneerPrintHtml()`: witte lijst voor HTML die een browser naar `shared/print-api.php`
   stuurt. Heeft een afdrukblok een nieuwe tag of attribuut nodig, voeg die toe in `GEEVE_PRINT_TAGS` / `GEEVE_PRINT_ATTRIBUTEN` en
   draai `php tools/test-printsaneren.php`.
-- **Excel (SheetJS)** - inlezen altijd met `templates/klantartikel/assets/vendor/xlsx.core.min.js` (SheetJS 0.20.3, lees-kwetsbaarheden
-  van 0.18.5 opgelost). Schrijven met opmaak gaat met `reports/assets/vendor/xlsx-style.min.js` (xlsx-js-style, op 0.18.5).
-  Heeft een pagina beide nodig, laad dan `xlsx.core.min.js`, `reports/assets/vendor/xlsx-lezen.js` en daarna `xlsx-style.min.js`,
+- **Excel (SheetJS)** - inlezen altijd met `shared/vendor/xlsx.core.min.js` (SheetJS 0.20.3, lees-kwetsbaarheden
+  van 0.18.5 opgelost). Schrijven met opmaak gaat met `shared/vendor/xlsx-style.min.js` (xlsx-js-style, op 0.18.5).
+  Heeft een pagina beide nodig, laad dan `xlsx.core.min.js`, `shared/vendor/xlsx-lezen.js` en daarna `xlsx-style.min.js`,
   en lees in met `(window.XLSX_LEZEN || XLSX).read(...)`; zie `templates/offerte-import/`.
 - **`shared/slangkaart.css`** - de vastgelegde slangkaart-layout, zie
   [`SLANGKAART-LAYOUT.md`](SLANGKAART-LAYOUT.md).
@@ -317,7 +317,7 @@ portal ook in een submap werkt (bijv. een testkopie onder `/Geeve_selectors/`).
 Links in een app:
 
 - naar een andere app of een overzicht: `geeveAppUrl('reports')`, `geeveAppUrl('msp')`;
-- naar een bestand van een andere map: `geeveUrl('reports/assets/sp-report.js')`, niet `../`
+- naar een bestand van een andere map: `geeveUrl('shared/sp-report.js')`, niet `../`
   naar een buurmap;
 - binnen de eigen map gewoon relatief (`assets/style.css`, `api/data.php`).
 
@@ -347,7 +347,7 @@ Links in een app:
 - **Laatst gebruikte printer:** na een gelukte print onthoudt de portal de share per tegel in het cookie
   `geeve_printer_<tegel>` (`geeveRememberPrinter()`); die staat de volgende keer voorgeselecteerd.
 - **Printknop in een tegel:** `geevePrinterSelectHtml($tegelId, $csrf)` toont de keuzelijst naast de knop; het script
-  `stickers/assets/direct-print.js` laat `window.print()` dan het afdrukblok naar `shared/print-api.php` sturen. De
+  `shared/direct-print.js` laat `window.print()` dan het afdrukblok naar `shared/print-api.php` sturen. De
   tegel staat in `GEEVE_PRINT_TILES` en `GEEVE_PRINT_TILE_PAGE` (afdrukblok-id, klasse, stylesheets).
 - Voorbeeld: Slangkaart printen, stap 2 (keuzelijst "Printer" boven de printknop).
 

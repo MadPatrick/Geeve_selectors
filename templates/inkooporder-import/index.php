@@ -26,7 +26,7 @@ $csrf = csrfToken();
     <title>Import Inkooporder | Geeve Hydraulics</title>
     <!-- Knoppen, tabel, meldingen en de sleepzone zijn dezelfde als in Klant Artikelnummers. -->
     <?php
-    $headCss = ['assets/style.css', 'templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'templates/offerte-import/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['assets/style.css', 'shared/tabel.css', 'shared/rapport.css', 'templates/offerte-import/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -106,9 +106,9 @@ $csrf = csrfToken();
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
-<script src="<?= h(geeveUrl('templates/klantartikel/assets/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../klantartikel/assets/vendor/xlsx.core.min.js')) ?>"></script>
-<script src="<?= h(geeveUrl('reports/assets/vendor/xlsx-lezen.js')) ?>?v=<?= h(assetVersion('../../reports/assets/vendor/xlsx-lezen.js')) ?>"></script>
-<script src="<?= h(geeveUrl('reports/assets/vendor/xlsx-style.min.js')) ?>"></script>
+<script src="<?= h(geeveUrl('shared/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../../shared/vendor/xlsx.core.min.js')) ?>"></script>
+<script src="<?= h(geeveUrl('shared/vendor/xlsx-lezen.js')) ?>?v=<?= h(assetVersion('../../shared/vendor/xlsx-lezen.js')) ?>"></script>
+<script src="<?= h(geeveUrl('shared/vendor/xlsx-style.min.js')) ?>"></script>
 <script src="<?= h(geeveUrl('templates/offerte-import/assets/offerte.js')) ?>?v=<?= h(assetVersion('../offerte-import/assets/offerte.js')) ?>"></script>
 </body>
 </html>

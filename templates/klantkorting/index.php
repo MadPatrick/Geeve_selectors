@@ -98,7 +98,7 @@ try {
     <meta name="robots" content="noindex,nofollow">
     <title>Kortingstructuur | Geeve Hydraulics</title>
     <?php
-    $headCss = ['templates/klantartikel/assets/style.css', 'templates/klantkorting/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['shared/tabel.css', 'templates/klantkorting/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -207,7 +207,7 @@ try {
                 </table></div>
                 <?php if ($lines === []): ?><p class="ka-empty" id="kkEmpty">Nog geen kortingsregels op deze prijslijst - voeg er een toe met +.</p><?php endif; ?>
             </form>
-            <script src="<?= h(geeveUrl('templates/klantartikel/assets/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../klantartikel/assets/vendor/xlsx.core.min.js')) ?>"></script>
+            <script src="<?= h(geeveUrl('shared/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../../shared/vendor/xlsx.core.min.js')) ?>"></script>
             <script src="assets/klantkorting.js?v=<?= h(assetVersion('assets/klantkorting.js')) ?>"></script>
             <?php endif; ?>
         </section>

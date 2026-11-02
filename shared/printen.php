@@ -59,16 +59,16 @@ const GEEVE_PRINT_TILE_SOORT = [
 /**
  * Per tegel met een printknop die in de browser een afdrukblok opbouwt: welk element (id) dat blok is, welke klasse het
  * in de print moet hebben, en welke stylesheets de pagina laadt (vanaf de portal-root). Het blok wordt bij direct printen
- * door stickers/assets/direct-print.js naar shared/print-api.php gestuurd.
+ * door shared/direct-print.js naar shared/print-api.php gestuurd.
  */
 const GEEVE_PRINT_TILE_PAGE = [
-    'stickers-slanglabels' => ['sheet' => 'slPrintSheet', 'class' => 'sl-printsheet', 'css' => ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/slanglabels.css']],
-    'stickers-artikel-groot' => ['sheet' => 'acPrintSheet', 'class' => 'ac-printsheet', 'css' => ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/accu.css']],
-    'stickers-artikel' => ['sheet' => 'saPrintSheet', 'class' => 'sa-printsheet', 'css' => ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/artikel-stickers.css']],
-    'stickers-productie' => ['sheet' => 'psPrintSheet', 'class' => 'ps-printsheet', 'css' => ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/productie-stickers.css']],
-    'stickers-ptouch' => ['sheet' => 'ptPrintSheet', 'class' => 'pt-printsheet', 'css' => ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/ptouch.css']],
-    'stickers-kabelmerkers' => ['sheet' => 'kmPrintSheet', 'class' => 'km-printsheet', 'css' => ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/kabelmerkers.css']],
-    'stickers-order' => ['sheet' => 'soSheet', 'class' => 'so-preview', 'css' => ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css']],
+    'stickers-slanglabels' => ['sheet' => 'slPrintSheet', 'class' => 'sl-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/slanglabels.css']],
+    'stickers-artikel-groot' => ['sheet' => 'acPrintSheet', 'class' => 'ac-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/accu.css']],
+    'stickers-artikel' => ['sheet' => 'saPrintSheet', 'class' => 'sa-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/art-sticker.css', 'stickers/assets/artikel-stickers.css']],
+    'stickers-productie' => ['sheet' => 'psPrintSheet', 'class' => 'ps-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/productie-stickers.css']],
+    'stickers-ptouch' => ['sheet' => 'ptPrintSheet', 'class' => 'pt-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/ptouch.css']],
+    'stickers-kabelmerkers' => ['sheet' => 'kmPrintSheet', 'class' => 'km-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/kabelmerkers.css']],
+    'stickers-order' => ['sheet' => 'soSheet', 'class' => 'so-preview', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css']],
 ];
 
 /** Labels die 90° gedraaid in de printer liggen, per sheet-class van de tegel: 'ccw' of 'cw'. */

@@ -28,7 +28,7 @@ $csrf = csrfToken();
     <title>Artikelen per Verkooporder | Geeve Hydraulics</title>
     <!-- Knoppen, tabel, invoerveld en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['shared/tabel.css', 'shared/rapport.css', 'shared/stickers.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -113,6 +113,6 @@ $csrf = csrfToken();
 <script src="<?= h(geeveUrl('stickers/assets/vendor/JsBarcode.code128.min.js')) ?>"></script>
 <script src="<?= h(geeveUrl('stickers/assets/art-sticker.js')) ?>?v=<?= h(assetVersion('../assets/art-sticker.js')) ?>"></script>
 <script src="<?= h(geeveUrl('stickers/assets/order-stickers.js')) ?>?v=<?= h(assetVersion('../assets/order-stickers.js')) ?>"></script>
-<script src="<?= h(geeveUrl('stickers/assets/direct-print.js')) ?>?v=<?= h(assetVersion('../assets/direct-print.js')) ?>"></script>
+<script src="<?= h(geeveUrl('shared/direct-print.js')) ?>?v=<?= h(assetVersion('../../shared/direct-print.js')) ?>"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 /* Gedeelde indeling van alle Stickers-apps (stickers/*): links invoer, rechts de stickerkaart.
    De kaart begint bovenaan op dezelfde hoogte als de titel; daarin staan het voorbeeld, daarnaast de instellingen
    (x afdrukken, Snelheid/Zwarting, printer) en eronder de knoppen (Leegmaken links, Print rechts).
-   Laden na reports/msp/assets/style.css en vóór het eigen stylesheet van de app (zie shared/stickers_kaart.php).
+   Laden na shared/rapport.css en vóór het eigen stylesheet van de app (zie shared/stickers_kaart.php).
    Kleuren en maten komen uit shared/tokens.css; de sticker zelf blijft in het eigen stylesheet van de app. */
 
 .sk-top { display: grid; grid-template-columns: minmax(0, 1fr) 760px; gap: 24px; align-items: start; }

@@ -1,4 +1,4 @@
-/* Orderhistorie: klantkeuzelijst en filterrij boven de tabel; knoppen, tabel en meldingen komen uit templates/klantartikel/assets/style.css. */
+/* Orderhistorie: klantkeuzelijst en filterrij boven de tabel; knoppen, tabel en meldingen komen uit shared/tabel.css. */
 .oh-klant { position: relative; min-width: 36ch; }
 .oh-hits {
     position: absolute; z-index: 20; left: 0; top: 100%; min-width: 100%; width: max-content; max-width: 70ch;

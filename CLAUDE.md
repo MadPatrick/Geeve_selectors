@@ -59,7 +59,7 @@ valkuilen. Zet daar nooit wachtwoorden in.
 ## Tabellen: compacte regelafstand (standaard)
 
 Datatabellen in tegels gebruiken **standaard** de gedeelde tabelopmaak `.ka-table` (met `.ka-input` voor
-invoervelden in een cel) uit `templates/klantartikel/assets/style.css`. Die heeft een compacte regelafstand:
+invoervelden in een cel) uit `shared/tabel.css`. Die heeft een compacte regelafstand:
 `td` met 3px verticale padding en invoervelden in de tabel van 28px hoog (`min-height: 28px`, 2px
 verticale padding). Geef nieuwe tabellen dus geen eigen, ruimere celpadding of hogere invoervelden;
 eigen tabelregels per app (kolombreedtes, statuskleuren) mogen wel, de regelafstand blijft gelijk.

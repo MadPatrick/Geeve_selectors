@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Gedeelde bouwstenen van de Stickers-apps (stickers/*): titel met labelmaat en de stickerkaart rechts.
- * Opmaak staat in shared/stickers.css; de app laadt die in $headCss (na reports/msp/assets/style.css, vóór het eigen
+ * Opmaak staat in shared/stickers.css; de app laadt die in $headCss (na shared/rapport.css, vóór het eigen
  * stylesheet). Vereist shared/printen.php (printerkeuze en afdrukinstellingen) en een csrf-token.
  *
  * stickerTitelHtml()  - <div class="sk-titel"> met h2, labelmaat-badge en één regel uitleg.

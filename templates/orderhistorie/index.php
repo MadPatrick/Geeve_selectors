@@ -26,7 +26,7 @@ $csrf = csrfToken();
     <title>Orderhistorie | Geeve Hydraulics</title>
     <?php
     // Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers; msp-field/msp-pill komen uit het MSP-rapport.
-    $headCss = ['templates/klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'templates/orderhistorie/assets/style.css'];
+    $headCss = ['shared/tabel.css', 'shared/rapport.css', 'shared/filterlijst.css'];
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -67,7 +67,7 @@ $csrf = csrfToken();
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
-<script src="<?= h(geeveUrl('reports/assets/vendor/xlsx-style.min.js')) ?>"></script>
+<script src="<?= h(geeveUrl('shared/vendor/xlsx-style.min.js')) ?>"></script>
 <script src="<?= h(geeveAssetHref('templates/orderhistorie/assets/orderhistorie.js')) ?>"></script>
 </body>
 </html>

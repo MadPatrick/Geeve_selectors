@@ -1,6 +1,6 @@
 /*
- * Excel inlezen met de bijgewerkte SheetJS (0.20.3, templates/klantartikel/assets/vendor/xlsx.core.min.js) en schrijven met opmaak
- * via xlsx-js-style (reports/assets/vendor/xlsx-style.min.js, gebaseerd op SheetJS 0.18.5).
+ * Excel inlezen met de bijgewerkte SheetJS (0.20.3, shared/vendor/xlsx.core.min.js) en schrijven met opmaak
+ * via xlsx-js-style (shared/vendor/xlsx-style.min.js, gebaseerd op SheetJS 0.18.5).
  *
  * Volgorde op de pagina: eerst xlsx.core.min.js, dan dit bestand, dan xlsx-style.min.js. xlsx-style zet een eigen globale
  * XLSX neer; deze regel bewaart de nieuwe versie daarvoor als XLSX_LEZEN. Inlezen (XLSX_LEZEN.read) gebruikt zo de

@@ -26,7 +26,7 @@ $csrf = csrfToken();
     <title>Barcode inkoopontvangst | Geeve Hydraulics</title>
     <?php
     // Knoppen, invoervelden en meldingen komen uit Klant Artikelnummers.
-    $headCss = ['templates/klantartikel/assets/style.css', 'templates/barcode/assets/style.css'];
+    $headCss = ['shared/tabel.css', 'templates/barcode/assets/style.css'];
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>

@@ -110,7 +110,7 @@ function geeveBaseUrl(): string
     return $base;
 }
 
-/** Absoluut adres van een bestand vanaf de portal-root, bijv. geeveUrl('reports/assets/sp-report.js'). */
+/** Absoluut adres van een bestand vanaf de portal-root, bijv. geeveUrl('shared/sp-report.js'). */
 function geeveUrl(string $path): string
 {
     return geeveBaseUrl() . ltrim($path, '/');

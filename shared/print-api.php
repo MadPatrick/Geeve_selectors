@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Direct printen vanuit de browser: de pagina stuurt het afdrukblok (HTML) van een tegel hierheen, de server rendert
  * het (zelfde print-CSS) en stuurt het naar de gekozen printer van die tegel. Zie shared/printen.php en
- * stickers/assets/direct-print.js.
+ * shared/direct-print.js.
  *
  * POST (JSON): {"tile": "<tegel-id>", "printer": "<share op de printserver>", "html": "<inhoud van het afdrukblok>", "csrf": "<token>"}
  * Antwoord (JSON): {"ok": true, "job": "...", "printer": "<naam>"} of {"ok": false, "error": "..."}

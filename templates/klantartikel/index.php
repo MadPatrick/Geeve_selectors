@@ -89,7 +89,7 @@ if ($priceList !== '') {
     <meta name="robots" content="noindex,nofollow">
     <title>Klant Artikelnummers | Geeve Hydraulics</title>
     <?php
-    $headCss = ['templates/klantartikel/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['shared/tabel.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -200,7 +200,7 @@ if ($priceList !== '') {
                 </table></div>
             <?php endif; ?>
         </section>
-        <script src="assets/vendor/xlsx.core.min.js?v=<?= h(assetVersion('assets/vendor/xlsx.core.min.js')) ?>"></script>
+        <script src="assets/vendor/xlsx.core.min.js?v=<?= h(assetVersion('../../shared/vendor/xlsx.core.min.js')) ?>"></script>
         <script src="assets/klantartikel.js?v=<?= h(assetVersion('assets/klantartikel.js')) ?>"></script>
     <?php endif; ?>
 
