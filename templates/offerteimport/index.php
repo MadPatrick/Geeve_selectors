@@ -100,7 +100,7 @@ $csrf = csrfToken();
             <table class="ka-table" id="oiTable">
                 <thead>
                     <tr>
-                        <th>Regelnr</th><th>Aantal</th><th>Leveranciersnummer</th><th>Artikelklant</th><th>Artikelcode</th><th>Artikelregelomschrijving</th>
+                        <th>Regelnr</th><th>Aantal</th><th>Leveranciersnummer</th><th>Artikelklant</th><th>Artikelcode</th><th>Artikelomschrijving</th>
                         <th>Artikel in Exact</th><th></th>
                     </tr>
                 </thead>

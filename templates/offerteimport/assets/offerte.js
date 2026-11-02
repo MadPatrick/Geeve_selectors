@@ -564,7 +564,7 @@
         var states = lines.map(lineState);
         var head = ['Regelnr', 'Aantal'];
         if (useSupplier) { head.push('Leveranciersnummer', 'Artikelklant'); }
-        head.push('Artikelcode', 'Artikelregelomschrijving', 'Artikel in Exact');
+        head.push('Artikelcode', 'Artikelomschrijving', 'Artikel in Exact');
         var rows = [head];
         lines.forEach(function (l, i) {
             var info = states[i].info || itemInfo[ck(l)] || null;
