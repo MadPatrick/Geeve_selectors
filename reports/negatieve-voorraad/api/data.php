@@ -15,7 +15,7 @@ tileApiGuard('negatieve-voorraad');
  *    van een productieorder zijn de benodigde onderdelen (zelfde tabellen als Productiviteit); controleer dit met een voorbeeld.
  *  - Besteld: idem bij ord_soort = 'B' (inkooporder), nog niet ontvangen.
  * Tekort = open verkoop + open productie - voorraad - besteld. Twee soorten rijen: "Tekort op order" (op een open order en tekort > 0)
- * en "Negatief zonder order" (negatieve voorraad zonder enige open verkoop- of productieorder). Artikelgroepen groter dan 900 worden weggelaten.
+ * en "Negatief zonder order" (negatieve voorraad zonder enige open verkoop- of productieorder). Artikelgroep 0 en groepen groter dan 900 worden weggelaten.
  */
 
 require_once __DIR__ . '/../../inc.php';
@@ -48,7 +48,7 @@ reportApi(function (array $in): array {
         't.AantalOrders, t.Besteld, t.Tekort, ' .
         "CASE WHEN t.OpenVerkoop + t.OpenProductie > 0 THEN 'Tekort op order' ELSE 'Negatief zonder order' END AS Soort " .
         'FROM t LEFT JOIN Items i WITH (NOLOCK) ON i.ItemCode = t.ItemCode ' .
-        'WHERE ISNULL(TRY_CONVERT(int, LTRIM(RTRIM(i.Assortment))), 0) <= 900 ' .
+        'WHERE ISNULL(TRY_CONVERT(int, LTRIM(RTRIM(i.Assortment))), 1) BETWEEN 1 AND 900 ' .
         'AND (t.OpenVerkoop + t.OpenProductie = 0 OR t.Tekort > 0) ' .
         'ORDER BY Soort DESC, t.ItemCode'
     );
