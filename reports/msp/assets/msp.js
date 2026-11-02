@@ -154,6 +154,27 @@
 
     mergeBox.addEventListener('change', function () { if (data) { render(); } });
 
+    // Opslaan met "Opslaan als"-venster (kiezen waar het bestand komt) in Chrome/Edge; Firefox kent dat niet
+    // en valt terug op een gewone download naar de downloadmap.
+    function saveAs(wb, name, bookType) {
+        if (typeof window.showSaveFilePicker !== 'function') {
+            XLSX.writeFile(wb, name, { bookType: bookType });
+            return;
+        }
+        var bytes = XLSX.write(wb, { bookType: bookType, type: 'array' });
+        window.showSaveFilePicker({
+            suggestedName: name,
+            types: [{ description: 'Excel-bestand', accept: { 'application/vnd.ms-excel': ['.xls'] } }]
+        }).then(function (handle) {
+            return handle.createWritable().then(function (w) {
+                return w.write(new Blob([bytes])).then(function () { return w.close(); });
+            });
+        }).catch(function (err) {
+            if (err && err.name === 'AbortError') { return; } // venster gesloten: niets doen
+            XLSX.writeFile(wb, name, { bookType: bookType });
+        });
+    }
+
     // Export in het formaat van het MSP-uploadsjabloon (Parker): zes kolommen, geen opvulspaties, datum als tekst dd/mm/jjjj.
     GeeveProgress.onClick(uploadBtn, 'Export maken…', function () {
         if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return false; }
@@ -169,6 +190,6 @@
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
         var stamp = period.year + '-' + ('0' + period.month).slice(-2);
-        XLSX.writeFile(wb, 'MSP_upload_' + stamp + (mergeBox.checked ? '_samengevoegd' : '') + '.xls', { bookType: 'biff8' });
+        saveAs(wb, 'MSP_upload_' + stamp + (mergeBox.checked ? '_samengevoegd' : '') + '.xls', 'biff8');
     });
 })();
