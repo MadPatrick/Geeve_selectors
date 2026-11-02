@@ -62,6 +62,8 @@ h2 { margin: 4px 0 0; font-size: 22px; }
    overlay - dat brak het aanklikken van een resultaat. */
 .exact-live-results { flex: 1 1 260px; min-width: 260px; max-width: 600px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .exact-live-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 15px; background: var(--soft); font-size: 13px; font-weight: 750; color: var(--muted); }
+/* Lege statusregel (nog niets gezocht): toch een regelhoogte, zodat de header even hoog is als bij de andere boxen. */
+.exact-live-status:empty::before { content: "\00a0"; }
 .exact-live-status.error { color: var(--danger); }
 .exact-live-list { flex: 1 1 auto; list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; background: var(--box-bg-accent); }
 .exact-live-list li { border-top: 1px solid var(--line); }
