@@ -37,7 +37,7 @@ const SECURE_SETTINGS_KEYS = [
     // Eigen database van /slkprinten (database "Slangkaarten"); server en certificaat volgen de Exact-instellingen.
     'DB_USER',
     'DB_PASSWORD',
-    // Toegangscode voor beveiligde onderdelen (Productiviteit); zonder waarde geldt 1308 (zie shared/access.php).
+    // Toegangscode voor beveiligde onderdelen (Productiviteit); zonder waarde blijven die tegels dicht (zie shared/access.php).
     'ACCESS_CODE',
     // Per tegel: zichtbaar / beveiligd / in progress (JSON, zie shared/tiles.php); ingesteld via Config > Tegels.
     'TILE_FLAGS',
