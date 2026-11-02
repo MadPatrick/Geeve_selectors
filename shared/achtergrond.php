@@ -77,6 +77,7 @@ function achtergrondStijl(): string
     $periode = achtergrondMinuten() * 60;
     $nu = time();
     $nog = $periode - (($nu + (int) date('Z', $nu)) % $periode); // seconden tot het volgende wisselmoment
+    $css = str_replace('</style>', ' .brand-panel::after { animation: brand-voortgang ' . $periode . 's linear -' . ($periode - $nog) . 's infinite; }</style>', $css);
     $js = json_encode(['urls' => $urls, 'index' => (int) array_search($naam, $lijst, true), 'periode' => $periode, 'nog' => $nog]);
     return $css . '<script>(function(){var c=' . $js . ';var t=Date.now()+c.nog*1000,i=c.index,p=c.periode*1000;'
         . 'function w(){var n=Math.floor((Date.now()-t)/p)+1;if(n<1){n=1;}i=(i+n)%c.urls.length;t+=n*p;'

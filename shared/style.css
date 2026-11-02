@@ -80,7 +80,13 @@ button, input, select { font: inherit; }
     right: 0;
     bottom: 0;
     height: 4px;
-    background: var(--accent);
+    /* Rode lijn = voortgang tot de volgende achtergrondfoto (shared/achtergrond.php zet de animatie met de juiste duur);
+       zonder animatie (een foto) is de lijn gewoon helemaal rood. Het spoor erachter is zacht rood. */
+    background: linear-gradient(var(--accent), var(--accent)) no-repeat left / 100% 100%, var(--accent-a35);
+}
+@keyframes brand-voortgang {
+    from { background-size: 0% 100%, 100% 100%; }
+    to { background-size: 100% 100%, 100% 100%; }
 }
 /* Shine sweep: elke 10 seconden schuift een lichte, schuine band in 2 s van links naar rechts door de topbalk
    (background-position van 100% naar 0% op een verloop dat 2,5x zo breed is als het blok; zie ook het hover-effect in Dashticz). */
