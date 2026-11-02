@@ -12,7 +12,7 @@ tileApiGuard('negatieve-voorraad');
  *  - Voorraad: StockBalances.Quantity tot en met nu (zelfde bron als de voorraad in Stauff).
  *  - Open verkoop: orsrg (esr_aantal - aant_gelev, alleen > 0) bij orkrg.ord_soort = 'V'.
  *  - Besteld: idem bij ord_soort = 'B' (inkooporder), nog niet ontvangen.
- * Tekort = open verkoop - voorraad - besteld; alleen artikelen met tekort > 0.
+ * Tekort = open verkoop - voorraad - besteld; alleen artikelen met tekort > 0. Artikelgroepen groter dan 900 worden weggelaten.
  */
 
 require_once __DIR__ . '/../../inc.php';
@@ -43,6 +43,7 @@ reportApi(function (array $in): array {
         'LEFT JOIN oi ON oi.ItemCode = st.ItemCode ' .
         'LEFT JOIN Items i WITH (NOLOCK) ON i.ItemCode = st.ItemCode ' .
         'WHERE ov.OpenVerkoop - st.Voorraad - ISNULL(oi.Besteld, 0) > 0 ' .
+        'AND ISNULL(TRY_CONVERT(int, LTRIM(RTRIM(i.Assortment))), 0) <= 900 ' .
         'ORDER BY st.ItemCode'
     );
     $stmt->execute();
