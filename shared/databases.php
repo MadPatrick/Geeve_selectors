@@ -131,7 +131,7 @@ function geeveDbConfig(string $bron, string $omgeving = 'main'): array
         if (!geeveDbOmgevingBeschikbaar('exact', 'test')) {
             throw new DatabaseConfigException('De Exact test-database is nog niet ingesteld. Vul de naam en/of server in via Config > Database-instellingen.');
         }
-        $naam = geeveDbWaarde('EXACT_DB_NAME_TEST') ?? $mainNaam;
+        $naam = geeveDbTestNaam() ?? $mainNaam;
         $exactHost = geeveDbWaarde('EXACT_DB_HOST_TEST') ?? $exactHost;
         $exactPort = geeveDbWaarde('EXACT_DB_HOST_TEST') !== null ? geeveDbWaarde('EXACT_DB_PORT_TEST') : $exactPort;
     } else {
@@ -163,13 +163,20 @@ function geeveDbNaamSql(string $soort): string
     return geeveSqlNaam(geeveDbWaarde($sleutels[$soort][0]) ?? $sleutels[$soort][1]);
 }
 
+/** Naam van de Exact test-database als die is ingesteld en een geldige databasenaam is (geen overgebleven voorbeeldtekst als "<naam ...>"); anders null. */
+function geeveDbTestNaam(): ?string
+{
+    $naam = geeveDbWaarde('EXACT_DB_NAME_TEST');
+    return $naam !== null && preg_match('/^[A-Za-z0-9_.-]{1,128}$/', $naam) === 1 ? $naam : null;
+}
+
 /** True als de omgeving van de bron is ingesteld (voor main altijd; voor test als er een databasenaam of een testserver is). */
 function geeveDbOmgevingBeschikbaar(string $bron, string $omgeving): bool
 {
     if (!isset(GEEVE_DB_BRONNEN[$bron]) || !in_array($omgeving, GEEVE_DB_BRONNEN[$bron][2], true)) {
         return false;
     }
-    return $omgeving !== 'test' || geeveDbWaarde('EXACT_DB_NAME_TEST') !== null || geeveDbWaarde('EXACT_DB_HOST_TEST') !== null;
+    return $omgeving !== 'test' || geeveDbTestNaam() !== null || geeveDbWaarde('EXACT_DB_HOST_TEST') !== null;
 }
 
 /** Opgeslagen keuzes als [tegel][bron] => ['lezen' => ..., 'schrijven' => ...]; alleen geldige waarden. */
