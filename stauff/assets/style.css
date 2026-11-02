@@ -35,7 +35,7 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 .family-switch-option {
     flex: 1 1 0;
     border: 1px solid var(--line-strong);
-    background: transparent;
+    background: var(--btn-family-idle);
     color: var(--muted);
     padding: 7px 11px;
     border-radius: 7px;
