@@ -169,7 +169,18 @@
         var body = new URLSearchParams();
         body.set('csrf', box.getAttribute('data-csrf'));
         params.forEach(function (p) { body.set(p[0], p[1]); });
-        fetch(box.getAttribute('data-endpoint'), { method: 'POST', body: body })
+        // De voortgang (lopende balk) staat in de knop "Gegevens ophalen" zelf, tot het antwoord binnen is (shared/progress.js).
+        var request = function () { return fetchRequest(body, params, number); };
+        if (window.GeeveProgress) {
+            var started = GeeveProgress.run('Gegevens ophalen…', request, { button: fetchBtn, doneText: 'Opgehaald', errorText: 'Ophalen mislukt' });
+            if (started === null) { return; }
+        } else {
+            request().catch(function () {});
+        }
+    }
+
+    function fetchRequest(body, params, number) {
+        return fetch(box.getAttribute('data-endpoint'), { method: 'POST', body: body })
             .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
             .then(function (json) {
                 if (!json.ok) { throw new Error(json.error || 'Ophalen mislukt.'); }
@@ -191,6 +202,8 @@
                 status.textContent = '';
                 result.hidden = true;
                 fail(err.message);
+                fetchBtn.disabled = false;
+                throw err;   // de knop toont dan "Mislukt"
             })
             .then(function () { fetchBtn.disabled = false; });
     }
