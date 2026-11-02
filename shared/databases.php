@@ -135,6 +135,22 @@ function geeveDbConfig(string $bron, string $omgeving = 'main'): array
     ];
 }
 
+/**
+ * Naam van een databaseonderdeel, tussen blokhaken, voor in een 3-delige naam in een query ([naam].[dbo].[object]). De namen
+ * staan in Config > Database-instellingen; zonder instelling de standaardnaam:
+ *  - slangkaarten: Slangkaarten (DB_NAME);
+ *  - rapportage:   Exactrapportage, de rapportageviews en -procedures (EXACT_DB_RAPPORTAGE);
+ *  - data:         005_Data_Geeve, de data-views en -procedures van Geeve (EXACT_DB_DATA).
+ */
+function geeveDbNaamSql(string $soort): string
+{
+    $sleutels = ['slangkaarten' => ['DB_NAME', 'Slangkaarten'], 'rapportage' => ['EXACT_DB_RAPPORTAGE', 'Exactrapportage'], 'data' => ['EXACT_DB_DATA', '005_Data_Geeve']];
+    if (!isset($sleutels[$soort])) {
+        throw new InvalidArgumentException('Onbekende database: ' . $soort . '.');
+    }
+    return geeveSqlNaam(geeveDbWaarde($sleutels[$soort][0]) ?? $sleutels[$soort][1]);
+}
+
 /** True als de omgeving van de bron is ingesteld (voor main altijd; voor test als er een databasenaam is). */
 function geeveDbOmgevingBeschikbaar(string $bron, string $omgeving): bool
 {

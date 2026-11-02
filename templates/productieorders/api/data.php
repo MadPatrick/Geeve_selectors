@@ -55,7 +55,7 @@ reportApi(function (array $in): array {
         session_write_close();
     }
     $t = microtime(true);
-    $data = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_SQLQuery_ProductieordersGereed_te_melden]', '', null, PRODUCTIEORDERS_KOLOMMEN, 'productieorders');
+    $data = reportCallProcedure(geeveDbNaamSql('data') . '.[dbo].[SP_SQLQuery_ProductieordersGereed_te_melden]', '', null, PRODUCTIEORDERS_KOLOMMEN, 'productieorders');
 
     // Kolom Moederproject als eerste kolom. Lukt het opzoeken niet, dan blijft de lijst werken met een lege kolom en een melding.
     $moeders = [];

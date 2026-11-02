@@ -33,7 +33,7 @@ const EXPORT_INFO_COLUMNS = [
 ];
 
 reportApi(function (string $nummer): array {
-    $raw = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel_export]', '', $nummer, null, 'export-info');
+    $raw = reportCallProcedure(geeveDbNaamSql('data') . '.[dbo].[SP_orders_naar_Excel_export]', '', $nummer, null, 'export-info');
     $customer = reportFirstValue($raw, 'kop_ord_debtor_name');
     $data = reportSelect($raw, EXPORT_INFO_COLUMNS);
 

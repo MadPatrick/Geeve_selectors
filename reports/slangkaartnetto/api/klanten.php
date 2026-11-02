@@ -45,7 +45,7 @@ try {
         'SET NOCOUNT ON; SELECT TOP 20 debnr, naam FROM (' .
         'SELECT debnr, naam, ROW_NUMBER() OVER (PARTITION BY debnr ORDER BY aantal DESC, naam) AS rn FROM (' .
         'SELECT LTRIM(RTRIM(Debiteur)) AS debnr, LTRIM(RTRIM(DebiteurNaam)) AS naam, COUNT(*) AS aantal ' .
-        'FROM [Slangkaarten].[dbo].[Slangkaarten] WITH (NOLOCK) WHERE ' . implode(' AND ', $where) . ' ' .
+        'FROM ' . geeveDbNaamSql('slangkaarten') . '.[dbo].[Slangkaarten] WITH (NOLOCK) WHERE ' . implode(' AND ', $where) . ' ' .
         'GROUP BY LTRIM(RTRIM(Debiteur)), LTRIM(RTRIM(DebiteurNaam))) g) k WHERE rn = 1 ' . $order
     );
     $stmt->execute($params);

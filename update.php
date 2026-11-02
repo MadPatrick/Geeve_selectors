@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 continue; // beheerd op de server (/etc/geeve/portal.json)
             }
             $posted = trim((string) ($_POST[$settingKey] ?? ''));
-            if (in_array($settingKey, ['EXACT_DB_NAME_TEST', 'DB_NAME'], true) && preg_match('/^[A-Za-z0-9_.-]{0,128}$/', $posted) !== 1) {
+            if (in_array($settingKey, ['EXACT_DB_NAME_TEST', 'DB_NAME', 'EXACT_DB_RAPPORTAGE', 'EXACT_DB_DATA'], true) && preg_match('/^[A-Za-z0-9_.-]{0,128}$/', $posted) !== 1) {
                 $posted = (string) ($values[$settingKey] ?? ''); // ongeldige naam: ongewijzigd laten
             }
             if ($settingKey === 'EXACT_DB_TRUST_SERVER_CERT') {
@@ -261,6 +261,16 @@ $storedSettings = secureSettingsRead();
                     <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($val('EXACT_DB_NAME_TEST')) ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
                 </label>
             </div>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Rapportage-database</span>
+                    <input type="text" name="EXACT_DB_RAPPORTAGE" value="<?= h($val('EXACT_DB_RAPPORTAGE')) ?>" placeholder="Exactrapportage" size="20" autocomplete="off">
+                </label>
+                <label class="update-code-field">
+                    <span>Data-database</span>
+                    <input type="text" name="EXACT_DB_DATA" value="<?= h($val('EXACT_DB_DATA')) ?>" placeholder="005_Data_Geeve" size="20" autocomplete="off">
+                </label>
+            </div>
             <p class="settings-help">Alleen de naam; server en login zijn die van de Exact-database. Zonder naam kan bij Tegels niet voor Test gekozen worden.</p>
             <?php else: ?>
             <h3 class="settings-subtitle">Exact-database</h3>
@@ -285,6 +295,16 @@ $storedSettings = secureSettingsRead();
                 <label class="update-code-field">
                     <span>Database (Test)</span>
                     <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($val('EXACT_DB_NAME_TEST')) ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
+                </label>
+            </div>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Rapportage-database</span>
+                    <input type="text" name="EXACT_DB_RAPPORTAGE" value="<?= h($val('EXACT_DB_RAPPORTAGE')) ?>" placeholder="Exactrapportage" size="20" autocomplete="off">
+                </label>
+                <label class="update-code-field">
+                    <span>Data-database</span>
+                    <input type="text" name="EXACT_DB_DATA" value="<?= h($val('EXACT_DB_DATA')) ?>" placeholder="005_Data_Geeve" size="20" autocomplete="off">
                 </label>
             </div>
             <div class="settings-row">

@@ -46,7 +46,7 @@ function inkoopDistinct(array $data, string $column): array
 }
 
 reportApi(function (string $nummer): array {
-    $data = reportCallProcedure('[Exactrapportage].[dbo].[SP_Alle_Orders_met_regelsplus_inkoop]', '@ordernummer', $nummer, null, 'inkooporder');
+    $data = reportCallProcedure(geeveDbNaamSql('rapportage') . '.[dbo].[SP_Alle_Orders_met_regelsplus_inkoop]', '@ordernummer', $nummer, null, 'inkooporder');
 
     $kop = [];
     $names = inkoopDistinct($data, 'debiteurnaam');

@@ -90,7 +90,7 @@ function fillFromItems(array $data): array
 }
 
 reportApi(function (string $nummer): array {
-    $raw = reportCallProcedure('[005_Data_Geeve].[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer, null, 'order-offerte');
+    $raw = reportCallProcedure(geeveDbNaamSql('data') . '.[dbo].[SP_orders_naar_Excel]', '@ordernr', $nummer, null, 'order-offerte');
 
     // Titelregels voor de Excel: "Offerte 198572" / "Order 35020024" en de naam van de klant.
     $soort = strtoupper((string) reportFirstValue($raw, 'kop_ord_soort'));

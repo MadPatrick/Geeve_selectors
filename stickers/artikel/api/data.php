@@ -28,7 +28,7 @@ reportApi(function (array $post): array {
     $esc = strtr($zoek, ['[' => '[[]', '%' => '[%]', '_' => '[_]']);
 
     $stmt = reportConnection('stickers-artikel')->prepare(
-        'SET NOCOUNT ON; SELECT TOP ' . (ARTIKEL_MAX_ROWS + 1) . ' [Omschrijving], [artikel] FROM [Exactrapportage].[dbo].[1002_Artikellabels]'
+        'SET NOCOUNT ON; SELECT TOP ' . (ARTIKEL_MAX_ROWS + 1) . ' [Omschrijving], [artikel] FROM ' . geeveDbNaamSql('rapportage') . '.[dbo].[1002_Artikellabels]'
         . ' WHERE [artikel] LIKE :filter_artikelnr'
         // Eerst het exacte artikelnummer, dan wat ermee begint, daarna waar het ergens anders in voorkomt; binnen elke groep op artikel.
         . ' ORDER BY CASE WHEN [artikel] = :exact THEN 0 WHEN [artikel] LIKE :begin THEN 1 ELSE 2 END, [artikel]'

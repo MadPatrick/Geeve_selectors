@@ -27,6 +27,9 @@ const SECURE_SETTINGS_KEYS = [
     'EXACT_DB_NAME_TEST',
     // Naam van de Slangkaarten-database (standaard "Slangkaarten"); zie shared/databases.php.
     'DB_NAME',
+    // Overige Exact-databases voor rapportage- en data-views/procedures (standaard Exactrapportage en 005_Data_Geeve).
+    'EXACT_DB_RAPPORTAGE',
+    'EXACT_DB_DATA',
     // Per tegel: uit welke database (main/test) gelezen en naar welke geschreven wordt (JSON, zie shared/databases.php).
     'DB_KEUZE',
     // Eigen database van /slkprinten (database "Slangkaarten"); server en certificaat volgen de Exact-instellingen.

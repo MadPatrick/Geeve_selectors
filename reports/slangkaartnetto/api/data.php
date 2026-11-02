@@ -50,7 +50,7 @@ reportApi(function (array $in): array {
     }
     $stmt = $pdo->prepare(
         'SET NOCOUNT ON; SELECT LTRIM(RTRIM(Nummer)) AS Nummer, LTRIM(RTRIM(DebiteurNaam)) AS DebiteurNaam, LTRIM(RTRIM(Debiteur)) AS Debiteur, PrijsBerekend, Datum ' .
-        'FROM [Slangkaarten].[dbo].[Slangkaarten] WITH (NOLOCK) WHERE ' . implode(' AND ', $where) . ' ORDER BY Nummer'
+        'FROM ' . geeveDbNaamSql('slangkaarten') . '.[dbo].[Slangkaarten] WITH (NOLOCK) WHERE ' . implode(' AND ', $where) . ' ORDER BY Nummer'
     );
     $stmt->execute($params);
     $rows = [];
