@@ -140,48 +140,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
     }
 }
 
-$databasesMessage = null;
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-databases') {
-    if (!csrfValid($_POST['csrf'] ?? null)) {
-        $requestError = true;
-    } else {
-        $testNaam = trim((string) ($_POST['EXACT_DB_NAME_TEST'] ?? ''));
-        // Een databasenaam: letters, cijfers, punt, streepje en underscore (komt later in een DSN en in 3-delige namen terecht).
-        if ($testNaam !== '' && preg_match('/^[A-Za-z0-9_.-]{1,128}$/', $testNaam) !== 1) {
-            $databasesMessage = ['ok' => false, 'text' => 'Ongeldige naam voor de test-database (alleen letters, cijfers, punt, streepje en underscore).'];
-        } else {
-            $keuzes = [];
-            foreach (GEEVE_TILE_DB as $tileId => $bronnen) {
-                foreach ($bronnen as $bron) {
-                    $rij = $_POST['db'][$tileId][$bron] ?? [];
-                    $lezen = (string) ($rij['lezen'] ?? 'main');
-                    $schrijven = (string) ($rij['schrijven'] ?? 'geen');
-                    $lezen = in_array($lezen, GEEVE_DB_BRONNEN[$bron][2], true) ? $lezen : 'main';
-                    $schrijven = GEEVE_DB_BRONNEN[$bron][1] && in_array($schrijven, GEEVE_DB_BRONNEN[$bron][2], true) ? $schrijven : 'geen';
-                    // Alleen afwijkingen van de standaard bewaren.
-                    if ($lezen !== 'main' || $schrijven !== 'geen') {
-                        $keuzes[$tileId][$bron] = ['lezen' => $lezen, 'schrijven' => $schrijven];
-                    }
-                }
-            }
-            $values = secureSettingsReadStored();
-            if ($testNaam === '') {
-                unset($values['EXACT_DB_NAME_TEST']);
-            } else {
-                $values['EXACT_DB_NAME_TEST'] = $testNaam;
-            }
-            if ($keuzes === []) {
-                unset($values['DB_KEUZE']);
-            } else {
-                $values['DB_KEUZE'] = (string) json_encode($keuzes);
-            }
-            $databasesMessage = secureSettingsWrite($values)
-                ? ['ok' => true, 'text' => 'Database-keuzes opgeslagen.']
-                : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
-        }
-    }
-}
-
 $tilesMessage = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-tiles') {
     if (!csrfValid($_POST['csrf'] ?? null)) {
@@ -206,11 +164,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 ? array_values(array_filter(array_map('strval', $posted), static fn ($id) => isset(TILE_REGISTRY[$id]) && TILE_REGISTRY[$id][0] === $orderGroup))
                 : [];
         }
+        // Database per tegel (lezen/schrijven) en de naam van de Exact test-database; alleen afwijkingen van de standaard bewaren.
+        $testNaam = trim((string) ($_POST['EXACT_DB_NAME_TEST'] ?? ''));
+        $testNaamOk = $testNaam === '' || preg_match('/^[A-Za-z0-9_.-]{1,128}$/', $testNaam) === 1;
+        $keuzes = [];
+        foreach (GEEVE_TILE_DB as $tileId => $bronnen) {
+            foreach ($bronnen as $bron) {
+                $rij = $_POST['db'][$tileId][$bron] ?? [];
+                $lezen = (string) ($rij['lezen'] ?? 'main');
+                $schrijven = (string) ($rij['schrijven'] ?? 'geen');
+                $lezen = in_array($lezen, GEEVE_DB_BRONNEN[$bron][2], true) ? $lezen : 'main';
+                $schrijven = GEEVE_DB_BRONNEN[$bron][1] && in_array($schrijven, GEEVE_DB_BRONNEN[$bron][2], true) ? $schrijven : 'geen';
+                if ($lezen !== 'main' || $schrijven !== 'geen') {
+                    $keuzes[$tileId][$bron] = ['lezen' => $lezen, 'schrijven' => $schrijven];
+                }
+            }
+        }
         $values = secureSettingsReadStored();
         $values['TILE_FLAGS'] = (string) json_encode($flags);
-        $tilesMessage = secureSettingsWrite($values)
-            ? ['ok' => true, 'text' => 'Tegel-instellingen opgeslagen.']
-            : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
+        if ($testNaamOk) {
+            if ($testNaam === '') {
+                unset($values['EXACT_DB_NAME_TEST']);
+            } else {
+                $values['EXACT_DB_NAME_TEST'] = $testNaam;
+            }
+        }
+        if ($keuzes === []) {
+            unset($values['DB_KEUZE']);
+        } else {
+            $values['DB_KEUZE'] = (string) json_encode($keuzes);
+        }
+        $tilesMessage = !$testNaamOk
+            ? ['ok' => false, 'text' => 'Ongeldige naam voor de test-database (alleen letters, cijfers, punt, streepje en underscore); de rest is wel opgeslagen.']
+            : null;
+        $tilesSaved = secureSettingsWrite($values);
+        if ($tilesMessage === null || $tilesSaved === false) {
+            $tilesMessage = $tilesSaved
+                ? ['ok' => true, 'text' => 'Tegel-instellingen opgeslagen.']
+                : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
+        }
     }
 }
 
@@ -384,68 +376,6 @@ $storedSettings = secureSettingsRead();
     </section>
 
     <section class="update-panel">
-        <h2>Databases per tegel</h2>
-        <p>Kies per tegel uit welke database gelezen wordt en, voor de Exact-database, naar welke geschreven mag worden. <strong>Lezen</strong>: Main (standaard) of Test. <strong>Schrijven</strong>: Geen (standaard), Test of Main; de Slangkaarten-database is alleen-lezen. Gebruikt een tegel beide databases, dan staan ze allebei onder de tegel. Zonder wijziging verandert er niets. De PHP-apps schrijven nu nog nergens naar Exact: de keuze staat klaar voor tegels die dat straks wel gaan doen.</p>
-
-        <?php if ($databasesMessage !== null): ?>
-            <div class="update-message <?= $databasesMessage['ok'] ? 'ok' : 'error' ?>"><?= h($databasesMessage['text']) ?></div>
-        <?php endif; ?>
-
-        <form method="post" class="update-form settings-form db-form" autocomplete="off">
-            <input type="hidden" name="action" value="save-databases">
-            <input type="hidden" name="csrf" value="<?= h($configCsrf) ?>">
-            <div class="settings-row">
-                <label class="update-code-field">
-                    <span>Exact test-database (naam)</span>
-                    <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($storedSettings['EXACT_DB_NAME_TEST'] ?? '') ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
-                </label>
-            </div>
-            <p class="settings-help">Zelfde server en login als de Exact-database; alleen de databasenaam verschilt. Zolang dit leeg is, kan niet voor Test gekozen worden. De Main-database is de naam bij Exact-database hierboven (standaard 005).</p>
-            <div class="db-table" role="table">
-                <div class="db-row db-head" role="row">
-                    <span role="columnheader">Tegel</span>
-                    <span role="columnheader">Database</span>
-                    <span role="columnheader">Lezen uit</span>
-                    <span role="columnheader">Schrijven naar</span>
-                </div>
-                <?php foreach (TILE_REGISTRY as $tileId => $tile):
-                    if (!isset(GEEVE_TILE_DB[$tileId])) { continue; }
-                    foreach (GEEVE_TILE_DB[$tileId] as $bronIndex => $bron):
-                        $bronInfo = GEEVE_DB_BRONNEN[$bron];
-                        $keuze = geeveDbKeuze($tileId, $bron);
-                ?>
-                    <div class="db-row" role="row">
-                        <span role="cell" class="db-tile"><?= $bronIndex === 0 ? h(tileTitle($tileId)) : '' ?></span>
-                        <span role="cell"><?= h($bronInfo[0]) ?></span>
-                        <span role="cell">
-                            <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][lezen]" aria-label="<?= h(tileTitle($tileId) . ' - ' . $bronInfo[0] . ': lezen uit') ?>">
-                                <?php foreach ($bronInfo[2] as $omg):
-                                    $beschikbaar = geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['lezen'] === $omg; ?>
-                                    <option value="<?= h($omg) ?>"<?= $keuze['lezen'] === $omg ? ' selected' : '' ?><?= $beschikbaar ? '' : ' disabled' ?>><?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </span>
-                        <span role="cell">
-                            <?php if ($bronInfo[1]): ?>
-                            <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][schrijven]" aria-label="<?= h(tileTitle($tileId) . ' - ' . $bronInfo[0] . ': schrijven naar') ?>">
-                                <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>Geen</option>
-                                <?php foreach ($bronInfo[2] as $omg):
-                                    $beschikbaar = geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['schrijven'] === $omg; ?>
-                                    <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= $beschikbaar ? '' : ' disabled' ?>><?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <?php else: ?>
-                            <span class="db-readonly">Alleen lezen</span>
-                            <?php endif; ?>
-                        </span>
-                    </div>
-                <?php endforeach; endforeach; ?>
-            </div>
-            <button type="submit" class="update-submit">Opslaan</button>
-        </form>
-    </section>
-
-    <section class="update-panel">
         <h2>Tegels</h2>
         <p>Alle tegels van het hoofdscherm en van Reports. <strong>Zichtbaar</strong>: uit = de tegel staat niet op het overzicht. <strong>Beveiligd</strong>: een klik op de tegel vraagt om de toegangscode (de pagina is dan ook niet rechtstreeks te openen; bij Reports, Templates en Stickers geldt dat ook voor alle tegels daarin). <strong>In progress</strong>: de tegel krijgt de stempel "IN PROGRESS". Pas de naam aan in het tekstveld (leeg laten = standaardnaam). Sleep een tegel aan het blokje links om de volgorde te wijzigen (binnen Hoofdscherm of binnen Reports) en klik op Opslaan.</p>
 
@@ -456,12 +386,20 @@ $storedSettings = secureSettingsRead();
         <form method="post" class="update-form tiles-form" autocomplete="off">
             <input type="hidden" name="action" value="save-tiles">
             <input type="hidden" name="csrf" value="<?= h($configCsrf) ?>">
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Exact test-database (naam)</span>
+                    <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($storedSettings['EXACT_DB_NAME_TEST'] ?? '') ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
+                </label>
+            </div>
+            <p class="settings-help">Zelfde server en login als de Exact-database; alleen de databasenaam verschilt. Zolang dit leeg is, kan niet voor Test gekozen worden.</p>
             <div class="tiles-table" role="table">
                 <div class="tiles-row tiles-head" role="row">
                     <span role="columnheader">Tegel</span>
                     <span role="columnheader">Zichtbaar</span>
                     <span role="columnheader">Beveiligd</span>
                     <span role="columnheader">In progress</span>
+                    <span role="columnheader" class="tiles-dbhead">Database: lezen / schrijven</span>
                 </div>
                 <?php
                 $tileGroups = ['home' => 'Hoofdscherm', 'reports' => 'Reports', 'templates' => 'Templates', 'stickers' => 'Stickers (tegels op het Stickers-scherm)'];
@@ -483,6 +421,30 @@ $storedSettings = secureSettingsRead();
                                     <span class="settings-switch-track"></span>
                                 </label>
                             <?php endforeach; ?>
+                            <span role="cell" class="tiles-db">
+                                <?php foreach (GEEVE_TILE_DB[$tileId] ?? [] as $bron):
+                                    $bronInfo = GEEVE_DB_BRONNEN[$bron];
+                                    $keuze = geeveDbKeuze($tileId, $bron); ?>
+                                    <span class="tiles-db-bron">
+                                        <span class="tiles-db-naam"><?= h($bronInfo[0]) ?></span>
+                                        <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][lezen]" aria-label="<?= h($tile[1] . ' - ' . $bronInfo[0] . ': lezen uit') ?>">
+                                            <?php foreach ($bronInfo[2] as $omg): ?>
+                                                <option value="<?= h($omg) ?>"<?= $keuze['lezen'] === $omg ? ' selected' : '' ?><?= geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['lezen'] === $omg ? '' : ' disabled' ?>>Lezen: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
+                            <?php endforeach; ?>
+                                        </select>
+                                        <?php if ($bronInfo[1]): ?>
+                                        <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][schrijven]" aria-label="<?= h($tile[1] . ' - ' . $bronInfo[0] . ': schrijven naar') ?>">
+                                            <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>Schrijven: geen</option>
+                                            <?php foreach ($bronInfo[2] as $omg): ?>
+                                                <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['schrijven'] === $omg ? '' : ' disabled' ?>>Schrijven: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
+                            <?php endforeach; ?>
+                                        </select>
+                                        <?php else: ?>
+                                        <span class="db-readonly">alleen lezen</span>
+                                        <?php endif; ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            </span>
                         </div>
                     <?php endforeach; ?>
                     </div>
