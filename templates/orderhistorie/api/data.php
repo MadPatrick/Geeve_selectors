@@ -10,7 +10,7 @@ tileApiGuard('orderhistorie');
  * Orderhistorie: geleverde orderregels per klant, vanaf de eerste order (de oude Excel toonde alleen de laatste 2 jaar).
  * Kolommen als in die Excel, zonder prijslijst, debiteur en afleverdatum (afldat blijft wel het filter en de sortering): artnr, ordernr, refer, uw referentie, pakbon_dat, art_omsc, aant_gelev.
  *
- * Bron: dezelfde tabellen als de view [Exactrapportage].[dbo].[400 orderhistorie] van Carl, maar rechtstreeks bevraagd (die view
+ * Bron: dezelfde tabellen als de view 400 orderhistorie (rapportage-database, standaard Exactrapportage) van Carl, maar rechtstreeks bevraagd (die view
  * zet de datums om naar tekst en koppelt de hele artikelview, waardoor filteren op klant of datum erg traag is):
  *   orhkrg (orderkop historie) JOIN orhsrg (orderregels historie) ON ordernr + pakbon_nr, plus Items voor de omschrijving (INNER JOIN, zoals de view met de artikelen: tekstregels zonder artikel vallen weg).
  * Zelfde SQL Server en inloggegevens (via Config) als /stauff en de rapporten (database van Exact, zoals Items en cicmpy).

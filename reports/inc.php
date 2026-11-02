@@ -12,7 +12,7 @@ require_once __DIR__ . '/../shared/databases.php';
 const SP_NUMERIC_TYPES = ['int', 'bigint', 'smallint', 'tinyint', 'decimal', 'numeric', 'float', 'real', 'money', 'smallmoney'];
 const SP_DATE_TYPES = ['date', 'datetime', 'datetime2', 'smalldatetime'];
 
-/** Leesverbinding met de Exact-database voor een tegel (id uit TILE_REGISTRY); de database (main/test) kiest Config > Databases per tegel. */
+/** Leesverbinding met de Exact-database voor een tegel (id uit TILE_REGISTRY); de database (main/test) kiest Config > Tegels. */
 function reportConnection(string $tegel = ''): PDO
 {
     return geeveDbVerbinding($tegel, 'exact');

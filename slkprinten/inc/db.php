@@ -6,16 +6,7 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/../../shared/db.php';
 require_once __DIR__ . '/../../shared/databases.php';
 
-/**
- * Maakt een PDO-verbinding met SQL Server voor 1 databaseconfig-array (zie appConfig()); de logica staat in shared/db.php.
- * Gedeeld door getPdoConnection() en getExactPdoConnection() hieronder - alleen de databasenaam/inloggegevens verschillen.
- */
-function connectSqlServer(array $db, string $missingCredentialsHint, ?int $queryTimeout = null): PDO
-{
-    return geeveSqlServerConnect($db, $missingCredentialsHint, $queryTimeout);
-}
-
-/** Verbinding met de "Slangkaarten"-database (order-/slangkaartdata); de omgeving kiest Config > Databases per tegel. */
+/** Verbinding met de "Slangkaarten"-database (order-/slangkaartdata); de omgeving kiest Config > Tegels. */
 function getPdoConnection(): PDO
 {
     static $pdo = null;

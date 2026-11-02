@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Gedeelde verbinding met SQL Server (Microsoft PDO_SQLSRV, ODBC Driver 17/18), voor alle apps en rapporten. Eén plek voor
- * driver-controle, inloggegevens, DSN en foutafhandeling; elke app geeft alleen zijn eigen databaseconfig (appConfig()['db'])
+ * driver-controle, inloggegevens, DSN en foutafhandeling; elke app krijgt zijn databaseconfig uit shared/databases.php (geeveDbVerbinding())
  * en een hint mee voor als de inloggegevens ontbreken.
  *
  * Een mislukte verbinding wordt kort onthouden (GEEVE_DB_ONTHOUD_SECONDEN, ook voor volgende aanvragen): elke poging kan tot

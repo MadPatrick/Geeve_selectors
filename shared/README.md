@@ -396,6 +396,6 @@ De instellingen van de .NET-app (`/etc/slangkaart/`) staan hier los van.
 
 Een tegel die de database gebruikt haalt zijn verbinding via `geeveDbVerbinding('<tegel-id>', 'exact'|'slangkaarten', 'lezen'|'schrijven')`
 (of `reportConnection('<tegel-id>')` / `getPdoConnection('<tegel-id>')` voor Exact), nooit met een eigen DSN. Welke database
-(main of test) gebruikt wordt stelt Patrick in via Config > Databases per tegel; zonder instelling leest alles uit main en staat
+(main of test) gebruikt wordt stelt Patrick in via Config > Tegels; zonder instelling leest alles uit main en staat
 schrijven uit. Een nieuwe tegel met database: voeg hem toe aan `GEEVE_TILE_DB` (tegel-id => bronnen). De Slangkaarten-database is
 alleen-lezen; schrijven kan alleen naar de Exact-database en weigert zolang het voor die tegel op "geen" staat.

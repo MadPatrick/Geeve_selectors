@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../shared/tiles.php';
 tileApiGuard('stickers-artikel');
 
 /**
- * Stickers op Artikelnummer: artikelen uit [Exactrapportage].[dbo].[1002_Artikellabels] waarvan het artikelnummer de zoekterm bevat
+ * Stickers op Artikelnummer: artikelen uit 1002_Artikellabels in de rapportage-database (standaard Exactrapportage) waarvan het artikelnummer de zoekterm bevat
  * (dezelfde query als de oude rapportbouwer, met % aan beide kanten), eerst wat met de zoekterm begint. Zelfde SQL Server en
  * inloggegevens (via Config) als /stauff en de rapporten.
  */

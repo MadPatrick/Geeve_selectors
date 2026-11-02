@@ -8,7 +8,7 @@ declare(strict_types=1);
  * shared/db.php (geeveSqlServerConnect()).
  *
  * Twee bronnen:
- *  - exact: de Exact-database (standaard "005"; de server staat in portal.json). Hierin kan geschreven worden; naast de gewone ("main") database
+ *  - exact: de Exact-database (de databasenaam en server staan in portal.json of Config). Hierin kan geschreven worden; naast de gewone ("main") database
  *    kan er een test-database komen (EXACT_DB_NAME_TEST in Config).
  *  - slangkaarten: de eigen database "Slangkaarten". Alleen lezen.
  *
@@ -67,7 +67,7 @@ const GEEVE_TILE_DB = [
 
 /**
  * Tegels die al naar Exact schrijven, en wel via de slangkaart-app (Slangkaart.Web, "Naar Exact"). Dat doel (server) staat in de
- * configuratie van Slangkaart.Web (EntityService:Schrijfservers, nu alleen de testserver tst19; productie is daar in de code
+ * configuratie van Slangkaart.Web (EntityService:Schrijfservers, nu alleen een testserver; productie is daar in de code
  * geblokkeerd). Voor deze tegels geldt dus: schrijven staat standaard op "test" (zoals het nu werkt), "main" is niet te kiezen
  * en "geen" zet de knop "Naar Exact" uit. De portal zelf maakt voor deze tegels geen schrijfverbinding.
  */
@@ -254,7 +254,7 @@ function geeveDbVerbinding(string $tegel, string $bron, string $doel = 'lezen', 
             throw new DatabaseConfigException('Deze tegel schrijft via de slangkaart-app (Slangkaart.Web), niet via een eigen databaseverbinding.');
         }
         if ($keuze['schrijven'] === 'geen') {
-            throw new DatabaseConfigException('Schrijven naar de ' . GEEVE_DB_BRONNEN[$bron][0] . ' staat uit voor deze tegel. Kies een test- of main-database in Config > Databases per tegel.');
+            throw new DatabaseConfigException('Schrijven naar de ' . GEEVE_DB_BRONNEN[$bron][0] . ' staat uit voor deze tegel. Kies een test- of main-database in Config > Tegels.');
         }
         $omgeving = $keuze['schrijven'];
     } else {

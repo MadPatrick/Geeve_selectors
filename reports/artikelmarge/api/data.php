@@ -8,7 +8,7 @@ tileApiGuard('artikel-marge');
 
 /**
  * Artikelmarges: per artikel de standaard verkoop- en inkoopprijs, toeslag en marge. Leest de view
- * [Exactrapportage].[dbo].[1000 artikelen + standaard verk_pr + standaard ink_pr], dezelfde bron als de dataverbinding in de
+ * 1000 artikelen + standaard verk_pr + standaard ink_pr (rapportage-database, standaard Exactrapportage), dezelfde bron als de dataverbinding in de
  * Excel "Artikel met verkoopprijs inkoopprijs en marge", met dezelfde kolommen in dezelfde volgorde
  * (zonder verkinink, ink_pr per verp, ink_eenh, ArtGrpnm_EN en finartgrp).
  * Beide filters zijn optioneel (leeg = alle artikelen, ca. 70.000 regels); het scherm toont alleen de eerste MARGE_MAX_SHOWN.

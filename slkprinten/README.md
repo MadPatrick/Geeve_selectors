@@ -266,7 +266,7 @@ Waarde: DWORD `PrintPreviewDisabled` = `1`.
 ```
 index.php            Formulier + resultaatweergave + printlayout
 assets/style.css      Vormgeving (gedeelde brand-panel/paneel-stijl, zie portal-README)
-inc/config.php         configuratie (appConfig()), leest Config-instellingen
+inc/config.php         laadt de Config-instellingen (databasegegevens: shared/databases.php)
 inc/db.php              PDO/SQL Server verbinding
 inc/queries.php          Alle SQL-queries
 .htaccess                 Blokkeert browsertoegang tot dotfiles

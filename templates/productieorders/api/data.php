@@ -8,7 +8,7 @@ tileApiGuard('productieorders');
 
 /**
  * Overzicht gereed te melden productieorders: de stored procedure
- * [005_Data_Geeve].[dbo].[SP_SQLQuery_ProductieordersGereed_te_melden] (zonder parameters), dezelfde als in de Excel van Carl
+ * SP_SQLQuery_ProductieordersGereed_te_melden (data-database, standaard 005_Data_Geeve) (zonder parameters), dezelfde als in de Excel van Carl
  * ("Overzicht gereed te melden productieorders.xlsx"). Kolommen en volgorde als in die Excel; het app-account heeft EXECUTE
  * nodig op de procedure. Zelfde SQL Server en inloggegevens (via Config) als de andere rapporten.
  */

@@ -8,7 +8,7 @@ tileApiGuard('stickers-productie');
 
 /**
  * Productiestickers per verkooporder: de productieorderregels van één verkooporder uit de stored procedure
- * [005_Data_Geeve].[dbo].[SP_productie_label] @ordernr (dezelfde als de oude rapportbouwer), in de volgorde van de procedure.
+ * SP_productie_label (data-database, standaard 005_Data_Geeve) @ordernr (dezelfde als de oude rapportbouwer), in de volgorde van de procedure.
  * Zelfde SQL Server en inloggegevens (via Config) als /stauff en de rapporten.
  */
 
