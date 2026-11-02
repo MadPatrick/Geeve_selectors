@@ -163,7 +163,8 @@
             if (!/^\d{1,18}$/.test(number)) { fail('Vul een geldig nummer in (alleen cijfers).'); return; }
             params.push(['nummer', number]);
         }
-        fetchBtn.disabled = true;
+        // Met voortgangsbalk blijft de knop zelf enabled (anders tekent de uitgegrijsde tekst door de balk heen); GeeveProgress blokkeert dubbelklikken.
+        fetchBtn.disabled = !window.GeeveProgress;
         downloadBtn.disabled = true;
         status.textContent = 'Bezig met ophalen…';
         var body = new URLSearchParams();
