@@ -48,3 +48,7 @@
 #oiTable input.oi-code, #oiTable input.oi-cus { min-width: 16ch; }
 #oiTable input.oi-sup { min-width: 12ch; }
 #oiTable td.oi-desc { min-width: 18ch; }
+/* Kolom "Artikel in Exact": minst belangrijk. Een korte tekst (Ja) krijgt maar zijn eigen breedte, zodat de rest van de ruimte naar de andere kolommen gaat;
+   een lange melding wrapt binnen 30 tekens en krijgt bij meer dan twee regels een verticale scrollbalk. */
+#oiTable th:nth-last-child(2), #oiTable td.oi-status { width: 1%; }
+#oiTable .oi-status-text { width: max-content; max-width: 30ch; max-height: 3.2em; overflow-y: auto; white-space: normal; line-height: 1.5; }

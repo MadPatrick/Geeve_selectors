@@ -433,7 +433,7 @@
             (useSupplier ? '<td><input type="text" class="ka-input oi-cus" data-i="' + i + '" value="' + esc(l.custArt || '') + '" maxlength="60" autocomplete="off" spellcheck="false" aria-label="Artikelklant regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
             '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
             '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
-            '<td class="oi-status">' + esc(st.label) + '</td>' +
+            '<td class="oi-status"><div class="oi-status-text">' + esc(st.label) + '</div></td>' +
             '<td><button type="button" class="oi-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
     }
 
@@ -448,7 +448,7 @@
         var min = tr.querySelector('.oi-min');
         if (min) { min.textContent = info && info.minOrder > 0 ? String(info.minOrder) : ''; }
         tr.querySelector('.oi-desc').textContent = info && info.found ? info.description : '';
-        tr.querySelector('.oi-status').textContent = st.label;
+        tr.querySelector('.oi-status-text').textContent = st.label;
         renderSummary(states, sellerEl.value.trim(), debtorEl.value.trim());
     }
 
