@@ -260,5 +260,4 @@
 .tiles-db-bron { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
 .tiles-db-naam { font-size: 12px; font-weight: 700; color: var(--muted); flex: 0 0 150px; white-space: nowrap; }
 .tiles-db select { width: 112px; flex: 0 0 112px; min-height: 26px; height: 26px; padding: 0 4px; font-size: 12px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface-white); }
-.db-readonly { color: var(--muted); font-size: 12px; }
 @media (max-width: 900px) { .tiles-row { grid-template-columns: minmax(120px, 1fr) repeat(3, 64px); } .tiles-db, .tiles-dbhead { grid-column: 1 / -1; } .tiles-db-bron { flex-wrap: wrap; } }

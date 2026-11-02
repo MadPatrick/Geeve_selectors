@@ -460,8 +460,6 @@ $storedSettings = secureSettingsRead();
                                                 <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= $schrijfBeschikbaar ? '' : ' disabled' ?>>Schrijven: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
                             <?php endforeach; ?>
                                         </select>
-                                        <?php else: ?>
-                                        <span class="db-readonly">alleen lezen</span>
                                         <?php endif; ?>
                                     </span>
                                 <?php endforeach; ?>
