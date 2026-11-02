@@ -25,6 +25,8 @@ const SECURE_SETTINGS_KEYS = [
     'EXACT_DB_TRUST_SERVER_CERT',
     // Naam van de Exact test-database (zelfde server en login als de gewone Exact-database); zie shared/databases.php.
     'EXACT_DB_NAME_TEST',
+    'EXACT_DB_HOST_TEST',
+    'EXACT_DB_PORT_TEST',
     // Naam van de Slangkaarten-database (standaard "Slangkaarten"); zie shared/databases.php.
     'DB_NAME',
     // Overige Exact-databases voor rapportage- en data-views/procedures (standaard Exactrapportage en 005_Data_Geeve).
@@ -66,6 +68,8 @@ const SECURE_SETTINGS_FILE_KEYS = [
     'DB_PASSWORD',
     // Databasenamen (zie shared/databases.php); alleen als ze in het serverbestand staan, anders gelden de standaardnamen.
     'EXACT_DB_NAME_TEST',
+    'EXACT_DB_HOST_TEST',
+    'EXACT_DB_PORT_TEST',
     'DB_NAME',
     'EXACT_DB_RAPPORTAGE',
     'EXACT_DB_DATA',

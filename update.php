@@ -254,7 +254,7 @@ $storedSettings = secureSettingsRead();
             <ul class="settings-help">
                 <li>Exact-database: <?= h(($fileValues['EXACT_DB_HOST'] ?? 'GEEVE-SQL-2019') . (isset($fileValues['EXACT_DB_PORT']) ? ':' . $fileValues['EXACT_DB_PORT'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME'] ?? '005') . ', gebruiker ' . ($fileValues['EXACT_DB_USER'] ?? '(niet ingesteld)') . ', wachtwoord ' . (isset($fileValues['EXACT_DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt')) ?></li>
                 <li>Slangkaarten-database: <?= h($fileValues['DB_NAME'] ?? 'Slangkaarten') ?>, gebruiker <?= h($fileValues['DB_USER'] ?? '(niet ingesteld)') ?>, wachtwoord <?= isset($fileValues['DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt' ?></li>
-                <li>Exact test-database: <?= h($fileValues['EXACT_DB_NAME_TEST'] ?? '(niet ingesteld)') ?></li>
+                <li>Exact test-database: <?= h(($fileValues['EXACT_DB_HOST_TEST'] ?? '(zelfde server als Main)') . (isset($fileValues['EXACT_DB_PORT_TEST']) ? ':' . $fileValues['EXACT_DB_PORT_TEST'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME_TEST'] ?? '(niet ingesteld)')) ?></li>
                 <li>Rapportage-database: <?= h($fileValues['EXACT_DB_RAPPORTAGE'] ?? 'Exactrapportage') ?>; data-database: <?= h($fileValues['EXACT_DB_DATA'] ?? '005_Data_Geeve') ?></li>
             </ul>
             <p class="settings-help">Deze instellingen staan in <code><?= h(secureSettingsFilePath()) ?></code> en zijn alleen op de server te wijzigen. Ontbreekt een naam daarin, dan geldt de standaardnaam.</p>
@@ -281,6 +281,16 @@ $storedSettings = secureSettingsRead();
                 <label class="update-code-field">
                     <span>Database (Test)</span>
                     <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($val('EXACT_DB_NAME_TEST')) ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
+                </label>
+            </div>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Server (Test)</span>
+                    <input type="text" name="EXACT_DB_HOST_TEST" value="<?= h($val('EXACT_DB_HOST_TEST')) ?>" placeholder="zelfde als Main" size="20" autocomplete="off">
+                </label>
+                <label class="update-code-field">
+                    <span>Poort (Test)</span>
+                    <input type="text" name="EXACT_DB_PORT_TEST" value="<?= h($val('EXACT_DB_PORT_TEST')) ?>" size="6" autocomplete="off">
                 </label>
             </div>
             <div class="settings-row">
