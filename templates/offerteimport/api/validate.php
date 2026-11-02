@@ -11,7 +11,8 @@ tileApiGuard('offerte-import', 'inkooporder-import');
  * crediteurnummer (cicmpy) en artikelcodes (Items; bij inkoop met minimale bestelhoeveelheid `minOrder` van de leverancier). POST met csrf, verkoper, debiteur (het nummer van de debiteur of crediteur),
  * soort (debiteur of crediteur), items[] en (offerte) suppliers[] met leveranciersnummers; antwoord:
  * {"ok":true,"verkoper":{"found":bool,"name":"..."},"partij":{...},"debiteur":{...},"items":{"CODE":{"found":true,"description":"..."}},
- *  "suppliers":{"LEVNR":{"item":"CODE of leeg","matches":["CODE",...]}}}
+ *  "suppliers":{"LEVNR":{"item":"CODE of leeg","matches":["CODE",...]}},"customers":{"KLANTARTIKEL":{"item":"CODE of leeg","matches":[...]}}}
+ * (customers_list = artikelnummers van de klant, alleen bij een offerte met een gevonden debiteur)
  * Alleen lezen; niets wordt in Exact gewijzigd.
  */
 
@@ -108,7 +109,53 @@ try {
     }
     $out['suppliers'] = (object) $supplierOut;
 
-    // Artikelen: bestaan ze in Exact, met omschrijving (ook de artikelen die bij een leveranciersnummer zijn gevonden).
+    // Artikelklant (artikelcode van de klant, ItemAccounts.ItemCodeAccount bij een debiteur) -> ons artikelnummer. Alleen bij een
+    // offerte en alleen voor de ingevulde, gevonden debiteur (een klantartikel hoort bij één klant). Zelfde antwoordvorm als bij
+    // leveranciersnummers: één artikel gevonden = dat artikel; geen of meerdere verschillende = geen artikel (bij meerdere de kandidaten).
+    $customers = [];
+    $customerInput = [];
+    if (isset($_POST['customers_list']) && is_string($_POST['customers_list'])) {
+        $customerInput = explode("\n", $_POST['customers_list']);
+    }
+    foreach ($customerInput as $code) {
+        $code = trim((string) $code);
+        if ($code !== '' && strlen($code) <= 60) {
+            $customers[strtoupper($code)] = $code;
+        }
+    }
+    if (count($customers) > 2000) {
+        throw new RuntimeException('Te veel artikelnummers van de klant in één controle (maximaal 2000).');
+    }
+    $customerHits = [];
+    $t1b = microtime(true);
+    if (!$creditor && $partyKeys !== [] && $customers !== []) {
+        $keyMarks = implode(',', array_fill(0, count($partyKeys), '?'));
+        foreach (array_chunk(array_values($customers), 1000) as $chunk) {
+            $stmt = $pdo->prepare(
+                'SET NOCOUNT ON; SELECT DISTINCT LTRIM(RTRIM(ia.ItemCodeAccount)) AS s, RTRIM(ia.ItemCode) AS c FROM ItemAccounts ia'
+                . ' JOIN cicmpy c ON ia.AccountCode = c.cmp_wwn'
+                . ' WHERE (LTRIM(RTRIM(c.debnr)) IN (' . $keyMarks . ') OR LTRIM(RTRIM(c.debcode)) IN (' . $keyMarks . '))'
+                . ' AND ia.ItemCodeAccount IN (' . implode(',', array_fill(0, count($chunk), 'CAST(? AS varchar(60))')) . ')'
+            );
+            $stmt->execute(array_merge($partyKeys, $partyKeys, $chunk));
+            foreach ($stmt->fetchAll() as $row) {
+                $item = trim((string) $row['c']);
+                if ($item !== '') {
+                    $customerHits[strtoupper(trim((string) $row['s']))][strtoupper($item)] = $item;
+                }
+            }
+        }
+    }
+    $ms['artikelklant'] = (int) round((microtime(true) - $t1b) * 1000);
+    $customerOut = [];
+    foreach (array_keys($customers) as $key) {
+        $hits = array_values($customerHits[$key] ?? []);
+        sort($hits);
+        $customerOut[$key] = ['item' => count($hits) === 1 ? $hits[0] : '', 'matches' => $hits];
+    }
+    $out['customers'] = (object) $customerOut;
+
+    // Artikelen: bestaan ze in Exact, met omschrijving (ook de artikelen die bij een leveranciersnummer of artikelklant zijn gevonden).
     $codes = [];
     foreach ((array) ($_POST['items'] ?? []) as $code) {
         $code = trim((string) $code);
@@ -116,7 +163,7 @@ try {
             $codes[strtoupper($code)] = $code;
         }
     }
-    foreach ($supplierOut as $hit) {
+    foreach (array_merge($supplierOut, $customerOut) as $hit) {
         if ($hit['item'] !== '' && strlen($hit['item']) <= 30) {
             $codes[strtoupper($hit['item'])] = $hit['item'];
         }
