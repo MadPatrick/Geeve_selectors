@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 continue; // beheerd op de server (/etc/geeve/portal.json)
             }
             $posted = trim((string) ($_POST[$settingKey] ?? ''));
-            if ($settingKey === 'EXACT_DB_NAME_TEST' && preg_match('/^[A-Za-z0-9_.-]{0,128}$/', $posted) !== 1) {
+            if (in_array($settingKey, ['EXACT_DB_NAME_TEST', 'DB_NAME'], true) && preg_match('/^[A-Za-z0-9_.-]{0,128}$/', $posted) !== 1) {
                 $posted = (string) ($values[$settingKey] ?? ''); // ongeldige naam: ongewijzigd laten
             }
             if ($settingKey === 'EXACT_DB_TRUST_SERVER_CERT') {
@@ -257,7 +257,7 @@ $storedSettings = secureSettingsRead();
             </ul>
             <div class="settings-row">
                 <label class="update-code-field">
-                    <span>Exact test-database</span>
+                    <span>Exact database (Test)</span>
                     <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($val('EXACT_DB_NAME_TEST')) ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
                 </label>
             </div>
@@ -277,13 +277,13 @@ $storedSettings = secureSettingsRead();
             </div>
             <div class="settings-row">
                 <label class="update-code-field">
-                    <span>Database</span>
+                    <span>Database (Main)</span>
                     <input type="text" name="EXACT_DB_NAME" value="<?= h($val('EXACT_DB_NAME')) ?>" placeholder="005" size="20" autocomplete="off">
                 </label>
             </div>
             <div class="settings-row">
                 <label class="update-code-field">
-                    <span>Test-database (zelfde server en login)</span>
+                    <span>Database (Test)</span>
                     <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($val('EXACT_DB_NAME_TEST')) ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
                 </label>
             </div>
@@ -307,8 +307,14 @@ $storedSettings = secureSettingsRead();
             <?php endif; ?>
                 </div>
                 <div class="settings-col">
-            <?php if (!$dbFromFile): ?>
             <h3 class="settings-subtitle">Slangkaarten-database</h3>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Database</span>
+                    <input type="text" name="DB_NAME" value="<?= h($val('DB_NAME')) ?>" placeholder="Slangkaarten" size="20" autocomplete="off">
+                </label>
+            </div>
+            <?php if (!$dbFromFile): ?>
             <p class="settings-help">Eigen account voor de database <code>Slangkaarten</code> (slangkaarten, orders en kaartgegevens). Server, poort en certificaat zijn dezelfde als hierboven.</p>
             <div class="settings-row">
                 <label class="update-code-field">
