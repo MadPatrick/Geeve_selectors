@@ -60,7 +60,7 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 | Export info | `/templates/export-info/` | Orderregels met collo, gewicht en afmetingen voor de exportdocumenten |
 | Orderhistorie | `/templates/orderhistorie/` | Geleverde orderregels per klant sinds de eerste order, filter per kolom, Download Excel |
 | Inkoopprijzen GR14 / GR55 | `/reports/inkoopprijzen-gr14-gr55/` | Inkoopprijs (hoofdleverancier) en standaard verkoopprijs van artikelgroep 14 naast groep 55, gekoppeld op Zoekcode (GR55 = GR14 + `VZ`/`VZX`), Download Excel |
-| Negatieve voorraad | `/reports/negatieve-voorraad/` | Artikelen met negatieve voorraad op een open verkooporder waarvoor niet (genoeg) is besteld (tekort = open verkoop - voorraad - open inkoop), Download Excel |
+| Negatieve voorraad | `/reports/negatieve-voorraad/` | Artikelen met negatieve voorraad: tekort op open verkoop-/productieorder zonder (genoeg) inkoop, en negatief zonder open order; groepen > 900 weggelaten, Download Excel |
 | Slangkaart Nettoprijzen | `/reports/slangkaart-netto/` | Slangassemblages met nettoprijs (database Slangkaarten, tabel Slangkaarten: Nummer, DebiteurNaam, PrijsBerekend = Netto afspraak), filter per kolom, Download Excel |
 | Productie Orders | `/templates/productieorders/` | Gereed te melden productieorders (SP_SQLQuery_ProductieordersGereed_te_melden), filter per kolom, Download Excel |
 

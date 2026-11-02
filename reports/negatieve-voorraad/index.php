@@ -42,7 +42,7 @@ $csrf = csrfToken();
 
     <section class="panel">
         <h2>Negatieve voorraad</h2>
-        <p class="ka-empty">Artikelen met een negatieve voorraad die op een open verkooporder staan en waarvoor nog niet (genoeg) is besteld. Tekort = open verkooporders - voorraad - nog te ontvangen inkooporders; alleen artikelen met een tekort groter dan 0 worden getoond (artikelgroepen boven 900 zijn weggelaten). Haal de gegevens op en download ze als Excel-bestand.</p>
+        <p class="ka-empty">Artikelen met een negatieve voorraad, in twee soorten. <strong>Tekort op order</strong>: het artikel staat op een open verkoop- of productieorder en er is niet (genoeg) besteld; tekort = open verkoop + open productie - voorraad - open inkoop. <strong>Negatief zonder order</strong>: negatieve voorraad zonder enige open verkoop- of productieorder (vaak een boekings- of telverschil). Artikelgroepen boven 900 zijn weggelaten. Haal de gegevens op en download ze als Excel-bestand.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="Negatieve voorraad" data-file="Negatieve_voorraad">
             <!-- sp-report.js verwacht minstens één invoerveld (data-field); deze tegel heeft geen invoer. -->
             <input type="hidden" data-field="geen" data-optional="1" value="">
