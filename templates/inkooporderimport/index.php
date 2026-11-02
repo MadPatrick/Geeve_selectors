@@ -26,7 +26,7 @@ $csrf = csrfToken();
     <title>Import Inkooporder | Geeve Hydraulics</title>
     <!-- Knoppen, tabel, meldingen en de sleepzone zijn dezelfde als in Klant Artikelnummers. -->
     <?php
-    $headCss = ['assets/style.css', 'shared/tabel.css', 'shared/rapport.css', 'templates/offerte-import/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['assets/style.css', 'shared/tabel.css', 'shared/rapport.css', 'templates/offerteimport/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -40,7 +40,7 @@ $csrf = csrfToken();
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel" id="oiApp" data-validate="<?= h(geeveUrl('templates/offerte-import/api/validate.php')) ?>" data-kind="inkoop" data-csrf="<?= h($csrf) ?>">
+    <section class="panel" id="oiApp" data-validate="<?= h(geeveUrl('templates/offerteimport/api/validate.php')) ?>" data-kind="inkoop" data-csrf="<?= h($csrf) ?>">
         <h2>Import Inkooporder</h2>
         <p class="ka-empty">Download de lege template (Regelnr, Aantal, Artikelcode), vul hem in en importeer hem hier (kies het bestand of sleep het naar het vak). 
             (br>Inkoper, leveranciernummer, omschrijving en datum vul je hieronder in. 
@@ -109,6 +109,6 @@ $csrf = csrfToken();
 <script src="<?= h(geeveUrl('shared/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../../shared/vendor/xlsx.core.min.js')) ?>"></script>
 <script src="<?= h(geeveUrl('shared/vendor/xlsx-lezen.js')) ?>?v=<?= h(assetVersion('../../shared/vendor/xlsx-lezen.js')) ?>"></script>
 <script src="<?= h(geeveUrl('shared/vendor/xlsx-style.min.js')) ?>"></script>
-<script src="<?= h(geeveUrl('templates/offerte-import/assets/offerte.js')) ?>?v=<?= h(assetVersion('../offerte-import/assets/offerte.js')) ?>"></script>
+<script src="<?= h(geeveUrl('templates/offerteimport/assets/offerte.js')) ?>?v=<?= h(assetVersion('../offerteimport/assets/offerte.js')) ?>"></script>
 </body>
 </html>

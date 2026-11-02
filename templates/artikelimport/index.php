@@ -26,7 +26,7 @@ $csrf = csrfToken();
     <title>Import Artikelgegevens | Geeve Hydraulics</title>
     <!-- Knoppen, tabel, meldingen en de sleepzone zijn dezelfde als in Klant Artikelnummers en Inkooporder Import. -->
     <?php
-    $headCss = ['assets/style.css', 'shared/tabel.css', 'shared/rapport.css', 'templates/artikel-import/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['assets/style.css', 'shared/tabel.css', 'shared/rapport.css', 'templates/artikelimport/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>

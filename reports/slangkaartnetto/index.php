@@ -26,7 +26,7 @@ $csrf = csrfToken();
     <title>Slangkaart Nettoprijzen | Geeve Hydraulics</title>
     <?php
     // Knoppen, tabel en meldingen komen uit Klant Artikelnummers; msp-pill uit het MSP-rapport; filterrij uit Orderhistorie.
-    $headCss = ['shared/tabel.css', 'shared/rapport.css', 'shared/filterlijst.css', 'reports/slangkaart-netto/assets/style.css'];
+    $headCss = ['shared/tabel.css', 'shared/rapport.css', 'shared/filterlijst.css', 'reports/slangkaartnetto/assets/style.css'];
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -63,6 +63,6 @@ $csrf = csrfToken();
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 <script src="<?= h(geeveUrl('shared/vendor/xlsx-style.min.js')) ?>"></script>
-<script src="<?= h(geeveAssetHref('reports/slangkaart-netto/assets/slangkaart-netto.js')) ?>"></script>
+<script src="<?= h(geeveAssetHref('reports/slangkaartnetto/assets/slangkaart-netto.js')) ?>"></script>
 </body>
 </html>
