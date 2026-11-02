@@ -44,3 +44,5 @@
 .rp-help-list dd { margin: 0; }
 .rp-help-note { margin: 0 0 14px; font-style: italic; }
 @media (max-width: 640px) { .rp-help-list { grid-template-columns: 1fr; gap: 0; } .rp-help-list dd { margin: 0 0 8px; } }
+
+.msp-check { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; font-weight: 400; }
