@@ -1,13 +1,9 @@
 /* Naamstickers (stickers/ptouch): vrije tekst op een sticker van 102 × 51 mm, Verdana Bold; de letter wordt zo groot dat de tekst
    de sticker vult en wordt kleiner bij meer regels. Scherm, de sticker zelf en de printinstellingen. */
 
-.pt-edit { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 18px; }
 .pt-preview { zoom: 1.25; }
-.pt-align { display: flex; flex-direction: column; gap: 8px; }
+.pt-align { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 14px; }
 .pt-align-label { font-weight: 700; }
-.pt-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
-.pt-aantal { width: 3.6em; flex: 0 0 auto; text-align: center; }
-.pt-print-rechts { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
 .pt-sticker {
     position: relative;

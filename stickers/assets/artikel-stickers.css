@@ -1,13 +1,7 @@
 /* Stickers op Artikelnummer (stickers/artikel): scherm en printinstellingen; de sticker zelf staat in art-sticker.css. Knoppen/tabel/velden komen uit klantartikel/ en reports/msp/ (zie stickers/artikel/index.php).
    Label: ALTEC 72000496 (70 × 25 mm), opmaak in art-sticker.css. Posities en lettergroottes in mm, nagemaakt van de NiceLabel-template; bijstellen na een proefprint. */
 
-/* Invoer + tabel links, voorbeeld en printknoppen rechts (op smalle schermen eronder). */
-.sa-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
-.sa-form { flex: 1 1 420px; min-width: 0; }
-.sa-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 18px; }
-.sa-side[hidden] { display: none; }
-
-.sa-table-wrap { max-height: 480px; overflow-y: auto; margin-top: 14px; }
+.sa-table-wrap { max-height: 480px; overflow-y: auto; }
 #saTable thead th { position: sticky; top: 0; z-index: 1; }
 #saTable tbody tr { cursor: pointer; }
 #saTable tbody tr.is-current td { background: var(--row-current-bg); }
@@ -18,11 +12,6 @@
 
 .sa-preview { zoom: 1.25; }
 .sa-preview .sticker { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 2.5mm; background: var(--surface-white); }
-
-.sa-print { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 16px; align-self: flex-end; }
-.sa-print .msp-status { min-height: 0; }
-.sa-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
-.sa-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
 
 .sa-printsheet { display: none; }
 

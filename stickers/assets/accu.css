@@ -1,18 +1,12 @@
 /* Sticker Accu's (stickers/accu): scherm, de sticker zelf en de printinstellingen.
    Stickerformaat 70 × 32 mm (afmeting van het echte label, Patrick 2026-10-30); posities in mm, bijstellen na een proefprint. */
 
-.ac-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
-.ac-form { flex: 1 1 420px; min-width: 0; }
-.ac-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 16px; }
-.ac-fields { display: grid; grid-template-columns: repeat(2, minmax(160px, 1fr)); gap: 12px 16px; margin-top: 18px; max-width: 560px; }
+.ac-fields { display: grid; grid-template-columns: repeat(2, minmax(160px, 1fr)); gap: 12px 16px; margin-top: 18px; }
 .ac-fields .ac-wide { grid-column: span 2; }
 .ac-fields .ka-input { width: 100%; }
 
 .ac-preview { zoom: 1.8; }
 .ac-preview .accu { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1.5mm; background: var(--sticker-accu-geel); }
-.ac-print { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
-.ac-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
-.ac-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
 
 .accu {
     position: relative;

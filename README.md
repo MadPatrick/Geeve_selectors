@@ -45,23 +45,23 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 | Inkoop per Artikelgroep | `/reports/inkoop-groep/` | Ingekochte aantallen per artikel van een artikelgroep in een periode |
 | Productiviteit | `/reports/productiviteit/` | Beveiligd met een toegangscode |
 | Artikelmarges | `/reports/artikel-marge/` | Verkoopprijs, inkoopprijs en marge |
+| Klant Artikelnummers | `/klantartikel/` | Debiteuren op een prijslijst met hun klantartikelnummers; Excel in, XML (DEBTORS.xml) uit |
+| Kortingstructuur | `/klantkorting/` | Kortingstructuur per prijslijst (in opbouw) |
 
 ### Templates
 
 | Tegel | Adres | Wat het doet |
 |---|---|---|
-| Klant Artikelnummers | `/klantartikel/` | Debiteuren op een prijslijst met hun klantartikelnummers; Excel in, XML (DEBTORS.xml) uit |
-| Kortingstructuur | `/klantkorting/` | Kortingstructuur per prijslijst (in opbouw) |
-| Export Inkooporder naar Excel | `/reports/inkooporder/` | Inkooporder met regels uit Exact ophalen en als Excel downloaden |
-| Export Order/Offerte naar Excel | `/reports/order-offerte/` | Order of offerte als Excel |
-| Import Offerte | `/reports/offerte-import/` | Excel-offerte controleren met Exact en als XML exporteren |
-| Import Inkooporder | `/reports/inkooporder-import/` | Idem voor inkooporders |
-| Export info | `/reports/export-info/` | Orderregels met collo, gewicht en afmetingen voor de exportdocumenten |
-| Artikelgegevens Import | `/reports/artikel-import/` | Artikelgegevens controleren met Exact en als XML (`<Items>`) exporteren |
-| Orderhistorie | `/reports/orderhistorie/` | Geleverde orderregels per klant sinds de eerste order, filter per kolom, Download Excel |
+| Export Inkooporder naar Excel | `/templates/inkooporder/` | Inkooporder met regels uit Exact ophalen en als Excel downloaden |
+| Export Order/Offerte naar Excel | `/templates/order-offerte/` | Order of offerte als Excel |
+| Import Offerte | `/templates/offerte-import/` | Excel-offerte controleren met Exact en als XML exporteren |
+| Import Inkooporder | `/templates/inkooporder-import/` | Idem voor inkooporders |
+| Import Artikelgegevens | `/templates/artikel-import/` | Artikelgegevens controleren met Exact en als XML (`<Items>`) exporteren |
+| Export info | `/templates/export-info/` | Orderregels met collo, gewicht en afmetingen voor de exportdocumenten |
+| Orderhistorie | `/templates/orderhistorie/` | Geleverde orderregels per klant sinds de eerste order, filter per kolom, Download Excel |
 | Inkoopprijzen GR14 / GR55 | `/reports/inkoopprijzen-gr14-gr55/` | Inkoopprijs (hoofdleverancier) en standaard verkoopprijs van artikelgroep 14 naast groep 55, gekoppeld op Zoekcode (GR55 = GR14 + `VZ`/`VZX`), Download Excel |
 | Slangkaart Nettoprijzen | `/reports/slangkaart-netto/` | Slangassemblages met nettoprijs (database Slangkaarten, tabel Slangkaarten: Nummer, DebiteurNaam, PrijsBerekend = Netto afspraak), filter per kolom, Download Excel |
-| Productie Orders | `/reports/productieorders/` | Gereed te melden productieorders (SP_SQLQuery_ProductieordersGereed_te_melden), filter per kolom, Download Excel |
+| Productie Orders | `/templates/productieorders/` | Gereed te melden productieorders (SP_SQLQuery_ProductieordersGereed_te_melden), filter per kolom, Download Excel |
 
 ### Stickers
 
@@ -129,9 +129,7 @@ bash tools/update.sh             # bijwerken
 ```
 
 Het script controleert dat je op `main` zit zonder lokale wijzigingen, doet `git pull --ff-only`, controleert de
-gewijzigde PHP-bestanden (`php -l`), werkt de lage-druk-adapters bij (`tools/adapters-lage-druk/lage-druk-toevoegen.php`, met
-back-up in `data/backups/adapters/`; alleen als de pull die map raakte of de kolom `drukklasse` nog ontbreekt, anders met
-`--lage-druk`) en meldt het nieuwe versienummer. Het stopt bij de eerste fout en verwijdert of installeert niets. Een gewone
+gewijzigde PHP-bestanden (`php -l`), controleert `data/` en meldt het nieuwe versienummer. Het stopt bij de eerste fout en verwijdert of installeert niets. Een gewone
 `git pull` blijft ook werken.
 
 **Alleen op de server, niet in git:**

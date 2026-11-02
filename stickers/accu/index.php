@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
 require_once __DIR__ . '/../../shared/csrf.php';
 require_once __DIR__ . '/../../shared/printen.php';
+require_once __DIR__ . '/../../shared/stickers_kaart.php';
 tileRequirePage('stickers-artikel-groot', geeveAppUrl('stickers'));
 
 
@@ -27,7 +28,7 @@ $csrf = csrfToken();
     <title>Accu's | Geeve Hydraulics</title>
     <!-- Knoppen, invoervelden en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/accu.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/accu.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -41,10 +42,9 @@ $csrf = csrfToken();
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel ac-top">
-        <div class="ac-form">
-            <h2>Accu's</h2>
-            <p class="ka-empty">Vul de velden in; het voorbeeld rechts loopt mee. Met Leegmaken begin je opnieuw (bedrijfsnaam en datum van vandaag blijven staan).</p>
+    <section class="panel sk-top">
+        <div class="sk-invoer">
+            <?= stickerTitelHtml("Accu's", '70 × 32 mm', 'Vul de velden in; het voorbeeld loopt mee.', 'Met Leegmaken begin je opnieuw (bedrijfsnaam en datum van vandaag blijven staan).') ?>
             <div class="ac-fields" id="acFields">
                 <label class="msp-field ac-wide"><span>Bedrijfsnaam</span><input type="text" class="ka-input" data-field="bedrijf" maxlength="40" value="GEEVE HYDRAULICS BV"></label>
                 <label class="msp-field"><span>Voorvuldruk</span><input type="text" class="ka-input" data-field="druk" maxlength="12" autofocus></label>
@@ -52,19 +52,11 @@ $csrf = csrfToken();
                 <label class="msp-field ac-wide"><span>Vrij veld</span><input type="text" class="ka-input" data-field="vrij" maxlength="40"></label>
             </div>
         </div>
-
-        <!-- Voorbeeld van de sticker met daaronder aantal, leegmaken en printen. -->
-        <div class="ac-side">
-            <div class="ac-preview" id="acSheet"></div>
-            <div class="ac-print">
-                <label class="ac-copies"><input type="number" id="acCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
-                <button type="button" id="acClear" class="ka-button ka-button--secondary">Leegmaken</button>
-                <div class="print-group">
-                    <?= geevePrinterSelectHtml('stickers-artikel-groot', $csrf) ?>
-                    <button type="button" id="acPrint" class="print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
-                </div>
-            </div>
-        </div>
+        <?= stickerKaartHtml([
+            'tileId' => 'stickers-artikel-groot', 'csrf' => $csrf,
+            'preview' => '<div class="ac-preview" id="acSheet"></div>',
+            'copiesId' => 'acCopies', 'clearId' => 'acClear', 'printId' => 'acPrint',
+        ]) ?>
     </section>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>

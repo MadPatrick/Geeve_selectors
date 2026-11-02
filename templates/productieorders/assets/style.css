@@ -1,0 +1,11 @@
+/* Productie Orders: tabel, filterrij en meldingen komen uit klantartikel/assets/style.css en templates/orderhistorie/assets/style.css. */
+#poMessage { white-space: pre-wrap; }
+.oh-table td.po-naam { white-space: nowrap; }
+
+/* Tabelkop (kolomnamen en filterrij) blijft staan als de lijst scrollt; de top van de filterrij zet productieorders.js. */
+#poTable thead th { position: sticky; top: 0; z-index: 2; background: var(--soft); }
+#poTable thead tr.oh-filterrow th { background: var(--surface-white); box-shadow: 0 1px 0 var(--line-table-row); }
+
+.po-groep-keuze { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.oh-table tr.po-groep td { font-weight: 750; background: var(--soft); border-top: 2px solid var(--line-table-row); }
+.po-groep-keuze input[type="checkbox"] { width: 14px; height: 14px; min-height: 0; margin: 0; padding: 0; flex: none; }

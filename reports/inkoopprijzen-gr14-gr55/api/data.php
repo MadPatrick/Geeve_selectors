@@ -12,7 +12,7 @@ tileApiGuard('inkoopprijzen-gr14-gr55');
  * GR14-artikel met "VZ" (of "VZX") aan het eind. Inkoopprijs = ItemAccounts.PurchasePrice van de hoofdleverancier
  * (MainAccount = 1); gelijk aan "ink_pr per st" uit de view 1000 artikelen + standaard ink_pr, maar die view is veel te traag
  * (17 s per 500 artikelen). Verkoopprijs = standaard verkoopprijs (staffl, prijslijst "salesprice", nieuwste geldige; zelfde bron
- * als Artikelgegevens Import). Alleen lezen. Een artikel zonder tegenhanger krijgt een lege cel.
+ * als Import Artikelgegevens). Alleen lezen. Een artikel zonder tegenhanger krijgt een lege cel.
  */
 
 require_once __DIR__ . '/../../inc.php';

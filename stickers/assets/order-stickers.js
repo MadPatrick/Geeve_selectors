@@ -108,7 +108,6 @@
             }
         });
         ArtSticker.barcodes(sheet);
-        previewPanel.hidden = list.length === 0; // eerst zichtbaar maken, anders kan fit() niets meten
         sheet.classList.add('is-measuring'); // alle stickers even zichtbaar voor fit(), daarna weer één
         Array.prototype.forEach.call(sheet.querySelectorAll('.sticker:not(.sticker--art) .f'), fit);
         ArtSticker.fit(sheet);
@@ -186,6 +185,8 @@
         var btn = e.target.closest('button[data-sort]');
         if (!btn || btn.getAttribute('data-sort') === sortBy) { return; }
         sortBy = btn.getAttribute('data-sort');
+        var maat = document.getElementById('soMaat'); // labelmaat in de titel: de artikelsticker is een ander label
+        if (maat) { maat.textContent = sortBy === 'artikel' ? '70 × 25 mm' : '102 × 54 mm'; }
         Array.prototype.forEach.call(sortToggle.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b === btn); });
         if (rows.length === 0) { return; }
         rows.forEach(function (r, i) {
@@ -210,7 +211,6 @@
         if (alleRows.length === 0) { return; }
         if (rows.length === 0) {
             result.hidden = true;
-            previewPanel.hidden = true;
             printBtn.disabled = true;
             fail('Alle regels van order ' + asked + ' zijn al geleverd (geen backorders). Kies Compleet om toch alle regels te zien.');
             return;
@@ -245,8 +245,7 @@
                 rows = alleRows;
                 if (rows.length === 0) {
                     result.hidden = true;
-                    previewPanel.hidden = true;
-                    fail('Geen regels gevonden voor order ' + nummer + '.');
+                            fail('Geen regels gevonden voor order ' + nummer + '.');
                     return;
                 }
                 applyFilter();

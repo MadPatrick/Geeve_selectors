@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../shared/helpers.php';
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
 require_once __DIR__ . '/../../shared/printen.php';
+require_once __DIR__ . '/../../shared/stickers_kaart.php';
 tileRequirePage('stickers-productie', geeveAppUrl('stickers'));
 
 require_once __DIR__ . '/../../shared/csrf.php';
@@ -27,7 +28,7 @@ $csrf = csrfToken();
     <title>Artikelen per Productieorder | Geeve Hydraulics</title>
     <!-- Knoppen, tabel, invoerveld en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/productie-stickers.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/productie-stickers.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -41,12 +42,9 @@ $csrf = csrfToken();
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel ps-top">
-        <div class="ps-intro">
-            <h2>Artikelen per Productieorder</h2>
-            <p class="ka-empty">Vul een verkoopordernummer in: je krijgt per productieorderregel een sticker (102 × 54 mm). Vink regels uit die je niet wilt printen.</p>
-        </div>
-        <div class="ps-form">
+    <section class="panel sk-top">
+        <div class="sk-invoer">
+            <?= stickerTitelHtml('Artikelen per Productieorder', '102 × 54 mm', 'Vul een verkoopordernummer in: je krijgt per productieorderregel een sticker. Vink regels uit die je niet wilt printen.') ?>
             <div class="ka-actions" id="psActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
                 <label class="msp-field">
                     <span>Ordernummer</span>
@@ -56,35 +54,21 @@ $csrf = csrfToken();
                 <span id="psStatus" class="msp-status"></span>
             </div>
             <div id="psMessage" class="ka-message ka-message--error" hidden></div>
-
         </div>
-
-        <!-- Printopties: links naast het voorbeeld, bovenaan op dezelfde hoogte als het Ordernummer-veld. -->
-            <div class="ps-print" id="psPrintBlock" hidden>
-                <div class="ps-rij">
-                    <label class="ps-copies"><input type="number" id="psCopies" class="ka-input" min="1" max="99" value="1"> x afdrukken</label>
-                    <button type="button" id="psPrint" class="print-btn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
-                </div>
-                <?= geevePrintAfdrukInstellingenHtml('stickers-productie') ?>
-                <div class="print-group ps-printer">
-                    <?= geevePrinterSelectHtml('stickers-productie', $csrf) ?>
-                </div>
-            </div>
-
-        <!-- Voorbeeld: één sticker tegelijk, bovenaan gelijk met het Ordernummer-veld. -->
-        <div class="ps-side" id="psSide" hidden>
-            <div class="ps-preview" id="psSheet"></div>
-            <!-- Vorige/volgende sticker en "Sticker x van y": verborgen (het script gebruikt ze nog). -->
-            <div hidden>
+        <?= stickerKaartHtml([
+            'id' => 'psSide', 'tileId' => 'stickers-productie', 'csrf' => $csrf,
+            'preview' => '<div class="ps-preview" id="psSheet"></div>',
+            'copiesId' => 'psCopies', 'printId' => 'psPrint', 'printDisabled' => true,
+        ]) ?>
+        <!-- Vorige/volgende sticker en "Sticker x van y": verborgen (het script gebruikt ze nog). -->
+        <div hidden>
             <div class="ps-nav">
                 <button type="button" id="psPrev" class="ka-button ka-button--secondary" aria-label="Vorige sticker">&lt;</button>
                 <span id="psPreviewCount" class="msp-status"></span>
                 <button type="button" id="psNext" class="ka-button ka-button--secondary" aria-label="Volgende sticker">&gt;</button>
             </div>
-            </div>
         </div>
     </section>
-
     <section class="panel" id="psResult" hidden>
         <div class="msp-summary" id="psSummary"></div>
         <div class="ka-table-wrap">

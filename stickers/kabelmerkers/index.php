@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
 require_once __DIR__ . '/../../shared/csrf.php';
 require_once __DIR__ . '/../../shared/printen.php';
+require_once __DIR__ . '/../../shared/stickers_kaart.php';
 tileRequirePage('stickers-kabelmerkers', geeveAppUrl('stickers'));
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
@@ -26,7 +27,7 @@ $csrf = csrfToken();
     <title>Kabelmerkers Geel | Geeve Hydraulics</title>
     <!-- Knoppen, invoervelden en meldingen zijn dezelfde als in de rapporten. -->
     <?php
-    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/kabelmerkers.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'shared/stickers.css', 'stickers/assets/kabelmerkers.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -40,41 +41,42 @@ $csrf = csrfToken();
     require __DIR__ . '/../../shared/header.php';
     ?>
 
-    <section class="panel km-top">
-        <h2>Kabelmerkers Geel</h2>
-        <p class="ka-empty">Label ALTEC 72001207 (TTP ADC, 70 × 15 mm, A235), lichtgeel. Vul de velden in (maximaal 20 tekens per regel, de schuine strepen niet meegeteld; de datum telt als 8 tekens): regel 1 bestaat uit A1/A2/A3, regel 2 uit Datum/B2/B3 (lege velden worden overgeslagen, de delen staan gescheiden door een schuine streep). Print: 55 mm tussen de transportgaten. Het voorbeeld toont de sticker zoals hij er op het label uitziet, de tekst staat op de bovenste; de andere twee zijn lege voorbeelden (later te vullen met een Excel-import).</p>
-
-        <div class="km-edit">
-            <div class="km-regel">
-                <h3>Regel 1</h3>
-                <label for="kmA1">Regel A1</label>
-                <input type="text" id="kmA1" class="ka-input" maxlength="20" spellcheck="false" autofocus>
-                <label for="kmA2">Regel A2</label>
-                <input type="text" id="kmA2" class="ka-input" maxlength="20" spellcheck="false">
-                <label for="kmA3">Regel A3</label>
-                <input type="text" id="kmA3" class="ka-input" maxlength="20" spellcheck="false">
-            </div>
-            <div class="km-regel">
-                <h3>Regel 2</h3>
-                <label for="kmDatum">Datum</label>
-                <input type="date" id="kmDatum" class="ka-input" required>
-                <label for="kmB2">Regel B2</label>
-                <input type="text" id="kmB2" class="ka-input" maxlength="20" spellcheck="false">
-                <label for="kmB3">Regel B3</label>
-                <input type="text" id="kmB3" class="ka-input" maxlength="20" spellcheck="false">
-            </div>
-            <div class="km-regel km-regel--voorbeeld">
-                <h3>Voorbeeld</h3>
-                <div class="km-preview" id="kmPreview" aria-label="Voorbeeld van de sticker">
-                    <div class="km-sticker"><div class="km-tekst"></div></div>
-                    <div class="km-sticker"><div class="km-tekst"></div></div>
-                    <div class="km-sticker"><div class="km-tekst"></div></div>
+    <section class="panel sk-top">
+        <div class="sk-invoer">
+            <?= stickerTitelHtml('Kabelmerkers Geel', '70 × 15 mm', 'Vul de velden in (maximaal 20 tekens per regel); het voorbeeld loopt mee.', 'Label ALTEC 72001207 (TTP ADC, 70 × 15 mm, A235), lichtgeel. Maximaal 20 tekens per regel, de schuine strepen niet meegeteld; de datum telt als 8 tekens. Regel 1 bestaat uit A1/A2/A3, regel 2 uit Datum/B2/B3 (lege velden worden overgeslagen, de delen staan gescheiden door een schuine streep). Print: 55 mm tussen de transportgaten. Het voorbeeld toont de sticker zoals hij er op het label uitziet, de tekst staat op de bovenste; de andere twee zijn lege voorbeelden (te vullen met een Excel-import).') ?>
+            <div class="km-edit">
+                <div class="km-regel">
+                    <h3>Regel 1</h3>
+                    <label for="kmA1">Regel A1</label>
+                    <input type="text" id="kmA1" class="ka-input" maxlength="20" spellcheck="false" autofocus>
+                    <label for="kmA2">Regel A2</label>
+                    <input type="text" id="kmA2" class="ka-input" maxlength="20" spellcheck="false">
+                    <label for="kmA3">Regel A3</label>
+                    <input type="text" id="kmA3" class="ka-input" maxlength="20" spellcheck="false">
+                </div>
+                <div class="km-regel">
+                    <h3>Regel 2</h3>
+                    <label for="kmDatum">Datum</label>
+                    <input type="date" id="kmDatum" class="ka-input" required>
+                    <label for="kmB2">Regel B2</label>
+                    <input type="text" id="kmB2" class="ka-input" maxlength="20" spellcheck="false">
+                    <label for="kmB3">Regel B3</label>
+                    <input type="text" id="kmB3" class="ka-input" maxlength="20" spellcheck="false">
                 </div>
             </div>
+            <div id="kmMelding" class="ka-message ka-message--error km-melding" role="alert" hidden></div>
         </div>
-
-        <div id="kmMelding" class="ka-message ka-message--error km-melding" role="alert" hidden></div>
-
+        <?= stickerKaartHtml([
+            'tileId' => 'stickers-kabelmerkers', 'csrf' => $csrf,
+            'preview' => '<div class="km-preview" id="kmPreview" aria-label="Voorbeeld van de sticker">'
+                . '<div class="km-sticker"><div class="km-tekst"></div></div>'
+                . '<div class="km-sticker"><div class="km-tekst"></div></div>'
+                . '<div class="km-sticker"><div class="km-tekst"></div></div></div>',
+            'copiesId' => 'kmAantal', 'clearId' => 'kmClear', 'printId' => 'kmPrint', 'printDisabled' => true,
+        ]) ?>
+    </section>
+    <section class="panel">
+        <h2>Excel importeren</h2>
         <div class="ka-actions km-import">
             <button type="button" id="kmTemplate" class="ka-button ka-button--secondary">Download lege template</button>
             <div id="kmDrop" class="ka-drop" tabindex="0" role="button">
@@ -84,17 +86,6 @@ $csrf = csrfToken();
         </div>
         <div id="kmImportMelding" class="ka-message" hidden></div>
         <div id="kmImportTabel" hidden></div>
-
-        <div class="km-print">
-            <button type="button" id="kmClear" class="ka-button ka-button--secondary">Leegmaken</button>
-            <div class="km-print-rechts">
-            <div class="print-group">
-                <?= geevePrinterSelectHtml('stickers-kabelmerkers', $csrf) ?>
-                <button type="button" id="kmPrint" class="print-btn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg><span>Print</span></button>
-                <input type="number" id="kmAantal" class="ka-input km-aantal" min="1" max="99" value="1" title="Aantal" aria-label="Aantal">
-            </div>
-            </div>
-        </div>
     </section>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
