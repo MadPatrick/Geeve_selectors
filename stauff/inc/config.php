@@ -27,7 +27,7 @@ function appConfig(): array
             // "Slangkaarten"-database is dit de Exact-database "005" -
             // zelfde server (GEEVE-SQL-2019), ander doel: het uitlezen
             // van artikelgroep 67 (Stauff).
-            'host'     => env('EXACT_DB_HOST', 'GEEVE-SQL-2019'),
+            'host'     => env('EXACT_DB_HOST'),
             'port'     => env('EXACT_DB_PORT'),
             'name'     => env('EXACT_DB_NAME', '005'),
             'user'     => env('EXACT_DB_USER'),

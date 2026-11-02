@@ -252,7 +252,7 @@ $storedSettings = secureSettingsRead();
             <?php if ($dbFromFile): $fileValues = secureSettingsFileValues(); ?>
             <h3 class="settings-subtitle">Databases</h3>
             <ul class="settings-help">
-                <li>Exact-database: <?= h(($fileValues['EXACT_DB_HOST'] ?? 'GEEVE-SQL-2019') . (isset($fileValues['EXACT_DB_PORT']) ? ':' . $fileValues['EXACT_DB_PORT'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME'] ?? '005') . ', gebruiker ' . ($fileValues['EXACT_DB_USER'] ?? '(niet ingesteld)') . ', wachtwoord ' . (isset($fileValues['EXACT_DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt')) ?></li>
+                <li>Exact-database: <?= h(($fileValues['EXACT_DB_HOST'] ?? '(niet ingesteld)') . (isset($fileValues['EXACT_DB_PORT']) ? ':' . $fileValues['EXACT_DB_PORT'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME'] ?? '005') . ', gebruiker ' . ($fileValues['EXACT_DB_USER'] ?? '(niet ingesteld)') . ', wachtwoord ' . (isset($fileValues['EXACT_DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt')) ?></li>
                 <li>Slangkaarten-database: <?= h($fileValues['DB_NAME'] ?? 'Slangkaarten') ?>, gebruiker <?= h($fileValues['DB_USER'] ?? '(niet ingesteld)') ?>, wachtwoord <?= isset($fileValues['DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt' ?></li>
                 <li>Exact test-database: <?= h(($fileValues['EXACT_DB_HOST_TEST'] ?? '(zelfde server als Main)') . (isset($fileValues['EXACT_DB_PORT_TEST']) ? ':' . $fileValues['EXACT_DB_PORT_TEST'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME_TEST'] ?? '(niet ingesteld)')) ?></li>
                 <li>Rapportage-database: <?= h($fileValues['EXACT_DB_RAPPORTAGE'] ?? 'Exactrapportage') ?>; data-database: <?= h($fileValues['EXACT_DB_DATA'] ?? '005_Data_Geeve') ?></li>
@@ -264,7 +264,7 @@ $storedSettings = secureSettingsRead();
             <div class="settings-row">
                 <label class="update-code-field">
                     <span>Server</span>
-                    <input type="text" name="EXACT_DB_HOST" value="<?= h($val('EXACT_DB_HOST')) ?>" placeholder="GEEVE-SQL-2019" size="20" autocomplete="off">
+                    <input type="text" name="EXACT_DB_HOST" value="<?= h($val('EXACT_DB_HOST')) ?>" placeholder="servernaam" size="20" autocomplete="off">
                 </label>
                 <label class="update-code-field">
                     <span>Poort</span>

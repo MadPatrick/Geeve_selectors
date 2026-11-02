@@ -24,7 +24,7 @@ function appConfig(): array
         'db' => [
             // Zie README.md - "SQL-toegang" voor het aanmaken/hergebruiken
             // van een SQL-server login voor deze webapp.
-            'host'     => env('DB_HOST', env('EXACT_DB_HOST', 'GEEVE-SQL-2019')),
+            'host'     => env('DB_HOST', env('EXACT_DB_HOST')),
             'port'     => env('DB_PORT', env('EXACT_DB_PORT')),
             'name'     => env('DB_NAME', 'Slangkaarten'),
             'user'     => env('DB_USER'),
@@ -42,7 +42,7 @@ function appConfig(): array
         // dezelfde login als hierboven: dit zijn de inloggegevens die ook /stauff
         // gebruikt voor artikelgroep 67.
         'exactDb' => [
-            'host'     => env('EXACT_DB_HOST', 'GEEVE-SQL-2019'),
+            'host'     => env('EXACT_DB_HOST'),
             'port'     => env('EXACT_DB_PORT'),
             'name'     => env('EXACT_DB_NAME', '005'),
             'user'     => env('EXACT_DB_USER'),

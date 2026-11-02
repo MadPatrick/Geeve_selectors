@@ -8,7 +8,7 @@ declare(strict_types=1);
  * shared/db.php (geeveSqlServerConnect()).
  *
  * Twee bronnen:
- *  - exact: de Exact-database (standaard "005" op GEEVE-SQL-2019). Hierin kan geschreven worden; naast de gewone ("main") database
+ *  - exact: de Exact-database (standaard "005"; de server staat in portal.json). Hierin kan geschreven worden; naast de gewone ("main") database
  *    kan er een test-database komen (EXACT_DB_NAME_TEST in Config).
  *  - slangkaarten: de eigen database "Slangkaarten". Alleen lezen.
  *
@@ -105,7 +105,11 @@ function geeveDbConfig(string $bron, string $omgeving = 'main'): array
     if (!isset(GEEVE_DB_BRONNEN[$bron]) || !in_array($omgeving, GEEVE_DB_BRONNEN[$bron][2], true)) {
         throw new DatabaseConfigException('Onbekende database: ' . $bron . ' (' . $omgeving . ').');
     }
-    $exactHost = geeveDbWaarde('EXACT_DB_HOST') ?? 'GEEVE-SQL-2019';
+    // Geen standaardserver in de code: de server staat in /etc/geeve/portal.json (EXACT_DB_HOST) of anders in Config.
+    $exactHost = geeveDbWaarde('EXACT_DB_HOST');
+    if ($exactHost === null && ($bron === 'exact' || geeveDbWaarde('DB_HOST') === null)) {
+        throw new DatabaseConfigException('De databaseserver is niet ingesteld. Zet EXACT_DB_HOST in ' . secureSettingsFilePath() . ' (of vul de server in via Config > Database-instellingen).');
+    }
     $exactPort = geeveDbWaarde('EXACT_DB_PORT');
     $exactTrust = geeveDbWaarde('EXACT_DB_TRUST_SERVER_CERT') ?? 'yes';
 
