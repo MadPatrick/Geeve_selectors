@@ -97,7 +97,8 @@ if ($priceList !== '') {
 <main class="page-shell page-shell--wide">
     <?php
     $headerTitle = 'Klant Artikelnummers';
-    $headerHomeHref = '../index.php'; // tegel staat onder Templates
+    $headerImagesPath = geeveUrl('images/');
+    $headerHomeHref = geeveAppUrl('templates'); // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
     require __DIR__ . '/../../shared/header.php';
     ?>
