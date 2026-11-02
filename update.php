@@ -95,13 +95,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
     } else {
         $values = secureSettingsReadStored();
         foreach (SECURE_SETTINGS_KEYS as $settingKey) {
-            if (in_array($settingKey, ['TILE_FLAGS', 'DB_KEUZE', 'EXACT_DB_NAME_TEST'], true) || str_starts_with($settingKey, 'SNEEUW_')) {
+            if (in_array($settingKey, ['TILE_FLAGS', 'DB_KEUZE'], true) || str_starts_with($settingKey, 'SNEEUW_')) {
                 continue; // worden apart opgeslagen (formulieren Tegels, Databases per tegel en Topbalk)
             }
             if ($dbFromFile && in_array($settingKey, SECURE_SETTINGS_FILE_KEYS, true)) {
                 continue; // beheerd op de server (/etc/geeve/portal.json)
             }
             $posted = trim((string) ($_POST[$settingKey] ?? ''));
+            if ($settingKey === 'EXACT_DB_NAME_TEST' && preg_match('/^[A-Za-z0-9_.-]{0,128}$/', $posted) !== 1) {
+                $posted = (string) ($values[$settingKey] ?? ''); // ongeldige naam: ongewijzigd laten
+            }
             if ($settingKey === 'EXACT_DB_TRUST_SERVER_CERT') {
                 $posted = $posted === 'yes' ? 'yes' : 'no';
             }
@@ -165,8 +168,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 : [];
         }
         // Database per tegel (lezen/schrijven) en de naam van de Exact test-database; alleen afwijkingen van de standaard bewaren.
-        $testNaam = trim((string) ($_POST['EXACT_DB_NAME_TEST'] ?? ''));
-        $testNaamOk = $testNaam === '' || preg_match('/^[A-Za-z0-9_.-]{1,128}$/', $testNaam) === 1;
         $keuzes = [];
         foreach (GEEVE_TILE_DB as $tileId => $bronnen) {
             foreach ($bronnen as $bron) {
@@ -183,27 +184,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         }
         $values = secureSettingsReadStored();
         $values['TILE_FLAGS'] = (string) json_encode($flags);
-        if ($testNaamOk) {
-            if ($testNaam === '') {
-                unset($values['EXACT_DB_NAME_TEST']);
-            } else {
-                $values['EXACT_DB_NAME_TEST'] = $testNaam;
-            }
-        }
         if ($keuzes === []) {
             unset($values['DB_KEUZE']);
         } else {
             $values['DB_KEUZE'] = (string) json_encode($keuzes);
         }
-        $tilesMessage = !$testNaamOk
-            ? ['ok' => false, 'text' => 'Ongeldige naam voor de test-database (alleen letters, cijfers, punt, streepje en underscore); de rest is wel opgeslagen.']
-            : null;
-        $tilesSaved = secureSettingsWrite($values);
-        if ($tilesMessage === null || $tilesSaved === false) {
-            $tilesMessage = $tilesSaved
-                ? ['ok' => true, 'text' => 'Tegel-instellingen opgeslagen.']
-                : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
-        }
+        $tilesMessage = secureSettingsWrite($values)
+            ? ['ok' => true, 'text' => 'Tegel-instellingen opgeslagen.']
+            : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
     }
 }
 
@@ -267,6 +255,13 @@ $storedSettings = secureSettingsRead();
                 <li>Exact-database: <?= h(($fileValues['EXACT_DB_HOST'] ?? 'GEEVE-SQL-2019') . (isset($fileValues['EXACT_DB_PORT']) ? ':' . $fileValues['EXACT_DB_PORT'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME'] ?? '005') . ', gebruiker ' . ($fileValues['EXACT_DB_USER'] ?? '(niet ingesteld)') . ', wachtwoord ' . (isset($fileValues['EXACT_DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt')) ?></li>
                 <li>Slangkaarten-database: gebruiker <?= h($fileValues['DB_USER'] ?? '(niet ingesteld)') ?>, wachtwoord <?= isset($fileValues['DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt' ?></li>
             </ul>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Exact test-database</span>
+                    <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($val('EXACT_DB_NAME_TEST')) ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
+                </label>
+            </div>
+            <p class="settings-help">Alleen de naam; server en login zijn die van de Exact-database. Zonder naam kan bij Tegels niet voor Test gekozen worden.</p>
             <?php else: ?>
             <h3 class="settings-subtitle">Exact-database</h3>
             <p class="settings-help">Server, poort en certificaat gelden ook voor de Slangkaarten-database.</p>
@@ -284,6 +279,12 @@ $storedSettings = secureSettingsRead();
                 <label class="update-code-field">
                     <span>Database</span>
                     <input type="text" name="EXACT_DB_NAME" value="<?= h($val('EXACT_DB_NAME')) ?>" placeholder="005" size="20" autocomplete="off">
+                </label>
+            </div>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Test-database (zelfde server en login)</span>
+                    <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($val('EXACT_DB_NAME_TEST')) ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
                 </label>
             </div>
             <div class="settings-row">
@@ -387,13 +388,7 @@ $storedSettings = secureSettingsRead();
         <form method="post" class="update-form tiles-form" autocomplete="off">
             <input type="hidden" name="action" value="save-tiles">
             <input type="hidden" name="csrf" value="<?= h($configCsrf) ?>">
-            <div class="settings-row">
-                <label class="update-code-field">
-                    <span>Exact test-database (naam)</span>
-                    <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($storedSettings['EXACT_DB_NAME_TEST'] ?? '') ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
-                </label>
-            </div>
-            <p class="settings-help">Zelfde server en login als de Exact-database; alleen de databasenaam verschilt. Zolang dit leeg is, kan niet voor Test gekozen worden. Stauff en Import Offerte schrijven al via "Naar Exact" in de slangkaart-app (Slangkaart.Web): daar staat schrijven op Test (de testserver van die app) en Main is geblokkeerd; kies je Geen, dan verdwijnt de knop "Naar Exact". De server waarnaar die app schrijft stelt Slangkaart.Web zelf in.</p>
+            <p class="settings-help">Per tegel: uit welke database gelezen en (Exact) naar welke geschreven wordt. De databases zelf stel je in bij Database-instellingen hierboven. Stauff en Import Offerte schrijven al via "Naar Exact" in de slangkaart-app (Slangkaart.Web): daar staat schrijven op Test (de testserver van die app) en Main is geblokkeerd; kies je Geen, dan verdwijnt de knop "Naar Exact". De server waarnaar die app schrijft stelt Slangkaart.Web zelf in.</p>
             <div class="tiles-table" role="table">
                 <div class="tiles-row tiles-head" role="row">
                     <span role="columnheader">Tegel</span>
