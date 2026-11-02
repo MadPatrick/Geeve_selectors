@@ -360,7 +360,7 @@
             if (ci && ci.matches && ci.matches.length > 1) { return { cls: 'is-incomplete', label: 'Artikelklant hoort bij meerdere artikelen (' + ci.matches.join(', ') + '): vul de artikelcode in', ok: false, export: false }; }
             if ((si && si.item) || (ci && ci.item)) { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
             if (sup === '' && !(debtorInfo && debtorInfo.found)) { return { cls: 'is-incomplete', label: 'Vul een geldig debiteurnummer in om de artikelklant op te zoeken', ok: false, export: false }; }
-            return { cls: 'is-incomplete', label: 'Geen artikel bij ' + (sup !== '' && cus !== '' ? 'leveranciersnummer of artikelklant' : (sup !== '' ? 'leveranciersnummer' : 'artikelklant')) + ': vul de artikelcode in', ok: false, export: false };
+            return { cls: 'is-incomplete', label: sup === '' ? 'Geen artikelklant' : 'Geen artikel bij ' + (cus !== '' ? 'leveranciersnummer of artikelklant' : 'leveranciersnummer') + ': vul de artikelcode in', ok: false, export: false };
         }
         if (cv(l) === '') { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
         if (qtyOf(l.qty) === null) { return { cls: 'is-incomplete', label: 'Aantal ontbreekt of is ongeldig', ok: false, export: false }; }
