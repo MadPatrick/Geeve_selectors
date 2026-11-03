@@ -107,10 +107,17 @@ function geeveSqlServerConnect(array $db, string $ontbrekendHint, ?int $queryTim
         . ";Encrypt=yes;TrustServerCertificate={$db['trustServerCertificate']};LoginTimeout=" . GEEVE_DB_LOGIN_TIMEOUT;
 
     try {
-        $pdo = new PDO($dsn, $db['user'], $db['password'], [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]);
+        $opties = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC];
+        try {
+            $pdo = new PDO($dsn, $db['user'], $db['password'], $opties);
+        } catch (PDOException $eerste) {
+            // Een enkele keer duurt de eerste verbinding te lang (gezien 3-11-2026: "Login timeout expired" en een koude
+            // verbinding van ~5 s). Bij precies die fout één nieuwe poging; een andere fout (wachtwoord, database) niet.
+            if (stripos($eerste->getMessage(), 'timeout') === false && (string) $eerste->getCode() !== 'HYT00') {
+                throw $eerste;
+            }
+            $pdo = new PDO($dsn, $db['user'], $db['password'], $opties);
+        }
     } catch (PDOException $exception) {
         $melding = 'Kan geen verbinding maken met database ' . $db['name'] . ': ' . geeveFoutTekst($exception);
         geeveDbFoutOnthouden($sleutel, $melding);
