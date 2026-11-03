@@ -169,7 +169,22 @@ function geeveSmbRun(string $program, array $args, int $timeoutSeconds): array
         throw new RuntimeException($blocked);
     }
     $cred = (string) geeveSmbCredFile();
-    return geeveSmbCheck(geeveRun(array_merge(['/usr/bin/' . $program, '-A', $cred], $args), $timeoutSeconds), $cred);
+    return geeveSmbCheck(geeveRun(array_merge(['/usr/bin/' . $program, '-A', $cred], $args), $timeoutSeconds, geeveSmbEnv()), $cred);
+}
+
+/**
+ * Omgeving voor smbclient/rpcclient. Zonder schrijfbare cache-map (www-data heeft geen thuismap: "gencache_init: Failed to
+ * create directory /var/www/.cache/samba") bewaart Samba niets en lost hij elke aanroep opnieuw namen op.
+ *
+ * @return array<string, string>
+ */
+function geeveSmbEnv(): array
+{
+    $dir = rtrim(sys_get_temp_dir(), '/') . '/geeve-samba-cache';
+    if (!is_dir($dir)) {
+        @mkdir($dir . '/samba', 0700, true);
+    }
+    return is_dir($dir) && is_writable($dir) ? ['XDG_CACHE_HOME' => $dir] : [];
 }
 
 /**
@@ -191,7 +206,7 @@ function geeveSmbRunParallel(array $jobs, int $timeoutSeconds): array
         $commands[$key] = array_merge(['/usr/bin/' . $program, '-A', $cred], $args);
     }
     $results = [];
-    foreach (geeveRunParallel($commands, $timeoutSeconds) as $key => $result) {
+    foreach (geeveRunParallel($commands, $timeoutSeconds, geeveSmbEnv()) as $key => $result) {
         $results[$key] = geeveSmbCheck($result, $cred);
     }
     return $results;
@@ -776,12 +791,12 @@ function geeveChromiumBinary(): ?string
 }
 
 /** Voert meerdere programma's tegelijk uit (zelfde sleutels als $commands); geeft per sleutel ['code', 'out', 'err']. */
-function geeveRunParallel(array $commands, int $timeoutSeconds): array
+function geeveRunParallel(array $commands, int $timeoutSeconds, array $env = []): array
 {
     $running = [];
     $result = [];
     foreach ($commands as $key => $command) {
-        $process = @proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, ['PATH' => '/usr/local/bin:/usr/bin:/bin']);
+        $process = @proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, array_merge(['PATH' => '/usr/local/bin:/usr/bin:/bin'], $env));
         if (!is_resource($process)) {
             $result[$key] = ['code' => 127, 'out' => '', 'err' => 'Programma niet gevonden: ' . $command[0]];
             continue;

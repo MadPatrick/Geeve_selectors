@@ -26,6 +26,11 @@
     </IfModule>
 </FilesMatch>
 
+# Compressie: Debian comprimeert application/json standaard niet (zoek- en data-API's).
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
 # Cache: CSS, JS en afbeeldingen elke keer bij de server navragen (304 als ze niet veranderd zijn),
 # zodat na een git pull meteen de nieuwe versie geladen wordt - ook van bestanden zonder ?v=, zoals
 # shared/tokens.css (via @import in shared/style.css) en de logo's. Werkt alleen met mod_headers.
