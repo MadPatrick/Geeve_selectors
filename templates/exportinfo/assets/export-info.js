@@ -18,9 +18,9 @@
         orders: { name: 'Orders', cols: [
             { h: 'Ordernumber', k: 'Ordernumber', t: 't' }, { h: 'Line number', k: 'Line number', t: 't' }, { h: 'Quantity', k: 'Quantity', t: 'n' },
             { h: 'Artcode', k: 'Artcode', t: 't' }, { h: 'Item description', k: 'Item description', t: 't', desc: true },
-            { h: 'Collo nr', k: 'Collo nr', t: 't', e: true }, { h: 'Collo Type', k: 'Collo Type', t: 't', e: true },
-            { h: 'Weight', k: 'Weight', t: 'n', e: true }, { h: 'Nett weight', calc: 'nett', t: 'n' }, { h: 'Length (cm)', k: 'Length (cm)', t: 'n', e: true },
-            { h: 'Width (cm)', k: 'Width (cm)', t: 'n', e: true }, { h: 'Height (cm)', k: 'Height (cm)', t: 'n', e: true },
+            { h: 'Collo nr', k: 'Collo nr', t: 't', e: true }, { h: 'Collo Type', k: 'Collo Type', t: 't' },
+            { h: 'Weight', k: 'Weight', t: 'n', e: true }, { h: 'Nett weight', calc: 'nett', t: 'n' }, { h: 'Length (cm)', k: 'Length (cm)', t: 'n' },
+            { h: 'Width (cm)', k: 'Width (cm)', t: 'n' }, { h: 'Height (cm)', k: 'Height (cm)', t: 'n' },
             { h: 'Unit Price', k: 'Unit Price', t: 'e' }, { h: 'Total price', k: 'Total price', t: 'e' },
             { h: 'HS code', k: 'HS code', t: 't' }, { h: 'Country of Origin', k: 'Country of Origin', t: 't' },
             { h: 'Customer Reference', k: 'Customer Reference', t: 't' }
@@ -64,10 +64,32 @@
         rows.forEach(function (r) { var q = toNum(r['Quantity']), w = toNum(r['Weight']); if (q > 0 && w > 0) { sum += q * w; } });
         return sum;
     }
+    // Totaalgewicht per collonummer (aantal x gewicht, opgeteld over alle regels met hetzelfde collo nr), op collonummer gesorteerd.
+    function colloTotals() {
+        var map = {}, list = [];
+        rows.forEach(function (r) {
+            var c = String(r['Collo nr'] === null || r['Collo nr'] === undefined ? '' : r['Collo nr']).trim();
+            if (c === '') { c = '1'; }
+            if (!Object.prototype.hasOwnProperty.call(map, c)) { map[c] = { nr: c, weight: 0 }; list.push(map[c]); }
+            var q = toNum(r['Quantity']), w = toNum(r['Weight']);
+            if (q > 0 && w > 0) { map[c].weight += q * w; }
+        });
+        list.sort(function (a, b) {
+            var x = toNum(a.nr), y = toNum(b.nr);
+            if (x !== null && y !== null && !isNaN(x) && !isNaN(y) && x !== y) { return x - y; }
+            return a.nr < b.nr ? -1 : (a.nr > b.nr ? 1 : 0);
+        });
+        return list;
+    }
     function renderSummary() {
+        var collo = colloTotals();
+        var colloHtml = collo.map(function (c) {
+            return '<span class="msp-pill">Collo <strong>' + esc(c.nr) + '</strong>: ' + nlNum(Math.round(c.weight * 10000) / 10000) + ' kg</span>';
+        }).join('');
         summaryEl.innerHTML = '<span class="msp-pill"><strong>' + esc(order) + '</strong>' + (rows.customer ? ' ' + esc(rows.customer) : '') + '</span>' +
             '<span class="msp-pill"><strong>' + rows.length + '</strong> regels</span>' +
-            '<span class="msp-pill">Total weight <strong>' + nlNum(totalWeight()) + '</strong> kg</span>';
+            '<span class="msp-pill">Total weight <strong>' + nlNum(totalWeight()) + '</strong> kg</span>' +
+            '<span class="msp-pill"><strong>' + collo.length + '</strong> collo</span>' + colloHtml;
     }
 
     function render() {
@@ -132,6 +154,8 @@
                     j.columns.forEach(function (c, i) { o[c] = arr[i] === null ? '' : (typeof arr[i] === 'string' && c !== 'Item description' ? arr[i].trim() : arr[i]); });
                     return o;
                 });
+                // Collo nr staat standaard op 1.
+                rows.forEach(function (r) { if (String(r['Collo nr']).trim() === '') { r['Collo nr'] = '1'; } });
                 rows.customer = j.customer || '';
                 order = nr;
                 resultEl.hidden = false;
