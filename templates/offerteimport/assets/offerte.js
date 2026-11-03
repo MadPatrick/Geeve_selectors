@@ -1,6 +1,7 @@
 (function () {
     var app = document.getElementById('oiApp');
     var endpoint = app.getAttribute('data-validate');
+    var boxEndpoint = endpoint.replace('validate.php', 'boxqty.php');
     // Dezelfde pagina voor offertes (debiteur) en inkooporders (leverancier): alleen teksten en de XML verschillen.
     var purchase = app.getAttribute('data-kind') === 'inkoop';
     var T = purchase
@@ -421,10 +422,39 @@
             if (again) { again.focus(); if (caret !== null) { again.setSelectionRange(caret, caret); } }
         }
         renderSummary(states, seller, debtor);
+        fetchBox();
     }
 
     // Box qty = Bst.gr. van de hoofdleverancier in Exact (alleen bij een offerte).
-    function boxText(info) { return info && info.found && info.boxQty > 0 ? String(info.boxQty) : ''; }
+    var boxInfo = {};      // CODE (hoofdletters) -> Box qty (0 = geen); apart opgehaald, na de controle
+    var boxBusy = false;
+    function boxOf(l) { var b = boxInfo[ck(l)]; return b > 0 ? b : ''; }
+    function boxText(l) { return String(boxOf(l)); }
+    // Box qty ophalen voor gevonden artikelen waarvan we hem nog niet hebben; los van de controle, zodat die niet langer duurt.
+    function fetchBox() {
+        if (!useSupplier || boxBusy) { return; }
+        var codes = [];
+        var seen = {};
+        lines.forEach(function (l) {
+            var key = ck(l);
+            if (key !== '' && !seen[key] && boxInfo[key] === undefined && itemInfo[key] && itemInfo[key].found) { seen[key] = true; codes.push(cv(l)); }
+        });
+        if (!codes.length) { return; }
+        boxBusy = true;
+        var body = new URLSearchParams();
+        body.set('csrf', csrf);
+        codes.forEach(function (c) { body.append('items[]', c); });
+        fetch(boxEndpoint, { method: 'POST', body: body })
+            .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+            .then(function (json) {
+                boxBusy = false;
+                if (!json.ok) { return; }
+                codes.forEach(function (c) { var k = c.toUpperCase(); boxInfo[k] = json.box && json.box[k] ? json.box[k] : 0; });
+                render();
+                fetchBox(); // regels die er tijdens het ophalen bij kwamen
+            })
+            .catch(function () { boxBusy = false; });
+    }
 
     function rowHtml(l, i, st) {
         var info = st.info || itemInfo[ck(l)] || null;
@@ -436,7 +466,7 @@
             (useSupplier ? '<td><input type="text" class="ka-input oi-cus" data-i="' + i + '" value="' + esc(l.custArt || '') + '" maxlength="60" autocomplete="off" spellcheck="false" aria-label="Klantartikelnr. regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
             '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
             '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
-            (useSupplier ? '<td class="oi-box">' + boxText(info) + '</td>' : '') +
+            (useSupplier ? '<td class="oi-box">' + boxText(l) + '</td>' : '') +
             '<td class="oi-status"><div class="oi-status-text">' + esc(st.label) + '</div></td>' +
             '<td><button type="button" class="oi-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
     }
@@ -453,7 +483,7 @@
         if (min) { min.textContent = info && info.minOrder > 0 ? String(info.minOrder) : ''; }
         tr.querySelector('.oi-desc').textContent = info && info.found ? info.description : '';
         var box = tr.querySelector('.oi-box');
-        if (box) { box.textContent = boxText(info); }
+        if (box) { box.textContent = boxText(lines[i]); }
         tr.querySelector('.oi-status-text').textContent = st.label;
         renderSummary(states, sellerEl.value.trim(), debtorEl.value.trim());
     }
@@ -580,7 +610,7 @@
             var row = [l.nr === undefined || l.nr === null ? '' : String(l.nr).trim(), q !== null ? q : (l.qty === null || l.qty === undefined ? '' : String(l.qty))];
             if (useSupplier) { row.push(l.supplier ? String(l.supplier).trim() : '', l.custArt ? String(l.custArt).trim() : ''); }
             row.push(cv(l), info && info.found ? info.description : '');
-            if (useSupplier) { row.push(info && info.found && info.boxQty > 0 ? info.boxQty : ''); }
+            if (useSupplier) { row.push(boxOf(l)); }
             row.push(states[i].label);
             rows.push(row);
         });
