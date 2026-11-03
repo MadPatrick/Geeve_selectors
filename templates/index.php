@@ -62,7 +62,7 @@ $csrf = csrfToken();
         <a class="<?= tileClass('offerte-import') ?>" href="<?= h(geeveAppUrl('offerte-import')) ?>"<?= tileAttrs('offerte-import') ?>>
             <?= tileIcon('offerte-import') ?>
             <h2><?= h(tileTitle('offerte-import')) ?></h2>
-            <p>Offerte via Excel importeren, controleren met Exact en als XML klaarzetten</p>
+            <p>Offerte via Excel importeren, controleren met Exact en als XML klaarzetten (Exact: Systeem\Importeren XML\Artikelen)</p>
             <?= tileLockIcon('offerte-import') ?>
         </a>
         <?php endif; $tileHtml['offerte-import'] = ob_get_clean(); ?>
@@ -70,7 +70,7 @@ $csrf = csrfToken();
         <a class="<?= tileClass('inkooporder-import') ?>" href="<?= h(geeveAppUrl('inkooporder-import')) ?>"<?= tileAttrs('inkooporder-import') ?>>
             <?= tileIcon('inkooporder-import') ?>
             <h2><?= h(tileTitle('inkooporder-import')) ?></h2>
-            <p>Inkooporder via Excel importeren, controleren met Exact en als XML klaarzetten</p>
+            <p>Inkooporder via Excel importeren, controleren met Exact en als XML klaarzetten (Exact: Systeem\Importeren XML\Artikelen)</p>
             <?= tileLockIcon('inkooporder-import') ?>
         </a>
         <?php endif; $tileHtml['inkooporder-import'] = ob_get_clean(); ?>
@@ -86,7 +86,7 @@ $csrf = csrfToken();
         <a class="<?= tileClass('artikel-import') ?>" href="<?= h(geeveAppUrl('artikel-import')) ?>"<?= tileAttrs('artikel-import') ?>>
             <?= tileIcon('artikel-import') ?>
             <h2><?= h(tileTitle('artikel-import')) ?></h2>
-            <p>Artikelgegevens via Excel importeren, controleren met Exact en als XML klaarzetten</p>
+            <p>Artikelgegevens via Excel importeren, controleren met Exact en als XML klaarzetten (Exact: Systeem\Importeren XML\Artikelen)</p>
             <?= tileLockIcon('artikel-import') ?>
         </a>
         <?php endif; $tileHtml['artikel-import'] = ob_get_clean(); ?>

@@ -46,7 +46,7 @@ $csrf = csrfToken();
             <br>Elk artikel wordt gecontroleerd met Exact: bestaat het, dan staan de huidige waarden uit Exact grijs in de lege velden en zijn gewijzigde velden geel. 
             <br>Een artikel dat nog niet bestaat wordt bij de import aangemaakt, dus dat moet voorkomen worden.
             <br>Alle velden zijn hier aan te passen; een leeg veld laat de waarde in Exact ongewijzigd. 
-            <br>Is alles in orde, dan maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML</strong>).</p>
+            <br>Is alles in orde, dan maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Artikelen</strong>).</p>
         <div class="ka-actions">
             <button type="button" id="aiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
             <button type="button" id="aiExport" class="ka-button" disabled>Exporteer XML</button>
