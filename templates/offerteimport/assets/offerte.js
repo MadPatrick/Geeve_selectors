@@ -372,6 +372,16 @@
         if (purchase && info.minOrder > 0 && q < info.minOrder) {
             return { cls: 'is-minorder', label: 'Ja', ok: true, export: true, info: info, minorder: true };
         }
+        // Offerte: locatie 000 en een aantal onder of geen veelvoud van de Box qty = Box qty controleren (waarschuwing, export blijft kunnen).
+        if (useSupplier && locInfo[ck(l)] === '000') {
+            var box = boxInfo[ck(l)];
+            if (box > 0) {
+                var ratio = q / box;
+                if (q < box || Math.abs(ratio - Math.round(ratio)) > 1e-9) {
+                    return { cls: 'is-boxqty', label: 'Box qty controleren', ok: true, export: true, info: info, boxqty: true };
+                }
+            }
+        }
         return { cls: '', label: 'Ja', ok: true, export: true, info: info };
     }
 
@@ -499,11 +509,13 @@
         var incomplete = states.filter(function (s) { return s.cls === 'is-incomplete'; }).length;
         var empty = states.filter(function (s) { return s.cls === 'is-empty'; }).length;
         var minOrder = states.filter(function (s) { return s.minorder; }).length;
+        var boxCheck = states.filter(function (s) { return s.boxqty; }).length;
         var pending = states.some(function (s) { return s.pending; });
         summaryEl.innerHTML =
             '<span class="msp-pill"><strong>' + lines.length + '</strong> ' + (lines.length === 1 ? 'regel' : 'regels') + '</span>' +
             (missing ? '<span class="msp-pill oi-pill-bad"><strong>' + missing + '</strong> niet in Exact</span>' : '') +
             (minOrder ? '<span class="msp-pill oi-pill-warn"><strong>' + minOrder + '</strong> onder minimale bestelhoeveelheid</span>' : '') +
+            (boxCheck ? '<span class="msp-pill oi-pill-warn"><strong>' + boxCheck + '</strong> Box qty controleren</span>' : '') +
             (incomplete ? '<span class="msp-pill oi-pill-warn"><strong>' + incomplete + '</strong> onvolledig (aantal of artikelcode)</span>' : '');
 
         // Export alleen als alles klopt
