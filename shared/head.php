@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Gedeelde <link>-regels voor in de <head> - zie shared/README.md ("shared/head.php"). Zet in vaste volgorde:
- * favicon, shared/style.css (die zelf shared/tokens.css importeert), dan de extra stylesheets in $headCss.
+ * favicon, shared/tokens.css en shared/style.css, dan de extra stylesheets in $headCss.
  * Adressen zijn absoluut vanaf de portal-root (geeveUrl), dus het werkt ook vanaf een kort adres (/msp/ e.d.),
  * met cache-busting op de wijzigingsdatum van elk bestand.
  *
@@ -30,6 +30,7 @@ if (!function_exists('geeveAssetHref')) {
 $headCss = $headCss ?? [];
 ?>
     <link rel="icon" href="<?= h(geeveAssetHref('favicon.ico')) ?>" type="image/x-icon">
+    <link rel="stylesheet" href="<?= h(geeveAssetHref('shared/tokens.css')) ?>">
     <link rel="stylesheet" href="<?= h(geeveAssetHref('shared/style.css')) ?>">
 <?php foreach ($headCss as $cssPath): ?>
     <link rel="stylesheet" href="<?= h(geeveAssetHref($cssPath)) ?>">

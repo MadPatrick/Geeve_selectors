@@ -196,8 +196,8 @@ require __DIR__ . '/../shared/header.php';
 
 ### CSS-variabelen (`shared/tokens.css`)
 
-Alle variabelen staan in **`shared/tokens.css`** (alleen `:root`, geen regels); `shared/style.css`
-importeert dat bestand. Kijk daar voor de actuele waarden. De groepen:
+Alle variabelen staan in **`shared/tokens.css`** (alleen `:root`, geen regels); `shared/head.php`
+laadt het apart vóór `shared/style.css`. Kijk daar voor de actuele waarden. De groepen:
 
 | Groep | Voorbeelden | Gebruik |
 |---|---|---|

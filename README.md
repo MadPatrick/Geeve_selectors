@@ -97,7 +97,7 @@ version.php                Eén versienummer voor alle apps
 .htaccess                  Dotfiles afsluiten
 shared/                    Gedeeld door alle apps - zie shared/README.md
   tokens.css               Alle CSS-variabelen (kleuren, maten, lettertypes)
-  style.css                Gedeelde opmaak (importeert tokens.css)
+  style.css                Gedeelde opmaak (tokens.css wordt apart geladen door head.php)
   head.php, header.php     <head>-links en de zwarte header
   paths.php                Centrale data en adressen van de apps
   tiles.php, access.php    Tegels, toegangscodes

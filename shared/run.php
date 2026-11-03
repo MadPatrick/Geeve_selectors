@@ -36,7 +36,7 @@ function geeveRun(array $command, int $timeoutSeconds, array $env = []): array
             $err .= 'Tijdslimiet van ' . $timeoutSeconds . ' seconden overschreden.';
             break;
         }
-        usleep(50000);
+        usleep(10000);
     }
     fclose($pipes[1]);
     fclose($pipes[2]);

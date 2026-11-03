@@ -169,7 +169,43 @@ function geeveSmbRun(string $program, array $args, int $timeoutSeconds): array
         throw new RuntimeException($blocked);
     }
     $cred = (string) geeveSmbCredFile();
-    $result = geeveRun(array_merge(['/usr/bin/' . $program, '-A', $cred], $args), $timeoutSeconds);
+    return geeveSmbCheck(geeveRun(array_merge(['/usr/bin/' . $program, '-A', $cred], $args), $timeoutSeconds), $cred);
+}
+
+/**
+ * Zelfde als geeveSmbRun(), maar meerdere aanroepen tegelijk ([sleutel => [programma, argumenten]]); de totale tijd is dan die
+ * van de langzaamste i.p.v. de som. Geeft [sleutel => resultaat] terug en gooit bij de eerste fout een RuntimeException.
+ *
+ * @param array<string, array{0: string, 1: list<string>}> $jobs
+ * @return array<string, array{code: int, out: string, err: string}>
+ */
+function geeveSmbRunParallel(array $jobs, int $timeoutSeconds): array
+{
+    $blocked = geeveSmbBlocked();
+    if ($blocked !== null) {
+        throw new RuntimeException($blocked);
+    }
+    $cred = (string) geeveSmbCredFile();
+    $commands = [];
+    foreach ($jobs as $key => [$program, $args]) {
+        $commands[$key] = array_merge(['/usr/bin/' . $program, '-A', $cred], $args);
+    }
+    $results = [];
+    foreach (geeveRunParallel($commands, $timeoutSeconds) as $key => $result) {
+        $results[$key] = geeveSmbCheck($result, $cred);
+    }
+    return $results;
+}
+
+/**
+ * Controleert het resultaat van smbclient/rpcclient: een inlogfout blokkeert verdere pogingen (zie geeveSmbBlocked()),
+ * een andere fout geeft een RuntimeException met een leesbare melding.
+ *
+ * @param array{code: int, out: string, err: string} $result
+ * @return array{code: int, out: string, err: string}
+ */
+function geeveSmbCheck(array $result, string $cred): array
+{
     $text = $result['out'] . "\n" . $result['err'];
     if (preg_match('/NT_STATUS_(LOGON_FAILURE|ACCOUNT_LOCKED_OUT|ACCOUNT_DISABLED|PASSWORD_EXPIRED|PASSWORD_MUST_CHANGE|WRONG_PASSWORD|ACCOUNT_RESTRICTION)/', $text, $m) === 1) {
         $dir = dirname(geeveSmbBlockFile());
@@ -229,8 +265,14 @@ function geevePrinterList(): array
     }
     try {
         // Sharenamen (met een omschrijving) en de driver per printer; enumprinters 1 is veel sneller dan 2.
-        $shares = geeveSmbRun('smbclient', ['-L', '//' . GEEVE_SMB_SERVER, '-g'], 20);
-        $drivers = geeveSmbRun('rpcclient', [GEEVE_SMB_SERVER, '-c', 'enumprinters 1'], 20);
+        // De twee opvragen tegelijk: de verversing (elke 30 minuten, door wie als eerste een printerkeuze opent) duurt dan zo
+        // lang als de langzaamste i.p.v. de som.
+        $both = geeveSmbRunParallel([
+            'shares' => ['smbclient', ['-L', '//' . GEEVE_SMB_SERVER, '-g']],
+            'drivers' => ['rpcclient', [GEEVE_SMB_SERVER, '-c', 'enumprinters 1']],
+        ], 20);
+        $shares = $both['shares'];
+        $drivers = $both['drivers'];
     } catch (RuntimeException $e) {
         return $list = $cached ?? [];
     }
@@ -338,7 +380,7 @@ function geeveRenderPdf(string $bodyHtml, array $cssFiles, string $title, string
     $links = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\' file:; '
         . 'img-src data: file:; font-src file:; script-src \'nonce-' . $nonce . '\'; base-uri \'none\'; form-action \'none\'">' . "\n";
     $printRegels = '';
-    foreach (array_merge(['shared/style.css'], $cssFiles) as $css) {
+    foreach (array_merge(['shared/tokens.css', 'shared/style.css'], $cssFiles) as $css) {
         $path = geevePortalDir() . '/' . ltrim($css, '/');
         $links .= '<link rel="stylesheet" href="file://' . htmlspecialchars($path, ENT_QUOTES) . '">' . "\n";
         $printRegels .= geeveMediaPrintBlocks((string) @file_get_contents($path));

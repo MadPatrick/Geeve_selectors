@@ -182,7 +182,12 @@ function secureSettingsReadStored(): array
  */
 function secureSettingsRead(): array
 {
-    return array_merge(secureSettingsReadStored(), secureSettingsFileValues() ?? []);
+    // Eén keer per aanvraag lezen en ontsleutelen (tiles, databases, achtergrond en sneeuw vragen het elk apart op);
+    // secureSettingsWrite() leegt deze geheugenkopie.
+    if (!isset($GLOBALS['secureSettingsMemo']) || !is_array($GLOBALS['secureSettingsMemo'])) {
+        $GLOBALS['secureSettingsMemo'] = array_merge(secureSettingsReadStored(), secureSettingsFileValues() ?? []);
+    }
+    return $GLOBALS['secureSettingsMemo'];
 }
 
 /** Laatste foutreden van secureSettingsWrite(), voor in de melding. */
@@ -195,6 +200,7 @@ function secureSettingsLastError(): string
 function secureSettingsWrite(array $values): bool
 {
     $GLOBALS['secureSettingsError'] = '';
+    $GLOBALS['secureSettingsMemo'] = null;
     if (!function_exists('openssl_encrypt')) {
         $GLOBALS['secureSettingsError'] = 'De PHP openssl-extensie ontbreekt op deze server.';
         return false;

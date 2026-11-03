@@ -15,8 +15,8 @@
  * en de portal-README voor het exacte patroon.
  */
 
-/* Alle variabelen (kleuren, maten) staan in tokens.css - zie dat bestand. */
-@import url('tokens.css');
+/* Alle variabelen (kleuren, maten) staan in tokens.css - zie dat bestand. shared/head.php laadt tokens.css als eigen
+   <link> vóór dit bestand (een @import hier geeft een extra wachtronde en kent geen ?v=-cache-busting). */
 
 :root {
     font-family: var(--font-family);
