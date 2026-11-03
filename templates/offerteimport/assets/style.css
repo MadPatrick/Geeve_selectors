@@ -9,6 +9,7 @@
 #oiTable tr.is-text td { color: var(--muted); font-style: italic; }
 #oiTable td.oi-desc { white-space: normal; min-width: 18ch; }
 #oiTable td.oi-box { text-align: right; white-space: nowrap; }
+#oiTable td.oi-loc { white-space: nowrap; }
 #oiTable th.oi-min, #oiTable td.oi-min { text-align: center; width: 1%; white-space: normal; min-width: 16ch; max-width: 16ch; padding-left: 8px; padding-right: 8px; }
 #oiTable tr.is-minorder td.oi-min { font-weight: 700; }
 #oiTable th:nth-child(2), #oiTable td:nth-child(2) { text-align: center; }

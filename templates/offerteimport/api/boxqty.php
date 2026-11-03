@@ -7,9 +7,9 @@ require_once __DIR__ . '/../../../shared/tiles.php';
 tileApiGuard('offerte-import');
 
 /**
- * Box qty = Bst.gr. (ItemAccounts.PurchaseOrderSize) van de hoofdleverancier (MainAccount = 1) per artikel. Apart van de controle
+ * Box qty en magazijnlocatie. Box qty = Bst.gr. (ItemAccounts.PurchaseOrderSize) van de hoofdleverancier (MainAccount = 1) per artikel. Apart van de controle
  * (validate.php), zodat de controle niet op deze opzoeking wacht. POST met csrf en items[]; antwoord: {"ok":true,"box":{"CODE":10}}
- * (artikelen zonder hoofdleverancier of met 0 ontbreken). Alleen lezen.
+ * (artikelen zonder hoofdleverancier of met 0 ontbreken) en "loc":{"CODE":"A-01-02"} (voorrd.maglok, magazijn 1). Alleen lezen.
  */
 
 require_once __DIR__ . '/../../../reports/inc.php';
@@ -52,7 +52,26 @@ try {
             }
         }
     }
-    echo json_encode(['ok' => true, 'box' => (object) $box], $flags);
+    // Locatie in het magazijn: voorrd.maglok, de vaste locatie per artikel in magazijn 1 (zelfde bron als Slangkaarten printen).
+    $loc = [];
+    try {
+        foreach (array_chunk(array_values($codes), 300) as $chunk) {
+            $stmt = $pdo->prepare(
+                'SET NOCOUNT ON; SELECT RTRIM(artcode) AS c, RTRIM(maglok) AS l FROM voorrd WITH (NOLOCK)'
+                . " WHERE magcode = '1' AND artcode IN (" . implode(',', array_fill(0, count($chunk), 'CAST(? AS varchar(30))')) . ')'
+            );
+            $stmt->execute($chunk);
+            foreach ($stmt->fetchAll() as $row) {
+                $l = trim((string) ($row['l'] ?? ''));
+                if ($l !== '') {
+                    $loc[strtoupper(trim((string) $row['c']))] = $l;
+                }
+            }
+        }
+    } catch (Throwable $e) {
+        // locatie blijft leeg
+    }
+    echo json_encode(['ok' => true, 'box' => (object) $box, 'loc' => (object) $loc], $flags);
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'error' => geeveFoutTekst($e)], $flags);

@@ -427,8 +427,10 @@
 
     // Box qty = Bst.gr. van de hoofdleverancier in Exact (alleen bij een offerte).
     var boxInfo = {};      // CODE (hoofdletters) -> Box qty (0 = geen); apart opgehaald, na de controle
+    var locInfo = {};      // CODE (hoofdletters) -> locatie in het magazijn ('' = geen)
     var boxBusy = false;
     function boxOf(l) { var b = boxInfo[ck(l)]; return b > 0 ? b : ''; }
+    function locOf(l) { return locInfo[ck(l)] || ''; }
     function boxText(l) { return String(boxOf(l)); }
     // Box qty ophalen voor gevonden artikelen waarvan we hem nog niet hebben; los van de controle, zodat die niet langer duurt.
     function fetchBox() {
@@ -449,7 +451,7 @@
             .then(function (json) {
                 boxBusy = false;
                 if (!json.ok) { return; }
-                codes.forEach(function (c) { var k = c.toUpperCase(); boxInfo[k] = json.box && json.box[k] ? json.box[k] : 0; });
+                codes.forEach(function (c) { var k = c.toUpperCase(); boxInfo[k] = json.box && json.box[k] ? json.box[k] : 0; locInfo[k] = json.loc && json.loc[k] ? json.loc[k] : ''; });
                 render();
                 fetchBox(); // regels die er tijdens het ophalen bij kwamen
             })
@@ -466,7 +468,7 @@
             (useSupplier ? '<td><input type="text" class="ka-input oi-cus" data-i="' + i + '" value="' + esc(l.custArt || '') + '" maxlength="60" autocomplete="off" spellcheck="false" aria-label="Klantartikelnr. regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
             '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
             '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
-            (useSupplier ? '<td class="oi-box">' + boxText(l) + '</td>' : '') +
+            (useSupplier ? '<td class="oi-box">' + boxText(l) + '</td><td class="oi-loc">' + esc(locOf(l)) + '</td>' : '') +
             '<td class="oi-status"><div class="oi-status-text">' + esc(st.label) + '</div></td>' +
             '<td><button type="button" class="oi-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
     }
@@ -484,6 +486,8 @@
         tr.querySelector('.oi-desc').textContent = info && info.found ? info.description : '';
         var box = tr.querySelector('.oi-box');
         if (box) { box.textContent = boxText(lines[i]); }
+        var loc = tr.querySelector('.oi-loc');
+        if (loc) { loc.textContent = locOf(lines[i]); }
         tr.querySelector('.oi-status-text').textContent = st.label;
         renderSummary(states, sellerEl.value.trim(), debtorEl.value.trim());
     }
@@ -601,7 +605,7 @@
         var head = ['Regelnr', 'Aantal'];
         if (useSupplier) { head.push('Leveranciersnummer', 'Klantartikelnr.'); }
         head.push('Artikelcode', 'Artikelomschrijving');
-        if (useSupplier) { head.push('Box qty'); }
+        if (useSupplier) { head.push('Box qty', 'Locatie'); }
         head.push('Artikel in Exact');
         var rows = [head];
         lines.forEach(function (l, i) {
@@ -610,12 +614,12 @@
             var row = [l.nr === undefined || l.nr === null ? '' : String(l.nr).trim(), q !== null ? q : (l.qty === null || l.qty === undefined ? '' : String(l.qty))];
             if (useSupplier) { row.push(l.supplier ? String(l.supplier).trim() : '', l.custArt ? String(l.custArt).trim() : ''); }
             row.push(cv(l), info && info.found ? info.description : '');
-            if (useSupplier) { row.push(boxOf(l)); }
+            if (useSupplier) { row.push(boxOf(l), locOf(l)); }
             row.push(states[i].label);
             rows.push(row);
         });
         var ws = XLSX.utils.aoa_to_sheet(rows);
-        var cols = useSupplier ? 8 : 5;
+        var cols = useSupplier ? 9 : 5;
         var style = { font: { bold: true, color: { rgb: 'FFFFFFFF' } }, fill: { patternType: 'solid', fgColor: { rgb: 'FF1F4E78' } }, alignment: { horizontal: 'center' } };
         for (var c = 0; c < cols; c++) {
             ws[XLSX.utils.encode_cell({ r: 0, c: c })].s = style;
@@ -628,7 +632,7 @@
                 if (cell) { cell.t = 's'; cell.v = String(cell.v); cell.z = '@'; }
             });
         }
-        ws['!cols'] = (useSupplier ? [10, 10, 28, 28, 28, 50, 10, 40] : [10, 10, 28, 50, 40]).map(function (w) { return { wch: w }; });
+        ws['!cols'] = (useSupplier ? [10, 10, 28, 28, 28, 50, 10, 16, 40] : [10, 10, 28, 50, 40]).map(function (w) { return { wch: w }; });
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Lijst');
         var party = debtorEl.value.trim().replace(/[^A-Za-z0-9._-]+/g, '_');
