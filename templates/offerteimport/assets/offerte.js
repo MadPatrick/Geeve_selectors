@@ -423,6 +423,9 @@
         renderSummary(states, seller, debtor);
     }
 
+    // Box qty = Bst.gr. van de hoofdleverancier in Exact (alleen bij een offerte).
+    function boxText(info) { return info && info.found && info.boxQty > 0 ? String(info.boxQty) : ''; }
+
     function rowHtml(l, i, st) {
         var info = st.info || itemInfo[ck(l)] || null;
         return '<tr class="' + st.cls + '">' +
@@ -433,6 +436,7 @@
             (useSupplier ? '<td><input type="text" class="ka-input oi-cus" data-i="' + i + '" value="' + esc(l.custArt || '') + '" maxlength="60" autocomplete="off" spellcheck="false" aria-label="Klantartikelnr. regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
             '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
             '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
+            (useSupplier ? '<td class="oi-box">' + boxText(info) + '</td>' : '') +
             '<td class="oi-status"><div class="oi-status-text">' + esc(st.label) + '</div></td>' +
             '<td><button type="button" class="oi-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
     }
@@ -448,6 +452,8 @@
         var min = tr.querySelector('.oi-min');
         if (min) { min.textContent = info && info.minOrder > 0 ? String(info.minOrder) : ''; }
         tr.querySelector('.oi-desc').textContent = info && info.found ? info.description : '';
+        var box = tr.querySelector('.oi-box');
+        if (box) { box.textContent = boxText(info); }
         tr.querySelector('.oi-status-text').textContent = st.label;
         renderSummary(states, sellerEl.value.trim(), debtorEl.value.trim());
     }
@@ -564,18 +570,22 @@
         var states = lines.map(lineState);
         var head = ['Regelnr', 'Aantal'];
         if (useSupplier) { head.push('Leveranciersnummer', 'Klantartikelnr.'); }
-        head.push('Artikelcode', 'Artikelomschrijving', 'Artikel in Exact');
+        head.push('Artikelcode', 'Artikelomschrijving');
+        if (useSupplier) { head.push('Box qty'); }
+        head.push('Artikel in Exact');
         var rows = [head];
         lines.forEach(function (l, i) {
             var info = states[i].info || itemInfo[ck(l)] || null;
             var q = qtyOf(l.qty);
             var row = [l.nr === undefined || l.nr === null ? '' : String(l.nr).trim(), q !== null ? q : (l.qty === null || l.qty === undefined ? '' : String(l.qty))];
             if (useSupplier) { row.push(l.supplier ? String(l.supplier).trim() : '', l.custArt ? String(l.custArt).trim() : ''); }
-            row.push(cv(l), info && info.found ? info.description : '', states[i].label);
+            row.push(cv(l), info && info.found ? info.description : '');
+            if (useSupplier) { row.push(info && info.found && info.boxQty > 0 ? info.boxQty : ''); }
+            row.push(states[i].label);
             rows.push(row);
         });
         var ws = XLSX.utils.aoa_to_sheet(rows);
-        var cols = useSupplier ? 7 : 5;
+        var cols = useSupplier ? 8 : 5;
         var style = { font: { bold: true, color: { rgb: 'FFFFFFFF' } }, fill: { patternType: 'solid', fgColor: { rgb: 'FF1F4E78' } }, alignment: { horizontal: 'center' } };
         for (var c = 0; c < cols; c++) {
             ws[XLSX.utils.encode_cell({ r: 0, c: c })].s = style;
@@ -588,7 +598,7 @@
                 if (cell) { cell.t = 's'; cell.v = String(cell.v); cell.z = '@'; }
             });
         }
-        ws['!cols'] = (useSupplier ? [10, 10, 28, 28, 28, 50, 40] : [10, 10, 28, 50, 40]).map(function (w) { return { wch: w }; });
+        ws['!cols'] = (useSupplier ? [10, 10, 28, 28, 28, 50, 10, 40] : [10, 10, 28, 50, 40]).map(function (w) { return { wch: w }; });
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Lijst');
         var party = debtorEl.value.trim().replace(/[^A-Za-z0-9._-]+/g, '_');

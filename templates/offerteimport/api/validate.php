@@ -10,7 +10,7 @@ tileApiGuard('offerte-import', 'inkooporder-import');
  * Controleert de velden van een offerte- of inkooporder-import tegen Exact: verkoper/inkoper (humres.res_id), debiteur- of
  * crediteurnummer (cicmpy) en artikelcodes (Items; bij inkoop met minimale bestelhoeveelheid `minOrder` van de leverancier). POST met csrf, verkoper, debiteur (het nummer van de debiteur of crediteur),
  * soort (debiteur of crediteur), items[] en (offerte) suppliers[] met leveranciersnummers; antwoord:
- * {"ok":true,"verkoper":{"found":bool,"name":"..."},"partij":{...},"debiteur":{...},"items":{"CODE":{"found":true,"description":"..."}},
+ * {"ok":true,"verkoper":{"found":bool,"name":"..."},"partij":{...},"debiteur":{...},"items":{"CODE":{"found":true,"description":"...","boxQty":10 (offerte, hoofdleverancier)}},
  *  "suppliers":{"LEVNR":{"item":"CODE of leeg","matches":["CODE",...]}},"customers":{"KLANTARTIKEL":{"item":"CODE of leeg","matches":[...]}}}
  * (customers_list = artikelnummers van de klant, alleen bij een offerte met een gevonden debiteur)
  * Alleen lezen; niets wordt in Exact gewijzigd.
@@ -195,6 +195,22 @@ try {
                 $key = strtoupper(trim((string) $row['c']));
                 if (isset($items[$key]) && (float) $row['m'] > 0) {
                     $items[$key]['minOrder'] = (float) $row['m'];
+                }
+            }
+        }
+    }
+    // Offerte: Box qty = Bst.gr. (ItemAccounts.PurchaseOrderSize) van de hoofdleverancier (MainAccount = 1) per artikel.
+    if (!$creditor && $items !== []) {
+        foreach (array_chunk(array_keys($items), 400) as $chunk) {
+            $stmt = $pdo->prepare(
+                'SET NOCOUNT ON; SELECT RTRIM(ItemCode) AS c, MAX(PurchaseOrderSize) AS m FROM ItemAccounts WITH (NOLOCK)'
+                . ' WHERE MainAccount = 1 AND ItemCode IN (' . implode(',', array_fill(0, count($chunk), 'CAST(? AS varchar(30))')) . ') GROUP BY RTRIM(ItemCode)'
+            );
+            $stmt->execute($chunk);
+            foreach ($stmt->fetchAll() as $row) {
+                $key = strtoupper(trim((string) $row['c']));
+                if (isset($items[$key]) && (float) $row['m'] > 0) {
+                    $items[$key]['boxQty'] = (float) $row['m'];
                 }
             }
         }
