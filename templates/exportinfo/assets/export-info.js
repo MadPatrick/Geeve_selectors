@@ -43,12 +43,13 @@
 
     function esc(s) { return String(s === null || s === undefined ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
     function nlNum(n) { return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 4 }); }
+    function nlNum2(n) { return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
     function euro(n) { return '€ ' + Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
     function showMessage(text) { messageEl.textContent = text; messageEl.hidden = !text; }
-    // Nett weight = aantal x gewicht; leeg als aantal of gewicht ontbreekt of niet groter dan 0 is.
+    // Nett weight = aantal x gewicht, afgerond op 2 decimalen; leeg als aantal of gewicht ontbreekt of niet groter dan 0 is.
     function nettWeight(row) {
         var q = toNum(row['Quantity']), w = toNum(row['Weight']);
-        return q > 0 && w > 0 ? Math.round(q * w * 10000) / 10000 : '';
+        return q > 0 && w > 0 ? Math.round(q * w * 100) / 100 : '';
     }
     function val(row, col) { return col.calc ? nettWeight(row) : (col.v !== undefined ? col.v : row[col.k]); }
     function toNum(v) {
@@ -103,7 +104,7 @@
                     var shown = c.t === 'n' && v !== '' && v !== null && !isNaN(toNum(v)) ? nlNum(toNum(v)) : (v === null ? '' : v);
                     return '<td><input type="text" class="ka-input ei-in' + (c.t === 'n' ? ' ei-num' : '') + '" data-i="' + i + '" data-k="' + esc(c.k) + '" data-n="' + (c.t === 'n' ? 1 : 0) + '" value="' + esc(shown) + '" autocomplete="off" aria-label="' + esc(c.h) + ' regel ' + esc(r['Line number']) + '"></td>';
                 }
-                var text = c.t === 'e' && v !== '' && v !== null ? euro(v) : (c.t === 'n' && v !== '' && v !== null ? nlNum(v) : v);
+                var text = c.t === 'e' && v !== '' && v !== null ? euro(v) : (c.t === 'n' && v !== '' && v !== null ? (c.calc ? nlNum2(v) : nlNum(v)) : v);
                 return '<td' + (cls ? ' class="' + cls.trim() + '"' : '') + (c.calc ? ' data-nett="' + i + '"' : '') + '>' + esc(text) + '</td>';
             }).join('') + '</tr>';
         });
@@ -125,7 +126,7 @@
             r[key] = el.value;
         }
         var nettCell = tableEl.querySelector('td[data-nett="' + el.getAttribute('data-i') + '"]');
-        if (nettCell) { var nw = nettWeight(r); nettCell.textContent = nw === '' ? '' : nlNum(nw); }
+        if (nettCell) { var nw = nettWeight(r); nettCell.textContent = nw === '' ? '' : nlNum2(nw); }
         renderSummary();
     });
     viewBox.addEventListener('click', function (e) {
@@ -196,7 +197,8 @@
                 if (!cell) { cell = ws[L + (hr + 1 + i)] = { t: 's', v: '' }; }
                 if (c.t === 't') { cell.t = 's'; cell.z = '@'; }
                 else if (c.t === 'e') { cell.z = EURO; }
-                else if (c.k === 'Weight' || c.calc) { cell.z = '0.0000'; }
+                else if (c.calc) { cell.z = '0.00'; }
+                else if (c.k === 'Weight') { cell.z = '0.0000'; }
             }
         });
         if (offset) {
