@@ -29,7 +29,7 @@ const ORDERHISTORIE_GETAL = [false, false, false, false, false, false, true, tru
 const ORDERHISTORIE_DECIMALEN = [null, null, null, null, null, null, null, 2, 2];
 
 /** Kolommen van orhsrg (database 005) voor bruto prijs en korting; controle met ?diagnose=1 als de naam in Exact anders blijkt. */
-const ORDERHISTORIE_KOL_PRIJS = 'prijs';
+const ORDERHISTORIE_KOL_PRIJS = 'prijs_n';
 const ORDERHISTORIE_KOL_KORTING = 'korting';
 
 const ORDERHISTORIE_FROM =
@@ -91,6 +91,7 @@ function orderhistorieDiagnose(PDO $pdo, string $debnr): string
     $run('Prijs- en kortingskolommen van orhsrg', "SELECT name, TYPE_NAME(system_type_id) FROM sys.columns WHERE object_id = OBJECT_ID('orhsrg') AND (name LIKE '%prijs%' OR name LIKE '%kort%' OR name LIKE '%bruto%' OR name LIKE '%netto%') ORDER BY name", []);
     $run('Totaal orderkoppen / oudste en nieuwste pakbondatum', 'SELECT COUNT(*), MIN(pakbon_dat), MAX(pakbon_dat) FROM orhkrg WITH (NOLOCK)', []);
     if ($debnr !== '') {
+        $run('Nieuwste 5 regels: prijs_n, prijs83, korting, prijslijst', 'SELECT TOP 5 ohr.ordernr, ohr.artcode, ohr.aant_gelev, ohr.prijs_n, ohr.prijs83, ohr.korting, ohr.prijslijst FROM ' . ORDERHISTORIE_FROM . ' WHERE LTRIM(RTRIM(ohk.debnr)) = ? ORDER BY ohr.afldat DESC', [$debnr]);
         $run('Aantal koppen en regels voor debnr ' . $debnr, 'SELECT COUNT(DISTINCT ohk.ordernr), COUNT(*) FROM ' . ORDERHISTORIE_FROM . ' WHERE LTRIM(RTRIM(ohk.debnr)) = ?', [$debnr]);
         $run('Nieuwste 3 regels voor debnr ' . $debnr, 'SELECT TOP 3 ' . ORDERHISTORIE_SELECT . ' FROM ' . ORDERHISTORIE_FROM . ' WHERE LTRIM(RTRIM(ohk.debnr)) = ? ORDER BY ohr.afldat DESC', [$debnr]);
     }
