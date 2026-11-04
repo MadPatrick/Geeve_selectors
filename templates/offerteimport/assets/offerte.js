@@ -537,6 +537,11 @@
             // Exact neemt maximaal EXACT_MAX_REGELS regels per keer aan: daarboven "Naar Exact" uit; Exporteer XML blijft werken.
             var exactCount = states.filter(function (s) { return s.export; }).length;
             var tooMany = exactCount > EXACT_MAX_REGELS;
+            if (exactBtn.getAttribute('data-uit') === '1') {
+                exactBtn.disabled = true;   // Naar Exact staat uit in Config: knop blijft zichtbaar maar inactief (tooltip uit de PHP)
+                exactReset();
+                return;
+            }
             exactBtn.disabled = !ready || exactBusy || tooMany;
             exactBtn.title = tooMany ? 'Naar Exact kan maximaal ' + EXACT_MAX_REGELS + ' regels per keer. Gebruik Exporteer XML.' : exportBtn.title;
             if (tooMany && !tooManyShown) {
@@ -742,7 +747,7 @@
         }, function () { return { ok: false, fout: 'De slangkaart-app is niet bereikbaar.' }; });
     }
     function exactClick() {
-        if (exactBtn.disabled || exactBusy) { return; }
+        if (exactBtn.disabled || exactBusy || exactBtn.getAttribute('data-uit') === '1') { return; }
         showMessage(''); showInfo('');
         var write = exactPending;
         exactBusy = true; exactBtn.disabled = true;

@@ -53,7 +53,7 @@ $csrf = csrfToken();
         <div class="ka-actions">
             <button type="button" id="oiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
             <button type="button" id="oiExport" class="ka-button" disabled>Exporteer XML</button>
-            <button type="button" id="oiExact" class="ka-button" disabled data-url="<?= h(geeveUrl('slangkaarten/api/exact/schrijf')) ?>"<?= geeveDbSchrijvenAan('offerte-import') ? '' : ' hidden style="display:none" title="Schrijven naar Exact staat uit (Config &gt; Tegels)"' ?>>Naar Exact</button>
+            <button type="button" id="oiExact" class="ka-button" disabled data-url="<?= h(geeveUrl('slangkaarten/api/exact/schrijf')) ?>"<?= geeveDbSchrijvenAan('offerte-import') ? '' : ' data-uit="1" title="Naar Exact is tijdelijk niet beschikbaar (aan te zetten in Config &gt; Tegels). Gebruik Exporteer XML."' ?>>Naar Exact</button>
             <div id="oiDrop" class="ka-drop" tabindex="0" role="button">
                 <strong>Excel importeren</strong> - sleep een ingevulde template hierheen of <u>kies een bestand</u>
                 <input type="file" id="oiFile" accept=".xlsx,.xls,.xlsm,.xltm" hidden>

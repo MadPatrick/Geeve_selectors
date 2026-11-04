@@ -82,7 +82,9 @@ function geeveDbSchrijftViaWeb(string $tegel): bool
 /** Standaardkeuze zonder instelling: lezen uit main; schrijven uit, behalve voor tegels die via Slangkaart.Web schrijven (test). */
 function geeveDbStandaard(string $tegel, string $bron): array
 {
-    return ['lezen' => 'main', 'schrijven' => $bron === 'exact' && geeveDbSchrijftViaWeb($tegel) ? 'test' : 'geen'];
+    // "Naar Exact" van Import Offerte staat tijdelijk standaard uit (Patrick 2026-11-04); weer aanzetten in Config > Tegels.
+    $standaardUit = ['offerte-import'];
+    return ['lezen' => 'main', 'schrijven' => $bron === 'exact' && geeveDbSchrijftViaWeb($tegel) && !in_array($tegel, $standaardUit, true) ? 'test' : 'geen'];
 }
 
 /** Instelling uit een omgevingsvariabele of uit Config (.settings.enc / serverbestand); leeg = null. */
