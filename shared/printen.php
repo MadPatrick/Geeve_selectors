@@ -102,6 +102,13 @@ const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch', 'stickers-order',
 /** Voorgeselecteerde printer per tegel (naam van de printerwachtrij), voor wie nog geen eigen keuze (cookie) heeft. */
 const GEEVE_PRINT_TILE_STANDAARD_PRINTER = ['stickers-kabelmerkers' => 'RTMLBGeelKunstof01'];
 
+/**
+ * Printers die aan één tegel vastzitten (naam van de printerwachtrij, hoofdletterongevoelig => tegel-id). Zo'n printer komt
+ * alleen in de printerlijst van die tegel voor (en geevePrinters() geeft voor die tegel alléén zulke printers), en alle andere
+ * tegels laten hem weg. print-api.php valideert via geevePrinters(), dus ook de server weigert een andere combinatie.
+ */
+const GEEVE_PRINTER_ALLEEN_TEGEL = ['RTMLBGeelKunstof01' => 'stickers-kabelmerkers'];
+
 /** Het soort van een printer ('a4' of 'label'). */
 function geevePrinterSoort(array $printer): string
 {
@@ -310,12 +317,25 @@ function geevePrinterList(): array
     return $list = $found;
 }
 
-/** De printers die in een tegel te kiezen zijn (het soort past bij de tegel), als [share => naam]. */
+/**
+ * De printers die in een tegel te kiezen zijn (het soort past bij de tegel), als [share => naam]. Printers uit
+ * GEEVE_PRINTER_ALLEEN_TEGEL horen bij precies één tegel: die tegel krijgt alleen die printer, de rest krijgt hem niet.
+ */
 function geevePrinters(string $tile = 'slangkaarten'): array
 {
+    $vast = array_change_key_case(GEEVE_PRINTER_ALLEEN_TEGEL, CASE_LOWER);
+    $alleenVoorTegel = array_keys(array_filter($vast, static fn(string $t): bool => $t === $tile));
     $printers = [];
     foreach (geevePrinterList() as $share => $printer) {
-        if (geevePrinterPastBijTegel($printer, $tile)) {
+        $eigenaar = $vast[strtolower((string) $share)] ?? null;
+        if ($alleenVoorTegel !== []) {
+            // Tegel met een eigen printer: alleen die printer(s).
+            $toegestaan = in_array(strtolower((string) $share), $alleenVoorTegel, true);
+        } else {
+            // Gewone tegel: soort moet passen en een aan een andere tegel vastgezette printer valt weg.
+            $toegestaan = $eigenaar === null && geevePrinterPastBijTegel($printer, $tile);
+        }
+        if ($toegestaan) {
             $printers[$share] = $printer['name'];
         }
     }

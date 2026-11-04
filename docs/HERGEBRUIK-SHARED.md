@@ -134,7 +134,10 @@ Labelprinters gaan via een bitmap (TSPL voor Altec, `brother_ql` voor Brother QL
 
 **Printers.** Dat zijn de printershares op `SVNL-VWP-PS01` waarvan de naam met `RTM` begint. Er is niets in te
 stellen: `geevePrinterList()` haalt de lijst en de drivers op en bewaart ze 30 minuten in
-`data/printers/smb-printers.json`. Zebra/ZPL en onbekende drivers vallen weg.
+`data/printers/smb-printers.json`. Zebra/ZPL en onbekende drivers vallen weg. Een printer die aan één tegel vastzit
+(`GEEVE_PRINTER_ALLEEN_TEGEL` in `shared/printen.php`, bijv. `RTMLBGeelKunstof01` voor Kabelmerkers Geel) staat alleen in
+de lijst van die tegel; die tegel toont alleen die printer, andere tegels laten hem weg. `print-api.php` valideert via
+`geevePrinters($tile)`, dus ook de server weigert een andere combinatie.
 
 **Inloggen.** `/etc/geeve/smbprint.cred` (eigenaar root, groep `www-data`, rechten 640), in het formaat van
 `smbclient -A`:
