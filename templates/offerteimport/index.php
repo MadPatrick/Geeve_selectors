@@ -7,6 +7,9 @@ require_once __DIR__ . '/../../shared/helpers.php';
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/databases.php';
+
+// Tijdelijk (Patrick 2026-11-04): knop "Naar Exact" in Import Offerte zichtbaar maar inactief, ongeacht Config. Op false zetten om terug te gaan naar de Config-schakelaar.
+const NAAR_EXACT_TIJDELIJK_UIT = true;
 require_once __DIR__ . '/../../shared/paths.php';
 tileRequirePage('offerte-import', geeveAppUrl('templates'));
 
@@ -53,7 +56,7 @@ $csrf = csrfToken();
         <div class="ka-actions">
             <button type="button" id="oiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
             <button type="button" id="oiExport" class="ka-button" disabled>Exporteer XML</button>
-            <button type="button" id="oiExact" class="ka-button" disabled data-url="<?= h(geeveUrl('slangkaarten/api/exact/schrijf')) ?>"<?= geeveDbSchrijvenAan('offerte-import') ? '' : ' data-uit="1" title="Naar Exact is tijdelijk niet beschikbaar (aan te zetten in Config &gt; Tegels). Gebruik Exporteer XML."' ?>>Naar Exact</button>
+            <button type="button" id="oiExact" class="ka-button" disabled data-url="<?= h(geeveUrl('slangkaarten/api/exact/schrijf')) ?>"<?= (!NAAR_EXACT_TIJDELIJK_UIT && geeveDbSchrijvenAan('offerte-import')) ? '' : ' data-uit="1" title="Naar Exact is tijdelijk niet beschikbaar (tijdelijk uitgezet in de code). Gebruik Exporteer XML."' ?>>Naar Exact</button>
             <div id="oiDrop" class="ka-drop" tabindex="0" role="button">
                 <strong>Excel importeren</strong> - sleep een ingevulde template hierheen of <u>kies een bestand</u>
                 <input type="file" id="oiFile" accept=".xlsx,.xls,.xlsm,.xltm" hidden>
