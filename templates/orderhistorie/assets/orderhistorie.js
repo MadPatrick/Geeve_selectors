@@ -30,7 +30,10 @@
     function esc(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
-    function nl(n) { return Number(n).toLocaleString('nl-NL', { maximumFractionDigits: 4 }); }
+    function nl(n, dec) {
+        if (dec === null || dec === undefined) { return Number(n).toLocaleString('nl-NL', { maximumFractionDigits: 4 }); }
+        return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    }
     function dmy(iso) { return iso.split('-').reverse().join('-'); }
     function fail(text) { message.textContent = text || ''; message.hidden = !text; }
     function getJson(url) { return fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }); }
@@ -39,7 +42,7 @@
     function cellText(v, i) {
         if (v === null || v === undefined) { return ''; }
         if (data.dates[i] && typeof v === 'string' && ISO_DATE.test(v)) { return dmy(v); }
-        if (data.numeric[i] && typeof v === 'number') { return nl(v); }
+        if (data.numeric[i] && typeof v === 'number') { return nl(v, data.decimals ? data.decimals[i] : null); }
         return String(v);
     }
 
@@ -278,6 +281,8 @@
                 if (data.dates[c] && cell.t === 's' && ISO_DATE.test(cell.v)) {
                     var p = cell.v.split('-');
                     cell = ws[addr] = { t: 'n', v: Math.round(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000) + 25569, z: 'dd-mm-yyyy' };
+                } else if (data.numeric[c] && data.decimals && data.decimals[c] === 2 && cell.t === 'n') {
+                    cell.z = '#,##0.00';
                 } else if (!data.numeric[c]) {
                     // Artikel-, order- en referentienummers altijd als tekst (voorloopnullen blijven staan).
                     cell.t = 's'; cell.v = String(cell.v); cell.z = '@';

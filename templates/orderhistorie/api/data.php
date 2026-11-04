@@ -21,10 +21,16 @@ require_once __DIR__ . '/../../../reports/inc.php';
 const ORDERHISTORIE_MAX = 50000;
 
 const ORDERHISTORIE_KOLOMMEN = [
-    'Artikelnr', 'Ordernr', 'Referentie', 'Uw referentie', 'Pakbondatum', 'Omschrijving', 'Aantal geleverd',
+    'Artikelnr', 'Ordernr', 'Referentie', 'Uw referentie', 'Pakbondatum', 'Omschrijving', 'Aantal geleverd', 'Bruto prijs', 'Korting %',
 ];
-const ORDERHISTORIE_DATUM = [false, false, false, false, true, false, false];
-const ORDERHISTORIE_GETAL = [false, false, false, false, false, false, true];
+const ORDERHISTORIE_DATUM = [false, false, false, false, true, false, false, false, false];
+const ORDERHISTORIE_GETAL = [false, false, false, false, false, false, true, true, true];
+/** Vaste aantal decimalen per kolom (null = vrij, zoals Aantal geleverd); bruto prijs en korting altijd met 2 decimalen. */
+const ORDERHISTORIE_DECIMALEN = [null, null, null, null, null, null, null, 2, 2];
+
+/** Kolommen van orhsrg (database 005) voor bruto prijs en korting; controle met ?diagnose=1 als de naam in Exact anders blijkt. */
+const ORDERHISTORIE_KOL_PRIJS = 'prijs';
+const ORDERHISTORIE_KOL_KORTING = 'korting';
 
 const ORDERHISTORIE_FROM =
     'orhkrg ohk WITH (NOLOCK) INNER JOIN orhsrg ohr WITH (NOLOCK) ON ohk.ordernr = ohr.ordernr AND ohk.pakbon_nr = ohr.pakbon_nr ' .
@@ -32,7 +38,8 @@ const ORDERHISTORIE_FROM =
 
 const ORDERHISTORIE_SELECT =
     'LTRIM(RTRIM(ohr.artcode)), ohk.ordernr, ' .
-    'LTRIM(RTRIM(ohk.refer)), LTRIM(RTRIM(ohk.docnumber)), ohk.pakbon_dat, LTRIM(RTRIM(i.Description)), ohr.aant_gelev';
+    'LTRIM(RTRIM(ohk.refer)), LTRIM(RTRIM(ohk.docnumber)), ohk.pakbon_dat, LTRIM(RTRIM(i.Description)), ohr.aant_gelev, ' .
+    'ohr.' . ORDERHISTORIE_KOL_PRIJS . ', ohr.' . ORDERHISTORIE_KOL_KORTING;
 
 /** Waarde uit pdo_sqlsrv (string of DateTime) als YYYY-MM-DD. */
 function orderhistorieDatum(mixed $v): ?string
@@ -81,6 +88,7 @@ function orderhistorieDiagnose(PDO $pdo, string $debnr): string
             $out[] = $label . ': FOUT ' . geeveFoutTekst($e);
         }
     };
+    $run('Prijs- en kortingskolommen van orhsrg', "SELECT name, TYPE_NAME(system_type_id) FROM sys.columns WHERE object_id = OBJECT_ID('orhsrg') AND (name LIKE '%prijs%' OR name LIKE '%kort%' OR name LIKE '%bruto%' OR name LIKE '%netto%') ORDER BY name", []);
     $run('Totaal orderkoppen / oudste en nieuwste pakbondatum', 'SELECT COUNT(*), MIN(pakbon_dat), MAX(pakbon_dat) FROM orhkrg WITH (NOLOCK)', []);
     if ($debnr !== '') {
         $run('Aantal koppen en regels voor debnr ' . $debnr, 'SELECT COUNT(DISTINCT ohk.ordernr), COUNT(*) FROM ' . ORDERHISTORIE_FROM . ' WHERE LTRIM(RTRIM(ohk.debnr)) = ?', [$debnr]);
@@ -114,6 +122,19 @@ reportApi(function (array $in): array {
 
     if (($in['diagnose'] ?? '') !== '') {
         throw new RuntimeException(orderhistorieDiagnose($pdo, $debnr));
+    }
+    // Snelle controle (sys.columns van een enkele tabel) zodat een andere kolomnaam in Exact een duidelijke melding geeft i.p.v. een SQL-fout.
+    $ontbreekt = [];
+    foreach ([ORDERHISTORIE_KOL_PRIJS, ORDERHISTORIE_KOL_KORTING] as $kolom) {
+        $chk = $pdo->prepare("SELECT COL_LENGTH('orhsrg', ?)");
+        $chk->execute([$kolom]);
+        $lengte = $chk->fetchColumn();
+        if ($lengte === null || $lengte === false) {
+            $ontbreekt[] = $kolom;
+        }
+    }
+    if ($ontbreekt !== []) {
+        throw new RuntimeException('Kolom(men) ' . implode(', ', $ontbreekt) . ' bestaan niet in orhsrg. Open de tegel met ?diagnose=1 voor de beschikbare prijs- en kortingskolommen.');
     }
     // Zoeken mag alleen met een klant, artikelnummer of omschrijving; de datums alleen zijn te breed.
     if ($debnr === '' && $klant === '' && $klantZoek === '' && $artnr === '' && $omsc === '') {
@@ -195,6 +216,7 @@ reportApi(function (array $in): array {
         'columns' => ORDERHISTORIE_KOLOMMEN,
         'numeric' => ORDERHISTORIE_GETAL,
         'dates' => ORDERHISTORIE_DATUM,
+        'decimals' => ORDERHISTORIE_DECIMALEN,
         'rows' => $rows,
         'tijden' => ['bron' => 0, 'ophalen' => $msOphalen],
         'kop' => $kop,
