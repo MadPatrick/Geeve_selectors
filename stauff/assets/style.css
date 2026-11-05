@@ -54,8 +54,6 @@ h2 { margin: 4px 0 0; font-size: 22px; }
 .diameter-field .autocomplete { width: calc(12ch + 42px); min-width: calc(12ch + 42px); }
 .diameter-field input { width: 100%; }
 
-.autocomplete { position: relative; }
-
 /* Live, fuzzy artikelnummer-zoekresultaten uit Exact (groep 67) bij het
    diameterveld - zie api/exact_search.php. Gewone flex-buur van de
    diameter-box in .filter-grid (dus naast, niet onder), geen absolute
@@ -219,7 +217,6 @@ button.location-number { cursor: pointer; }
     padding: 10px 16px;
     cursor: pointer;
 }
-.link-button:hover { opacity: .9; }
 
 .modal-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--overlay-modal); }
 .modal-overlay[hidden] { display: none; }
@@ -312,7 +309,6 @@ button.location-number { cursor: pointer; }
 .copy-button:hover:not(:disabled) { opacity: .9; }
 .copy-button:disabled { opacity: .45; cursor: default; }
 
-.warning-box { margin-top: 18px; padding: 15px 18px; border-radius: 12px; border: 1px solid var(--status-error-line); background: var(--status-invalid-bg); color: var(--status-error-ink); }
 .warning-box ul { margin: 8px 0 0 20px; padding: 0; }
 
 @media (max-width: 980px) {
@@ -344,9 +340,6 @@ button.location-number { cursor: pointer; }
     cursor: pointer;
     white-space: nowrap;
 }
-.submit-button:hover { opacity: .9; }
-
-
 
 /* Verberg de onderdeelafbeelding echt wanneer geen artikel is geselecteerd.
    De algemene display:block-regel op .location-image img overschrijft anders

@@ -73,7 +73,6 @@
 .tile-disabled .tile-cta { color: var(--muted); }
 .tile-disabled::after { display: none; }
 
-
 .update-button svg { display: block; }
 
 /* Config-knop (tandwiel in de topbalk van het hoofdscherm): grijs #525252, bij hover wit. */

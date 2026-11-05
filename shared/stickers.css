@@ -50,3 +50,53 @@
 /* Nog geen voorbeeld (leeg element): toon een stippelkader met "Voorbeeld". */
 .sk-prev > :empty { display: flex; align-items: center; justify-content: center; min-height: 140px; border: 2px dashed var(--line-strong); border-radius: var(--radius-sm); color: var(--muted); font-size: 14px; zoom: 1; }
 .sk-prev > :empty::before { content: "Voorbeeld"; }
+
+/* ---- Regels die eerder in meerdere stickers-stylesheets stonden, nu centraal; overgenomen zonder wijziging ---- */
+.sticker {
+    position: relative;
+    width: 102mm;
+    height: 54mm;
+    overflow: hidden;
+    color: var(--ink-black);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 3.2mm;
+    line-height: 1;
+}
+.sticker-in {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 102mm;
+    height: 54mm;
+    transform-origin: 0 0;
+    transform: translate(2.15mm, 2.08mm) scale(.964, .934);
+}
+.sticker .f {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.sticker .b {
+    font-weight: 700;
+}
+.sticker .big {
+    font-size: 4.6mm;
+}
+.sticker .c-l2 {
+    left: .5mm;
+    width: 25.5mm;
+}
+.sticker .c-ref {
+    left: 26.3mm;
+    width: 74mm;
+}
+.sticker .c-l3 {
+    left: .5mm;
+    width: 21mm;
+}
+.sticker .c-val3 {
+    left: 22.6mm;
+    width: 13.5mm;
+}
