@@ -55,7 +55,7 @@ if (trim($html) === '') {
     printApiFail(400, 'Er is niets om te printen.');
 }
 
-// Optioneel: snelheid en zwarting. Brother QL: snelheid "1" = snel, zwarting 10-90 %. TSPL: snelheid 1-12, zwarting 0-15.
+// Optioneel: snelheid en zwarting. Brother QL: snelheid "1" = snel, zwarting 10-90 %. TSPL: snelheid 1-12, zwarting 0-15. ZPL: snelheid 2-6, zwarting 0-30.
 // Alles buiten het bereik of leeg wordt niet meegestuurd.
 $afdruk = [];
 $afdrukSoort = in_array($tile, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true) ? (geevePrinterList()[$queue]['taal'] ?? null) : null;
@@ -67,6 +67,8 @@ if ($afdrukSoort === 'brother') {
     $bereik = ['zwarting' => [10, 90]];
 } elseif ($afdrukSoort === 'tspl') {
     $bereik = ['snelheid' => [1, 12], 'zwarting' => [0, 15]];
+} elseif ($afdrukSoort === 'zpl') {
+    $bereik = ['snelheid' => [2, 6], 'zwarting' => [0, 30]];
 } else {
     $bereik = [];
 }

@@ -94,8 +94,8 @@ const GEEVE_TSPL_ZWART_IS_NUL = true;
 
 /**
  * Tegels waar boven de printknop de velden "Snelheid" en "Zwarting" staan, met de soort labelprinter waarvoor ze gelden:
- * 'brother' (Brother QL: Zwarting = grijsdrempel in %, Snelheid = Standaard/Snel) of 'tspl' (Altec/TSC: SPEED 1-12 en
- * DENSITY 0-15 als cijfers). Andere printers negeren ze. Leeg = standaard. Zie geevePrintAfdrukInstellingenHtml().
+ * 'brother' (Brother QL: Zwarting = grijsdrempel in %, Snelheid = Standaard/Snel), 'tspl' (Altec/TSC: SPEED 1-12 en
+ * DENSITY 0-15 als cijfers) of 'zpl' (Zebra: ^PR 2-6 en ~SD 0-30). Andere printers negeren ze. Leeg = standaard. Zie geevePrintAfdrukInstellingenHtml().
  */
 const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch', 'stickers-order', 'stickers-productie', 'stickers-slanglabels'];
 
@@ -587,7 +587,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
             }
             $zpl = '';
             foreach ($pages as $page) {
-                $zpl .= geevePbmToZpl((string) file_get_contents($page));
+                $zpl .= geevePbmToZpl((string) file_get_contents($page), $afdruk);
             }
             $file = $workDir . '/labels.zpl';
             file_put_contents($file, $zpl);
@@ -717,7 +717,7 @@ function geevePgmNaarPbm(string $pgm, int $factor, int $drempel): string
  * Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een ZPL-label voor een Zebra: ^PW/^LL in punten, de bitmap als
  * ^GFA (ASCII-hex, 1 = zwart, geen inversie nodig) en ^XZ. Rijen zijn intdiv(breedte+7,8) bytes, de opvulbits zijn 0 (wit).
  */
-function geevePbmToZpl(string $pbm): string
+function geevePbmToZpl(string $pbm, array $afdruk = []): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -730,7 +730,10 @@ function geevePbmToZpl(string $pbm): string
         throw new RuntimeException('De afbeelding van het label is onvolledig.');
     }
     $total = $rowBytes * $height;
-    return "^XA\r\n^CI28\r\n^PW" . $width . "\r\n^LL" . $height . "\r\n^LH0,0\r\n^FO0,0^GFA," . $total . ',' . $total . ',' . $rowBytes . ',' . strtoupper(bin2hex($data))
+    // Zwarting (~SD 0-30) staat vóór ^XA; snelheid (^PR, inch/s) erin. Zonder keuze geldt de instelling van de printer zelf.
+    $voor = isset($afdruk['zwarting']) ? '~SD' . (int) $afdruk['zwarting'] . "\r\n" : '';
+    $snelheid = isset($afdruk['snelheid']) ? '^PR' . (int) $afdruk['snelheid'] . "\r\n" : '';
+    return $voor . "^XA\r\n" . $snelheid . "^CI28\r\n^PW" . $width . "\r\n^LL" . $height . "\r\n^LH0,0\r\n^FO0,0^GFA," . $total . ',' . $total . ',' . $rowBytes . ',' . strtoupper(bin2hex($data))
         . "^FS\r\n^PQ1\r\n^XZ\r\n";
 }
 
@@ -968,7 +971,7 @@ function geevePrinterSelectHtml(string $tileId, string $csrf): string
  * De velden "Snelheid" en "Zwarting" om boven de printerkeuze en de Print-knop te zetten; alleen voor tegels in
  * GEEVE_PRINT_TILE_AFDRUK_INSTELLING, anders leeg. Per soort labelprinter een eigen set; direct-print.js toont de set
  * die bij de gekozen printer hoort (data-taal van de optie) en verbergt de rest. Brother QL: Snelheid Standaard/Snel,
- * Zwarting 10-90 %. TSPL (Altec/TSC): Snelheid 1-12, Zwarting 0-15. Standaard = standaard van de printer.
+ * Zwarting 10-90 %. TSPL (Altec/TSC): Snelheid 1-12, Zwarting 0-15. ZPL (Zebra): Snelheid 2-6, Zwarting 0-30. Standaard = standaard van de printer.
  */
 function geevePrintAfdrukInstellingenHtml(string $tileId): string
 {
@@ -997,6 +1000,9 @@ function geevePrintAfdrukInstellingenHtml(string $tileId): string
         . $set('brother',
             $keuzes('directSnelheid-brother', 'Snel = lagere afdrukkwaliteit (Brother QL); voorgeselecteerd', [1 => 'Snel'], '1'),
             $keuzes('directZwarting-brother', 'Zwarting in % (hoger = zwarter); Standaard = 50 %', $procenten, '', 50))
+        . $set('zpl',
+            $keuzes('directSnelheid-zpl', 'Printsnelheid in inch/s (2-6, ^PR); Standaard = standaard van de printer', array_combine(range(2, 6), range(2, 6))),
+            $keuzes('directZwarting-zpl', 'Zwarting (0-30, ~SD, hoger = zwarter); Standaard = standaard van de printer', array_combine(range(0, 30), range(0, 30))))
         . $set('tspl',
             $keuzes('directSnelheid-tspl', 'Printsnelheid in inch/s (1-12); Standaard = standaard van de printer', array_combine(range(1, 12), range(1, 12)), '', isset($medium['snelheid']) ? (int) $medium['snelheid'] : null),
             $keuzes('directZwarting-tspl', 'Zwarting (0-15, hoger = zwarter); Standaard = standaard van de printer', array_combine(range(0, 15), range(0, 15)), '', isset($medium['zwarting']) ? (int) $medium['zwarting'] : null))
