@@ -94,7 +94,7 @@ $csrf = csrfToken();
         <a class="<?= tileClass('brutoprijzen') ?>" href="<?= h(geeveAppUrl('brutoprijzen')) ?>"<?= tileAttrs('brutoprijzen') ?>>
             <?= tileIcon('brutoprijzen') ?>
             <h2><?= h(tileTitle('brutoprijzen')) ?></h2>
-            <p>Per artikelgroep: artikelnummer, leveranciersnummer en bruto verkoopprijs, te exporteren naar Exact</p>
+            <p>Per artikelgroep: artikelnummer, leveranciersnummer en bruto verkoopprijs, te exporteren naar Excel</p>
             <?= tileLockIcon('brutoprijzen') ?>
         </a>
         <?php endif; $tileHtml['brutoprijzen'] = ob_get_clean(); ?>
