@@ -194,6 +194,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
         $tilesMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Tegel-instellingen opgeslagen.']
             : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
+        // Config is leidend voor de Exact-omgeving van Slangkaart.Web: geef de keuze per app door via data/exact/omgeving.json.
+        if ($tilesMessage['ok'] && !geeveDbOmgevingBestandSchrijven($keuzes)) {
+            $tilesMessage = ['ok' => false, 'text' => 'Tegel-instellingen opgeslagen, maar de Exact-omgeving kon niet naar ' . geeveDbOmgevingBestandPad() . ' geschreven worden (rechten van de map data/exact?). Slangkaart.Web volgt de keuze pas als dat lukt.'];
+        }
     }
 }
 
@@ -461,8 +465,8 @@ $storedSettings = secureSettingsRead();
                                             <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>Schrijven: geen</option>
                                             <?php foreach ($bronInfo[2] as $omg): ?>
                                                 <?php $viaWeb = geeveDbSchrijftViaWeb($tileId);
-                                                // Via Slangkaart.Web: test = de testserver van die app (altijd beschikbaar), main = daar geblokkeerd.
-                                                $schrijfBeschikbaar = $viaWeb ? $omg === 'test' : geeveDbOmgevingBeschikbaar($bron, $omg); ?>
+                                                // Via Slangkaart.Web kiest de Config de omgeving van die app; main werkt daar pas als de server productie toestaat.
+                                                $schrijfBeschikbaar = $viaWeb ? true : geeveDbOmgevingBeschikbaar($bron, $omg); ?>
                                                 <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= $schrijfBeschikbaar ? '' : ' disabled' ?>>Schrijven: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
                             <?php endforeach; ?>
                                         </select>
