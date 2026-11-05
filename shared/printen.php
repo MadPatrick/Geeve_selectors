@@ -112,9 +112,9 @@ const GEEVE_PRINTER_ALLEEN_TEGEL = ['RTMLBGeelKunstof01' => 'stickers-kabelmerke
 /**
  * Printers waarvan de driver niet automatisch te herkennen is (geeveSmbPrinterType() geeft dan null en de printer zou
  * wegvallen): sharenaam (hoofdletterongevoelig) => type zoals geeveSmbPrinterType() dat teruggeeft. De share moet wel op de
- * printserver bestaan. RTMPROVE01 (10.209.180.132) is als TSPL-labelprinter (Altec/TSC) ingesteld, net als de andere labelprinters.
+ * printserver bestaan. RTMPROVE01 (10.209.180.132) is een Zebra ZD230 (203 dpi, ZPL; driver "ZDesigner ZD230-203dpi ZPL"). Het veld 'dpi' overschrijft de standaard van 300 dpi.
  */
-const GEEVE_PRINTER_TYPE_VAST = ['rtmprove01' => ['soort' => 'label', 'taal' => 'tspl', 'color' => false]];
+const GEEVE_PRINTER_TYPE_VAST = ['rtmprove01' => ['soort' => 'label', 'taal' => 'zpl', 'color' => false, 'dpi' => 203]];
 
 /** Het soort van een printer ('a4' of 'label'). */
 function geevePrinterSoort(array $printer): string
@@ -577,6 +577,22 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         if (($printer['taal'] ?? '') === 'brother') {
             return geeveBrotherPrint($pdfFile, $printer, $queue, $title, $workDir, in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true), $afdruk);
         }
+        if (($printer['taal'] ?? '') === 'zpl') {
+            // Zebra (ZPL): per pagina een zwart-wit bitmap op de resolutie van de printer, als ^GFA-opdracht.
+            $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', (string) $dpi, $pdfFile, $workDir . '/pagina'], 60);
+            $pages = glob($workDir . '/pagina-*.pbm') ?: [];
+            sort($pages);
+            if ($raster['code'] !== 0 || $pages === []) {
+                throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
+            }
+            $zpl = '';
+            foreach ($pages as $page) {
+                $zpl .= geevePbmToZpl((string) file_get_contents($page));
+            }
+            $file = $workDir . '/labels.zpl';
+            file_put_contents($file, $zpl);
+            return geeveSmbPrint($queue, $file, $title);
+        }
         $medium = GEEVE_LABEL_MEDIUM[$sheetClass] ?? [];
         $factor = (int) ($medium['supersample'] ?? 0);
         if ($factor > 1) {
@@ -695,6 +711,27 @@ function geevePgmNaarPbm(string $pgm, int $factor, int $drempel): string
         }
     }
     return "P4\n" . $width . ' ' . $height . "\n" . pack('C*', ...$out);
+}
+
+/**
+ * Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een ZPL-label voor een Zebra: ^PW/^LL in punten, de bitmap als
+ * ^GFA (ASCII-hex, 1 = zwart, geen inversie nodig) en ^XZ. Rijen zijn intdiv(breedte+7,8) bytes, de opvulbits zijn 0 (wit).
+ */
+function geevePbmToZpl(string $pbm): string
+{
+    if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
+        throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
+    }
+    $width = (int) $m[1][0];
+    $height = (int) $m[2][0];
+    $rowBytes = intdiv($width + 7, 8);
+    $data = substr($pbm, $m[0][1] + strlen($m[0][0]), $rowBytes * $height);
+    if (strlen($data) !== $rowBytes * $height) {
+        throw new RuntimeException('De afbeelding van het label is onvolledig.');
+    }
+    $total = $rowBytes * $height;
+    return "^XA\r\n^CI28\r\n^PW" . $width . "\r\n^LL" . $height . "\r\n^LH0,0\r\n^FO0,0^GFA," . $total . ',' . $total . ',' . $rowBytes . ',' . strtoupper(bin2hex($data))
+        . "^FS\r\n^PQ1\r\n^XZ\r\n";
 }
 
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */

@@ -329,7 +329,7 @@ Links in een app:
   (`GEEVE_SMB_SERVER`, `GEEVE_SMB_PREFIX`). Er is niets in te stellen in Config: `geevePrinterList()` haalt de shares
   (`smbclient -L`) en hun driver (`rpcclient enumprinters 1`) op en bewaart de lijst 30 minuten in
   `data/printers/smb-printers.json` (niet in git). De driver bepaalt het soort: PCL-driver = A4 (kleur bij "Color" of
-  Canon), Altec = TSPL-labelprinter, Brother QL = Brother-labelprinter; Zebra/ZPL en onbekende drivers vallen weg, tenzij de share in `GEEVE_PRINTER_TYPE_VAST` (`shared/printen.php`) staat met een vast type (nu `RTMPROVE01` = TSPL-labelprinter).
+  Canon), Altec = TSPL-labelprinter, Brother QL = Brother-labelprinter; onbekende drivers vallen weg (Zebra/ZPL alleen via), de share in `GEEVE_PRINTER_TYPE_VAST` (`shared/printen.php`) staat met een vast type (nu `RTMPROVE01` = Zebra ZD230, ZPL, 203 dpi). ZPL wordt als bitmap (`^GFA`, `geevePbmToZpl()`) verstuurd; Snelheid/Zwarting zijn daar nog niet instelbaar.
   `geevePrinters($tegelId)` geeft de printers die bij een tegel passen (`GEEVE_PRINT_TILE_SOORT`: 'a4' of 'label';
   nieuwe tegel met direct printen = toevoegen aan `GEEVE_PRINT_TILES`).
 - **Inloggen** op de printserver gebeurt met het account uit `/etc/geeve/smbprint.cred` (formaat van `smbclient -A`: `username`, `password`, `domain`), buiten de webmap, van root en leesbaar voor
