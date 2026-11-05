@@ -90,6 +90,14 @@ $csrf = csrfToken();
             <?= tileLockIcon('inkoopprijzen-gr14-gr55') ?>
         </a>
         <?php endif; $tileHtml['inkoopprijzen-gr14-gr55'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('brutoprijzen')): ?>
+        <a class="<?= tileClass('brutoprijzen') ?>" href="<?= h(geeveAppUrl('brutoprijzen')) ?>"<?= tileAttrs('brutoprijzen') ?>>
+            <?= tileIcon('brutoprijzen') ?>
+            <h2><?= h(tileTitle('brutoprijzen')) ?></h2>
+            <p>Per artikelgroep: artikelnummer, leveranciersnummer en bruto verkoopprijs, te exporteren naar Exact</p>
+            <?= tileLockIcon('brutoprijzen') ?>
+        </a>
+        <?php endif; $tileHtml['brutoprijzen'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('negatieve-voorraad')): ?>
         <a class="<?= tileClass('negatieve-voorraad') ?>" href="<?= h(geeveAppUrl('negatieve-voorraad')) ?>"<?= tileAttrs('negatieve-voorraad') ?>>
             <?= tileIcon('negatieve-voorraad') ?>

@@ -138,6 +138,7 @@ const GEEVE_APP_URLS = [
     'productiviteit' => 'reports/productiviteit/',
     'artikel-marge' => 'reports/artikelmarge/',
     'inkoopprijzen-gr14-gr55' => 'reports/inkoopprijzengr14gr55/',
+    'brutoprijzen' => 'reports/brutoprijzen/',
     'negatieve-voorraad' => 'reports/negatievevoorraad/',
     'inkooporder' => 'templates/inkooporder/',
     'order-offerte' => 'templates/orderofferte/',
