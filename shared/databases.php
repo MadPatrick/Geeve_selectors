@@ -71,7 +71,8 @@ const GEEVE_TILE_DB = [
  * geblokkeerd). Voor deze tegels geldt dus: schrijven staat standaard op "test" (zoals het nu werkt), "main" is niet te kiezen
  * en "geen" zet de knop "Naar Exact" uit. De portal zelf maakt voor deze tegels geen schrijfverbinding.
  */
-const GEEVE_TILE_SCHRIJVEN_VIA_WEB = ['stauff', 'offerte-import'];
+// Import Offerte schrijft niet meer (Patrick 2026-11-05): die maakt een XML-bestand voor de import in Exact.
+const GEEVE_TILE_SCHRIJVEN_VIA_WEB = ['stauff'];
 
 /** True als de tegel via Slangkaart.Web naar Exact schrijft. */
 function geeveDbSchrijftViaWeb(string $tegel): bool
@@ -82,9 +83,7 @@ function geeveDbSchrijftViaWeb(string $tegel): bool
 /** Standaardkeuze zonder instelling: lezen uit main; schrijven uit, behalve voor tegels die via Slangkaart.Web schrijven (test). */
 function geeveDbStandaard(string $tegel, string $bron): array
 {
-    // "Naar Exact" van Import Offerte staat tijdelijk standaard uit (Patrick 2026-11-04); weer aanzetten in Config > Tegels.
-    $standaardUit = ['offerte-import'];
-    return ['lezen' => 'main', 'schrijven' => $bron === 'exact' && geeveDbSchrijftViaWeb($tegel) && !in_array($tegel, $standaardUit, true) ? 'test' : 'geen'];
+    return ['lezen' => 'main', 'schrijven' => $bron === 'exact' && geeveDbSchrijftViaWeb($tegel) ? 'test' : 'geen'];
 }
 
 /** Instelling uit een omgevingsvariabele of uit Config (.settings.enc / serverbestand); leeg = null. */

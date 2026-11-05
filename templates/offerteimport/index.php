@@ -8,8 +8,6 @@ require_once __DIR__ . '/../../shared/helpers.php';
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/databases.php';
 
-// Tijdelijk (Patrick 2026-11-04): knop "Naar Exact" in Import Offerte zichtbaar maar inactief, ongeacht Config. Op false zetten om terug te gaan naar de Config-schakelaar.
-const NAAR_EXACT_TIJDELIJK_UIT = true;
 require_once __DIR__ . '/../../shared/paths.php';
 tileRequirePage('offerte-import', geeveAppUrl('templates'));
 
@@ -52,11 +50,10 @@ $csrf = csrfToken();
             <br>Weet je alleen het artikelnummer van de klant, vul dan de klantartikelnr. in: ons artikelnummer wordt gezocht bij de klantartikelen van het debiteurnummer hieronder (artikelcode en leveranciersnummer gaan voor). 
             <br>De velden en artikelen worden gecontroleerd met Exact: de artikelomschrijving komt uit Exact, en artikelen die niet bestaan staan rood. 
             <br>
-            <br>Is alles in orde, dan schrijf je de offerte met <strong>Naar Exact</strong> direct naar Exact (eerst een proef, dan bevestigen), of maak je het XML-bestand voor de import in Exact (<strong>Systeem\Importeren XML\Logistieke import</strong>).</p>
+            <br>Is alles in orde, dan maak je met <strong>Maak XML voor Exact</strong> een XML-bestand. Er wordt niets in Exact geschreven: je importeert het bestand zelf in Exact via <strong>Systeem\Importeren XML\Logistieke import</strong>.</p>
         <div class="ka-actions">
             <button type="button" id="oiTemplate" class="ka-button ka-button--secondary">Download lege template</button>
-            <button type="button" id="oiExport" class="ka-button" disabled>Exporteer XML</button>
-            <button type="button" id="oiExact" class="ka-button" disabled data-url="<?= h(geeveUrl('slangkaarten/api/exact/schrijf')) ?>"<?= (!NAAR_EXACT_TIJDELIJK_UIT && geeveDbSchrijvenAan('offerte-import')) ? '' : ' data-uit="1" title="Naar Exact is tijdelijk niet beschikbaar (tijdelijk uitgezet in de code). Gebruik Exporteer XML."' ?>>Naar Exact</button>
+            <button type="button" id="oiExport" class="ka-button" disabled>Maak XML voor Exact</button>
             <div id="oiDrop" class="ka-drop" tabindex="0" role="button">
                 <strong>Excel importeren</strong> - sleep een ingevulde template hierheen of <u>kies een bestand</u>
                 <input type="file" id="oiFile" accept=".xlsx,.xls,.xlsm,.xltm" hidden>
