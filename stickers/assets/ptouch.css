@@ -4,6 +4,9 @@
 .pt-preview { zoom: 1.25; }
 .pt-align { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 14px; }
 .pt-align-label { font-weight: 700; }
+/* Uitlijnknoppen met iconen (staan tussen Leegmaken en Print). */
+.rp-toggle--icons button { display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; }
+.rp-toggle--icons svg { width: 20px; height: 20px; display: block; }
 
 .pt-sticker {
     position: relative;

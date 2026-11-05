@@ -30,6 +30,7 @@ function stickerTitelHtml(string $titel, string $maat, string $uitleg, string $m
  *   copiesValue?: int,
  *   extra?: string,            extra HTML in de instellingenkolom, boven de printerkeuze
  *   clearId?: string,          id van de knop Leegmaken (weglaten = geen knop)
+ *   actiesMidden?: string,     extra HTML (bijv. keuzeschakelaars) tussen Leegmaken en Print
  *   printId: string,           id van de Print-knop
  *   printDisabled?: bool,
  *   printAttrs?: string,       extra attributen op de Print-knop (al ge-escaped)
@@ -53,6 +54,9 @@ function stickerKaartHtml(array $o): string
         . '</div></div><div class="sk-acties">';
     if (isset($o['clearId'])) {
         $html .= '<button type="button" id="' . $h($o['clearId']) . '" class="ka-button ka-button--secondary">Leegmaken</button>';
+    }
+    if (!empty($o['actiesMidden'])) {
+        $html .= '<div class="sk-acties-midden">' . $o['actiesMidden'] . '</div>';
     }
     $html .= '<button type="button" id="' . $h($o['printId']) . '" class="print-btn' . (isset($o['printClass']) ? ' ' . $h($o['printClass']) : '') . '"'
         . (!empty($o['printDisabled']) ? ' disabled' : '') . ($o['printAttrs'] ?? '') . '>' . $icon . '<span>Print</span></button>'
