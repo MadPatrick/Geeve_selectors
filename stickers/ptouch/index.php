@@ -43,8 +43,13 @@ $csrf = csrfToken();
 
     <section class="panel sk-top">
         <div class="sk-invoer">
-            <?= stickerTitelHtml('Naamstickers', '102 × 51 mm', 'Typ de tekst rechtstreeks op de sticker; de letter schaalt mee. Enter geeft een nieuwe regel.', 'Het lettertype is Verdana Bold, de tekst is horizontaal en verticaal uit te lijnen (standaard midden). De letter is zo groot dat er minimaal twee regels op de sticker passen en wordt kleiner naarmate je meer regels typt (er blijft steeds één lege regel onder de tekst).') ?>
+            <?= stickerTitelHtml('Naamstickers', '102 × 51 mm / 70 × 25 mm', 'Typ de tekst rechtstreeks op de sticker; de letter schaalt mee. Enter geeft een nieuwe regel.', 'Het lettertype is Verdana Bold, de tekst is horizontaal en verticaal uit te lijnen (standaard midden). De letter is zo groot dat er minimaal twee regels op de sticker passen en wordt kleiner naarmate je meer regels typt (er blijft steeds één lege regel onder de tekst).') ?>
             <div class="pt-align">
+                <span class="pt-align-label">Formaat</span>
+                <div class="rp-toggle" id="ptMaat" role="group" aria-label="Formaat sticker">
+                    <button type="button" data-maat="groot" class="is-active">Sticker Groot (102 × 51 mm)</button>
+                    <button type="button" data-maat="klein">Sticker Klein (70 × 25 mm)</button>
+                </div>
                 <span class="pt-align-label">Uitlijnen horizontaal</span>
                 <div class="rp-toggle" id="ptAlign" role="group" aria-label="Uitlijnen">
                     <button type="button" data-align="left">Links</button>
