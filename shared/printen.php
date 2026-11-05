@@ -112,9 +112,9 @@ const GEEVE_PRINTER_ALLEEN_TEGEL = ['RTMLBGeelKunstof01' => 'stickers-kabelmerke
 /**
  * Printers waarvan de driver niet automatisch te herkennen is (geeveSmbPrinterType() geeft dan null en de printer zou
  * wegvallen): sharenaam (hoofdletterongevoelig) => type zoals geeveSmbPrinterType() dat teruggeeft. De share moet wel op de
- * printserver bestaan. RTMPOVE01 is een TSPL-labelprinter (Altec/TSC), net als de andere labelprinters.
+ * printserver bestaan. RTMPROVE01 (10.209.180.132) is als TSPL-labelprinter (Altec/TSC) ingesteld, net als de andere labelprinters.
  */
-const GEEVE_PRINTER_TYPE_VAST = ['rtmpove01' => ['soort' => 'label', 'taal' => 'tspl', 'color' => false]];
+const GEEVE_PRINTER_TYPE_VAST = ['rtmprove01' => ['soort' => 'label', 'taal' => 'tspl', 'color' => false]];
 
 /** Het soort van een printer ('a4' of 'label'). */
 function geevePrinterSoort(array $printer): string
