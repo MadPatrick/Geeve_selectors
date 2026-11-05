@@ -26,16 +26,26 @@
     </IfModule>
 </FilesMatch>
 
-# Compressie: Debian comprimeert application/json standaard niet (zoek- en data-API's).
+# Compressie: Debian comprimeert alleen html/css/js standaard, application/json niet (zoek- en data-API's). Hier alles
+# wat tekst is expliciet aan: scheelt 70-85% verkeer op de grote scripts (selector.js, offerte.js, xlsx). Afbeeldingen
+# (jpg/png) zijn al gecomprimeerd en blijven buiten beeld. Werkt alleen met mod_deflate.
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json image/svg+xml
 </IfModule>
 
 # Cache: CSS, JS en afbeeldingen elke keer bij de server navragen (304 als ze niet veranderd zijn),
 # zodat na een git pull meteen de nieuwe versie geladen wordt - ook van bestanden zonder ?v=, zoals
-# shared/tokens.css (via @import in shared/style.css) en de logo's. Werkt alleen met mod_headers.
+# de logo's en het favicon. Werkt alleen met mod_headers.
 <IfModule mod_headers.c>
     <FilesMatch "\.(css|js|png|jpe?g|gif|svg|ico|webp)$">
         Header set Cache-Control "no-cache"
     </FilesMatch>
+    # Uitzondering: adressen met ?v=<wijzigingsdatum> (geeveAssetHref(), assetVersion(), achtergrondUrl()) krijgen bij een
+    # wijziging van het bestand vanzelf een ander adres, dus die mogen een jaar in de browser blijven staan zonder
+    # navraag bij de server. Een <If> wordt na de regel hierboven verwerkt en wint dus.
+    <If "%{QUERY_STRING} =~ /(^|&)v=[0-9]+(&|$)/">
+        <FilesMatch "\.(css|js|png|jpe?g|gif|svg|ico|webp)$">
+            Header set Cache-Control "public, max-age=31536000, immutable"
+        </FilesMatch>
+    </If>
 </IfModule>
