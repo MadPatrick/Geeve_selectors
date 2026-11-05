@@ -37,15 +37,12 @@
 # zodat na een git pull meteen de nieuwe versie geladen wordt - ook van bestanden zonder ?v=, zoals
 # de logo's en het favicon. Werkt alleen met mod_headers.
 <IfModule mod_headers.c>
+    # Adressen met ?v=<wijzigingsdatum> (geeveAssetHref(), assetVersion(), achtergrondUrl()) krijgen bij een wijziging van het
+    # bestand vanzelf een ander adres, dus die mogen een jaar in de browser blijven staan zonder navraag bij de server.
+    # Een <If> met Header set werkt hier niet (de FilesMatch overschrijft hem); daarom een omgevingsvariabele en env=.
+    SetEnvIfExpr "%{QUERY_STRING} =~ /(^|&)v=[0-9]+(&|$)/" geeve_versioned
     <FilesMatch "\.(css|js|png|jpe?g|gif|svg|ico|webp)$">
-        Header set Cache-Control "no-cache"
+        Header set Cache-Control "no-cache" env=!geeve_versioned
+        Header set Cache-Control "public, max-age=31536000, immutable" env=geeve_versioned
     </FilesMatch>
-    # Uitzondering: adressen met ?v=<wijzigingsdatum> (geeveAssetHref(), assetVersion(), achtergrondUrl()) krijgen bij een
-    # wijziging van het bestand vanzelf een ander adres, dus die mogen een jaar in de browser blijven staan zonder
-    # navraag bij de server. Een <If> wordt na de regel hierboven verwerkt en wint dus.
-    <If "%{QUERY_STRING} =~ /(^|&)v=[0-9]+(&|$)/">
-        <FilesMatch "\.(css|js|png|jpe?g|gif|svg|ico|webp)$">
-            Header set Cache-Control "public, max-age=31536000, immutable"
-        </FilesMatch>
-    </If>
 </IfModule>
