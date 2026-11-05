@@ -57,19 +57,19 @@
     --btn-grey-line: #9a9b96;
     --btn-white: var(--surface-white);                          /* witte/lichte knop (+ rode tekst bij de PDF-knop) */
     --btn-white-line: var(--line-strong);
-    --btn-white-hover: #f4f7fa;
+    --btn-white-hover: var(--soft);
     --btn-blue: rgba(8, 127, 255, .85);         /* gekozen optie in een keuzeschakelaar */
     --btn-blue-line: var(--status-info-ink);
     --btn-danger: var(--danger);                      /* "gevonden/fout"-toestand en verwijderknoppen */
     --btn-danger-line: var(--status-bad-line);
-    --btn-danger-hover: #fbecec;
-    --btn-danger-hover-line: #eec4c4;
-    --btn-accent-hover: #fff3f6;                /* lichte knop met roze hover (toevoegen) */
-    --btn-glass: rgba(255, 255, 255, .08);      /* ronde knoppen op de donkere header */
+    --btn-danger-hover: var(--status-error-wash);
+    --btn-danger-hover-line: var(--status-error-wash-line);
+    --btn-accent-hover: var(--status-invalid-bg);                /* lichte knop met roze hover (toevoegen) */
+    --btn-glass: var(--white-a08);      /* ronde knoppen op de donkere header */
     --btn-glass-hover: rgba(255, 255, 255, .18);
     --btn-glass-line: rgba(255, 255, 255, .35);
-    --btn-glass-line-hover: rgba(255, 255, 255, .55);
-    --btn-save-ink: #baf0cf;                    /* opslaan-icoon in de header (wijzigen-modus) */
+    --btn-glass-line-hover: var(--white-a55);
+    --btn-save-ink: var(--topbar-ready-ink);                    /* opslaan-icoon in de header (wijzigen-modus) */
     --btn-save-line: rgba(186, 240, 207, .5);
     --btn-save-hover: rgba(186, 240, 207, .22);
     --btn-save-hover-line: rgba(186, 240, 207, .7);
@@ -160,18 +160,18 @@
     --egg-3: #ff8fab;
     --egg-4: #9be564;
     --egg-5: #c39bf5;
-    --egg-stripe: rgba(255, 255, 255, .8);
-    --fw-1: #ffd23f;                    /* vuurwerk in de topbalk (Nieuwjaar) */
+    --egg-stripe: var(--white-a80);
+    --fw-1: var(--egg-1);                    /* vuurwerk in de topbalk (Nieuwjaar) */
     --fw-2: #ff6b8b;
-    --fw-3: #7ad7f0;
-    --fw-4: #9be564;
+    --fw-3: var(--egg-2);
+    --fw-4: var(--egg-4);
     --focus-ring: 0 0 0 3px rgba(238, 48, 93, .14);
 
     /* ---- Kleuren van de bestaande apps, benoemd naar functie (waarden ongewijzigd, oktober 2026) ----
        Een kleur die bijna gelijk is aan een andere (bijv. --ink-empty, --ink-placeholder en --ink-placeholder-alt) kan later
        samengevoegd worden; dat is een bewuste, zichtbare wijziging. */
     --accent-a08: rgba(238, 48, 93, .08);
-    --accent-a12: rgba(238, 48, 93, .12);
+    --accent-a12: var(--accent-a14);
     --accent-a14: rgba(238, 48, 93, .14);
     --accent-a25: rgba(238, 48, 93, .25);
     --accent-a35: rgba(238, 48, 93, .35);
@@ -198,8 +198,8 @@
     --edit-status-bg: #eafaf1;
     --eyebrow-ink: #ff8da9;
     --focus-ring-error: rgba(160, 54, 54, .12);
-    --hover-accent: #fde6ec;
-    --hover-accent-soft: #fff3f6;
+    --hover-accent: var(--status-accent-soft);
+    --hover-accent-soft: var(--status-invalid-bg);
     --angle-fill: #999999;               /* hoekdiagram op de slangkaart: ring en vlak */
     --brand-panel-bg: #000000;           /* topbalk (brand-panel) */
     --brand-panel-ink: var(--surface-white);
@@ -213,7 +213,7 @@
     --label-tail-bg: var(--panel);
     --line-box: var(--line);
     --line-empty: var(--line-strong);
-    --line-hover: #c7d0d9;
+    --line-hover: var(--line-strong);
     --line-menu: var(--line);
     --line-suggest: var(--line-strong);
     --line-suggest-row: var(--surface-muted);
