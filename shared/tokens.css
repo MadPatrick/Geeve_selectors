@@ -44,25 +44,24 @@
        overal 1px). */
     --btn-gap: 5px;
     --line-strong: #c9d4de;      /* lichte/neutrale knop (bijv. #edf2f6 of wit) */
-    --ok-soft-line: #14532d;     /* rand van lichtgroene knop (#e8f4ed): donkergroen */
+    --ok-soft-line: var(--ok-line);     /* rand van lichtgroene knop (#e8f4ed): donkergroen */
     --accent-line: #f47896;      /* donkere accentkleur (--accent) */
-    --accent-dark-line: #d2627a; /* donkerrode knop (--accent-dark) */
     --ok-fill: rgba(88, 198, 124, .85); /* vulling van groene statuspillen (rgb 88, 198, 124, iets transparant) */
     --btn-green: #c6efd2;        /* achtergrond van ALLE groene knoppen (zelfde als de Print-knop) */
     --btn-green-hover: #b0e6c0;  /* idem, bij hover */
     /* Knopkleuren: ALLE knoppen halen hun kleuren uit deze variabelen (zie CLAUDE.md, "Knoppen"). */
     --btn-red: rgba(238, 48, 93, .8);           /* rode knop (hoofdactie); vroegere donkerrode knoppen zijn nu ook rood */
-    --btn-red-line: #b90d32;                    /* rand van de rode knop: donkerrood, zo steekt hij net zo duidelijk af als de donkergroene rand van de groene knop */
-    --btn-ink-light: #fff;                      /* witte tekst/iconen op rode, blauwe en header-knoppen */
+    --btn-red-line: var(--accent-dark);                    /* rand van de rode knop: donkerrood, zo steekt hij net zo duidelijk af als de donkergroene rand van de groene knop */
+    --btn-ink-light: var(--surface-white);                      /* witte tekst/iconen op rode, blauwe en header-knoppen */
     --btn-grey: rgba(208, 209, 204, .7);        /* grijze tweede-keuzeknop, ook de keuzeschakelaar */
     --btn-grey-line: #9a9b96;
-    --btn-white: #fff;                          /* witte/lichte knop (+ rode tekst bij de PDF-knop) */
-    --btn-white-line: #c9d4de;
+    --btn-white: var(--surface-white);                          /* witte/lichte knop (+ rode tekst bij de PDF-knop) */
+    --btn-white-line: var(--line-strong);
     --btn-white-hover: #f4f7fa;
     --btn-blue: rgba(8, 127, 255, .85);         /* gekozen optie in een keuzeschakelaar */
-    --btn-blue-line: #0a5fc2;
-    --btn-danger: #a03636;                      /* "gevonden/fout"-toestand en verwijderknoppen */
-    --btn-danger-line: #c17c7c;
+    --btn-blue-line: var(--status-info-ink);
+    --btn-danger: var(--danger);                      /* "gevonden/fout"-toestand en verwijderknoppen */
+    --btn-danger-line: var(--status-bad-line);
     --btn-danger-hover: #fbecec;
     --btn-danger-hover-line: #eec4c4;
     --btn-accent-hover: #fff3f6;                /* lichte knop met roze hover (toevoegen) */
@@ -109,17 +108,17 @@
     --btn-secondary-ink: var(--btn-ink);
     --ok-ink: #0f3d22;           /* tekst op groene knoppen (donkergroen voor goed contrast) */
     --ok-line: #14532d;          /* rand van donkergroene knop (--ok): donkergroen */
-    --danger-line: #c17c7c;      /* donkerrode knop (--danger) */
 
     /* ---- Vlakken ---- */
     --surface-white: #fff;              /* witte kaart/invoerveld */
+    --surface-muted: #edf0f3;           /* licht grijsblauw vlak: uitgeschakeld, badge, keuzeknop, scheidingslijn (samengevoegd uit 5 bijna-gelijke tinten) */
     --surface-subtle: #fafcfd;          /* bijna-wit vlak, tabelrij-hover, vinkjesvak slangkaart */
-    --surface-input-disabled: #f5f7f9;
+    --surface-input-disabled: var(--soft);
     --panel-glass: rgba(242, 242, 242, .88); /* .panel: --panel (#f2f2f2), iets transparant */
 
     /* ---- Lijnen ---- */
-    --line-input: #cbd6df;              /* rand van invoervelden en tabellen */
-    --line-faint: #f0f2f4;              /* scheidingslijn tussen detailregels (slangkaart) */
+    --line-input: var(--line-strong);              /* rand van invoervelden en tabellen */
+    --line-faint: var(--surface-muted);              /* scheidingslijn tussen detailregels (slangkaart) */
     --line-print: #000;                 /* kaderlijnen in de print van een slangkaart (Patrick 19-10-2026: kaderlijnen zwart) */
 
     /* ---- Tekst ---- */
@@ -129,7 +128,7 @@
     --font-print: Arial, Helvetica, sans-serif;
 
     /* ---- Status (meldingen, pillen, rijkleuren) ---- */
-    --status-error: #a03636;
+    --status-error: var(--danger);
     --status-error-soft: #f7eaea;
     --status-error-line: #e8b1b1;
     --status-error-ink: #7d2f2f;
@@ -176,9 +175,9 @@
     --accent-a14: rgba(238, 48, 93, .14);
     --accent-a25: rgba(238, 48, 93, .25);
     --accent-a35: rgba(238, 48, 93, .35);
-    --badge-rvs-bg: #edf0f3;
+    --badge-rvs-bg: var(--surface-muted);
     --badge-rvs-ink: #525e6b;
-    --badge-rvs-line: #d8dde2;
+    --badge-rvs-line: var(--line);
     --badge-staal-bg: #e5f0f8;
     --badge-staal-ink: #174f7d;
     --badge-staal-line: #c8deef;
@@ -187,11 +186,11 @@
     --black-a15: rgba(0,0,0,.15);
     --black-a25: rgba(0, 0, 0, .25);
     --black-a30: rgba(0, 0, 0, .3);
-    --block-bg: #fbfcfd;
-    --box-bg: #f5f8fa;
+    --block-bg: var(--surface-subtle);
+    --box-bg: var(--soft);
     --box-bg-accent: #d1d1d1;                                  /* achtergrond in de Stauff-zoekboxen (beugel, materiaal soort, zoekresultaten) */
     --btn-list-item: var(--box-bg-accent);            /* resultaatknop in de Stauff-zoeklijst (zelfde kleur als de zoekbox) */
-    --btn-choice: #edf2f6;
+    --btn-choice: var(--surface-muted);
     --btn-family-idle: #e8e8e8;                       /* Staal/RVS-schakelaar (Stauff), niet actief: achtergrond */
     --draw-nut-fill: #d8d2c4;
     --draw-nut-line: #b8b09a;
@@ -203,21 +202,21 @@
     --hover-accent-soft: #fff3f6;
     --angle-fill: #999999;               /* hoekdiagram op de slangkaart: ring en vlak */
     --brand-panel-bg: #000000;           /* topbalk (brand-panel) */
-    --brand-panel-ink: #ffffff;
-    --error-box-ink: #7d2f2f;            /* foutmelding onderaan een pagina bij een PHP-fout */
-    --error-box-line: #e8b1b1;
+    --brand-panel-ink: var(--surface-white);
+    --error-box-ink: var(--status-error-ink);            /* foutmelding onderaan een pagina bij een PHP-fout */
+    --error-box-line: var(--status-error-line);
     --ink-black: #000000;
-    --ink-empty: #8c98a6;
-    --ink-on-dark-soft: #f1f1f1;
+    --ink-empty: var(--ink-placeholder);
+    --ink-on-dark-soft: var(--panel);
     --ink-placeholder: #929fac;
-    --ink-placeholder-alt: #8c99a6;
-    --label-tail-bg: #f3f3f3;
-    --line-box: #d8e1e8;
-    --line-empty: #c8d4de;
+    --ink-placeholder-alt: var(--ink-placeholder);
+    --label-tail-bg: var(--panel);
+    --line-box: var(--line);
+    --line-empty: var(--line-strong);
     --line-hover: #c7d0d9;
-    --line-menu: #d8dee3;
-    --line-suggest: #cfd6dd;
-    --line-suggest-row: #edf1f4;
+    --line-menu: var(--line);
+    --line-suggest: var(--line-strong);
+    --line-suggest-row: var(--surface-muted);
     --line-table-row: #e3e9ee;
     --missing-bg: #fdf1f4;
     --missing-bg-soft: rgba(240, 129, 159, .18);
@@ -235,7 +234,7 @@
     --shadow-menu: rgba(15, 30, 45, .15);
     --shadow-suggest: rgba(23, 36, 51, .14);
     --status-bad-bg: #fde2e2;
-    --status-bad-bg-faint: #fff5f5;
+    --status-bad-bg-faint: var(--status-invalid-bg);
     --status-bad-line: #c17c7c;
     --status-changed-bg: #fff8d6;
     --status-error-wash: #fbecec;
@@ -251,8 +250,8 @@
     --kabelmerker-geel: #fff6a8;   /* lichtgeel label ALTEC 72001207 (Kabelmerkers Geel) */
     --sticker-accu-geel: #fff6a8;  /* lichtgeel accu-label (alleen voorbeeld op het scherm, niet in de print) */
     --kabelmerker-drager: #c9c9c9;   /* drager/rol waar de labels op zitten (voorbeeld Kabelmerkers Geel) */
-    --table-head-bg: #f6f9fb;
-    --tile-disabled-bg: #eef0f3;
+    --table-head-bg: var(--soft);
+    --tile-disabled-bg: var(--surface-muted);
     --tile-wip-bg: rgba(244, 247, 250, .75);
     --topbar-error-bg: rgba(255, 179, 179, .12);
     --topbar-error-ink: #ffb3b3;
@@ -260,7 +259,7 @@
     --topbar-ready-bg: rgba(186, 240, 207, .12);
     --topbar-ready-ink: #baf0cf;
     --topbar-ready-line: rgba(186, 240, 207, .4);
-    --warning-bg: #fff1f1;
+    --warning-bg: var(--status-invalid-bg);
     --white-a08: rgba(255, 255, 255, .08);
     --white-a25: rgba(255, 255, 255, .25);
     --white-a30: rgba(255, 255, 255, .3);
