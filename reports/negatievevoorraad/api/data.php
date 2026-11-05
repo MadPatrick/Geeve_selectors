@@ -24,7 +24,8 @@ reportApi(function (array $in): array {
     $pdo = reportConnection('negatieve-voorraad');
 
     // Open verkoop (V), productie (A) en inkoop (B) in een keer per soort gegroepeerd. Eerder was dit drie keer dezelfde zware
-    // query (elk met een eigen scan van orsrg/orkrg en een eigen evaluatie van "st"); gemeten 5-11-2026: 3.103 -> 1.373 ms,
+    // query (elk met een eigen scan van orsrg/orkrg en een eigen evaluatie van "st"). Bewust GEEN "artcode IN (SELECT .. FROM st)"
+    // in "o": dan rekent SQL Server "st" (StockBalances, ca. 0,9 s) nog eens extra uit. Gemeten 5-11-2026: 3.103 -> 1.413 ms,
     // zelfde 210 rijen en dezelfde uitkomst.
     $stmt = $pdo->prepare(
         'SET NOCOUNT ON; ' .
@@ -35,7 +36,7 @@ reportApi(function (array $in): array {
         'SELECT k.ord_soort AS Soort, s.artcode AS ItemCode, SUM(s.esr_aantal - s.aant_gelev) AS Aantal, COUNT(DISTINCT s.ordernr) AS AantalOrders ' .
         'FROM orsrg s WITH (NOLOCK) JOIN orkrg k WITH (NOLOCK) ON k.ordernr = s.ordernr ' .
         "WHERE k.ord_soort IN ('V', 'A', 'B') AND s.esr_aantal > s.aant_gelev " .
-        'AND s.artcode IN (SELECT ItemCode FROM st) GROUP BY k.ord_soort, s.artcode' .
+        'GROUP BY k.ord_soort, s.artcode' .
         '), t AS (' .
         'SELECT st.ItemCode, st.Voorraad, ISNULL(ov.Aantal, 0) AS OpenVerkoop, ISNULL(op.Aantal, 0) AS OpenProductie, ' .
         'ISNULL(ov.AantalOrders, 0) + ISNULL(op.AantalOrders, 0) AS AantalOrders, ISNULL(oi.Aantal, 0) AS Besteld, ' .

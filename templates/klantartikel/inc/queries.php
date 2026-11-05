@@ -105,13 +105,8 @@ function detectSchema(PDO $pdo, ?string $priceListColumnOverride = null): array
         );
     }
 
-    $stmt = $pdo->prepare("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'cicmpy' AND COLUMN_NAME = ?");
-    $stmt->execute([$pricelist]);
-    $dataType = strtolower((string) $stmt->fetchColumn());
-
     return [
         'pricelist'     => $pricelist,
-        'pricelistText' => in_array($dataType, ['char', 'varchar', 'nchar', 'nvarchar'], true),
         'links'         => $links,
         'accountCode'   => findColumn($debtor, ['AccountCode']),
         'debcode'       => findColumn($debtor, ['debcode']),
@@ -121,20 +116,6 @@ function detectSchema(PDO $pdo, ?string $priceListColumnOverride = null): array
         'debtorColumns' => $debtor,
         'hasItems'      => $cols['Items'] !== [],
     ];
-}
-
-/**
- * WHERE-voorwaarde op de prijslijst van de klant (cicmpy c). Een tekstkolom (bij Geeve: PriceList varchar(15), geen spaties
- * vooraan) wordt direct vergeleken; spaties achteraan negeert "=" al. Zo kan SQL Server de kolom lezen zonder functie
- * eromheen: gemeten 5-11-2026 -99% logical reads (400.290 -> 4.931) met gelijke uitkomst. Is de kolom geen tekst (onbekend
- * type), dan blijft de oude vergelijking met CAST/TRIM.
- */
-function pricelistCondition(array $schema, string $quotedColumn): string
-{
-    if (!empty($schema['pricelistText'])) {
-        return "c.{$quotedColumn} = :pl";
-    }
-    return "LTRIM(RTRIM(CAST(c.{$quotedColumn} AS varchar(50)))) = :pl";
 }
 
 function q(string $identifier): string
@@ -162,12 +143,11 @@ function linkJoin(array $link): string
 function findCustomersByPriceList(PDO $pdo, array $schema, string $priceList): array
 {
     $p = q($schema['pricelist']);
-    $pl = pricelistCondition($schema, $p);
     $stmt = $pdo->prepare(
         'SELECT LTRIM(RTRIM(debnr)) AS debnr, cmp_name AS naam, ' .
         ($schema['accountCode'] !== null ? 'LTRIM(RTRIM(c.' . q($schema['accountCode']) . ')) ' : "CAST('' AS varchar(1)) ") . 'AS relatienr, ' .
         ($schema['debcode'] !== null ? 'LTRIM(RTRIM(c.' . q($schema['debcode']) . ')) ' : "CAST('' AS varchar(1)) ") . 'AS debcode ' .
-        "FROM cicmpy c WHERE {$pl} AND debnr IS NOT NULL AND LTRIM(RTRIM(debnr)) <> '' " .
+        "FROM cicmpy c WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl AND debnr IS NOT NULL AND LTRIM(RTRIM(debnr)) <> '' " .
         'ORDER BY cmp_name'
     );
     $stmt->execute(['pl' => $priceList]);
@@ -194,7 +174,6 @@ function findCustomerArticlesAny(PDO $pdo, array $schema, string $priceList, ?st
 function findCustomerArticles(PDO $pdo, array $schema, string $priceList, array $link, ?string $debnr = null, ?int $limit = MAX_ARTICLE_ROWS + 1): array
 {
     $p = q($schema['pricelist']);
-    $pl = pricelistCondition($schema, $p);
     $join = linkJoin($link);
     $code = 'ia.' . q($schema['codeColumn']);
     $itemCode = 'ia.' . q($schema['itemCode']);
@@ -204,7 +183,7 @@ function findCustomerArticles(PDO $pdo, array $schema, string $priceList, array 
         'SELECT ' . ($limit !== null ? "TOP {$limit} " : '') . "LTRIM(RTRIM(c.debnr)) AS debnr, c.cmp_name AS klant, {$itemCode} AS artikel, " .
         "{$descCol} AS omschrijving, {$code} AS klantartikel " .
         "FROM ItemAccounts ia JOIN cicmpy c ON {$join} {$descJoin} " .
-        "WHERE {$pl} AND {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' " .
+        "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl AND {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' " .
         ($debnr !== null ? 'AND LTRIM(RTRIM(c.debnr)) = :debnr ' : '') .
         'ORDER BY c.cmp_name, ' . $itemCode
     );
@@ -220,12 +199,11 @@ function findCustomerArticles(PDO $pdo, array $schema, string $priceList, array 
 function countCustomerArticles(PDO $pdo, array $schema, string $priceList, array $link): array
 {
     $p = q($schema['pricelist']);
-    $pl = pricelistCondition($schema, $p);
     $join = linkJoin($link);
     $code = 'ia.' . q($schema['codeColumn']);
     $stmt = $pdo->prepare(
         "SELECT LTRIM(RTRIM(c.debnr)) AS debnr, COUNT(*) AS aantal FROM ItemAccounts ia JOIN cicmpy c ON {$join} " .
-        "WHERE {$pl} AND {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' " .
+        "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl AND {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' " .
         'GROUP BY LTRIM(RTRIM(c.debnr))'
     );
     $stmt->execute(['pl' => $priceList]);
@@ -246,7 +224,6 @@ function countCustomerArticles(PDO $pdo, array $schema, string $priceList, array
 function diagnoseItemAccounts(PDO $pdo, array $schema, string $priceList): array
 {
     $p = q($schema['pricelist']);
-    $pl = pricelistCondition($schema, $p);
     $result = ['columns' => $schema['itemColumns'], 'links' => [], 'sample' => [], 'error' => null];
     $code = 'ia.' . q($schema['codeColumn']);
     try {
@@ -254,7 +231,7 @@ function diagnoseItemAccounts(PDO $pdo, array $schema, string $priceList): array
             $stmt = $pdo->prepare(
                 "SELECT COUNT(*) AS totaal, SUM(CASE WHEN {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' THEN 1 ELSE 0 END) AS gevuld " .
                 'FROM ItemAccounts ia JOIN cicmpy c ON ' . linkJoin([$a, $b]) . ' ' .
-                "WHERE {$pl}"
+                "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl"
             );
             $stmt->execute(['pl' => $priceList]);
             $row = $stmt->fetch();
@@ -346,7 +323,6 @@ function buildExactXml(array $customers, array $articles): string
 function findConsolidatedArticles(PDO $pdo, array $schema, string $priceList, array $link, ?int $limit = MAX_ARTICLE_ROWS + 1): array
 {
     $p = q($schema['pricelist']);
-    $pl = pricelistCondition($schema, $p);
     $join = linkJoin($link);
     $code = 'ia.' . q($schema['codeColumn']);
     $itemCode = 'ia.' . q($schema['itemCode']);
@@ -356,7 +332,7 @@ function findConsolidatedArticles(PDO $pdo, array $schema, string $priceList, ar
         'SELECT ' . ($limit !== null ? "TOP {$limit} " : '') . "LTRIM(RTRIM({$itemCode})) AS artikel, {$descCol} AS omschrijving, " .
         "LTRIM(RTRIM({$code})) AS klantartikel, COUNT(DISTINCT c.debnr) AS klanten " .
         "FROM ItemAccounts ia JOIN cicmpy c ON {$join} {$descJoin} " .
-        "WHERE {$pl} AND {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' " .
+        "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl AND {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' " .
         "GROUP BY LTRIM(RTRIM({$itemCode})), {$descCol}, LTRIM(RTRIM({$code})) " .
         'ORDER BY LTRIM(RTRIM(' . $itemCode . ')), LTRIM(RTRIM(' . $code . '))'
     );
