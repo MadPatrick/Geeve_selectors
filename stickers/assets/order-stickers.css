@@ -73,6 +73,11 @@
 .sticker .c-loop { left: 78.4mm; width: 22.4mm; }
 
 @page { size: 102mm 54mm; margin: 0; }
+/* De artikelsticker (70 × 25 mm, art-sticker.css: page: sticker70x25) moet NA de ongenoemde @page hierboven staan: bij gelijke rang wint
+   in Chromium de laatste regel, en voor de directe print (PDF via headless Chromium) is er geen ander @page - de <style> met @page uit
+   order-stickers.js wordt daar weggesaneerd. Stond dit alleen in art-sticker.css (eerder geladen), dan kreeg de PDF 102 x 54 mm en
+   viel links een stuk van de sticker weg. */
+@page sticker70x25 { size: 70mm 25mm; margin: 0; }
 
 @media print {
     html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }
