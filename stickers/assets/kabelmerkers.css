@@ -6,7 +6,7 @@
 .km-regel h3 { margin: 0 0 4px; font-size: 24px; }
 .km-regel .ka-input { width: 100%; }
 .km-regel .km-aantal, .km-aantal { width: 3.6em; flex: 0 0 auto; text-align: center; }
-.km-preview { display: flex; flex-direction: column; align-items: center; zoom: 1.2; margin-top: 8px; padding: 2mm 2.5mm; background: var(--kabelmerker-drager); border-radius: 1.5mm; }
+.km-preview { display: flex; flex-direction: column; align-items: center; zoom: 1.2; margin-top: 8px; padding: 2mm 2.5mm; background: var(--muted-soft); border-radius: 1.5mm; }
 .km-melding { margin-top: 12px; }
 .km-import { margin-top: 8px; }
 .km-vink { width: 32px; text-align: center; }
@@ -34,7 +34,7 @@
 .km-preview .km-sticker::before, .km-preview .km-sticker::after {
     /* twee sleuven per uiteinde (boven en onder), de tweede is de schaduwkopie 7 mm lager */
     content: ""; position: absolute; top: 4mm; width: 4mm; height: 2mm; margin-top: -1mm; border-radius: 0.6mm;
-    background: var(--kabelmerker-drager); box-shadow: 0 7mm 0 0 var(--kabelmerker-drager);
+    background: var(--muted-soft); box-shadow: 0 7mm 0 0 var(--muted-soft);
 }
 .km-preview .km-sticker::before { left: 3.5mm; }
 .km-preview .km-sticker::after { right: 3.5mm; }

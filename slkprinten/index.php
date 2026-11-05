@@ -31,7 +31,7 @@ register_shutdown_function(static function (): void {
     if ($error === null || !in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
         return;
     }
-    echo '<div style="margin:16px;padding:15px 18px;border:1px solid var(--error-box-line);border-radius:12px;background:var(--warning-bg);color:var(--error-box-ink);font:14px Arial,sans-serif">'
+    echo '<div style="margin:16px;padding:15px 18px;border:1px solid var(--status-error-line);border-radius:12px;background:var(--status-invalid-bg);color:var(--status-error-ink);font:14px Arial,sans-serif">'
         . '<strong>Fout bij het opbouwen van de slangkaarten:</strong><br>'
         . htmlspecialchars($error['message'] . ' (' . basename($error['file']) . ':' . $error['line'] . ')', ENT_QUOTES)
         . '</div>';
