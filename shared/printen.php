@@ -109,6 +109,13 @@ const GEEVE_PRINT_TILE_STANDAARD_PRINTER = ['stickers-kabelmerkers' => 'RTMLBGee
  */
 const GEEVE_PRINTER_ALLEEN_TEGEL = ['RTMLBGeelKunstof01' => 'stickers-kabelmerkers'];
 
+/**
+ * Printers waarvan de driver niet automatisch te herkennen is (geeveSmbPrinterType() geeft dan null en de printer zou
+ * wegvallen): sharenaam (hoofdletterongevoelig) => type zoals geeveSmbPrinterType() dat teruggeeft. De share moet wel op de
+ * printserver bestaan. RTMPOVE01 is een TSPL-labelprinter (Altec/TSC), net als de andere labelprinters.
+ */
+const GEEVE_PRINTER_TYPE_VAST = ['rtmpove01' => ['soort' => 'label', 'taal' => 'tspl', 'color' => false]];
+
 /** Het soort van een printer ('a4' of 'label'). */
 function geevePrinterSoort(array $printer): string
 {
@@ -298,12 +305,13 @@ function geevePrinterList(): array
         }
         $share = $parts[1];
         $driver = $driverOf[strtolower($share)] ?? null;
-        if ($driver === null || stripos($share, GEEVE_SMB_PREFIX) !== 0 || preg_match('/[\x00-\x1f\/\\\\]/', $share) === 1) {
+        $vast = GEEVE_PRINTER_TYPE_VAST[strtolower($share)] ?? null;
+        if (($driver === null && $vast === null) || stripos($share, GEEVE_SMB_PREFIX) !== 0 || preg_match('/[\x00-\x1f\/\\\\]/', $share) === 1) {
             continue;
         }
-        $type = geeveSmbPrinterType($share, $driver);
+        $type = $vast ?? geeveSmbPrinterType($share, (string) $driver);
         if ($type !== null) {
-            $found[$share] = ['name' => $share, 'driver' => $driver, 'host' => trim($parts[2] ?? '')] + $type;
+            $found[$share] = ['name' => $share, 'driver' => (string) $driver, 'host' => trim($parts[2] ?? '')] + $type;
         }
     }
     if ($found === [] && $cached !== null) {
