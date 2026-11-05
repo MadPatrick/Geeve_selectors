@@ -53,6 +53,8 @@ valkuilen. Zet daar nooit wachtwoorden in.
 - **CSS-variabelen:** alle kleuren en maten komen uit `shared/tokens.css`; geen losse hex-/rgba-waarden in een eigen
   `assets/style.css`. Een nieuwe kleur = eerst een nieuwe variabele in `tokens.css`. Nieuwe apps laden hun CSS via
   `shared/head.php`.
+  Controle vóór elke push: `php tools/check-kleuren.php` (geen losse hex-/rgb-/hsl-waarden buiten `tokens.css`, ook niet in
+  PHP/JS). Is er al een (bijna) gelijke variabele, gebruik die dan in plaats van een nieuwe.
 - **Slangkaart-layout:** de layout van Slangkaart printen is de standaard voor elke slangkaart-app:
   `shared/slangkaart.css` + `shared/SLANGKAART-LAYOUT.md`. Niet per app opnieuw maken of afwijken zonder overleg.
 

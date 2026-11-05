@@ -10,6 +10,11 @@
  *    de eigen assets/style.css van een app. Een nieuwe kleur = eerst een nieuwe variabele.
  *  - Bestaande namen (--accent, --panel, --line, --btn-*, ...) blijven bestaan; apps gebruiken die al.
  *  - Knoppen: alleen --btn-*-variabelen (zie CLAUDE.md, "Knoppen").
+ *  - Namen per groep: --surface-* (vlakken), --line-* (lijnen), --ink-* (tekst), --status-* (meldingen/pillen),
+ *    --btn-* (knoppen), --tile-* (tegelpictogrammen), --print-* (printbladen), --egg-*/--fw-*/--snow (feestanimaties).
+ *  - Bijna-gelijke kleuren niet dubbel aanmaken: hergebruik de bestaande variabele. Een hover/glow-kleur mag naar een
+ *    andere variabele verwijzen, behalve als die kleur op hetzelfde vlak/dezelfde knop als de basiskleur staat.
+ *  - Controle: php tools/check-kleuren.php (losse kleuren buiten dit bestand) en php tools/check-knoppen.php.
  */
 
 :root {
