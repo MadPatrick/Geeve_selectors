@@ -50,7 +50,15 @@
         textEl.style.fontSize = size + 'px';
         return slots * size * LINE_HEIGHT <= boxHeight() + 1 && (lineCount() === 0 || textEl.scrollWidth <= textEl.clientWidth + 1); // leeg: de aanwijzing telt niet mee voor de breedte
     }
+    // Eigen lettergrootte (pt, veld "Lettergrootte"): leeg of ongeldig = automatisch passend. 1 pt = 96/72 px.
+    var fontBox = document.getElementById('ptFont');
+    function customPx() {
+        var pt = parseFloat(String(fontBox.value).replace(',', '.'));
+        return isNaN(pt) || pt < 4 || pt > 200 ? 0 : pt * 96 / 72;
+    }
     function fit(textEl) {
+        var eigen = customPx();
+        if (eigen > 0) { textEl.style.fontSize = eigen + 'px'; return eigen; }
         var slots = Math.max(2, lineCount() + 1);
         var lo = MIN_PX, hi = MAX_PX;
         if (fits(textEl, hi, slots)) { lo = hi; } else {
@@ -78,6 +86,8 @@
         document.execCommand('insertText', false, plain.replace(/\r/g, ''));
     });
     text.addEventListener('input', refresh);
+    fontBox.addEventListener('input', refresh);
+    document.getElementById('ptFontAuto').addEventListener('click', function () { fontBox.value = ''; refresh(); text.focus(); });
     // Klik op de rand van de sticker zet de cursor in het tekstvak.
     sticker.addEventListener('click', function (e) { if (e.target === sticker) { text.focus(); } });
 

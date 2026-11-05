@@ -4,6 +4,9 @@
 .pt-preview { zoom: 1.25; }
 .pt-align { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 14px; }
 .pt-align-label { font-weight: 700; }
+/* Lettergrootte zelf bepalen: invoerveld, eenheid en knop Automatisch naast elkaar. */
+.pt-font { display: flex; align-items: center; gap: 8px; }
+.pt-font .ka-input { width: 90px; }
 /* Uitlijnknoppen met iconen (staan tussen Leegmaken en Print). */
 .rp-toggle--icons button { display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; }
 .rp-toggle--icons svg { width: 20px; height: 20px; display: block; }
