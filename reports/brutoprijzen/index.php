@@ -48,15 +48,15 @@ $csrf = csrfToken();
                 <span>Artikelgroep</span>
                 <input type="text" class="ka-input" data-field="groep" data-name="een artikelgroep" maxlength="20" autocomplete="off" autofocus>
             </label>
-            <label class="msp-field">
-                <span>Status</span>
-                <select class="ka-input" data-field="status" data-optional="1">
-                    <option value="">Alle</option>
-                    <option value="A">Actief</option>
-                    <option value="E">Vervallen</option>
-                    <option value="N">Non-actief</option>
-                </select>
-            </label>
+            <div class="msp-field">
+                <span>Status (aan = tonen)</span>
+                <div class="rp-toggle" id="bpStatus" role="group" aria-label="Status">
+                    <button type="button" class="is-active" data-s="A" aria-pressed="true">Actief</button>
+                    <button type="button" class="is-active" data-s="E" aria-pressed="true">Vervallen</button>
+                    <button type="button" class="is-active" data-s="N" aria-pressed="true">Non-actief</button>
+                </div>
+                <input type="hidden" data-field="status" data-optional="1" value="A,E,N">
+            </div>
             <button type="button" id="rpFetch" class="ka-button">Gegevens ophalen</button>
             <button type="button" id="rpDownload" class="ka-button ka-button--secondary" disabled>Export naar Excel</button>
             <span id="rpStatus" class="msp-status"></span>
@@ -71,6 +71,28 @@ $csrf = csrfToken();
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
+<script>
+(function () {
+    var box = document.getElementById('bpStatus');
+    var hidden = box.parentNode.querySelector('input[data-field="status"]');
+    function sync() {
+        var on = [];
+        var buttons = box.getElementsByTagName('button');
+        for (var i = 0; i < buttons.length; i++) {
+            if (buttons[i].className.indexOf('is-active') !== -1) { on.push(buttons[i].getAttribute('data-s')); }
+        }
+        hidden.value = on.join(',');
+    }
+    box.addEventListener('click', function (e) {
+        var b = e.target;
+        if (b.tagName !== 'BUTTON') { return; }
+        var active = b.className.indexOf('is-active') === -1;
+        b.className = active ? 'is-active' : '';
+        b.setAttribute('aria-pressed', active ? 'true' : 'false');
+        sync();
+    });
+}());
+</script>
 <script src="<?= h(geeveUrl('shared/vendor/xlsx-style.min.js')) ?>"></script>
 <script src="<?= h(geeveUrl('shared/sp-report.js')) ?>?v=<?= h(assetVersion('../../shared/sp-report.js')) ?>"></script>
 </body>

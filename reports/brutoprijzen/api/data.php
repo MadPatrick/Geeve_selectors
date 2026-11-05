@@ -21,10 +21,17 @@ reportApi(function (array $in): array {
     if ($group === '' || preg_match('/^[A-Za-z0-9._ -]{1,20}$/', $group) !== 1) {
         throw new RuntimeException('Vul een geldige artikelgroep in.');
     }
-    $status = trim((string) ($in['status'] ?? ''));
-    if (!in_array($status, ['', 'A', 'E', 'N'], true)) {
-        throw new RuntimeException('Kies een geldige status.');
+    // Statussen die getoond worden (knoppen aan): komma-lijst van A, E, N; alle drie of niets opgegeven = geen filter.
+    $statuses = array_values(array_unique(array_filter(array_map('trim', explode(',', (string) ($in['status'] ?? ''))), 'strlen')));
+    foreach ($statuses as $s) {
+        if (!in_array($s, ['A', 'E', 'N'], true)) {
+            throw new RuntimeException('Ongeldige status.');
+        }
     }
+    if (isset($in['status']) && trim((string) $in['status']) === '') {
+        throw new RuntimeException('Zet minstens één status aan.');
+    }
+    $status = count($statuses) === 3 ? '' : implode(',', $statuses);
     $pdo = reportConnection('brutoprijzen');
 
     // Kolom Items.Condition (status) bestaat in Exact Globe; zo niet, dan blijft de status leeg en werkt het filter niet.
@@ -46,19 +53,19 @@ reportApi(function (array $in): array {
         'FROM Items i WITH (NOLOCK) ' .
         'LEFT JOIN ItemAccounts ia WITH (NOLOCK) ON ia.ItemCode = i.ItemCode AND ia.MainAccount = 1 ' .
         'WHERE LTRIM(RTRIM(i.Assortment)) = ?' .
-        ($status !== '' ? ' AND LTRIM(RTRIM(i.[' . $condition . '])) = ?' : '') . ' ORDER BY i.ItemCode'
+        ($status !== '' ? ' AND LTRIM(RTRIM(i.[' . $condition . '])) IN (' . implode(',', array_fill(0, count($statuses), '?')) . ')' : '') . ' ORDER BY i.ItemCode'
     );
-    $stmt->execute($status !== '' ? [$group, $status] : [$group]);
+    $stmt->execute($status !== '' ? array_merge([$group], $statuses) : [$group]);
     $items = [];
     $suppliers = [];
-    $statuses = [];
+    $itemStatus = [];
     foreach ($stmt->fetchAll(PDO::FETCH_NUM) as $r) {
         $code = trim((string) $r[0]);
         if (!isset($items[$code]) || $items[$code] === '') {
             $items[$code] = trim((string) $r[1]);
             $suppliers[$code] = trim((string) $r[2]);
         }
-        $statuses[$code] = trim((string) $r[3]);
+        $itemStatus[$code] = trim((string) $r[3]);
     }
 
     $stmt = $pdo->prepare('SELECT name FROM sys.columns WHERE object_id = OBJECT_ID(?)');
@@ -95,7 +102,7 @@ reportApi(function (array $in): array {
         if ($price === '') {
             $zonderPrijs++;
         }
-        $rows[] = [(string) $code, $lev, $suppliers[$code] ?? '', $price, $statuses[$code] ?? ''];
+        $rows[] = [(string) $code, $lev, $suppliers[$code] ?? '', $price, $itemStatus[$code] ?? ''];
     }
 
     return [
