@@ -42,11 +42,20 @@ $csrf = csrfToken();
 
     <section class="panel">
         <h2>Brutoprijzen per artikelgroep</h2>
-        <p class="ka-empty">Vul een artikelgroepnummer in: per artikel van die groep staan ons artikelnummer, het leveranciersnummer (artikelcode bij de hoofdleverancier) en de bruto verkoopprijs (standaard verkoopprijs, voor korting) in de lijst. "Export naar Excel" maakt hiervan een Excel-bestand met precies deze drie kolommen.</p>
+        <p class="ka-empty">Vul een artikelgroepnummer in: per artikel van die groep staan ons artikelnummer, het leveranciersnummer (artikelcode bij de hoofdleverancier), de leverancier (crediteurnummer, bijv. 100011 voor Parker) en de bruto verkoopprijs (standaard verkoopprijs, voor korting) in de lijst; filteren op status kan ook. "Export naar Excel" maakt hiervan een Excel-bestand met deze kolommen.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="Artikelgroep" data-sheet="Brutoprijzen" data-file="Brutoprijzen">
             <label class="msp-field">
                 <span>Artikelgroep</span>
                 <input type="text" class="ka-input" data-field="groep" data-name="een artikelgroep" maxlength="20" autocomplete="off" autofocus>
+            </label>
+            <label class="msp-field">
+                <span>Status</span>
+                <select class="ka-input" data-field="status" data-optional="1">
+                    <option value="">Alle</option>
+                    <option value="A">Actief</option>
+                    <option value="E">Vervallen</option>
+                    <option value="N">Non-actief</option>
+                </select>
             </label>
             <button type="button" id="rpFetch" class="ka-button">Gegevens ophalen</button>
             <button type="button" id="rpDownload" class="ka-button ka-button--secondary" disabled>Export naar Excel</button>
