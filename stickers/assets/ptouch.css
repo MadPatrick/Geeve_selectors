@@ -1,9 +1,12 @@
-/* Naamstickers (stickers/ptouch): vrije tekst op een sticker van 102 × 51 mm, Verdana Bold; de letter wordt zo groot dat de tekst
+/* Naamstickers (stickers/ptouch): vrije tekst op een sticker van 102 × 51 mm (Groot) of 70 × 25 mm (Klein), Verdana Bold; de letter wordt zo groot dat de tekst
    de sticker vult en wordt kleiner bij meer regels. Scherm, de sticker zelf en de printinstellingen. */
 
 .pt-preview { zoom: 1.25; }
 .pt-align { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 14px; }
 .pt-align-label { font-weight: 700; }
+/* Uitlijnknoppen met iconen (staan tussen Leegmaken en Print). */
+.rp-toggle--icons button { display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; }
+.rp-toggle--icons svg { width: 20px; height: 20px; display: block; }
 
 .pt-sticker {
     position: relative;
@@ -21,6 +24,8 @@
     font-size: 40pt;
     line-height: 1.15;
 }
+/* Sticker Klein: ALTEC-label 70 × 25 mm (zelfde als de artikelsticker); eigen pagina, zie @page sticker70x25 onderaan. */
+.pt-sticker.pt-sticker--klein { width: 70mm; height: 25mm; padding: 1.5mm; page: sticker70x25; }
 /* Op het scherm: afgeronde hoeken en een randje, en een cursor die laat zien dat je hier typt. */
 .pt-preview .pt-sticker { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 2.5mm; cursor: text; }
 .pt-text {
@@ -35,6 +40,9 @@
 .pt-printsheet { display: none; }
 
 @page { size: 102mm 51mm; margin: 0; }
+/* Na de ongenoemde @page hierboven: bij gelijke rang wint in Chromium de laatste regel, en bij direct printen is er geen andere
+   @page (ingestuurde <style> wordt gesaneerd). Zie ook stickers/assets/order-stickers.css. */
+@page sticker70x25 { size: 70mm 25mm; margin: 0; }
 
 @media print {
     html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }
