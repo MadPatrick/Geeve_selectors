@@ -582,6 +582,8 @@
             out.push('      <Date>' + date + '</Date>');
             out.push('   </OrderedAt>');
         } else {
+            // Verkoper ook op de offerte (Patrick 2026-11-05): zonder Resource nam Exact de medewerker van de import (123 i.p.v. 119).
+            out.push('   ' + resource);
             out.push('   <OrderedBy>');
             out.push('      ' + party);
             out.push('      <Date>' + date + '</Date>');
