@@ -10,11 +10,15 @@
     var status = document.getElementById('directPrintStatus');
     var browserPrint = window.print.bind(window);
     var sortToggle = document.getElementById('soSort'); // alleen "Artikelen per Verkooporder"
+    var maatToggle = document.getElementById('ptMaat'); // alleen Naamstickers: Sticker Groot / Sticker Klein
 
     // Artikelen per Verkooporder: de Artikelsticker onthoudt een eigen printer, Orderregel en Looplocatie delen er een.
     function group() {
         var active = sortToggle ? sortToggle.querySelector('button.is-active') : null;
-        return active && active.getAttribute('data-sort') === 'artikel' ? 'artikel' : '';
+        if (active && active.getAttribute('data-sort') === 'artikel') { return 'artikel'; }
+        // Naamstickers: Sticker Klein onthoudt een eigen printer, Sticker Groot gebruikt de gewone keuze van de tegel.
+        var maat = maatToggle ? maatToggle.querySelector('button.is-active') : null;
+        return maat && maat.getAttribute('data-maat') === 'klein' ? 'klein' : '';
     }
     function cookieName() { return 'geeve_printer_' + box.getAttribute('data-tile') + (group() === '' ? '' : '_' + group()); }
     function savedPrinter() {
@@ -38,6 +42,11 @@
     // Wisselen tussen de stickersoorten: de printer die daar het laatst bij gekozen was weer voorselecteren.
     if (sortToggle) {
         sortToggle.addEventListener('click', function () { setTimeout(selectSaved, 0); });
+    }
+    if (maatToggle) {
+        // Het formaat staat bij het laden al goed (ptouch.js laadt eerst): meteen de printer van dat formaat voorselecteren.
+        maatToggle.addEventListener('click', function () { setTimeout(function () { selectSaved(); toonInstellingen(); }, 0); });
+        if (group() !== '') { selectSaved(); }
     }
 
     // Snelheid en zwarting (alleen op tegels die ze tonen): per soort printer een eigen set velden; alleen de set die bij de
