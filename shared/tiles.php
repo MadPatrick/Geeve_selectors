@@ -6,7 +6,8 @@ declare(strict_types=1);
  * Overzicht van alle tegels (hoofdscherm, Reports, Templates en Stickers) met per tegel drie opties die in Config worden ingesteld:
  *  - zichtbaar: uit = de tegel staat niet op het overzicht (de pagina zelf blijft via de directe link bereikbaar);
  *  - beveiligd: een klik op de tegel vraagt om de toegangscode (zie shared/access.php); de pagina en de bijbehorende API's
- *    zijn zonder ontgrendelen ook niet te openen;
+ *    zijn zonder ontgrendelen ook niet te openen. Een beveiligde groepstegel (Reports, Templates, Stickers) geldt ook voor
+ *    alle tegels in die groep, ook als je hun adres direct opent;
  *  - in progress: de tegel krijgt de stempel "IN PROGRESS" (alleen visueel).
  * De instellingen staan versleuteld in de Config-instellingen (sleutel TILE_FLAGS, JSON); ontbreekt een tegel daarin, dan gelden
  * de standaardwaarden uit TILE_REGISTRY.
@@ -17,33 +18,38 @@ require_once __DIR__ . '/access.php';
 const TILE_REGISTRY = [
     'hoses' => ['home', 'Slangen fitting Selector', 'hoses/index.php', true, false, false],
     'adapters' => ['home', 'Adapters Selector', 'adapters/index.php', true, false, false],
-    'slangkaarten' => ['home', 'Slangkaarten Printen', 'slkprinten/index.php', true, false, false],
+    'slangkaarten' => ['home', 'Slangkaarten printen', 'slkprinten/index.php', true, false, false],
     // Nieuwe app Slangkaarten (map slangkaarten, in voorbereiding) - eigen id, want 'slangkaarten' is Slangkaarten Printen.
     'slangkaarten-app' => ['home', 'Slangkaarten', 'slangkaarten/index.php', true, false, true],
     'stickers' => ['home', 'Stickers', 'stickers/index.php', true, false, false],
     'stauff' => ['home', 'Stauff Selector', 'stauff/index.php', true, false, true],
-    'gebogenbuis' => ['home', 'Gebogen buis', 'gebogenbuis/index.php', true, false, true],
     'reports' => ['home', 'Reports', 'reports/index.php', true, false, false],
     'msp' => ['reports', 'MSP report', 'reports/msp/index.php', true, false, false],
-    'inkoop-groep' => ['reports', 'Inkoop per Artikelgroep', 'reports/inkoop-groep/index.php', true, false, false],
+    'inkoop-groep' => ['reports', 'Inkoop per Artikelgroep', 'reports/inkoopgroep/index.php', true, false, false],
     'productiviteit' => ['reports', 'Productiviteit', 'reports/productiviteit/index.php', true, true, false],
-    'artikel-marge' => ['reports', 'Artikelmarges', 'reports/artikel-marge/index.php', true, true, true],
+    'inkoopprijzen-gr14-gr55' => ['reports', 'Inkoopprijzen GR14 / GR55', 'reports/inkoopprijzengr14gr55/index.php', true, false, true],
+    'brutoprijzen' => ['reports', 'Brutoprijzen per artikelgroep', 'reports/brutoprijzen/index.php', true, false, true],
+    'negatieve-voorraad' => ['reports', 'Negatieve voorraad', 'reports/negatievevoorraad/index.php', true, false, true],
+    'artikel-marge' => ['reports', 'Artikelmarges', 'reports/artikelmarge/index.php', true, true, true],
+    'slangkaart-netto' => ['reports', 'Slangkaart Nettoprijzen', 'reports/slangkaartnetto/index.php', true, false, false],
     'templates' => ['home', 'Templates', 'templates/index.php', true, false, false],
-    'klantartikel' => ['templates', 'Klant Artikelnummers', 'klantartikel/index.php', true, false, false],
-    'klantkorting' => ['templates', 'Kortingstructuur', 'klantkorting/index.php', true, false, true],
-    'inkooporder' => ['templates', 'Export Inkooporder naar Excel', 'reports/inkooporder/index.php', true, false, false],
-    'order-offerte' => ['templates', 'Export Order/Offerte naar Excel', 'reports/order-offerte/index.php', true, false, false],
-    'offerte-import' => ['templates', 'Import Offerte', 'reports/offerte-import/index.php', true, false, false],
-    'inkooporder-import' => ['templates', 'Import Inkooporder', 'reports/inkooporder-import/index.php', true, false, false],
-    'export-info' => ['templates', 'Export info', 'reports/export-info/index.php', true, false, false],
-    'artikel-import' => ['templates', 'Artikelgegevens Import', 'reports/artikel-import/index.php', true, false, false],
-    'orderhistorie' => ['templates', 'Orderhistorie', 'reports/orderhistorie/index.php', true, false, true],
+    'klantartikel' => ['templates', 'Klant Artikelnummers', 'templates/klantartikel/index.php', true, false, false],
+    'klantkorting' => ['templates', 'Kortingstructuur', 'templates/klantkorting/index.php', true, false, true],
+    'inkooporder' => ['templates', 'Export Inkooporder naar Excel', 'templates/inkooporder/index.php', true, false, false],
+    'order-offerte' => ['templates', 'Export Order/Offerte naar Excel', 'templates/orderofferte/index.php', true, false, false],
+    'offerte-import' => ['templates', 'Import Offerte', 'templates/offerteimport/index.php', true, false, false],
+    'inkooporder-import' => ['templates', 'Import Inkooporder', 'templates/inkooporderimport/index.php', true, false, false],
+    'artikel-import' => ['templates', 'Import Artikelgegevens', 'templates/artikelimport/index.php', true, false, false],
+    'export-info' => ['templates', 'Export info', 'templates/exportinfo/index.php', true, false, false],
+    'orderhistorie' => ['templates', 'Orderhistorie', 'templates/orderhistorie/index.php', true, false, true],
+    'productieorders' => ['templates', 'Productie Orders', 'templates/productieorders/index.php', true, false, false],
+    'barcode' => ['templates', 'Barcode', 'templates/barcode/index.php', true, false, true],
     // Onderdelen van het Stickers-scherm (instelbaar in Config > Tegels); tegels zonder pad zijn nog plaatshouders zonder eigen pagina.
     'stickers-order' => ['stickers', 'Artikelen per Verkooporder', 'stickers/order/index.php', true, false, true],
     'stickers-productie' => ['stickers', 'Artikelen per Productieorder', 'stickers/productie/index.php', true, false, true],
     'stickers-artikel' => ['stickers', 'Artikelnummer', 'stickers/artikel/index.php', true, false, true],
     'stickers-artikel-groot' => ['stickers', "Accu's", 'stickers/accu/index.php', true, false, true],
-    'stickers-kabelmerkers' => ['stickers', 'Kabelmerkers Geel', '', true, false, true],
+    'stickers-kabelmerkers' => ['stickers', 'Kabelmerkers Geel', 'stickers/kabelmerkers/index.php', true, false, false],
     'stickers-slanglabels' => ['stickers', 'Slanglabels', 'stickers/slanglabels/index.php', true, false, true],
     'stickers-ptouch' => ['stickers', 'Naamstickers', 'stickers/ptouch/index.php', true, false, false],
 ];
@@ -128,6 +134,62 @@ function tileClass(string $id): string
     return 'tile' . (tileWip($id) ? ' tile--wip' : '');
 }
 
+/**
+ * Pictogram per tegel: Phosphor "duotone" (MIT, zie shared/icons/LICENSE-phosphor.txt), als bestand in shared/icons/ en inline
+ * in de pagina gezet zodat de kleur (currentColor) uit de CSS komt. De kleur hangt af van de groep waartoe de tegel hoort
+ * (home, reports, templates, stickers): variabelen --tile-<groep>-* in shared/tokens.css, klassen .tile-icon.g-<groep>.
+ * De drie hoofdschermtegels naar Reports, Templates en Stickers hebben de kleur van hun eigen groep.
+ */
+const TILE_ICONS = [
+    'hoses' => 'wave-sine',
+    'adapters' => 'plugs-connected',
+    'slangkaarten' => 'printer',
+    'slangkaarten-app' => 'list-checks',
+    'stickers' => 'sticker',
+    'stauff' => 'gear',
+    'reports' => 'chart-bar',
+    'templates' => 'files',
+    'klantartikel' => 'identification-card',
+    'klantkorting' => 'percent',
+    'inkooporder' => 'file-xls',
+    'order-offerte' => 'file-arrow-down',
+    'offerte-import' => 'file-arrow-up',
+    'inkooporder-import' => 'file-arrow-up',
+    'export-info' => 'info',
+    'artikel-import' => 'upload-simple',
+    'orderhistorie' => 'clock-counter-clockwise',
+    'productieorders' => 'factory',
+    'msp' => 'chart-pie',
+    'inkoop-groep' => 'shopping-cart',
+    'productiviteit' => 'gauge',
+    'artikel-marge' => 'trend-up',
+    'inkoopprijzen-gr14-gr55' => 'tag',
+    'brutoprijzen' => 'tag-simple',
+    'negatieve-voorraad' => 'list-checks',
+    'slangkaart-netto' => 'currency-eur',
+    'stickers-order' => 'receipt',
+    'stickers-artikel' => 'barcode',
+    'barcode' => 'barcode',
+    'stickers-productie' => 'package',
+    'stickers-artikel-groot' => 'battery-charging',
+    'stickers-kabelmerkers' => 'tag',
+    'stickers-slanglabels' => 'tag-simple',
+    'stickers-ptouch' => 'identification-badge',
+];
+
+function tileIcon(string $id): string
+{
+    static $cache = [];
+    if (!isset($cache[$id])) {
+        $file = __DIR__ . '/icons/' . (TILE_ICONS[$id] ?? 'square') . '.svg';
+        $svg = is_readable($file) ? (string) file_get_contents($file) : '';
+        $svg = str_replace('<svg ', '<svg aria-hidden="true" focusable="false" ', $svg);
+        $cache[$id] = $svg;
+    }
+    $group = in_array($id, ['reports', 'templates', 'stickers'], true) ? $id : (TILE_REGISTRY[$id][0] ?? 'home');
+    return '<div class="tile-icon g-' . $group . '">' . $cache[$id] . '</div>';
+}
+
 /** Extra attributen van de tegel: data-lock bij een beveiligde tegel (de popup vraagt dan om de code). */
 function tileAttrs(string $id): string
 {
@@ -155,11 +217,28 @@ function tilesRelock(string $group): void
     }
 }
 
-/** True als een van de tegels niet beveiligd is of ontgrendeld is. */
+/** Groepstegel waar een tegel onder valt ('reports', 'templates' of 'stickers'), of null voor een tegel op het hoofdscherm. */
+function tileParent(string $id): ?string
+{
+    $group = TILE_REGISTRY[$id][0] ?? 'home';
+    return $group !== 'home' && $group !== $id && isset(TILE_REGISTRY[$group]) ? $group : null;
+}
+
+/** True als de tegel zelf open is (niet beveiligd of ontgrendeld). */
+function tileOwnLockOpen(string $id): bool
+{
+    return !tileLocked($id) || accessUnlocked($id);
+}
+
+/**
+ * True als een van de tegels open is: niet beveiligd of ontgrendeld, en de groepstegel erboven ook (een vergrendelde Reports
+ * houdt dus ook MSP e.d. dicht, ook via een bladwijzer of direct adres).
+ */
 function tileAccessible(string ...$ids): bool
 {
     foreach ($ids as $id) {
-        if (!tileLocked($id) || accessUnlocked($id)) {
+        $parent = tileParent($id);
+        if (($parent === null || tileOwnLockOpen($parent)) && tileOwnLockOpen($id)) {
             return true;
         }
     }
@@ -168,14 +247,22 @@ function tileAccessible(string ...$ids): bool
 
 /**
  * Voor de pagina van een tegel (bovenaan, vóór enige uitvoer): is de tegel beveiligd en nog niet ontgrendeld, dan terug naar het
- * overzicht, waar de popup meteen om de code vraagt.
+ * overzicht, waar de popup meteen om de code vraagt. Is de groepstegel erboven nog dicht, dan eerst naar het hoofdscherm, dat om
+ * de code van de groep vraagt.
  */
 function tileRequirePage(string $id, string $backHref): void
 {
-    if (!tileAccessible($id)) {
-        header('Location: ' . $backHref . (str_contains($backHref, '?') ? '&' : '?') . 'unlock=' . rawurlencode($id));
-        exit;
+    if (tileAccessible($id)) {
+        return;
     }
+    $parent = tileParent($id);
+    if ($parent !== null && !tileOwnLockOpen($parent)) {
+        require_once __DIR__ . '/paths.php';
+        $id = $parent;
+        $backHref = geeveAppUrl(TILE_REGISTRY[$parent][0]);
+    }
+    header('Location: ' . $backHref . (str_contains($backHref, '?') ? '&' : '?') . 'unlock=' . rawurlencode($id));
+    exit;
 }
 
 /** Voor API-scripts: stopt met een 403 als geen van de tegels waar deze API bij hoort is ontgrendeld. */
@@ -187,4 +274,5 @@ function tileApiGuard(string ...$ids): void
         echo json_encode(['ok' => false, 'error' => 'Vergrendeld: open de pagina en vul de toegangscode in.']);
         exit;
     }
+    csrfReleaseSession(); // trage API's houden de sessie anders vast en blokkeren andere tegels
 }

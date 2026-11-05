@@ -110,7 +110,7 @@ function geeveBaseUrl(): string
     return $base;
 }
 
-/** Absoluut adres van een bestand vanaf de portal-root, bijv. geeveUrl('reports/assets/sp-report.js'). */
+/** Absoluut adres van een bestand vanaf de portal-root, bijv. geeveUrl('shared/sp-report.js'). */
 function geeveUrl(string $path): string
 {
     return geeveBaseUrl() . ltrim($path, '/');
@@ -128,29 +128,35 @@ const GEEVE_APP_URLS = [
     'slangkaarten-app' => 'slangkaarten/index.php', // map slangkaarten/ deelt het adres met de Apache-proxy naar Slangkaart.Web
     'stickers' => 'stickers/',
     'stauff' => 'stauff/',
-    'gebogenbuis' => 'gebogenbuis/',
     'reports' => 'reports/',
     'templates' => 'templates/',
     'configurator' => 'configurator/',
-    'klantartikel' => 'klantartikel/',
-    'klantkorting' => 'klantkorting/',
+    'klantartikel' => 'templates/klantartikel/',
+    'klantkorting' => 'templates/klantkorting/',
     'msp' => 'reports/msp/',
-    'inkoop-groep' => 'reports/inkoop-groep/',
+    'inkoop-groep' => 'reports/inkoopgroep/',
     'productiviteit' => 'reports/productiviteit/',
-    'artikel-marge' => 'reports/artikel-marge/',
-    'inkooporder' => 'reports/inkooporder/',
-    'order-offerte' => 'reports/order-offerte/',
-    'offerte-import' => 'reports/offerte-import/',
-    'inkooporder-import' => 'reports/inkooporder-import/',
-    'export-info' => 'reports/export-info/',
-    'artikel-import' => 'reports/artikel-import/',
-    'orderhistorie' => 'reports/orderhistorie/',
+    'artikel-marge' => 'reports/artikelmarge/',
+    'inkoopprijzen-gr14-gr55' => 'reports/inkoopprijzengr14gr55/',
+    'brutoprijzen' => 'reports/brutoprijzen/',
+    'negatieve-voorraad' => 'reports/negatievevoorraad/',
+    'inkooporder' => 'templates/inkooporder/',
+    'order-offerte' => 'templates/orderofferte/',
+    'offerte-import' => 'templates/offerteimport/',
+    'inkooporder-import' => 'templates/inkooporderimport/',
+    'export-info' => 'templates/exportinfo/',
+    'artikel-import' => 'templates/artikelimport/',
+    'orderhistorie' => 'templates/orderhistorie/',
+    'productieorders' => 'templates/productieorders/',
+    'barcode' => 'templates/barcode/',
+    'slangkaart-netto' => 'reports/slangkaartnetto/',
     'stickers-order' => 'stickers/order/',
     'stickers-productie' => 'stickers/productie/',
     'stickers-artikel' => 'stickers/artikel/',
     'stickers-artikel-groot' => 'stickers/accu/',
     'stickers-slanglabels' => 'stickers/slanglabels/',
     'stickers-ptouch' => 'stickers/ptouch/',
+    'stickers-kabelmerkers' => 'stickers/kabelmerkers/',
 ];
 
 function geeveAppUrl(string $id): string

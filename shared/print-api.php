@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Direct printen vanuit de browser: de pagina stuurt het afdrukblok (HTML) van een tegel hierheen, de server rendert
  * het (zelfde print-CSS) en stuurt het naar de gekozen printer van die tegel. Zie shared/printen.php en
- * stickers/assets/direct-print.js.
+ * shared/direct-print.js.
  *
  * POST (JSON): {"tile": "<tegel-id>", "printer": "<share op de printserver>", "html": "<inhoud van het afdrukblok>", "csrf": "<token>"}
  * Antwoord (JSON): {"ok": true, "job": "...", "printer": "<naam>"} of {"ok": false, "error": "..."}
@@ -49,9 +49,36 @@ $html = $body['html'] ?? null;
 if (!is_string($html) || trim($html) === '' || strlen($html) > 2_500_000) {
     printApiFail(400, 'Er is niets om te printen.');
 }
+// De HTML komt uit de browser: alleen bekende tags en attributen laten staan (zie shared/printsaneren.php).
+$html = geeveSaneerPrintHtml($html);
+if (trim($html) === '') {
+    printApiFail(400, 'Er is niets om te printen.');
+}
+
+// Optioneel: snelheid en zwarting. Brother QL: snelheid "1" = snel, zwarting 10-90 %. TSPL: snelheid 1-12, zwarting 0-15.
+// Alles buiten het bereik of leeg wordt niet meegestuurd.
+$afdruk = [];
+$afdrukSoort = in_array($tile, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true) ? (geevePrinterList()[$queue]['taal'] ?? null) : null;
+if ($afdrukSoort === 'brother') {
+    $snelheid = $body['snelheid'] ?? null;
+    if ($snelheid === 1 || $snelheid === '1') {
+        $afdruk['snelheid'] = 1;
+    }
+    $bereik = ['zwarting' => [10, 90]];
+} elseif ($afdrukSoort === 'tspl') {
+    $bereik = ['snelheid' => [1, 12], 'zwarting' => [0, 15]];
+} else {
+    $bereik = [];
+}
+foreach ($bereik as $naam => [$min, $max]) {
+    $waarde = $body[$naam] ?? null;
+    if ((is_int($waarde) || (is_string($waarde) && preg_match('/^\d{1,3}$/', $waarde) === 1)) && (int) $waarde >= $min && (int) $waarde <= $max) {
+        $afdruk[$naam] = (int) $waarde;
+    }
+}
 
 try {
-    $job = geevePrintHtml($html, $page['css'], $queue, GEEVE_PRINT_TILES[$tile], null, $page['class']);
+    $job = geevePrintHtml($html, $page['css'], $queue, GEEVE_PRINT_TILES[$tile], null, $page['class'], $afdruk);
 } catch (RuntimeException $e) {
     printApiFail(500, $e->getMessage());
 }

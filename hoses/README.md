@@ -1049,6 +1049,9 @@ annuleer-knop (kruisje) verlaat de modus zonder op te slaan.
 `save.php`:
 - Accepteert alleen POST met JSON-body, valideert per veld (geen waarde die met `=`/`+`/`@` begint - i.e.
   eenvoudige bescherming tegen formule-injectie als het bestand later in Excel/Sheets wordt geopend).
+- Volgt het tegelslot van Slangen (`tileApiGuard('hoses')`) en vraagt het CSRF-token van de pagina (veld `csrf` in
+  de JSON, van `data-csrf` op de wijzigen-knop). Is de sessie verlopen omdat de pagina lang open stond, dan haalt
+  `selector.js` één keer een vers token op (`save.php?token=1`) en verstuurt de wijzigingen opnieuw.
 - Werkt de rij bij op exact artikelnummer in `artikelnummers_staal.csv`/`_rvs.csv`/`_accessoires.csv`; bestaat
   de rij nog niet in een van die bestanden (bijv. een artikel dat nog geen accessoire-regel had), dan wordt er
   een nieuwe rij aangemaakt met het artikelnummer en de reeds bekende artnm/Leverancier/Artikelnr

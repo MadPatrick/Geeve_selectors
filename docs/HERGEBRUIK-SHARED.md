@@ -134,7 +134,10 @@ Labelprinters gaan via een bitmap (TSPL voor Altec, `brother_ql` voor Brother QL
 
 **Printers.** Dat zijn de printershares op `SVNL-VWP-PS01` waarvan de naam met `RTM` begint. Er is niets in te
 stellen: `geevePrinterList()` haalt de lijst en de drivers op en bewaart ze 30 minuten in
-`data/printers/smb-printers.json`. Zebra/ZPL en onbekende drivers vallen weg.
+`data/printers/smb-printers.json`. Zebra/ZPL en onbekende drivers vallen weg. Een printer die aan één tegel vastzit
+(`GEEVE_PRINTER_ALLEEN_TEGEL` in `shared/printen.php`, bijv. `RTMLBGeelKunstof01` voor Kabelmerkers Geel) staat alleen in
+de lijst van die tegel; die tegel toont alleen die printer, andere tegels laten hem weg. `print-api.php` valideert via
+`geevePrinters($tile)`, dus ook de server weigert een andere combinatie.
 
 **Inloggen.** `/etc/geeve/smbprint.cred` (eigenaar root, groep `www-data`, rechten 640), in het formaat van
 `smbclient -A`:
@@ -191,7 +194,7 @@ try {
 
 ### 4b. Printen vanuit de browser (JavaScript) via `print-api.php`
 
-Dit is de route van de Stickers-tegels. De pagina toont een keuzelijst en `stickers/assets/direct-print.js` laat
+Dit is de route van de Stickers-tegels. De pagina toont een keuzelijst en `shared/direct-print.js` laat
 `window.print()` het afdrukblok naar `shared/print-api.php` posten. Daarvoor moet je app **geregistreerd** zijn in
 `shared/printen.php`:
 
@@ -252,7 +255,7 @@ de eigen `assets/style.css`. `shared/head.php` doet dat in de goede volgorde.
 - **Knoppen:** alle kleuren uit de `--btn-*`-variabelen. Rand 1px en altijd donkerder dan de vulling. Groen = lichtgroen
   (`--btn-green`), rood = één rood (`--btn-red`). **Printknop**: de gedeelde `.print-btn` uit `shared/style.css`
   (markup in `shared/README.md`), geen eigen printknopstijl.
-- **Tabellen:** de compacte `.ka-table` en `.ka-input` uit `klantartikel/assets/style.css` (3px celpadding,
+- **Tabellen:** de compacte `.ka-table` en `.ka-input` uit `shared/tabel.css` (3px celpadding,
   invoervelden 28px hoog). Dat bestand is geen onderdeel van `shared/`; laad het via `$headCss` als je die klassen wilt.
 - **Slangkaart:** wil de app slangkaarten tonen of printen, laad `shared/slangkaart.css` en bouw de markup zoals in
   [`SLANGKAART-LAYOUT.md`](../shared/SLANGKAART-LAYOUT.md) (referentie: `renderHoseCard()` en `renderPicklist()` in
@@ -269,8 +272,9 @@ de eigen `assets/style.css`. `shared/head.php` doet dat in de goede volgorde.
   server aan. Kent de DNS het IP niet, dan is het resultaat het IP-adres. Niet geverifieerd dat de DNS op de
   Geeve-server pc-namen teruggeeft.
 - `csrfToken()` / `csrfValid()` (`shared/csrf.php`): bescherming voor elk formulier of elke API die iets wijzigt.
-- `tileApiGuard($tegelId)` en `accessApiGuard($scope)`: API's die bij een beveiligde tegel horen moeten dit aanroepen,
-  anders is de data ook zonder de toegangscode op te halen.
+- `tileRequirePage($tegelId, $terug)` bovenaan elke pagina van de app (ook beheer-, upload- en downloadpagina's) en
+  `tileApiGuard($tegelId)` / `accessApiGuard($scope)` in elke API, anders is de pagina of de data ook zonder de toegangscode
+  te openen. Een tegel in een groep (Reports, Templates, Stickers) is ook dicht zolang de groepstegel vergrendeld is.
 - **Voortgangsbalk** (`shared/progress.js`, CSS in `shared/style.css`, kleuren `--progress-*` in `tokens.css`): `shared/head.php`
   laadt het script, dus elke pagina met `head.php` heeft `GeeveProgress`. Gebruik het bij elke knop die een export, download,
   import of "Naar Exact" start:
@@ -369,5 +373,5 @@ De PHP-functies (printen, data, header) zijn daar niet bruikbaar. Wat wel gedeel
 - [ ] Printen: printerkeuze uit `geevePrinters()`, formulier met `csrfToken()`/`csrfValid()`, afdrukblok zonder scripts,
       getest op papier op de gekozen printer.
 - [ ] Export-, download-, import- en "Naar Exact"-knoppen tonen de voortgangsbalk (`GeeveProgress`, paragraaf 7).
-- [ ] Beveiligde API's roepen `tileApiGuard()` of `accessApiGuard()` aan.
+- [ ] Elke pagina van de app roept `tileRequirePage()` aan, elke API `tileApiGuard()` of `accessApiGuard()`.
 - [ ] `version.php` laat het laatste getal bij elke push met 1 omhoog gaan; de eerste drie alleen op verzoek.

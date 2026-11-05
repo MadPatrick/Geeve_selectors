@@ -2,27 +2,14 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/shared/helpers.php';
+
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 require_once __DIR__ . '/shared/tiles.php';
 require_once __DIR__ . '/shared/paths.php';
 
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-// Cache-busting op basis van de laatste wijzigingsdatum van het bestand
-// zelf, zodat elke aanpassing aan style.css automatisch een nieuwe URL
-// krijgt - geen handmatige versie-ophoging meer nodig.
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 // Beveiligde tegels: elke keer dat het hoofdscherm opent, vragen ze opnieuw om de code.
 tilesRelock('home');
@@ -64,12 +51,7 @@ $lockRoot = '';
     <div class="tile-grid">
         <?php ob_start(); if (tileVisible('hoses')): ?>
         <a class="<?= tileClass('hoses') ?>" href="<?= h(geeveAppUrl('hoses')) ?>"<?= tileAttrs('hoses') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M3 7c2 0 2 3 4 3s2-3 4-3 2 3 4 3 2-3 4-3 2 3 4 3"></path>
-                    <path d="M3 17c2 0 2-3 4-3s2 3 4 3 2-3 4-3 2 3 4 3 2-3 4-3"></path>
-                </svg>
-            </div>
+            <?= tileIcon('hoses') ?>
             <h2><?= h(tileTitle('hoses')) ?></h2>
             <p>Zoek de juiste koppeling op basis van slangartikelnummer, maat en werkdruk &mdash; voor Staal, RVS en accessoires.</p>
             <?= tileLockIcon('hoses') ?>
@@ -78,12 +60,7 @@ $lockRoot = '';
 
         <?php ob_start(); if (tileVisible('adapters')): ?>
         <a class="<?= tileClass('adapters') ?>" href="<?= h(geeveAppUrl('adapters')) ?>"<?= tileAttrs('adapters') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M14.7 6.3a1 1 0 0 0 1.4 0l1.6-1.6a1 1 0 0 1 1.4 0l1.2 1.2a1 1 0 0 1 0 1.4l-1.6 1.6a1 1 0 0 0 0 1.4l3.1 3.1a1 1 0 0 1 0 1.4l-1.4 1.4a1 1 0 0 1-1.4 0l-3.1-3.1a1 1 0 0 0-1.4 0l-1.6 1.6a1 1 0 0 1-1.4 0l-1.2-1.2a1 1 0 0 1 0-1.4l1.6-1.6a1 1 0 0 0 0-1.4L9 6.3a1 1 0 0 0-1.4 0L6 7.9a1 1 0 0 1-1.4 0L3.4 6.7a1 1 0 0 1 0-1.4L5 3.7a1 1 0 0 1 1.4 0l1.6 1.6a1 1 0 0 0 1.4 0"></path>
-                    <circle cx="18.5" cy="5.5" r="0.1"></circle>
-                </svg>
-            </div>
+            <?= tileIcon('adapters') ?>
             <h2><?= h(tileTitle('adapters')) ?></h2>
             <p>Zoek de juiste adapter op basis van draadsoort, draadmaat, hoek en connectietype (buiten/binnen/wartelend).</p>
             <?= tileLockIcon('adapters') ?>
@@ -92,13 +69,7 @@ $lockRoot = '';
 
         <?php ob_start(); if (tileVisible('slangkaarten')): ?>
         <a class="<?= tileClass('slangkaarten') ?>" href="<?= h(geeveAppUrl('slangkaarten')) ?>"<?= tileAttrs('slangkaarten') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M6 9V2h12v7"></path>
-                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                    <rect x="6" y="14" width="12" height="8"></rect>
-                </svg>
-            </div>
+            <?= tileIcon('slangkaarten') ?>
             <h2><?= h(tileTitle('slangkaarten')) ?></h2>
             <p>Zoek een order of klant op en print de slangkaarten (labels) van de geselecteerde slangregels.</p>
             <?= tileLockIcon('slangkaarten') ?>
@@ -107,14 +78,7 @@ $lockRoot = '';
 
         <?php ob_start(); if (tileVisible('slangkaarten-app')): ?>
         <a class="<?= tileClass('slangkaarten-app') ?>" href="<?= h(geeveAppUrl('slangkaarten-app')) ?>"<?= tileAttrs('slangkaarten-app') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="4" y="3" width="16" height="18" rx="2"></rect>
-                    <path d="M8 8h8"></path>
-                    <path d="M8 12h8"></path>
-                    <path d="M8 16h5"></path>
-                </svg>
-            </div>
+            <?= tileIcon('slangkaarten-app') ?>
             <h2><?= h(tileTitle('slangkaarten-app')) ?></h2>
             <p>In voorbereiding.</p>
             <?= tileLockIcon('slangkaarten-app') ?>
@@ -123,12 +87,7 @@ $lockRoot = '';
 
         <?php ob_start(); if (tileVisible('stickers')): ?>
         <a class="<?= tileClass('stickers') ?>" href="<?= h(geeveAppUrl('stickers')) ?>"<?= tileAttrs('stickers') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M4 4h12l4 4v12H4Z"></path>
-                    <path d="M16 4v4h4"></path>
-                </svg>
-            </div>
+            <?= tileIcon('stickers') ?>
             <h2><?= h(tileTitle('stickers')) ?></h2>
             <p>Stickers printen op artikelnummer of zakje.</p>
             <?= tileLockIcon('stickers') ?>
@@ -136,44 +95,15 @@ $lockRoot = '';
         <?php endif; $tileHtml['stickers'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('stauff')): ?>
         <a class="<?= tileClass('stauff') ?>" href="<?= h(geeveAppUrl('stauff')) ?>"<?= tileAttrs('stauff') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="4" y="10" width="16" height="7" rx="2"></rect>
-                    <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
-                    <path d="M9 17v2"></path>
-                    <path d="M15 17v2"></path>
-                </svg>
-            </div>
+            <?= tileIcon('stauff') ?>
             <h2><?= h(tileTitle('stauff')) ?></h2>
             <p>Stel de juiste beugelsamenstelling samen op basis van diameter, serie, uitvoering en materiaal.</p>
             <?= tileLockIcon('stauff') ?>
         </a>
         <?php endif; $tileHtml['stauff'] = ob_get_clean(); ?>
-        <?php ob_start(); if (tileVisible('gebogenbuis')): ?>
-        <a class="<?= tileClass('gebogenbuis') ?>" href="<?= h(geeveAppUrl('gebogenbuis')) ?>"<?= tileAttrs('gebogenbuis') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M4 5h6a6 6 0 0 1 6 6v8"></path>
-                    <path d="M13 19h6"></path>
-                    <path d="M4 9h2"></path>
-                </svg>
-            </div>
-            <h2><?= h(tileTitle('gebogenbuis')) ?></h2>
-            <p>Bereken de prijs van gebogen buis: artikelen met klantkorting, montage en notities.</p>
-            <?= tileLockIcon('gebogenbuis') ?>
-        </a>
-        <?php endif; $tileHtml['gebogenbuis'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('reports')): ?>
         <a class="<?= tileClass('reports') ?>" href="<?= h(geeveAppUrl('reports')) ?>"<?= tileAttrs('reports') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                    <polyline points="14 3 14 9 20 9"></polyline>
-                    <line x1="8" y1="17" x2="8" y2="13"></line>
-                    <line x1="12" y1="17" x2="12" y2="11"></line>
-                    <line x1="16" y1="17" x2="16" y2="15"></line>
-                </svg>
-            </div>
+            <?= tileIcon('reports') ?>
             <h2><?= h(tileTitle('reports')) ?></h2>
             <p>Rapportages en overzichten.</p>
             <?= tileLockIcon('reports') ?>
@@ -181,13 +111,7 @@ $lockRoot = '';
         <?php endif; $tileHtml['reports'] = ob_get_clean(); ?>
         <?php ob_start(); if (tileVisible('templates')): ?>
         <a class="<?= tileClass('templates') ?>" href="<?= h(geeveAppUrl('templates')) ?>"<?= tileAttrs('templates') ?>>
-            <div class="tile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                    <line x1="3" y1="9" x2="21" y2="9"></line>
-                    <line x1="9" y1="21" x2="9" y2="9"></line>
-                </svg>
-            </div>
+            <?= tileIcon('templates') ?>
             <h2><?= h(tileTitle('templates')) ?></h2>
             <p>Excel-exports, imports en klantgegevens.</p>
             <?= tileLockIcon('templates') ?>

@@ -109,7 +109,7 @@ function tryColumnsQuery(PDO $pdo, string $table, array $candidateColumns, strin
     $lastException = null;
 
     foreach ($candidateColumns as $column) {
-        $sql = "SELECT * FROM [dbo].[{$table}] WHERE [{$column}] = :value";
+        $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($column) . ' = :value';
 
         try {
             $statement = $pdo->prepare($sql);
@@ -125,7 +125,7 @@ function tryColumnsQuery(PDO $pdo, string $table, array $candidateColumns, strin
         "Kon tabel \"{$table}\" niet filteren - geen van de verwachte kolomnamen (" .
         implode(', ', $candidateColumns) . ') bestaat in die tabel. Zet de echte ' .
         'kolomnaam vooraan in ORDER_NUMBER_COLUMNS / HOSE_KEY_COLUMNS in inc/queries.php. ' .
-        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+        'Laatste SQL-foutmelding: ' . ($lastException !== null ? geeveFoutTekst($lastException) : 'onbekend')
     );
 }
 
@@ -135,7 +135,7 @@ function tryColumnsLikeQuery(PDO $pdo, string $table, array $candidateColumns, s
     $lastException = null;
 
     foreach ($candidateColumns as $column) {
-        $sql = "SELECT * FROM [dbo].[{$table}] WHERE [{$column}] LIKE :value";
+        $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($column) . ' LIKE :value';
 
         try {
             $statement = $pdo->prepare($sql);
@@ -150,7 +150,7 @@ function tryColumnsLikeQuery(PDO $pdo, string $table, array $candidateColumns, s
     throw new DatabaseConfigException(
         "Kon tabel \"{$table}\" niet filteren - geen van de verwachte kolomnamen (" .
         implode(', ', $candidateColumns) . ') bestaat in die tabel. ' .
-        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+        'Laatste SQL-foutmelding: ' . ($lastException !== null ? geeveFoutTekst($lastException) : 'onbekend')
     );
 }
 
@@ -171,8 +171,8 @@ function tryColumnsFuzzyLikeQuery(PDO $pdo, string $table, array $candidateColum
     $lastException = null;
 
     foreach ($candidateColumns as $column) {
-        $normalizedColumn = "REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '')";
-        $sql = "SELECT * FROM [dbo].[{$table}] WHERE {$normalizedColumn} LIKE :value";
+        $normalizedColumn = "REPLACE(REPLACE(REPLACE(REPLACE(" . geeveSqlNaam($column) . ", '-', ''), ' ', ''), '.', ''), '_', '')";
+        $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . " WHERE {$normalizedColumn} LIKE :value";
 
         try {
             $statement = $pdo->prepare($sql);
@@ -187,8 +187,30 @@ function tryColumnsFuzzyLikeQuery(PDO $pdo, string $table, array $candidateColum
     throw new DatabaseConfigException(
         "Kon tabel \"{$table}\" niet filteren - geen van de verwachte kolomnamen (" .
         implode(', ', $candidateColumns) . ') bestaat in die tabel. ' .
-        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+        'Laatste SQL-foutmelding: ' . ($lastException !== null ? geeveFoutTekst($lastException) : 'onbekend')
     );
+}
+
+/**
+ * Snelle eerste stap van het zoeken op slangnummer: alleen de rijen waarvan de kolom BEGINT met de zoekterm, precies zoals
+ * getypt (geen REPLACE in de WHERE, dus zonder volledige scan van de view). Gemeten op de server (3-11-2026, 341.319 rijen):
+ * 160-270 ms i.p.v. 2-5 s voor de fuzzy scan. Geeft een lege lijst als niets zo begint; de aanroeper valt dan terug op
+ * tryColumnsFuzzyLikeQuery().
+ */
+function tryColumnsPrefixLikeQuery(PDO $pdo, string $table, array $candidateColumns, string $searchTerm): array
+{
+    $escaped = preg_replace('/[\\\\%_\\[]/', '\\\\$0', $searchTerm) ?? $searchTerm;
+    foreach ($candidateColumns as $column) {
+        $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($column) . " LIKE :value ESCAPE '\\'";
+        try {
+            $statement = $pdo->prepare($sql);
+            $statement->execute(['value' => $escaped . '%']);
+            return $statement->fetchAll();
+        } catch (PDOException $exception) {
+            continue; // kolom bestaat niet: de fuzzy stap meldt de echte fout
+        }
+    }
+    return [];
 }
 
 /**
@@ -214,7 +236,7 @@ function tryColumnsInQuery(PDO $pdo, string $table, array $candidateColumns, arr
             $params[$placeholder] = $value;
         }
 
-        $sql = "SELECT * FROM [dbo].[{$table}] WHERE [{$column}] IN (" . implode(', ', $placeholders) . ')';
+        $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($column) . ' IN (' . implode(', ', $placeholders) . ')';
 
         try {
             $statement = $pdo->prepare($sql);
@@ -229,7 +251,7 @@ function tryColumnsInQuery(PDO $pdo, string $table, array $candidateColumns, arr
     throw new DatabaseConfigException(
         "Kon tabel \"{$table}\" niet filteren - geen van de verwachte kolomnamen (" .
         implode(', ', $candidateColumns) . ') bestaat in die tabel. ' .
-        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+        'Laatste SQL-foutmelding: ' . ($lastException !== null ? geeveFoutTekst($lastException) : 'onbekend')
     );
 }
 
@@ -264,8 +286,8 @@ function tryColumnsInQueryWithEquals(
             }
             $params['equalsValue'] = $equalsValue;
 
-            $sql = "SELECT * FROM [dbo].[{$table}] WHERE [{$inColumn}] IN (" . implode(', ', $placeholders) . ")" .
-                " AND [{$equalsColumn}] = :equalsValue";
+            $sql = 'SELECT * FROM [dbo].' . geeveSqlNaam($table) . ' WHERE ' . geeveSqlNaam($inColumn) . ' IN (' . implode(', ', $placeholders) . ')' .
+                ' AND ' . geeveSqlNaam($equalsColumn) . ' = :equalsValue';
 
             try {
                 $statement = $pdo->prepare($sql);
@@ -282,7 +304,7 @@ function tryColumnsInQueryWithEquals(
         "Kon tabel \"{$table}\" niet filteren - geen combinatie van de verwachte " .
         'kolomnamen (' . implode(', ', $inCandidateColumns) . ' / ' .
         implode(', ', $equalsCandidateColumns) . ') bestaat in die tabel. ' .
-        'Laatste SQL-foutmelding: ' . ($lastException?->getMessage() ?? 'onbekend')
+        'Laatste SQL-foutmelding: ' . ($lastException !== null ? geeveFoutTekst($lastException) : 'onbekend')
     );
 }
 
@@ -679,7 +701,11 @@ function findArtikelItemGroepenBatch(array $artikelen): array
  */
 function findLinesByHoseNumber(PDO $pdo, string $hoseNumber): array
 {
-    $rows = tryColumnsFuzzyLikeQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseNumber);
+    // Eerst de snelle 'begint met' (komt het slangnummer zoals getypt voor), pas anders de trage fuzzy scan.
+    $rows = tryColumnsPrefixLikeQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseNumber);
+    if ($rows === []) {
+        $rows = tryColumnsFuzzyLikeQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseNumber);
+    }
 
     $itemGroepen = findArtikelItemGroepenBatch(array_map(
         static fn(array $row): string => pick($row, HOSE_KEY_COLUMNS),
@@ -843,7 +869,7 @@ function isZeroPlaceholder(string $value): bool
  * Bij een leeg ordernummer (zou niet moeten voorkomen, het regel-
  * overzicht geeft het altijd mee) wordt niet op order gefilterd.
  */
-function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''): array
+function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = '', bool $cardOnly = false): array
 {
     $hoseKeys = array_values(array_unique(array_filter(
         $hoseKeys,
@@ -854,7 +880,11 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
         return [];
     }
 
-    $mainRows = $orderNumber !== ''
+    // $cardOnly: zoeken op slangnummer geeft alleen de slangkaart zelf, geen orderregels; dan worden alle sleutels
+    // hieronder via de "zonder order"-route opgebouwd (1 kaart per slangnummer).
+    $mainRows = $cardOnly
+        ? []
+        : ($orderNumber !== ''
         ? tryColumnsInQueryWithEquals(
             $pdo,
             '2500 Slangkaarten bij order',
@@ -863,7 +893,7 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
             ORDER_NUMBER_COLUMNS,
             $orderNumber
         )
-        : tryColumnsInQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseKeys);
+        : tryColumnsInQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseKeys));
     $sideARows = tryColumnsInQuery($pdo, '93004 hv 3001 Slangonderdelen Zijde A', HOSE_KEY_COLUMNS, $hoseKeys);
     $sideBRows = tryColumnsInQuery($pdo, '93004 hv 3001 Slangonderdelen Zijde B', HOSE_KEY_COLUMNS, $hoseKeys);
     $groupedA = groupRowsByHoseKey($sideARows);
@@ -1021,7 +1051,7 @@ function findCouplingRowsFromDetails(PDO $pdo, array $hoseKeys): array
  *
  * @param string[] $excludeKeys
  */
-function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $excludeKeys): array
+function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $excludeKeys, bool $exact = false): array
 {
     $normalizedTerm = preg_replace('/[-\s._]+/', '', $searchTerm) ?? $searchTerm;
     if ($normalizedTerm === '') {
@@ -1037,16 +1067,25 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
     $prefix = str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], trim($searchTerm)) . '%';
     $keys = [];
     foreach ([['2500 Slangkaarten', 'Nummer'], ['Details slangen', 'GHnr']] as [$table, $column]) {
+        $kolom = geeveSqlNaam($column);
         $steps = [
-            ["[{$column}] LIKE :value", $prefix],
-            ["REPLACE(REPLACE(REPLACE(REPLACE([{$column}], '-', ''), ' ', ''), '.', ''), '_', '') LIKE :value", '%' . $normalizedTerm . '%'],
+            [$kolom . ' LIKE :value', $prefix],
+            ["REPLACE(REPLACE(REPLACE(REPLACE({$kolom}, '-', ''), ' ', ''), '.', ''), '_', '') LIKE :value", '%' . $normalizedTerm . '%'],
         ];
+        if ($exact) {
+            // Alleen dit ene slangnummer: gelijk aan de zoekterm (hoofdletterongevoelig door de collation), anders gelijk
+            // zonder koppeltekens/spaties/punten. Geen "begint met"/"bevat".
+            $steps = [
+                [$kolom . ' = :value', trim($searchTerm)],
+                ["REPLACE(REPLACE(REPLACE(REPLACE({$kolom}, '-', ''), ' ', ''), '.', ''), '_', '') = :value", $normalizedTerm],
+            ];
+        }
         $found = [];
         foreach ($steps as [$condition, $value]) {
             try {
                 $statement = $pdo->prepare(
-                    "SELECT TOP 50 [{$column}] FROM [dbo].[{$table}] WHERE {$condition} " .
-                    "GROUP BY [{$column}] ORDER BY [{$column}]"
+                    "SELECT TOP 50 {$kolom} FROM [dbo]." . geeveSqlNaam($table) . " WHERE {$condition} " .
+                    "GROUP BY {$kolom} ORDER BY {$kolom}"
                 );
                 $statement->execute(['value' => $value]);
                 foreach ($statement->fetchAll(PDO::FETCH_COLUMN) as $hit) {
@@ -1055,7 +1094,7 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
             } catch (PDOException $exception) {
                 break;
             }
-            if (count($found) >= 50) {
+            if (count($found) >= 50 || ($exact && $found !== [])) {
                 break;
             }
         }

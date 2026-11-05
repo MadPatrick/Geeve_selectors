@@ -22,6 +22,9 @@
     var pagePrev = document.getElementById('soPagePrev');
     var pageNext = document.getElementById('soPageNext');
     var rows = [];
+    var alleRows = [];   // alle regels van de order; rows is daarvan de selectie (bij "Backorders" alleen wat nog niet geleverd is)
+    var filterToggle = document.getElementById('soFilter');
+    var backorders = true; // 'Backorders' (standaard) of 'Compleet'
     var asked = '';
     var sortBy = 'loop'; // 'loop' (looplocatie, standaard), 'regel' (orderregelnummer) of 'artikel' (artikelsticker, op orderregel)
     var BC_MODULE_MM = 0.38; // breedte van één streepje in de barcode, zelfde als de artikelsticker
@@ -84,7 +87,10 @@
     function renderPreview() {
         var list = selected();
         var date = today();
-        sheet.innerHTML = list.map(function (r) { return sticker(r, date); }).join('');
+        // De artikelsticker (70 × 25 mm) krijgt zijn eigen paginaformaat mee, zodat hij bij het printen gecentreerd op een
+        // label van die maat staat en niet links boven op de 102 × 54 mm-pagina van de orderstickers.
+        var pagina = sortBy === 'artikel' ? '<style>@page { size: 70mm 25mm; margin: 0; }</style>' : '';
+        sheet.innerHTML = pagina + list.map(function (r) { return sticker(r, date); }).join('');
         Array.prototype.forEach.call(sheet.querySelectorAll('svg[data-code]'), function (svg) {
             var code = svg.getAttribute('data-code');
             if (code === '') { return; }
@@ -102,7 +108,6 @@
             }
         });
         ArtSticker.barcodes(sheet);
-        previewPanel.hidden = list.length === 0; // eerst zichtbaar maken, anders kan fit() niets meten
         sheet.classList.add('is-measuring'); // alle stickers even zichtbaar voor fit(), daarna weer één
         Array.prototype.forEach.call(sheet.querySelectorAll('.sticker:not(.sticker--art) .f'), fit);
         ArtSticker.fit(sheet);
@@ -180,6 +185,8 @@
         var btn = e.target.closest('button[data-sort]');
         if (!btn || btn.getAttribute('data-sort') === sortBy) { return; }
         sortBy = btn.getAttribute('data-sort');
+        var maat = document.getElementById('soMaat'); // labelmaat in de titel: de artikelsticker is een ander label
+        if (maat) { maat.textContent = sortBy === 'artikel' ? '70 × 25 mm' : '102 × 54 mm'; }
         Array.prototype.forEach.call(sortToggle.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b === btn); });
         if (rows.length === 0) { return; }
         rows.forEach(function (r, i) {
@@ -191,6 +198,32 @@
         showPage(0);
         current = 0;
         renderPreview();
+    });
+
+    // Backorders: alleen de regels waarvan nog niet alles is geleverd (geleverd < besteld).
+    function nogTeLeveren(r) {
+        var besteld = Number(r.besteld);
+        var geleverd = Number(r.geleverd);
+        return isNaN(besteld) || isNaN(geleverd) || geleverd < besteld;
+    }
+    function applyFilter() {
+        rows = backorders ? alleRows.filter(nogTeLeveren) : alleRows.slice();
+        if (alleRows.length === 0) { return; }
+        if (rows.length === 0) {
+            result.hidden = true;
+            printBtn.disabled = true;
+            fail('Alle regels van order ' + asked + ' zijn al geleverd (geen backorders). Kies Compleet om toch alle regels te zien.');
+            return;
+        }
+        message.hidden = true;
+        render(rows[0]);
+    }
+    filterToggle.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-filter]');
+        if (!btn) { return; }
+        backorders = btn.getAttribute('data-filter') === 'backorders';
+        Array.prototype.forEach.call(filterToggle.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b === btn); });
+        applyFilter();
     });
 
     function load() {
@@ -207,15 +240,15 @@
             .then(function (res) { return res.json(); })
             .then(function (json) {
                 if (!json.ok) { throw new Error(json.error || 'Onbekende fout.'); }
-                rows = json.rows || [];
+                alleRows = json.rows || [];
                 asked = nummer;
+                rows = alleRows;
                 if (rows.length === 0) {
                     result.hidden = true;
-                    previewPanel.hidden = true;
-                    fail('Geen regels gevonden voor order ' + nummer + '.');
+                            fail('Geen regels gevonden voor order ' + nummer + '.');
                     return;
                 }
-                render(rows[0]);
+                applyFilter();
             })
             .catch(function (e) { fail(e.message || String(e)); })
             .then(function () { fetchBtn.disabled = false; status.textContent = ''; });

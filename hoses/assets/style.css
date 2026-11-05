@@ -132,6 +132,18 @@ h3 { margin: 4px 0 0; font-size: 19px; }
 }
 .pdf-menu-item:hover, .pdf-menu-item:focus-visible { background: var(--btn-white-hover); color: var(--accent); }
 
+.pdf-menu-type { display: flex; flex-direction: column; gap: 4px; padding: 8px 12px 6px; border-top: 1px solid var(--line-menu); margin-top: 4px; }
+.pdf-menu-type label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.pdf-menu-type-row { display: flex; gap: 6px; align-items: center; }
+.pdf-type-input { width: 110px; min-width: 0; }
+.pdf-type-button { appearance: none; border: 1px solid var(--btn-green-line, var(--line-menu)); background: var(--btn-green); color: var(--btn-green-ink); font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+.pdf-type-button:hover { background: var(--btn-green-hover); }
+.pdf-type-message { font-size: 12px; color: var(--btn-danger); min-height: 1em; }
+/* Het Perslijst-menu hangt onder de topbalk: de gedeelde overflow:hidden van .brand-panel kapte het af. De glans (::before) vult de
+   balk al volledig (inset: 0), dus zichtbaar overflow geeft hier geen uitloop. */
+.brand-panel { overflow: visible; }
+.brand-panel::before { border-radius: inherit; }
+
 .data-panel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .data-panel-block p { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.4; }
 .data-panel-block h3 { margin: 0 0 8px; font-size: 15px; }
@@ -284,7 +296,7 @@ input::placeholder { color: var(--ink-placeholder); }
 /* In wijzigen-modus staan er altijd exact 5 velden in een rij (badge-slot +
    4 facts) - een grid met gelijke kolommen i.p.v. flex-wrap voorkomt dat
    een los wikkelend veld (bv. Schilmaat extern) de hele rijbreedte opvult. */
-.fitting-facts:has(.fact-edit) { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end; gap: 10px 12px; }
+.fitting-facts.fitting-facts--edit { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end; gap: 10px 12px; }
 .fact-edit { min-width: 0; }
 .fact-edit input.fact-edit-input { width: 100%; min-height: 34px; padding: 6px 9px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink); }
 .fact-edit-pilaar { width: 100%; text-align: center; }
@@ -445,7 +457,7 @@ input::placeholder { color: var(--ink-placeholder); }
     .accessory-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .coupling-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .data-panel-grid { grid-template-columns: 1fr; }
-    .fitting-facts:has(.fact-edit) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .fitting-facts.fitting-facts--edit { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 820px) {
@@ -453,7 +465,7 @@ input::placeholder { color: var(--ink-placeholder); }
 }
 
 @media (max-width: 480px) {
-    .fitting-facts:has(.fact-edit) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fitting-facts.fitting-facts--edit { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 620px) {

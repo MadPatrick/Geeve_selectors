@@ -1,0 +1,54 @@
+/* Kabelmerkers Geel (stickers/kabelmerkers): ALTEC 72001207 (TTP ADC, 70 × 15 mm, A235), lichtgeel label. Scherm (drie voorbeeldstickers
+   onder elkaar) en de sticker zelf. Op papier komt alleen de tekst: het label is zelf geel. */
+
+.km-edit { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-top: 14px; }
+.km-regel { display: flex; flex-direction: column; gap: 6px; width: 260px; }
+.km-regel h3 { margin: 0 0 4px; font-size: 24px; }
+.km-regel .ka-input { width: 100%; }
+.km-regel .km-aantal, .km-aantal { width: 3.6em; flex: 0 0 auto; text-align: center; }
+.km-preview { display: flex; flex-direction: column; align-items: center; zoom: 1.2; margin-top: 8px; padding: 2mm 2.5mm; background: var(--kabelmerker-drager); border-radius: 1.5mm; }
+.km-melding { margin-top: 12px; }
+.km-import { margin-top: 8px; }
+.km-vink { width: 32px; text-align: center; }
+.km-te-lang td { color: var(--danger); }
+
+.km-sticker {
+    position: relative;
+    box-sizing: border-box;
+    width: 70mm;
+    height: 15mm;
+    padding: 1mm 2mm;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-black);
+    background: var(--kabelmerker-geel);
+    font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+    font-weight: 700;
+    font-size: 12pt;
+    line-height: 1.1;
+}
+/* Op het scherm: afgeronde hoeken, een randje en een tussenruimte, zoals de losse labels op de rol. */
+.km-preview .km-sticker { margin-bottom: 2mm; box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1.5mm; }
+.km-preview .km-sticker::before, .km-preview .km-sticker::after {
+    /* twee sleuven per uiteinde (boven en onder), de tweede is de schaduwkopie 7 mm lager */
+    content: ""; position: absolute; top: 4mm; width: 4mm; height: 2mm; margin-top: -1mm; border-radius: 0.6mm;
+    background: var(--kabelmerker-drager); box-shadow: 0 7mm 0 0 var(--kabelmerker-drager);
+}
+.km-preview .km-sticker::before { left: 3.5mm; }
+.km-preview .km-sticker::after { right: 3.5mm; }
+.km-preview .km-sticker:last-child { margin-bottom: 0; }
+.km-tekst { width: 55mm; max-width: 55mm; white-space: pre; text-align: center; }
+
+.km-printsheet { display: none; }
+
+@page { size: 70mm 15mm; margin: 0; }
+
+@media print {
+    html, body { background: var(--surface-white) !important; margin: 0; padding: 0; }
+    body > *:not(.km-printsheet) { display: none !important; }
+    .km-printsheet { display: block; }
+    .km-printsheet .km-sticker { background: var(--surface-white); break-after: page; page-break-after: always; }
+    .km-printsheet .km-sticker:last-child { break-after: auto; page-break-after: auto; }
+}

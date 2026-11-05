@@ -9,6 +9,7 @@
     var tbody = document.querySelector('#psTable tbody');
     var all = document.getElementById('psAll');
     var side = document.getElementById('psSide');
+    var printBlock = document.getElementById('psPrintBlock');
     var sheet = document.getElementById('psSheet');
     var printSheet = document.getElementById('psPrintSheet');
     var prevBtn = document.getElementById('psPrev');
@@ -16,7 +17,6 @@
     var previewCount = document.getElementById('psPreviewCount');
     var copies = document.getElementById('psCopies');
     var printBtn = document.getElementById('psPrint');
-    var printInfo = document.getElementById('psPrintInfo');
     var rows = [];
     var asked = '';
     var current = 0; // welke sticker het voorbeeld toont
@@ -88,13 +88,11 @@
     function updateInfo(list) {
         var n = list.length * times();
         printBtn.disabled = n === 0;
-        printInfo.textContent = n === 0 ? '' : n + (n === 1 ? ' sticker' : ' stickers') + (times() > 1 ? ' (' + list.length + ' regels)' : '');
     }
 
     function renderPreview() {
         var list = selected();
         build(sheet, list, 1);
-        side.hidden = list.length === 0; // eerst zichtbaar maken, anders kan fit() niets meten
         sheet.classList.add('is-measuring');
         fit(sheet);
         sheet.classList.remove('is-measuring');
@@ -152,7 +150,6 @@
                 asked = nummer;
                 if (rows.length === 0) {
                     result.hidden = true;
-                    side.hidden = true;
                     fail('Geen productieorderregels gevonden voor order ' + nummer + '.');
                     return;
                 }
@@ -173,7 +170,7 @@
         renderPreview();
     });
 
-    // Print: de printer kies je in het printvenster van de browser. De datum is de printdatum.
+    // Print: de printer en de afdrukinstellingen kies je in het scherm (direct-print.js); de datum is de printdatum.
     printBtn.addEventListener('click', function () {
         var list = selected();
         if (list.length === 0) { return; }

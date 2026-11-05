@@ -2,6 +2,8 @@
     var box = document.getElementById('mspActions');
     var fetchBtn = document.getElementById('mspFetch');
     var downloadBtn = document.getElementById('mspDownload');
+    var uploadBtn = document.getElementById('mspUpload');
+    var mergeBox = document.getElementById('mspMerge');
     var status = document.getElementById('mspStatus');
     var message = document.getElementById('mspMessage');
     var result = document.getElementById('mspResult');
@@ -26,13 +28,31 @@
     }
     function dmy(iso) { return iso.split('-').reverse().join('-'); }
 
+    // Rijen zoals getoond/geëxporteerd: losse regels, of samengevoegd per klant + artikel + factuur (+ datum en artikelgroep).
+    // Aantal en bedrag worden opgeteld; de aantallen zijn per regel al op halve stuks afgerond.
+    function viewRows() {
+        if (!mergeBox.checked) { return data.rows; }
+        var cols = data.columns;
+        var ci = cols.indexOf('End Customer Number'), pi = cols.indexOf('Part Number'), ni = cols.indexOf('Invoice Number');
+        var di = cols.indexOf('Invoice Date (DD/MM/YYYY)'), gi = cols.indexOf('FINartgrp'), qi = cols.indexOf('qty'), bi = cols.indexOf('Invoice Price');
+        var map = {}, out = [];
+        data.rows.forEach(function (r) {
+            var key = [r[ci], r[pi], r[ni], r[di], r[gi]].join('|');
+            if (!map.hasOwnProperty(key)) { map[key] = r.slice(); out.push(map[key]); return; }
+            var t = map[key];
+            t[qi] = Math.round((Number(t[qi]) + Number(r[qi])) * 100) / 100;
+            t[bi] = Math.round((Number(t[bi]) + Number(r[bi])) * 100) / 100;
+        });
+        return out;
+    }
+
     function fail(text) {
         message.textContent = text;
         message.hidden = false;
     }
 
     function render() {
-        var cols = data.columns, rows = data.rows;
+        var cols = data.columns, rows = viewRows();
         var idx = function (name) { return cols.indexOf(name); };
         var inv = idx('Invoice Number');
         var invoices = {};
@@ -62,6 +82,7 @@
         message.hidden = true;
         fetchBtn.disabled = true;
         downloadBtn.disabled = true;
+        uploadBtn.disabled = true;
         status.textContent = 'Bezig met ophalen… dit kan even duren.';
         var body = new URLSearchParams();
         body.set('csrf', box.getAttribute('data-csrf'));
@@ -75,7 +96,7 @@
                 data = json;
                 period = asked;
                 render();
-                downloadBtn.disabled = data.rows.length === 0;
+                downloadBtn.disabled = uploadBtn.disabled = data.rows.length === 0;
                 status.textContent = 'Opgehaald voor ' + MONTHS[period.month - 1] + ' ' + period.year + ' om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + '.';
             })
             .catch(function (err) {
@@ -90,7 +111,7 @@
         if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return false; }
         var cols = data.columns;
         var aoa = [cols];
-        data.rows.forEach(function (r) {
+        viewRows().forEach(function (r) {
             aoa.push(r.map(function (v, i) {
                 if (v === null) { return ''; }
                 if (cols[i] === 'fakdat' && typeof v === 'string' && ISO_DATE.test(v)) {
@@ -129,5 +150,46 @@
         // Bestandsnaam met de factuurmaand, bijv. MSP_report_2026-09.xlsx
         var stamp = period.year + '-' + ('0' + period.month).slice(-2);
         XLSX.writeFile(wb, 'MSP_report_' + stamp + '.xlsx');
+    });
+
+    mergeBox.addEventListener('change', function () { if (data) { render(); } });
+
+    // Opslaan met "Opslaan als"-venster (kiezen waar het bestand komt) in Chrome/Edge; Firefox kent dat niet
+    // en valt terug op een gewone download naar de downloadmap.
+    function saveAs(wb, name, bookType) {
+        if (typeof window.showSaveFilePicker !== 'function') {
+            XLSX.writeFile(wb, name, { bookType: bookType });
+            return;
+        }
+        var bytes = XLSX.write(wb, { bookType: bookType, type: 'array' });
+        window.showSaveFilePicker({
+            suggestedName: name,
+            types: [{ description: 'Excel-bestand', accept: { 'application/vnd.ms-excel': ['.xls'] } }]
+        }).then(function (handle) {
+            return handle.createWritable().then(function (w) {
+                return w.write(new Blob([bytes])).then(function () { return w.close(); });
+            });
+        }).catch(function (err) {
+            if (err && err.name === 'AbortError') { return; } // venster gesloten: niets doen
+            XLSX.writeFile(wb, name, { bookType: bookType });
+        });
+    }
+
+    // Export in het formaat van het MSP-uploadsjabloon (Parker): zes kolommen, geen opvulspaties, datum als tekst dd/mm/jjjj.
+    GeeveProgress.onClick(uploadBtn, 'Export maken…', function () {
+        if (!data || typeof XLSX === 'undefined') { fail('Excel-bibliotheek niet geladen.'); return false; }
+        var cols = data.columns;
+        var ci = cols.indexOf('End Customer Number'), pi = cols.indexOf('Part Number'), qi = cols.indexOf('qty');
+        var ni = cols.indexOf('Invoice Number'), di = cols.indexOf('Invoice Date (DD/MM/YYYY)');
+        var aoa = [['End Customer Number', 'Part Number', 'Quantity', 'Invoice Number', 'Invoice Date (DD-MM-YYYY)', 'Expected Amount (Optional)']];
+        viewRows().forEach(function (r) {
+            aoa.push([String(r[ci]).trim(), String(r[pi]).trim(), Number(r[qi]), String(r[ni]).trim(), String(r[di]).trim(), '']);
+        });
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+        ws['!cols'] = [{ wch: 22 }, { wch: 26 }, { wch: 10 }, { wch: 16 }, { wch: 26 }, { wch: 26 }];
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        var stamp = period.year + '-' + ('0' + period.month).slice(-2);
+        saveAs(wb, 'MSP_upload_' + stamp + (mergeBox.checked ? '_samengevoegd' : '') + '.xls', 'biff8');
     });
 })();

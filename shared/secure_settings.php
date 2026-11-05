@@ -23,10 +23,21 @@ const SECURE_SETTINGS_KEYS = [
     'EXACT_DB_USER',
     'EXACT_DB_PASSWORD',
     'EXACT_DB_TRUST_SERVER_CERT',
+    // Naam van de Exact test-database (zelfde server en login als de gewone Exact-database); zie shared/databases.php.
+    'EXACT_DB_NAME_TEST',
+    'EXACT_DB_HOST_TEST',
+    'EXACT_DB_PORT_TEST',
+    // Naam van de Slangkaarten-database (standaard "Slangkaarten"); zie shared/databases.php.
+    'DB_NAME',
+    // Overige Exact-databases voor rapportage- en data-views/procedures (standaard Exactrapportage en 005_Data_Geeve).
+    'EXACT_DB_RAPPORTAGE',
+    'EXACT_DB_DATA',
+    // Per tegel: uit welke database (main/test) gelezen en naar welke geschreven wordt (JSON, zie shared/databases.php).
+    'DB_KEUZE',
     // Eigen database van /slkprinten (database "Slangkaarten"); server en certificaat volgen de Exact-instellingen.
     'DB_USER',
     'DB_PASSWORD',
-    // Toegangscode voor beveiligde onderdelen (Productiviteit); zonder waarde geldt 1308 (zie shared/access.php).
+    // Toegangscode voor beveiligde onderdelen (Productiviteit); zonder waarde blijven die tegels dicht (zie shared/access.php).
     'ACCESS_CODE',
     // Per tegel: zichtbaar / beveiligd / in progress (JSON, zie shared/tiles.php); ingesteld via Config > Tegels.
     'TILE_FLAGS',
@@ -43,6 +54,8 @@ const SECURE_SETTINGS_KEYS = [
     'NIEUWJAAR_DATUM',
     'NIEUWJAAR_VOOR',
     'NIEUWJAAR_NA',
+    // Rouleertijd van de achtergrondfoto in minuten (zie shared/achtergrond.php); ingesteld via Config > Topbalk.
+    'ACHTERGROND_MINUTEN',
 ];
 
 /** Sleutels die uit het serverbestand komen (zie secureSettingsFilePath()); die velden verdwijnen dan uit Config. */
@@ -55,6 +68,13 @@ const SECURE_SETTINGS_FILE_KEYS = [
     'EXACT_DB_TRUST_SERVER_CERT',
     'DB_USER',
     'DB_PASSWORD',
+    // Databasenamen (zie shared/databases.php); alleen als ze in het serverbestand staan, anders gelden de standaardnamen.
+    'EXACT_DB_NAME_TEST',
+    'EXACT_DB_HOST_TEST',
+    'EXACT_DB_PORT_TEST',
+    'DB_NAME',
+    'EXACT_DB_RAPPORTAGE',
+    'EXACT_DB_DATA',
 ];
 
 /**
@@ -162,7 +182,12 @@ function secureSettingsReadStored(): array
  */
 function secureSettingsRead(): array
 {
-    return array_merge(secureSettingsReadStored(), secureSettingsFileValues() ?? []);
+    // Eén keer per aanvraag lezen en ontsleutelen (tiles, databases, achtergrond en sneeuw vragen het elk apart op);
+    // secureSettingsWrite() leegt deze geheugenkopie.
+    if (!isset($GLOBALS['secureSettingsMemo']) || !is_array($GLOBALS['secureSettingsMemo'])) {
+        $GLOBALS['secureSettingsMemo'] = array_merge(secureSettingsReadStored(), secureSettingsFileValues() ?? []);
+    }
+    return $GLOBALS['secureSettingsMemo'];
 }
 
 /** Laatste foutreden van secureSettingsWrite(), voor in de melding. */
@@ -175,6 +200,7 @@ function secureSettingsLastError(): string
 function secureSettingsWrite(array $values): bool
 {
     $GLOBALS['secureSettingsError'] = '';
+    $GLOBALS['secureSettingsMemo'] = null;
     if (!function_exists('openssl_encrypt')) {
         $GLOBALS['secureSettingsError'] = 'De PHP openssl-extensie ontbreekt op deze server.';
         return false;

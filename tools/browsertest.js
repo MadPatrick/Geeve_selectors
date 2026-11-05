@@ -8,8 +8,8 @@
  */
 const base = (process.argv[2] || 'http://127.0.0.1:8099').replace(/\/$/, '');
 const naam = process.argv[3] || 'chromium';
-const paden = ['/', '/hoses/', '/adapters/', '/stauff/', '/configurator/', '/slkprinten/', '/gebogenbuis/', '/klantartikel/',
-  '/klantkorting/', '/reports/offerte-import/', '/reports/orderhistorie/', '/reports/msp/', '/stickers/'];
+const paden = ['/', '/hoses/', '/adapters/', '/stauff/', '/configurator/', '/slkprinten/', '/templates/klantartikel/',
+  '/templates/klantkorting/', '/templates/offerteimport/', '/templates/orderhistorie/', '/templates/productieorders/', '/reports/slangkaartnetto/', '/reports/msp/', '/stickers/'];
 
 (async () => {
   const pw = require('playwright');

@@ -135,15 +135,19 @@
     input.addEventListener('focus', load);
     input.addEventListener('input', update);
     input.addEventListener('keydown', function (e) {
+        // Gekozen klant, of een naam getypt: neem de bovenste klant uit de lijst (een nummer werkt zoals voorheen).
+        if (GeeveEnterTop.handle(e, {
+            isOpen: function () { return !list.hidden; },
+            count: function () { return hits.length; },
+            active: function () { return active; },
+            pick: pick,
+            skip: function () { return active < 0 && /^\d+$/.test(input.value.trim()); }
+        })) { return; }
         if (list.hidden) { return; }
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
             e.preventDefault();
             active = (active + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length;
             render();
-        } else if (e.key === 'Enter' && (active >= 0 || !/^\d+$/.test(input.value.trim()))) {
-            // Gekozen klant, of een naam getypt: neem de bovenste klant uit de lijst (een nummer werkt zoals voorheen).
-            e.preventDefault();
-            pick(active >= 0 ? active : 0);
         } else if (e.key === 'Escape') {
             close();
         }

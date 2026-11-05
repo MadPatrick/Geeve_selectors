@@ -16,9 +16,12 @@ tileApiGuard('stickers-slanglabels');
 
 require_once __DIR__ . '/../../../reports/inc.php';
 
-const SLANGLABEL_SQL = 'SELECT [ordernummer], [artnr_slangnummer], [UwReferentie_slangnummer2], [datum], [Klantnaam], [Aantal],'
-    . ' [Lengte_Slangnummer3], [Artnr_KL] FROM [Exactrapportage].[dbo].[1655 VW_Alle_OrdersGH]'
-    . ' WHERE LTRIM(RTRIM([ordernummer])) = ? ORDER BY [ordernummer], [regel]';
+function slanglabelSql(): string
+{
+    return 'SELECT [ordernummer], [artnr_slangnummer], [UwReferentie_slangnummer2], [datum], [Klantnaam], [Aantal],'
+        . ' [Lengte_Slangnummer3], [Artnr_KL] FROM ' . geeveDbNaamSql('rapportage') . '.[dbo].[1655 VW_Alle_OrdersGH]'
+        . ' WHERE LTRIM(RTRIM([ordernummer])) = ? ORDER BY [ordernummer], [regel]';
+}
 
 /** Kolomnaam in de bron (zonder hoofdlettergevoeligheid, ook als die met een voorvoegsel begint) => veld in de app. */
 const SLANGLABEL_COLUMNS = [
@@ -33,7 +36,7 @@ const SLANGLABEL_COLUMNS = [
 ];
 
 reportApi(function (string $nummer): array {
-    $stmt = reportConnection()->prepare('SET NOCOUNT ON; ' . SLANGLABEL_SQL);
+    $stmt = reportConnection('stickers-slanglabels')->prepare('SET NOCOUNT ON; ' . slanglabelSql());
     $stmt->execute([$nummer]);
 
     $rows = [];
@@ -54,6 +57,10 @@ reportApi(function (string $nummer): array {
                     break;
                 }
             }
+        }
+        // Is in Exact het klantartikelnummer ingevuld, dan staat dat op het label in plaats van de referentie.
+        if ($out['artnr_kl'] !== '') {
+            $out['referentie'] = $out['artnr_kl'];
         }
         $rows[] = $out;
     }

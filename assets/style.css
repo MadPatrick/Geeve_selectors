@@ -22,7 +22,7 @@
     aspect-ratio: 1 / 1;
     text-decoration: none;
     color: var(--ink);
-    transition: transform .15s, box-shadow .15s, border-color .15s;
+    transition: box-shadow .15s, border-color .15s;
     position: relative;
     overflow: hidden;
 }
@@ -36,13 +36,15 @@
     transform-origin: left;
     transition: transform .18s;
 }
-.tile:hover, .tile:focus-visible {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 34px var(--black-a10);
-    border-color: var(--line-hover);
-    outline: none;
+/* Geen translateY op hover: de tegel schoof dan 3px onder de muisaanwijzer weg, waardoor de hover aan de onderrand
+   steeds aan/uit sloeg en een klik daar soms niet werd geteld (2x klikken). Alleen schaduw/rand/balk veranderen.
+   Hover alleen voor echte muisaanwijzers: op een aanraakscherm kost een "plakkende" hover anders een extra tik. */
+.tile:focus-visible { box-shadow: 0 16px 34px var(--black-a10); border-color: var(--line-hover); outline: none; }
+.tile:focus-visible::after { transform: scaleX(1); }
+@media (hover: hover) {
+    .tile:hover { box-shadow: 0 16px 34px var(--black-a10); border-color: var(--line-hover); }
+    .tile:hover::after { transform: scaleX(1); }
 }
-.tile:hover::after, .tile:focus-visible::after { transform: scaleX(1); }
 
 .tile-icon {
     width: 38px;
@@ -56,7 +58,7 @@
     justify-content: center;
     flex: 0 0 auto;
 }
-.tile-icon svg { width: 22px; height: 22px; }
+.tile-icon svg { width: 26px; height: 26px; }
 
 .tile h2 { margin: 0; font-size: 15px; line-height: 1.2; }
 .tile p { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.35; }
@@ -216,7 +218,7 @@
 .lock-actions { display: flex; justify-content: flex-end; gap: var(--btn-gap, 5px); margin-top: 18px; }
 .lock-button { font: inherit; font-size: 13px; font-weight: 800; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--btn-primary-line); background: var(--btn-primary); color: var(--btn-primary-ink); cursor: pointer; }
 .lock-button--secondary { background: var(--btn-white); color: var(--btn-ink); border-color: var(--btn-white-line); }
-.tile:has(.tile-lock) p { padding-right: 30px; }
+.tile[data-lock] p { padding-right: 30px; }
 
 /* Config > Tegels: tegels onder elkaar, daarachter per optie een schakelaar. */
 .tiles-form { flex-direction: column; align-items: flex-start; }
@@ -249,3 +251,13 @@
 .sneeuw-dagen { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
 .sneeuw-dagen input { width: 76px; min-height: 43px; font-size: 15px; text-align: center; }
 .sneeuw-form { flex-direction: column; align-items: flex-start; } /* elke animatie op een eigen regel */
+
+/* Config > Tegels: database per tegel (compact, elke database op 1 regel) */
+.tiles-table { max-width: 1100px; }
+.tiles-row { grid-template-columns: minmax(180px, 1fr) repeat(3, 90px) minmax(0, 420px); }
+.tiles-head .tiles-dbhead { text-align: left; justify-self: start; }
+.tiles-db { display: flex; flex-direction: column; gap: 3px; }
+.tiles-db-bron { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
+.tiles-db-naam { font-size: 12px; font-weight: 700; color: var(--muted); flex: 0 0 150px; white-space: nowrap; }
+.tiles-db select { width: 112px; flex: 0 0 112px; min-height: 26px; height: 26px; padding: 0 4px; font-size: 12px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface-white); }
+@media (max-width: 900px) { .tiles-row { grid-template-columns: minmax(120px, 1fr) repeat(3, 64px); } .tiles-db, .tiles-dbhead { grid-column: 1 / -1; } .tiles-db-bron { flex-wrap: wrap; } }

@@ -14,6 +14,8 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/paths.php';
+require_once __DIR__ . '/run.php';
+require_once __DIR__ . '/printsaneren.php';
 
 /** De printserver en het begin van de sharenamen die in de apps te kiezen zijn. */
 const GEEVE_SMB_SERVER = 'SVNL-VWP-PS01';
@@ -33,13 +35,14 @@ const GEEVE_SMB_CACHE_SECONDEN = 1800;
  * tegel waar een printknop bijkomt, hier toevoegen.
  */
 const GEEVE_PRINT_TILES = [
-    'slangkaarten' => 'Slangkaarten Printen',
+    'slangkaarten' => 'Slangkaarten printen',
     'stickers-order' => 'Artikelen per Verkooporder',
     'stickers-productie' => 'Artikelen per Productieorder',
     'stickers-artikel' => 'Artikelnummer',
     'stickers-artikel-groot' => "Accu's",
     'stickers-slanglabels' => 'Slanglabels',
     'stickers-ptouch' => 'Naamstickers',
+    'stickers-kabelmerkers' => 'Kabelmerkers Geel',
 ];
 
 /** Soort printer per tegel: 'a4' (gewone printer, PCL) of 'label' (labelprinter: TSPL of Brother QL). Standaard 'a4'. */
@@ -50,36 +53,68 @@ const GEEVE_PRINT_TILE_SOORT = [
     'stickers-artikel-groot' => 'label',
     'stickers-slanglabels' => 'label',
     'stickers-ptouch' => 'label',
+    'stickers-kabelmerkers' => 'label',
 ];
 
 /**
  * Per tegel met een printknop die in de browser een afdrukblok opbouwt: welk element (id) dat blok is, welke klasse het
  * in de print moet hebben, en welke stylesheets de pagina laadt (vanaf de portal-root). Het blok wordt bij direct printen
- * door stickers/assets/direct-print.js naar shared/print-api.php gestuurd.
+ * door shared/direct-print.js naar shared/print-api.php gestuurd.
  */
 const GEEVE_PRINT_TILE_PAGE = [
-    'stickers-slanglabels' => ['sheet' => 'slPrintSheet', 'class' => 'sl-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/slanglabels.css']],
-    'stickers-artikel-groot' => ['sheet' => 'acPrintSheet', 'class' => 'ac-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/accu.css']],
-    'stickers-artikel' => ['sheet' => 'saPrintSheet', 'class' => 'sa-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/artikel-stickers.css']],
-    'stickers-productie' => ['sheet' => 'psPrintSheet', 'class' => 'ps-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/productie-stickers.css']],
-    'stickers-ptouch' => ['sheet' => 'ptPrintSheet', 'class' => 'pt-printsheet', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/ptouch.css']],
-    'stickers-order' => ['sheet' => 'soSheet', 'class' => 'so-preview', 'css' => ['klantartikel/assets/style.css', 'reports/msp/assets/style.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css']],
+    'stickers-slanglabels' => ['sheet' => 'slPrintSheet', 'class' => 'sl-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/slanglabels.css']],
+    'stickers-artikel-groot' => ['sheet' => 'acPrintSheet', 'class' => 'ac-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/accu.css']],
+    'stickers-artikel' => ['sheet' => 'saPrintSheet', 'class' => 'sa-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/art-sticker.css', 'stickers/assets/artikel-stickers.css']],
+    'stickers-productie' => ['sheet' => 'psPrintSheet', 'class' => 'ps-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/productie-stickers.css']],
+    'stickers-ptouch' => ['sheet' => 'ptPrintSheet', 'class' => 'pt-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/ptouch.css']],
+    'stickers-kabelmerkers' => ['sheet' => 'kmPrintSheet', 'class' => 'km-printsheet', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/kabelmerkers.css']],
+    'stickers-order' => ['sheet' => 'soSheet', 'class' => 'so-preview', 'css' => ['shared/tabel.css', 'shared/rapport.css', 'stickers/assets/art-sticker.css', 'stickers/assets/order-stickers.css']],
 ];
 
 /** Labels die 90° gedraaid in de printer liggen, per sheet-class van de tegel: 'ccw' of 'cw'. */
 const GEEVE_LABEL_DRAAI = ['sl-printsheet' => 'cw'];
 
-/** Medium en afdrukinstellingen van de Windows-driver (RTMLBSlanglabels01), per sheet-class: mm, mm/s als TSPL-SPEED (inch/s), zwarting 0-15. */
-const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 27, 'snelheid' => 2, 'zwarting' => 7]];
+/**
+ * Medium en afdrukinstellingen van de Windows-driver (RTMLBSlanglabels01), per sheet-class: mm, mm/s als TSPL-SPEED (inch/s),
+ * zwarting 0-15. Optioneel: 'supersample' => n (omzetten naar zwart-wit via n x n hogere resolutie, scherpere letters) met 'drempel' => 0-255 (hoger = vettere letters), 'gap' => mm tussenruimte tussen de labels (zoals in de driver), 'tear' => true (na elk label doorvoeren tot de afscheurrand, SET TEAR ON), 'offset' => mm extra
+ * doorvoer na het label (TSPL OFFSET, voor fijnstellen van de afscheurrand), 'verschuifX' / 'verschuifY' => de afdruk in mm
+ * naar rechts / omlaag schuiven op het medium (fijnstellen van het midden; negatief = andere kant op).
+ */
+// Steek 31 mm = hoogte 29 + gap 2 (opgemeten op de rol); het printvlak van 25 mm komt verticaal in het midden van die 29 mm.
+const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 29, 'snelheid' => 1, 'zwarting' => 12, 'supersample' => 3, 'drempel' => 150, 'gap' => 2, 'tear' => true, 'offset' => 0, 'verschuifX' => 0, 'verschuifY' => 0]];
 
 /**
  * Sheet-classes van tegels waarvan de labels als één opdracht gaan en de printer pas na het laatste label snijdt
  * (niet na elk label).
  */
-const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet', 'ac-printsheet', 'pt-printsheet'];
+const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet', 'ac-printsheet', 'pt-printsheet', 'km-printsheet'];
 
 /** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
 const GEEVE_TSPL_ZWART_IS_NUL = true;
+
+/**
+ * Tegels waar boven de printknop de velden "Snelheid" en "Zwarting" staan, met de soort labelprinter waarvoor ze gelden:
+ * 'brother' (Brother QL: Zwarting = grijsdrempel in %, Snelheid = Standaard/Snel) of 'tspl' (Altec/TSC: SPEED 1-12 en
+ * DENSITY 0-15 als cijfers). Andere printers negeren ze. Leeg = standaard. Zie geevePrintAfdrukInstellingenHtml().
+ */
+const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch', 'stickers-order', 'stickers-productie', 'stickers-slanglabels'];
+
+/** Voorgeselecteerde printer per tegel (naam van de printerwachtrij), voor wie nog geen eigen keuze (cookie) heeft. */
+const GEEVE_PRINT_TILE_STANDAARD_PRINTER = ['stickers-kabelmerkers' => 'RTMLBGeelKunstof01'];
+
+/**
+ * Printers die aan één tegel vastzitten (naam van de printerwachtrij, hoofdletterongevoelig => tegel-id). Zo'n printer komt
+ * alleen in de printerlijst van die tegel voor (en geevePrinters() geeft voor die tegel alléén zulke printers), en alle andere
+ * tegels laten hem weg. print-api.php valideert via geevePrinters(), dus ook de server weigert een andere combinatie.
+ */
+const GEEVE_PRINTER_ALLEEN_TEGEL = ['RTMLBGeelKunstof01' => 'stickers-kabelmerkers'];
+
+/**
+ * Printers waarvan de driver niet automatisch te herkennen is (geeveSmbPrinterType() geeft dan null en de printer zou
+ * wegvallen): sharenaam (hoofdletterongevoelig) => type zoals geeveSmbPrinterType() dat teruggeeft. De share moet wel op de
+ * printserver bestaan. RTMPROVE01 (10.209.180.132) is een Zebra ZD230 (203 dpi, ZPL; driver "ZDesigner ZD230-203dpi ZPL"). Het veld 'dpi' overschrijft de standaard van 300 dpi.
+ */
+const GEEVE_PRINTER_TYPE_VAST = ['rtmprove01' => ['soort' => 'label', 'taal' => 'zpl', 'color' => false, 'dpi' => 203]];
 
 /** Het soort van een printer ('a4' of 'label'). */
 function geevePrinterSoort(array $printer): string
@@ -148,7 +183,43 @@ function geeveSmbRun(string $program, array $args, int $timeoutSeconds): array
         throw new RuntimeException($blocked);
     }
     $cred = (string) geeveSmbCredFile();
-    $result = geeveRun(array_merge(['/usr/bin/' . $program, '-A', $cred], $args), $timeoutSeconds);
+    return geeveSmbCheck(geeveRun(array_merge(['/usr/bin/' . $program, '-A', $cred], $args), $timeoutSeconds), $cred);
+}
+
+/**
+ * Zelfde als geeveSmbRun(), maar meerdere aanroepen tegelijk ([sleutel => [programma, argumenten]]); de totale tijd is dan die
+ * van de langzaamste i.p.v. de som. Geeft [sleutel => resultaat] terug en gooit bij de eerste fout een RuntimeException.
+ *
+ * @param array<string, array{0: string, 1: list<string>}> $jobs
+ * @return array<string, array{code: int, out: string, err: string}>
+ */
+function geeveSmbRunParallel(array $jobs, int $timeoutSeconds): array
+{
+    $blocked = geeveSmbBlocked();
+    if ($blocked !== null) {
+        throw new RuntimeException($blocked);
+    }
+    $cred = (string) geeveSmbCredFile();
+    $commands = [];
+    foreach ($jobs as $key => [$program, $args]) {
+        $commands[$key] = array_merge(['/usr/bin/' . $program, '-A', $cred], $args);
+    }
+    $results = [];
+    foreach (geeveRunParallel($commands, $timeoutSeconds) as $key => $result) {
+        $results[$key] = geeveSmbCheck($result, $cred);
+    }
+    return $results;
+}
+
+/**
+ * Controleert het resultaat van smbclient/rpcclient: een inlogfout blokkeert verdere pogingen (zie geeveSmbBlocked()),
+ * een andere fout geeft een RuntimeException met een leesbare melding.
+ *
+ * @param array{code: int, out: string, err: string} $result
+ * @return array{code: int, out: string, err: string}
+ */
+function geeveSmbCheck(array $result, string $cred): array
+{
     $text = $result['out'] . "\n" . $result['err'];
     if (preg_match('/NT_STATUS_(LOGON_FAILURE|ACCOUNT_LOCKED_OUT|ACCOUNT_DISABLED|PASSWORD_EXPIRED|PASSWORD_MUST_CHANGE|WRONG_PASSWORD|ACCOUNT_RESTRICTION)/', $text, $m) === 1) {
         $dir = dirname(geeveSmbBlockFile());
@@ -208,8 +279,14 @@ function geevePrinterList(): array
     }
     try {
         // Sharenamen (met een omschrijving) en de driver per printer; enumprinters 1 is veel sneller dan 2.
-        $shares = geeveSmbRun('smbclient', ['-L', '//' . GEEVE_SMB_SERVER, '-g'], 20);
-        $drivers = geeveSmbRun('rpcclient', [GEEVE_SMB_SERVER, '-c', 'enumprinters 1'], 20);
+        // De twee opvragen tegelijk: de verversing (elke 30 minuten, door wie als eerste een printerkeuze opent) duurt dan zo
+        // lang als de langzaamste i.p.v. de som.
+        $both = geeveSmbRunParallel([
+            'shares' => ['smbclient', ['-L', '//' . GEEVE_SMB_SERVER, '-g']],
+            'drivers' => ['rpcclient', [GEEVE_SMB_SERVER, '-c', 'enumprinters 1']],
+        ], 20);
+        $shares = $both['shares'];
+        $drivers = $both['drivers'];
     } catch (RuntimeException $e) {
         return $list = $cached ?? [];
     }
@@ -228,12 +305,13 @@ function geevePrinterList(): array
         }
         $share = $parts[1];
         $driver = $driverOf[strtolower($share)] ?? null;
-        if ($driver === null || stripos($share, GEEVE_SMB_PREFIX) !== 0 || preg_match('/[\x00-\x1f\/\\\\]/', $share) === 1) {
+        $vast = GEEVE_PRINTER_TYPE_VAST[strtolower($share)] ?? null;
+        if (($driver === null && $vast === null) || stripos($share, GEEVE_SMB_PREFIX) !== 0 || preg_match('/[\x00-\x1f\/\\\\]/', $share) === 1) {
             continue;
         }
-        $type = geeveSmbPrinterType($share, $driver);
+        $type = $vast ?? geeveSmbPrinterType($share, (string) $driver);
         if ($type !== null) {
-            $found[$share] = ['name' => $share, 'driver' => $driver, 'host' => trim($parts[2] ?? '')] + $type;
+            $found[$share] = ['name' => $share, 'driver' => (string) $driver, 'host' => trim($parts[2] ?? '')] + $type;
         }
     }
     if ($found === [] && $cached !== null) {
@@ -247,12 +325,25 @@ function geevePrinterList(): array
     return $list = $found;
 }
 
-/** De printers die in een tegel te kiezen zijn (het soort past bij de tegel), als [share => naam]. */
+/**
+ * De printers die in een tegel te kiezen zijn (het soort past bij de tegel), als [share => naam]. Printers uit
+ * GEEVE_PRINTER_ALLEEN_TEGEL horen bij precies één tegel: die tegel krijgt alleen die printer, de rest krijgt hem niet.
+ */
 function geevePrinters(string $tile = 'slangkaarten'): array
 {
+    $vast = array_change_key_case(GEEVE_PRINTER_ALLEEN_TEGEL, CASE_LOWER);
+    $alleenVoorTegel = array_keys(array_filter($vast, static fn(string $t): bool => $t === $tile));
     $printers = [];
     foreach (geevePrinterList() as $share => $printer) {
-        if (geevePrinterPastBijTegel($printer, $tile)) {
+        $eigenaar = $vast[strtolower((string) $share)] ?? null;
+        if ($alleenVoorTegel !== []) {
+            // Tegel met een eigen printer: alleen die printer(s).
+            $toegestaan = in_array(strtolower((string) $share), $alleenVoorTegel, true);
+        } else {
+            // Gewone tegel: soort moet passen en een aan een andere tegel vastgezette printer valt weg.
+            $toegestaan = $eigenaar === null && geevePrinterPastBijTegel($printer, $tile);
+        }
+        if ($toegestaan) {
             $printers[$share] = $printer['name'];
         }
     }
@@ -311,9 +402,13 @@ function geeveRenderPdf(string $bodyHtml, array $cssFiles, string $title, string
     $htmlFile = $workDir . '/print.html';
     $pdfFile = $workDir . '/print.pdf';
 
-    $links = '';
+    // Vangnet naast het saneren van ingestuurde HTML (shared/printsaneren.php): de pagina mag zelf niets van elders ophalen
+    // of uitvoeren, alleen de eigen stylesheets (file:), afbeeldingen/lettertypen van schijf en het meetscript hieronder.
+    $nonce = bin2hex(random_bytes(12));
+    $links = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\' file:; '
+        . 'img-src data: file:; font-src file:; script-src \'nonce-' . $nonce . '\'; base-uri \'none\'; form-action \'none\'">' . "\n";
     $printRegels = '';
-    foreach (array_merge(['shared/style.css'], $cssFiles) as $css) {
+    foreach (array_merge(['shared/tokens.css', 'shared/style.css'], $cssFiles) as $css) {
         $path = geevePortalDir() . '/' . ltrim($css, '/');
         $links .= '<link rel="stylesheet" href="file://' . htmlspecialchars($path, ENT_QUOTES) . '">' . "\n";
         $printRegels .= geeveMediaPrintBlocks((string) @file_get_contents($path));
@@ -323,7 +418,7 @@ function geeveRenderPdf(string $bodyHtml, array $cssFiles, string $title, string
         // Meten kan alleen op "scherm"; daarom gelden de printregels hier ook op scherm, bij de printbreedte
         // (vaste breedte 186 mm = A4 min 2 x 12 mm marge). Het script zet daarna per te hoog element een zoom.
         $links .= "<style>@media screen {\n" . $printRegels . "\nhtml, body { margin: 0; padding: 0; background: none; }\n#printSheet { width: 186mm; }\n}</style>\n";
-        $passendScript = '<script>(function () {'
+        $passendScript = '<script nonce="' . $nonce . '">(function () {'
             . 'var max = ' . (float) $passend[1] . ' * 96 / 25.4;'
             . 'document.querySelectorAll(' . json_encode((string) $passend[0]) . ').forEach(function (el) {'
             . 'var hoogte = el.scrollHeight;'
@@ -378,14 +473,14 @@ function geeveWorkDir(): string
  * $passend: optioneel [selector, maximale hoogte in mm]. Elk element dat in de print hoger is dan die hoogte, wordt
  * met CSS-zoom precies zo veel verkleind dat het op één pagina past (bijv. een slangkaart met een lange notitie).
  */
-function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string $title, ?array $passend = null, string $sheetClass = ''): string
+function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string $title, ?array $passend = null, string $sheetClass = '', array $afdruk = []): string
 {
     $printer = geevePrinterList()[$queue] ?? null;
     if ($printer === null) {
         throw new RuntimeException('Onbekende printer: ' . $queue);
     }
     if (geevePrinterSoort($printer) === 'label') {
-        return geevePrintLabels($bodyHtml, $cssFiles, $queue, $title, $sheetClass);
+        return geevePrintLabels($bodyHtml, $cssFiles, $queue, $title, $sheetClass, $afdruk);
     }
     $workDir = geeveWorkDir();
     try {
@@ -405,7 +500,7 @@ const GEEVE_BROTHER_QL_LABEL = ['maat' => '102x51', 'breedte' => 1164, 'hoogte' 
  * printbare vlak van een 102 x 51 mm-label; de pagina wordt passend verkleind en gecentreerd), brother_ql zet die om
  * in QL-rasteropdrachten en die gaan kaal (raw) naar de share.
  */
-function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, string $title, string $workDir, bool $snijdEinde = false): string
+function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, string $title, string $workDir, bool $snijdEinde = false, array $afdruk = []): string
 {
     $python = GEEVE_BROTHER_QL_DIR . '/bin/python3';
     $create = GEEVE_BROTHER_QL_DIR . '/bin/brother_ql_create';
@@ -413,8 +508,8 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
         throw new RuntimeException('brother_ql staat niet op de server (' . GEEVE_BROTHER_QL_DIR . '), Brother-labelprinters kunnen daardoor niet printen.');
     }
     $dots = GEEVE_BROTHER_QL_LABEL;
-    $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', '300', '-scale-to-y', (string) $dots['hoogte'], '-scale-to-x', '-1', $pdfFile, $workDir . '/ql'], 60);
-    $pages = glob($workDir . '/ql-*.pbm') ?: [];
+    $raster = geeveRun(['/usr/bin/pdftoppm', '-gray', '-r', '300', '-scale-to-y', (string) $dots['hoogte'], '-scale-to-x', '-1', $pdfFile, $workDir . '/ql'], 60);
+    $pages = glob($workDir . '/ql-*.pgm') ?: [];
     sort($pages);
     if ($raster['code'] !== 0 || $pages === []) {
         throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
@@ -422,16 +517,19 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
     // Eén Python-start voor alle pagina's (PIL laden kost per start merkbaar tijd), daarna de brother_ql-omzettingen
     // tegelijk i.p.v. na elkaar.
     $pad = 'import sys\nfrom PIL import Image\n'
-        . 'w, h = int(sys.argv[1]), int(sys.argv[2])\n'
-        . 'for pad in sys.argv[3:]:\n'
-        . '    src = Image.open(pad).convert("1")\n'
+        . 'w, h, grens = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3])\n'
+        . 'for pad in sys.argv[4:]:\n'
+        . '    src = Image.open(pad).convert("L")\n'
         . '    if src.width > w or src.height > h:\n'
         . '        f = min(w / src.width, h / src.height)\n'
         . '        src = src.resize((max(1, int(src.width * f)), max(1, int(src.height * f))))\n'
+        . '    src = src.point(lambda p: 0 if p < grens else 255).convert("1")\n'
         . '    canvas = Image.new("1", (w, h), 1)\n'
         . '    canvas.paste(src, ((w - src.width) // 2, (h - src.height) // 2))\n'
         . '    canvas.save(pad[:-4] + ".png")\n';
-    $fit = geeveRun(array_merge([$python, '-c', str_replace('\\n', "\n", $pad), (string) $dots['breedte'], (string) $dots['hoogte']], $pages), 60);
+    // Zwarting: zwart worden de beeldpunten die donkerder zijn dan deze grijswaarde (50 % = 128 is de standaard).
+    $grens = (int) round(($afdruk['zwarting'] ?? 50) / 100 * 255);
+    $fit = geeveRun(array_merge([$python, '-c', str_replace('\\n', "\n", $pad), (string) $dots['breedte'], (string) $dots['hoogte'], (string) $grens], $pages), 60);
     if ($fit['code'] !== 0) {
         throw new RuntimeException('De labels konden niet worden klaargemaakt: ' . geeveLastLine($fit['err']));
     }
@@ -439,6 +537,9 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
     foreach ($pages as $i => $page) {
         // Oudere brother_ql_create kent alleen --no-cut (snijden is de standaard); --cut geeft een fout.
         $opties = $snijdEinde && $i < count($pages) - 1 ? ['--no-cut'] : [];
+        if (($afdruk['snelheid'] ?? 0) === 1) {
+            $opties[] = '--lq'; // lagere afdrukkwaliteit, sneller
+        }
         $commands[$i] = array_merge([$create, '--model', (string) ($printer['model'] ?? 'QL-1100'), '--label-size', $dots['maat']], $opties, [substr($page, 0, -4) . '.png', $workDir . '/label' . $i . '.bin']);
     }
     $bin = '';
@@ -459,7 +560,7 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
  * per pagina een zwart-wit bitmap op de resolutie van de printer, als BITMAP-opdracht naar de share.
  * Heeft pdftoppm (poppler-utils) nodig.
  */
-function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, string $title, string $sheetClass = ''): string
+function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, string $title, string $sheetClass = '', array $afdruk = []): string
 {
     $printer = geevePrinterList()[$queue] ?? null;
     if ($printer === null || geevePrinterSoort($printer) !== 'label') {
@@ -474,11 +575,36 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
     try {
         $pdfFile = geeveRenderPdf($bodyHtml, $cssFiles, $title, $workDir, null, $sheetClass);
         if (($printer['taal'] ?? '') === 'brother') {
-            return geeveBrotherPrint($pdfFile, $printer, $queue, $title, $workDir, in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true));
+            return geeveBrotherPrint($pdfFile, $printer, $queue, $title, $workDir, in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true), $afdruk);
         }
-        $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', (string) $dpi, $pdfFile, $workDir . '/pagina'], 60);
-        $pages = glob($workDir . '/pagina-*.pbm') ?: [];
-        sort($pages);
+        if (($printer['taal'] ?? '') === 'zpl') {
+            // Zebra (ZPL): per pagina een zwart-wit bitmap op de resolutie van de printer, als ^GFA-opdracht.
+            $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', (string) $dpi, $pdfFile, $workDir . '/pagina'], 60);
+            $pages = glob($workDir . '/pagina-*.pbm') ?: [];
+            sort($pages);
+            if ($raster['code'] !== 0 || $pages === []) {
+                throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
+            }
+            $zpl = '';
+            foreach ($pages as $page) {
+                $zpl .= geevePbmToZpl((string) file_get_contents($page));
+            }
+            $file = $workDir . '/labels.zpl';
+            file_put_contents($file, $zpl);
+            return geeveSmbPrint($queue, $file, $title);
+        }
+        $medium = GEEVE_LABEL_MEDIUM[$sheetClass] ?? [];
+        $factor = (int) ($medium['supersample'] ?? 0);
+        if ($factor > 1) {
+            // Scherper dan -mono: eerst in grijstinten op een hoger raster, daarna per punt middelen en met een drempel zwart/wit maken.
+            $raster = geeveRun(['/usr/bin/pdftoppm', '-gray', '-r', (string) ($dpi * $factor), $pdfFile, $workDir . '/pagina'], 60);
+            $pages = glob($workDir . '/pagina-*.pgm') ?: [];
+            sort($pages);
+        } else {
+            $raster = geeveRun(['/usr/bin/pdftoppm', '-mono', '-r', (string) $dpi, $pdfFile, $workDir . '/pagina'], 60);
+            $pages = glob($workDir . '/pagina-*.pbm') ?: [];
+            sort($pages);
+        }
         if ($raster['code'] !== 0 || $pages === []) {
             throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
         }
@@ -487,7 +613,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         foreach ($pages as $i => $page) {
             // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste, en dat laatste label doorgevoerd tot de afscheurrand.
             $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\nSET TEAR ON\r\n") : '';
-            $tspl .= $snijder . geevePbmToTspl((string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? []);
+            $tspl .= $snijder . geevePbmToTspl($factor > 1 ? geevePgmNaarPbm((string) file_get_contents($page), $factor, (int) ($medium['drempel'] ?? 128)) : (string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk, $i === count($pages) - 1);
         }
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
@@ -527,13 +653,13 @@ function geevePbmDraai(string $data, int $width, int $height, bool $clockwise): 
  *
  * @return array{0: string, 1: int, 2: int}
  */
-function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $newH): array
+function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $newH, int $shiftX = 0, int $shiftY = 0): array
 {
     $rowBytes = intdiv($width + 7, 8);
     $newRowBytes = intdiv($newW + 7, 8);
     $out = array_fill(0, $newRowBytes * $newH, 0);
-    $dx = $newW - $width;
-    $dy = intdiv($newH - $height, 2);
+    $dx = $newW - $width + $shiftX;
+    $dy = intdiv($newH - $height, 2) + $shiftY;
     for ($y = 0; $y < $height; $y++) {
         $ny = $y + $dy;
         if ($ny < 0 || $ny >= $newH) {
@@ -549,8 +675,67 @@ function geevePbmCanvas(string $data, int $width, int $height, int $newW, int $n
     return [pack('C*', ...$out), $newW, $newH];
 }
 
+/**
+ * Zet een 8-bit grijs PGM (P5) op een $factor-voud van de printerresolutie om in een 1-bit PBM (P4, 1 = zwart) op de
+ * printerresolutie: per punt het gemiddelde van $factor x $factor beeldpunten, zwart als dat onder $drempel (0-255) ligt.
+ * Een drempel boven 128 maakt dunne lijntjes en kleine letters dikker.
+ */
+function geevePgmNaarPbm(string $pgm, int $factor, int $drempel): string
+{
+    if (preg_match('/^P5\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s+255\s/', $pgm, $m, PREG_OFFSET_CAPTURE) !== 1) {
+        throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
+    }
+    $bigW = (int) $m[1][0];
+    $bigH = (int) $m[2][0];
+    $data = substr($pgm, $m[0][1] + strlen($m[0][0]), $bigW * $bigH);
+    if (strlen($data) !== $bigW * $bigH) {
+        throw new RuntimeException('De afbeelding van het label is onvolledig.');
+    }
+    $width = intdiv($bigW, $factor);
+    $height = intdiv($bigH, $factor);
+    $rowBytes = intdiv($width + 7, 8);
+    $grens = $drempel * $factor * $factor;
+    $out = array_fill(0, $rowBytes * $height, 0);
+    for ($y = 0; $y < $height; $y++) {
+        for ($x = 0; $x < $width; $x++) {
+            $som = 0;
+            for ($dy = 0; $dy < $factor; $dy++) {
+                $start = ($y * $factor + $dy) * $bigW + $x * $factor;
+                for ($dx = 0; $dx < $factor; $dx++) {
+                    $som += ord($data[$start + $dx]);
+                }
+            }
+            if ($som < $grens) {
+                $out[$y * $rowBytes + ($x >> 3)] |= 1 << (7 - ($x & 7));
+            }
+        }
+    }
+    return "P4\n" . $width . ' ' . $height . "\n" . pack('C*', ...$out);
+}
+
+/**
+ * Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een ZPL-label voor een Zebra: ^PW/^LL in punten, de bitmap als
+ * ^GFA (ASCII-hex, 1 = zwart, geen inversie nodig) en ^XZ. Rijen zijn intdiv(breedte+7,8) bytes, de opvulbits zijn 0 (wit).
+ */
+function geevePbmToZpl(string $pbm): string
+{
+    if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
+        throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
+    }
+    $width = (int) $m[1][0];
+    $height = (int) $m[2][0];
+    $rowBytes = intdiv($width + 7, 8);
+    $data = substr($pbm, $m[0][1] + strlen($m[0][0]), $rowBytes * $height);
+    if (strlen($data) !== $rowBytes * $height) {
+        throw new RuntimeException('De afbeelding van het label is onvolledig.');
+    }
+    $total = $rowBytes * $height;
+    return "^XA\r\n^CI28\r\n^PW" . $width . "\r\n^LL" . $height . "\r\n^LH0,0\r\n^FO0,0^GFA," . $total . ',' . $total . ',' . $rowBytes . ',' . strtoupper(bin2hex($data))
+        . "^FS\r\n^PQ1\r\n^XZ\r\n";
+}
+
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
-function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = []): string
+function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = [], array $afdruk = [], bool $laatste = true): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -572,7 +757,9 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
         // de hoogte aanvullen en de afdruk daarin verticaal centreren.
         $newW = (int) round($medium['breedte'] / 25.4 * $dpi);
         $newH = (int) round($medium['hoogte'] / 25.4 * $dpi);
-        [$data, $width, $height] = geevePbmCanvas($data, $width, $height, $newW, $newH);
+        $shiftX = (int) round((float) ($medium['verschuifX'] ?? 0) / 25.4 * $dpi);
+        $shiftY = (int) round((float) ($medium['verschuifY'] ?? 0) / 25.4 * $dpi);
+        [$data, $width, $height] = geevePbmCanvas($data, $width, $height, $newW, $newH, $shiftX, $shiftY);
         $rowBytes = intdiv($width + 7, 8);
     }
     if (GEEVE_TSPL_ZWART_IS_NUL) {
@@ -591,10 +778,27 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     $mm = static fn(int $dots): float => abs($dots / $dpi * 25.4 - round($dots / $dpi * 25.4)) < 0.3 ? round($dots / $dpi * 25.4) : round($dots / $dpi * 25.4, 1);
     $widthMm = $mm($width);
     $heightMm = $mm($height);
-    $instelling = isset($medium['snelheid'], $medium['zwarting'])
-        ? 'SPEED ' . $medium['snelheid'] . "\r\nDENSITY " . $medium['zwarting'] . "\r\n" : '';
-    // Met een vast medium geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte, net als de Windows-driver.
-    $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : '';
+    // Snelheid (inch/s) en zwarting (0-15): de waarden uit het scherm gaan voor op die van het medium.
+    $instelling = '';
+    $snelheid = $afdruk['snelheid'] ?? $medium['snelheid'] ?? null;
+    $zwarting = $afdruk['zwarting'] ?? $medium['zwarting'] ?? null;
+    if ($snelheid !== null) {
+        $instelling .= 'SPEED ' . $snelheid . "\r\n";
+    }
+    if ($zwarting !== null) {
+        $instelling .= 'DENSITY ' . $zwarting . "\r\n";
+    }
+    // Met een vast medium zonder 'gap' geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte. Met 'gap' (mm) staat
+    // die vast, zoals in de Windows-driver (Gap/Mark size 2 mm, offset 0).
+    $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : (isset($medium['gap']) ? 'GAP ' . $medium['gap'] . " mm,0 mm\r\n" : '');
+    // Zonder snijder: alleen na het laatste label doorvoeren tot de afscheurrand. Tussen de labels niet: bij elk label
+    // doorvoeren en weer terugtrekken gaf een andere startpositie per label (tekst ging van label tot label heen en weer).
+    if (!empty($medium['tear'])) {
+        $gap .= "SET CUTTER OFF\r\n" . ($laatste ? "SET TEAR ON\r\n" : "SET TEAR OFF\r\n");
+        if ($laatste && ($medium['offset'] ?? 0) != 0) {
+            $gap .= 'OFFSET ' . round((float) $medium['offset'], 1) . " mm\r\n";
+        }
+    }
     return 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gap . $instelling . "DIRECTION 0\r\nCLS\r\n"
         . 'BITMAP 0,0,' . $rowBytes . ',' . $height . ',0,' . $data . "\r\nPRINT 1,1\r\n";
 }
@@ -634,43 +838,6 @@ function geeveChromiumBinary(): ?string
     }
     $configured = getenv('GEEVE_CHROMIUM');
     return is_string($configured) && $configured !== '' && is_executable($configured) ? $configured : null;
-}
-
-/** Voert een programma uit zonder shell; geeft ['code', 'out', 'err']. Code 124 = tijdslimiet. */
-function geeveRun(array $command, int $timeoutSeconds, array $env = []): array
-{
-    $environment = array_merge(['PATH' => '/usr/local/bin:/usr/bin:/bin'], $env);
-    $process = @proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, $environment);
-    if (!is_resource($process)) {
-        return ['code' => 127, 'out' => '', 'err' => 'Programma niet gevonden: ' . $command[0]];
-    }
-    stream_set_blocking($pipes[1], false);
-    stream_set_blocking($pipes[2], false);
-    $out = '';
-    $err = '';
-    $deadline = microtime(true) + $timeoutSeconds;
-    while (true) {
-        $out .= (string) stream_get_contents($pipes[1]);
-        $err .= (string) stream_get_contents($pipes[2]);
-        $status = proc_get_status($process);
-        if (!$status['running']) {
-            $out .= (string) stream_get_contents($pipes[1]);
-            $err .= (string) stream_get_contents($pipes[2]);
-            $code = (int) $status['exitcode'];
-            break;
-        }
-        if (microtime(true) > $deadline) {
-            proc_terminate($process, 9);
-            $code = 124;
-            $err .= 'Tijdslimiet van ' . $timeoutSeconds . ' seconden overschreden.';
-            break;
-        }
-        usleep(50000);
-    }
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    proc_close($process);
-    return ['code' => $code, 'out' => $out, 'err' => $err];
 }
 
 /** Voert meerdere programma's tegelijk uit (zelfde sleutels als $commands); geeft per sleutel ['code', 'out', 'err']. */
@@ -760,10 +927,18 @@ function geevePrinterOptionsHtml(string $tileId, array $printers): string
 {
     $h = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $saved = (string) ($_COOKIE['geeve_printer_' . $tileId] ?? '');
-    $selected = $saved === 'browser' || isset($printers[$saved]) ? $saved : (string) array_key_first($printers);
+    $standaard = GEEVE_PRINT_TILE_STANDAARD_PRINTER[$tileId] ?? '';
+    foreach ($printers as $queue => $name) {
+        if ($standaard !== '' && strcasecmp((string) $queue, $standaard) === 0) {
+            $standaard = (string) $queue;
+            break;
+        }
+    }
+    $selected = $saved === 'browser' || isset($printers[$saved]) ? $saved : (isset($printers[$standaard]) ? $standaard : (string) array_key_first($printers));
     $options = '';
     foreach ($printers as $queue => $name) {
-        $options .= '<option value="' . $h($queue) . '"' . ($selected === $queue ? ' selected' : '') . '>' . $h($name) . '</option>';
+        $taal = (string) (geevePrinterList()[$queue]['taal'] ?? '');
+        $options .= '<option value="' . $h($queue) . '" data-taal="' . $h($taal) . '"' . ($selected === $queue ? ' selected' : '') . '>' . $h($name) . '</option>';
     }
     return $options . '<option value=""' . ($selected === 'browser' ? ' selected' : '') . '>Printvenster van de browser</option>';
 }
@@ -785,5 +960,45 @@ function geevePrinterSelectHtml(string $tileId, string $csrf): string
     $options = geevePrinterOptionsHtml($tileId, $printers);
     return '<label class="direct-print" id="directPrint" data-tile="' . $h($tileId) . '" data-sheet="' . $h($page['sheet'])
         . '" data-endpoint="' . $h(geeveUrl('shared/print-api.php')) . '" data-csrf="' . $h($csrf) . '">'
-        . '<span>Printer</span><select id="directPrinter">' . $options . '</select><span class="direct-print-status" id="directPrintStatus"></span></label>';
+        . '<span>Printer</span><select id="directPrinter">' . $options . '</select>'
+        . '<span class="direct-print-status" id="directPrintStatus"></span></label>';
+}
+
+/**
+ * De velden "Snelheid" en "Zwarting" om boven de printerkeuze en de Print-knop te zetten; alleen voor tegels in
+ * GEEVE_PRINT_TILE_AFDRUK_INSTELLING, anders leeg. Per soort labelprinter een eigen set; direct-print.js toont de set
+ * die bij de gekozen printer hoort (data-taal van de optie) en verbergt de rest. Brother QL: Snelheid Standaard/Snel,
+ * Zwarting 10-90 %. TSPL (Altec/TSC): Snelheid 1-12, Zwarting 0-15. Standaard = standaard van de printer.
+ */
+function geevePrintAfdrukInstellingenHtml(string $tileId): string
+{
+    if (!in_array($tileId, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true)) {
+        return '';
+    }
+    // $vet: de waarde die "Standaard" werkelijk is; die staat in de lijst vetgedrukt, ook als Standaard is gekozen.
+    $sheet = GEEVE_PRINT_TILE_PAGE[$tileId]['class'] ?? '';
+    $medium = GEEVE_LABEL_MEDIUM[$sheet] ?? [];
+    $keuzes = static function (string $id, string $titel, array $waarden, string $standaard = '', ?int $vet = null): string {
+        // Is de standaardwaarde van de printer bekend, dan heet de optie "Standaard" zo (bv. "12 (standaard)") en staat vet.
+        $opties = '<option value=""' . ($standaard === '' ? ' selected' : '')
+            . ($vet !== null ? ' class="is-standaard" style="font-weight:bold">' . ($waarden[$vet] ?? $vet) . ' (standaard)' : '>Standaard') . '</option>';
+        foreach ($waarden as $waarde => $tekst) {
+            $opties .= '<option value="' . $waarde . '"' . ((string) $waarde === $standaard ? ' selected' : '') . '>' . $tekst . '</option>';
+        }
+        return '<select id="' . $id . '" title="' . $titel . '">' . $opties . '</select>';
+    };
+    $procenten = [];
+    foreach (range(10, 90, 10) as $procent) {
+        $procenten[$procent] = $procent . ' %';
+    }
+    $set = static fn(string $taal, string $snelheid, string $zwarting): string => '<div class="direct-print-instelling" data-taal="' . $taal . '" hidden>'
+        . '<label>Snelheid ' . $snelheid . '</label><label>Zwarting ' . $zwarting . '</label></div>';
+    return '<div id="directPrintAfdruk">'
+        . $set('brother',
+            $keuzes('directSnelheid-brother', 'Snel = lagere afdrukkwaliteit (Brother QL); voorgeselecteerd', [1 => 'Snel'], '1'),
+            $keuzes('directZwarting-brother', 'Zwarting in % (hoger = zwarter); Standaard = 50 %', $procenten, '', 50))
+        . $set('tspl',
+            $keuzes('directSnelheid-tspl', 'Printsnelheid in inch/s (1-12); Standaard = standaard van de printer', array_combine(range(1, 12), range(1, 12)), '', isset($medium['snelheid']) ? (int) $medium['snelheid'] : null),
+            $keuzes('directZwarting-tspl', 'Zwarting (0-15, hoger = zwarter); Standaard = standaard van de printer', array_combine(range(0, 15), range(0, 15)), '', isset($medium['zwarting']) ? (int) $medium['zwarting'] : null))
+        . '</div>';
 }

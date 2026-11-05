@@ -64,7 +64,7 @@ try {
     $pdo = getPdoConnection();
 } catch (Throwable $exception) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => $exception->getMessage()], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['ok' => false, 'error' => geeveFoutTekst($exception)], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -81,7 +81,7 @@ $usedColumn = null;
 foreach (PRICE_COLUMN_CANDIDATES as $column) {
     try {
         $stmt = $pdo->prepare(
-            "SELECT ItemCode, [{$column}] AS Price FROM GRV_SalesItems " .
+            "SELECT ItemCode, " . geeveSqlNaam($column) . " AS Price FROM GRV_SalesItems " .
             "WHERE [Item Group] = :groep AND ItemCode IN ({$inClause})"
         );
         $stmt->execute(['groep' => STAUFF_ITEM_GROUP] + $codeParams);

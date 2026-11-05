@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../shared/helpers.php';
+
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
+require_once __DIR__ . '/../shared/databases.php';
 tileRequirePage('stauff', '../index.php');
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
@@ -11,20 +14,6 @@ tileRequirePage('stauff', '../index.php');
 // deze map los buiten de portal gedeployed).
 define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
 
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-// Cache-busting op basis van de laatste wijzigingsdatum van het bestand
-// zelf, zodat elke aanpassing aan style.css/selector.js automatisch een
-// nieuwe URL krijgt - geen handmatige versie-ophoging meer nodig.
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 ?>
 <!doctype html>
 <html lang="nl">
@@ -240,7 +229,12 @@ function assetVersion(string $relativePath): string
         </div>
         <div class="code-actions">
             <button id="copyButton" type="button" class="copy-button" disabled>Kopieer code</button>
+            <?php if (geeveDbSchrijvenAan('stauff')): ?>
             <button id="exactWriteButton" type="button" class="exact-write-button" disabled>Naar Exact</button>
+            <?php else: ?>
+            <button id="exactWriteButton" type="button" class="exact-write-button" disabled hidden style="display:none">Naar Exact</button>
+            <span class="settings-help">Schrijven naar Exact staat uit voor deze tegel (Config &gt; Tegels).</span>
+            <?php endif; ?>
         </div>
     </section>
 

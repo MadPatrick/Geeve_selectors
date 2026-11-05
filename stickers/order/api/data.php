@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../shared/tiles.php';
 tileApiGuard('stickers-order');
 
 /**
- * Artikelstickers per Verkooporder: de regels van één order uit [005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order]
+ * Artikelstickers per Verkooporder: de regels van één order uit temp_Artikel_Stikkers_order in de data-database (standaard 005_Data_Geeve)
  * (dezelfde query als de NiceLabel-template), gesorteerd op orderregel. Zelfde SQL Server en inloggegevens (via Config)
  * als /stauff en de rapporten.
  */
@@ -22,8 +22,8 @@ const STICKER_COLUMNS = [
 reportApi(function (string $nummer): array {
     $columns = implode(', ', array_map(fn ($c) => '[' . $c . ']', STICKER_COLUMNS));
     // bonnr kan een char-kolom met opvulspaties zijn: daarom LTRIM/RTRIM.
-    $stmt = reportConnection()->prepare(
-        "SET NOCOUNT ON; SELECT {$columns} FROM [005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order] WHERE LTRIM(RTRIM([bonnr])) = ?"
+    $stmt = reportConnection('stickers-order')->prepare(
+        "SET NOCOUNT ON; SELECT {$columns} FROM " . geeveDbNaamSql('data') . ".[dbo].[temp_Artikel_Stikkers_order] WHERE LTRIM(RTRIM([bonnr])) = ?"
     );
     $stmt->execute([$nummer]);
 

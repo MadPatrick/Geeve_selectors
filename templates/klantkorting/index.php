@@ -1,0 +1,222 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../../shared/helpers.php';
+
+// Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
+require_once __DIR__ . '/../../shared/tiles.php';
+tileRequirePage('klantkorting', '../index.php');
+
+// Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
+// rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
+define('APP_VERSION', is_file(__DIR__ . '/../../version.php') ? (string) require __DIR__ . '/../../version.php' : '0.2.1');
+
+require_once __DIR__ . '/inc.php';
+
+$priceList = trim((string) ($_GET['prijslijst'] ?? $_POST['prijslijst'] ?? ''));
+$priceColumn = trim((string) ($_GET['pcol'] ?? ''));
+$customers = [];
+$schema = null;
+$error = null;
+$lines = [];
+$listDescription = null;
+
+try {
+    $pdo = getPdoConnection('klantkorting');
+    if ($priceList !== '') {
+        $schema = detectSchema($pdo, $priceColumn);
+        $customers = findCustomersByPriceList($pdo, $schema, $priceList);
+        $listDescription = findPriceListDescription($pdo, $priceList);
+
+        // XML-export van de gewijzigde/nieuwe regels uit het scherm.
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'export') {
+            // De regels komen als één JSON-veld (klantkorting.js): losse velden per regel worden door
+            // PHP (max_input_vars = 1000) bij ruim 80 regels stilzwijgend afgekapt.
+            $posted = json_decode((string) ($_POST['regels'] ?? ''), true);
+            if (!is_array($posted)) {
+                throw new RuntimeException('Geen regels ontvangen; herlaad de pagina en probeer opnieuw.');
+            }
+            $rows = [];
+            foreach ($posted as $p) {
+                if (!is_array($p)) {
+                    continue;
+                }
+                $group = trim((string) ($p['group'] ?? ''));
+                $tiers = parseTierLists((string) ($p['aantal'] ?? ''), (string) ($p['korting'] ?? ''));
+                if ($group === '' || $tiers === null) {
+                    throw new RuntimeException('Ongeldige regel voor artikelgroep "' . $group . '"; er is geen XML gemaakt.');
+                }
+                $rows[] = [
+                    'id' => trim((string) ($p['id'] ?? '')),
+                    'group' => $group,
+                    'groupExists' => ($p['groepbestaat'] ?? true) !== false,
+                    'debcode' => trim((string) ($p['debcode'] ?? '')),
+                    'kind' => trim((string) ($p['soort'] ?? 'P')) ?: 'P',
+                    'artcode' => trim((string) ($p['artcode'] ?? '')),
+                    'unit' => trim((string) ($p['unit'] ?? '')),
+                    'factor' => trim((string) ($p['factor'] ?? '')),
+                    'value' => trim((string) ($p['value'] ?? '')),
+                    'from' => trim((string) ($p['from'] ?? '')),
+                    'to' => trim((string) ($p['to'] ?? '')),
+                    'tiers' => $tiers,
+                ];
+            }
+            // Omschrijving van de prijslijst uit het scherm (max. 30 tekens, kolom oms30_0); leeg = de huidige uit Exact.
+            $description = preg_replace('/\s+/u', ' ', trim((string) ($_POST['oms'] ?? ''))) ?? '';
+            $description = preg_match('/^.{0,30}/su', $description, $cut) === 1 ? $cut[0] : substr($description, 0, 30);
+            $xml = buildDiscountXml($priceList, $rows, $description !== '' ? $description : (string) $listDescription);
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            require_once __DIR__ . '/../../shared/progress.php';
+            geeveProgressDownloadDone();   // laat de voortgangsbalk weten dat het bestand begint
+            header('Content-Type: application/xml; charset=utf-8');
+            header('Content-Disposition: attachment; filename="ITEMPRICES.xml"');
+            echo $xml;
+            exit;
+        }
+
+        $lines = findDiscountLines($pdo, $priceList);
+    }
+} catch (Throwable $e) {
+    $error = geeveFoutTekst($e);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        http_response_code(500);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo 'Export mislukt: ' . $error;
+        exit;
+    }
+}
+
+?>
+<!doctype html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Kortingstructuur | Geeve Hydraulics</title>
+    <?php
+    $headCss = ['shared/tabel.css', 'templates/klantkorting/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    require __DIR__ . '/../../shared/head.php';
+    ?>
+</head>
+<body>
+<main class="page-shell page-shell--wide">
+    <?php
+    $headerTitle = 'Kortingstructuur';
+    $headerImagesPath = geeveUrl('images/');
+    $headerHomeHref = geeveAppUrl('templates'); // tegel staat onder Templates
+    $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
+    require __DIR__ . '/../../shared/header.php';
+    ?>
+
+    <section class="panel">
+        <form method="get" class="ka-form">
+            <label class="field pl-field">
+                <span>Prijslijst</span>
+                <input type="text" name="prijslijst" id="plSearch" value="<?= h($priceList) ?>" placeholder="Nummer of naam, bijv. 100" autocomplete="off" autofocus required
+                       role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="plSearchHits" data-lists="api/pricelists.php">
+                <ul class="pl-hits" id="plSearchHits" role="listbox" hidden></ul>
+            </label>
+            <button type="submit" class="ka-button">Zoeken</button>
+        </form>
+    </section>
+
+    <?php if ($error !== null): ?>
+        <section class="panel"><div class="ka-message ka-message--error"><?= h($error) ?></div></section>
+    <?php else: ?>
+        <?php if ($priceList !== ''): ?>
+            <section class="panel">
+                <h2>Klanten op prijslijst <?= h($priceList) ?> <small>(<?= count($customers) ?>)</small></h2>
+                <?php if ($customers === []): ?>
+                    <p class="ka-empty">Geen klanten gevonden op deze prijslijst (kolom <code><?= h($schema['pricelist']) ?></code>).</p>
+                <?php else: ?>
+                    <div class="ka-chips">
+                        <?php foreach ($customers as $c): ?>
+                            <span class="ka-chip"><strong><?= h(trim((string) $c['debnr'])) ?></strong> <?= h((string) $c['naam']) ?></span>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </section>
+        <?php endif; ?>
+
+        <?php if ($priceList !== ''): ?>
+        <section class="panel">
+            <h2>Kortingstructuur prijslijst <?= h($priceList) ?><?= $listDescription ? ' - ' . h($listDescription) : '' ?> <small>(<?= count($lines) ?> regels)</small></h2>
+            <?php if ($listDescription === null): ?>
+                <div class="ka-message ka-message--error">Prijslijst <?= h($priceList) ?> staat niet als staffel-prijslijst (stfoms, type S) in Exact.</div>
+            <?php else: ?>
+            <form method="post" id="kkForm" data-lookup="api/group_lookup.php" data-pricelist="<?= h($priceList) ?>">
+                <input type="hidden" name="action" value="export">
+                <input type="hidden" name="prijslijst" value="<?= h($priceList) ?>">
+                <?php
+                // Voorstel voor de omschrijving: de klantnaam als er precies één klant op deze prijslijst staat, anders de huidige.
+                $suggestedDescription = count($customers) === 1 ? trim((string) $customers[0]['naam']) : (string) $listDescription;
+                $suggestedDescription = preg_match('/^.{0,30}/su', $suggestedDescription, $cut) === 1 ? $cut[0] : substr($suggestedDescription, 0, 30);
+                ?>
+                <label class="field kk-desc-field">
+                    <span>Omschrijving prijslijst <small>(nu in Exact: <?= h($listDescription !== '' ? $listDescription : '(leeg)') ?>)</small></span>
+                    <input type="text" name="oms" id="kkDesc" maxlength="30" value="<?= h($suggestedDescription) ?>" data-orig="<?= h((string) $listDescription) ?>" autocomplete="off">
+                    <small>Gaat mee in de XML-export. Is deze anders dan in Exact, dan gaan alle regels mee in de XML, zodat de nieuwe omschrijving bij de import wordt overgenomen.</small>
+                </label>
+                <div class="ka-heading">
+                    <p class="ka-empty">Meestal één staffel: aantal <code>1</code>, korting <code>25</code>. Meerdere staffels zet je in beide velden achter elkaar, gescheiden door <code>;</code> (aantal <code>1; 10</code>, korting <code>25; 30</code>). De XML bevat alleen gewijzigde en nieuwe regels.</p>
+                    <div class="ka-actions">
+                        <button type="button" id="kkTemplate" class="ka-button ka-button--secondary">Download Excel</button>
+                        <button type="submit" class="ka-button ka-button--secondary">Exporteer XML</button>
+                        <strong class="kk-hint">Importen in Exact via XML\Logistieke import\Artikelprijzen</strong>
+                        <div id="kkDrop" class="ka-drop" tabindex="0" role="button">
+                            <strong>Excel importeren</strong> - sleep een ingevuld bestand hierheen of <u>kies een bestand</u>
+                            <input type="file" id="kkFile" accept=".xlsx,.xls,.xlsm,.csv" hidden>
+                        </div>
+                    </div>
+                </div>
+                <div id="kkMessage" class="ka-message ka-message--error" hidden></div>
+                <div id="kkInfo" class="ka-message ka-message--ok" hidden></div>
+                <div class="ka-table-wrap"><table class="ka-table kk-lines" id="kkTable">
+                    <thead><tr><th>Artikelgroep</th><th>Omschrijving</th><th>Geldt voor</th><th>Geldig van</th><th>Geldig tot</th><th>Aantal</th><th>Korting (%)</th><th></th></tr></thead>
+                    <tbody>
+                    <?php foreach ($lines as $l): ?>
+                        <?php
+                        $debcode = trim((string) ($l['debcode'] ?? ''));
+                        $orig = tierQtyText($l) . '|' . tierDiscountText($l) . '|' . dateToIso($l['validfrom']) . '|' . dateToIso($l['validto']);
+                        ?>
+                        <tr class="is-found" data-orig="<?= h($orig) ?>" data-groepbestaat="<?= (int) $l['GroupExists'] ?>" data-kort="<?= h(trim((string) $l['kort_pbn'])) ?>">
+                            <td class="ka-itemcell"><strong class="ka-itemtext"><?= h((string) $l['ItemGroup']) ?></strong>
+                                <input type="hidden" name="group[]" class="kk-group" value="<?= h((string) $l['ItemGroup']) ?>">
+                                <input type="hidden" name="id[]" value="<?= h((string) $l['ID']) ?>">
+                                <input type="hidden" name="debcode[]" class="kk-debcode" value="<?= h($debcode) ?>">
+                                <input type="hidden" name="artcode[]" value="<?= h(trim((string) $l['artcode'])) ?>">
+                                <input type="hidden" name="unit[]" value="<?= h(trim((string) $l['unitcode'])) ?>">
+                                <input type="hidden" name="factor[]" value="<?= h(formatNumber($l['unitfactor'])) ?>">
+                                <input type="hidden" name="value[]" value="<?= h(formatNumber($l['prijs83'])) ?>"></td>
+                            <td class="ka-desc"><?= h((string) $l['ItemGroupDescr']) ?></td>
+                            <td><?php if ($debcode !== ''): ?><span class="kk-badge"><?= h($debcode) ?> <?= h((string) $l['klant']) ?></span><?php else: ?>Alle klanten<?php endif; ?></td>
+                            <td><input type="date" name="from[]" class="ka-input kk-from" value="<?= h(dateToIso($l['validfrom'])) ?>"></td>
+                            <td><input type="date" name="to[]" class="ka-input kk-to" value="<?= h(dateToIso($l['validto'])) ?>"></td>
+                            <td><input type="text" name="aantal[]" class="ka-input kk-qty" value="<?= h(tierQtyText($l)) ?>" autocomplete="off"></td>
+                            <td><input type="text" name="korting[]" class="ka-input kk-disc" value="<?= h(tierDiscountText($l)) ?>" autocomplete="off">
+                                <input type="hidden" name="soort[]" value="<?= h(trim((string) $l['kort_pbn']) ?: 'P') ?>">
+                                <?php if (trim((string) $l['kort_pbn']) !== 'P' && trim((string) $l['kort_pbn']) !== ''): ?><span class="kk-badge" title="Soort <?= h(trim((string) $l['kort_pbn'])) ?>: geen percentage">soort <?= h(trim((string) $l['kort_pbn'])) ?></span><?php endif; ?></td>
+                            <td></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table></div>
+                <?php if ($lines === []): ?><p class="ka-empty" id="kkEmpty">Nog geen kortingsregels op deze prijslijst - voeg er een toe met +.</p><?php endif; ?>
+            </form>
+            <script src="<?= h(geeveUrl('shared/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../../shared/vendor/xlsx.core.min.js')) ?>"></script>
+            <script src="assets/klantkorting.js?v=<?= h(assetVersion('assets/klantkorting.js')) ?>"></script>
+            <?php endif; ?>
+        </section>
+        <?php endif; ?>
+
+    <?php endif; ?>
+
+    <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
+</main>
+<script src="<?= h(geeveUrl('templates/klantartikel/assets/pricelist-search.js')) ?>?v=<?= h(assetVersion('../klantartikel/assets/pricelist-search.js')) ?>"></script>
+</body>
+</html>

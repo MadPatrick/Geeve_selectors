@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Toegangscode voor beveiligde onderdelen (nu: Productiviteit). De code staat versleuteld in de Config-instellingen
- * (sleutel ACCESS_CODE, zie shared/secure_settings.php); is die niet ingesteld, dan is de code 1308.
+ * (sleutel ACCESS_CODE, zie shared/secure_settings.php), in te stellen via Config > Toegangscode. Is er geen code ingesteld, dan blijft elke beveiligde tegel dicht (er is geen standaardcode); Config zelf opent dan alleen met de code uit /etc/geeve/config.cred.
  * Na een juiste code blijft het onderdeel maximaal ACCESS_IDLE_SECONDS zonder gebruik ontgrendeld; bij elk gebruik loopt die tijd
  * opnieuw. Het Reports-scherm vergrendelt het onderdeel weer (accessLock) zodra je daar terugkomt. Een pagina controleert dat met
  * accessUnlocked() en de bijbehorende API met accessApiGuard(), zodat de gegevens ook zonder de pagina niet op te halen zijn.
@@ -12,16 +12,23 @@ declare(strict_types=1);
 require_once __DIR__ . '/csrf.php';
 require_once __DIR__ . '/secure_settings.php';
 
-const ACCESS_DEFAULT_CODE = '1308';
 const ACCESS_MAX_ATTEMPTS = 5;
 const ACCESS_LOCKOUT_SECONDS = 60;
 const ACCESS_IDLE_SECONDS = 900; // 15 minuten zonder gebruik: weer vergrendeld
 
+/** De ingestelde toegangscode, of een lege tekst als er geen is (dan opent niets met deze code: zie accessCodeKlopt()). */
 function accessCode(): string
 {
     loadSecureSettings();
     $code = getenv('ACCESS_CODE');
-    return $code !== false && trim($code) !== '' ? trim($code) : ACCESS_DEFAULT_CODE;
+    return $code !== false ? trim($code) : '';
+}
+
+/** Vergelijkt de ingevoerde code met de ingestelde toegangscode; zonder ingestelde code is het altijd onjuist. */
+function accessCodeKlopt(string $code): bool
+{
+    $ingesteld = accessCode();
+    return $ingesteld !== '' && hash_equals($ingesteld, trim($code));
 }
 
 const ACCESS_CONFIG_FILE = '/etc/geeve/config.cred';
@@ -36,7 +43,7 @@ function accessConfigCodeOk(string $code): bool
     $code = trim($code);
     $stored = is_readable(ACCESS_CONFIG_FILE) ? trim((string) @file_get_contents(ACCESS_CONFIG_FILE)) : '';
     if ($stored === '') {
-        return hash_equals(accessCode(), $code);
+        return accessCodeKlopt($code);
     }
     if (str_starts_with($stored, '$')) {
         return password_verify($code, $stored);
@@ -70,7 +77,7 @@ function accessTryUnlock(string $scope, string $code): string
     if (($_SESSION['access_locked_until'] ?? 0) > $now) {
         return 'wacht';
     }
-    $juist = $scope === 'config' ? accessConfigCodeOk($code) : hash_equals(accessCode(), trim($code));
+    $juist = $scope === 'config' ? accessConfigCodeOk($code) : accessCodeKlopt($code);
     if ($juist) {
         $_SESSION['access_unlocked'][$scope] = time();
         $_SESSION['access_failed'] = 0;
@@ -94,4 +101,5 @@ function accessApiGuard(string $scope): void
         echo json_encode(['ok' => false, 'error' => 'Vergrendeld: open de pagina en vul de toegangscode in.']);
         exit;
     }
+    csrfReleaseSession(); // trage API's houden de sessie anders vast en blokkeren andere tegels
 }

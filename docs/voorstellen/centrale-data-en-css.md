@@ -149,7 +149,7 @@ RewriteRule ^msp/(.*)$   reports/msp/$1 [L]
 ```
 
 Door de afsluitende `/` blijven alle relatieve links in de apps gewoon werken:
-`assets/style.css` wordt `/msp/assets/style.css` (intern `reports/msp/assets/style.css`), een
+`assets/style.css` wordt `/msp/assets/style.css` (intern `shared/rapport.css`), een
 `fetch('api/x.php')` wordt `/msp/api/x.php`, en `../../images/` of `../shared/style.css` komt uit
 op `/images/` en `/shared/style.css`. Er hoeft dus geen app-code om voor de eerste stap.
 

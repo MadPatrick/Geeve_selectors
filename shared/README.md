@@ -14,6 +14,19 @@ gaat dieper en is bedoeld als checklist/kopieersjabloon.
   stylesheets), met cache-busting en absolute adressen.
 - **`shared/paths.php`** - centrale data (`data/<app>/`) en adressen (`geeveUrl()`,
   `geeveAppUrl()`), zie "Centrale data" en "Adressen en links" hieronder.
+- **`shared/db.php`** - de verbinding met SQL Server voor alle apps (`geeveSqlServerConnect($db, $hint, $queryTimeout)`):
+  driver-controle, DSN, `LoginTimeout` en een korte "verbinding mislukt"-herinnering (20 s, ook tussen aanvragen), zodat een
+  onbereikbare server niet bij elke klik 10-15 s wachten kost. Geen eigen `new PDO(...)` per app.
+- **`shared/fout.php`** - `geeveFoutTekst($e)`: de tekst van een uitzondering voor het scherm. Databasefouten (servernaam,
+  inlognaam, SQL) gaan naar het PHP-serverlog; de gebruiker krijgt alleen de SQLSTATE-code. Gebruik dit i.p.v. `$e->getMessage()`.
+- **`shared/run.php`** - `geeveRun()`: een programma starten zonder shell, met tijdslimiet (smbclient, Chromium, ghostscript, getent).
+- **`shared/printsaneren.php`** - `geeveSaneerPrintHtml()`: witte lijst voor HTML die een browser naar `shared/print-api.php`
+  stuurt. Heeft een afdrukblok een nieuwe tag of attribuut nodig, voeg die toe in `GEEVE_PRINT_TAGS` / `GEEVE_PRINT_ATTRIBUTEN` en
+  draai `php tools/test-printsaneren.php`.
+- **Excel (SheetJS)** - inlezen altijd met `shared/vendor/xlsx.core.min.js` (SheetJS 0.20.3, lees-kwetsbaarheden
+  van 0.18.5 opgelost). Schrijven met opmaak gaat met `shared/vendor/xlsx-style.min.js` (xlsx-js-style, op 0.18.5).
+  Heeft een pagina beide nodig, laad dan `xlsx.core.min.js`, `shared/vendor/xlsx-lezen.js` en daarna `xlsx-style.min.js`,
+  en lees in met `(window.XLSX_LEZEN || XLSX).read(...)`; zie `templates/offerteimport/`.
 - **`shared/slangkaart.css`** - de vastgelegde slangkaart-layout, zie
   [`SLANGKAART-LAYOUT.md`](SLANGKAART-LAYOUT.md).
 - **`shared/style.css`** - CSS-resets, de header/brand-panel-chrome en de meest
@@ -183,8 +196,8 @@ require __DIR__ . '/../shared/header.php';
 
 ### CSS-variabelen (`shared/tokens.css`)
 
-Alle variabelen staan in **`shared/tokens.css`** (alleen `:root`, geen regels); `shared/style.css`
-importeert dat bestand. Kijk daar voor de actuele waarden. De groepen:
+Alle variabelen staan in **`shared/tokens.css`** (alleen `:root`, geen regels); `shared/head.php`
+laadt het apart vóór `shared/style.css`. Kijk daar voor de actuele waarden. De groepen:
 
 | Groep | Voorbeelden | Gebruik |
 |---|---|---|
@@ -304,7 +317,7 @@ portal ook in een submap werkt (bijv. een testkopie onder `/Geeve_selectors/`).
 Links in een app:
 
 - naar een andere app of een overzicht: `geeveAppUrl('reports')`, `geeveAppUrl('msp')`;
-- naar een bestand van een andere map: `geeveUrl('reports/assets/sp-report.js')`, niet `../`
+- naar een bestand van een andere map: `geeveUrl('shared/sp-report.js')`, niet `../`
   naar een buurmap;
 - binnen de eigen map gewoon relatief (`assets/style.css`, `api/data.php`).
 
@@ -316,7 +329,7 @@ Links in een app:
   (`GEEVE_SMB_SERVER`, `GEEVE_SMB_PREFIX`). Er is niets in te stellen in Config: `geevePrinterList()` haalt de shares
   (`smbclient -L`) en hun driver (`rpcclient enumprinters 1`) op en bewaart de lijst 30 minuten in
   `data/printers/smb-printers.json` (niet in git). De driver bepaalt het soort: PCL-driver = A4 (kleur bij "Color" of
-  Canon), Altec = TSPL-labelprinter, Brother QL = Brother-labelprinter; Zebra/ZPL en onbekende drivers vallen weg.
+  Canon), Altec = TSPL-labelprinter, Brother QL = Brother-labelprinter; onbekende drivers (ook Zebra/ZPL) vallen weg, tenzij de share in `GEEVE_PRINTER_TYPE_VAST` (`shared/printen.php`) staat met een vast type (nu `RTMPROVE01` = Zebra ZD230, ZPL, 203 dpi). ZPL wordt als bitmap (`^GFA`, `geevePbmToZpl()`) verstuurd; Snelheid/Zwarting zijn daar nog niet instelbaar.
   `geevePrinters($tegelId)` geeft de printers die bij een tegel passen (`GEEVE_PRINT_TILE_SOORT`: 'a4' of 'label';
   nieuwe tegel met direct printen = toevoegen aan `GEEVE_PRINT_TILES`).
 - **Inloggen** op de printserver gebeurt met het account uit `/etc/geeve/smbprint.cred` (formaat van `smbclient -A`: `username`, `password`, `domain`), buiten de webmap, van root en leesbaar voor
@@ -334,7 +347,7 @@ Links in een app:
 - **Laatst gebruikte printer:** na een gelukte print onthoudt de portal de share per tegel in het cookie
   `geeve_printer_<tegel>` (`geeveRememberPrinter()`); die staat de volgende keer voorgeselecteerd.
 - **Printknop in een tegel:** `geevePrinterSelectHtml($tegelId, $csrf)` toont de keuzelijst naast de knop; het script
-  `stickers/assets/direct-print.js` laat `window.print()` dan het afdrukblok naar `shared/print-api.php` sturen. De
+  `shared/direct-print.js` laat `window.print()` dan het afdrukblok naar `shared/print-api.php` sturen. De
   tegel staat in `GEEVE_PRINT_TILES` en `GEEVE_PRINT_TILE_PAGE` (afdrukblok-id, klasse, stylesheets).
 - Voorbeeld: Slangkaart printen, stap 2 (keuzelijst "Printer" boven de printknop).
 
@@ -378,3 +391,11 @@ server. Bestaat het bestand, dan gaat het voor `.settings.enc` en verdwijnen de 
 overzicht). Bestaat het niet, dan werkt Config zoals voorheen. Tegelinstellingen en toegangscode blijven in Config.
 `secureSettingsReadStored()` leest alleen `.settings.enc` (voor opslaan), `secureSettingsRead()` combineert beide.
 De instellingen van de .NET-app (`/etc/slangkaart/`) staan hier los van.
+
+## Database per tegel (`shared/databases.php`)
+
+Een tegel die de database gebruikt haalt zijn verbinding via `geeveDbVerbinding('<tegel-id>', 'exact'|'slangkaarten', 'lezen'|'schrijven')`
+(of `reportConnection('<tegel-id>')` / `getPdoConnection('<tegel-id>')` voor Exact), nooit met een eigen DSN. Welke database
+(main of test) gebruikt wordt stelt Patrick in via Config > Tegels; zonder instelling leest alles uit main en staat
+schrijven uit. Een nieuwe tegel met database: voeg hem toe aan `GEEVE_TILE_DB` (tegel-id => bronnen). De Slangkaarten-database is
+alleen-lezen; schrijven kan alleen naar de Exact-database en weigert zolang het voor die tegel op "geen" staat.

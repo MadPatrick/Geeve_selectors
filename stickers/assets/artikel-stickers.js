@@ -60,8 +60,7 @@
     function select(i) {
         current = i;
         Array.prototype.forEach.call(tbody.querySelectorAll('tr'), function (tr, n) { tr.classList.toggle('is-current', n === i); });
-        if (i < 0) { side.hidden = true; sheet.innerHTML = ''; update(); return; }
-        side.hidden = false; // eerst zichtbaar maken, anders kan fit() niets meten
+        if (i < 0) { sheet.innerHTML = ''; update(); return; }
         build(sheet, [rows[i]], 1);
         ArtSticker.fit(sheet);
         update();

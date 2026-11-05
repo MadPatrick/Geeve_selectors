@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../../shared/helpers.php';
+
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
@@ -13,18 +15,6 @@ require_once __DIR__ . '/../../shared/access.php';
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 define('APP_VERSION', is_file(__DIR__ . '/../../version.php') ? (string) require __DIR__ . '/../../version.php' : '0.2.1');
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 $csrf = csrfToken();
 
@@ -60,7 +50,7 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
     <title>Productiviteit per medewerker | Geeve Hydraulics</title>
     <!-- Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers. -->
     <?php
-    $headCss = ['assets/style.css', 'klantartikel/assets/style.css', 'reports/msp/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['assets/style.css', 'shared/tabel.css', 'shared/rapport.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -153,8 +143,8 @@ $defaultFrom = date('Y-m-d', strtotime('first day of this month'));
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
 <?php if (!$locked): ?>
-<script src="<?= h(geeveUrl('reports/assets/vendor/xlsx-style.min.js')) ?>"></script>
-<script src="<?= h(geeveUrl('reports/assets/sp-report.js')) ?>?v=<?= h(assetVersion('../assets/sp-report.js')) ?>"></script>
+<script src="<?= h(geeveUrl('shared/vendor/xlsx-style.min.js')) ?>"></script>
+<script src="<?= h(geeveUrl('shared/sp-report.js')) ?>?v=<?= h(assetVersion('../../shared/sp-report.js')) ?>"></script>
 <?php endif; ?>
 </body>
 </html>

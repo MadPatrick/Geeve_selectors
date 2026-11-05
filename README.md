@@ -27,11 +27,10 @@ van deze portal. Apache stuurt `/slangkaarten/` door naar die app.
 |---|---|---|---|---|
 | Slangen fitting Selector | `/hoses/` | `hoses/` | nee | Slang en koppelingen kiezen; data in `data/hoses/` |
 | Adapters Selector | `/adapters/` | `adapters/` | nee | Adapter zoeken op draad en vorm; data in `data/adapters/` |
-| Slangkaarten Printen | `/slkprinten/` | `slkprinten/` | ja | Order of klant opzoeken en slangkaarten + picklijst printen (zie `slkprinten/README.md`) |
+| Slangkaarten printen | `/slkprinten/` | `slkprinten/` | ja | Order of klant opzoeken en slangkaarten + picklijst printen (zie `slkprinten/README.md`) |
 | Slangkaarten | `/slangkaarten/` | — | — | Slangkaart.Web (aparte .NET-app, via Apache) |
 | Stickers | `/stickers/` | `stickers/` | — | Overzicht met stickertegels, zie hieronder |
 | Stauff Selector | `/stauff/` | `stauff/` | ja | Beugelconfigurator op Exact artikelgroep 67, "Naar Exact" via Slangkaart.Web |
-| Gebogen buis | `/gebogenbuis/` | `gebogenbuis/` | nee | Prijsberekening gebogen buis: klant + klantkorting (kortingstructuur van de prijslijst), artikelen met bruto prijs en vrije voorraad, montage, notities; in opbouw |
 | Reports | `/reports/` | `reports/` | — | Overzicht met rapporten, zie hieronder |
 | Templates | `/templates/` | `templates/` | — | Overzicht met Excel/XML-templates, zie hieronder |
 
@@ -43,23 +42,28 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 | Tegel | Adres | Wat het doet |
 |---|---|---|
 | MSP report | `/reports/msp/` | MSP-factuurregels van een maand (zelfde berekening als `dbo.SP_MSP`), als Excel |
-| Inkoop per Artikelgroep | `/reports/inkoop-groep/` | Ingekochte aantallen per artikel van een artikelgroep in een periode |
+| Inkoop per Artikelgroep | `/reports/inkoopgroep/` | Ingekochte aantallen per artikel van een artikelgroep in een periode |
 | Productiviteit | `/reports/productiviteit/` | Beveiligd met een toegangscode |
-| Artikelmarges | `/reports/artikel-marge/` | Verkoopprijs, inkoopprijs en marge |
+| Artikelmarges | `/reports/artikelmarge/` | Verkoopprijs, inkoopprijs en marge |
 
 ### Templates
 
 | Tegel | Adres | Wat het doet |
 |---|---|---|
-| Klant Artikelnummers | `/klantartikel/` | Debiteuren op een prijslijst met hun klantartikelnummers; Excel in, XML (DEBTORS.xml) uit |
-| Kortingstructuur | `/klantkorting/` | Kortingstructuur per prijslijst (in opbouw) |
-| Export Inkooporder naar Excel | `/reports/inkooporder/` | Inkooporder met regels uit Exact ophalen en als Excel downloaden |
-| Export Order/Offerte naar Excel | `/reports/order-offerte/` | Order of offerte als Excel |
-| Import Offerte | `/reports/offerte-import/` | Excel-offerte controleren met Exact en als XML exporteren |
-| Import Inkooporder | `/reports/inkooporder-import/` | Idem voor inkooporders |
-| Export info | `/reports/export-info/` | Orderregels met collo, gewicht en afmetingen voor de exportdocumenten |
-| Artikelgegevens Import | `/reports/artikel-import/` | Artikelgegevens controleren met Exact en als XML (`<Items>`) exporteren |
-| Orderhistorie | `/reports/orderhistorie/` | Geleverde orderregels per klant sinds de eerste order, filter per kolom, Download Excel |
+| Klant Artikelnummers | `/templates/klantartikel/` | Debiteuren op een prijslijst met hun klantartikelnummers; Excel in, XML (DEBTORS.xml) uit |
+| Kortingstructuur | `/templates/klantkorting/` | Kortingstructuur per prijslijst (in opbouw) |
+| Export Inkooporder naar Excel | `/templates/inkooporder/` | Inkooporder met regels uit Exact ophalen en als Excel downloaden |
+| Export Order/Offerte naar Excel | `/templates/orderofferte/` | Order of offerte als Excel |
+| Import Offerte | `/templates/offerteimport/` | Excel-offerte controleren met Exact en als XML exporteren |
+| Import Inkooporder | `/templates/inkooporderimport/` | Idem voor inkooporders |
+| Import Artikelgegevens | `/templates/artikelimport/` | Artikelgegevens controleren met Exact en als XML (`<Items>`) exporteren |
+| Export info | `/templates/exportinfo/` | Orderregels met collo, gewicht en afmetingen voor de exportdocumenten |
+| Orderhistorie | `/templates/orderhistorie/` | Geleverde orderregels per klant sinds de eerste order, filter per kolom, Download Excel |
+| Inkoopprijzen GR14 / GR55 | `/reports/inkoopprijzengr14gr55/` | Inkoopprijs (hoofdleverancier) en standaard verkoopprijs van artikelgroep 14 naast groep 55, gekoppeld op Zoekcode (GR55 = GR14 + `VZ`/`VZX`), Download Excel |
+| Brutoprijzen per artikelgroep | `/reports/brutoprijzen/` | Artikelgroepnummer invullen: artikelnummer, leveranciersnummer (ItemAccounts hoofdleverancier) en bruto verkoopprijs (staffl salesprice), Export naar Excel |
+| Negatieve voorraad | `/reports/negatievevoorraad/` | Artikelen met negatieve voorraad: tekort op open verkoop-/productieorder zonder (genoeg) inkoop, en negatief zonder open order; groep 0 en groepen > 900 weggelaten, Download Excel |
+| Slangkaart Nettoprijzen | `/reports/slangkaartnetto/` | Slangassemblages met nettoprijs (database Slangkaarten, tabel Slangkaarten: Nummer, DebiteurNaam, PrijsBerekend = Netto afspraak), filter per kolom, Download Excel |
+| Productie Orders | `/templates/productieorders/` | Gereed te melden productieorders (SP_SQLQuery_ProductieordersGereed_te_melden), filter per kolom, Download Excel |
 
 ### Stickers
 
@@ -71,10 +75,10 @@ Alle stickers printen via de browser, één sticker per pagina. Posities en mate
 | Artikelen per Verkooporder | `/stickers/order/` | 102 × 54 mm | `[005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order]` |
 | Artikelen per Productieorder | `/stickers/productie/` | 102 × 54 mm | stored procedure `[005_Data_Geeve].[dbo].[SP_productie_label]` (EXECUTE-recht nodig) |
 | Artikelnummer | `/stickers/artikel/` | — | `[Exactrapportage].[dbo].[1002_Artikellabels]` |
-| Accu's | `/stickers/accu/` | 80 × 30 mm | geen database (invulsticker) |
+| Accu's | `/stickers/accu/` | 70 × 32 mm | geen database (invulsticker) |
 | Slanglabels | `/stickers/slanglabels/` | ALTEC 53000145 | `[Exactrapportage].[dbo].[1655 VW_Alle_OrdersGH]` |
-| Naamstickers | `/stickers/ptouch/` | 102 × 51 mm | geen database (vrije tekst, Verdana Bold, uitlijning instelbaar (standaard midden/midden), letter groot voor 2 regels en kleiner bij meer regels) |
-| Kabelmerkers Geel | — | — | nog niet gebouwd |
+| Naamstickers | `/stickers/ptouch/` | 102 × 51 mm (Sticker Groot) of 70 × 25 mm (Sticker Klein), keuzeknop met onthouden keuze | geen database (vrije tekst, Verdana Bold, uitlijning instelbaar (standaard midden/midden), letter groot voor 2 regels en kleiner bij meer regels) |
+| Kabelmerkers Geel | `/stickers/kabelmerkers/` | 70 × 15 mm | ALTEC 72001207 (70 × 15 mm, lichtgeel), invulvelden A1-A3 en Datum/B2-B3 (regel 1 = A1/A2/A3, regel 2 = Datum/B2/B3), standaardprinter RTMLBGeelKunstof01 |
 
 Barcodes zijn Code 128 (JsBarcode, lokaal in `stickers/assets/vendor`).
 
@@ -94,7 +98,7 @@ version.php                Eén versienummer voor alle apps
 .htaccess                  Dotfiles afsluiten
 shared/                    Gedeeld door alle apps - zie shared/README.md
   tokens.css               Alle CSS-variabelen (kleuren, maten, lettertypes)
-  style.css                Gedeelde opmaak (importeert tokens.css)
+  style.css                Gedeelde opmaak (tokens.css wordt apart geladen door head.php)
   head.php, header.php     <head>-links en de zwarte header
   paths.php                Centrale data en adressen van de apps
   tiles.php, access.php    Tegels, toegangscodes
@@ -104,7 +108,7 @@ data/                      Centrale data (CSV's, back-ups) - NIET in git, zie ho
 tools/                     Beheerscripts (niet via de browser)
 assets/, images/           Opmaak en logo's van het hoofdscherm
 docs/                      Referentie-PDF's en voorstellen; wordt niet door de apps gelezen
-hoses/ adapters/ stauff/ slkprinten/ configurator/ klantartikel/ klantkorting/
+hoses/ adapters/ stauff/ slkprinten/ configurator/
 reports/ templates/ stickers/   De apps, elk met eigen index.php, assets/, api/ ...
 slangkaarten/              Plaatshouder; het adres /slangkaarten/ is van Slangkaart.Web
 ```
@@ -127,9 +131,7 @@ bash tools/update.sh             # bijwerken
 ```
 
 Het script controleert dat je op `main` zit zonder lokale wijzigingen, doet `git pull --ff-only`, controleert de
-gewijzigde PHP-bestanden (`php -l`), werkt de lage-druk-adapters bij (`tools/adapters-lage-druk/lage-druk-toevoegen.php`, met
-back-up in `data/backups/adapters/`; alleen als de pull die map raakte of de kolom `drukklasse` nog ontbreekt, anders met
-`--lage-druk`) en meldt het nieuwe versienummer. Het stopt bij de eerste fout en verwijdert of installeert niets. Een gewone
+gewijzigde PHP-bestanden (`php -l`), controleert `data/` en meldt het nieuwe versienummer. Het stopt bij de eerste fout en verwijdert of installeert niets. Een gewone
 `git pull` blijft ook werken.
 
 **Alleen op de server, niet in git:**

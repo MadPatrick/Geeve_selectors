@@ -1,0 +1,10 @@
+.ei-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+#eiTable td.ei-num, #eiTable th.ei-num { text-align: right; }
+#eiTable input.ei-in { width: 100%; min-width: 7ch; box-sizing: border-box; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-white); color: var(--ink); }
+#eiTable input.ei-in.ei-num { text-align: right; }
+#eiTable input.ei-in.is-bad { border-color: var(--status-bad-line); background: var(--status-bad-bg-faint); }
+#eiTable td.ei-desc { white-space: normal; min-width: 36ch; }
+
+/* Tabel scrolt binnen het scherm: horizontaal én verticaal, kop blijft staan (overschrijft .msp-scroll uit rapport.css). */
+.ka-table-wrap.ei-scroll { max-width: 100%; max-height: 70vh; overflow: auto; }
+#eiTable thead th { position: sticky; top: 0; z-index: 1; background: var(--soft); }

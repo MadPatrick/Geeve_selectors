@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../../shared/helpers.php';
+
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../../shared/tiles.php';
 require_once __DIR__ . '/../../shared/paths.php';
@@ -12,18 +14,6 @@ require_once __DIR__ . '/../../shared/csrf.php';
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
 // rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
 define('APP_VERSION', is_file(__DIR__ . '/../../version.php') ? (string) require __DIR__ . '/../../version.php' : '0.2.1');
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 $csrf = csrfToken();
 
@@ -43,7 +33,7 @@ $thisYear = (int) date('Y');
     <title>MSP report | Geeve Hydraulics</title>
     <!-- Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers. -->
     <?php
-    $headCss = ['assets/style.css', 'klantartikel/assets/style.css', 'reports/msp/assets/style.css'];   // vanaf de portal-root, in laadvolgorde
+    $headCss = ['assets/style.css', 'shared/tabel.css', 'shared/rapport.css'];   // vanaf de portal-root, in laadvolgorde
     require __DIR__ . '/../../shared/head.php';
     ?>
 </head>
@@ -78,7 +68,9 @@ $thisYear = (int) date('Y');
                 </select>
             </label>
             <button type="button" id="mspFetch" class="ka-button">Gegevens ophalen</button>
+            <div class="msp-field msp-merge"><span>Weergave</span><label class="msp-check"><input type="checkbox" id="mspMerge"><span>Samenvoegen per klant, factuur en artikel</span></label></div>
             <button type="button" id="mspDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
+            <button type="button" id="mspUpload" class="ka-button ka-button--secondary" disabled>Export voor MSP-upload</button>
             <span id="mspStatus" class="msp-status"></span>
         </div>
         <div id="mspMessage" class="ka-message ka-message--error" hidden></div>
@@ -91,7 +83,7 @@ $thisYear = (int) date('Y');
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
 </main>
-<script src="<?= h(geeveUrl('klantartikel/assets/vendor/xlsx.core.min.js')) ?>"></script>
+<script src="<?= h(geeveUrl('shared/vendor/xlsx.core.min.js')) ?>?v=<?= h(assetVersion('../../shared/vendor/xlsx.core.min.js')) ?>"></script>
 <script src="assets/msp.js?v=<?= h(assetVersion('assets/msp.js')) ?>"></script>
 </body>
 </html>

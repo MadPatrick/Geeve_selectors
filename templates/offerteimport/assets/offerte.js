@@ -1,0 +1,948 @@
+(function () {
+    var app = document.getElementById('oiApp');
+    var endpoint = app.getAttribute('data-validate');
+    var boxEndpoint = endpoint.replace('validate.php', 'boxqty.php');
+    // Dezelfde pagina voor offertes (debiteur) en inkooporders (leverancier): alleen teksten en de XML verschillen.
+    var purchase = app.getAttribute('data-kind') === 'inkoop';
+    var T = purchase
+        ? { page: 'Inkooporder Import', seller: 'inkoper', Seller: 'Inkoper', party: 'leverancier', Party: 'Leverancier', partyNr: 'leveranciernummer', soort: 'crediteur', orderType: 'B', partyTag: 'Creditor', filePrefix: 'Inkooporder', template: 'Inkooporder_import_template.xlsx' }
+        : { page: 'Offerte Import', seller: 'verkoper', Seller: 'Verkoper', party: 'debiteur', Party: 'Debiteur', partyNr: 'debiteurnummer', soort: 'debiteur', orderType: 'Q', partyTag: 'Debtor', filePrefix: 'Offerte', template: 'Offerte_import_template.xlsx' };
+    var csrf = app.getAttribute('data-csrf');
+    var sellerEl = document.getElementById('oiSeller');
+    var debtorEl = document.getElementById('oiDebtor');
+    var descEl = document.getElementById('oiDescription');
+    var dateEl = document.getElementById('oiDate');
+    var checks = {
+        seller: document.getElementById('oiSellerCheck'),
+        debtor: document.getElementById('oiDebtorCheck'),
+        desc: document.getElementById('oiDescriptionCheck'),
+        date: document.getElementById('oiDateCheck')
+    };
+    var dropEl = document.getElementById('oiDrop');
+    var fileEl = document.getElementById('oiFile');
+    var messageEl = document.getElementById('oiMessage');
+    var infoEl = document.getElementById('oiInfo');
+    var exportBtn = document.getElementById('oiExport');
+    var exactBtn = document.getElementById('oiExact');   // alleen op de offertepagina
+    var EXACT_MAX_REGELS = 500;   // limiet van Exact per keer "Naar Exact"
+    var tooManyShown = false;     // de melding maar één keer per overschrijding
+    var problemsEl = document.getElementById('oiProblems');
+    var resultEl = document.getElementById('oiResult');
+    var summaryEl = document.getElementById('oiSummary');
+    var tbody = document.querySelector('#oiTable tbody');
+
+    var lines = [];          // {nr, text, desc, code, qty, supplier, custArt}
+    // Offerte: optionele kolom Leveranciersnummer (artikelcode van de leverancier). Is de artikelcode leeg, dan zoekt de controle
+    // ons artikelnummer op en vult het in; zonder (eenduidige) match blijft de artikelcode leeg.
+    var useSupplier = !purchase;
+    var supplierInfo = {};   // LEVERANCIERSNUMMER (hoofdletters) -> {item, matches}
+    // Offerte: ook een optionele kolom Klantartikelnr. (het artikelnummer van de klant). Werkt als het leveranciersnummer, maar zoekt in de
+    // klantartikelen van de ingevulde debiteur; de artikelcode en het leveranciersnummer gaan voor.
+    var customerInfo = {};   // ARTIKELKLANT (hoofdletters) -> {item, matches}, geldig voor de debiteur in lastDebtor
+    var lastDebtor = '';
+    var itemInfo = {};       // CODE (hoofdletters) -> {found, description}
+    var sellerInfo = null;   // {found, name}
+    var debtorInfo = null;
+    var checked = {};        // CODE -> true zodra de controle met Exact klaar is
+    var codeTimers = {};
+    var supTimer = null;
+    var importedName = '';
+    var timer = null;
+    var validating = 0;
+
+    function esc(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function pad(n) { return ('0' + n).slice(-2); }
+    function toIso(d) { return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); }
+    function todayIso() { var n = new Date(); return n.getFullYear() + '-' + pad(n.getMonth() + 1) + '-' + pad(n.getDate()); }
+    function serialToIso(n) { return toIso(new Date(Math.round((n - 25569) * 86400000))); }
+    function parseDate(v) {
+        if (v === null || v === undefined || v === '') { return ''; }
+        if (typeof v === 'number') { return serialToIso(v); }
+        if (v instanceof Date) { return toIso(new Date(Date.UTC(v.getFullYear(), v.getMonth(), v.getDate()))); }
+        var s = String(v).trim(), m;
+        if ((m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s))) { return m[1] + '-' + m[2] + '-' + m[3]; }
+        if ((m = /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/.exec(s))) { return m[3] + '-' + pad(+m[2]) + '-' + pad(+m[1]); }
+        return '';
+    }
+    function cellText(v) {
+        if (v === null || v === undefined) { return ''; }
+        if (typeof v === 'number') { return String(v); }
+        return String(v).trim();
+    }
+    // Artikelcode zoals bedoeld (zonder spaties aan de randen) en als sleutel (hoofdletters); het veld zelf blijft ongemoeid tijdens typen.
+    function cv(l) { return l.code.trim(); }
+    function ck(l) { return l.code.trim().toUpperCase(); }
+    function qtyOf(q) {
+        var n = Number(String(q === null || q === undefined ? '' : q).replace(',', '.'));
+        return isFinite(n) && n > 0 ? n : null;
+    }
+    // Aantal met enkelvoud of meervoud: pl(1, 'regel', 'regels') = '1 regel'.
+    function pl(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+    function showMessage(text) { messageEl.textContent = text; messageEl.hidden = !text; }
+    function showInfo(text) { infoEl.textContent = text; infoEl.hidden = !text; }
+    function setCheck(el, text, ok) {
+        el.textContent = text;
+        el.className = 'oi-check' + (text ? (ok ? ' is-ok' : ' is-bad') : '');
+    }
+
+    // ---- Template: alleen de regels (Regelnr, Aantal, Artikelcode, bij offertes ook Leveranciersnummer); de kopvelden vul je in op het dashboard ----
+    function downloadTemplate() {
+        var rows = [useSupplier ? ['Regelnr', 'Aantal', 'Artikelcode', 'Leveranciersnummer', 'Klantartikelnr.'] : ['Regelnr', 'Aantal', 'Artikelcode']];
+        for (var i = 1; i <= 100; i++) { rows.push(useSupplier ? [i, '', '', '', ''] : [i, '', '']); }
+        var ws = XLSX.utils.aoa_to_sheet(rows);
+        var head = { font: { bold: true, color: { rgb: 'FFFFFFFF' } }, fill: { patternType: 'solid', fgColor: { rgb: 'FF1F4E78' } }, alignment: { horizontal: 'center' } };
+        (useSupplier ? ['A1', 'B1', 'C1', 'D1', 'E1'] : ['A1', 'B1', 'C1']).forEach(function (a) { ws[a].s = head; });
+        for (var r = 2; r <= 101; r++) {
+            ws['C' + r] = { t: 's', v: '', z: '@' }; // artikelcodes altijd als tekst
+            if (useSupplier) { ws['D' + r] = { t: 's', v: '', z: '@' }; ws['E' + r] = { t: 's', v: '', z: '@' }; } // leveranciersnummers en klantartikelnr. ook (voorloopnullen blijven staan)
+        }
+        ws['!cols'] = useSupplier ? [{ wch: 10 }, { wch: 10 }, { wch: 28 }, { wch: 28 }, { wch: 28 }] : [{ wch: 10 }, { wch: 10 }, { wch: 28 }];
+        ws['!ref'] = useSupplier ? 'A1:E101' : 'A1:C101';
+        var help = XLSX.utils.aoa_to_sheet(useSupplier ? [
+            [1, 'Geef per regel het aantal (kolom B) en de artikelcode (kolom C) in'],
+            [2, 'Weet je alleen het artikelnummer van de leverancier? Laat de artikelcode leeg en vul het leveranciersnummer (kolom D) in; ons artikelnummer wordt dan in Exact opgezocht'],
+            [3, 'Weet je alleen het artikelnummer van de klant? Laat de artikelcode leeg en vul de klantartikelnr. (kolom E) in; dat wordt opgezocht bij de klantartikelen van het debiteurnummer dat je op het dashboard invult'],
+            [4, 'Staan artikelcode, leveranciersnummer en/of klantartikelnr. ingevuld, dan geldt eerst de artikelcode, dan het leveranciersnummer, dan de klantartikelnr.'],
+            [5, 'Meer dan 100 regels? Nummer de regelnummers gewoon door'],
+            [6, 'Verkoper, debiteurnummer, omschrijving en datum vul je in op het dashboard (Offerte Import)'],
+            [7, 'Importeer het bestand in Offerte Import; de artikelen worden gecontroleerd met Exact en de artikelomschrijving wordt opgehaald']
+        ] : [
+            [1, 'Geef per regel het aantal (kolom B) en de artikelcode (kolom C) in'],
+            [2, 'Meer dan 100 regels? Nummer de regelnummers gewoon door'],
+            [3, 'Verkoper of inkoper, debiteur- of leveranciernummer, omschrijving en datum vul je in op het dashboard (Offerte Import of Inkooporder Import)'],
+            [4, 'Importeer het bestand in Offerte Import of Inkooporder Import; de artikelen worden gecontroleerd met Exact en de artikelomschrijving wordt opgehaald']
+        ]);
+        help['!cols'] = [{ wch: 4 }, { wch: 110 }];
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Order');
+        XLSX.utils.book_append_sheet(wb, help, 'Uitleg');
+        XLSX.writeFile(wb, T.template);
+    }
+
+    // ---- Excel inlezen ----
+    function importFile(file) {
+        showMessage('');
+        showInfo('');
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                // Inlezen met de bijgewerkte SheetJS (zie shared/vendor/xlsx-lezen.js); schrijven blijft via xlsx-style.
+                var X = window.XLSX_LEZEN || XLSX;
+                var wb = X.read(new Uint8Array(e.target.result), { type: 'array' });
+                var name = wb.SheetNames.indexOf('Order') !== -1 ? 'Order' : wb.SheetNames[0];
+                var ws = wb.Sheets[name];
+                var val = function (a) { return ws[a] ? ws[a].v : null; };
+                var range = X.utils.decode_range(ws['!ref'] || 'A1:A1');
+                var last = Math.min(range.e.r + 1, 2000);
+
+                // De kop met Artikelcode zoeken (nieuwe template: rij 1; oude template: rij 11) en de kolommen op naam bepalen.
+                var headRow = 0, cols = {};
+                for (var hr = 1; hr <= Math.min(last, 40) && !headRow; hr++) {
+                    for (var c = 0; c <= Math.min(range.e.c, 15); c++) {
+                        var addr = X.utils.encode_col(c) + hr;
+                        if (String(val(addr) || '').trim().toLowerCase() === 'artikelcode') { headRow = hr; }
+                    }
+                }
+                if (!headRow) { throw new Error('Geen kolom "Artikelcode" gevonden. Gebruik de template (Regelnr, Aantal, Artikelcode).'); }
+                for (var cc = 0; cc <= Math.min(range.e.c, 15); cc++) {
+                    var colName = String(val(X.utils.encode_col(cc) + headRow) || '').trim().toLowerCase();
+                    if (colName) { cols[colName] = X.utils.encode_col(cc); }
+                }
+                if (!cols['aantal']) { throw new Error('Geen kolom "Aantal" gevonden. Gebruik de template (Regelnr, Aantal, Artikelcode).'); }
+
+                // Oude template (met kopvelden bovenin): die velden worden ook overgenomen als ze erin staan.
+                if (!purchase && String(val('A8') || '').trim().toLowerCase() === 'debiteurnummer') {
+                    sellerEl.value = cellText(val('B6'));
+                    debtorEl.value = cellText(val('A9'));
+                    descEl.value = cellText(val('B9'));
+                    dateEl.value = parseDate(val('C9')) || dateEl.value || todayIso();
+                }
+
+                lines = [];
+                for (var row = headRow + 1; row <= last; row++) {
+                    var line = {
+                        nr: cols['regelnr'] ? cellText(val(cols['regelnr'] + row)) : '',
+                        qty: val(cols['aantal'] + row),
+                        code: cellText(val(cols['artikelcode'] + row)).toUpperCase(),
+                        supplier: '',
+                        custArt: ''
+                    };
+                    var supCol = useSupplier ? (cols['leveranciersnummer'] || cols['leveranciernummer']) : null;
+                    if (supCol && line.code === '') { line.supplier = cellText(val(supCol + row)); }
+                    var custCol = useSupplier ? (cols['klantartikelnr.'] || cols['klantartikelnr'] || cols['klantartikel'] || cols['artikelklant']) : null;
+                    if (custCol && line.code === '') { line.custArt = cellText(val(custCol + row)); }
+                    if (line.code === '' && line.supplier === '' && line.custArt === '' && (line.qty === null || line.qty === '')) { continue; }
+                    // Template heeft alleen regelnummers 1-100 voorgevuld: ontbreekt het nummer, dan doornummeren vanaf de vorige regel.
+                    if (line.nr === '') {
+                        var prev = lines.length ? parseInt(lines[lines.length - 1].nr, 10) : 0;
+                        line.nr = String((isFinite(prev) ? prev : lines.length) + 1);
+                    }
+                    lines.push(line);
+                }
+                itemInfo = {};
+                checked = {};
+                supplierInfo = {};
+                customerInfo = {};
+                lastDebtor = debtorEl.value.trim();
+                importedName = file.name;
+                render();
+                showInfo(lines.length ? 'Geïmporteerd: ' + file.name + ' (' + pl(lines.length, 'regel', 'regels') + '). De gegevens worden gecontroleerd met Exact…' : '');
+                if (!lines.length) { showMessage('Geen regels gevonden in ' + file.name + '. Vul in de template het aantal (kolom B) en de artikelcode (kolom C) in.'); }
+                validate(true);
+            } catch (err) {
+                showMessage('Het bestand kon niet worden gelezen: ' + err.message);
+            }
+        };
+        reader.onerror = function () { showMessage('Het bestand kon niet worden gelezen.'); };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // ---- Controle met Exact ----
+    // Per verzoek hooguit BATCH_SIZE artikelcodes/leveranciersnummers: PHP kapt een POST boven max_input_vars (standaard 1000) stilzwijgend af,
+    // en een kleiner verzoek houdt de server minder lang bezig. De batches gaan na elkaar; de tabel wordt na elke batch bijgewerkt.
+    var BATCH_SIZE = 400;
+    // all = ook al gecontroleerde artikelen opnieuw (nodig als de leverancier wijzigt: de minimale bestelhoeveelheid hangt daarvan af).
+    function validate(withItems, quiet, all) {
+        var jobs = [];   // {type: 'item'|'sup', value}
+        if (withItems) {
+            var seen = {};
+            lines.forEach(function (l) {
+                if (cv(l) !== '' && !seen[ck(l)] && (all || !checked[ck(l)])) { seen[ck(l)] = true; jobs.push({ type: 'item', value: cv(l) }); }
+            });
+            var seenSup = {};
+            lines.forEach(function (l) {
+                var s = supplierPending(l) ? l.supplier.trim() : '';
+                if (s !== '' && !seenSup[s.toUpperCase()]) { seenSup[s.toUpperCase()] = true; jobs.push({ type: 'sup', value: s }); }
+            });
+            var seenCus = {};
+            lines.forEach(function (l) {
+                var a = customerPending(l) ? l.custArt.trim() : '';
+                if (a !== '' && !seenCus[a.toUpperCase()]) { seenCus[a.toUpperCase()] = true; jobs.push({ type: 'cus', value: a }); }
+            });
+        }
+        // Alle leveranciersnummers in één verzoek (één opzoeking in ItemAccounts op de server, dat is het zwaarste deel); de artikelen daarna in batches.
+        var supJobs = jobs.filter(function (job) { return job.type !== 'item'; });   // leveranciersnummers en klantartikelnrs
+        var itemJobs = jobs.filter(function (job) { return job.type === 'item'; });
+        var batches = [];
+        if (supJobs.length) { batches.push(supJobs); }
+        for (var j = 0; j < itemJobs.length; j += BATCH_SIZE) { batches.push(itemJobs.slice(j, j + BATCH_SIZE)); }
+        if (!batches.length) { batches.push([]); } // alleen verkoper en debiteur
+        var ticket = ++validating;
+
+        function runBatch(n) {
+            var body = new URLSearchParams();
+            body.set('csrf', csrf);
+            body.set('verkoper', sellerEl.value.trim());
+            body.set('debiteur', debtorEl.value.trim());
+            body.set('soort', T.soort);
+            var sent = batches[n].filter(function (job) { return job.type === 'sup'; }).map(function (job) { return job.value; });
+            if (sent.length) { body.set('suppliers_list', sent.join('\n')); } // één veld, zodat max_input_vars niet meespeelt
+            var sentCus = batches[n].filter(function (job) { return job.type === 'cus'; }).map(function (job) { return job.value; });
+            if (sentCus.length) { body.set('customers_list', sentCus.join('\n')); }
+            batches[n].forEach(function (job) { if (job.type === 'item') { body.append('items[]', job.value); } });
+            return fetch(endpoint, { method: 'POST', body: body })
+                .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
+                .then(function (json) {
+                    if (ticket !== validating) { return; }
+                    if (!json.ok) { throw new Error(json.error || 'Controle mislukt.'); }
+                    if (json.ms && window.console) { console.log('Offerte-import controle, ms:', json.ms); }
+                    sellerInfo = json.verkoper;
+                    debtorInfo = json.partij || json.debiteur;
+                    if (withItems) {
+                        var found = json.items || {};
+                        Object.keys(found).forEach(function (k) { itemInfo[k] = found[k]; });
+                        // Leveranciersnummers van deze batch: gevonden artikelnummer invullen als artikelcode (alleen waar die nog leeg is).
+                        var sup = json.suppliers || {};
+                        lines.forEach(function (l) {
+                            if (!supplierPending(l)) { return; }
+                            var key = l.supplier.trim().toUpperCase();
+                            if (!sup[key]) { return; } // hoort bij een andere batch
+                            supplierInfo[key] = sup[key];
+                            if (sup[key].item) { l.code = sup[key].item.toUpperCase(); l.autoCode = true; l.autoSrc = 'sup'; }
+                        });
+                        // Klantartikelnrs (alleen waar de artikelcode nog leeg is, dus het leveranciersnummer en de artikelcode gaan voor).
+                        var cus = json.customers || {};
+                        lines.forEach(function (l) {
+                            if (!customerPending(l)) { return; }
+                            var key = l.custArt.trim().toUpperCase();
+                            if (!cus[key]) { return; }
+                            customerInfo[key] = cus[key];
+                            if (cus[key].item) { l.code = cus[key].item.toUpperCase(); l.autoCode = true; l.autoSrc = 'cust'; }
+                        });
+                        batches[n].forEach(function (job) {
+                            if (job.type === 'item') { checked[job.value.toUpperCase()] = true; if (!found[job.value.toUpperCase()]) { delete itemInfo[job.value.toUpperCase()]; } }
+                        });
+                        Object.keys(sup).forEach(function (k) { if (sup[k].item) { checked[sup[k].item.toUpperCase()] = true; } });
+                        Object.keys(cus).forEach(function (k) { if (cus[k].item) { checked[cus[k].item.toUpperCase()] = true; } });
+                        if (n + 1 < batches.length && !quiet) {
+                            showInfo('Geïmporteerd: ' + importedName + ' (' + pl(lines.length, 'regel', 'regels') + '). Controle met Exact: ' + Math.min((n + 1) * BATCH_SIZE, jobs.length) + ' van ' + jobs.length + '…');
+                        }
+                    }
+                    render();
+                    if (n + 1 < batches.length) { return runBatch(n + 1); }
+                    if (withItems) {
+                        lines.forEach(function (l) { if (cv(l) !== '') { checked[ck(l)] = true; } });
+                        if (lines.length && !quiet) { showInfo('Geïmporteerd: ' + importedName + ' (' + pl(lines.length, 'regel', 'regels') + '), gecontroleerd met Exact.'); }
+                        render();
+                    }
+                });
+        }
+        runBatch(0).catch(function (err) {
+            if (ticket !== validating) { return; }
+            showMessage('Controle met Exact mislukt: ' + err.message);
+        });
+    }
+    // Eén artikelcode (na een wijziging in de tabel) opnieuw controleren; verkoper/inkoper en debiteur/leverancier blijven ongemoeid.
+    function validateItem(code) {
+        var key = code.toUpperCase();
+        var body = new URLSearchParams();
+        body.set('csrf', csrf);
+        body.append('items[]', code);
+        body.set('debiteur', debtorEl.value.trim());
+        body.set('soort', T.soort);
+        fetch(endpoint, { method: 'POST', body: body })
+            .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
+            .then(function (json) {
+                if (!json.ok) { throw new Error(json.error || 'Controle mislukt.'); }
+                // Alleen toepassen als de code nog zo in de tabel staat.
+                if (!lines.some(function (l) { return ck(l) === key; })) { return; }
+                if (json.items && json.items[key]) { itemInfo[key] = json.items[key]; } else { delete itemInfo[key]; }
+                checked[key] = true;
+                render();
+            })
+            .catch(function (err) { showMessage('Controle met Exact mislukt: ' + err.message); });
+    }
+    function scheduleValidate() {
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            // Offerte: andere debiteur = de klantartikelen opnieuw opzoeken (een klantartikel hoort bij één klant).
+            var again = resetCustomerLookups();
+            validate((purchase && lines.length > 0) || again, true, purchase);
+        }, 400);
+    }
+
+    // Regel met alleen een klantartikelnr. (geen artikelcode, en geen leveranciersnummer dat nog wordt opgezocht) waarvan het artikelnummer nog niet is opgezocht.
+    function customerPending(l) {
+        return useSupplier && cv(l) === '' && !!l.custArt && l.custArt.trim() !== '' && !customerInfo[l.custArt.trim().toUpperCase()];
+    }
+    // Debiteur gewijzigd: opgezochte klantartikelen en de daaruit ingevulde artikelcodes vervallen. Geeft terug of er iets opnieuw moet.
+    function resetCustomerLookups() {
+        if (!useSupplier) { return false; }
+        var d = debtorEl.value.trim();
+        if (d === lastDebtor) { return false; }
+        lastDebtor = d;
+        customerInfo = {};
+        var any = false;
+        lines.forEach(function (l) {
+            if (l.autoCode && l.autoSrc === 'cust') { l.code = ''; l.autoCode = false; }
+            if (l.custArt && l.custArt.trim() !== '' && cv(l) === '') { any = true; }
+        });
+        render();
+        return any;
+    }
+
+    // Regel met alleen een leveranciersnummer waarvan het artikelnummer nog niet is opgezocht.
+    function supplierPending(l) {
+        return useSupplier && cv(l) === '' && !!l.supplier && l.supplier.trim() !== '' && !supplierInfo[l.supplier.trim().toUpperCase()];
+    }
+
+    // ---- Tonen en beoordelen ----
+    function lineState(l) {
+        var sup = useSupplier && l.supplier ? l.supplier.trim() : '';
+        var cus = useSupplier && l.custArt ? l.custArt.trim() : '';
+        if (cv(l) === '' && sup === '' && cus === '' && (l.qty === null || String(l.qty).trim() === '')) { return { cls: 'is-empty', label: 'Nog leeg: vul aan of verwijder', ok: false, export: false }; }
+        if (cv(l) === '' && (sup !== '' || cus !== '')) {
+            var si = sup !== '' ? supplierInfo[sup.toUpperCase()] : null;
+            var ci = cus !== '' ? customerInfo[cus.toUpperCase()] : null;
+            if ((sup !== '' && !si) || (cus !== '' && !ci)) { return { cls: '', label: (sup !== '' && !si ? 'Leveranciersnummer' : 'Klantartikelnr.') + ' wordt opgezocht…', ok: false, export: false, pending: true }; }
+            if (si && si.matches && si.matches.length > 1) { return { cls: 'is-incomplete', label: 'Leveranciersnummer hoort bij meerdere artikelen (' + si.matches.join(', ') + '): vul de artikelcode in', ok: false, export: false }; }
+            if (ci && ci.matches && ci.matches.length > 1) { return { cls: 'is-incomplete', label: 'Klantartikelnr. hoort bij meerdere artikelen (' + ci.matches.join(', ') + '): vul de artikelcode in', ok: false, export: false }; }
+            if ((si && si.item) || (ci && ci.item)) { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
+            if (sup === '' && !(debtorInfo && debtorInfo.found)) { return { cls: 'is-incomplete', label: 'Vul een geldig debiteurnummer in om de klantartikelnr. op te zoeken', ok: false, export: false }; }
+            return { cls: 'is-incomplete', label: sup === '' ? 'Geen klantartikelnr.' : 'Geen artikel bij ' + (cus !== '' ? 'leveranciersnummer of klantartikelnr.' : 'leveranciersnummer') + ': vul de artikelcode in', ok: false, export: false };
+        }
+        if (cv(l) === '') { return { cls: 'is-incomplete', label: 'Artikelcode ontbreekt', ok: false, export: false }; }
+        if (qtyOf(l.qty) === null) { return { cls: 'is-incomplete', label: 'Aantal ontbreekt of is ongeldig', ok: false, export: false }; }
+        if (!checked[ck(l)]) { return { cls: '', label: 'Wordt gecontroleerd…', ok: false, export: false, pending: true }; }
+        var info = itemInfo[ck(l)];
+        if (!info || !info.found) { return { cls: 'is-missing', label: 'Niet in Exact', ok: false, export: false }; }
+        var q = qtyOf(l.qty);
+        if (purchase && info.minOrder > 0 && q < info.minOrder) {
+            return { cls: 'is-minorder', label: 'Ja', ok: true, export: true, info: info, minorder: true };
+        }
+        // Offerte: locatie 000 en een aantal onder of geen veelvoud van de Box qty = Box qty controleren (waarschuwing, export blijft kunnen).
+        if (useSupplier && locInfo[ck(l)] === '000') {
+            var box = boxInfo[ck(l)];
+            if (box > 0) {
+                var ratio = q / box;
+                if (q < box || Math.abs(ratio - Math.round(ratio)) > 1e-9) {
+                    return { cls: 'is-boxqty', label: 'Box qty controleren', ok: true, export: true, info: info, boxqty: true };
+                }
+            }
+        }
+        return { cls: '', label: 'Ja', ok: true, export: true, info: info };
+    }
+
+    // De verkoper wordt onthouden in een cookie (1 jaar), per soort pagina, en alleen bewaard als Exact hem kent.
+    var sellerCookie = 'oi_verkoper_' + (purchase ? 'inkoop' : 'offerte');
+    function readSellerCookie() {
+        try {
+            var m = document.cookie.match(new RegExp('(?:^|; )' + sellerCookie + '=([^;]*)'));
+            return m ? decodeURIComponent(m[1]) : '';
+        } catch (e) { return ''; }
+    }
+    function saveSellerCookie(v) {
+        try {
+            if (readSellerCookie() === v) { return; }
+            document.cookie = sellerCookie + '=' + encodeURIComponent(v) + '; max-age=31536000; path=/; SameSite=Lax';
+        } catch (e) { /* cookies geblokkeerd: niet erg */ }
+    }
+
+    function render() {
+        // Veldcontroles
+        var seller = sellerEl.value.trim();
+        if (seller === '') { setCheck(checks.seller, '', true); }
+        else if (!sellerInfo) { setCheck(checks.seller, 'Wordt gecontroleerd…', true); checks.seller.className = 'oi-check'; }
+        else {
+            setCheck(checks.seller, sellerInfo.found ? '✓ ' + sellerInfo.name : '✗ ' + T.Seller + ' niet gevonden', sellerInfo.found);
+            if (sellerInfo.found) { saveSellerCookie(seller); }
+        }
+        var debtor = debtorEl.value.trim();
+        if (debtor === '') { setCheck(checks.debtor, '', true); }
+        else if (!debtorInfo) { setCheck(checks.debtor, 'Wordt gecontroleerd…', true); checks.debtor.className = 'oi-check'; }
+        else { setCheck(checks.debtor, debtorInfo.found ? '✓ ' + debtorInfo.name : '✗ ' + T.Party + ' niet gevonden', debtorInfo.found); }
+        setCheck(checks.desc, descEl.value.trim() === '' ? (lines.length ? '✗ Omschrijving ontbreekt' : '') : '', descEl.value.trim() !== '');
+        var dateOk = /^\d{4}-\d{2}-\d{2}$/.test(dateEl.value);
+        setCheck(checks.date, dateOk || !lines.length ? '' : '✗ Datum ontbreekt', dateOk);
+
+        // Tabel
+        var states = lines.map(lineState);
+        var html = '';
+        lines.forEach(function (l, i) { html += rowHtml(l, i, states[i]); });
+        // Staat de cursor in een artikelcode, dan blijft die daar na het opnieuw tekenen van de tabel.
+        var active = document.activeElement;
+        var focusCls = active && active.classList ? (active.classList.contains('oi-code') ? 'oi-code' : (active.classList.contains('oi-qty') ? 'oi-qty' : (active.classList.contains('oi-sup') ? 'oi-sup' : (active.classList.contains('oi-cus') ? 'oi-cus' : null)))) : null;
+        var focusIdx = focusCls ? active.getAttribute('data-i') : null;
+        var caret = focusCls ? active.selectionStart : null;
+        tbody.innerHTML = html;
+        if (focusIdx !== null) {
+            var again = tbody.querySelector('input.' + focusCls + '[data-i="' + focusIdx + '"]');
+            if (again) { again.focus(); if (caret !== null) { again.setSelectionRange(caret, caret); } }
+        }
+        renderSummary(states, seller, debtor);
+        fetchBox();
+    }
+
+    // Box qty = Bst.gr. van de hoofdleverancier in Exact (alleen bij een offerte).
+    var boxInfo = {};      // CODE (hoofdletters) -> Box qty (0 = geen); apart opgehaald, na de controle
+    var locInfo = {};      // CODE (hoofdletters) -> locatie in het magazijn ('' = geen)
+    var boxBusy = false;
+    function boxOf(l) { var b = boxInfo[ck(l)]; return b > 0 ? b : ''; }
+    function locOf(l) { return locInfo[ck(l)] || ''; }
+    function boxText(l) { return String(boxOf(l)); }
+    // Box qty ophalen voor gevonden artikelen waarvan we hem nog niet hebben; los van de controle, zodat die niet langer duurt.
+    function fetchBox() {
+        if (!useSupplier || boxBusy) { return; }
+        var codes = [];
+        var seen = {};
+        lines.forEach(function (l) {
+            var key = ck(l);
+            if (key !== '' && !seen[key] && boxInfo[key] === undefined && itemInfo[key] && itemInfo[key].found) { seen[key] = true; codes.push(cv(l)); }
+        });
+        if (!codes.length) { return; }
+        boxBusy = true;
+        var body = new URLSearchParams();
+        body.set('csrf', csrf);
+        codes.forEach(function (c) { body.append('items[]', c); });
+        fetch(boxEndpoint, { method: 'POST', body: body })
+            .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+            .then(function (json) {
+                boxBusy = false;
+                if (!json.ok) { return; }
+                codes.forEach(function (c) { var k = c.toUpperCase(); boxInfo[k] = json.box && json.box[k] ? json.box[k] : 0; locInfo[k] = json.loc && json.loc[k] ? json.loc[k] : ''; });
+                render();
+                fetchBox(); // regels die er tijdens het ophalen bij kwamen
+            })
+            .catch(function () { boxBusy = false; });
+    }
+
+    function rowHtml(l, i, st) {
+        var info = st.info || itemInfo[ck(l)] || null;
+        return '<tr class="' + st.cls + '">' +
+            '<td>' + esc(l.nr) + '</td>' +
+            '<td><input type="text" class="ka-input oi-qty" data-i="' + i + '" value="' + esc(l.qty === null ? '' : l.qty) + '" maxlength="12" inputmode="decimal" autocomplete="off" aria-label="Aantal regel ' + esc(l.nr || (i + 1)) + '"></td>' +
+            (purchase ? '<td class="oi-min">' + (info && info.minOrder > 0 ? esc(info.minOrder) : '') + '</td>' : '') +
+            (useSupplier ? '<td><input type="text" class="ka-input oi-sup" data-i="' + i + '" value="' + esc(l.supplier || '') + '" maxlength="40" autocomplete="off" spellcheck="false" aria-label="Leveranciersnummer regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
+            (useSupplier ? '<td><input type="text" class="ka-input oi-cus" data-i="' + i + '" value="' + esc(l.custArt || '') + '" maxlength="60" autocomplete="off" spellcheck="false" aria-label="Klantartikelnr. regel ' + esc(l.nr || (i + 1)) + '"></td>' : '') +
+            '<td><input type="text" class="ka-input oi-code" data-i="' + i + '" value="' + esc(l.code) + '" maxlength="30" autocomplete="off" spellcheck="false" aria-label="Artikelcode regel ' + esc(l.nr || (i + 1)) + '"></td>' +
+            '<td class="oi-desc">' + esc(info && info.found ? info.description : '') + '</td>' +
+            (useSupplier ? '<td class="oi-box">' + boxText(l) + '</td><td class="oi-loc">' + esc(locOf(l)) + '</td>' : '') +
+            '<td class="oi-status"><div class="oi-status-text">' + esc(st.label) + '</div></td>' +
+            '<td><button type="button" class="oi-del" data-i="' + i + '" title="Regel verwijderen" aria-label="Regel verwijderen">&times;</button></td></tr>';
+    }
+
+    // Na typen in één regel: alleen die regel (zonder de invoervelden aan te raken) en de samenvatting bijwerken, niet de hele tabel.
+    function renderRow(i) {
+        var tr = tbody.rows[i];
+        if (!tr) { render(); return; }
+        var states = lines.map(lineState);
+        var st = states[i];
+        var info = st.info || itemInfo[ck(lines[i])] || null;
+        tr.className = st.cls;
+        var min = tr.querySelector('.oi-min');
+        if (min) { min.textContent = info && info.minOrder > 0 ? String(info.minOrder) : ''; }
+        tr.querySelector('.oi-desc').textContent = info && info.found ? info.description : '';
+        var box = tr.querySelector('.oi-box');
+        if (box) { box.textContent = boxText(lines[i]); }
+        var loc = tr.querySelector('.oi-loc');
+        if (loc) { loc.textContent = locOf(lines[i]); }
+        tr.querySelector('.oi-status-text').textContent = st.label;
+        renderSummary(states, sellerEl.value.trim(), debtorEl.value.trim());
+    }
+
+    function renderSummary(states, seller, debtor) {
+        var dateOk = /^\d{4}-\d{2}-\d{2}$/.test(dateEl.value);
+        var articles = states.length;
+        var missing = states.filter(function (s) { return s.cls === 'is-missing'; }).length;
+        var incomplete = states.filter(function (s) { return s.cls === 'is-incomplete'; }).length;
+        var empty = states.filter(function (s) { return s.cls === 'is-empty'; }).length;
+        var minOrder = states.filter(function (s) { return s.minorder; }).length;
+        var boxCheck = states.filter(function (s) { return s.boxqty; }).length;
+        var pending = states.some(function (s) { return s.pending; });
+        summaryEl.innerHTML =
+            '<span class="msp-pill"><strong>' + lines.length + '</strong> ' + (lines.length === 1 ? 'regel' : 'regels') + '</span>' +
+            (missing ? '<span class="msp-pill oi-pill-bad"><strong>' + missing + '</strong> niet in Exact</span>' : '') +
+            (minOrder ? '<span class="msp-pill oi-pill-warn"><strong>' + minOrder + '</strong> onder minimale bestelhoeveelheid</span>' : '') +
+            (boxCheck ? '<span class="msp-pill oi-pill-warn"><strong>' + boxCheck + '</strong> Box qty controleren</span>' : '') +
+            (incomplete ? '<span class="msp-pill oi-pill-warn"><strong>' + incomplete + '</strong> onvolledig (aantal of artikelcode)</span>' : '');
+
+        // Export alleen als alles klopt
+        var problems = [];
+        if (seller === '') { problems.push(T.seller + ' invullen'); } else if (!sellerInfo) { problems.push(T.seller + ' wordt gecontroleerd'); } else if (!sellerInfo.found) { problems.push(T.seller + ' bestaat niet in Exact'); }
+        if (debtor === '') { problems.push(T.partyNr + ' invullen'); } else if (!debtorInfo) { problems.push(T.partyNr + ' wordt gecontroleerd'); } else if (!debtorInfo.found) { problems.push(T.partyNr + ' bestaat niet in Exact'); }
+        if (descEl.value.trim() === '') { problems.push('omschrijving invullen'); }
+        if (!dateOk) { problems.push('datum invullen'); }
+        if (!states.some(function (s) { return s.export; })) { problems.push('minstens één artikelregel met artikelcode en aantal'); }
+        if (missing) { problems.push(pl(missing, 'artikel', 'artikelen') + ' die niet in Exact bestaan (rood) aanpassen of verwijderen'); }
+        if (incomplete) { problems.push(pl(incomplete, 'regel', 'regels') + ' zonder geldig aantal of artikelcode (oranje) aanvullen of verwijderen'); }
+        if (empty) { problems.push(pl(empty, 'lege regel', 'lege regels') + ' invullen of verwijderen'); }
+        if (pending) { problems.push('artikelen worden nog gecontroleerd'); }
+        var ready = lines.length > 0 && problems.length === 0;
+        exportBtn.disabled = !ready;
+        exportBtn.title = ready || !lines.length ? '' : 'Eerst oplossen: ' + problems.join(', ');
+        readyState = ready;
+        if (exactBtn) {
+            // Exact neemt maximaal EXACT_MAX_REGELS regels per keer aan: daarboven "Naar Exact" uit; Exporteer XML blijft werken.
+            var exactCount = states.filter(function (s) { return s.export; }).length;
+            var tooMany = exactCount > EXACT_MAX_REGELS;
+            if (exactBtn.getAttribute('data-uit') === '1') {
+                exactBtn.disabled = true;   // Naar Exact staat uit in Config: knop blijft zichtbaar maar inactief (tooltip uit de PHP)
+                exactReset();
+                return;
+            }
+            exactBtn.disabled = !ready || exactBusy || tooMany;
+            exactBtn.title = tooMany ? 'Naar Exact kan maximaal ' + EXACT_MAX_REGELS + ' regels per keer. Gebruik Maak XML voor Exact.' : exportBtn.title;
+            if (tooMany && !tooManyShown) {
+                tooManyShown = true;
+                window.alert('Er staan ' + exactCount + ' regels in deze offerte. Naar Exact kan maximaal ' + EXACT_MAX_REGELS + ' regels per keer verwerken, daarom is die knop uitgeschakeld.\n\nMaak XML voor Exact blijft wel beschikbaar.');
+            } else if (!tooMany) {
+                tooManyShown = false;
+            }
+            exactReset();   // elke wijziging of nieuwe controle: eerst opnieuw een proef
+        }
+        // Zichtbaar wat er nog ontbreekt zolang er regels zijn en de export nog niet kan.
+        if (lines.length && !ready) {
+            problemsEl.innerHTML = '<strong>Exporteren kan pas als alles klopt en is ingevuld.</strong> Nog nodig: ' + problems.map(esc).join('; ') + '.';
+            problemsEl.hidden = false;
+        } else {
+            problemsEl.hidden = true;
+        }
+    }
+
+    // ---- XML (zelfde opbouw als de macro in de Excel-template) ----
+    function xmlEsc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function buildXml(p) {
+        var debtor = xmlEsc(debtorEl.value.trim());
+        var date = dateEl.value;
+        var party = '<' + T.partyTag + ' code="' + debtor + '" ' + (purchase ? 'number' : ' Number') + '="' + debtor + '"></' + T.partyTag + '>';
+        var out = [];
+        out.push('<?xml version="1.0" encoding="UTF-8"?>');
+        out.push('<eExact xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="eExact-Schema.xsd">');
+        out.push('<Orders>');
+        out.push(' <Order type="' + T.orderType + '">');
+        out.push('   <Description>' + xmlEsc(descEl.value.trim()) + '</Description>');
+        var resource = '<Resource number="' + xmlEsc(sellerEl.value.trim()) + '"></Resource>';
+        if (purchase) {
+            // Inkooporder (opbouw van een Exact-export): inkoper als Resource, leverancier in OrderedAt.
+            out.push('   ' + resource);
+            out.push('   <OrderedAt>');
+            out.push('      ' + party);
+            out.push('      <Date>' + date + '</Date>');
+            out.push('   </OrderedAt>');
+        } else {
+            // Verkoper ook op de offerte (Patrick 2026-11-05): zonder Resource nam Exact de medewerker van de import (123 i.p.v. 119).
+            out.push('   ' + resource);
+            out.push('   <OrderedBy>');
+            out.push('      ' + party);
+            out.push('      <Date>' + date + '</Date>');
+            out.push('   </OrderedBy>');
+        }
+        if (!purchase) {
+            // Offerte (zoals de macro in de Excel-template): ook afleveradres en factuuradres.
+            out.push('   <DeliverTo>');
+            out.push('      ' + party);
+            out.push('      <Date>' + date + '</Date>');
+            out.push('   </DeliverTo>');
+            out.push('   <InvoiceTo>');
+            out.push('      ' + party);
+            out.push('   </InvoiceTo>');
+        }
+        var n = 0;
+        var total = lines.filter(function (l) { return lineState(l).export; }).length;
+        lines.forEach(function (l) {
+            var st = lineState(l);
+            if (!st.export) { return; }
+            n++;
+            if (p) { p.set(n, total, n + '/' + total + ' regels'); }   // voortgang per regel bij het opbouwen van de XML
+            out.push('   <OrderLine lineNo="' + xmlEsc(l.nr !== '' ? l.nr : n) + '">');
+            out.push('     <Quantity>' + qtyOf(l.qty) + '</Quantity>');
+            out.push('     <Item code="' + xmlEsc(cv(l)) + '"></Item>');
+            if (purchase) { out.push('     ' + resource); }
+            out.push('  </OrderLine>');
+        });
+        out.push(' </Order>');
+        out.push('</Orders>');
+        out.push('</eExact>');
+        return out.join('\r\n') + '\r\n';
+    }
+    // Export Excel: de lijst zoals hij nu in de tabel staat (ook handmatige wijzigingen), met dezelfde kolommen.
+    function exportExcel() {
+        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return false; }
+        if (!lines.length) { showMessage('Er zijn nog geen regels om te exporteren.'); return false; }
+        showMessage('');
+        var states = lines.map(lineState);
+        var head = ['Regelnr', 'Aantal'];
+        if (useSupplier) { head.push('Leveranciersnummer', 'Klantartikelnr.'); }
+        head.push('Artikelcode', 'Artikelomschrijving');
+        if (useSupplier) { head.push('Box qty', 'Locatie'); }
+        head.push('Artikel in Exact');
+        var rows = [head];
+        lines.forEach(function (l, i) {
+            var info = states[i].info || itemInfo[ck(l)] || null;
+            var q = qtyOf(l.qty);
+            var row = [l.nr === undefined || l.nr === null ? '' : String(l.nr).trim(), q !== null ? q : (l.qty === null || l.qty === undefined ? '' : String(l.qty))];
+            if (useSupplier) { row.push(l.supplier ? String(l.supplier).trim() : '', l.custArt ? String(l.custArt).trim() : ''); }
+            row.push(cv(l), info && info.found ? info.description : '');
+            if (useSupplier) { row.push(boxOf(l), locOf(l)); }
+            row.push(states[i].label);
+            rows.push(row);
+        });
+        var ws = XLSX.utils.aoa_to_sheet(rows);
+        var cols = useSupplier ? 9 : 5;
+        var style = { font: { bold: true, color: { rgb: 'FFFFFFFF' } }, fill: { patternType: 'solid', fgColor: { rgb: 'FF1F4E78' } }, alignment: { horizontal: 'center' } };
+        for (var c = 0; c < cols; c++) {
+            ws[XLSX.utils.encode_cell({ r: 0, c: c })].s = style;
+        }
+        // Artikelcodes en leveranciersnummers altijd als tekst (voorloopnullen blijven staan).
+        var textCols = useSupplier ? [0, 2, 3, 4] : [0, 2];
+        for (var r = 1; r < rows.length; r++) {
+            textCols.forEach(function (tc) {
+                var cell = ws[XLSX.utils.encode_cell({ r: r, c: tc })];
+                if (cell) { cell.t = 's'; cell.v = String(cell.v); cell.z = '@'; }
+            });
+        }
+        ws['!cols'] = (useSupplier ? [10, 10, 28, 28, 28, 50, 10, 16, 40] : [10, 10, 28, 50, 40]).map(function (w) { return { wch: w }; });
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Lijst');
+        var party = debtorEl.value.trim().replace(/[^A-Za-z0-9._-]+/g, '_');
+        XLSX.writeFile(wb, T.filePrefix + '-lijst' + (party ? '-' + party : '') + '.xlsx');
+        showInfo('Excel-bestand gemaakt (' + pl(lines.length, 'regel', 'regels') + ').');
+    }
+
+    function exportXml(e, p) {
+        if (exportBtn.disabled) { return false; }
+        var blob = new Blob([buildXml(p)], { type: 'application/xml;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = T.filePrefix + '-' + debtorEl.value.trim().replace(/[^A-Za-z0-9._-]+/g, '_') + '.xml';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+        showInfo('XML-bestand gemaakt (' + a.download + '). Importeer het in Exact via Systeem\\Importeren XML\\Logistieke import.' + (purchase ? '' : ' Er is niets naar Exact geschreven.'));
+    }
+
+
+    // ---- Direct naar Exact (22-10-2026) ----
+    // Schrijven doet de slangkaart-app (Slangkaart.Web, algemene schrijfdeur POST /slangkaarten/api/exact/schrijf), met de
+    // beveiligingen van de slangkaarten (alleen testserver, productie geblokkeerd). Eerst altijd een proef: de app geeft terug
+    // wat er naar Exact zou gaan; pas na een tweede klik (bevestigen) wordt er echt geschreven.
+    // Entiteit- en veldnamen staan hier bij elkaar. Vastgesteld in $metadata van de Entity Service op tst19 (22-10-2026): een
+    // offerte is QuotationHeader met QuotationLine (SalesOrderHeader heeft geen ordersoort en geeft een verkooporder). Let op de
+    // spelling Itemcode (kleine c). De omschrijving uit de app gaat naar YourReference, het veld "Uw referentie" in Exact, en niet naar Omschrijving (Description1), zoals Patrick wil (22-10-2026). QuotationNumber laten we weg: Exact nummert zelf.
+    // Een afwijzing door Exact komt als melding in beeld; veldnamen aanpassen kan hier, zonder wijziging in Slangkaart.Web.
+    var EXACT = {
+        kopEntiteit: 'QuotationHeader', regelEntiteit: 'QuotationLine',
+        kop: function (date) {
+            var debtor = debtorEl.value.trim();
+            var seller = sellerEl.value.trim();
+            var k = { YourReference: descEl.value.trim(), OrderDebtor: debtor, DeliveryDebtor: debtor, InvoiceDebtor: debtor, SalesOrderDate: date, DeliveryDate: date };
+            if (/^\d+$/.test(seller)) { k.Resource = parseInt(seller, 10); }   // Resource is een nummer
+            return k;
+        },
+        regel: function (l, n) { return { LineNumber: l.nr !== '' && isFinite(parseInt(l.nr, 10)) ? parseInt(l.nr, 10) : n, Itemcode: cv(l), Quantity: qtyOf(l.qty) }; },
+        dubbel: function (date) { return { YourReference: descEl.value.trim(), OrderDebtor: debtorEl.value.trim(), SalesOrderDate: date }; }
+    };
+    var exactPending = false;
+    var exactBusy = false;
+    var readyState = false;   // alle controles groen, net als bij Exporteer XML (gezet in renderSummary)
+    function exactReset() {
+        exactPending = false;
+        if (exactBtn) { exactBtn.textContent = 'Naar Exact'; }
+    }
+    function exactBody(write) {
+        var date = dateEl.value;
+        var out = [];
+        lines.forEach(function (l) {
+            if (!lineState(l).export) { return; }
+            out.push(EXACT.regel(l, out.length + 1));
+        });
+        return {
+            kopEntiteit: EXACT.kopEntiteit, kop: EXACT.kop(date),
+            regelEntiteit: EXACT.regelEntiteit, regels: out,
+            dubbelcontrole: { entiteit: EXACT.kopEntiteit, velden: EXACT.dubbel(date) },
+            schrijven: write,
+            achtergrond: write   // nieuwe slangkaart-app: taaknummer terug en de stand per regel opvragen (30-10-2026)
+        };
+    }
+    // Wacht tot een achtergrondtaak af is en meldt tussendoor "klaar van totaal". Een oudere slangkaart-app negeert
+    // "achtergrond" en geeft meteen het eindantwoord (zonder taak): dan is er niets te volgen en gaat het als vroeger.
+    function exactVolg(j, bar) {
+        if (!j || !j.ok || !j.taak) { return Promise.resolve(j); }
+        var url = exactBtn.getAttribute('data-url') + '/' + encodeURIComponent(j.taak);
+        var fouten = 0;
+        bar.set(0, j.totaal, '0/' + j.totaal + ' regels');
+        return new Promise(function (resolve) {
+            (function stap() {
+                fetch(url, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (s) {
+                    fouten = 0;
+                    if (!s.ok) { resolve({ ok: false, fout: s.fout || 'Stand van het schrijven niet op te vragen.' }); return; }
+                    if (!s.bezig) { resolve(s.uitkomst.body); return; }
+                    bar.set(s.klaar, s.totaal, s.klaar + '/' + s.totaal + ' regels');
+                    setTimeout(stap, 500);
+                }).catch(function () {
+                    fouten += 1;
+                    if (fouten >= 10) { resolve({ ok: false, fout: 'Verbinding met de slangkaart-app weg tijdens het schrijven; de stand in Exact is onbekend.' }); return; }
+                    setTimeout(stap, 1000);
+                });
+            })();
+        });
+    }
+    function postExact(body) {
+        return fetch(exactBtn.getAttribute('data-url'), {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), cache: 'no-store'
+        }).then(function (r) {
+            if (r.status === 404) {
+                return { ok: false, fout: 'De slangkaart-app kent "Naar Exact" voor offertes nog niet. Dat komt met de volgende uitrol van die app (Hans).' };
+            }
+            return r.json().catch(function () { return { ok: false, fout: 'Onverwacht antwoord van de slangkaart-app (HTTP ' + r.status + ').' }; });
+        }, function () { return { ok: false, fout: 'De slangkaart-app is niet bereikbaar.' }; });
+    }
+    function exactClick() {
+        if (exactBtn.disabled || exactBusy || exactBtn.getAttribute('data-uit') === '1') { return; }
+        showMessage(''); showInfo('');
+        var write = exactPending;
+        exactBusy = true; exactBtn.disabled = true;
+        // Voortgangsbalk: bij de proef een lopende balk; bij schrijven "12/20 regels" (de app meldt de klare regels).
+        var bar = GeeveProgress.start(write ? 'Offerte naar Exact schrijven…' : 'Proef naar Exact…', exactBtn);
+        var t0 = new Date().getTime();
+        postExact(exactBody(write)).then(function (j) { return write ? exactVolg(j, bar) : j; }).then(function (j) {
+            var duur = ' Duur: ' + (Math.round((new Date().getTime() - t0) / 100) / 10).toString().replace('.', ',') + ' s.';
+            if (j.ok) { bar.finish(write ? 'Naar Exact geschreven' : 'Proef gelukt'); } else { bar.fail('Naar Exact mislukt'); }
+            exactBusy = false; exactBtn.disabled = !readyState;   // alleen actief als alles klopt, zoals Exporteer XML
+            if (!j.ok) {
+                exactReset();
+                showMessage((j.fout || 'Onbekende fout van de slangkaart-app.') + (j.stand ? ' Stand in Exact: ' + j.stand : '') + duur);
+                return;
+            }
+            if (write) {
+                exactReset();
+                exactBtn.disabled = true;   // niet nog een keer; een wijziging maakt de knop weer vrij
+                showInfo('Offerte naar Exact geschreven (' + j.server + '): ' + pl(j.regels, 'regel', 'regels') + '.' + duur);
+                return;
+            }
+            if (!j.schrijvenAan) {
+                showInfo('Proef gelukt: ' + pl(j.regels.length, 'regel', 'regels') + ' zouden naar Exact gaan, maar schrijven staat in de slangkaart-app uit. Gebruik zolang "Exporteer XML".');
+                return;
+            }
+            if (j.bestaatAl > 0) {
+                showMessage('Deze offerte staat al in Exact (' + j.server + '): dezelfde ' + T.party + ', omschrijving en datum. Pas de omschrijving of datum aan als het toch een nieuwe offerte is.');
+                return;
+            }
+            exactPending = true;
+            exactBtn.textContent = 'Bevestig: schrijf naar ' + j.server;
+            showInfo('Proef gelukt: ' + pl(j.regels.length, 'regel', 'regels') + ' voor ' + T.party + ' ' + debtorEl.value.trim() + ' gaan naar Exact (' + j.server + '). Klik nogmaals om te schrijven.');
+        });
+    }
+
+    // Artikelcode wijzigen in de tabel: altijd hoofdletters, en na een korte pauze opnieuw controleren met Exact.
+    tbody.addEventListener('input', function (e) {
+        var el = e.target;
+        if (el.classList && el.classList.contains('oi-qty')) {
+            lines[+el.getAttribute('data-i')].qty = el.value;
+            renderRow(+el.getAttribute('data-i'));
+            return;
+        }
+        if (el.classList && el.classList.contains('oi-sup')) {
+            // Leveranciersnummer gewijzigd: is de artikelcode leeg, dan na een korte pauze ons artikelnummer opnieuw opzoeken.
+            var line = lines[+el.getAttribute('data-i')];
+            line.supplier = el.value;
+            // Een artikelcode die uit het oude leveranciersnummer kwam, hoort daar niet meer bij: leegmaken en opnieuw opzoeken.
+            if (line.autoCode) { if (line.autoSrc === 'cust' && line.custArt) { delete customerInfo[line.custArt.trim().toUpperCase()]; } line.code = ''; line.autoCode = false; render(); } else { renderRow(+el.getAttribute('data-i')); }
+            clearTimeout(supTimer);
+            supTimer = setTimeout(function () { validate(true, true); }, 500);
+            return;
+        }
+        if (el.classList && el.classList.contains('oi-cus')) {
+            // Klantartikelnr. gewijzigd: is de artikelcode leeg, dan na een korte pauze ons artikelnummer opnieuw opzoeken.
+            var cline = lines[+el.getAttribute('data-i')];
+            cline.custArt = el.value;
+            if (cline.autoCode && cline.autoSrc === 'cust') { cline.code = ''; cline.autoCode = false; render(); } else { renderRow(+el.getAttribute('data-i')); }
+            clearTimeout(supTimer);
+            supTimer = setTimeout(function () { validate(true, true); }, 500);
+            return;
+        }
+        if (!el.classList || !el.classList.contains('oi-code')) { return; }
+        var i = +el.getAttribute('data-i');
+        var pos = el.selectionStart;
+        el.value = el.value.toUpperCase();
+        if (pos !== null) { el.setSelectionRange(pos, pos); }
+        lines[i].autoCode = false;
+        lines[i].code = el.value; // ruwe invoer (alleen hoofdletters), zodat een spatie midden in de code niet verdwijnt
+        var code = el.value.trim();
+        // Rij direct bijwerken (nog niet gecontroleerd), daarna debounce de controle.
+        renderRow(i);
+        clearTimeout(codeTimers[i]);
+        if (code !== '' && !checked[code.toUpperCase()]) {
+            codeTimers[i] = setTimeout(function () { validateItem(code); }, 400);
+        }
+    });
+
+    // Regel verwijderen.
+    tbody.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('button.oi-del') : null;
+        if (!btn) { return; }
+        lines.splice(+btn.getAttribute('data-i'), 1);
+        render();
+    });
+    // Regel toevoegen: nieuw regelnummer (hoogste + 1) en de cursor in de artikelcode.
+    document.getElementById('oiAdd').addEventListener('click', function () {
+        var max = 0;
+        lines.forEach(function (l) { var n = parseInt(l.nr, 10); if (isFinite(n) && n > max) { max = n; } });
+        lines.push({ nr: String(max + 1), qty: '', code: '', supplier: '', custArt: '' });
+        render();
+        var inputs = tbody.querySelectorAll('input.oi-code');
+        if (inputs.length) { inputs[inputs.length - 1].focus(); }
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    // ---- Koppelingen ----
+    GeeveProgress.onClick(document.getElementById('oiTemplate'), 'Template maken…', function () {
+        if (typeof XLSX === 'undefined') { showMessage('Excel-bibliotheek niet geladen.'); return false; }
+        downloadTemplate();
+    });
+    GeeveProgress.onClick(exportBtn, 'XML maken…', exportXml);
+    if (exactBtn) { exactBtn.addEventListener('click', exactClick); }
+    var excelBtn = document.getElementById('oiExportExcel');
+    if (excelBtn) { GeeveProgress.onClick(excelBtn, 'Excel maken…', exportExcel); }
+    dropEl.addEventListener('click', function () { fileEl.click(); });
+    dropEl.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileEl.click(); } });
+    fileEl.addEventListener('change', function () { if (fileEl.files[0]) { importFile(fileEl.files[0]); fileEl.value = ''; } });
+    ['dragenter', 'dragover'].forEach(function (ev) { dropEl.addEventListener(ev, function (e) { e.preventDefault(); dropEl.classList.add('is-over'); }); });
+    ['dragleave', 'drop'].forEach(function (ev) { dropEl.addEventListener(ev, function (e) { e.preventDefault(); dropEl.classList.remove('is-over'); }); });
+    dropEl.addEventListener('drop', function (e) { var f = e.dataTransfer && e.dataTransfer.files[0]; if (f) { importFile(f); } });
+    [sellerEl, debtorEl].forEach(function (el) {
+        el.addEventListener('input', function () { if (el === sellerEl) { sellerInfo = null; } else { debtorInfo = null; } render(); scheduleValidate(); });
+    });
+    // ---- Zoeken op naam (fuzzy) in een nummerveld ----
+    function attachSuggest(inputEl, kind, noneText, afterPick) {
+        var box = document.createElement('ul');
+        box.className = 'oi-suggest';
+        box.hidden = true;
+        inputEl.parentNode.style.position = 'relative';
+        inputEl.parentNode.appendChild(box);
+        var results = [], active = -1, timer = null, seq = 0;
+        function close() { box.hidden = true; active = -1; }
+        function mark() {
+            Array.prototype.forEach.call(box.children, function (li, i) { li.classList.toggle('is-active', i === active); });
+        }
+        function pick(i) {
+            if (!results[i]) { return; }
+            inputEl.value = results[i].nummer;
+            close();
+            afterPick();
+        }
+        function show() {
+            box.innerHTML = '';
+            results.forEach(function (r, i) {
+                var li = document.createElement('li');
+                var n = document.createElement('strong'); n.textContent = r.nummer;
+                li.appendChild(n); li.appendChild(document.createTextNode(' \u2013 ' + r.naam));
+                li.addEventListener('mousedown', function (e) { e.preventDefault(); pick(i); });
+                box.appendChild(li);
+            });
+            active = -1;
+            box.hidden = results.length === 0;
+        }
+        function note(text) {
+            results = []; active = -1;
+            box.innerHTML = '';
+            var li = document.createElement('li'); li.className = 'is-note'; li.textContent = text;
+            box.appendChild(li); box.hidden = false;
+        }
+        function search() {
+            var q = inputEl.value.trim();
+            if (q.length < 2) { results = []; show(); return Promise.resolve(); }
+            if (/^\d+$/.test(q) && q.length > 6) { results = []; show(); return Promise.resolve(); }
+            var my = ++seq;
+            var body = new URLSearchParams();
+            body.set('csrf', csrf); body.set('q', q); body.set('soort', kind);
+            return fetch(endpoint.replace('validate.php', 'search.php'), { method: 'POST', body: body, credentials: 'same-origin' })
+                .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Onverwacht antwoord van de server.' }; }); })
+                .then(function (j) {
+                    if (my !== seq) { return; }
+                    if (!j.ok) { note('Zoeken mislukt: ' + (j.error || 'onbekende fout')); return; }
+                    results = j.results || [];
+                    if (results.length === 0) { note(noneText); } else { show(); }
+                })
+                .catch(function (e) { if (my === seq) { note('Zoeken mislukt: ' + e.message); } });
+        }
+        inputEl.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 250); });
+        inputEl.addEventListener('keydown', function (e) {
+            // Enter: de bovenste (of gemarkeerde) regel uit de lijst nemen en doorgaan.
+            if (GeeveEnterTop.handle(e, {
+                isOpen: function () { return !box.hidden; },
+                count: function () { return results.length; },
+                active: function () { return active; },
+                pick: pick,
+                search: function () { clearTimeout(timer); return search(); }
+            })) { return; }
+            if (box.hidden) { return; }
+            if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, results.length - 1); mark(); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); mark(); }
+            else if (e.key === 'Escape') { close(); }
+        });
+        inputEl.addEventListener('blur', function () { setTimeout(close, 100); });
+    }
+    attachSuggest(debtorEl, T.soort, 'Geen ' + T.party + ' gevonden', function () { debtorInfo = null; render(); scheduleValidate(); });
+    attachSuggest(sellerEl, 'medewerker', 'Geen ' + T.seller + ' gevonden', function () { sellerInfo = null; render(); scheduleValidate(); });
+    [descEl, dateEl].forEach(function (el) { el.addEventListener('input', render); });
+    dateEl.value = todayIso();
+    descEl.value = 'Import';
+    var savedSeller = readSellerCookie();
+    if (savedSeller !== '') { sellerEl.value = savedSeller; }
+    render();
+    if (savedSeller !== '') { scheduleValidate(); }   // controleert de onthouden verkoper met Exact
+})();

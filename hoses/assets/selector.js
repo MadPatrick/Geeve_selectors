@@ -35,23 +35,32 @@
     let editMode = false;
     let saveInFlight = false;
 
-    const normalize = (value) => String(value ?? '').trim().toLowerCase();
+    const normalize = (value) => String(value == null ? '' : value).trim().toLowerCase();
     // Voor het zoeken op artikelnummer mag het streepje weggelaten worden
     // (bijv. "032304" moet ook "0323-04" vinden).
     const normalizeArtnr = (value) => normalize(value).replace(/-/g, '');
 
+    const NUMERIC_PATTERN = /^\d+([.,]\d+)?$/;
+
+    // Kale waarde zonder eenheid ("26 mm" -> "26"), zodat ook CSV-waarden met
+    // een mm-suffix als getal herkend worden.
+    function stripMillimetres(value) {
+        return String(value == null ? '' : value).trim().replace(/\s*mm$/i, '');
+    }
+
+    // Weergave in de kaarten: altijd komma met 1 decimaal + " mm".
     function formatMillimetres(value) {
-        const text = String(value ?? '').trim();
+        const text = stripMillimetres(value);
         if (!text) {
             return '';
         }
-        return /mm$/i.test(text) ? text : `${text} mm`;
+        return `${NUMERIC_PATTERN.test(text) ? formatMeasurement(text) : text} mm`;
     }
 
     // Print-table measurements: no "mm" suffix, always exactly 1 decimal
     // (including for 0), using the comma decimal convention.
     function formatMeasurement(value) {
-        const text = String(value ?? '').trim();
+        const text = stripMillimetres(value);
         if (!text) {
             return '';
         }
@@ -63,7 +72,7 @@
     }
 
     function articleMaat(artnr) {
-        const text = String(artnr ?? '');
+        const text = String(artnr == null ? '' : artnr);
         const dashIndex = text.indexOf('-');
         // The size is the number right after the first dash (e.g. "03" in
         // "2440D-03V32", where "V32" is a separate code, not the size).
@@ -194,12 +203,12 @@
     }
 
     function formatSeries(value) {
-        const text = String(value ?? '').trim();
+        const text = String(value == null ? '' : value).trim();
         return text ? `${text}-serie` : '–';
     }
 
     function createFact(label, value, primary = false) {
-        const text = String(value ?? '').trim() || '-';
+        const text = String(value == null ? '' : value).trim() || '-';
 
         const fact = document.createElement('div');
         fact.className = `fitting-fact${primary ? ' primary' : ''}`;
@@ -220,6 +229,9 @@
     function createFactsRow(facts, badge) {
         const row = document.createElement('div');
         row.className = 'fitting-facts';
+        if (facts.some((fact) => fact.classList.contains('fact-edit'))) {
+            row.classList.add('fitting-facts--edit');
+        }
         if (badge) {
             row.appendChild(badge);
         }
@@ -228,7 +240,7 @@
     }
 
     function createAccessoryFact(label, value, imageKey, valueTitle) {
-        const text = String(value ?? '').trim() || '-';
+        const text = String(value == null ? '' : value).trim() || '-';
         const item = document.createElement('div');
         item.className = 'accessory-fact';
 
@@ -270,7 +282,7 @@
     }
 
     function joinValues(...values) {
-        return values.map((v) => String(v ?? '').trim()).filter(Boolean).join(', ');
+        return values.map((v) => String(v == null ? '' : v).trim()).filter(Boolean).join(', ');
     }
 
     function renderAccessories(article) {
@@ -295,7 +307,7 @@
             ['Huls Texsleeve (RVS)', accessories.hulsTexRvs, '19001', null],
         ];
 
-        const hasAccessoryData = fields.some(([, value]) => String(value ?? '').trim() !== '');
+        const hasAccessoryData = fields.some(([, value]) => String(value == null ? '' : value).trim() !== '');
         if (!hasAccessoryData) {
             accessorySection.hidden = true;
             return false;
@@ -315,12 +327,19 @@
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'fact-edit-input';
-        input.value = String(value ?? '').trim();
         input.autocomplete = 'off';
         if (material) input.dataset.material = material;
         if (type) input.dataset.type = type;
         if (number !== undefined && number !== null) input.dataset.number = String(number);
         input.dataset.field = field;
+        input.value = String(value == null ? '' : value).trim();
+        if (isNumericInput(input)) {
+            input.value = normalizeNumericValue(input.value);
+            input.inputMode = 'decimal';
+            input.addEventListener('blur', () => {
+                input.value = normalizeNumericValue(input.value);
+            });
+        }
         if (placeholder) input.placeholder = placeholder;
         return input;
     }
@@ -559,7 +578,7 @@
             const entry = {};
             fieldKeys.forEach((field) => {
                 const input = card ? card.querySelector(`.fact-edit-input[data-field="${field}"]`) : null;
-                entry[field] = input ? input.value : '';
+                entry[field] = input ? (isNumericInput(input) ? normalizeNumericValue(input.value) : input.value) : '';
             });
             entries[number] = entry;
         }
@@ -569,7 +588,7 @@
     function collectEditPayload() {
         const accessoires = {};
         accessoryGrid.querySelectorAll('.fact-edit-input[data-material="accessoires"]').forEach((input) => {
-            accessoires[input.dataset.field] = input.value;
+            accessoires[input.dataset.field] = isNumericInput(input) ? normalizeNumericValue(input.value) : input.value;
         });
 
         return {
@@ -651,7 +670,13 @@
     // bij: dat veld bevat vaak een alfanumerieke koppelingscode (VS, V4,
     // V6, WB, 100V4-20C, ...) i.p.v. een getal, zie AGENTS.md §5.
     const NUMERIC_FIELDS = new Set(['persmaat', 'schilIntern', 'schilExtern', 'insteekdiepte']);
-    const NUMERIC_PATTERN = /^\d+([.,]\d+)?$/;
+
+    // Punt of komma als invoer; opgeslagen en getoond als komma met 1 decimaal
+    // (54 -> 54,0). Leeg of ongeldig blijft ongemoeid (validatie vangt dat op).
+    function normalizeNumericValue(value) {
+        const text = stripMillimetres(value);
+        return NUMERIC_PATTERN.test(text) ? formatMeasurement(text) : String(value == null ? '' : value).trim();
+    }
 
     function isNumericInput(input) {
         return NUMERIC_FIELDS.has(input.dataset.field)
@@ -691,13 +716,33 @@
         setEditStatus('Bezig met opslaan…');
 
         const payload = collectEditPayload();
+        // Token tegen verzoeken vanaf een andere website (save.php weigert zonder geldig token). Stond de pagina zo lang open
+        // dat de sessie verlopen is, dan haalt de pagina één keer een vers token op en verstuurt de wijzigingen opnieuw.
+        const send = (token) => {
+            payload.csrf = token;
+            return fetch('save.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            }).then((response) => response.json().catch(() => ({ ok: false, error: `Onverwachte serverfout (${response.status}).` })));
+        };
 
-        fetch('save.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        })
-            .then((response) => response.json().catch(() => ({ ok: false, error: `Onverwachte serverfout (${response.status}).` })))
+        send(editToggleButton ? (editToggleButton.getAttribute('data-csrf') || '') : '')
+            .then((data) => {
+                if (!data || data.ok === true || !data.tokenVerlopen) {
+                    return data;
+                }
+                return fetch('save.php?token=1', { cache: 'no-store' })
+                    .then((response) => response.json())
+                    .then((fresh) => {
+                        if (!fresh || !fresh.csrf) {
+                            return data;
+                        }
+                        if (editToggleButton) editToggleButton.setAttribute('data-csrf', fresh.csrf);
+                        return send(fresh.csrf);
+                    })
+                    .catch(() => data);
+            })
             .then((data) => {
                 if (!data || data.ok !== true) {
                     throw new Error((data && data.error) || 'Opslaan is mislukt.');
@@ -839,12 +884,12 @@
     }
 
     function fieldValue(value) {
-        const text = String(value ?? '').trim();
+        const text = String(value == null ? '' : value).trim();
         return text === '' ? '-' : text;
     }
 
     function hoseTypeInfo(artnr) {
-        const text = String(artnr ?? '').trim();
+        const text = String(artnr == null ? '' : artnr).trim();
 
         // Parker multi-spiral hoses (SR25/SR29/SR35/SR45/SRI42) share one
         // combined "SR/SRI" group regardless of the number, with ST/TC/SN
@@ -1072,7 +1117,7 @@
     // De eigen dash-maat van een artnr ("0811-03" -> "03"), voor het
     // herkennen van de hulsfamilie hieronder.
     function dashMaat(artnr) {
-        const match = /^[^-]*-(\d+)/.exec(String(artnr ?? ''));
+        const match = /^[^-]*-(\d+)/.exec(String(artnr == null ? '' : artnr));
         return match ? match[1] : null;
     }
 
@@ -1208,7 +1253,7 @@
                 accessories.hulsTexStaal,
                 accessories.hulsTexRvs,
             ];
-            const hasData = values.some((value) => String(value ?? '').trim() !== '');
+            const hasData = values.some((value) => String(value == null ? '' : value).trim() !== '');
             if (!hasData) {
                 return;
             }
@@ -1311,13 +1356,32 @@
         return fragment;
     }
 
-    function addMaterialChapter(material, couplingGroups, comboGroups) {
+    // Keeps only the groups of one hose type (case-insensitive), e.g. '0477'.
+    function filterGroupsByType(groups, typeFilter) {
+        if (!typeFilter) {
+            return groups;
+        }
+        const wanted = typeFilter.toUpperCase();
+        const filtered = new Map();
+        groups.forEach((group, type) => {
+            if (String(type).toUpperCase() === wanted) {
+                filtered.set(type, group);
+            }
+        });
+        return filtered;
+    }
+
+    function addMaterialChapter(material, couplingGroups, comboGroups, typeFilter) {
         if (couplingGroups.size === 0 && comboGroups.size === 0) {
             return false;
         }
 
         const materialLabel = material === 'STAAL' ? 'Staal' : material;
-        printSheet.appendChild(buildDividerPage(material, ['Perslijst', `Slangkoppelingen ${materialLabel}`]));
+        const titleLines = ['Perslijst', `Slangkoppelingen ${materialLabel}`];
+        if (typeFilter) {
+            titleLines.push(`Type ${typeFilter}`);
+        }
+        printSheet.appendChild(buildDividerPage(material, titleLines));
 
         if (couplingGroups.size > 0) {
             printSheet.appendChild(buildChapterPages('1-delig', '1-delige koppelingen', buildCouplingTable(couplingGroups)));
@@ -1333,11 +1397,14 @@
     // scope: 'all' (default), 'accessoires', 'staal' or 'rvs' - limits the
     // printed catalogue to just that chapter for the matching download
     // option.
-    function renderCatalogPrintSheet(scope) {
+    // scope 'type' prints only the Staal and RVS chapters (all sizes) of the
+    // hose type in `typeFilter`. Returns whether anything was rendered.
+    function renderCatalogPrintSheet(scope, typeFilter) {
         if (!printSheet) {
-            return;
+            return false;
         }
         const effectiveScope = scope || 'all';
+        const onlyType = effectiveScope === 'type' ? String(typeFilter || '').trim() : '';
 
         printSheet.innerHTML = '';
 
@@ -1351,14 +1418,14 @@
             }
         }
 
-        if (effectiveScope === 'all' || effectiveScope === 'staal') {
-            if (addMaterialChapter('STAAL', groupArticlesByType('koppelingStaal'), groupArticlesByType('comboStaal'))) {
+        if (effectiveScope === 'all' || effectiveScope === 'staal' || effectiveScope === 'type') {
+            if (addMaterialChapter('STAAL', filterGroupsByType(groupArticlesByType('koppelingStaal'), onlyType), filterGroupsByType(groupArticlesByType('comboStaal'), onlyType), onlyType)) {
                 hasAnyChapter = true;
             }
         }
 
-        if (effectiveScope === 'all' || effectiveScope === 'rvs') {
-            if (addMaterialChapter('RVS', groupArticlesByType('koppelingRvs'), groupArticlesByType('comboRvs'))) {
+        if (effectiveScope === 'all' || effectiveScope === 'rvs' || effectiveScope === 'type') {
+            if (addMaterialChapter('RVS', filterGroupsByType(groupArticlesByType('koppelingRvs'), onlyType), filterGroupsByType(groupArticlesByType('comboRvs'), onlyType), onlyType)) {
                 hasAnyChapter = true;
             }
         }
@@ -1374,6 +1441,7 @@
         footer.className = 'print-footer';
         footer.textContent = 'Geeve Hydraulics — know how in hydraulics';
         printSheet.appendChild(footer);
+        return hasAnyChapter;
     }
 
     function selectArticle(article) {
@@ -1473,12 +1541,11 @@
         }
 
         if (event.key === 'Enter') {
-            if (selectedIndex >= 0 && currentMatches[selectedIndex]) {
+            // Gemarkeerde regel, anders de bovenste uit de lijst.
+            const top = selectedIndex >= 0 ? currentMatches[selectedIndex] : currentMatches[0];
+            if (top && !suggestions.hidden) {
                 event.preventDefault();
-                selectArticle(currentMatches[selectedIndex]);
-            } else if (currentMatches.length === 1) {
-                event.preventDefault();
-                selectArticle(currentMatches[0]);
+                selectArticle(top);
             }
             return;
         }
@@ -1529,6 +1596,40 @@
         document.title = scopeTitles[scope] || scopeTitles.all;
         renderCatalogPrintSheet(scope);
         window.print();
+    }
+
+    // "Alleen slangtype": Perslijst (Staal en RVS, alle maten) van één slangtype, in te vullen als bijv. 0477.
+    const pdfTypeInput = document.getElementById('pdfTypeInput');
+    const pdfTypeButton = document.getElementById('pdfTypeButton');
+    const pdfTypeMessage = document.getElementById('pdfTypeMessage');
+
+    function printHoseType() {
+        const type = pdfTypeInput.value.trim();
+        pdfTypeMessage.textContent = '';
+        if (type === '') {
+            pdfTypeMessage.textContent = 'Vul een slangtype in.';
+            pdfTypeInput.focus();
+            return;
+        }
+        if (!renderCatalogPrintSheet('type', type)) {
+            printSheet.innerHTML = '';
+            pdfTypeMessage.textContent = `Geen slangtype ${type} gevonden.`;
+            return;
+        }
+        closePdfMenu();
+        document.title = `Geeve Hydraulics - Perslijst type ${type}`;
+        window.print();
+    }
+
+    if (pdfTypeInput && pdfTypeButton && pdfTypeMessage) {
+        pdfTypeButton.addEventListener('click', printHoseType);
+        pdfTypeInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                printHoseType();
+            }
+        });
+        pdfTypeInput.addEventListener('input', () => { pdfTypeMessage.textContent = ''; });
     }
 
     if (pdfButton && pdfMenu) {

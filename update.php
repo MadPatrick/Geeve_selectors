@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/shared/helpers.php';
+
 session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
@@ -9,24 +11,11 @@ session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
 require_once __DIR__ . '/shared/secure_settings.php';
 require_once __DIR__ . '/shared/sneeuw.php';
+require_once __DIR__ . '/shared/achtergrond.php';
 require_once __DIR__ . '/shared/access.php';
 require_once __DIR__ . '/shared/tiles.php';
+require_once __DIR__ . '/shared/databases.php';
 require_once __DIR__ . '/shared/printen.php';
-
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
-// Cache-busting op basis van de laatste wijzigingsdatum van het bestand
-// zelf, zodat elke aanpassing aan style.css automatisch een nieuwe URL
-// krijgt - geen handmatige versie-ophoging meer nodig.
-function assetVersion(string $relativePath): string
-{
-    $full = __DIR__ . '/' . $relativePath;
-    $mtime = @filemtime($full);
-    return $mtime !== false ? (string) $mtime : APP_VERSION;
-}
 
 $requestError = false;
 
@@ -98,23 +87,25 @@ if (!accessUnlocked('config')) {
 $settingsMessage = null;
 $dbFromFile = secureSettingsFileValues() !== null;
 
-if (empty($_SESSION['config_csrf'])) {
-    $_SESSION['config_csrf'] = bin2hex(random_bytes(16));
-}
+// Formulieren op deze pagina gebruiken hetzelfde CSRF-token als de rest van de portal (shared/csrf.php).
+$configCsrf = csrfToken();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-settings') {
-    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+    if (!csrfValid($_POST['csrf'] ?? null)) {
         $requestError = true;
     } else {
         $values = secureSettingsReadStored();
         foreach (SECURE_SETTINGS_KEYS as $settingKey) {
-            if ($settingKey === 'TILE_FLAGS' || str_starts_with($settingKey, 'SNEEUW_')) {
-                continue; // worden apart opgeslagen (formulieren Tegels en Topbalk)
+            if (in_array($settingKey, ['TILE_FLAGS', 'DB_KEUZE'], true) || str_starts_with($settingKey, 'SNEEUW_')) {
+                continue; // worden apart opgeslagen (formulieren Tegels, Databases per tegel en Topbalk)
             }
             if ($dbFromFile && in_array($settingKey, SECURE_SETTINGS_FILE_KEYS, true)) {
                 continue; // beheerd op de server (/etc/geeve/portal.json)
             }
             $posted = trim((string) ($_POST[$settingKey] ?? ''));
+            if (in_array($settingKey, ['EXACT_DB_NAME_TEST', 'DB_NAME', 'EXACT_DB_RAPPORTAGE', 'EXACT_DB_DATA'], true) && preg_match('/^[A-Za-z0-9_.-]{0,128}$/', $posted) !== 1) {
+                $posted = (string) ($values[$settingKey] ?? ''); // ongeldige naam: ongewijzigd laten
+            }
             if ($settingKey === 'EXACT_DB_TRUST_SERVER_CERT') {
                 $posted = $posted === 'yes' ? 'yes' : 'no';
             }
@@ -136,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
 
 $sneeuwMessage = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-sneeuw') {
-    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+    if (!csrfValid($_POST['csrf'] ?? null)) {
         $requestError = true;
     } else {
         $values = secureSettingsReadStored();
@@ -147,6 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
             $values[$naam . '_VOOR'] = (string) topbalkDagen($_POST[$naam . '_VOOR'] ?? null, $std['voor']);
             $values[$naam . '_NA'] = (string) topbalkDagen($_POST[$naam . '_NA'] ?? null, $std['na']);
         }
+        $values['ACHTERGROND_MINUTEN'] = (string) max(1, min(1440, (int) ($_POST['ACHTERGROND_MINUTEN'] ?? ACHTERGROND_STANDAARD_MINUTEN)));
         $sneeuwMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Topbalk-instellingen opgeslagen.']
             : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
@@ -155,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
 
 $tilesMessage = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-tiles') {
-    if (!hash_equals((string) $_SESSION['config_csrf'], (string) ($_POST['csrf'] ?? ''))) {
+    if (!csrfValid($_POST['csrf'] ?? null)) {
         $requestError = true;
     } else {
         $flags = [];
@@ -177,8 +169,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save-
                 ? array_values(array_filter(array_map('strval', $posted), static fn ($id) => isset(TILE_REGISTRY[$id]) && TILE_REGISTRY[$id][0] === $orderGroup))
                 : [];
         }
+        // Database per tegel (lezen/schrijven) en de naam van de Exact test-database; alleen afwijkingen van de standaard bewaren.
+        $keuzes = [];
+        foreach (GEEVE_TILE_DB as $tileId => $bronnen) {
+            foreach ($bronnen as $bron) {
+                $rij = $_POST['db'][$tileId][$bron] ?? [];
+                $lezen = (string) ($rij['lezen'] ?? 'main');
+                $schrijven = (string) ($rij['schrijven'] ?? 'geen');
+                $lezen = in_array($lezen, GEEVE_DB_BRONNEN[$bron][2], true) ? $lezen : 'main';
+                $schrijven = GEEVE_DB_BRONNEN[$bron][1] && in_array($schrijven, GEEVE_DB_BRONNEN[$bron][2], true) ? $schrijven : 'geen';
+                $std = geeveDbStandaard($tileId, $bron);
+                if ($lezen !== $std['lezen'] || $schrijven !== $std['schrijven']) {
+                    $keuzes[$tileId][$bron] = ['lezen' => $lezen, 'schrijven' => $schrijven];
+                }
+            }
+        }
         $values = secureSettingsReadStored();
         $values['TILE_FLAGS'] = (string) json_encode($flags);
+        if ($keuzes === []) {
+            unset($values['DB_KEUZE']);
+        } else {
+            $values['DB_KEUZE'] = (string) json_encode($keuzes);
+        }
         $tilesMessage = secureSettingsWrite($values)
             ? ['ok' => true, 'text' => 'Tegel-instellingen opgeslagen.']
             : ['ok' => false, 'text' => 'Opslaan mislukt: ' . secureSettingsLastError()];
@@ -230,7 +242,7 @@ $storedSettings = secureSettingsRead();
 
         <form method="post" class="update-form settings-form" autocomplete="off">
             <input type="hidden" name="action" value="save-settings">
-            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <input type="hidden" name="csrf" value="<?= h($configCsrf) ?>">
             <?php
             $val = static fn (string $k): string => $storedSettings[$k] ?? '';
             $trustOn = strtolower($val('EXACT_DB_TRUST_SERVER_CERT') ?: 'yes') !== 'no';
@@ -242,16 +254,19 @@ $storedSettings = secureSettingsRead();
             <?php if ($dbFromFile): $fileValues = secureSettingsFileValues(); ?>
             <h3 class="settings-subtitle">Databases</h3>
             <ul class="settings-help">
-                <li>Exact-database: <?= h(($fileValues['EXACT_DB_HOST'] ?? 'GEEVE-SQL-2019') . (isset($fileValues['EXACT_DB_PORT']) ? ':' . $fileValues['EXACT_DB_PORT'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME'] ?? '005') . ', gebruiker ' . ($fileValues['EXACT_DB_USER'] ?? '(niet ingesteld)') . ', wachtwoord ' . (isset($fileValues['EXACT_DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt')) ?></li>
-                <li>Slangkaarten-database: gebruiker <?= h($fileValues['DB_USER'] ?? '(niet ingesteld)') ?>, wachtwoord <?= isset($fileValues['DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt' ?></li>
+                <li>Exact-database: <?= h(($fileValues['EXACT_DB_HOST'] ?? '(niet ingesteld)') . (isset($fileValues['EXACT_DB_PORT']) ? ':' . $fileValues['EXACT_DB_PORT'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME'] ?? '005') . ', gebruiker ' . ($fileValues['EXACT_DB_USER'] ?? '(niet ingesteld)') . ', wachtwoord ' . (isset($fileValues['EXACT_DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt')) ?></li>
+                <li>Slangkaarten-database: <?= h($fileValues['DB_NAME'] ?? 'Slangkaarten') ?>, gebruiker <?= h($fileValues['DB_USER'] ?? '(niet ingesteld)') ?>, wachtwoord <?= isset($fileValues['DB_PASSWORD']) ? 'ingesteld' : 'ontbreekt' ?></li>
+                <li>Exact test-database: <?= h(($fileValues['EXACT_DB_HOST_TEST'] ?? '(zelfde server als Main)') . (isset($fileValues['EXACT_DB_PORT_TEST']) ? ':' . $fileValues['EXACT_DB_PORT_TEST'] : '') . ' / ' . ($fileValues['EXACT_DB_NAME_TEST'] ?? '(niet ingesteld)')) ?></li>
+                <li>Rapportage-database: <?= h($fileValues['EXACT_DB_RAPPORTAGE'] ?? 'Exactrapportage') ?>; data-database: <?= h($fileValues['EXACT_DB_DATA'] ?? '005_Data_Geeve') ?></li>
             </ul>
+            <p class="settings-help">Deze instellingen staan in <code><?= h(secureSettingsFilePath()) ?></code> en zijn alleen op de server te wijzigen. Ontbreekt een naam daarin, dan geldt de standaardnaam.</p>
             <?php else: ?>
             <h3 class="settings-subtitle">Exact-database</h3>
             <p class="settings-help">Server, poort en certificaat gelden ook voor de Slangkaarten-database.</p>
             <div class="settings-row">
                 <label class="update-code-field">
                     <span>Server</span>
-                    <input type="text" name="EXACT_DB_HOST" value="<?= h($val('EXACT_DB_HOST')) ?>" placeholder="GEEVE-SQL-2019" size="20" autocomplete="off">
+                    <input type="text" name="EXACT_DB_HOST" value="<?= h($val('EXACT_DB_HOST')) ?>" placeholder="servernaam" size="20" autocomplete="off">
                 </label>
                 <label class="update-code-field">
                     <span>Poort</span>
@@ -260,8 +275,34 @@ $storedSettings = secureSettingsRead();
             </div>
             <div class="settings-row">
                 <label class="update-code-field">
-                    <span>Database</span>
+                    <span>Database (Main)</span>
                     <input type="text" name="EXACT_DB_NAME" value="<?= h($val('EXACT_DB_NAME')) ?>" placeholder="005" size="20" autocomplete="off">
+                </label>
+            </div>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Database (Test)</span>
+                    <input type="text" name="EXACT_DB_NAME_TEST" value="<?= h($val('EXACT_DB_NAME_TEST')) ?>" placeholder="nog niet ingesteld" size="20" autocomplete="off">
+                </label>
+            </div>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Server (Test)</span>
+                    <input type="text" name="EXACT_DB_HOST_TEST" value="<?= h($val('EXACT_DB_HOST_TEST')) ?>" placeholder="zelfde als Main" size="20" autocomplete="off">
+                </label>
+                <label class="update-code-field">
+                    <span>Poort (Test)</span>
+                    <input type="text" name="EXACT_DB_PORT_TEST" value="<?= h($val('EXACT_DB_PORT_TEST')) ?>" size="6" autocomplete="off">
+                </label>
+            </div>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Rapportage-database</span>
+                    <input type="text" name="EXACT_DB_RAPPORTAGE" value="<?= h($val('EXACT_DB_RAPPORTAGE')) ?>" placeholder="Exactrapportage" size="20" autocomplete="off">
+                </label>
+                <label class="update-code-field">
+                    <span>Data-database</span>
+                    <input type="text" name="EXACT_DB_DATA" value="<?= h($val('EXACT_DB_DATA')) ?>" placeholder="005_Data_Geeve" size="20" autocomplete="off">
                 </label>
             </div>
             <div class="settings-row">
@@ -286,6 +327,12 @@ $storedSettings = secureSettingsRead();
                 <div class="settings-col">
             <?php if (!$dbFromFile): ?>
             <h3 class="settings-subtitle">Slangkaarten-database</h3>
+            <div class="settings-row">
+                <label class="update-code-field">
+                    <span>Database</span>
+                    <input type="text" name="DB_NAME" value="<?= h($val('DB_NAME')) ?>" placeholder="Slangkaarten" size="20" autocomplete="off">
+                </label>
+            </div>
             <p class="settings-help">Eigen account voor de database <code>Slangkaarten</code> (slangkaarten, orders en kaartgegevens). Server, poort en certificaat zijn dezelfde als hierboven.</p>
             <div class="settings-row">
                 <label class="update-code-field">
@@ -322,7 +369,7 @@ $storedSettings = secureSettingsRead();
 
         <form method="post" class="update-form sneeuw-form" autocomplete="off">
             <input type="hidden" name="action" value="save-sneeuw">
-            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <input type="hidden" name="csrf" value="<?= h($configCsrf) ?>">
             <?php $sneeuwMaanden = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']; ?>
             <?php foreach (['SNEEUW' => 'Sneeuw rond de kerst', 'NIEUWJAAR' => 'Vuurwerk met Nieuwjaar', 'PASEN' => 'Paaseieren met Pasen'] as $naam => $titel):
                 $i = topbalkInstellingen($naam);
@@ -350,13 +397,17 @@ $storedSettings = secureSettingsRead();
             </div>
             <?php endforeach; ?>
             <p class="settings-help">Nu actief in de topbalk: <strong><?= h(nieuwjaarActief() ? 'vuurwerk (Nieuwjaar)' : (sneeuwActief() ? 'sneeuw (kerst)' : (paasActief() ? 'paaseieren (Pasen)' : 'geen, de glow'))) ?></strong> (datum op de server: <?= h(date('d-m-Y')) ?>).</p>
+            <div class="settings-row sneeuw-row">
+                <label class="sneeuw-dagen"><span>Rouleer tijd achtergrond</span><input type="number" name="ACHTERGROND_MINUTEN" value="<?= achtergrondMinuten() ?>" min="1" max="1440"><span>minuten</span></label>
+            </div>
+            <p class="settings-help">De achtergrondfoto onder de topbalk wisselt na deze tijd (standaard 60 minuten) naar de volgende foto uit <code>images/achtergrond_N</code>.</p>
             <button type="submit" class="update-submit">Opslaan</button>
         </form>
     </section>
 
     <section class="update-panel">
         <h2>Tegels</h2>
-        <p>Alle tegels van het hoofdscherm en van Reports. <strong>Zichtbaar</strong>: uit = de tegel staat niet op het overzicht. <strong>Beveiligd</strong>: een klik op de tegel vraagt om de toegangscode (de pagina is dan ook niet rechtstreeks te openen). <strong>In progress</strong>: de tegel krijgt de stempel "IN PROGRESS". Pas de naam aan in het tekstveld (leeg laten = standaardnaam). Sleep een tegel aan het blokje links om de volgorde te wijzigen (binnen Hoofdscherm of binnen Reports) en klik op Opslaan.</p>
+        <p>Alle tegels van het hoofdscherm en van Reports. <strong>Zichtbaar</strong>: uit = de tegel staat niet op het overzicht. <strong>Beveiligd</strong>: een klik op de tegel vraagt om de toegangscode (de pagina is dan ook niet rechtstreeks te openen; bij Reports, Templates en Stickers geldt dat ook voor alle tegels daarin). <strong>In progress</strong>: de tegel krijgt de stempel "IN PROGRESS". Pas de naam aan in het tekstveld (leeg laten = standaardnaam). Sleep een tegel aan het blokje links om de volgorde te wijzigen (binnen Hoofdscherm of binnen Reports) en klik op Opslaan.</p>
 
         <?php if ($tilesMessage !== null): ?>
             <div class="update-message <?= $tilesMessage['ok'] ? 'ok' : 'error' ?>"><?= h($tilesMessage['text']) ?></div>
@@ -364,13 +415,15 @@ $storedSettings = secureSettingsRead();
 
         <form method="post" class="update-form tiles-form" autocomplete="off">
             <input type="hidden" name="action" value="save-tiles">
-            <input type="hidden" name="csrf" value="<?= h((string) $_SESSION['config_csrf']) ?>">
+            <input type="hidden" name="csrf" value="<?= h($configCsrf) ?>">
+            <p class="settings-help">Per tegel: uit welke database gelezen en (Exact) naar welke geschreven wordt. De databases zelf stel je in bij Database-instellingen hierboven. Stauff en Import Offerte schrijven al via "Naar Exact" in de slangkaart-app (Slangkaart.Web): daar staat schrijven op Test (de testserver van die app) en Main is geblokkeerd; kies je Geen, dan verdwijnt de knop "Naar Exact". De server waarnaar die app schrijft stelt Slangkaart.Web zelf in.</p>
             <div class="tiles-table" role="table">
                 <div class="tiles-row tiles-head" role="row">
                     <span role="columnheader">Tegel</span>
                     <span role="columnheader">Zichtbaar</span>
                     <span role="columnheader">Beveiligd</span>
                     <span role="columnheader">In progress</span>
+                    <span role="columnheader" class="tiles-dbhead">Database: lezen / schrijven</span>
                 </div>
                 <?php
                 $tileGroups = ['home' => 'Hoofdscherm', 'reports' => 'Reports', 'templates' => 'Templates', 'stickers' => 'Stickers (tegels op het Stickers-scherm)'];
@@ -392,6 +445,31 @@ $storedSettings = secureSettingsRead();
                                     <span class="settings-switch-track"></span>
                                 </label>
                             <?php endforeach; ?>
+                            <span role="cell" class="tiles-db">
+                                <?php foreach (GEEVE_TILE_DB[$tileId] ?? [] as $bron):
+                                    $bronInfo = GEEVE_DB_BRONNEN[$bron];
+                                    $keuze = geeveDbKeuze($tileId, $bron); ?>
+                                    <span class="tiles-db-bron">
+                                        <span class="tiles-db-naam"><?= h($bronInfo[0]) ?></span>
+                                        <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][lezen]" aria-label="<?= h($tile[1] . ' - ' . $bronInfo[0] . ': lezen uit') ?>">
+                                            <?php foreach ($bronInfo[2] as $omg): ?>
+                                                <option value="<?= h($omg) ?>"<?= $keuze['lezen'] === $omg ? ' selected' : '' ?><?= geeveDbOmgevingBeschikbaar($bron, $omg) || $keuze['lezen'] === $omg ? '' : ' disabled' ?>>Lezen: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
+                            <?php endforeach; ?>
+                                        </select>
+                                        <?php if ($bronInfo[1]): ?>
+                                        <select name="db[<?= h($tileId) ?>][<?= h($bron) ?>][schrijven]" aria-label="<?= h($tile[1] . ' - ' . $bronInfo[0] . ': schrijven naar') ?>">
+                                            <option value="geen"<?= $keuze['schrijven'] === 'geen' ? ' selected' : '' ?>>Schrijven: geen</option>
+                                            <?php foreach ($bronInfo[2] as $omg): ?>
+                                                <?php $viaWeb = geeveDbSchrijftViaWeb($tileId);
+                                                // Via Slangkaart.Web: test = de testserver van die app (altijd beschikbaar), main = daar geblokkeerd.
+                                                $schrijfBeschikbaar = $viaWeb ? $omg === 'test' : geeveDbOmgevingBeschikbaar($bron, $omg); ?>
+                                                <option value="<?= h($omg) ?>"<?= $keuze['schrijven'] === $omg ? ' selected' : '' ?><?= $schrijfBeschikbaar ? '' : ' disabled' ?>>Schrijven: <?= h(GEEVE_DB_OMGEVING_TITEL[$omg]) ?></option>
+                            <?php endforeach; ?>
+                                        </select>
+                                        <?php endif; ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            </span>
                         </div>
                     <?php endforeach; ?>
                     </div>

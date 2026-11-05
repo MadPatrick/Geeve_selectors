@@ -1,0 +1,7 @@
+/* Export Inkooporder: tabel past in de paginabreedte; lange tekst breekt af en de lijst scrolt verticaal. */
+.panel { min-width: 0; }
+#rpResult .ka-table-wrap { max-height: 70vh; overflow-y: auto; overflow-x: auto; }
+#rpTable { table-layout: auto; }
+#rpTable th, #rpTable td { white-space: normal; word-break: break-word; }
+#rpTable thead th { position: sticky; top: 0; z-index: 1; }
+#rpTable td.nowrap { white-space: nowrap; }

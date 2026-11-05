@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../shared/tiles.php';
 tileApiGuard('stickers-artikel');
 
 /**
- * Stickers op Artikelnummer: artikelen uit [Exactrapportage].[dbo].[1002_Artikellabels] waarvan het artikelnummer de zoekterm bevat
+ * Stickers op Artikelnummer: artikelen uit 1002_Artikellabels in de rapportage-database (standaard Exactrapportage) waarvan het artikelnummer de zoekterm bevat
  * (dezelfde query als de oude rapportbouwer, met % aan beide kanten), eerst wat met de zoekterm begint. Zelfde SQL Server en
  * inloggegevens (via Config) als /stauff en de rapporten.
  */
@@ -27,8 +27,8 @@ reportApi(function (array $post): array {
     // [ % _ in de zoekterm letterlijk nemen, niet als LIKE-jokertekens.
     $esc = strtr($zoek, ['[' => '[[]', '%' => '[%]', '_' => '[_]']);
 
-    $stmt = reportConnection()->prepare(
-        'SET NOCOUNT ON; SELECT TOP ' . (ARTIKEL_MAX_ROWS + 1) . ' [Omschrijving], [artikel] FROM [Exactrapportage].[dbo].[1002_Artikellabels]'
+    $stmt = reportConnection('stickers-artikel')->prepare(
+        'SET NOCOUNT ON; SELECT TOP ' . (ARTIKEL_MAX_ROWS + 1) . ' [Omschrijving], [artikel] FROM ' . geeveDbNaamSql('rapportage') . '.[dbo].[1002_Artikellabels]'
         . ' WHERE [artikel] LIKE :filter_artikelnr'
         // Eerst het exacte artikelnummer, dan wat ermee begint, daarna waar het ergens anders in voorkomt; binnen elke groep op artikel.
         . ' ORDER BY CASE WHEN [artikel] = :exact THEN 0 WHEN [artikel] LIKE :begin THEN 1 ELSE 2 END, [artikel]'

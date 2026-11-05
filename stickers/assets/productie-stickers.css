@@ -8,12 +8,6 @@
 #psTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
 #psTable th:first-child, #psTable td:first-child { width: 1%; }
 
-/* Eerste blok: invoer links, voorbeeld + printen helemaal rechts (op smalle schermen eronder). */
-.ps-top { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
-.ps-form { flex: 1 1 420px; min-width: 0; }
-.ps-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
-.ps-side[hidden] { display: none; }
-
 /* Voorbeeld op het scherm: één sticker tegelijk (iets vergroot); printen doet ze allemaal. */
 .ps-preview { zoom: 1.25; }
 .ps-preview .sticker { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 2.5mm; background: var(--surface-white); }
@@ -22,11 +16,6 @@
 .ps-nav .ka-button { min-width: 44px; justify-content: center; font-size: 18px; padding: 0 14px; }
 .ps-nav .ka-button:disabled { opacity: .4; cursor: default; }
 .ps-nav .msp-status { min-width: 12ch; text-align: center; }
-
-/* Aantal en printknop naast elkaar, onder het ordernummer. */
-.ps-print { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 14px; }
-.ps-copies { display: flex; align-items: center; gap: 8px; font-weight: 700; }
-.ps-copies input.ka-input { width: 70px; max-width: 70px; flex: none; min-height: 36px; text-align: right; }
 
 /* De sticker */
 .sticker {

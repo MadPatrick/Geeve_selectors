@@ -3,6 +3,7 @@
     var text = document.getElementById('ptText');
     var printSheet = document.getElementById('ptPrintSheet');
     var printBtn = document.getElementById('ptPrint');
+    var aantal = document.getElementById('ptAantal');
 
     var align = 'center';   // horizontaal: left, center of right
     var valign = 'center';  // verticaal: flex-start (boven), center of flex-end (onder)
@@ -12,6 +13,12 @@
     var MIN_PX = 6;    // kleiner dan dit schalen we niet; wat dan nog niet past wordt afgeknipt
     var LINE_HEIGHT = 1.15; // zelfde als line-height in ptouch.css
     var SAFETY = 0.97; // 3% marge tegen een iets breder lettertype op de printserver
+
+    // Aantal stickers om te printen: 1 t/m 99, een ongeldige invoer telt als 1.
+    function count() {
+        var n = parseInt(aantal.value, 10);
+        return isNaN(n) || n < 1 ? 1 : Math.min(n, 99);
+    }
 
     function esc(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -111,6 +118,29 @@
     var savedValign = document.cookie.match(new RegExp('(?:^|; )' + VALIGN_COOKIE + '=([^;]*)'));
     setValign(savedValign ? decodeURIComponent(savedValign[1]) : 'center');
 
+    // Formaat: Groot (102 x 51 mm) of Klein (70 x 25 mm). De maat wordt per gebruiker onthouden (cookie, een jaar). Het voorbeeld
+    // krijgt de klasse pt-sticker--klein; voor printen via het browservenster zetten we ook een ongenoemde @page met die maat
+    // (browsers zonder ondersteuning voor de page-eigenschap); bij direct printen zorgt de benoemde @page in ptouch.css ervoor.
+    var MAAT_COOKIE = 'geeve_ptouch_formaat';
+    var maat = 'groot';
+    var maatBox = document.getElementById('ptMaat');
+    var paginaStijl = document.createElement('style');
+    document.head.appendChild(paginaStijl);
+    function setMaat(value) {
+        maat = value === 'klein' ? 'klein' : 'groot';
+        Array.prototype.forEach.call(maatBox.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b.getAttribute('data-maat') === maat); });
+        sticker.classList.toggle('pt-sticker--klein', maat === 'klein');
+        paginaStijl.textContent = '@page { size: ' + (maat === 'klein' ? '70mm 25mm' : '102mm 51mm') + '; margin: 0; }';
+        refresh();
+    }
+    maatBox.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-maat]');
+        if (!btn) { return; }
+        setMaat(btn.getAttribute('data-maat'));
+        document.cookie = MAAT_COOKIE + '=' + maat + '; path=/; max-age=31536000; SameSite=Lax';
+        text.focus();
+    });
+
     document.getElementById('ptClear').addEventListener('click', function () {
         text.innerHTML = '';
         refresh();
@@ -122,11 +152,14 @@
         if (typed.trim() === '') { return; }
         // De lettergrootte van het voorbeeld gaat mee in de print, zodat de printversie dezelfde regelafbreking heeft.
         var size = fit(text);
-        var one = '<div class="pt-sticker" style="align-items:' + valign + '"><div class="pt-text" style="font-size:' + size + 'px;text-align:' + align + '">' + esc(typed) + '</div></div>';
-        printSheet.innerHTML = one;
+        var one = '<div class="pt-sticker' + (maat === 'klein' ? ' pt-sticker--klein' : '') + '" style="align-items:' + valign + '"><div class="pt-text" style="font-size:' + size + 'px;text-align:' + align + '">' + esc(typed) + '</div></div>';
+        var html = '';
+        for (var i = 0; i < count(); i++) { html += one; }
+        printSheet.innerHTML = html;
         window.print();
     });
 
-    refresh();
+    var savedMaat = document.cookie.match(new RegExp('(?:^|; )' + MAAT_COOKIE + '=([^;]*)'));
+    setMaat(savedMaat ? decodeURIComponent(savedMaat[1]) : 'groot');
     text.focus();
 }());
