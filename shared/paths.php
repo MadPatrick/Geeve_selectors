@@ -140,6 +140,7 @@ const GEEVE_APP_URLS = [
     'inkoopprijzen-gr14-gr55' => 'reports/inkoopprijzengr14gr55/',
     'brutoprijzen' => 'reports/brutoprijzen/',
     'negatieve-voorraad' => 'reports/negatievevoorraad/',
+    'backorder' => 'reports/backorder/',
     'inkooporder' => 'templates/inkooporder/',
     'order-offerte' => 'templates/orderofferte/',
     'offerte-import' => 'templates/offerteimport/',
