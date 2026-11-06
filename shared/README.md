@@ -357,6 +357,16 @@ De slangkaart van Slangkaart printen is de standaard voor elke app die slangkaar
 print. Laad `shared/slangkaart.css` (na `shared/style.css`, vóór je eigen stylesheet) en volg de
 opbouw in [`SLANGKAART-LAYOUT.md`](SLANGKAART-LAYOUT.md).
 
+## HTML-escape in JavaScript (`shared/escape.js`)
+
+`shared/head.php` laadt `shared/escape.js`; daarmee bestaat overal `GeeveEsc(tekst)` (zet `& < > "` om). Schrijf in een nieuwe tegel
+geen eigen `esc()`-functie meer; gebruik `GeeveEsc()` voor alles wat via `innerHTML` of in een attribuut terechtkomt.
+
+## Debiteuren zoeken (`reportKlantenZoeken`)
+
+Een tegel met een klantkeuze (Backorder, Orderhistorie) heeft in `api/klanten.php` na `tileApiGuard()` en de JSON-headers alleen
+`reportKlantenZoeken('<tegel-id>');` uit `reports/inc.php` nodig.
+
 ## Versienummer
 
 Alle apps tonen hetzelfde versienummer uit `version.php` (root), al geladen via de

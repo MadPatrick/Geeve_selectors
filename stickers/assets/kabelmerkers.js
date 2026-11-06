@@ -10,9 +10,7 @@
     var STANDAARD_PX = 12 * 96 / 72;   // standaard lettergrootte (12 pt); alleen kleiner als de tekst niet in 55 mm past
     var SAFETY = 0.97;      // 3% marge tegen een iets breder lettertype op de printserver
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
 
     function el(id) { return document.getElementById(id); }
     function pad(n) { return (n < 10 ? '0' : '') + n; }

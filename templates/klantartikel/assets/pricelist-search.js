@@ -15,9 +15,7 @@
     function norm(s) {
         return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
     }
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
 
     function load() {
         if (lists !== null) { return; }

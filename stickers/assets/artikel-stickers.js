@@ -17,9 +17,7 @@
     var timer = null;
     var seq = 0;        // alleen het antwoord op de laatste zoekopdracht tonen
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
     function fail(text) { message.textContent = text; message.hidden = false; }
 
     function build(container, list, times) {

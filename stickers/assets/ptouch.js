@@ -20,9 +20,7 @@
         return isNaN(n) || n < 1 ? 1 : Math.min(n, 99);
     }
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
 
     // Tekst zoals getypt, zonder de afsluitende nieuwe regel die de browser soms toevoegt.
     function value() {

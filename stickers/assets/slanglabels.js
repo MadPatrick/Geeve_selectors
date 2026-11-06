@@ -32,9 +32,7 @@
         var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
         return m ? m[3] + '-' + m[2] + '-' + m[1] : '';
     }
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
     function fail(text) { message.textContent = text; message.hidden = false; }
     function count(r) {
         var n = parseInt(r.aantal, 10);

@@ -18,9 +18,7 @@
     var NUMERIC = { 'qty': null, 'FINartgrp': 0, 'Invoice Price': 2 };
     var ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
     // decimals = vast aantal decimalen; null = zoveel als nodig (max. 2), voor hoeveelheden die soms een fractie zijn.
     function nl(n, decimals) {
         var fixed = decimals !== null;

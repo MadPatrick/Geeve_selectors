@@ -19,9 +19,7 @@
     var asked = '';
     var ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
     function nl(n) { return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 4 }); }
     function isEuro(i) { return (data.currency || []).indexOf(data.columns[i]) !== -1; }
     function isDate(i) { return !!(data.dates && data.dates[i]); }

@@ -27,9 +27,7 @@
     var sortDesc = false;
     var cache = [];            // weergavetekst per regel en kolom, voor snel filteren
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
     function nl(n, dec) {
         if (dec === null || dec === undefined) { return Number(n).toLocaleString('nl-NL', { maximumFractionDigits: 4 }); }
         return Number(n).toLocaleString('nl-NL', { minimumFractionDigits: dec, maximumFractionDigits: dec });
