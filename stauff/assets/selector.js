@@ -1394,11 +1394,7 @@
             select.disabled = true;
             return;
         }
-        applyLocationFilterSelect(pos, select, family, requestKey, {
-            emptyText: `Geen passend artikel voor materiaalsoort ${family}`,
-            // Een extra beugel hoeft niet uit de bouwgroep van de gekozen beugel te komen: alle beugels tonen.
-            zonderGroep: String(pos) === '2',
-        });
+        applyLocationFilterSelect(pos, select, family, requestKey, { emptyText: `Geen passend artikel voor materiaalsoort ${family}` });
     }
 
     let extraItemCounter = 0;
