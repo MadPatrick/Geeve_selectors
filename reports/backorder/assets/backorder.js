@@ -192,13 +192,14 @@
         for (var i = 0; i < data.rows.length; i++) { if (matches(i)) { shown.push(i); } }
         if (sortCol >= 0) { shown.sort(compare); }
         var html = '';
-        var vorige = null;
-        shown.slice(0, MAX_SHOWN).forEach(function (ri) {
-            // Scheidingslijn boven de eerste regel van elk nieuw ordernummer (kolom 0).
+        var zichtbaar = shown.slice(0, MAX_SHOWN);
+        zichtbaar.forEach(function (ri, pos) {
+            // Scheidingslijn boven de eerste regel van elk nieuw ordernummer (kolom 0); 5px lucht onder de laatste regel van de vorige order en boven de lijn.
             var order = String(data.rows[ri][0]);
-            var scheiding = vorige !== null && order !== vorige;
-            vorige = order;
-            html += '<tr' + (scheiding ? ' class="bo-ordersep"' : '') + '>' + data.rows[ri].map(function (v, i) {
+            var scheiding = pos > 0 && order !== String(data.rows[zichtbaar[pos - 1]][0]);
+            var einde = pos + 1 < zichtbaar.length && order !== String(data.rows[zichtbaar[pos + 1]][0]);
+            var klassen = (scheiding ? 'bo-ordersep ' : '') + (einde ? 'bo-orderend' : '');
+            html += '<tr' + (klassen ? ' class="' + klassen.replace(/\s+$/, '') + '"' : '') + '>' + data.rows[ri].map(function (v, i) {
                 var text = cache[ri][i];
                 if (data.numeric[i]) { return '<td class="num">' + esc(text) + '</td>'; }
                 return '<td' + (data.columns[i] === 'Omschrijving' ? ' class="oh-omsc"' : '') + '>' + esc(text) + '</td>';
