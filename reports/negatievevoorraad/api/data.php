@@ -23,26 +23,27 @@ require_once __DIR__ . '/../../inc.php';
 reportApi(function (array $in): array {
     $pdo = reportConnection('negatieve-voorraad');
 
-    $open = static function (string $soort): string {
-        return 'SELECT s.artcode AS ItemCode, SUM(s.esr_aantal - s.aant_gelev) AS Aantal, COUNT(DISTINCT s.ordernr) AS AantalOrders ' .
-            'FROM orsrg s WITH (NOLOCK) JOIN orkrg k WITH (NOLOCK) ON k.ordernr = s.ordernr ' .
-            "WHERE k.ord_soort = '{$soort}' AND s.esr_aantal > s.aant_gelev " .
-            'AND s.artcode IN (SELECT ItemCode FROM st) GROUP BY s.artcode';
-    };
-
+    // Open verkoop (V), productie (A) en inkoop (B) in een keer per soort gegroepeerd. Eerder was dit drie keer dezelfde zware
+    // query (elk met een eigen scan van orsrg/orkrg en een eigen evaluatie van "st"). Bewust GEEN "artcode IN (SELECT .. FROM st)"
+    // in "o": dan rekent SQL Server "st" (StockBalances, ca. 0,9 s) nog eens extra uit. Gemeten 5-11-2026: 3.103 -> 1.413 ms,
+    // zelfde 210 rijen en dezelfde uitkomst.
     $stmt = $pdo->prepare(
         'SET NOCOUNT ON; ' .
         'WITH st AS (' .
         'SELECT ItemCode, SUM(Quantity) AS Voorraad FROM StockBalances WITH (NOLOCK) WHERE [Date] <= GETDATE() ' .
         'GROUP BY ItemCode HAVING ROUND(SUM(Quantity), 2) < 0' .
-        '), ov AS (' . $open('V') .
-        '), op AS (' . $open('A') .
-        '), oi AS (' . $open('B') .
+        '), o AS (' .
+        'SELECT k.ord_soort AS Soort, s.artcode AS ItemCode, SUM(s.esr_aantal - s.aant_gelev) AS Aantal, COUNT(DISTINCT s.ordernr) AS AantalOrders ' .
+        'FROM orsrg s WITH (NOLOCK) JOIN orkrg k WITH (NOLOCK) ON k.ordernr = s.ordernr ' .
+        "WHERE k.ord_soort IN ('V', 'A', 'B') AND s.esr_aantal > s.aant_gelev " .
+        'GROUP BY k.ord_soort, s.artcode' .
         '), t AS (' .
         'SELECT st.ItemCode, st.Voorraad, ISNULL(ov.Aantal, 0) AS OpenVerkoop, ISNULL(op.Aantal, 0) AS OpenProductie, ' .
         'ISNULL(ov.AantalOrders, 0) + ISNULL(op.AantalOrders, 0) AS AantalOrders, ISNULL(oi.Aantal, 0) AS Besteld, ' .
         'ISNULL(ov.Aantal, 0) + ISNULL(op.Aantal, 0) - st.Voorraad - ISNULL(oi.Aantal, 0) AS Tekort ' .
-        'FROM st LEFT JOIN ov ON ov.ItemCode = st.ItemCode LEFT JOIN op ON op.ItemCode = st.ItemCode LEFT JOIN oi ON oi.ItemCode = st.ItemCode' .
+        "FROM st LEFT JOIN o ov ON ov.ItemCode = st.ItemCode AND ov.Soort = 'V' " .
+        "LEFT JOIN o op ON op.ItemCode = st.ItemCode AND op.Soort = 'A' " .
+        "LEFT JOIN o oi ON oi.ItemCode = st.ItemCode AND oi.Soort = 'B'" .
         ') ' .
         'SELECT RTRIM(t.ItemCode) AS c, RTRIM(i.Description) AS o, LTRIM(RTRIM(i.Assortment)) AS g, t.Voorraad, t.OpenVerkoop, t.OpenProductie, ' .
         't.AantalOrders, t.Besteld, t.Tekort, ' .

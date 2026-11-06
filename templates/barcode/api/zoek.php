@@ -42,9 +42,17 @@ reportApi(function (array $in): array {
     }
     $pdo = reportConnection('barcode');
 
-    $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT TOP 1 * FROM orkrg WITH (NOLOCK) WHERE LTRIM(RTRIM(ordernr)) = ? AND ord_soort = ?');
+    // Eerst de snelle zoekopdracht op de kolom zelf (index; gemeten 5-11-2026: orkrg 32 -> 19 ms, orsrg 152 -> 23 ms). Een enkel
+    // ordernummer heeft spaties vooraan (11 van 600.000 orders): vindt de snelle niets, dan volgt de oude zoekopdracht met
+    // LTRIM(RTRIM()), zodat het resultaat gelijk blijft.
+    $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT TOP 1 * FROM orkrg WITH (NOLOCK) WHERE ordernr = ? AND ord_soort = ?');
     $stmt->execute([$order, BARCODE_INKOOP_SOORT]);
     $kop = $stmt->fetch();
+    if ($kop === false) {
+        $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT TOP 1 * FROM orkrg WITH (NOLOCK) WHERE LTRIM(RTRIM(ordernr)) = ? AND ord_soort = ?');
+        $stmt->execute([$order, BARCODE_INKOOP_SOORT]);
+        $kop = $stmt->fetch();
+    }
     if ($kop === false) {
         throw new RuntimeException('Inkooporder ' . $order . ' niet gevonden.');
     }
@@ -60,15 +68,20 @@ reportApi(function (array $in): array {
         }
     }
 
-    $stmt = $pdo->prepare(
-        'SET NOCOUNT ON; SELECT RTRIM(r.artcode) AS artcode, RTRIM(i.Description) AS omschrijving, ' .
+    // De database-collatie is hoofdletterongevoelig (Latin1_General_CI_AS), dus UPPER() is niet nodig; spaties achteraan negeert
+    // "=" al. Spaties vooraan komen in artcode niet voor.
+    $regelSql = static fn (string $where): string => 'SET NOCOUNT ON; SELECT RTRIM(r.artcode) AS artcode, RTRIM(i.Description) AS omschrijving, ' .
         'SUM(ISNULL(r.esr_aantal, 0)) AS besteld, SUM(ISNULL(r.aant_gelev, 0)) AS ontvangen ' .
         'FROM orsrg r WITH (NOLOCK) LEFT JOIN Items i WITH (NOLOCK) ON i.ItemCode = r.artcode ' .
-        'WHERE LTRIM(RTRIM(r.ordernr)) = ? AND UPPER(LTRIM(RTRIM(r.artcode))) = UPPER(?) ' .
-        'GROUP BY RTRIM(r.artcode), RTRIM(i.Description)'
-    );
+        'WHERE ' . $where . ' GROUP BY RTRIM(r.artcode), RTRIM(i.Description)';
+    $stmt = $pdo->prepare($regelSql('r.ordernr = ? AND r.artcode = ?'));
     $stmt->execute([$order, $artikel]);
     $regel = $stmt->fetch();
+    if ($regel === false) {
+        $stmt = $pdo->prepare($regelSql('LTRIM(RTRIM(r.ordernr)) = ? AND UPPER(LTRIM(RTRIM(r.artcode))) = UPPER(?)'));
+        $stmt->execute([$order, $artikel]);
+        $regel = $stmt->fetch();
+    }
     if ($regel === false) {
         // Leverancier wel meegeven, zodat de kop klopt ook als het artikel niet op deze order staat.
         echo json_encode(['ok' => false, 'leverancier' => $leverancier, 'error' => 'Artikel ' . $artikel . ' staat niet op inkooporder ' . $order . '.'], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
