@@ -125,7 +125,9 @@ if ($digitFirst) {
     $codeCondition = '(' . implode(' OR ', $prefixConditions) . ')';
 }
 
-$sql = 'SELECT TOP 50 ItemCode, [Item Description] FROM GRV_SalesItems ' .
+// Beugels (cijfer-eerst) zonder bouwgroepfilter zijn er ruim meer dan 50: dan niet afkappen.
+$maxRijen = $digitFirst ? 2000 : 50;
+$sql = 'SELECT TOP ' . $maxRijen . ' ItemCode, [Item Description] FROM GRV_SalesItems ' .
     'WHERE [Item Group] = :groep AND ' . $codeCondition;
 
 if ($materials !== []) {
