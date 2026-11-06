@@ -203,10 +203,10 @@ laadt het apart vóór `shared/style.css`. Kijk daar voor de actuele waarden. De
 |---|---|---|
 | Basis | `--bg`, `--panel`, `--ink`, `--muted`, `--line`, `--soft`, `--shadow` | Pagina, panelen, tekst, randen |
 | Merk | `--accent`, `--accent-dark`, `--dark-1`, `--dark-2` | Accentkleur, donkere header |
-| Status | `--ok`, `--danger`, `--status-error*`, `--status-warn*`, `--status-ok-soft`, `--status-accent-soft` | Meldingen, pillen, rijkleuren |
-| Vlakken | `--surface-white`, `--surface-subtle`, `--surface-input-disabled`, `--panel-glass` | Kaarten, tabelrijen, velden |
-| Lijnen | `--line-input`, `--line-faint`, `--line-strong`, `*-line` | Invoervelden, scheidingslijnen, knoprand |
-| Tekst | `--font-family`, `--font-print`, `--ink-print`, `--ink-disabled` | Lettertypes, printtekst |
+| Status | `--ok`, `--danger`, `--status-error-*`, `--status-warn*`, `--status-ok-soft`, `--status-accent-soft` | Meldingen, pillen, rijkleuren |
+| Vlakken | `--surface-white`, `--surface-subtle`, `--surface-muted`, `--panel-glass` | Kaarten, tabelrijen, velden |
+| Lijnen | `--line`, `--line-strong`, `*-line` | Invoervelden, scheidingslijnen, knoprand |
+| Tekst | `--font-family`, `--font-print`, `--ink-print`, `--ink-placeholder` | Lettertypes, printtekst |
 | Vorm | `--radius-sm`, `--radius-md`, `--radius-lg`, `--radius-pill`, `--focus-ring`, `--btn-gap` | Afronding, focus, knopafstand |
 | Knoppen | `--btn-*` | Alle knopkleuren, zie hieronder |
 

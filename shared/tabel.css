@@ -22,7 +22,7 @@
 .ka-table th { font-weight: 750; background: var(--soft); }
 .ka-empty { color: var(--muted); font-size: 13px; }
 .ka-message { padding: 12px 15px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
-.ka-message--error { color: var(--danger); background: var(--status-error-soft); }
+.ka-message--error { color: var(--danger); background: var(--status-error-wash); }
 
 .ka-chips { display: flex; flex-wrap: wrap; gap: var(--btn-gap); }
 .ka-chip {
@@ -31,14 +31,14 @@
 }
 .ka-heading { display: flex; justify-content: space-between; align-items: center; gap: var(--btn-gap); flex-wrap: wrap; }
 .ka-heading h2 { margin: 0; }
-.ka-input { width: 100%; min-width: 14ch; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid var(--line-input); border-radius: 8px; font: inherit; font-size: 13px; background: var(--surface-white); }
+.ka-input { width: 100%; min-width: 14ch; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 8px; font: inherit; font-size: 13px; background: var(--surface-white); }
 .ka-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-a14); }
 .ka-desc { white-space: normal; min-width: 20ch; }
 .ka-table tr.is-found .ka-item { border-color: var(--status-found); }
-.ka-table tr.is-missing .ka-item { border-color: var(--missing-line); background: var(--missing-bg); }
+.ka-table tr.is-missing .ka-item { border-color: var(--missing-line); background: var(--status-invalid-bg); }
 .ka-table tr.is-missing .ka-desc { color: var(--danger); font-weight: 600; }
 .ka-table tr.is-checking .ka-desc { color: var(--muted); font-style: italic; }
-.ka-remove { border: 1px solid var(--line-input); background: transparent; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; }
+.ka-remove { border: 1px solid var(--line-strong); background: transparent; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; }
 .ka-remove:hover { color: var(--accent); border-color: var(--accent-line); }
 .ka-add { margin-top: 12px; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; line-height: 1; cursor: pointer; color: var(--btn-ink-light); background: var(--btn-add); border: 1px solid var(--btn-add-line); }
 .ka-add:hover { opacity: .9; }
@@ -76,4 +76,4 @@
 .pl-hits[hidden] { display: none; }
 .pl-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pl-hits li strong { display: inline-block; min-width: 6ch; }
-.pl-hits li:hover, .pl-hits li.is-active { background: var(--hover-accent); }
+.pl-hits li:hover, .pl-hits li.is-active { background: var(--status-accent-soft); }

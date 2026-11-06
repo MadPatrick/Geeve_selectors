@@ -19,7 +19,7 @@
 .oi-del:hover { color: var(--btn-ink-danger); background: var(--btn-del-hover); }
 #oiTable input.oi-code { width: 100%; min-width: 16ch; box-sizing: border-box; text-transform: uppercase; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-white); }
 #oiTable input.oi-sup, #oiTable input.oi-cus { width: 100%; min-width: 16ch; box-sizing: border-box; padding: 4px 8px; font-size: 13px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-white); }
-#oiTable tr.is-missing input.oi-code { border: 1px solid var(--status-bad-line); background: var(--status-bad-bg-faint); color: var(--danger); font-weight: 700; }
+#oiTable tr.is-missing input.oi-code { border: 1px solid var(--status-bad-line); background: var(--status-invalid-bg); color: var(--danger); font-weight: 700; }
 #oiTable tr.is-incomplete input.oi-code { border: 1px solid var(--status-warn); background: var(--status-incomplete-bg); }
 @media (max-width: 640px) { .oi-fields .oi-wide { grid-column: auto; } }
 .oi-pill-bad { border-color: var(--status-bad-line); background: var(--status-bad-bg); color: var(--danger); }
@@ -31,9 +31,9 @@
 /* Alles ingevuld en gecontroleerd: de Exporteer-knop is groen. */
 #oiExport:not(:disabled), #oiExact:not(:disabled) { background: var(--btn-green); border-color: var(--btn-green-line); color: var(--btn-green-ink); }
 #oiExport:not(:disabled):hover, #oiExact:not(:disabled):hover { opacity: 1; filter: brightness(1.1); }
-.oi-suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; margin: 2px 0 0; padding: 4px 0; list-style: none; background: var(--surface, var(--surface-white)); border: 1px solid var(--line-suggest); border-radius: 8px; box-shadow: 0 6px 18px var(--black-a15); max-height: 280px; overflow-y: auto; }
+.oi-suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; margin: 2px 0 0; padding: 4px 0; list-style: none; background: var(--surface, var(--surface-white)); border: 1px solid var(--line-strong); border-radius: 8px; box-shadow: 0 6px 18px var(--black-a10); max-height: 280px; overflow-y: auto; }
 .oi-suggest li { padding: 6px 10px; cursor: pointer; font-size: 13px; font-weight: 400; }
-.oi-suggest li:hover, .oi-suggest li.is-active { background: var(--black-a07); }
+.oi-suggest li:hover, .oi-suggest li.is-active { background: var(--black-a10); }
 #oiTable tr.is-minorder td, #oiTable tr.is-boxqty td { background: var(--status-warn-soft); color: var(--status-warn-ink); }
 #oiTable tr.is-minorder input.oi-qty { border: 1px solid var(--status-warn); background: var(--status-incomplete-bg); font-weight: 700; }
 .oi-suggest li.is-note { color: var(--muted); cursor: default; font-style: italic; }

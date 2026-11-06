@@ -3,7 +3,7 @@
 .oh-hits {
     position: absolute; z-index: 20; left: 0; top: 100%; min-width: 100%; width: max-content; max-width: 70ch;
     margin: 2px 0 0; padding: 4px 0; list-style: none; max-height: 320px; overflow-y: auto; font-weight: 400;
-    background: var(--surface-white); border: 1px solid var(--line-input); border-radius: 8px; box-shadow: var(--shadow); font-size: 13px;
+    background: var(--surface-white); border: 1px solid var(--line-strong); border-radius: 8px; box-shadow: var(--shadow); font-size: 13px;
 }
 .oh-hits[hidden] { display: none; }
 .oh-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; }

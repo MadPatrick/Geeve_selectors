@@ -19,7 +19,7 @@ h2 { margin: 4px 0 0; font-size: 20px; }
     font-weight: 700;
     font-size: 14px;
 }
-.klant-badge { background: var(--status-ok-soft); border-color: var(--ok-soft-line); color: var(--ok); }
+.klant-badge { background: var(--status-ok-soft); border-color: var(--ok-line); color: var(--ok); }
 .order-badge { background: var(--status-accent-soft); border-color: var(--accent-dark); color: var(--accent-dark); }
 
 .stap2-badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0; }
@@ -39,7 +39,7 @@ input::placeholder { color: var(--ink-placeholder); }
 }
 .klant-hits[hidden] { display: none; }
 .klant-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.klant-hits li:hover, .klant-hits li.is-active { background: var(--hover-accent); }
+.klant-hits li:hover, .klant-hits li.is-active { background: var(--status-accent-soft); }
 .klant-nr { display: inline-block; min-width: 6ch; margin-right: 6px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .submit-button {
@@ -59,7 +59,6 @@ input::placeholder { color: var(--ink-placeholder); }
     white-space: nowrap;
     transition: opacity .15s;
 }
-.submit-button:hover { opacity: .9; }
 .submit-button:disabled { cursor: default; opacity: .85; }
 
 /* Voortgang tijdens het zoeken: het "glas" vult van links naar rechts
@@ -101,7 +100,6 @@ input::placeholder { color: var(--ink-placeholder); }
     white-space: nowrap;
     transition: background .15s, color .15s;
 }
-.link-button:hover { opacity: .9; }
 
 /* Compactere variant binnen tabelrijen (bv. "Kiezen" bij orderkeuze) -
    de standaard padding maakte de knop hoger dan de rij. */
@@ -110,8 +108,7 @@ input::placeholder { color: var(--ink-placeholder); }
 /* "Wissen" bovenaan stap 1: even groot als de knop Zoeken (.submit-button). */
 .search-panel .section-heading > .link-button { display: inline-flex; align-items: center; font-size: 14px; padding: 13px 26px; min-height: 48px; box-sizing: border-box; }
 
-.warning-box { margin-top: 18px; padding: 15px 18px; border-radius: 12px; border: 1px solid var(--status-error-line); background: var(--warning-bg); color: var(--status-error-ink); }
-.empty-result { padding: 18px; border: 1px dashed var(--line-empty); border-radius: 12px; background: var(--surface-subtle); color: var(--muted); font-style: italic; margin-top: 18px; }
+.empty-result { padding: 18px; border: 1px dashed var(--line-strong); border-radius: 12px; background: var(--surface-subtle); color: var(--muted); font-style: italic; margin-top: 18px; }
 .print-status { margin: 0; color: var(--muted); font-size: 13px; }
 
 /* ---- Regel-overzicht (stap 2: selecteren welke slangkaarten je wil printen) ---- */

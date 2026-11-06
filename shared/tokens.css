@@ -10,21 +10,19 @@
  *    de eigen assets/style.css van een app. Een nieuwe kleur = eerst een nieuwe variabele.
  *  - Bestaande namen (--accent, --panel, --line, --btn-*, ...) blijven bestaan; apps gebruiken die al.
  *  - Knoppen: alleen --btn-*-variabelen (zie CLAUDE.md, "Knoppen").
+ *  - Namen per groep: --surface-* (vlakken), --line-* (lijnen), --ink-* (tekst), --status-* (meldingen/pillen),
+ *    --btn-* (knoppen), --tile-* (tegelpictogrammen), --print-* (printbladen), --egg-*/--fw-* (feestanimaties).
+ *  - Bijna-gelijke kleuren niet dubbel aanmaken: hergebruik de bestaande variabele. Een hover/glow-kleur mag naar een
+ *    andere variabele verwijzen, behalve als die kleur op hetzelfde vlak/dezelfde knop als de basiskleur staat.
+ *  - Controle: php tools/check-kleuren.php (losse kleuren buiten dit bestand) en php tools/check-knoppen.php.
  */
 
 :root {
     /* Pictogrammen op de tegels: kleur per groep (zie tileIcon() in shared/tiles.php): ink = icoon, bg = vlak, line = rand. */
-    --tile-home-ink: #b90d32;
-    --tile-home-bg: #fde8ed;
-    --tile-home-line: #f47896;
     --tile-reports-ink: #1d5fb8;
-    --tile-reports-bg: #e6f0fc;
     --tile-reports-line: #8db8ee;
-    --tile-templates-ink: #237447;
-    --tile-templates-bg: #e6f5ec;
     --tile-templates-line: #8fd0a8;
     --tile-stickers-ink: #a15c00;
-    --tile-stickers-bg: #fff1d9;
     --tile-stickers-line: #f0c274;
     --bg: #adadad;
     --panel: #f2f2f2;
@@ -44,39 +42,37 @@
        overal 1px). */
     --btn-gap: 5px;
     --line-strong: #c9d4de;      /* lichte/neutrale knop (bijv. #edf2f6 of wit) */
-    --ok-soft-line: #14532d;     /* rand van lichtgroene knop (#e8f4ed): donkergroen */
     --accent-line: #f47896;      /* donkere accentkleur (--accent) */
-    --accent-dark-line: #d2627a; /* donkerrode knop (--accent-dark) */
     --ok-fill: rgba(88, 198, 124, .85); /* vulling van groene statuspillen (rgb 88, 198, 124, iets transparant) */
     --btn-green: #c6efd2;        /* achtergrond van ALLE groene knoppen (zelfde als de Print-knop) */
     --btn-green-hover: #b0e6c0;  /* idem, bij hover */
     /* Knopkleuren: ALLE knoppen halen hun kleuren uit deze variabelen (zie CLAUDE.md, "Knoppen"). */
     --btn-red: rgba(238, 48, 93, .8);           /* rode knop (hoofdactie); vroegere donkerrode knoppen zijn nu ook rood */
-    --btn-red-line: #b90d32;                    /* rand van de rode knop: donkerrood, zo steekt hij net zo duidelijk af als de donkergroene rand van de groene knop */
-    --btn-ink-light: #fff;                      /* witte tekst/iconen op rode, blauwe en header-knoppen */
+    --btn-red-line: var(--accent-dark);                    /* rand van de rode knop: donkerrood, zo steekt hij net zo duidelijk af als de donkergroene rand van de groene knop */
+    --btn-ink-light: var(--surface-white);                      /* witte tekst/iconen op rode, blauwe en header-knoppen */
     --btn-grey: rgba(208, 209, 204, .7);        /* grijze tweede-keuzeknop, ook de keuzeschakelaar */
     --btn-grey-line: #9a9b96;
-    --btn-white: #fff;                          /* witte/lichte knop (+ rode tekst bij de PDF-knop) */
-    --btn-white-line: #c9d4de;
-    --btn-white-hover: #f4f7fa;
+    --btn-white: var(--surface-white);                          /* witte/lichte knop (+ rode tekst bij de PDF-knop) */
+    --btn-white-line: var(--line-strong);
+    --btn-white-hover: var(--soft);
     --btn-blue: rgba(8, 127, 255, .85);         /* gekozen optie in een keuzeschakelaar */
-    --btn-blue-line: #0a5fc2;
-    --btn-danger: #a03636;                      /* "gevonden/fout"-toestand en verwijderknoppen */
-    --btn-danger-line: #c17c7c;
-    --btn-danger-hover: #fbecec;
-    --btn-danger-hover-line: #eec4c4;
-    --btn-accent-hover: #fff3f6;                /* lichte knop met roze hover (toevoegen) */
-    --btn-glass: rgba(255, 255, 255, .08);      /* ronde knoppen op de donkere header */
-    --btn-glass-hover: rgba(255, 255, 255, .18);
-    --btn-glass-line: rgba(255, 255, 255, .35);
-    --btn-glass-line-hover: rgba(255, 255, 255, .55);
-    --btn-save-ink: #baf0cf;                    /* opslaan-icoon in de header (wijzigen-modus) */
+    --btn-blue-line: var(--status-info-ink);
+    --btn-danger: var(--danger);                      /* "gevonden/fout"-toestand en verwijderknoppen */
+    --btn-danger-line: var(--status-bad-line);
+    --btn-danger-hover: var(--status-error-wash);
+    --btn-danger-hover-line: var(--status-error-wash-line);
+    --btn-accent-hover: var(--status-invalid-bg);                /* lichte knop met roze hover (toevoegen) */
+    --btn-glass: var(--white-a08);      /* ronde knoppen op de donkere header */
+    --btn-glass-hover: var(--white-a25);
+    --btn-glass-line: var(--white-a30);
+    --btn-glass-line-hover: var(--white-a55);
+    --btn-save-ink: var(--topbar-ready-ink);                    /* opslaan-icoon in de header (wijzigen-modus) */
     --btn-save-line: rgba(186, 240, 207, .5);
     --btn-save-hover: rgba(186, 240, 207, .22);
     --btn-save-hover-line: rgba(186, 240, 207, .7);
     --btn-cancel-hover: rgba(255, 141, 169, .22);
     --btn-cancel-hover-line: rgba(255, 141, 169, .7);
-    --btn-config-ink: #525252;                  /* config-tandwiel op het hoofdscherm */
+    --btn-config-ink: var(--print-ink-muted);                  /* config-tandwiel op het hoofdscherm */
     --btn-config-line: rgba(82, 82, 82, .7);
     /* Knoppen, aanvullende varianten (tekst, rand en vlak per soort knop; verwijzen naar dezelfde kleuren als eerder). */
     --btn-green-ink: var(--ok-ink);             /* tekst/icoon op de lichtgroene knop */
@@ -87,7 +83,7 @@
     --btn-ink-danger: var(--danger);            /* tekst van verwijderknoppen */
     --btn-add: var(--ok-bright);                /* ronde "toevoegen"-knop */
     --btn-add-line: var(--status-found);
-    --btn-del-hover: var(--hover-accent);       /* achtergrond van de verwijderknop bij hover */
+    --btn-del-hover: var(--status-accent-soft);       /* achtergrond van de verwijderknop bij hover */
     --btn-choice-line: var(--line-strong);      /* keuzeschakelaar (niet gekozen): rand */
     --btn-choice-ink: var(--muted);             /* keuzeschakelaar (niet gekozen): tekst */
     --btn-fill: var(--white-a30);               /* voortgangsvulling in een knop */
@@ -109,28 +105,21 @@
     --btn-secondary-ink: var(--btn-ink);
     --ok-ink: #0f3d22;           /* tekst op groene knoppen (donkergroen voor goed contrast) */
     --ok-line: #14532d;          /* rand van donkergroene knop (--ok): donkergroen */
-    --danger-line: #c17c7c;      /* donkerrode knop (--danger) */
 
     /* ---- Vlakken ---- */
     --surface-white: #fff;              /* witte kaart/invoerveld */
+    --surface-muted: #edf0f3;           /* licht grijsblauw vlak: uitgeschakeld, badge, keuzeknop, scheidingslijn (samengevoegd uit 5 bijna-gelijke tinten) */
     --surface-subtle: #fafcfd;          /* bijna-wit vlak, tabelrij-hover, vinkjesvak slangkaart */
-    --surface-input-disabled: #f5f7f9;
     --panel-glass: rgba(242, 242, 242, .88); /* .panel: --panel (#f2f2f2), iets transparant */
 
     /* ---- Lijnen ---- */
-    --line-input: #cbd6df;              /* rand van invoervelden en tabellen */
-    --line-faint: #f0f2f4;              /* scheidingslijn tussen detailregels (slangkaart) */
-    --line-print: #000;                 /* kaderlijnen in de print van een slangkaart (Patrick 19-10-2026: kaderlijnen zwart) */
 
     /* ---- Tekst ---- */
-    --ink-disabled: #97a3af;
     --ink-print: #111;                  /* tekst op een printblad */
     --font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --font-print: Arial, Helvetica, sans-serif;
 
     /* ---- Status (meldingen, pillen, rijkleuren) ---- */
-    --status-error: #a03636;
-    --status-error-soft: #f7eaea;
     --status-error-line: #e8b1b1;
     --status-error-ink: #7d2f2f;
     --status-accent-soft: #fdeaee;      /* roze achtergrond (accent) */
@@ -147,51 +136,34 @@
     --btn-progress-ink: var(--progress-ink);       /* tekst in de knop tijdens voortgang */
     --btn-progress-error: var(--progress-error);
     --btn-progress-fill: rgba(20, 83, 45, .3);   /* vulling in de knop: donkergroen, doorschijnend */
-    --progress-error: var(--status-error);
-    --progress-shadow: rgba(15, 30, 45, .22);
+    --progress-error: var(--danger);
+    --progress-shadow: var(--shadow-menu);
 
     /* ---- Vorm en maat ---- */
     --radius-sm: 10px;                  /* invoervelden, kleine kaders */
     --radius-md: 14px;
     --radius-lg: 18px;                  /* .panel, brand-panel */
     --radius-pill: 999px;
-    --snow: rgba(255, 255, 255, .9);    /* sneeuwvlokken in de topbalk (kerstperiode) */
     --egg-1: #ffd23f;                   /* paaseieren in de topbalk (Pasen) */
     --egg-2: #7ad7f0;
-    --egg-3: #ff8fab;
     --egg-4: #9be564;
     --egg-5: #c39bf5;
-    --egg-stripe: rgba(255, 255, 255, .8);
-    --fw-1: #ffd23f;                    /* vuurwerk in de topbalk (Nieuwjaar) */
     --fw-2: #ff6b8b;
-    --fw-3: #7ad7f0;
-    --fw-4: #9be564;
     --focus-ring: 0 0 0 3px rgba(238, 48, 93, .14);
 
     /* ---- Kleuren van de bestaande apps, benoemd naar functie (waarden ongewijzigd, oktober 2026) ----
-       Een kleur die bijna gelijk is aan een andere (bijv. --ink-empty, --ink-placeholder en --ink-placeholder-alt) kan later
+       Een kleur die bijna gelijk is aan een andere kan later
        samengevoegd worden; dat is een bewuste, zichtbare wijziging. */
-    --accent-a08: rgba(238, 48, 93, .08);
-    --accent-a12: rgba(238, 48, 93, .12);
     --accent-a14: rgba(238, 48, 93, .14);
-    --accent-a25: rgba(238, 48, 93, .25);
     --accent-a35: rgba(238, 48, 93, .35);
-    --badge-rvs-bg: #edf0f3;
     --badge-rvs-ink: #525e6b;
-    --badge-rvs-line: #d8dde2;
-    --badge-staal-bg: #e5f0f8;
     --badge-staal-ink: #174f7d;
     --badge-staal-line: #c8deef;
-    --black-a07: rgba(0,0,0,.07);
     --black-a10: rgba(0, 0, 0, .1);
-    --black-a15: rgba(0,0,0,.15);
     --black-a25: rgba(0, 0, 0, .25);
-    --black-a30: rgba(0, 0, 0, .3);
-    --block-bg: #fbfcfd;
-    --box-bg: #f5f8fa;
     --box-bg-accent: #d1d1d1;                                  /* achtergrond in de Stauff-zoekboxen (beugel, materiaal soort, zoekresultaten) */
     --btn-list-item: var(--box-bg-accent);            /* resultaatknop in de Stauff-zoeklijst (zelfde kleur als de zoekbox) */
-    --btn-choice: #edf2f6;
+    --btn-choice: var(--surface-muted);
     --btn-family-idle: #e8e8e8;                       /* Staal/RVS-schakelaar (Stauff), niet actief: achtergrond */
     --draw-nut-fill: #d8d2c4;
     --draw-nut-line: #b8b09a;
@@ -199,45 +171,23 @@
     --edit-status-bg: #eafaf1;
     --eyebrow-ink: #ff8da9;
     --focus-ring-error: rgba(160, 54, 54, .12);
-    --hover-accent: #fde6ec;
-    --hover-accent-soft: #fff3f6;
     --angle-fill: #999999;               /* hoekdiagram op de slangkaart: ring en vlak */
-    --brand-panel-bg: #000000;           /* topbalk (brand-panel) */
-    --brand-panel-ink: #ffffff;
-    --error-box-ink: #7d2f2f;            /* foutmelding onderaan een pagina bij een PHP-fout */
-    --error-box-line: #e8b1b1;
     --ink-black: #000000;
-    --ink-empty: #8c98a6;
-    --ink-on-dark-soft: #f1f1f1;
     --ink-placeholder: #929fac;
-    --ink-placeholder-alt: #8c99a6;
-    --label-tail-bg: #f3f3f3;
-    --line-box: #d8e1e8;
-    --line-empty: #c8d4de;
-    --line-hover: #c7d0d9;
-    --line-menu: #d8dee3;
-    --line-suggest: #cfd6dd;
-    --line-suggest-row: #edf1f4;
     --line-table-row: #e3e9ee;
-    --missing-bg: #fdf1f4;
     --missing-bg-soft: rgba(240, 129, 159, .18);
     --missing-line: #f0819f;
     --muted-soft: #c7c7c7;
     --ok-bright: #3fa564;
-    --overlay-lock: rgba(31, 35, 40, .45);
     --overlay-modal: rgba(15, 23, 33, .55);
     --print-accent: #c9102e;
     --print-head-bg: #e4e4e4;
     --print-ink-faint: #888888;
     --print-ink-muted: #555555;
-    --print-line: #cccccc;
     --row-current-bg: #cfe3fa;
     --shadow-menu: rgba(15, 30, 45, .15);
-    --shadow-suggest: rgba(23, 36, 51, .14);
     --status-bad-bg: #fde2e2;
-    --status-bad-bg-faint: #fff5f5;
     --status-bad-line: #c17c7c;
-    --status-changed-bg: #fff8d6;
     --status-error-wash: #fbecec;
     --status-error-wash-line: #eec4c4;
     --status-found: #6fd38c;
@@ -245,14 +195,9 @@
     --status-info-ink: #0a5fc2;
     --status-info-soft: #e6f0fd;
     --status-invalid-bg: #fdf2f2;
-    --status-ok-ink: #1f7a3a;
     --status-pill-bg: #e7edf2;
     --sticker-preview-shadow: #e0516a;
     --kabelmerker-geel: #fff6a8;   /* lichtgeel label ALTEC 72001207 (Kabelmerkers Geel) */
-    --sticker-accu-geel: #fff6a8;  /* lichtgeel accu-label (alleen voorbeeld op het scherm, niet in de print) */
-    --kabelmerker-drager: #c9c9c9;   /* drager/rol waar de labels op zitten (voorbeeld Kabelmerkers Geel) */
-    --table-head-bg: #f6f9fb;
-    --tile-disabled-bg: #eef0f3;
     --tile-wip-bg: rgba(244, 247, 250, .75);
     --topbar-error-bg: rgba(255, 179, 179, .12);
     --topbar-error-ink: #ffb3b3;
@@ -260,15 +205,12 @@
     --topbar-ready-bg: rgba(186, 240, 207, .12);
     --topbar-ready-ink: #baf0cf;
     --topbar-ready-line: rgba(186, 240, 207, .4);
-    --warning-bg: #fff1f1;
     --white-a08: rgba(255, 255, 255, .08);
     --white-a25: rgba(255, 255, 255, .25);
     --white-a30: rgba(255, 255, 255, .3);
     --white-a55: rgba(255, 255, 255, .55);
     --white-a80: rgba(255, 255, 255, .8);
-    --white-a93: rgba(255,255,255,.93);
     --shine-edge: rgba(255, 255, 255, 0);      /* glans over de topbalk */
-    --shine-mid: rgba(255, 255, 255, .22);
     --title-ink: #fff6ea;                      /* titel in de topbalk */
     --title-shade: #b9b9b9;
 }

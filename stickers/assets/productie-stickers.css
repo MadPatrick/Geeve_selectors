@@ -18,21 +18,7 @@
 .ps-nav .msp-status { min-width: 12ch; text-align: center; }
 
 /* De sticker */
-.sticker {
-    position: relative;
-    width: 102mm;
-    height: 54mm;
-    overflow: hidden;
-    color: var(--ink-black);
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 3.2mm;
-    line-height: 1;
-}
 /* Marge rondom: de velden staan in mm op de volle 102 × 54 mm en worden als geheel iets verkleind en verschoven. */
-.sticker-in { position: absolute; left: 0; top: 0; width: 102mm; height: 54mm; transform-origin: 0 0; transform: translate(2.15mm, 2.08mm) scale(.964, .934); }
-.sticker .f { position: absolute; display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
-.sticker .b { font-weight: 700; }
-.sticker .big { font-size: 4.6mm; }
 /* Barcode (Code 128 van het artikelnummer) gecentreerd; de breedte volgt het aantal streepjes (zie art-sticker.js). */
 .sticker .bc { position: absolute; left: 1.5mm; top: 29.5mm; width: 96.7mm; height: 11mm; display: flex; justify-content: center; }
 .sticker .bc svg { display: block; height: 100%; shape-rendering: crispEdges; }
@@ -46,10 +32,9 @@
 .sticker .c-l1 { left: .5mm; width: 13mm; }        /* "Bonnr.:" */
 .sticker .c-bonnr { left: 14.3mm; width: 22mm; }
 .sticker .c-debnm { left: 37.5mm; width: 63mm; }
-.sticker .c-l2 { left: .5mm; width: 25.5mm; }      /* "Uw referentie:" */
-.sticker .c-ref { left: 26.3mm; width: 74mm; }
-.sticker .c-l3 { left: .5mm; width: 21mm; }        /* "Aantal:" / "Locatie:" */
-.sticker .c-val3 { left: 22.6mm; width: 13.5mm; }  /* aantal / locatie */
+      /* "Uw referentie:" */
+        /* "Aantal:" / "Locatie:" */
+  /* aantal / locatie */
 .sticker .c-l4 { left: 37.2mm; width: 17mm; }      /* "Artikelnr:" */
 .sticker .c-val4 { left: 54.5mm; width: 46mm; }    /* artikelnummer */
 .sticker .c-date { left: 24mm; width: 48mm; justify-content: flex-end; }
