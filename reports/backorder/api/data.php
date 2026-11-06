@@ -9,7 +9,7 @@ tileApiGuard('backorder');
 /**
  * Backorder: openstaande verkooporderregels van een klant (besteld, nog niet (volledig) geleverd). Alleen lezen.
  * Zelfde bron en definitie van "open" als Negatieve voorraad: orsrg (esr_aantal > aant_gelev) bij orkrg.ord_soort = 'V', plus Items voor
- * de omschrijving. Tekstregels worden niet getoond: artikel 30 (leverbelofte "binnen xx dagen") en artikel 90 ("Betaling binnen xx dagen"), plus elke omschrijving met "binnen ... dagen".
+ * de omschrijving. Tekstregels worden niet getoond: artikel 30 (leverbelofte "binnen xx dagen") en artikel 90 ("Betaling binnen xx dagen"), plus elke omschrijving met "binnen ... dagen" of "betaling".
  * Let op: de kolomnamen orkrg.debnr/refer/docnumber/orddat en orsrg.afldat zijn afgeleid van orhkrg/orhsrg en nog niet tegen de echte database getoetst.
  */
 
@@ -46,6 +46,34 @@ function backorderDiagnose(PDO $pdo): string
             $out[] = $label . ': FOUT ' . geeveFoutTekst($e);
         }
     }
+    // Hoe staat zo'n regel precies in Exact? Alle kolommen van een voorbeeldregel, het bijbehorende Items-record en de kolomnamen van orsrg.
+    $toon = static function (string $label, string $sql) use ($pdo, &$out): void {
+        try {
+            $stmt = $pdo->prepare('SET NOCOUNT ON; ' . $sql);
+            $stmt->execute();
+            $n = 0;
+            while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $out[] = '';
+                $out[] = $label . ' #' . (++$n) . ':';
+                foreach ($r as $kolom => $v) {
+                    if ($v === null || trim($v instanceof DateTimeInterface ? '1' : (string) $v) === '') {
+                        continue;   // lege kolommen weglaten
+                    }
+                    $out[] = '  ' . $kolom . ' = ' . ($v instanceof DateTimeInterface ? $v->format('Y-m-d') : trim((string) $v));
+                }
+            }
+            if ($n === 0) {
+                $out[] = '';
+                $out[] = $label . ': geen regels gevonden';
+            }
+        } catch (Throwable $e) {
+            $out[] = $label . ': FOUT ' . geeveFoutTekst($e);
+        }
+    };
+    $out[] = '';
+    $out[] = '--- Voorbeeld: hoe staat een "Betaling binnen ... dagen"-regel in Exact? ---';
+    $toon('orsrg-regel (niet-lege kolommen)', "SELECT TOP 2 s.* FROM orsrg s WITH (NOLOCK) INNER JOIN Items i WITH (NOLOCK) ON i.ItemCode = s.artcode WHERE i.Description LIKE '%Betaling binnen%'");
+    $toon('Items-record (niet-lege kolommen)', "SELECT TOP 1 i.* FROM Items i WITH (NOLOCK) WHERE i.Description LIKE '%Betaling binnen%'");
     return implode("\n", $out);
 }
 
@@ -73,7 +101,7 @@ reportApi(function (array $in): array {
         'FROM orsrg s WITH (NOLOCK) INNER JOIN orkrg k WITH (NOLOCK) ON k.ordernr = s.ordernr ' .
         'LEFT JOIN Items i WITH (NOLOCK) ON i.ItemCode = s.artcode ' .
         "WHERE k.ord_soort = 'V' AND LTRIM(RTRIM(k.debnr)) = ? AND s.esr_aantal > s.aant_gelev " .
-        "AND LTRIM(RTRIM(s.artcode)) NOT IN ('30', '90') AND ISNULL(i.Description, '') NOT LIKE '%binnen%dagen%' " .
+        "AND LTRIM(RTRIM(s.artcode)) NOT IN ('30', '90') AND ISNULL(i.Description, '') NOT LIKE '%binnen%dagen%' AND ISNULL(i.Description, '') NOT LIKE '%betaling%' " .
         'ORDER BY k.ordernr, s.artcode'
     );
     $stmt->setAttribute(PDO::SQLSRV_ATTR_QUERY_TIMEOUT, 120);
