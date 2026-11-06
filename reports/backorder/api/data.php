@@ -17,7 +17,45 @@ require_once __DIR__ . '/../../inc.php';
 
 const BACKORDER_MAX = 20000;
 
+/** Tekstrapport voor ?diagnose=1: artikelen die op tekstregels lijken (kort numeriek artikelnummer, of "dagen"/"betaling" in de omschrijving), over alle orderregels. */
+function backorderDiagnose(PDO $pdo): string
+{
+    $out = ['DIAGNOSE backorder: mogelijke tekstregels (geen echte artikelen), per artikelnummer en omschrijving'];
+    $sets = [
+        'Open orderregels (orsrg)' => 'orsrg s WITH (NOLOCK) LEFT JOIN Items i WITH (NOLOCK) ON i.ItemCode = s.artcode',
+        'Historie orderregels (orhsrg)' => 'orhsrg s WITH (NOLOCK) LEFT JOIN Items i WITH (NOLOCK) ON i.ItemCode = s.artcode',
+    ];
+    foreach ($sets as $label => $from) {
+        $t = microtime(true);
+        try {
+            $stmt = $pdo->prepare(
+                'SET NOCOUNT ON; SELECT TOP 200 LTRIM(RTRIM(s.artcode)), LTRIM(RTRIM(i.Description)), COUNT(*) FROM ' . $from . ' ' .
+                "WHERE (LEN(LTRIM(RTRIM(s.artcode))) <= 3 AND LTRIM(RTRIM(s.artcode)) NOT LIKE '%[^0-9]%') " .
+                "OR i.Description LIKE '%dagen%' OR i.Description LIKE '%betaling%' OR i.Description LIKE '%binnen%' " .
+                'GROUP BY LTRIM(RTRIM(s.artcode)), LTRIM(RTRIM(i.Description)) ORDER BY TRY_CAST(LTRIM(RTRIM(s.artcode)) AS int), 2'
+            );
+            $stmt->setAttribute(PDO::SQLSRV_ATTR_QUERY_TIMEOUT, 120);
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_NUM);
+            $out[] = '';
+            $out[] = $label . ' (' . (int) round((microtime(true) - $t) * 1000) . ' ms, ' . count($rows) . ' combinaties): artikel | omschrijving | aantal regels';
+            foreach ($rows as $r) {
+                $out[] = '  ' . trim((string) $r[0]) . ' | ' . trim((string) $r[1]) . ' | ' . (int) $r[2];
+            }
+        } catch (Throwable $e) {
+            $out[] = $label . ': FOUT ' . geeveFoutTekst($e);
+        }
+    }
+    return implode("\n", $out);
+}
+
 reportApi(function (array $in): array {
+    if (($in['diagnose'] ?? '') !== '') {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        throw new RuntimeException(backorderDiagnose(reportConnection('backorder')));
+    }
     $debnr = trim((string) ($in['debnr'] ?? ''));
     if ($debnr === '' || strlen($debnr) > 20) {
         throw new RuntimeException('Kies eerst een klant uit de lijst.');

@@ -124,6 +124,7 @@
         body.set('csrf', app.dataset.csrf);
         body.set('debnr', klant.debnr);
         body.set('klant', klant.naam);
+        if (/[?&]diagnose/.test(location.search)) { body.set('diagnose', '1'); }
         zoekBtn.disabled = true;
         downloadBtn.disabled = true;
         var started = Date.now();
