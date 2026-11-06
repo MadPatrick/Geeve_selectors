@@ -18,5 +18,9 @@
 .oh-table td.num { text-align: right; }
 .oh-table td.oh-omsc { white-space: nowrap; }
 #ohMessage { white-space: pre-wrap; }
-#ohTable thead th { position: sticky; top: 0; z-index: 2; background: var(--soft); }
-#ohTable thead tr.oh-filterrow th { background: var(--surface-white); box-shadow: 0 1px 0 var(--line-table-row); }
+#ohTable thead th, #boTable thead th { position: sticky; top: 0; z-index: 2; background: var(--soft); }
+#ohTable thead tr.oh-filterrow th, #boTable thead tr.oh-filterrow th { background: var(--surface-white); box-shadow: 0 1px 0 var(--line-table-row); }
+
+/* Backorder: scheidingslijn tussen de orders. */
+#boTable tbody tr.bo-ordersep td { border-top: 2px solid var(--line-strong); padding-top: 8px; }
+#boTable tbody tr.bo-orderend td { padding-bottom: 8px; }   /* standaard 3px + 5px lege ruimte boven en onder de lijn */

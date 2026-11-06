@@ -106,6 +106,14 @@ $csrf = csrfToken();
             <?= tileLockIcon('negatieve-voorraad') ?>
         </a>
         <?php endif; $tileHtml['negatieve-voorraad'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('backorder')): ?>
+        <a class="<?= tileClass('backorder') ?>" href="<?= h(geeveAppUrl('backorder')) ?>"<?= tileAttrs('backorder') ?>>
+            <?= tileIcon('backorder') ?>
+            <h2><?= h(tileTitle('backorder')) ?></h2>
+            <p>Per klant de openstaande orderregels die nog niet (volledig) geleverd zijn, te downloaden als Excel</p>
+            <?= tileLockIcon('backorder') ?>
+        </a>
+        <?php endif; $tileHtml['backorder'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('reports') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 
