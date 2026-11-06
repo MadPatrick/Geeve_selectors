@@ -1562,30 +1562,6 @@
         return firstCodePart(article);
     }
 
-    /**
-     * Twee beugels in twee regels (Patrick, 2026-11-06) horen in de code als
-     * 1 dubbele beugel: "112A PP" + "112A PP" wordt "112/12A PP" (en niet
-     * "112A PP-112A PP"). Het tweede deel is de tweede beugelcode zonder de
-     * bouwgroep-prefix ("1", of "30" bij 30xx). Alleen samenvoegen bij precies
-     * twee beugels met dezelfde prefix en hetzelfde achtervoegsel (alles na de
-     * maat, bijv. "A PP"); anders blijft het zoals het was. De samengevoegde
-     * beugel komt op de plek van de eerste. De stuklijst naar Exact
-     * (assemblyLines()) houdt beide beugels.
-     */
-    function mergeTwoBeugels(entries) {
-        const beugelIndexes = entries.map((e, i) => (e.beugel ? i : -1)).filter(i => i >= 0);
-        const plainParts = entries.map(e => e.part);
-        if (beugelIndexes.length !== 2) return plainParts;
-        const [first, second] = beugelIndexes.map(i => entries[i].part);
-        const pattern = /^(30|\d)(\d[\d,]*)(.*)$/;
-        const m1 = pattern.exec(first);
-        const m2 = pattern.exec(second);
-        if (!m1 || !m2 || first.includes('/') || second.includes('/')) return plainParts;
-        if (m1[1] !== m2[1] || m1[3] !== m2[3]) return plainParts;
-        const merged = `${m1[1]}${m1[2]}/${m2[2]}${m1[3]}`;
-        return plainParts.map((part, i) => (i === beugelIndexes[0] ? merged : part)).filter((part, i) => i !== beugelIndexes[1]);
-    }
-
     // Exact staat voor een artikelnummer (ItemCode) maximaal 30 tekens toe.
     // Een langere samenstellingscode kan dus nooit als artikel in Exact
     // bestaan: de selector toont dan een rode teller, schakelt "Kopieer code"
@@ -1651,14 +1627,11 @@
             '5': () => (ui.loc5.value ? boutCodePart(ui.loc5.value) : ''),
             '6': () => wcode || '',
         };
-        const cardParts = [...ui.assemblyList.querySelectorAll(':scope > .location-card')].map(card => {
-            if (card.classList.contains('extra-item-card')) {
-                return { part: extraItemCodePart(card), beugel: card.querySelector('.extra-item-soort').value === '2' };
-            }
+        const parts = [...ui.assemblyList.querySelectorAll(':scope > .location-card')].map(card => {
+            if (card.classList.contains('extra-item-card')) return extraItemCodePart(card);
             const part = fixedPart[card.dataset.location];
-            return { part: part ? part() : '', beugel: card.dataset.location === '2' };
-        }).filter(entry => entry.part);
-        const parts = mergeTwoBeugels(cardParts);
+            return part ? part() : '';
+        }).filter(Boolean);
 
         const code = parts.join('-');
         ui.assemblyCode.textContent = code;
