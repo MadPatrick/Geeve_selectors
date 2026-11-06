@@ -62,7 +62,15 @@
             this.box.appendChild(this.fill);
             this.box.appendChild(this.pct);
             this.oldMin = this.btn.style.minWidth;
-            this.btn.style.minWidth = this.btn.offsetWidth + 'px';   // de knop verandert niet van breedte
+            this.btn.style.minWidth = (this.btn.getBoundingClientRect().width || this.btn.offsetWidth) + 'px';   // de knop verandert niet van breedte
+            // ... en ook niet van hoogte: de eigen tekst staat tijdens de balk op font-size 0, waardoor de knop anders krimpt tot padding + rand.
+            this.oldMinH = this.btn.style.minHeight;
+            var cs = w.getComputedStyle ? w.getComputedStyle(this.btn) : null;
+            var hoogte = this.btn.offsetHeight;
+            if (cs && cs.boxSizing === 'content-box') {
+                hoogte -= (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0) + (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.borderBottomWidth) || 0);
+            }
+            this.btn.style.minHeight = hoogte + 'px';
             this.btn.className += ' geeve-busy';
             this.btn.appendChild(this.box);
             this.btn.title = label || '';
@@ -117,6 +125,7 @@
         if (this.btn) {
             this.btn.className = this.btn.className.replace(/\s*\bgeeve-busy\b/, '');
             this.btn.style.minWidth = this.oldMin;
+            this.btn.style.minHeight = this.oldMinH;
             this.btn.removeAttribute('title');
         }
     };
