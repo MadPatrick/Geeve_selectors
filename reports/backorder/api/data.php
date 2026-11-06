@@ -9,7 +9,7 @@ tileApiGuard('backorder');
 /**
  * Backorder: openstaande verkooporderregels van een klant (besteld, nog niet (volledig) geleverd). Alleen lezen.
  * Zelfde bron en definitie van "open" als Negatieve voorraad: orsrg (esr_aantal > aant_gelev) bij orkrg.ord_soort = 'V', plus Items voor
- * de omschrijving. Tekstregels (artikel 30, "binnen xx dagen") worden niet getoond, zoals in de Orderhistorie.
+ * de omschrijving. Tekstregels worden niet getoond: artikel 30 (leverbelofte "binnen xx dagen") en artikel 90 ("Betaling binnen xx dagen"), plus elke omschrijving met "binnen ... dagen".
  * Let op: de kolomnamen orkrg.debnr/refer/docnumber/orddat en orsrg.afldat zijn afgeleid van orhkrg/orhsrg en nog niet tegen de echte database getoetst.
  */
 
@@ -35,7 +35,7 @@ reportApi(function (array $in): array {
         'FROM orsrg s WITH (NOLOCK) INNER JOIN orkrg k WITH (NOLOCK) ON k.ordernr = s.ordernr ' .
         'LEFT JOIN Items i WITH (NOLOCK) ON i.ItemCode = s.artcode ' .
         "WHERE k.ord_soort = 'V' AND LTRIM(RTRIM(k.debnr)) = ? AND s.esr_aantal > s.aant_gelev " .
-        "AND LTRIM(RTRIM(s.artcode)) <> '30' AND ISNULL(i.Description, '') NOT LIKE 'binnen%dagen%' " .
+        "AND LTRIM(RTRIM(s.artcode)) NOT IN ('30', '90') AND ISNULL(i.Description, '') NOT LIKE '%binnen%dagen%' " .
         'ORDER BY k.ordernr, s.artcode'
     );
     $stmt->setAttribute(PDO::SQLSRV_ATTR_QUERY_TIMEOUT, 120);
