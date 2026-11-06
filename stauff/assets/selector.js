@@ -1640,24 +1640,13 @@
     }
 
     /**
-     * Toont op de "Kopieer code"-knop zelf of de samenstelling al als
-     * artikel in Exact bestaat (zie checkAssemblyInErp()): groen/"Kopieer
-     * code" als hij nog niet bestaat (of nog niet bekend is), rood/"Update
-     * prijs" zodra hij gevonden is - er is dan al een kant-en-klaar artikel,
-     * dus is de prijs daarvan bijwerken relevanter dan de code kopiëren.
-     * Bij "Update prijs" opent de klik de Naar Exact-proef (prijs en stuklijst
-     * van het bestaande artikel bijwerken); alleen als schrijven naar Exact
-     * voor deze tegel uitstaat blijft het "Kopieer code".
+     * Bestaat de samenstelling al als artikel in Exact (zie checkAssemblyInErp()),
+     * dan heet de knop "Naar Exact" "Update Exact": hij werkt dan de prijs en
+     * stuklijst van het bestaande artikel bij. "Kopieer code" blijft ongewijzigd.
      */
-    function exactWriteAvailable() {
-        return !!ui.exactWriteButton && !ui.exactWriteButton.hidden && ui.exactWriteButton.style.display !== 'none';
-    }
-
     function setCopyButtonState(found) {
-        if (!ui.copyButton) return;
-        found = found && exactWriteAvailable();
-        ui.copyButton.textContent = found ? 'Update prijs' : 'Kopieer code';
-        ui.copyButton.classList.toggle('is-found', found);
+        if (!ui.exactWriteButton) return;
+        ui.exactWriteButton.textContent = found ? 'Update Exact' : 'Naar Exact';
     }
 
     /**
@@ -2058,10 +2047,6 @@
         ui.copyButton.addEventListener('click', async () => {
             const code = ui.assemblyCode.textContent;
             if (!code || ui.copyButton.disabled) return;
-            if (ui.copyButton.classList.contains('is-found')) {
-                openExactModal();
-                return;
-            }
             try {
                 await navigator.clipboard.writeText(code);
                 const old = ui.copyButton.textContent;
