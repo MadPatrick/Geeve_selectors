@@ -1645,10 +1645,17 @@
      * code" als hij nog niet bestaat (of nog niet bekend is), rood/"Update
      * prijs" zodra hij gevonden is - er is dan al een kant-en-klaar artikel,
      * dus is de prijs daarvan bijwerken relevanter dan de code kopiëren.
-     * Verandert alleen label/kleur, niet het klikgedrag.
+     * Bij "Update prijs" opent de klik de Naar Exact-proef (prijs en stuklijst
+     * van het bestaande artikel bijwerken); alleen als schrijven naar Exact
+     * voor deze tegel uitstaat blijft het "Kopieer code".
      */
+    function exactWriteAvailable() {
+        return !!ui.exactWriteButton && !ui.exactWriteButton.hidden && ui.exactWriteButton.style.display !== 'none';
+    }
+
     function setCopyButtonState(found) {
         if (!ui.copyButton) return;
+        found = found && exactWriteAvailable();
         ui.copyButton.textContent = found ? 'Update prijs' : 'Kopieer code';
         ui.copyButton.classList.toggle('is-found', found);
     }
@@ -2051,6 +2058,10 @@
         ui.copyButton.addEventListener('click', async () => {
             const code = ui.assemblyCode.textContent;
             if (!code || ui.copyButton.disabled) return;
+            if (ui.copyButton.classList.contains('is-found')) {
+                openExactModal();
+                return;
+            }
             try {
                 await navigator.clipboard.writeText(code);
                 const old = ui.copyButton.textContent;
