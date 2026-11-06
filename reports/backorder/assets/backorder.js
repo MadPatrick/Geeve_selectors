@@ -191,8 +191,13 @@
         for (var i = 0; i < data.rows.length; i++) { if (matches(i)) { shown.push(i); } }
         if (sortCol >= 0) { shown.sort(compare); }
         var html = '';
+        var vorige = null;
         shown.slice(0, MAX_SHOWN).forEach(function (ri) {
-            html += '<tr>' + data.rows[ri].map(function (v, i) {
+            // Scheidingslijn boven de eerste regel van elk nieuw ordernummer (kolom 0).
+            var order = String(data.rows[ri][0]);
+            var scheiding = vorige !== null && order !== vorige;
+            vorige = order;
+            html += '<tr' + (scheiding ? ' class="bo-ordersep"' : '') + '>' + data.rows[ri].map(function (v, i) {
                 var text = cache[ri][i];
                 if (data.numeric[i]) { return '<td class="num">' + esc(text) + '</td>'; }
                 return '<td' + (data.columns[i] === 'Omschrijving' ? ' class="oh-omsc"' : '') + '>' + esc(text) + '</td>';
