@@ -125,6 +125,10 @@ function reportApi(callable $fetch, bool $numberOnly = true): void
         return;
     }
 
+    // CSRF is gecontroleerd: de sessie is niet meer nodig. Zonder dit houdt csrfValid() het sessiebestand vast tot de (soms minutenlange) query klaar is
+    // en wacht elke andere aanvraag van dezelfde browser (bijv. een klik op een tegel) zolang.
+    csrfReleaseSession();
+
     @set_time_limit(300);
     $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRESERVE_ZERO_FRACTION;
     try {
