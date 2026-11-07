@@ -11,3 +11,7 @@
 /hoses/data/
 /adapters/data/
 /configurator/data/
+
+# Tijdelijke bestanden van tools/scripts: niet in git (alleen de .htaccess die de map afsluit)
+/tmp/*
+!/tmp/.htaccess
