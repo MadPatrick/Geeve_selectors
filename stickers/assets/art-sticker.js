@@ -5,9 +5,7 @@ window.ArtSticker = (function () {
 
     var MAX_BC_70X25_MM = 65; // past binnen de 70 mm met 2,5 mm marge
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
 
     function html(omschrijving, artikel, klein) {
         return '<div class="sticker sticker--art' + (klein ? ' sticker--70x25' : '') + '">' +

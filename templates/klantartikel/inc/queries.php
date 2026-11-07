@@ -18,7 +18,7 @@ const PRICELIST_COLUMN_CANDIDATES = ['PriceList', 'Prijslijst', 'prijslijst', 'p
 // [kolom op ItemAccounts, kolom op cicmpy] - in volgorde geprobeerd; de eerste die rijen oplevert wordt gebruikt.
 // Het Exact-importbestand koppelt ItemAccount aan <Account code="debcode"/>, vandaar debcode eerst.
 const ITEMACCOUNT_LINK_CANDIDATES = [
-    // ItemAccounts.AccountCode bevat een GUID (zie diagnose); cicmpy.cmp_wwn / ID is dezelfde GUID.
+    // ItemAccounts.AccountCode bevat een GUID (eerder met een diagnose bevestigd); cicmpy.cmp_wwn / ID is dezelfde GUID.
     ['AccountCode', 'cmp_wwn'],
     ['AccountCode', 'ID'],
     ['AccountCode', 'debcode'],
@@ -127,7 +127,7 @@ function q(string $identifier): string
  * Join-voorwaarde tussen ItemAccounts (ia) en cicmpy (c) voor een koppeling [kolom op ItemAccounts, kolom op cicmpy].
  * De bevestigde koppeling AccountCode = cmp_wwn is GUID op GUID: die vergelijkt direct, zodat SQL Server een index kan
  * gebruiken (zoals Slangkaart.Web: ia.AccountCode = cicmpy.cmp_wwn). De overige kandidaten hebben onbekende typen en
- * blijven als tekst vergeleken (alleen nog voor de diagnose); met CAST/TRIM om beide kolommen is dat een volledige scan.
+ * blijven als tekst vergeleken; met CAST/TRIM om beide kolommen is dat een volledige scan.
  *
  * @param array{0: string, 1: string} $link
  */
@@ -212,40 +212,6 @@ function countCustomerArticles(PDO $pdo, array $schema, string $priceList, array
         $out[trim((string) $row['debnr'])] = (int) $row['aantal'];
     }
     return $out;
-}
-
-/**
- * Diagnose als er wel klanten maar geen artikelen zijn: welke kolommen heeft
- * ItemAccounts, hoeveel rijen koppelen er per mogelijke koppeling, hoeveel
- * hebben een ingevuld klantartikelnummer, en een paar voorbeeldrijen.
- *
- * @return array{columns: list<string>, links: list<array{link: string, total: string, filled: string}>, sample: list<array<string,mixed>>, error: ?string}
- */
-function diagnoseItemAccounts(PDO $pdo, array $schema, string $priceList): array
-{
-    $p = q($schema['pricelist']);
-    $result = ['columns' => $schema['itemColumns'], 'links' => [], 'sample' => [], 'error' => null];
-    $code = 'ia.' . q($schema['codeColumn']);
-    try {
-        foreach ($schema['links'] as [$a, $b]) {
-            $stmt = $pdo->prepare(
-                "SELECT COUNT(*) AS totaal, SUM(CASE WHEN {$code} IS NOT NULL AND LTRIM(RTRIM({$code})) <> '' THEN 1 ELSE 0 END) AS gevuld " .
-                'FROM ItemAccounts ia JOIN cicmpy c ON ' . linkJoin([$a, $b]) . ' ' .
-                "WHERE LTRIM(RTRIM(CAST(c.{$p} AS varchar(50)))) = :pl"
-            );
-            $stmt->execute(['pl' => $priceList]);
-            $row = $stmt->fetch();
-            $result['links'][] = [
-                'link'   => "ItemAccounts.{$a} = cicmpy.{$b}",
-                'total'  => (string) ($row['totaal'] ?? 0),
-                'filled' => (string) ($row['gevuld'] ?? 0),
-            ];
-        }
-        $result['sample'] = $pdo->query('SELECT TOP 5 * FROM ItemAccounts ia WHERE ' . $code . " IS NOT NULL AND LTRIM(RTRIM({$code})) <> ''")->fetchAll();
-    } catch (Throwable $e) {
-        $result['error'] = $e->getMessage();
-    }
-    return $result;
 }
 
 /** UTF-8-teken (1 teken) naar 4 bytes big-endian codepoint, zonder mbstring. */

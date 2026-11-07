@@ -19,9 +19,7 @@
     function norm(s) {
         return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
     }
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
 
     // Levenshtein-afstand, afgebroken zodra die groter dan max wordt.
     function distance(a, b, max) {

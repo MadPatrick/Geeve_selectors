@@ -17,11 +17,9 @@ require_once __DIR__ . '/inc/queries.php';
 
 $priceList = trim((string) ($_GET['prijslijst'] ?? $_POST['prijslijst'] ?? ''));
 $priceColumn = trim((string) ($_GET['pcol'] ?? ''));
-$diagnose = isset($_GET['diagnose']);
 $customers = [];
 $articles = [];
 $schema = null;
-$diag = null;
 $usedLink = null;
 $error = null;
 
@@ -56,18 +54,10 @@ if ($priceList !== '') {
             exit;
         }
 
-        // Normaal alleen de eerste (bevestigde) koppeling, AccountCode = cmp_wwn: elke andere kandidaat is een volledige
-        // scan van ItemAccounts x cicmpy. De andere kandidaten en de tellingen per koppeling alleen op verzoek (?diagnose=1).
-        if ($diagnose) {
-            [, $usedLink] = findCustomerArticlesAny($pdo, $schema, $priceList, null, 1);
-        } else {
-            $usedLink = $schema['links'][0];
-        }
+        // Alleen de eerste (bevestigde) koppeling, AccountCode = cmp_wwn: elke andere kandidaat is een volledige scan van ItemAccounts x cicmpy.
+        $usedLink = $schema['links'][0];
         if ($usedLink !== null) {
             $articles = findConsolidatedArticles($pdo, $schema, $priceList, $usedLink, null);
-        }
-        if ($diagnose && $customers !== [] && $articles === []) {
-            $diag = diagnoseItemAccounts($pdo, $schema, $priceList);
         }
     } catch (Throwable $e) {
         $error = geeveFoutTekst($e);
@@ -182,22 +172,8 @@ if ($priceList !== '') {
                 </div>
             </form>
 
-            <?php if ($diag === null && !$diagnose && $customers !== [] && $articles === []): ?>
-                <p class="ka-empty">Geen klantartikelnummers gevonden via ItemAccounts.<?= h($schema['links'][0][0]) ?> = cicmpy.<?= h($schema['links'][0][1]) ?>.
-                    <a href="?<?= h(http_build_query(array_filter(['prijslijst' => $priceList, 'pcol' => $priceColumn, 'diagnose' => '1'], static fn ($v) => $v !== ''))) ?>">Andere koppelingen proberen (diagnose)</a></p>
-            <?php endif; ?>
-            <?php if ($diag !== null): ?>
-                <h3>Diagnose</h3>
-                <p class="ka-empty">Geprobeerde koppelingen (in volgorde): <?= h(implode('; ', array_map(static fn ($l) => "ItemAccounts.{$l[0]} = cicmpy.{$l[1]}", $schema['links']))) ?>. Klantartikelnummer uit <code><?= h($schema['codeColumn']) ?></code>.</p>
-                <?php if ($diag['error'] !== null): ?><div class="ka-message ka-message--error"><?= h($diag['error']) ?></div><?php endif; ?>
-                <div class="ka-table-wrap"><table class="ka-table">
-                    <thead><tr><th>Mogelijke koppeling</th><th>Rijen voor deze klanten</th><th>Waarvan klantartikelnr gevuld</th></tr></thead>
-                    <tbody>
-                    <?php foreach ($diag['links'] as $l): ?>
-                        <tr><td><?= h($l['link']) ?></td><td><?= h($l['total']) ?></td><td><?= h($l['filled']) ?></td></tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table></div>
+            <?php if ($customers !== [] && $articles === []): ?>
+                <p class="ka-empty">Geen klantartikelnummers gevonden via ItemAccounts.<?= h($schema['links'][0][0]) ?> = cicmpy.<?= h($schema['links'][0][1]) ?>.</p>
             <?php endif; ?>
         </section>
         <script src="assets/vendor/xlsx.core.min.js?v=<?= h(assetVersion('../../shared/vendor/xlsx.core.min.js')) ?>"></script>

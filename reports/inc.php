@@ -125,6 +125,10 @@ function reportApi(callable $fetch, bool $numberOnly = true): void
         return;
     }
 
+    // CSRF is gecontroleerd: de sessie is niet meer nodig. Zonder dit houdt csrfValid() het sessiebestand vast tot de (soms minutenlange) query klaar is
+    // en wacht elke andere aanvraag van dezelfde browser (bijv. een klik op een tegel) zolang.
+    csrfReleaseSession();
+
     @set_time_limit(300);
     $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRESERVE_ZERO_FRACTION;
     try {
@@ -228,4 +232,49 @@ function reportSelect(array $data, array $map): array
         'dates' => array_map(fn ($i) => $data['dates'][$i] ?? false, $pick),
         'rows' => array_map(fn ($row) => array_map(fn ($i) => $row[$i], $pick), $data['rows']),
     ];
+}
+
+/**
+ * Debiteuren zoeken op nummer of naam in Exact (cicmpy) voor de klantkeuze van Backorder en Orderhistorie. GET ?q=<tekst>
+ * -> {"ok":true,"rows":[{"debnr","naam"}]}. Schrijft het JSON-antwoord en stopt; $tegel is het tegel-id van de aanroeper
+ * (databasekeuze main/test in Config). De aanroeper doet zelf tileApiGuard() en zet de JSON-headers.
+ */
+function reportKlantenZoeken(string $tegel): void
+{
+    $words = array_values(array_filter(preg_split('/\s+/', trim((string) ($_GET['q'] ?? ''))) ?: [], static fn (string $w): bool => $w !== ''));
+    $words = array_slice($words, 0, 5);
+    if ($words === []) {
+        echo json_encode(['ok' => true, 'rows' => []]);
+        exit;
+    }
+
+    try {
+        $where = ['c.debnr IS NOT NULL', "LTRIM(RTRIM(c.debnr)) <> ''"];
+        $params = [];
+        foreach ($words as $word) {
+            // % en _ in de zoekterm letterlijk nemen.
+            $like = '%' . str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], $word) . '%';
+            $where[] = '(c.cmp_name LIKE ? OR LTRIM(RTRIM(c.debnr)) LIKE ?)';
+            $params[] = $like;
+            $params[] = $like;
+        }
+        // Een getypt nummer: debiteuren waarvan het nummer ermee begint eerst, van laag naar hoog; daarna de rest op naam.
+        $order = 'ORDER BY c.cmp_name';
+        if (ctype_digit($words[0])) {
+            $order = 'ORDER BY CASE WHEN LTRIM(RTRIM(c.debnr)) LIKE ? THEN 0 ELSE 1 END, TRY_CAST(LTRIM(RTRIM(c.debnr)) AS bigint), c.cmp_name';
+            $params[] = $words[0] . '%';
+        }
+        $stmt = reportConnection($tegel)->prepare(
+            'SET NOCOUNT ON; SELECT TOP 20 LTRIM(RTRIM(c.debnr)) AS debnr, c.cmp_name AS naam FROM cicmpy c WHERE ' . implode(' AND ', $where) . ' ' . $order
+        );
+        $stmt->execute($params);
+        $rows = array_map(static fn (array $r): array => [
+            'debnr' => (string) $r['debnr'],
+            'naam' => trim((string) $r['naam']),
+        ], $stmt->fetchAll());
+        echo json_encode(['ok' => true, 'rows' => $rows], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'error' => geeveFoutTekst($e)], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    }
 }

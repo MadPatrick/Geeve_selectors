@@ -12,9 +12,7 @@
         '<path d="M1 10.5h11" stroke="currentColor" stroke-width=".8"/><path d="M3.8 5h5.4L6.5 9.2Z" fill="none" stroke="currentColor" stroke-width=".8"/>' +
         '<path d="M6.5 29v4" stroke="currentColor" stroke-width="1"/></svg>';
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
     function pad(n) { return (n < 10 ? '0' : '') + n; }
     function isoToday() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
     // Datumveld (jjjj-mm-dd) zoals op de sticker: dd-mm-jjjj.

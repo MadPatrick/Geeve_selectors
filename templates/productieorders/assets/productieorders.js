@@ -22,9 +22,7 @@
     var groepKeuze = document.getElementById('poGroep');
     var MOEDERKOLOM = 0;
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
     function nl(n) { return Number(n).toLocaleString('nl-NL', { maximumFractionDigits: 4 }); }
     function fail(text) { message.textContent = text || ''; message.hidden = !text; }
     function cellText(v, i) {
