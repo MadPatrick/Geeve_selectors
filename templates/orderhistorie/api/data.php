@@ -28,7 +28,7 @@ const ORDERHISTORIE_GETAL = [false, false, false, false, false, false, true, tru
 /** Vaste aantal decimalen per kolom (null = vrij, zoals Aantal geleverd); bruto prijs en korting altijd met 2 decimalen. */
 const ORDERHISTORIE_DECIMALEN = [null, null, null, null, null, null, null, 2, 2];
 
-/** Kolommen van orhsrg (database 005) voor bruto prijs en korting; controle met ?diagnose=1 als de naam in Exact anders blijkt. */
+/** Kolommen van orhsrg (database 005) voor bruto prijs en korting; de pagina controleert of de kolom bestaat en meldt dat als de naam in Exact anders blijkt. */
 const ORDERHISTORIE_KOL_PRIJS = 'prijs_n';
 const ORDERHISTORIE_KOL_KORTING = 'korting';
 
@@ -70,34 +70,6 @@ function orderhistorieLike(string $text): string
     return '%' . str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], $text) . '%';
 }
 
-/** Tekstrapport voor ?diagnose=1: aantallen en tijden per stap, en een paar voorbeeldregels. */
-function orderhistorieDiagnose(PDO $pdo, string $debnr): string
-{
-    $out = ['DIAGNOSE orderhistorie (rechtstreeks op orhkrg/orhsrg/Items)'];
-    $run = static function (string $label, string $sql, array $params) use ($pdo, &$out): void {
-        $t = microtime(true);
-        try {
-            $stmt = $pdo->prepare('SET NOCOUNT ON; ' . $sql);
-            $stmt->execute($params);
-            $rows = $stmt->fetchAll(PDO::FETCH_NUM);
-            $out[] = $label . ' (' . (int) round((microtime(true) - $t) * 1000) . ' ms, ' . count($rows) . ' regels):';
-            foreach ($rows as $r) {
-                $out[] = '  ' . implode(' | ', array_map(static fn ($v): string => $v instanceof DateTimeInterface ? $v->format('Y-m-d') : trim((string) $v), $r));
-            }
-        } catch (Throwable $e) {
-            $out[] = $label . ': FOUT ' . geeveFoutTekst($e);
-        }
-    };
-    $run('Prijs- en kortingskolommen van orhsrg', "SELECT name, TYPE_NAME(system_type_id) FROM sys.columns WHERE object_id = OBJECT_ID('orhsrg') AND (name LIKE '%prijs%' OR name LIKE '%kort%' OR name LIKE '%bruto%' OR name LIKE '%netto%') ORDER BY name", []);
-    $run('Totaal orderkoppen / oudste en nieuwste pakbondatum', 'SELECT COUNT(*), MIN(pakbon_dat), MAX(pakbon_dat) FROM orhkrg WITH (NOLOCK)', []);
-    if ($debnr !== '') {
-        $run('Nieuwste 5 regels: prijs_n, prijs83, korting, prijslijst', 'SELECT TOP 5 ohr.ordernr, ohr.artcode, ohr.aant_gelev, ohr.prijs_n, ohr.prijs83, ohr.korting, ohr.prijslijst FROM ' . ORDERHISTORIE_FROM . ' WHERE LTRIM(RTRIM(ohk.debnr)) = ? ORDER BY ohr.afldat DESC', [$debnr]);
-        $run('Aantal koppen en regels voor debnr ' . $debnr, 'SELECT COUNT(DISTINCT ohk.ordernr), COUNT(*) FROM ' . ORDERHISTORIE_FROM . ' WHERE LTRIM(RTRIM(ohk.debnr)) = ?', [$debnr]);
-        $run('Nieuwste 3 regels voor debnr ' . $debnr, 'SELECT TOP 3 ' . ORDERHISTORIE_SELECT . ' FROM ' . ORDERHISTORIE_FROM . ' WHERE LTRIM(RTRIM(ohk.debnr)) = ? ORDER BY ohr.afldat DESC', [$debnr]);
-    }
-    return implode("\n", $out);
-}
-
 reportApi(function (array $in): array {
     $van = orderhistorieIso((string) ($in['van'] ?? ''), 'begindatum');
     $tot = orderhistorieIso((string) ($in['tot'] ?? ''), 'einddatum');
@@ -121,9 +93,6 @@ reportApi(function (array $in): array {
     }
     $pdo = reportConnection('orderhistorie');
 
-    if (($in['diagnose'] ?? '') !== '') {
-        throw new RuntimeException(orderhistorieDiagnose($pdo, $debnr));
-    }
     // Snelle controle (sys.columns van een enkele tabel) zodat een andere kolomnaam in Exact een duidelijke melding geeft i.p.v. een SQL-fout.
     $ontbreekt = [];
     foreach ([ORDERHISTORIE_KOL_PRIJS, ORDERHISTORIE_KOL_KORTING] as $kolom) {
@@ -135,7 +104,7 @@ reportApi(function (array $in): array {
         }
     }
     if ($ontbreekt !== []) {
-        throw new RuntimeException('Kolom(men) ' . implode(', ', $ontbreekt) . ' bestaan niet in orhsrg. Open de tegel met ?diagnose=1 voor de beschikbare prijs- en kortingskolommen.');
+        throw new RuntimeException('Kolom(men) ' . implode(', ', $ontbreekt) . ' bestaan niet in orhsrg. Neem contact op met de beheerder.');
     }
     // Zoeken mag alleen met een klant, artikelnummer of omschrijving; de datums alleen zijn te breed.
     if ($debnr === '' && $klant === '' && $klantZoek === '' && $artnr === '' && $omsc === '') {
