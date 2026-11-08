@@ -6,7 +6,7 @@
 .ac-fields .ka-input { width: 100%; }
 
 .ac-preview { zoom: 1.8; }
-.ac-preview .accu { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1.5mm; background: var(--sticker-accu-geel); }
+.ac-preview .accu { box-shadow: 0 0 0 1px var(--sticker-preview-shadow); border-radius: 1.5mm; background: var(--kabelmerker-geel); }
 
 .accu {
     position: relative;

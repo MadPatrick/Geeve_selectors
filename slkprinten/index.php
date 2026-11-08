@@ -31,7 +31,7 @@ register_shutdown_function(static function (): void {
     if ($error === null || !in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
         return;
     }
-    echo '<div style="margin:16px;padding:15px 18px;border:1px solid var(--error-box-line);border-radius:12px;background:var(--warning-bg);color:var(--error-box-ink);font:14px Arial,sans-serif">'
+    echo '<div style="margin:16px;padding:15px 18px;border:1px solid var(--status-error-line);border-radius:12px;background:var(--status-invalid-bg);color:var(--status-error-ink);font:14px Arial,sans-serif">'
         . '<strong>Fout bij het opbouwen van de slangkaarten:</strong><br>'
         . htmlspecialchars($error['message'] . ' (' . basename($error['file']) . ':' . $error['line'] . ')', ENT_QUOTES)
         . '</div>';
@@ -1588,6 +1588,26 @@ if ($selectedKeys !== []) {
     require __DIR__ . '/../shared/head.php';
     ?>
     <script src="assets/klant-search.js?v=<?= h(assetVersion('assets/klant-search.js')) ?>" defer></script>
+    <script>
+        // "Kiezen" (order uit de lijst) laadt een nieuwe pagina, wat een paar seconden kan duren: laat de voortgang in de
+        // knop zien. Delegatie op document, want de lijst met laatste orders wordt achteraf in de pagina gezet.
+        (function () {
+            var open = null;
+            document.addEventListener('click', function (e) {
+                var el = e.target;
+                while (el && el !== document && !(el.tagName === 'A' && /(^|\s)link-button(\s|$)/.test(el.className) && /[?&]ordernummer=/.test(el.getAttribute('href') || ''))) {
+                    el = el.parentNode;
+                }
+                if (!el || el === document || e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey || e.button > 0) { return; }
+                if (open) { open.close(); }
+                if (window.GeeveProgress) { open = GeeveProgress.start('Slangkaarten laden…', el); }
+            });
+            // Terug via de browser (pagina uit de cache): de balk weer weghalen.
+            window.addEventListener('pageshow', function () {
+                if (open) { open.close(); open = null; }
+            });
+        })();
+    </script>
 </head>
 <body>
 <main class="page-shell page-shell--wide">

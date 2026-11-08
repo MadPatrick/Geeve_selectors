@@ -47,6 +47,7 @@ const GEEVE_TILE_DB = [
     'inkoopprijzen-gr14-gr55' => ['exact'],
     'brutoprijzen' => ['exact'],
     'negatieve-voorraad' => ['exact'],
+    'backorder' => ['exact'],
     'artikel-marge' => ['exact'],
     // Leest de tabel [Slangkaarten].[dbo].[Slangkaarten] via de Exact-login (3-delige naam), niet via de Slangkaarten-login.
     'slangkaart-netto' => ['exact'],
@@ -72,7 +73,52 @@ const GEEVE_TILE_DB = [
  * geblokkeerd). Voor deze tegels geldt dus: schrijven staat standaard op "test" (zoals het nu werkt), "main" is niet te kiezen
  * en "geen" zet de knop "Naar Exact" uit. De portal zelf maakt voor deze tegels geen schrijfverbinding.
  */
-const GEEVE_TILE_SCHRIJVEN_VIA_WEB = ['stauff', 'offerte-import'];
+const GEEVE_TILE_SCHRIJVEN_VIA_WEB = ['slangkaarten', 'stauff', 'offerte-import'];
+
+/**
+ * Welke app van Slangkaart.Web bij een tegel hoort (EntityService:Apps in slangkaart-web). De Config is leidend: bij Opslaan
+ * schrijft de portal per app geen, test of main naar data/exact/omgeving.json, en Slangkaart.Web volgt dat bestand bij elke
+ * schrijfactie (zonder herstart). Een nieuwe tegel die via Slangkaart.Web schrijft: hier én in GEEVE_TILE_SCHRIJVEN_VIA_WEB
+ * toevoegen, en in slangkaart-web een nieuwe naam in ExactApp.
+ */
+const GEEVE_TILE_WEB_APP = ['slangkaarten' => 'slangkaarten', 'stauff' => 'stauff', 'offerte-import' => 'schrijfdeur'];
+
+/** Pad van het bestand met de Exact-omgeving per app (niet geheim; Slangkaart.Web leest het, EntityService:OmgevingBestand). */
+function geeveDbOmgevingBestandPad(): string
+{
+    return geeveDataDir() . '/exact/omgeving.json';
+}
+
+/**
+ * Schrijft de gekozen schrijfomgeving per Slangkaart.Web-app (geen, test of main) naar het bestand dat Slangkaart.Web leest.
+ * Alleen zo kiest de Config de omgeving van Slangkaart.Web; main werkt daar alleen als de server productie toestaat (anders
+ * weigert Slangkaart.Web). Atomisch (tijdelijk bestand + rename), zodat Slangkaart.Web nooit een half bestand leest.
+ *
+ * @param array<string,array<string,array{lezen:string,schrijven:string}>> $keuzes de afwijkingen van de standaard, zoals bewaard in DB_KEUZE
+ */
+function geeveDbOmgevingBestandSchrijven(array $keuzes): bool
+{
+    $apps = [];
+    foreach (GEEVE_TILE_WEB_APP as $tegel => $app) {
+        $apps[$app] = (string) ($keuzes[$tegel]['exact']['schrijven'] ?? geeveDbStandaard($tegel, 'exact')['schrijven']);
+    }
+    $pad = geeveDbOmgevingBestandPad();
+    $map = dirname($pad);
+    if (!is_dir($map) && !@mkdir($map, 0775, true) && !is_dir($map)) {
+        return false;
+    }
+    $tmp = $pad . '.' . getmypid() . '.tmp';
+    $json = json_encode($apps, JSON_UNESCAPED_SLASHES);
+    if ($json === false || @file_put_contents($tmp, $json . "\n", LOCK_EX) === false) {
+        return false;
+    }
+    @chmod($tmp, 0644);   // Slangkaart.Web draait onder een andere gebruiker en moet het kunnen lezen
+    if (!@rename($tmp, $pad)) {
+        @unlink($tmp);
+        return false;
+    }
+    return true;
+}
 
 /** True als de tegel via Slangkaart.Web naar Exact schrijft. */
 function geeveDbSchrijftViaWeb(string $tegel): bool
@@ -207,7 +253,7 @@ function geeveDbKeuzes(): array
             $lezen = $keuze['lezen'] ?? $std['lezen'];
             $schrijven = $keuze['schrijven'] ?? $std['schrijven'];
             $schrijfOk = GEEVE_DB_BRONNEN[$bron][1] && in_array($schrijven, GEEVE_DB_BRONNEN[$bron][2], true)
-                && !($schrijven === 'main' && geeveDbSchrijftViaWeb($tegel)); // main is via Slangkaart.Web (nog) geblokkeerd
+                ; // main via Slangkaart.Web mag hier gekozen worden; Slangkaart.Web laat het pas toe als de server productie vrijgeeft
             $cache[$tegel][$bron] = [
                 'lezen' => in_array($lezen, GEEVE_DB_BRONNEN[$bron][2], true) ? $lezen : 'main',
                 'schrijven' => $schrijfOk ? $schrijven : 'geen',

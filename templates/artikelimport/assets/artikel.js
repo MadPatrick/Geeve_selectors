@@ -37,9 +37,7 @@
     var importedName = '';
     var timer = null;
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
     // Aantal met enkelvoud of meervoud: pl(1, 'regel', 'regels') = '1 regel'.
     function pl(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
     function showMessage(text) { messageEl.textContent = text; messageEl.hidden = !text; }

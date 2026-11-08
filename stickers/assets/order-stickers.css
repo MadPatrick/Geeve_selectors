@@ -22,28 +22,8 @@
 .so-nav .ka-button:disabled { opacity: .4; cursor: default; }
 .so-nav .msp-status { min-width: 12ch; text-align: center; }
 
-.sticker {
-    position: relative;
-    width: 102mm;
-    height: 54mm;
-    overflow: hidden;
-    color: var(--ink-black);
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 3.2mm;
-    line-height: 1;
-}
 /* Marge van 10px (2,65 mm) aan alle kanten: de velden hieronder staan in mm op de volle 102 × 54 mm en worden als geheel
    iets verkleind en verschoven, zodat alles tussen 2,65 en 99,35 mm (breed) / 51,35 mm (hoog) valt. */
-.sticker-in { position: absolute; left: 0; top: 0; width: 102mm; height: 54mm; transform-origin: 0 0; transform: translate(2.15mm, 2.08mm) scale(.964, .934); }
-.sticker .f {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    overflow: hidden;
-}
-.sticker .b { font-weight: 700; }
-.sticker .big { font-size: 4.6mm; }
 .sticker .large { font-size: 4.3mm; }
 .sticker .bc { position: absolute; left: 1.5mm; top: 33.2mm; width: 96.7mm; height: 10mm; }
 .sticker .bc svg { display: block; width: 100%; height: 100%; shape-rendering: crispEdges; }
@@ -59,10 +39,9 @@
 .sticker .c-l1 { left: .5mm; width: 12.7mm; }      /* "Bonnr.:" */
 .sticker .c-bonnr { left: 14.3mm; width: 23.6mm; }
 .sticker .c-debnm { left: 38.9mm; width: 61.5mm; }
-.sticker .c-l2 { left: .5mm; width: 25.5mm; }      /* "Uw referentie:" */
-.sticker .c-ref { left: 26.3mm; width: 74mm; }
-.sticker .c-l3 { left: .5mm; width: 21mm; }        /* "Aantal:" / "Locatie:" */
-.sticker .c-val3 { left: 22.6mm; width: 13.5mm; }  /* aantal / locatie */
+      /* "Uw referentie:" */
+        /* "Aantal:" / "Locatie:" */
+  /* aantal / locatie */
 .sticker .c-l4 { left: 37.2mm; width: 18.5mm; }    /* "Artikelnr:" / "Uw Artikelnr:" */
 .sticker .c-val4 { left: 55.8mm; width: 45mm; }    /* artikelnummer / uw artikelnummer */
 .sticker .c-l5 { left: .5mm; width: 35mm; }        /* "Country Of Origin:" */

@@ -50,6 +50,13 @@ $csrf = csrfToken();
                     <button type="button" data-maat="groot" class="is-active">Sticker Groot (102 × 51 mm)</button>
                     <button type="button" data-maat="klein">Sticker Klein (70 × 25 mm)</button>
                 </div>
+                <span class="pt-align-label">Lettergrootte</span>
+                <div class="pt-font">
+                    <input type="number" id="ptFont" class="ka-input" min="4" max="200" step="1" placeholder="Auto" aria-label="Lettergrootte in punten (leeg = automatisch)">
+                    <span>pt</span>
+                    <button type="button" id="ptFontAuto" class="ka-button ka-button--secondary" title="De letter vult de sticker automatisch">Automatisch</button>
+                </div>
+                <span class="sk-uitleg">Leeg = automatisch passend. Bij een eigen grootte wordt tekst die niet past afgeknipt.</span>
             </div>
         </div>
         <?= stickerKaartHtml([

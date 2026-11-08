@@ -203,10 +203,10 @@ laadt het apart vóór `shared/style.css`. Kijk daar voor de actuele waarden. De
 |---|---|---|
 | Basis | `--bg`, `--panel`, `--ink`, `--muted`, `--line`, `--soft`, `--shadow` | Pagina, panelen, tekst, randen |
 | Merk | `--accent`, `--accent-dark`, `--dark-1`, `--dark-2` | Accentkleur, donkere header |
-| Status | `--ok`, `--danger`, `--status-error*`, `--status-warn*`, `--status-ok-soft`, `--status-accent-soft` | Meldingen, pillen, rijkleuren |
-| Vlakken | `--surface-white`, `--surface-subtle`, `--surface-input-disabled`, `--panel-glass` | Kaarten, tabelrijen, velden |
-| Lijnen | `--line-input`, `--line-faint`, `--line-strong`, `*-line` | Invoervelden, scheidingslijnen, knoprand |
-| Tekst | `--font-family`, `--font-print`, `--ink-print`, `--ink-disabled` | Lettertypes, printtekst |
+| Status | `--ok`, `--danger`, `--status-error-*`, `--status-warn*`, `--status-ok-soft`, `--status-accent-soft` | Meldingen, pillen, rijkleuren |
+| Vlakken | `--surface-white`, `--surface-subtle`, `--surface-muted`, `--panel-glass` | Kaarten, tabelrijen, velden |
+| Lijnen | `--line`, `--line-strong`, `*-line` | Invoervelden, scheidingslijnen, knoprand |
+| Tekst | `--font-family`, `--font-print`, `--ink-print`, `--ink-placeholder` | Lettertypes, printtekst |
 | Vorm | `--radius-sm`, `--radius-md`, `--radius-lg`, `--radius-pill`, `--focus-ring`, `--btn-gap` | Afronding, focus, knopafstand |
 | Knoppen | `--btn-*` | Alle knopkleuren, zie hieronder |
 
@@ -329,7 +329,7 @@ Links in een app:
   (`GEEVE_SMB_SERVER`, `GEEVE_SMB_PREFIX`). Er is niets in te stellen in Config: `geevePrinterList()` haalt de shares
   (`smbclient -L`) en hun driver (`rpcclient enumprinters 1`) op en bewaart de lijst 30 minuten in
   `data/printers/smb-printers.json` (niet in git). De driver bepaalt het soort: PCL-driver = A4 (kleur bij "Color" of
-  Canon), Altec = TSPL-labelprinter, Brother QL = Brother-labelprinter; onbekende drivers (ook Zebra/ZPL) vallen weg, tenzij de share in `GEEVE_PRINTER_TYPE_VAST` (`shared/printen.php`) staat met een vast type (nu `RTMPROVE01` = Zebra ZD230, ZPL, 203 dpi). ZPL wordt als bitmap (`^GFA`, `geevePbmToZpl()`) verstuurd; Snelheid/Zwarting zijn daar nog niet instelbaar.
+  Canon), Altec = TSPL-labelprinter, Brother QL = Brother-labelprinter; onbekende drivers (ook Zebra/ZPL) vallen weg, tenzij de share in `GEEVE_PRINTER_TYPE_VAST` (`shared/printen.php`) staat met een vast type (nu `RTMPROVE01` = Zebra ZD230, ZPL, 203 dpi). ZPL wordt als bitmap (`^GFA`, `geevePbmToZpl()`) verstuurd; Snelheid (^PR 2-6) en Zwarting (~SD 0-30) zijn instelbaar op tegels met die velden.
   `geevePrinters($tegelId)` geeft de printers die bij een tegel passen (`GEEVE_PRINT_TILE_SOORT`: 'a4' of 'label';
   nieuwe tegel met direct printen = toevoegen aan `GEEVE_PRINT_TILES`).
 - **Inloggen** op de printserver gebeurt met het account uit `/etc/geeve/smbprint.cred` (formaat van `smbclient -A`: `username`, `password`, `domain`), buiten de webmap, van root en leesbaar voor
@@ -356,6 +356,16 @@ Links in een app:
 De slangkaart van Slangkaart printen is de standaard voor elke app die slangkaarten toont of
 print. Laad `shared/slangkaart.css` (na `shared/style.css`, vóór je eigen stylesheet) en volg de
 opbouw in [`SLANGKAART-LAYOUT.md`](SLANGKAART-LAYOUT.md).
+
+## HTML-escape in JavaScript (`shared/escape.js`)
+
+`shared/head.php` laadt `shared/escape.js`; daarmee bestaat overal `GeeveEsc(tekst)` (zet `& < > "` om). Schrijf in een nieuwe tegel
+geen eigen `esc()`-functie meer; gebruik `GeeveEsc()` voor alles wat via `innerHTML` of in een attribuut terechtkomt.
+
+## Debiteuren zoeken (`reportKlantenZoeken`)
+
+Een tegel met een klantkeuze (Backorder, Orderhistorie) heeft in `api/klanten.php` na `tileApiGuard()` en de JSON-headers alleen
+`reportKlantenZoeken('<tegel-id>');` uit `reports/inc.php` nodig.
 
 ## Versienummer
 

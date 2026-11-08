@@ -3,7 +3,7 @@
 .oh-hits {
     position: absolute; z-index: 20; left: 0; top: 100%; min-width: 100%; width: max-content; max-width: 70ch;
     margin: 2px 0 0; padding: 4px 0; list-style: none; max-height: 320px; overflow-y: auto; font-weight: 400;
-    background: var(--surface-white); border: 1px solid var(--line-input); border-radius: 8px; box-shadow: var(--shadow); font-size: 13px;
+    background: var(--surface-white); border: 1px solid var(--line-strong); border-radius: 8px; box-shadow: var(--shadow); font-size: 13px;
 }
 .oh-hits[hidden] { display: none; }
 .oh-hits li { padding: 7px 12px; cursor: pointer; white-space: nowrap; }
@@ -18,5 +18,9 @@
 .oh-table td.num { text-align: right; }
 .oh-table td.oh-omsc { white-space: nowrap; }
 #ohMessage { white-space: pre-wrap; }
-#ohTable thead th { position: sticky; top: 0; z-index: 2; background: var(--soft); }
-#ohTable thead tr.oh-filterrow th { background: var(--surface-white); box-shadow: 0 1px 0 var(--line-table-row); }
+#ohTable thead th, #boTable thead th { position: sticky; top: 0; z-index: 2; background: var(--soft); }
+#ohTable thead tr.oh-filterrow th, #boTable thead tr.oh-filterrow th { background: var(--surface-white); box-shadow: 0 1px 0 var(--line-table-row); }
+
+/* Backorder: scheidingslijn tussen de orders. */
+#boTable tbody tr.bo-ordersep td { border-top: 2px solid var(--line-strong); padding-top: 8px; }
+#boTable tbody tr.bo-orderend td { padding-bottom: 8px; }   /* standaard 3px + 5px lege ruimte boven en onder de lijn */

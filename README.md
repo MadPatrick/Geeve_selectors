@@ -62,6 +62,7 @@ worden. Leest de slangen uit `data/hoses/` en zijn eigen `data/configurator/slan
 | Inkoopprijzen GR14 / GR55 | `/reports/inkoopprijzengr14gr55/` | Inkoopprijs (hoofdleverancier) en standaard verkoopprijs van artikelgroep 14 naast groep 55, gekoppeld op Zoekcode (GR55 = GR14 + `VZ`/`VZX`), Download Excel |
 | Brutoprijzen per artikelgroep | `/reports/brutoprijzen/` | Artikelgroepnummer invullen: artikelnummer, leveranciersnummer (ItemAccounts hoofdleverancier) en bruto verkoopprijs (staffl salesprice), Export naar Excel |
 | Negatieve voorraad | `/reports/negatievevoorraad/` | Artikelen met negatieve voorraad: tekort op open verkoop-/productieorder zonder (genoeg) inkoop, en negatief zonder open order; groep 0 en groepen > 900 weggelaten, Download Excel |
+| Backorder | `/reports/backorder/` | Klant kiezen (zoeken op nummer of naam) en de openstaande, nog niet geleverde verkooporderregels zien; filter per kolom, Download Excel |
 | Slangkaart Nettoprijzen | `/reports/slangkaartnetto/` | Slangassemblages met nettoprijs (database Slangkaarten, tabel Slangkaarten: Nummer, DebiteurNaam, PrijsBerekend = Netto afspraak), filter per kolom, Download Excel |
 | Productie Orders | `/templates/productieorders/` | Gereed te melden productieorders (SP_SQLQuery_ProductieordersGereed_te_melden), filter per kolom, Download Excel |
 

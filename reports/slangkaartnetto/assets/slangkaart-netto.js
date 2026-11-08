@@ -22,9 +22,7 @@
     var ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
     var loading = false;
 
-    function esc(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
+    function esc(s) { return GeeveEsc(s); }
     function nl(n) { return Number(n).toLocaleString('nl-NL', { maximumFractionDigits: 4 }); }
     function fail(text) { message.textContent = text || ''; message.hidden = !text; }
     function cellText(v, i) {

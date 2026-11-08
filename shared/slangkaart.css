@@ -32,7 +32,7 @@
 
 .card-body { display: grid; grid-template-columns: 1fr 140px; gap: 20px; align-items: start; }
 .card-details { display: flex; flex-direction: column; }
-.card-detail-row { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-bottom: 1px solid var(--line-faint); font-size: 13px; }
+.card-detail-row { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-bottom: 1px solid var(--surface-muted); font-size: 13px; }
 .card-detail-row span { color: var(--muted); }
 .card-detail-row strong { text-align: right; overflow-wrap: anywhere; }
 .card-slangnummer strong { font-size: 16px; color: var(--accent-dark); }
@@ -68,7 +68,7 @@
 /* Kleuren van het hoekdiagram (opgebouwd in slkprinten/index.php, renderAngleDiagram): grijze ring en vlak, lichte assen, zwarte hoeklijnen. */
 .angle-diagram .angle-ring { fill: none; stroke: var(--angle-fill); }
 .angle-diagram .angle-wedge { fill: var(--angle-fill); }
-.angle-diagram .angle-axis { stroke: var(--print-line); }
+.angle-diagram .angle-axis { stroke: var(--muted-soft); }
 .angle-diagram .angle-edge { stroke: var(--ink-print); }
 .angle-diagram .angle-label { fill: var(--ink-print); }
 
@@ -125,12 +125,12 @@
         background: var(--surface-white);
         color: var(--ink-print);
         font-family: var(--font-print);
-        /* Kaderranden in de print donkergrijs, donkergrijs --line-print (was #999; Patrick, 19-10-2026, zodat ze op de Canon blijven staan); op
+        /* Kaderranden in de print donkergrijs, donkergrijs --ink-black (was #999; Patrick, 19-10-2026, zodat ze op de Canon blijven staan); op
            scherm blijven ze lichtgrijs (--line uit tokens.css). Geldt voor alle kaders: kaart, tabellen, vinkjes,
            footerlijn, picklijst. */
-        --line: var(--line-print, var(--ink-black)); /* terugval: een verouderde tokens.css in de browsercache kent --line-print nog niet, en dan vervalt elke kaderlijn */
+        --line: var(--ink-black);
     }
-    /* Alle kaders in de print even dun (1px, --line-print): geen dikkere buitenkaders meer, zodat de lijnen
+    /* Alle kaders in de print even dun (1px, --ink-black): geen dikkere buitenkaders meer, zodat de lijnen
        gelijkmatig uitkomen (Patrick, 19-10-2026). */
     /* Chromium knipt in de PDF alles af op de rechterrand van het printgebied; de boxen lopen precies tot die rand,
        waardoor de rechter kaderlijn tot een haarlijn werd. 1 mm ruimte rechts houdt hem heel. */

@@ -62,8 +62,8 @@ button, input, select { font: inherit; }
 .page-footer { margin: auto 4px 0; padding-top: 30px; color: var(--muted); font-size: 12px; text-align: center; }
 
 .brand-panel {
-    background: var(--brand-panel-bg);
-    color: var(--brand-panel-ink);
+    background: var(--ink-black);
+    color: var(--surface-white);
     border-radius: 18px 18px 0 0;
     padding: 10px 20px 14px;
     display: grid;
@@ -95,7 +95,7 @@ button, input, select { font: inherit; }
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(100deg, var(--shine-edge) 42%, var(--shine-mid) 50%, var(--shine-edge) 58%) no-repeat;
+    background: linear-gradient(100deg, var(--shine-edge) 42%, var(--white-a25) 50%, var(--shine-edge) 58%) no-repeat;
     background-size: 250% 100%;
     background-position: 100% 0;
     pointer-events: none;
@@ -116,7 +116,7 @@ button, input, select { font: inherit; }
     width: var(--s);
     height: var(--s);
     border-radius: 50%;
-    background: var(--snow);
+    background: var(--white-a80);
     animation: snow-fall var(--d) var(--w) linear infinite;
 }
 @keyframes snow-fall {
@@ -158,10 +158,10 @@ button, input, select { font: inherit; }
         -16px 0px 0 currentColor,
         -11px -11px 0 currentColor;
 }
-.fw-1 { color: var(--fw-1); }
+.fw-1 { color: var(--egg-1); }
 .fw-2 { color: var(--fw-2); }
-.fw-3 { color: var(--fw-3); }
-.fw-4 { color: var(--fw-4); }
+.fw-3 { color: var(--egg-2); }
+.fw-4 { color: var(--egg-4); }
 @keyframes fw-burst {
     0% { transform: scale(.1); opacity: 1; }
     35% { transform: scale(1); opacity: 1; }
@@ -180,10 +180,10 @@ button, input, select { font: inherit; }
     animation: egg-wiebel 4s var(--w) ease-in-out infinite;
 }
 .egg-body { stroke: var(--btn-glass-line); stroke-width: .6; }
-.egg-stripe { stroke: var(--egg-stripe); stroke-width: 1.6; }
+.egg-stripe { stroke: var(--white-a80); stroke-width: 1.6; }
 .egg-1 .egg-body { fill: var(--egg-1); }
 .egg-2 .egg-body { fill: var(--egg-2); }
-.egg-3 .egg-body { fill: var(--egg-3); }
+.egg-3 .egg-body { fill: var(--eyebrow-ink); }
 .egg-4 .egg-body { fill: var(--egg-4); }
 .egg-5 .egg-body { fill: var(--egg-5); }
 @keyframes egg-wiebel {
@@ -212,7 +212,7 @@ button, input, select { font: inherit; }
     gap: 5px;
     font-size: 12px;
     font-weight: 700;
-    color: var(--ink-on-dark-soft);
+    color: var(--panel);
     opacity: .92;
     white-space: nowrap;
 }
@@ -221,7 +221,7 @@ button, input, select { font: inherit; }
 .version-inline {
     font-size: 12px;
     font-weight: 700;
-    color: var(--ink-on-dark-soft);
+    color: var(--panel);
     opacity: .92;
     white-space: nowrap;
 }
@@ -296,7 +296,7 @@ h1 {
 
 input, select {
     width: 100%;
-    border: 1px solid var(--line-input);
+    border: 1px solid var(--line-strong);
     background: var(--surface-white);
     color: var(--ink);
     border-radius: 10px;
@@ -306,7 +306,7 @@ input, select {
     transition: border-color .16s, box-shadow .16s, background .16s;
 }
 input:focus, select:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
-select:disabled, input:disabled { background: var(--surface-input-disabled); color: var(--ink-disabled); }
+select:disabled, input:disabled { background: var(--soft); color: var(--ink-placeholder); }
 
 /* Print-knop, voor alle apps hetzelfde: lichtgroene pil met printer-icoon ervoor (markup: zie shared/README.md). */
 .print-btn {
@@ -375,7 +375,7 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
 
 /* Voortgangsbalk bij export-/import-/"Naar Exact"-knoppen (shared/progress.js, GeeveProgress). */
 .geeve-progress-host { position: fixed; left: 50%; bottom: 20px; z-index: 1000; width: 360px; max-width: calc(100% - 32px); margin-left: -180px; }
-.geeve-progress { margin-top: 8px; padding: 10px 14px 12px; border: 1px solid var(--line-input); border-radius: var(--radius-sm); background: var(--progress-surface); color: var(--progress-ink); box-shadow: 0 6px 18px var(--progress-shadow); font-size: 13px; font-weight: 600; }
+.geeve-progress { margin-top: 8px; padding: 10px 14px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--progress-surface); color: var(--progress-ink); box-shadow: 0 6px 18px var(--progress-shadow); font-size: 13px; font-weight: 600; }
 .geeve-progress-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
 .geeve-progress-pct { color: var(--muted); font-weight: 500; }
 .geeve-progress-track { position: relative; height: 8px; overflow: hidden; border: 1px solid var(--progress-fill); border-radius: 6px; background: var(--progress-track); }
@@ -396,8 +396,178 @@ select:disabled, input:disabled { background: var(--surface-input-disabled); col
 .geeve-btn-progress.is-error .geeve-btn-progress-fill { background: var(--btn-progress-error); opacity: .35; }
 
 /* Tegelpictogrammen per groep (kleuren in tokens.css, markup via tileIcon() in shared/tiles.php). */
-.tile-icon.g-home { background: var(--tile-home-bg); border-color: var(--tile-home-line); color: var(--tile-home-ink); }
-.tile-icon.g-reports { background: var(--tile-reports-bg); border-color: var(--tile-reports-line); color: var(--tile-reports-ink); }
-.tile-icon.g-templates { background: var(--tile-templates-bg); border-color: var(--tile-templates-line); color: var(--tile-templates-ink); }
-.tile-icon.g-stickers { background: var(--tile-stickers-bg); border-color: var(--tile-stickers-line); color: var(--tile-stickers-ink); }
+.tile-icon.g-home { background: var(--status-accent-soft); border-color: var(--accent-line); color: var(--accent-dark); }
+.tile-icon.g-reports { background: var(--status-info-soft); border-color: var(--tile-reports-line); color: var(--tile-reports-ink); }
+.tile-icon.g-templates { background: var(--status-ok-soft); border-color: var(--tile-templates-line); color: var(--ok); }
+.tile-icon.g-stickers { background: var(--status-warn-soft); border-color: var(--tile-stickers-line); color: var(--tile-stickers-ink); }
 .tile-icon svg { display: block; }
+
+/* ---- Regels die eerder in meerdere app-stylesheets stonden (hoses, adapters, stauff, configurator, ...), nu centraal; overgenomen zonder wijziging ---- */
+.status-pill {
+    padding: 10px 15px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--status-pill-bg);
+    color: var(--muted);
+}
+.status-pill.ready {
+    color: var(--ok-ink);
+    background: var(--ok-fill);
+    border: 1px solid var(--ok-line);
+    padding: 9px 14px;
+}
+.status-pill.error {
+    color: var(--danger);
+    background: var(--status-error-wash);
+}
+.section-heading, .subsection-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+.result-count {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 700;
+}
+.section-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--btn-gap);
+    flex-wrap: wrap;
+}
+.pdf-button {
+    appearance: none;
+    flex: 0 0 auto;
+    border: 1px solid var(--btn-pdf-line);
+    border-radius: 999px;
+    background: var(--btn-pdf);
+    color: var(--btn-pdf-ink);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 18px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s, color .15s;
+}
+.pdf-button:hover {
+    background: var(--btn-pdf-hover);
+    color: var(--btn-pdf-hover-ink);
+}
+.data-panel-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+.data-panel-block p {
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.4;
+}
+.data-panel-block h3 {
+    margin: 0 0 8px;
+    font-size: 15px;
+}
+.data-download-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--btn-gap);
+    align-items: flex-start;
+}
+.data-download-link {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--btn-red-line);
+    border-radius: 999px;
+    background: var(--btn-white);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 9px 16px;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+}
+.data-download-link:hover {
+    background: var(--btn-red);
+    color: var(--btn-ink-light);
+}
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+}
+.upload-form select {
+    width: auto;
+    min-width: 160px;
+    border: 1px solid var(--line-strong);
+    background: var(--surface-white);
+    color: var(--ink);
+    border-radius: 10px;
+    min-height: 44px;
+    padding: 9px 12px;
+}
+.upload-form input[type="file"] {
+    border: 1px solid var(--line-strong);
+    background: var(--surface-white);
+    color: var(--ink);
+    border-radius: 10px;
+    min-height: auto;
+    padding: 9px 12px;
+}
+.upload-button {
+    appearance: none;
+    border: 1px solid var(--btn-primary-line);
+    border-radius: 999px;
+    background: var(--btn-primary);
+    color: var(--btn-primary-ink);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 18px;
+    cursor: pointer;
+}
+.upload-button:hover {
+    opacity: .9;
+}
+.upload-message {
+    margin-bottom: 16px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.upload-ok {
+    color: var(--ok);
+    background: var(--status-ok-soft);
+}
+.upload-error {
+    color: var(--danger);
+    background: var(--status-error-wash);
+}
+.result-panel[hidden] {
+    display: none;
+}
+.empty-result[hidden] {
+    display: none;
+}
+.warning-box {
+    margin-top: 18px;
+    padding: 15px 18px;
+    border-radius: 12px;
+    border: 1px solid var(--status-error-line);
+    background: var(--status-invalid-bg);
+    color: var(--status-error-ink);
+}
+.autocomplete {
+    position: relative;
+}
+.submit-button:hover {
+    opacity: .9;
+}
+.link-button:hover {
+    opacity: .9;
+}

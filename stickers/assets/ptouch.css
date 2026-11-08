@@ -2,8 +2,15 @@
    de sticker vult en wordt kleiner bij meer regels. Scherm, de sticker zelf en de printinstellingen. */
 
 .pt-preview { zoom: 1.25; }
+/* Vaste ruimte van de grootste sticker (102 x 51 mm), ook bij Sticker Klein: de kaart wordt dan niet lager of smaller bij wisselen
+   van formaat en de knoppen eronder blijven op dezelfde plek. De hoogte (59 mm x zoom 1,25) is ook net iets hoger dan de instellingenkolom mét
+   de velden Snelheid en Zwarting (labelprinters met TSPL of Brother), zodat de knoppen ook niet verschuiven als je een andere printer kiest. */
+.pt-preview { min-width: 102mm; min-height: 59mm; }
 .pt-align { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 14px; }
 .pt-align-label { font-weight: 700; }
+/* Lettergrootte zelf bepalen: invoerveld, eenheid en knop Automatisch naast elkaar. */
+.pt-font { display: flex; align-items: center; gap: 8px; }
+.pt-font .ka-input { width: 90px; }
 /* Uitlijnknoppen met iconen (staan tussen Leegmaken en Print). */
 .rp-toggle--icons button { display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; }
 .rp-toggle--icons svg { width: 20px; height: 20px; display: block; }

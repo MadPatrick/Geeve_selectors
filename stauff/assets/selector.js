@@ -988,7 +988,7 @@
      * locaties (rebuildComponents()) en vrij toegevoegde extra-regels
      * (populateExtraArticleSelect()).
      */
-    function renderLiveCandidates(pos, select, rawRows, { family = '', previousValue = '', emptyText = '', trackWarning = false } = {}) {
+    function renderLiveCandidates(pos, select, rawRows, { family = '', previousValue = '', emptyText = '', trackWarning = false, zonderGroep = false } = {}) {
         const numPos = Number(pos);
         let items = rawRows
             .map(row => ({ code: norm(row.ItemCode), group: norm(row.Group) }))
@@ -998,7 +998,7 @@
                 return !!rule && rule.position === numPos;
             });
 
-        if (GROUP_FILTER_ENABLED_FOR[numPos] && state.beugelGroup) {
+        if (GROUP_FILTER_ENABLED_FOR[numPos] && state.beugelGroup && !zonderGroep) {
             items = items.filter(item => tagMatches(item.group, state.beugelGroup)
                 || (isGr1aBeugel() && firstCodePart(item.code) === 'SM' && tagMatches(item.group, 'GR1')));
         }
@@ -1174,7 +1174,7 @@
      * een eigen unieke key mee - anders zouden ze elkaars zoekopdracht
      * annuleren via dezelfde locationFilterRequests-sleutel.
      */
-    function applyLocationFilterSelect(pos, select, family, requestKey = pos, { emptyText = '', trackWarning = false, onRendered = null } = {}) {
+    function applyLocationFilterSelect(pos, select, family, requestKey = pos, { emptyText = '', trackWarning = false, onRendered = null, zonderGroep = false } = {}) {
         if (locationFilterRequests[requestKey]) {
             clearTimeout(locationFilterRequests[requestKey].timeoutId);
             locationFilterRequests[requestKey].controller.abort();
@@ -1193,7 +1193,7 @@
         const params = new URLSearchParams({ prefixes });
         const materialValue = materialQueryValue(pos, family);
         if (materialValue) params.set('material', materialValue);
-        if (GROUP_FILTER_ENABLED_FOR[Number(pos)] && state.beugelGroup) params.set('group', state.beugelGroup);
+        if (GROUP_FILTER_ENABLED_FOR[Number(pos)] && state.beugelGroup && !zonderGroep) params.set('group', state.beugelGroup);
 
         fetch(`api/exact_location_search.php?${params.toString()}`, { cache: 'no-store', signal: controller.signal })
             .then(response => response.json())
@@ -1203,7 +1203,7 @@
                     throw new Error((payload && payload.error) || 'Onbekende fout.');
                 }
                 lastRawRowsByPosition[Number(pos)] = payload.rows;
-                renderLiveCandidates(pos, select, payload.rows, { family, previousValue, emptyText, trackWarning });
+                renderLiveCandidates(pos, select, payload.rows, { family, previousValue, emptyText, trackWarning, zonderGroep });
                 updateAssemblyCode();
                 if (onRendered) onRendered();
             })
@@ -1640,17 +1640,13 @@
     }
 
     /**
-     * Toont op de "Kopieer code"-knop zelf of de samenstelling al als
-     * artikel in Exact bestaat (zie checkAssemblyInErp()): groen/"Kopieer
-     * code" als hij nog niet bestaat (of nog niet bekend is), rood/"Update
-     * prijs" zodra hij gevonden is - er is dan al een kant-en-klaar artikel,
-     * dus is de prijs daarvan bijwerken relevanter dan de code kopiëren.
-     * Verandert alleen label/kleur, niet het klikgedrag.
+     * Bestaat de samenstelling al als artikel in Exact (zie checkAssemblyInErp()),
+     * dan heet de knop "Naar Exact" "Update Exact": hij werkt dan de prijs en
+     * stuklijst van het bestaande artikel bij. "Kopieer code" blijft ongewijzigd.
      */
     function setCopyButtonState(found) {
-        if (!ui.copyButton) return;
-        ui.copyButton.textContent = found ? 'Update prijs' : 'Kopieer code';
-        ui.copyButton.classList.toggle('is-found', found);
+        if (!ui.exactWriteButton) return;
+        ui.exactWriteButton.textContent = found ? 'Update Exact' : 'Naar Exact';
     }
 
     /**
