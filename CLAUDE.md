@@ -113,6 +113,7 @@ Eén gedeeld versienummer in `version.php` (root) voor het hoofdscherm en alle s
 
 ## Git
 
-Commits gaan direct naar `main` (geen PR), tenzij de gebruiker expliciet om een aparte branch of
-PR vraagt. Altijd `git fetch origin main` + vergelijken vóór het committen; bij een conflict
-rebasen, nooit force-pushen.
+Werk gaat naar `develop`, niet meer direct naar `main` (Patrick 2026-11-08). Een wijziging gaat via een
+eigen branch met een PR naar `develop`; werkt het daar, dan volgt een PR van `develop` naar `main`. Altijd
+`git fetch origin develop` + vergelijken vóór het committen; bij een conflict rebasen, nooit force-pushen.
+Op elke push naar `develop`/`main` en op elke PR draaien de GitHub-checks (`.github/workflows/`).

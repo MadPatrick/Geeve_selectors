@@ -1,10 +1,10 @@
-# Automatische controles bij elke push naar main en bij elke pull request.
+# Automatische controles bij elke push naar develop of main en bij elke pull request.
 # Zelfde controles als in CLAUDE.md ("Controle voor elke push"), plus PHP-syntax, PHPStan en ESLint.
 name: Checks
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
   workflow_dispatch:
 
