@@ -1,0 +1,6 @@
+{
+    ".card-note div": "Notitie: portal 9px, Slangkaart.Web 11px + white-space: pre-line (bestaand verschil 26-10-2026, nog niet gelijkgetrokken)",
+    ".coupling-table": "Portal heeft een negatieve marge van 1px voor de rand; Slangkaart.Web niet (bestaand verschil 26-10-2026)",
+    ".card-footer-meta": "Portal 3 kolommen, Slangkaart.Web 4 (Geprint-blok zit alleen daar; bestaand verschil 26-10-2026)",
+    ".card-footer-addresses, .card-footer-meta": "Samengestelde regel bestaat alleen in de portal (bestaand verschil 26-10-2026)"
+}
