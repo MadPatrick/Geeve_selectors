@@ -257,7 +257,7 @@
     // clausule raakte".
     const RULE_BY_PREFIX = new Map(PREFIX_RULES.map(rule => [rule.prefix, rule]));
     const PREFIXES_BY_POSITION = PREFIX_RULES.reduce((acc, rule) => {
-        (acc[rule.position] ||= []).push(rule.prefix);
+        (acc[rule.position] = acc[rule.position] || []).push(rule.prefix);
         return acc;
     }, {});
 

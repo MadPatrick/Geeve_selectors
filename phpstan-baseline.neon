@@ -1,0 +1,269 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Variable \$csvFileCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: adapters/download.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between non\-empty\-array\<string, string\|null\> and false will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: adapters/index.php
+
+		-
+			message: '#^Variable \$csvFileCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: adapters/index.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between non\-empty\-list\<string\|null\> and false will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: adapters/upload.php
+
+		-
+			message: '#^Variable \$csvFileCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: adapters/upload.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between non\-empty\-array\<string, string\|null\> and false will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 2
+			path: configurator/index.php
+
+		-
+			message: '#^Variable \$csvFileCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: configurator/index.php
+
+		-
+			message: '#^Variable \$accessoryCsvCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: hoses/download.php
+
+		-
+			message: '#^Variable \$csvFileCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: hoses/download.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between non\-empty\-array\<string, string\|null\> and false will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 2
+			path: hoses/inc/data-loader.php
+
+		-
+			message: '#^Variable \$accessoryCsvCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: hoses/index.php
+
+		-
+			message: '#^Variable \$csvFileCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: hoses/index.php
+
+		-
+			message: '#^Variable \$accessoryCsvCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: hoses/save.php
+
+		-
+			message: '#^Variable \$csvFileCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: hoses/save.php
+
+		-
+			message: '#^Variable \$accessoryCsvCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: hoses/upload.php
+
+		-
+			message: '#^Variable \$csvFileCandidates might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: hoses/upload.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between non\-empty\-string and '''' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: reports/artikelmarge/api/data.php
+
+		-
+			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(string\)\: bool\)\|null, ''strlen'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: reports/brutoprijzen/api/data.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{tot\: int, melding\: string\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: shared/db.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: shared/db.php
+
+		-
+			message: '#^Offset ''melding'' on array\{tot\: int, melding\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: shared/db.php
+
+		-
+			message: '#^Offset ''tot'' on array\{tot\: int, melding\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: shared/db.php
+
+		-
+			message: '#^Variable \$headerTitle might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: shared/header.php
+
+		-
+			message: '#^Variable \$csrf might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: shared/lock_modal.php
+
+		-
+			message: '#^Variable \$lockRoot might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: shared/lock_modal.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{naam\: string, tot\: int\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: shared/pcnaam.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: shared/pcnaam.php
+
+		-
+			message: '#^Offset ''naam'' on array\{naam\: string, tot\: int\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: shared/pcnaam.php
+
+		-
+			message: '#^Offset ''tot'' on array\{naam\: string, tot\: int\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: shared/pcnaam.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: shared/printen.php
+
+		-
+			message: '#^Offset ''class'' on array\{sheet\: ''psPrintSheet'', class\: ''ps\-printsheet'', css\: array\{''shared/tabel\.css'', ''shared/rapport\.css'', ''shared/stickers\.css'', ''stickers/assets…''\}\}\|array\{sheet\: ''ptPrintSheet'', class\: ''pt\-printsheet'', css\: array\{''shared/tabel\.css'', ''shared/rapport\.css'', ''shared/stickers\.css'', ''stickers/assets…''\}\}\|array\{sheet\: ''slPrintSheet'', class\: ''sl\-printsheet'', css\: array\{''shared/tabel\.css'', ''shared/rapport\.css'', ''shared/stickers\.css'', ''stickers/assets…''\}\}\|array\{sheet\: ''soSheet'', class\: ''so\-preview'', css\: array\{''shared/tabel\.css'', ''shared/rapport\.css'', ''shared/stickers\.css'', ''stickers/assets/art…'', ''stickers/assets…''\}\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: shared/printen.php
+
+		-
+			message: '''
+				#^PHPDoc tag @param has invalid value \(array\{
+				  tileId\: string,            tegel\-id voor printerkeuze en afdrukinstellingen
+				  csrf\: string,
+				  preview\: string,           HTML van het voorbeeld \(bijv\. \<div class\="so\-preview" id\="soSheet"\>\</div\>\)
+				  copiesId\?\: string,         id van het veld "x afdrukken" \(weglaten \= geen aantalveld\)
+				  copiesValue\?\: int,
+				  extra\?\: string,            extra HTML in de instellingenkolom, boven de printerkeuze
+				  clearId\?\: string,          id van de knop Leegmaken \(weglaten \= geen knop\)
+				  actiesMidden\?\: string,     extra HTML \(bijv\. keuzeschakelaars\) tussen Leegmaken en Print
+				  printId\: string,           id van de Print\-knop
+				  printDisabled\?\: bool,
+				  printAttrs\?\: string,       extra attributen op de Print\-knop \(al ge\-escaped\)
+				  printClass\?\: string,
+				  id\?\: string                id van de kaart
+				\} \$o\)\: Unexpected token "voor", expected '\}' at offset 62 on line 3$#
+			'''
+			identifier: phpDoc.parseError
+			count: 1
+			path: shared/stickers_kaart.php
+
+		-
+			message: '#^Offset ''reports''\|''stickers''\|''templates'' on array\{hoses\: array\{''home'', ''Slangen fitting…'', ''hoses/index\.php'', true, false, false\}, adapters\: array\{''home'', ''Adapters Selector'', ''adapters/index\.php'', true, false, false\}, slangkaarten\: array\{''home'', ''Slangkaarten printen'', ''slkprinten/index\.php'', true, false, false\}, slangkaarten\-app\: array\{''home'', ''Slangkaarten'', ''slangkaarten/index…'', true, false, true\}, stickers\: array\{''home'', ''Stickers'', ''stickers/index\.php'', true, false, false\}, stauff\: array\{''home'', ''Stauff Selector'', ''stauff/index\.php'', true, false, true\}, reports\: array\{''home'', ''Reports'', ''reports/index\.php'', true, false, false\}, msp\: array\{''reports'', ''MSP report'', ''reports/msp/index…'', true, false, false\}, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: shared/tiles.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between array\{\} and array\{\} will always evaluate to false\.$#'
+			identifier: notIdentical.alwaysFalse
+			count: 2
+			path: slkprinten/index.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between non\-empty\-array and array\{\} will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: slkprinten/index.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between \*NEVER\* and 1 will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: slkprinten/index.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between non\-empty\-array\<string, string\|null\> and false will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: slkprinten/index.php
+
+		-
+			message: '#^Parameter \#1 \$array \(array\{0\: non\-falsy\-string, 1\?\: mixed\}\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: templates/inkooporder/api/data.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: templates/offerteimport/index.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: templates/offerteimport/index.php
+
+		-
+			message: '#^Offset string on array\{\} in isset\(\) does not exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tools/check-kleuren.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between 0 and 0 will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 2
+			path: tools/test-printsaneren.php

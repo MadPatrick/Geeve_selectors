@@ -15,3 +15,6 @@
 # Tijdelijke bestanden van tools/scripts: niet in git (alleen de .htaccess die de map afsluit)
 /tmp/*
 !/tmp/.htaccess
+
+# Node-modules voor ESLint (CI-controle, zie package.json): niet in git
+/node_modules/

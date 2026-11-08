@@ -1,0 +1,68 @@
+# Automatische controles bij elke push naar main en bij elke pull request.
+# Zelfde controles als in CLAUDE.md ("Controle voor elke push"), plus PHP-syntax, PHPStan en ESLint.
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    name: PHP (syntax, eigen checks, PHPStan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'   # zelfde als de server (Debian 13)
+          tools: phpstan:2.3
+          coverage: none
+
+      - name: PHP-syntax (php -l)
+        run: |
+          fout=0
+          while IFS= read -r -d '' f; do
+            php -l "$f" > /dev/null || fout=1
+          done < <(git ls-files -z '*.php')
+          exit $fout
+
+      - name: Losse kleuren (tools/check-kleuren.php)
+        run: php tools/check-kleuren.php
+
+      - name: Knopkleuren (tools/check-knoppen.php)
+        run: php tools/check-knoppen.php
+
+      - name: Browsercompatibiliteit (tools/check-browsers.php)
+        run: php tools/check-browsers.php
+
+      - name: Test printsaneren (tools/test-printsaneren.php)
+        run: php tools/test-printsaneren.php
+
+      - name: PHPStan (level 5, met baseline)
+        run: phpstan analyse --no-progress --error-format=github --memory-limit=1G
+
+  js:
+    name: JavaScript (ESLint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: ESLint
+        run: npx eslint .

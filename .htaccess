@@ -13,10 +13,10 @@
 </FilesMatch>
 
 # Documentatie, scripts en werkbestanden staan in git naast de apps, maar zijn niet voor de browser bedoeld (README's,
-# beheer-/auditscripts, SQL, losse CSV/Excel-lijsten, licentieteksten). De apps lezen ze waar nodig zelf van schijf
+# beheer-/auditscripts, SQL, losse CSV/Excel-lijsten, licentieteksten, CI-configuratie zoals package.json en phpstan.neon). De apps lezen ze waar nodig zelf van schijf
 # (bijv. reports/msp/sql/msp_query.sql) of bieden een download via een eigen .php (bijv. hoses/download.php).
 # PDF's in docs/ blijven wel bereikbaar. tools/ en tmp/ hebben daarnaast een eigen .htaccess die alles afsluit.
-<FilesMatch "(?i)\.(md|sh|py|mjs|sql|csv|txt|xlsx|xls)$">
+<FilesMatch "(?i)\.(md|sh|py|mjs|sql|csv|txt|xlsx|xls|json|neon)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>

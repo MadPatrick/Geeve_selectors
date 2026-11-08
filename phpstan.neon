@@ -1,0 +1,19 @@
+# PHPStan: statische analyse van de PHP-code (zie .github/workflows/checks.yml).
+# Level 5 met een baseline: bestaande meldingen staan in phpstan-baseline.neon, alleen nieuwe meldingen laten de check falen.
+# Lokaal draaien: phpstan analyse   (of: php phpstan.phar analyse)
+# Baseline opnieuw maken na het oplossen van oude meldingen: phpstan analyse --generate-baseline
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+    phpVersion: 80400
+    paths:
+        - .
+    excludePaths:
+        analyseAndScan:
+            - .git/*
+            - data/*
+            - tmp/*
+            - node_modules/*
+            - */vendor/*
