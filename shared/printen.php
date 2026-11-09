@@ -614,7 +614,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         foreach ($pages as $i => $page) {
             // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste, en dat laatste label doorgevoerd tot de afscheurrand.
             $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\nSET TEAR ON\r\n") : '';
-            $tspl .= $snijder . geevePbmToTspl($factor > 1 ? geevePgmNaarPbm((string) file_get_contents($page), $factor, (int) ($medium['drempel'] ?? 128)) : (string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk, $i === count($pages) - 1);
+            $tspl .= $snijder . geevePbmToTspl($factor > 1 ? geevePgmNaarPbm((string) file_get_contents($page), $factor, (int) ($medium['drempel'] ?? 128)) : (string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk, $i === count($pages) - 1, $i === 0);
         }
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
@@ -739,7 +739,7 @@ function geevePbmToZpl(string $pbm, array $afdruk = []): string
 }
 
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
-function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = [], array $afdruk = [], bool $laatste = true): string
+function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = [], array $afdruk = [], bool $laatste = true, bool $eerste = true): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -828,7 +828,8 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     }
     // Met een vast medium zonder 'gap' geen GAP-regel: de printer gebruikt zijn eigen gemeten tussenruimte. Met 'gap' (mm) staat
     // die vast, zoals in de Windows-driver (Gap/Mark size 2 mm, offset 0).
-    $gap = $medium === [] ? "GAP 3 mm,0 mm\r\n" : (isset($medium['gap']) ? 'GAP ' . $medium['gap'] . " mm,0 mm\r\n" : '');
+    $gapRegel = $medium === [] ? "GAP 3 mm,0 mm\r\n" : (isset($medium['gap']) ? 'GAP ' . $medium['gap'] . " mm,0 mm\r\n" : '');
+    $gap = '';
     // Zonder snijder: alleen na het laatste label doorvoeren tot de afscheurrand. Tussen de labels niet: bij elk label
     // doorvoeren en weer terugtrekken gaf een andere startpositie per label (tekst ging van label tot label heen en weer).
     if (!empty($medium['tear'])) {
@@ -837,7 +838,10 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
             $gap .= 'OFFSET ' . round((float) $medium['offset'], 1) . " mm\r\n";
         }
     }
-    return 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gap . $instelling . "DIRECTION 0\r\nCLS\r\n"
+    // Formaat, tussenruimte, snelheid en zwarting gelden voor de hele opdracht: alleen bij het eerste label sturen. Bij elk
+    // label opnieuw instellen kostte de printer tijd tussen de labels (bij veel stickers merkbaar).
+    $kop = $eerste ? 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gapRegel . $instelling . "DIRECTION 0\r\n" : '';
+    return $kop . $gap . "CLS\r\n"
         . 'BITMAP ' . $bitmapX . ',' . $bitmapY . ',' . $rowBytes . ',' . $bitmapHoogte . ',0,' . $data . "\r\nPRINT 1,1\r\n";
 }
 
