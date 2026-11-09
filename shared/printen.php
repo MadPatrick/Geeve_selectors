@@ -495,6 +495,8 @@ function geevePrintHtml(string $bodyHtml, array $cssFiles, string $queue, string
 /** brother_ql (eigen Python-omgeving op de server) en het label waarop de Brother QL-printers staan: 102 x 51 mm. */
 const GEEVE_BROTHER_QL_DIR = '/opt/brother_ql';
 const GEEVE_BROTHER_QL_LABEL = ['maat' => '102x51', 'breedte' => 1164, 'hoogte' => 526];
+/** Zoveel brother_ql-omzettingen tegelijk (de server heeft 20 kernen en 7,6 GB geheugen; één omzetting duurt ca. 0,06 s). */
+const GEEVE_BROTHER_QL_TEGELIJK = 8;
 
 /**
  * Print een PDF op een Brother QL-1100/1050: elke pagina wordt een bitmap van 1164 x 526 punten (300 dpi, het
@@ -543,16 +545,25 @@ function geeveBrotherPrint(string $pdfFile, array $printer, string $queue, strin
         }
         $commands[$i] = array_merge([$create, '--model', (string) ($printer['model'] ?? 'QL-1100'), '--label-size', $dots['maat']], $opties, [substr($page, 0, -4) . '.png', $workDir . '/label' . $i . '.bin']);
     }
-    $bin = '';
-    foreach (geeveRunParallel($commands, 60) as $i => $make) {
-        $out = $workDir . '/label' . $i . '.bin';
-        if ($make['code'] !== 0 || !is_file($out)) {
-            throw new RuntimeException('brother_ql kon het label niet omzetten: ' . geeveLastLine($make['err'] . $make['out']));
-        }
-        $bin .= (string) file_get_contents($out);
-    }
+    // Hooguit GEEVE_BROTHER_QL_TEGELIJK omzettingen tegelijk: bij honderden stickers alles tegelijk starten (één Python per
+    // label) vult het geheugen van de server. Het resultaat gaat label voor label naar het bestand, niet eerst in het geheugen.
     $file = $workDir . '/labels.bin';
-    file_put_contents($file, $bin);
+    $uit = fopen($file, 'wb');
+    if ($uit === false) {
+        throw new RuntimeException('Kon het printbestand niet wegschrijven.');
+    }
+    try {
+        foreach (geeveRunParallel($commands, 60, GEEVE_BROTHER_QL_TEGELIJK) as $i => $make) {
+            $out = $workDir . '/label' . $i . '.bin';
+            if ($make['code'] !== 0 || !is_file($out)) {
+                throw new RuntimeException('brother_ql kon het label niet omzetten: ' . geeveLastLine($make['err'] . $make['out']));
+            }
+            fwrite($uit, (string) file_get_contents($out));
+            @unlink($out);
+        }
+    } finally {
+        fclose($uit);
+    }
     return geeveSmbPrint($queue, $file, $title);
 }
 
@@ -571,6 +582,9 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
     if (preg_match('#(file:|<iframe|<object|<embed|<link|@import|<base)#i', $bodyHtml) === 1) {
         throw new RuntimeException('Het label bevat niet-toegestane inhoud.');
     }
+    // Veel labels (honderden stickers, of Slanglabels met supersampling) kunnen in PHP langer rekenen dan max_execution_time
+    // (30 s op de server); dan zou de print halverwege afbreken.
+    @set_time_limit(180);
     $dpi = (int) ($printer['dpi'] ?? 300);
     $workDir = geeveWorkDir();
     try {
@@ -587,8 +601,8 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
                 throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
             }
             $zpl = '';
-            foreach ($pages as $page) {
-                $zpl .= geevePbmToZpl((string) file_get_contents($page), $afdruk, $page === $pages[0]);
+            foreach ($pages as $i => $page) {
+                $zpl .= geevePbmToZpl((string) file_get_contents($page), $afdruk, $i === 0, $i === count($pages) - 1);
             }
             $file = $workDir . '/labels.zpl';
             file_put_contents($file, $zpl);
@@ -609,19 +623,47 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         if ($raster['code'] !== 0 || $pages === []) {
             throw new RuntimeException('De labels konden niet worden omgezet naar een afbeelding' . ($raster['code'] === 127 ? ' (pdftoppm ontbreekt: installeer poppler-utils).' : ': ' . geeveLastLine($raster['err'])));
         }
-        $tspl = '';
-        $snijdEinde = in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true);
-        foreach ($pages as $i => $page) {
-            // Snijden na het laatste label: snijder uit bij alle labels ervoor, aan (na elk 1 label) bij het laatste, en dat laatste label doorgevoerd tot de afscheurrand.
-            $snijder = $snijdEinde ? ($i < count($pages) - 1 ? "SET CUTTER OFF\r\n" : "SET CUTTER 1\r\nSET TEAR ON\r\n") : '';
-            $tspl .= $snijder . geevePbmToTspl($factor > 1 ? geevePgmNaarPbm((string) file_get_contents($page), $factor, (int) ($medium['drempel'] ?? 128)) : (string) file_get_contents($page), $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', GEEVE_LABEL_MEDIUM[$sheetClass] ?? [], $afdruk, $i === count($pages) - 1, $i === 0);
+        $pbms = [];
+        foreach ($pages as $page) {
+            $pbms[] = $factor > 1 ? geevePgmNaarPbm((string) file_get_contents($page), $factor, (int) ($medium['drempel'] ?? 128)) : (string) file_get_contents($page);
         }
+        $tspl = geeveTsplOpdracht($pbms, $dpi, $sheetClass, $afdruk);
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
         return geeveSmbPrint($queue, $file, $title);
     } finally {
         geeveRemoveDir($workDir);
     }
+}
+
+/**
+ * Maakt van de pagina's (PBM, zie geevePbmToTspl()) één TSPL-opdracht voor een tegel ($sheetClass).
+ *
+ * Snijder en afscheurrand (SET CUTTER / SET TEAR) worden één keer per opdracht gezet: bij het eerste label uit, bij het laatste
+ * aan. Die instellingen bewaart de printer in zijn geheugen; bij elk label opnieuw zetten kostte tijd, en zonder SET TEAR OFF
+ * bleef TEAR aan staan van de vorige opdracht, zodat de printer na elk label doorvoerde tot de afscheurrand en voor het
+ * volgende label weer terugtrok (de pauze tussen de stickers bij grote aantallen).
+ *
+ * @param list<string> $pbms
+ */
+function geeveTsplOpdracht(array $pbms, int $dpi, string $sheetClass, array $afdruk = []): string
+{
+    $snijdEinde = in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true);
+    $medium = GEEVE_LABEL_MEDIUM[$sheetClass] ?? [];
+    $aantal = count($pbms);
+    $tspl = '';
+    foreach (array_values($pbms) as $i => $pbm) {
+        $eerste = $i === 0;
+        $laatste = $i === $aantal - 1;
+        // Snijden na het laatste label: snijder en afscheuren uit bij het eerste label, aan (snijden na elk 1 label) bij het
+        // laatste, en dat laatste label doorgevoerd tot de afscheurrand. De labels ertussen krijgen niets: de stand blijft gelden.
+        $snijder = '';
+        if ($snijdEinde) {
+            $snijder = $laatste ? "SET CUTTER 1\r\nSET TEAR ON\r\n" : ($eerste ? "SET CUTTER OFF\r\nSET TEAR OFF\r\n" : '');
+        }
+        $tspl .= $snijder . geevePbmToTspl($pbm, $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', $medium, $afdruk, $laatste, $eerste);
+    }
+    return $tspl;
 }
 
 /**
@@ -718,7 +760,7 @@ function geevePgmNaarPbm(string $pgm, int $factor, int $drempel): string
  * Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een ZPL-label voor een Zebra: ^PW/^LL in punten, de bitmap als
  * ^GFA (ASCII-hex, 1 = zwart, geen inversie nodig) en ^XZ. Rijen zijn intdiv(breedte+7,8) bytes, de opvulbits zijn 0 (wit).
  */
-function geevePbmToZpl(string $pbm, array $afdruk = [], bool $eerste = true): string
+function geevePbmToZpl(string $pbm, array $afdruk = [], bool $eerste = true, bool $laatste = true): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -766,7 +808,10 @@ function geevePbmToZpl(string $pbm, array $afdruk = [], bool $eerste = true): st
     $voor = $eerste && isset($afdruk['zwarting']) ? '~SD' . (int) $afdruk['zwarting'] . "\r\n" : '';
     $snelheid = $eerste && isset($afdruk['snelheid']) ? '^PR' . (int) $afdruk['snelheid'] . "\r\n" : '';
     $kop = $eerste ? "^CI28\r\n^PW" . $width . "\r\n^LL" . $height . "\r\n^LH0,0\r\n" : '';
-    return $voor . "^XA\r\n" . $snelheid . $kop . '^FO' . $x . ',' . $y . '^GFA,' . $total . ',' . $total . ',' . $bytes . ',' . strtoupper(bin2hex($data))
+    // ^XB (alle labels behalve het laatste): niet doorvoeren tot de afscheurrand, dus ook niet terugtrekken voor het volgende
+    // label. Zo print een reeks labels achter elkaar door; alleen het laatste label gaat door tot de afscheurrand.
+    $geenDoorvoer = $laatste ? '' : "^XB\r\n";
+    return $voor . "^XA\r\n" . $snelheid . $kop . $geenDoorvoer . '^FO' . $x . ',' . $y . '^GFA,' . $total . ',' . $total . ',' . $bytes . ',' . strtoupper(bin2hex($data))
         . "^FS\r\n^PQ1\r\n^XZ\r\n";
 }
 
@@ -864,8 +909,9 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     $gap = '';
     // Zonder snijder: alleen na het laatste label doorvoeren tot de afscheurrand. Tussen de labels niet: bij elk label
     // doorvoeren en weer terugtrekken gaf een andere startpositie per label (tekst ging van label tot label heen en weer).
+    // SET CUTTER en SET TEAR bewaart de printer: alleen bij het eerste en het laatste label sturen, niet bij elk label.
     if (!empty($medium['tear'])) {
-        $gap .= "SET CUTTER OFF\r\n" . ($laatste ? "SET TEAR ON\r\n" : "SET TEAR OFF\r\n");
+        $gap .= ($eerste ? "SET CUTTER OFF\r\n" : '') . ($laatste ? "SET TEAR ON\r\n" : ($eerste ? "SET TEAR OFF\r\n" : ''));
         if ($laatste && ($medium['offset'] ?? 0) != 0) {
             $gap .= 'OFFSET ' . round((float) $medium['offset'], 1) . " mm\r\n";
         }
@@ -914,28 +960,34 @@ function geeveChromiumBinary(): ?string
     return is_string($configured) && $configured !== '' && is_executable($configured) ? $configured : null;
 }
 
-/** Voert meerdere programma's tegelijk uit (zelfde sleutels als $commands); geeft per sleutel ['code', 'out', 'err']. */
-function geeveRunParallel(array $commands, int $timeoutSeconds): array
+/**
+ * Voert meerdere programma's tegelijk uit (zelfde sleutels als $commands); geeft per sleutel ['code', 'out', 'err'].
+ * $maxTegelijk > 0: hooguit zoveel tegelijk, de rest wacht in de rij. De tijdslimiet geldt per programma, vanaf zijn start.
+ */
+function geeveRunParallel(array $commands, int $timeoutSeconds, int $maxTegelijk = 0): array
 {
+    $wachtrij = $commands;
     $running = [];
     $result = [];
-    foreach ($commands as $key => $command) {
-        $process = @proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, ['PATH' => '/usr/local/bin:/usr/bin:/bin']);
-        if (!is_resource($process)) {
-            $result[$key] = ['code' => 127, 'out' => '', 'err' => 'Programma niet gevonden: ' . $command[0]];
-            continue;
+    while ($wachtrij !== [] || $running !== []) {
+        while ($wachtrij !== [] && ($maxTegelijk <= 0 || count($running) < $maxTegelijk)) {
+            $key = array_key_first($wachtrij);
+            $command = $wachtrij[$key];
+            unset($wachtrij[$key]);
+            $process = @proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, ['PATH' => '/usr/local/bin:/usr/bin:/bin']);
+            if (!is_resource($process)) {
+                $result[$key] = ['code' => 127, 'out' => '', 'err' => 'Programma niet gevonden: ' . $command[0]];
+                continue;
+            }
+            stream_set_blocking($pipes[1], false);
+            stream_set_blocking($pipes[2], false);
+            $running[$key] = ['process' => $process, 'pipes' => $pipes, 'out' => '', 'err' => '', 'deadline' => microtime(true) + $timeoutSeconds];
         }
-        stream_set_blocking($pipes[1], false);
-        stream_set_blocking($pipes[2], false);
-        $running[$key] = ['process' => $process, 'pipes' => $pipes, 'out' => '', 'err' => ''];
-    }
-    $deadline = microtime(true) + $timeoutSeconds;
-    while ($running !== []) {
         foreach ($running as $key => &$job) {
             $job['out'] .= (string) stream_get_contents($job['pipes'][1]);
             $job['err'] .= (string) stream_get_contents($job['pipes'][2]);
             $status = proc_get_status($job['process']);
-            $timeout = microtime(true) > $deadline;
+            $timeout = microtime(true) > $job['deadline'];
             if (!$status['running'] || $timeout) {
                 if ($timeout) {
                     proc_terminate($job['process'], 9);
@@ -950,7 +1002,7 @@ function geeveRunParallel(array $commands, int $timeoutSeconds): array
             }
         }
         unset($job);
-        if ($running !== []) {
+        if ($running !== [] && ($wachtrij === [] || ($maxTegelijk > 0 && count($running) >= $maxTegelijk))) {
             usleep(20000);
         }
     }
