@@ -19,8 +19,8 @@ const TILE_REGISTRY = [
     'hoses' => ['home', 'Slangen fitting Selector', 'hoses/index.php', true, false, false],
     'adapters' => ['home', 'Adapters Selector', 'adapters/index.php', true, false, false],
     'slangkaarten' => ['home', 'Slangkaarten printen', 'slkprinten/index.php', true, false, false],
-    // Nieuwe app Slangkaarten (map slangkaarten, in voorbereiding) - eigen id, want 'slangkaarten' is Slangkaarten Printen.
-    'slangkaarten-app' => ['home', 'Slangkaarten', 'slangkaarten/index.php', true, false, true],
+    // App Slangkaarten (live: Slangkaart.Web achter de Apache-proxy op /slangkaarten/) - eigen id, want 'slangkaarten' is Slangkaarten Printen.
+    'slangkaarten-app' => ['home', 'Slangkaarten', 'slangkaarten/index.php', true, false, false],
     'stickers' => ['home', 'Stickers', 'stickers/index.php', true, false, false],
     'stauff' => ['home', 'Stauff Selector', 'stauff/index.php', true, false, true],
     'reports' => ['home', 'Reports', 'reports/index.php', true, false, false],
