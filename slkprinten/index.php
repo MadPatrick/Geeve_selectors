@@ -1375,6 +1375,17 @@ if (isset($_GET['diagnose'])) {
         }
         return $html . '</table>';
     };
+    // Verbinding met de slangkaart-app (kaarten die niet in de oude database staan); ?order=<ordernr> toont ook de orderregels.
+    $appAanroepen = [['zoek', ['term' => $needle, 'exact' => 'false']], ['kaarten', ['nummer' => $needle]]];
+    if (trim((string) ($_GET['order'] ?? '')) !== '') {
+        $appAanroepen[] = ['order-regels', ['ordernr' => trim((string) $_GET['order'])]];
+    }
+    $out .= '<h2>Slangkaart-app (adres uit GEEVE_SLANGKAART_APP_URL of standaard poort 5288)</h2>';
+    foreach ($appAanroepen as [$appPad, $appParams]) {
+        $appResultaat = slangkaartAppDiagnose($appPad, $appParams);
+        $out .= '<p><code>' . h($appResultaat['url']) . '</code><br>Status: <strong>' . h((string) $appResultaat['status']) . '</strong></p><pre style="white-space:pre-wrap;max-width:1100px">'
+            . h($appResultaat['antwoord']) . '</pre>';
+    }
     // Per stap meteen naar de browser sturen, zodat je ziet hoe ver hij is.
     @set_time_limit(300);
     while (ob_get_level() > 0) {

@@ -198,3 +198,33 @@ function slangkaartAppKoppelingen(array $kaart): array
 
     return $zijden;
 }
+
+/**
+ * Voor een controlepagina: één aanroep met adres, status en het begin van het antwoord, ook bij een fout.
+ *
+ * @param array<string, string|list<string>> $params
+ * @return array{url: string, status: int, antwoord: string}
+ */
+function slangkaartAppDiagnose(string $pad, array $params): array
+{
+    $delen = [];
+    foreach ($params as $naam => $waarde) {
+        foreach ((array) $waarde as $enkel) {
+            $delen[] = rawurlencode($naam) . '=' . rawurlencode((string) $enkel);
+        }
+    }
+    $url = slangkaartAppBasis() . '/' . ltrim($pad, '/') . ($delen !== [] ? '?' . implode('&', $delen) : '');
+    $context = stream_context_create(['http' => ['method' => 'GET', 'timeout' => 10, 'ignore_errors' => true]]);
+    $antwoord = @file_get_contents($url, false, $context);
+    if ($antwoord === false) {
+        $fout = error_get_last();
+
+        return ['url' => $url, 'status' => 0, 'antwoord' => 'Geen verbinding: ' . ($fout['message'] ?? 'onbekende fout')];
+    }
+    $status = 0;
+    if (isset($http_response_header[0]) && preg_match('#^HTTP/\S+\s+(\d{3})#', (string) $http_response_header[0], $m) === 1) {
+        $status = (int) $m[1];
+    }
+
+    return ['url' => $url, 'status' => $status, 'antwoord' => substr($antwoord, 0, 1500)];
+}
