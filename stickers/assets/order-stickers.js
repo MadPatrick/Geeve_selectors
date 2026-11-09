@@ -243,7 +243,7 @@
                 rows = alleRows;
                 if (rows.length === 0) {
                     result.hidden = true;
-                            fail('Geen regels gevonden voor order ' + nummer + '.');
+                    fail('Geen regels gevonden voor order ' + nummer + '.' + (json.hint ? ' Controle: ' + json.hint : ''));
                     return;
                 }
                 applyFilter();
