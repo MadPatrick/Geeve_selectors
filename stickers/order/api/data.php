@@ -7,9 +7,13 @@ require_once __DIR__ . '/../../../shared/tiles.php';
 tileApiGuard('stickers-order');
 
 /**
- * Artikelstickers per Verkooporder: de regels van één order uit temp_Artikel_Stikkers_order in de data-database (standaard 005_Data_Geeve)
- * (dezelfde query als de NiceLabel-template), gesorteerd op orderregel. Zelfde SQL Server en inloggegevens (via Config)
- * als /stauff en de rapporten.
+ * Artikelstickers per Verkooporder: de regels van één verkooporder, rechtstreeks uit Exact (database 005: orkrg + orsrg + Items,
+ * voorrd/evloc voor de locatie, cicmpy en ItemAccounts voor de debiteur en "uw artikelnummer"). Zelfde kolommen en dezelfde
+ * koppelingen als SP_Artikelstickers_voor_op_zakjes, maar zonder de tijdelijke tabel temp_Artikel_Stikkers_order: die wordt
+ * elke 5 minuten opnieuw opgebouwd en bevat alleen openstaande orders (afgehandld = 0), dus een afgehandelde of zeer nieuwe order gaf
+ * "Geen regels gevonden".
+ * Bewuste afwijking van de procedure: geen filter op afgehandld. Welke regels nog te leveren zijn, bepaalt de schakelaar Compleet/Backorders.
+ * Overig gelijk: orkrg.ord_soort = 'V', regels met ar_soort <> 'P' (geen tekstregels), debnr gevuld.
  */
 
 require_once __DIR__ . '/../../../reports/inc.php';
@@ -19,16 +23,41 @@ const STICKER_COLUMNS = [
     'ord_rgl', 'uw_artikelnummer', 'ia_CountryOfOrigin', 'soort', 'artgrpFin',
 ];
 
+/** SELECT voor de orderregels; $where is een vaste voorwaarde op het ordernummer (nooit gebruikersinvoer, alleen ? als parameter). */
+function stickerOrderSql(string $where): string
+{
+    return 'SET NOCOUNT ON; SELECT ' .
+        'el.TextField1 AS looplocatie, okop.ordernr AS bonnr, el.maglok AS locatie, okop.debnr AS debnr, c.cmp_name AS debnm, ' .
+        'okop.docnumber AS uw_ref, org.artcode AS artikelnummer, org.oms45 AS artikelnaam, org.esr_aantal AS besteld, ' .
+        'org.aant_gelev AS geleverd, org.regel AS ord_rgl, ia.ItemCodeAccount AS uw_artikelnummer, ia.CountryOfOrigin AS ia_CountryOfOrigin, ' .
+        'i.Class_04 AS soort, ' .
+        'CASE WHEN i.Assortment >= 0 AND i.Assortment < 10000 THEN RIGHT(\'0000\' + CONVERT(varchar(4), i.Assortment), 4) ELSE \'\' END AS artgrpFin ' .
+        'FROM orkrg AS okop WITH (NOLOCK) ' .
+        'JOIN orsrg AS org WITH (NOLOCK) ON okop.ordernr = org.ordernr ' .
+        'LEFT JOIN items AS i WITH (NOLOCK) ON org.artcode = i.ItemCode ' .
+        'LEFT JOIN voorrd AS vrd WITH (NOLOCK) ON i.ItemCode = vrd.artcode AND vrd.magcode = \'1\' ' .
+        'LEFT JOIN evloc AS el WITH (NOLOCK) ON vrd.maglok = el.maglok ' .
+        'LEFT JOIN cicmpy AS c WITH (NOLOCK) ON okop.debnr = c.debnr ' .
+        'LEFT JOIN ItemAccounts AS ia WITH (NOLOCK) ON c.cmp_wwn = ia.AccountCode AND org.artcode = ia.ItemCode ' .
+        "WHERE {$where} AND okop.ord_soort = 'V' AND org.ar_soort <> 'P' AND okop.debnr IS NOT NULL";
+}
+
 reportApi(function (string $nummer): array {
-    $columns = implode(', ', array_map(fn ($c) => '[' . $c . ']', STICKER_COLUMNS));
-    // bonnr kan een char-kolom met opvulspaties zijn: daarom LTRIM/RTRIM.
-    $stmt = reportConnection('stickers-order')->prepare(
-        "SET NOCOUNT ON; SELECT {$columns} FROM " . geeveDbNaamSql('data') . ".[dbo].[temp_Artikel_Stikkers_order] WHERE LTRIM(RTRIM([bonnr])) = ?"
-    );
+    $pdo = reportConnection('stickers-order');
+
+    // Eerst de snelle zoekopdracht op de kolom zelf (index). Een enkel ordernummer heeft spaties vooraan: vindt de snelle niets,
+    // dan volgt dezelfde zoekopdracht met LTRIM/RTRIM, zodat het resultaat gelijk blijft (zie templates/barcode/api/zoek.php).
+    $stmt = $pdo->prepare(stickerOrderSql('okop.ordernr = ?'));
     $stmt->execute([$nummer]);
+    $data = $stmt->fetchAll();
+    if ($data === []) {
+        $stmt = $pdo->prepare(stickerOrderSql('LTRIM(RTRIM(okop.ordernr)) = ?'));
+        $stmt->execute([$nummer]);
+        $data = $stmt->fetchAll();
+    }
 
     $rows = [];
-    foreach ($stmt->fetchAll() as $row) {
+    foreach ($data as $row) {
         $out = [];
         foreach (STICKER_COLUMNS as $c) {
             $v = $row[$c] ?? null;
@@ -38,8 +67,7 @@ reportApi(function (string $nummer): array {
     }
 
     if ($rows === []) {
-        // Geen regels: laat zien waarom (alleen lezen), zodat duidelijk is of het aan de bron, het nummerformaat of de order zelf ligt.
-        return ['rows' => [], 'hint' => stickerOrderHint($nummer)];
+        return ['rows' => [], 'hint' => stickerOrderHint($pdo, $nummer)];
     }
 
     // Ordervolgorde: op regelnummer (numeriek, ook als de kolom tekst is).
@@ -48,32 +76,21 @@ reportApi(function (string $nummer): array {
     return ['rows' => $rows];
 });
 
-/**
- * Diagnose bij een lege uitkomst: elke controle apart in try/catch, zodat een ontbrekende kolom of tabel de rest niet blokkeert.
- */
-function stickerOrderHint(string $nummer): string
+/** Bij een lege uitkomst: bestaat de order wel in Exact, en van welke soort? (alleen lezen) */
+function stickerOrderHint(PDO $pdo, string $nummer): string
 {
-    $pdo = reportConnection('stickers-order');
-    $db = geeveDbNaamSql('data');
-    $delen = [];
     try {
-        $st = $pdo->prepare("SET NOCOUNT ON; SELECT COUNT(*) AS n FROM {$db}.[dbo].[temp_Artikel_Stikkers_order] WHERE [bonnr] LIKE ?");
-        $st->execute(['%' . $nummer . '%']);
-        $n = (int) ($st->fetch()['n'] ?? 0);
-        $delen[] = $n > 0 ? "bron bevat {$n} regels met dit nummer in een afwijkend formaat" : 'bron bevat dit ordernummer niet';
-        $st = $pdo->query("SET NOCOUNT ON; SELECT COUNT(*) AS n, MAX(LTRIM(RTRIM([bonnr]))) AS hoogste FROM {$db}.[dbo].[temp_Artikel_Stikkers_order]");
-        $r = $st->fetch();
-        $delen[] = 'bron heeft ' . (int) ($r['n'] ?? 0) . ' regels, hoogste bonnr ' . trim((string) ($r['hoogste'] ?? ''));
-    } catch (Throwable $e) {
-        $delen[] = 'bron niet te lezen';
-    }
-    try {
-        $st = $pdo->prepare("SET NOCOUNT ON; SELECT TOP 1 [ord_soort] FROM {$db}.[dbo].[orkrg] WHERE [ordernr] = ?");
+        $st = $pdo->prepare('SET NOCOUNT ON; SELECT TOP 1 ord_soort, afgehandld FROM orkrg WITH (NOLOCK) WHERE LTRIM(RTRIM(ordernr)) = ?');
         $st->execute([$nummer]);
         $r = $st->fetch();
-        $delen[] = $r ? 'order bestaat in Exact (soort ' . trim((string) $r['ord_soort']) . ')' : 'order niet gevonden in Exact (orkrg)';
+        if ($r === false) {
+            return 'order niet gevonden in Exact.';
+        }
+        $soort = trim((string) $r['ord_soort']);
+        return $soort === 'V'
+            ? 'order bestaat, maar heeft geen artikelregels (alleen tekstregels of geen debiteur).'
+            : 'dit is geen verkooporder (soort ' . $soort . ').';
     } catch (Throwable $e) {
-        $delen[] = 'orkrg niet te controleren';
+        return 'order niet te controleren.';
     }
-    return implode('; ', $delen) . '.';
 }

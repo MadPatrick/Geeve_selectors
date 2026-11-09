@@ -73,7 +73,7 @@ Alle stickers printen via de browser, één sticker per pagina. Posities en mate
 
 | Tegel | Adres | Formaat | Gegevens uit |
 |---|---|---|---|
-| Artikelen per Verkooporder | `/stickers/order/` | 102 × 54 mm | `[005_Data_Geeve].[dbo].[temp_Artikel_Stikkers_order]` |
+| Artikelen per Verkooporder | `/stickers/order/` | 102 × 54 mm | Exact `orkrg` + `orsrg` (rechtstreeks) |
 | Artikelen per Productieorder | `/stickers/productie/` | 102 × 54 mm | stored procedure `[005_Data_Geeve].[dbo].[SP_productie_label]` (EXECUTE-recht nodig) |
 | Artikelnummer | `/stickers/artikel/` | — | `[Exactrapportage].[dbo].[1002_Artikellabels]` |
 | Accu's | `/stickers/accu/` | 70 × 32 mm | geen database (invulsticker) |
