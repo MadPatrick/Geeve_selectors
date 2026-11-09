@@ -57,6 +57,7 @@ $csrf = csrfToken();
                 <div class="rp-toggle" id="soSort" role="group" aria-label="Volgorde">
                     <button type="button" data-sort="regel">Orderregel</button>
                     <button type="button" data-sort="loop" class="is-active">Loopvolgorde</button>
+                    <button type="button" data-sort="alfa">Alfabetisch</button>
                     <button type="button" data-sort="artikel">Artikelsticker</button>
                 </div>
                 <div class="rp-toggle" id="soFilter" role="group" aria-label="Regels">

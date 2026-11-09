@@ -26,7 +26,7 @@
     var filterToggle = document.getElementById('soFilter');
     var backorders = true; // 'Backorders' (standaard) of 'Compleet'
     var asked = '';
-    var sortBy = 'loop'; // 'loop' (looplocatie, standaard), 'regel' (orderregelnummer) of 'artikel' (artikelsticker, op orderregel)
+    var sortBy = 'loop'; // 'loop' (looplocatie, standaard), 'alfa' (artikelnummer), 'regel' (orderregelnummer) of 'artikel' (artikelsticker, op orderregel)
     var BC_MODULE_MM = 0.38; // breedte van één streepje in de barcode, zelfde als de artikelsticker
     var BC_MAX_MM = 96.7;    // breedte van het barcodevak
     var sortToggle = document.getElementById('soSort');
@@ -150,6 +150,10 @@
                 if ((a.looplocatie === '') !== (b.looplocatie === '')) { return a.looplocatie === '' ? 1 : -1; }
                 var c = natural(a.looplocatie, b.looplocatie);
                 if (c !== 0) { return c; }
+            }
+            if (sortBy === 'alfa') { // alfabetisch op artikelnummer (natuurlijk, dus "2" voor "10"), daarbinnen op orderregel
+                var d = natural(a.artikelnummer, b.artikelnummer);
+                if (d !== 0) { return d; }
             }
             return natural(a.ord_rgl, b.ord_rgl);
         });
