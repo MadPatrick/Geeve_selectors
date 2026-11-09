@@ -90,6 +90,14 @@ const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 29,
  */
 const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet', 'ac-printsheet', 'pt-printsheet', 'km-printsheet'];
 
+/**
+ * Standaard printsnelheid (SPEED, inch/s) per soort labelprinter, voor als de gebruiker "Standaard" kiest en het medium geen
+ * eigen snelheid heeft. Zonder deze waarde geldt de (soms trage) instelling die in de printer zelf is opgeslagen. De Altec
+ * TTP-343 Plus (TSPL) staat op 3. Andere soorten (Zebra, Brother) behouden hun eigen instelling; staat er hier een soort bij,
+ * dan geldt die waarde voor alle printers van die taal.
+ */
+const GEEVE_LABEL_STANDAARD_SNELHEID = ['tspl' => 3];
+
 /** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
 const GEEVE_TSPL_ZWART_IS_NUL = true;
 
@@ -895,7 +903,7 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     $heightMm = $mm($height);
     // Snelheid (inch/s) en zwarting (0-15): de waarden uit het scherm gaan voor op die van het medium.
     $instelling = '';
-    $snelheid = $afdruk['snelheid'] ?? $medium['snelheid'] ?? null;
+    $snelheid = $afdruk['snelheid'] ?? $medium['snelheid'] ?? GEEVE_LABEL_STANDAARD_SNELHEID['tspl'] ?? null;
     $zwarting = $afdruk['zwarting'] ?? $medium['zwarting'] ?? null;
     if ($snelheid !== null) {
         $instelling .= 'SPEED ' . $snelheid . "\r\n";
@@ -1127,7 +1135,7 @@ function geevePrintAfdrukInstellingenHtml(string $tileId): string
             $keuzes('directSnelheid-zpl', 'Printsnelheid in inch/s (2-6, ^PR); Standaard = standaard van de printer', array_combine(range(2, 6), range(2, 6))),
             $keuzes('directZwarting-zpl', 'Zwarting (0-30, ~SD, hoger = zwarter); Standaard = standaard van de printer', array_combine(range(0, 30), range(0, 30))))
         . $set('tspl',
-            $keuzes('directSnelheid-tspl', 'Printsnelheid in inch/s (1-12); Standaard = standaard van de printer', array_combine(range(1, 12), range(1, 12)), '', isset($medium['snelheid']) ? (int) $medium['snelheid'] : null),
+            $keuzes('directSnelheid-tspl', 'Printsnelheid in inch/s (1-12); Standaard = standaard van de printer', array_combine(range(1, 12), range(1, 12)), '', (int) ($medium['snelheid'] ?? GEEVE_LABEL_STANDAARD_SNELHEID['tspl'] ?? 0) ?: null),
             $keuzes('directZwarting-tspl', 'Zwarting (0-15, hoger = zwarter); Standaard = standaard van de printer', array_combine(range(0, 15), range(0, 15)), '', isset($medium['zwarting']) ? (int) $medium['zwarting'] : null))
         . '</div>';
 }
