@@ -80,7 +80,7 @@ $lockRoot = '';
         <a class="<?= tileClass('slangkaarten-app') ?>" href="<?= h(geeveAppUrl('slangkaarten-app')) ?>"<?= tileAttrs('slangkaarten-app') ?>>
             <?= tileIcon('slangkaarten-app') ?>
             <h2><?= h(tileTitle('slangkaarten-app')) ?></h2>
-            <p>In voorbereiding.</p>
+            <p>Stel slangkaarten samen en sla ze op, met de prijsberekening en de koppeling met Exact.</p>
             <?= tileLockIcon('slangkaarten-app') ?>
         </a>
         <?php endif; $tileHtml['slangkaarten-app'] = ob_get_clean(); ?>

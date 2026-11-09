@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../shared/helpers.php';
 
-// Nieuwe tegel Slangkaarten (in voorbereiding). Let op: de tegel-id is 'slangkaarten-app', want
+// Tegel Slangkaarten (live: op de server vangt de Apache-proxy /slangkaarten/ af en toont Slangkaart.Web; deze pagina is alleen de terugval). Let op: de tegel-id is 'slangkaarten-app', want
 // 'slangkaarten' is de bestaande tegel Slangkaarten Printen (map slkprinten).
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen terug naar het overzicht, waar de code wordt gevraagd.
 require_once __DIR__ . '/../shared/tiles.php';
@@ -37,7 +37,7 @@ define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __
 
     <section class="panel">
         <h2>Slangkaarten</h2>
-        <p>Deze app is in voorbereiding.</p>
+        <p>De app Slangkaarten draait als aparte service. Open hem via het overzicht.</p>
     </section>
 
     <p class="page-footer">(c) 2026 PdB - Geeve Hydraulics - Versie <?= h(APP_VERSION) ?></p>
