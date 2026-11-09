@@ -19,7 +19,7 @@
 #slTable tbody tr.is-current td { background: var(--row-current-bg); }
 #slTable input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; margin: 0; padding: 0; vertical-align: middle; cursor: pointer; }
 #slTable th:first-child, #slTable td:first-child { width: 1%; }
-#slTable td.num { text-align: right; }
+#slTable td.num, #slTable th:nth-child(6) { text-align: center; }
 
 .sl-preview { zoom: 1.2; position: relative; width: calc(25mm + 2px); padding: 1px; max-height: 245px; overflow: hidden; }
 /* Het voorbeeld is ingekort (kaart even hoog als het formulier): onderaan een afbreekmarkering van twee schuine streeplijnen. */
