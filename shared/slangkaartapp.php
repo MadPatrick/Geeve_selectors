@@ -173,6 +173,11 @@ function slangkaartAppSamenvoegen(array $oud, array $app): array
         }
     }
 
+    // Op ordernummer en regelnummer, zodat app-regels niet vooraan komen (ook niet op de afdruk): dezelfde volgorde als
+    // het regeloverzicht. usort is stabiel (PHP 8): rijen zonder ordernummer/regel houden hun onderlinge volgorde.
+    usort($samen, static fn(array $a, array $b): int => [strtoupper(trim((string) ($a['ordernr'] ?? ''))), (int) ($a['rgl'] ?? 0)]
+        <=> [strtoupper(trim((string) ($b['ordernr'] ?? ''))), (int) ($b['rgl'] ?? 0)]);
+
     return $samen;
 }
 
