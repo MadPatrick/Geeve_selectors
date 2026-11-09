@@ -766,13 +766,47 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
         [$data, $width, $height] = geevePbmCanvas($data, $width, $height, $newW, $newH, $shiftX, $shiftY);
         $rowBytes = intdiv($width + 7, 8);
     }
+    // Alleen het bedrukte deel als BITMAP sturen (SIZE blijft het hele label): op een label met veel wit scheelt dat een groot
+    // deel van de data die over het netwerk naar de printer gaat en daar verwerkt moet worden. Kolommen op bytegrens.
+    $bitmapX = 0;
+    $bitmapY = 0;
+    $bitmapHoogte = $height;
+    $bitmapBytes = $rowBytes;
+    $eerste = null;
+    $laatste_rij = null;
+    $minByte = $rowBytes;
+    $maxByte = -1;
+    for ($y = 0; $y < $height; $y++) {
+        $rij = substr($data, $y * $rowBytes, $rowBytes);
+        if (trim($rij, "\0") === '') {
+            continue;
+        }
+        $eerste = $eerste ?? $y;
+        $laatste_rij = $y;
+        $links = strlen($rij) - strlen(ltrim($rij, "\0"));
+        $rechts = strlen(rtrim($rij, "\0")) - 1;
+        $minByte = min($minByte, $links);
+        $maxByte = max($maxByte, $rechts);
+    }
+    if ($eerste !== null) {
+        $bitmapY = $eerste;
+        $bitmapHoogte = $laatste_rij - $eerste + 1;
+        $bitmapX = $minByte * 8;
+        $bitmapBytes = $maxByte - $minByte + 1;
+        $uitsnede = '';
+        for ($y = $eerste; $y <= $laatste_rij; $y++) {
+            $uitsnede .= substr($data, $y * $rowBytes + $minByte, $bitmapBytes);
+        }
+        $data = $uitsnede;
+        $rowBytes = $bitmapBytes;
+    }
     if (GEEVE_TSPL_ZWART_IS_NUL) {
         $data = ~$data;
-        // Opvulbits aan het eind van elke rij blijven wit (1).
-        $pad = $rowBytes * 8 - $width;
-        if ($pad > 0) {
+        // Opvulbits aan het eind van elke rij blijven wit (1); alleen aan de rechterkant van het hele label, niet van de uitsnede.
+        $pad = intdiv($width + 7, 8) * 8 - $width;
+        if ($pad > 0 && $bitmapX + $bitmapBytes * 8 >= $width) {
             $mask = chr((1 << $pad) - 1);
-            for ($y = 0; $y < $height; $y++) {
+            for ($y = 0; $y < $bitmapHoogte; $y++) {
                 $i = $y * $rowBytes + $rowBytes - 1;
                 $data[$i] = $data[$i] | $mask;
             }
@@ -804,7 +838,7 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
         }
     }
     return 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gap . $instelling . "DIRECTION 0\r\nCLS\r\n"
-        . 'BITMAP 0,0,' . $rowBytes . ',' . $height . ',0,' . $data . "\r\nPRINT 1,1\r\n";
+        . 'BITMAP ' . $bitmapX . ',' . $bitmapY . ',' . $rowBytes . ',' . $bitmapHoogte . ',0,' . $data . "\r\nPRINT 1,1\r\n";
 }
 
 /** De inhoud van alle "@media print { ... }"-blokken in een stylesheet (zonder de omhulling). */
