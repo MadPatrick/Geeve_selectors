@@ -588,7 +588,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
             }
             $zpl = '';
             foreach ($pages as $page) {
-                $zpl .= geevePbmToZpl((string) file_get_contents($page), $afdruk);
+                $zpl .= geevePbmToZpl((string) file_get_contents($page), $afdruk, $page === $pages[0]);
             }
             $file = $workDir . '/labels.zpl';
             file_put_contents($file, $zpl);
@@ -718,7 +718,7 @@ function geevePgmNaarPbm(string $pgm, int $factor, int $drempel): string
  * Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een ZPL-label voor een Zebra: ^PW/^LL in punten, de bitmap als
  * ^GFA (ASCII-hex, 1 = zwart, geen inversie nodig) en ^XZ. Rijen zijn intdiv(breedte+7,8) bytes, de opvulbits zijn 0 (wit).
  */
-function geevePbmToZpl(string $pbm, array $afdruk = []): string
+function geevePbmToZpl(string $pbm, array $afdruk = [], bool $eerste = true): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -730,11 +730,43 @@ function geevePbmToZpl(string $pbm, array $afdruk = []): string
     if (strlen($data) !== $rowBytes * $height) {
         throw new RuntimeException('De afbeelding van het label is onvolledig.');
     }
-    $total = $rowBytes * $height;
+    // Alleen het bedrukte deel sturen (^FO met de plaats ervan); het label (^PW/^LL) blijft even groot. Kolommen op bytegrens.
+    $x = 0;
+    $y = 0;
+    $hoogte = $height;
+    $bytes = $rowBytes;
+    $eersteRij = null;
+    $laatsteRij = null;
+    $minByte = $rowBytes;
+    $maxByte = -1;
+    for ($r = 0; $r < $height; $r++) {
+        $rij = substr($data, $r * $rowBytes, $rowBytes);
+        if (trim($rij, "\0") === '') {
+            continue;
+        }
+        $eersteRij = $eersteRij ?? $r;
+        $laatsteRij = $r;
+        $minByte = min($minByte, strlen($rij) - strlen(ltrim($rij, "\0")));
+        $maxByte = max($maxByte, strlen(rtrim($rij, "\0")) - 1);
+    }
+    if ($eersteRij !== null) {
+        $y = $eersteRij;
+        $hoogte = $laatsteRij - $eersteRij + 1;
+        $x = $minByte * 8;
+        $bytes = $maxByte - $minByte + 1;
+        $uitsnede = '';
+        for ($r = $eersteRij; $r <= $laatsteRij; $r++) {
+            $uitsnede .= substr($data, $r * $rowBytes + $minByte, $bytes);
+        }
+        $data = $uitsnede;
+    }
+    $total = $bytes * $hoogte;
     // Zwarting (~SD 0-30) staat vóór ^XA; snelheid (^PR, inch/s) erin. Zonder keuze geldt de instelling van de printer zelf.
-    $voor = isset($afdruk['zwarting']) ? '~SD' . (int) $afdruk['zwarting'] . "\r\n" : '';
-    $snelheid = isset($afdruk['snelheid']) ? '^PR' . (int) $afdruk['snelheid'] . "\r\n" : '';
-    return $voor . "^XA\r\n" . $snelheid . "^CI28\r\n^PW" . $width . "\r\n^LL" . $height . "\r\n^LH0,0\r\n^FO0,0^GFA," . $total . ',' . $total . ',' . $rowBytes . ',' . strtoupper(bin2hex($data))
+    // Zwarting, snelheid en labelformaat blijven in de Zebra staan: alleen bij het eerste label sturen i.p.v. bij elk label.
+    $voor = $eerste && isset($afdruk['zwarting']) ? '~SD' . (int) $afdruk['zwarting'] . "\r\n" : '';
+    $snelheid = $eerste && isset($afdruk['snelheid']) ? '^PR' . (int) $afdruk['snelheid'] . "\r\n" : '';
+    $kop = $eerste ? "^CI28\r\n^PW" . $width . "\r\n^LL" . $height . "\r\n^LH0,0\r\n" : '';
+    return $voor . "^XA\r\n" . $snelheid . $kop . '^FO' . $x . ',' . $y . '^GFA,' . $total . ',' . $total . ',' . $bytes . ',' . strtoupper(bin2hex($data))
         . "^FS\r\n^PQ1\r\n^XZ\r\n";
 }
 
