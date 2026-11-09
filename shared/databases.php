@@ -40,6 +40,8 @@ const GEEVE_DB_OMGEVING_TITEL = ['main' => 'Main', 'test' => 'Test'];
  */
 const GEEVE_TILE_DB = [
     'slangkaarten' => ['slangkaarten', 'exact'],
+    // Nieuwe app Slangkaarten (Slangkaart.Web): dezelfde keuzes als Slangkaarten printen.
+    'slangkaarten-app' => ['slangkaarten', 'exact'],
     'stauff' => ['exact'],
     'msp' => ['exact'],
     'inkoop-groep' => ['exact'],
@@ -73,7 +75,7 @@ const GEEVE_TILE_DB = [
  * geblokkeerd). Voor deze tegels geldt dus: schrijven staat standaard op "test" (zoals het nu werkt), "main" is niet te kiezen
  * en "geen" zet de knop "Naar Exact" uit. De portal zelf maakt voor deze tegels geen schrijfverbinding.
  */
-const GEEVE_TILE_SCHRIJVEN_VIA_WEB = ['slangkaarten', 'stauff', 'offerte-import'];
+const GEEVE_TILE_SCHRIJVEN_VIA_WEB = ['slangkaarten-app', 'stauff', 'offerte-import'];
 
 /**
  * Welke app van Slangkaart.Web bij een tegel hoort (EntityService:Apps in slangkaart-web). De Config is leidend: bij Opslaan
@@ -81,7 +83,8 @@ const GEEVE_TILE_SCHRIJVEN_VIA_WEB = ['slangkaarten', 'stauff', 'offerte-import'
  * schrijfactie (zonder herstart). Een nieuwe tegel die via Slangkaart.Web schrijft: hier én in GEEVE_TILE_SCHRIJVEN_VIA_WEB
  * toevoegen, en in slangkaart-web een nieuwe naam in ExactApp.
  */
-const GEEVE_TILE_WEB_APP = ['slangkaarten' => 'slangkaarten', 'stauff' => 'stauff', 'offerte-import' => 'schrijfdeur'];
+// De app 'slangkaarten' (Slangkaarten opslaan en importeren) hoort bij de tegel Slangkaarten (slangkaarten-app); Slangkaarten printen (slkprinten) schrijft zelf niet naar Exact.
+const GEEVE_TILE_WEB_APP = ['slangkaarten-app' => 'slangkaarten', 'stauff' => 'stauff', 'offerte-import' => 'schrijfdeur'];
 
 /** Pad van het bestand met de Exact-omgeving per app (niet geheim; Slangkaart.Web leest het, EntityService:OmgevingBestand). */
 function geeveDbOmgevingBestandPad(): string
