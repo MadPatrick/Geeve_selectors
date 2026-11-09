@@ -90,20 +90,12 @@ const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 29,
  */
 const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet', 'ac-printsheet', 'pt-printsheet', 'km-printsheet'];
 
-/**
- * Standaard printsnelheid (SPEED, inch/s) per soort labelprinter, voor als de gebruiker "Standaard" kiest en het medium geen
- * eigen snelheid heeft. Zonder deze waarde geldt de (soms trage) instelling die in de printer zelf is opgeslagen. De Altec
- * TTP-343 Plus (TSPL) staat op 3. Andere soorten (Zebra, Brother) behouden hun eigen instelling; staat er hier een soort bij,
- * dan geldt die waarde voor alle printers van die taal.
- */
-const GEEVE_LABEL_STANDAARD_SNELHEID = ['tspl' => 3];
-
 /** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
 const GEEVE_TSPL_ZWART_IS_NUL = true;
 
 /**
  * Tegels waar boven de printknop de velden "Snelheid" en "Zwarting" staan, met de soort labelprinter waarvoor ze gelden:
- * 'brother' (Brother QL: Zwarting = grijsdrempel in %, Snelheid = Standaard/Snel), 'tspl' (Altec/TSC: SPEED 1-12 en
+ * 'brother' (Brother QL: Zwarting = grijsdrempel in %, Snelheid = Standaard/Snel), 'tspl' (Altec/TSC: SPEED in inch/s, bereik per model, zie GEEVE_LABEL_MODEL_SNELHEID, en
  * DENSITY 0-15 als cijfers) of 'zpl' (Zebra: ^PR 2-6 en ~SD 0-30). Andere printers negeren ze. Leeg = standaard. Zie geevePrintAfdrukInstellingenHtml().
  */
 const GEEVE_PRINT_TILE_AFDRUK_INSTELLING = ['stickers-ptouch', 'stickers-order', 'stickers-productie', 'stickers-slanglabels'];
@@ -124,6 +116,63 @@ const GEEVE_PRINTER_ALLEEN_TEGEL = ['RTMLBGeelKunstof01' => 'stickers-kabelmerke
  * printserver bestaan. RTMPROVE01 (10.209.180.132) is een Zebra ZD230 (203 dpi, ZPL; driver "ZDesigner ZD230-203dpi ZPL"). Het veld 'dpi' overschrijft de standaard van 300 dpi.
  */
 const GEEVE_PRINTER_TYPE_VAST = ['rtmprove01' => ['soort' => 'label', 'taal' => 'zpl', 'color' => false, 'dpi' => 203]];
+
+/**
+ * Snelheid (inch/s) per printermodel, herkend aan de driver op de printserver (reguliere expressie => grenzen). 'standaard'
+ * is de snelheid die de portal stuurt als in het scherm "Standaard" staat (of de tegel geen keuzelijst heeft) en de tegel
+ * zelf geen vaste snelheid heeft (GEEVE_LABEL_MEDIUM). Hogere waarden dan 'max' worden teruggebracht tot 'max'.
+ * Niet herkende labelprinters houden het volle bereik van hun taal en geen eigen standaard.
+ * - Altec/TSC TTP-343 Plus: 300 dpi, maximaal 3 inch/s (76 mm/s, TSC-servicehandleiding TTP-245 Plus / TTP-343 Plus).
+ * - Zebra ZD230: maximaal 6 inch/s (152 mm/s); geen eigen standaard, dan geldt de instelling van de printer zelf.
+ */
+const GEEVE_LABEL_MODEL_SNELHEID = [
+    '/TTP-343/i' => ['min' => 1, 'max' => 3, 'standaard' => 3],
+    '/ZD230/i' => ['min' => 2, 'max' => 6],
+];
+
+/** Volle snelheidsbereik per printertaal (zie GEEVE_PRINT_TILE_AFDRUK_INSTELLING). */
+const GEEVE_LABEL_TAAL_SNELHEID = ['tspl' => ['min' => 1, 'max' => 12], 'zpl' => ['min' => 2, 'max' => 6]];
+
+/**
+ * Snelheidsgrenzen van een labelprinter: ['min', 'max', 'standaard'?], of null voor printers zonder instelbare snelheid in
+ * inch/s (Brother QL, A4-printers).
+ *
+ * @param array<string, mixed> $printer een regel uit geevePrinterList()
+ * @return array{min: int, max: int, standaard?: int}|null
+ */
+function geeveLabelSnelheid(array $printer): ?array
+{
+    $taal = (string) ($printer['taal'] ?? '');
+    if (!isset(GEEVE_LABEL_TAAL_SNELHEID[$taal])) {
+        return null;
+    }
+    $model = (string) ($printer['driver'] ?? '') . ' ' . (string) ($printer['name'] ?? '');
+    foreach (GEEVE_LABEL_MODEL_SNELHEID as $patroon => $grenzen) {
+        if (preg_match($patroon, $model) === 1) {
+            return $grenzen;
+        }
+    }
+    return GEEVE_LABEL_TAAL_SNELHEID[$taal];
+}
+
+/**
+ * De snelheid die echt naar de printer gaat: de keuze uit het scherm (teruggebracht tot het bereik van het model), anders
+ * de vaste snelheid van de tegel ($mediumSnelheid, alleen TSPL), anders de standaard van het model; null = niets sturen.
+ */
+function geeveLabelSnelheidVoorPrint(array $printer, ?int $gekozen, ?int $mediumSnelheid): ?int
+{
+    $grenzen = geeveLabelSnelheid($printer);
+    if ($grenzen === null) {
+        return $gekozen;
+    }
+    if ($gekozen !== null) {
+        return max($grenzen['min'], min($grenzen['max'], $gekozen));
+    }
+    if ($mediumSnelheid !== null) {
+        return max($grenzen['min'], min($grenzen['max'], $mediumSnelheid));
+    }
+    return $grenzen['standaard'] ?? null;
+}
 
 /** Het soort van een printer ('a4' of 'label'). */
 function geevePrinterSoort(array $printer): string
@@ -594,6 +643,15 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
     // (30 s op de server); dan zou de print halverwege afbreken.
     @set_time_limit(180);
     $dpi = (int) ($printer['dpi'] ?? 300);
+    // Snelheid volgens het printermodel (bijv. Altec TTP-343 Plus: 1-3, standaard 3). Bij TSPL gaat een vaste snelheid van
+    // de tegel (GEEVE_LABEL_MEDIUM, Slanglabels) voor op de standaard van het model.
+    if (($printer['taal'] ?? '') !== 'brother') {
+        $mediumSnelheid = ($printer['taal'] ?? '') === 'tspl' && isset(GEEVE_LABEL_MEDIUM[$sheetClass]['snelheid']) ? (int) GEEVE_LABEL_MEDIUM[$sheetClass]['snelheid'] : null;
+        $snelheid = geeveLabelSnelheidVoorPrint($printer, isset($afdruk['snelheid']) ? (int) $afdruk['snelheid'] : null, $mediumSnelheid);
+        if ($snelheid !== null) {
+            $afdruk['snelheid'] = $snelheid;
+        }
+    }
     $workDir = geeveWorkDir();
     try {
         $pdfFile = geeveRenderPdf($bodyHtml, $cssFiles, $title, $workDir, null, $sheetClass);
@@ -903,7 +961,7 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     $heightMm = $mm($height);
     // Snelheid (inch/s) en zwarting (0-15): de waarden uit het scherm gaan voor op die van het medium.
     $instelling = '';
-    $snelheid = $afdruk['snelheid'] ?? $medium['snelheid'] ?? GEEVE_LABEL_STANDAARD_SNELHEID['tspl'] ?? null;
+    $snelheid = $afdruk['snelheid'] ?? $medium['snelheid'] ?? null;
     $zwarting = $afdruk['zwarting'] ?? $medium['zwarting'] ?? null;
     if ($snelheid !== null) {
         $instelling .= 'SPEED ' . $snelheid . "\r\n";
@@ -1071,8 +1129,16 @@ function geevePrinterOptionsHtml(string $tileId, array $printers): string
     $selected = $saved === 'browser' || isset($printers[$saved]) ? $saved : (isset($printers[$standaard]) ? $standaard : (string) array_key_first($printers));
     $options = '';
     foreach ($printers as $queue => $name) {
-        $taal = (string) (geevePrinterList()[$queue]['taal'] ?? '');
-        $options .= '<option value="' . $h($queue) . '" data-taal="' . $h($taal) . '"' . ($selected === $queue ? ' selected' : '') . '>' . $h($name) . '</option>';
+        $info = geevePrinterList()[$queue] ?? [];
+        $taal = (string) ($info['taal'] ?? '');
+        // Snelheidsbereik en standaard van dit printermodel, voor de keuzelijst Snelheid (direct-print.js).
+        $snelheid = '';
+        $grenzen = geeveLabelSnelheid($info);
+        if ($grenzen !== null) {
+            $standaard = geeveLabelSnelheidVoorPrint($info, null, $taal === 'tspl' && isset(GEEVE_LABEL_MEDIUM[GEEVE_PRINT_TILE_PAGE[$tileId]['class'] ?? '']['snelheid']) ? (int) GEEVE_LABEL_MEDIUM[GEEVE_PRINT_TILE_PAGE[$tileId]['class'] ?? '']['snelheid'] : null);
+            $snelheid = ' data-snelheid-min="' . $grenzen['min'] . '" data-snelheid-max="' . $grenzen['max'] . '" data-snelheid-standaard="' . ($standaard ?? '') . '"';
+        }
+        $options .= '<option value="' . $h($queue) . '" data-taal="' . $h($taal) . '"' . $snelheid . ($selected === $queue ? ' selected' : '') . '>' . $h($name) . '</option>';
     }
     return $options . '<option value=""' . ($selected === 'browser' ? ' selected' : '') . '>Printvenster van de browser</option>';
 }
@@ -1103,6 +1169,8 @@ function geevePrinterSelectHtml(string $tileId, string $csrf): string
  * GEEVE_PRINT_TILE_AFDRUK_INSTELLING, anders leeg. Per soort labelprinter een eigen set; direct-print.js toont de set
  * die bij de gekozen printer hoort (data-taal van de optie) en verbergt de rest. Brother QL: Snelheid Standaard/Snel,
  * Zwarting 10-90 %. TSPL (Altec/TSC): Snelheid 1-12, Zwarting 0-15. ZPL (Zebra): Snelheid 2-6, Zwarting 0-30. Standaard = standaard van de printer.
+ * Het bereik en de standaard van Snelheid hangen af van het printermodel (GEEVE_LABEL_MODEL_SNELHEID); direct-print.js past de lijst aan
+ * de gekozen printer aan (bijv. Altec TTP-343 Plus: 1-3, standaard 3).
  */
 function geevePrintAfdrukInstellingenHtml(string $tileId): string
 {
@@ -1132,10 +1200,10 @@ function geevePrintAfdrukInstellingenHtml(string $tileId): string
             $keuzes('directSnelheid-brother', 'Snel = lagere afdrukkwaliteit (Brother QL); voorgeselecteerd', [1 => 'Snel'], '1'),
             $keuzes('directZwarting-brother', 'Zwarting in % (hoger = zwarter); Standaard = 50 %', $procenten, '', 50))
         . $set('zpl',
-            $keuzes('directSnelheid-zpl', 'Printsnelheid in inch/s (2-6, ^PR); Standaard = standaard van de printer', array_combine(range(2, 6), range(2, 6))),
+            $keuzes('directSnelheid-zpl', 'Printsnelheid in inch/s (^PR); het bereik hangt af van de printer, Standaard = standaard van de printer', array_combine(range(2, 6), range(2, 6))),
             $keuzes('directZwarting-zpl', 'Zwarting (0-30, ~SD, hoger = zwarter); Standaard = standaard van de printer', array_combine(range(0, 30), range(0, 30))))
         . $set('tspl',
-            $keuzes('directSnelheid-tspl', 'Printsnelheid in inch/s (1-12); Standaard = standaard van de printer', array_combine(range(1, 12), range(1, 12)), '', (int) ($medium['snelheid'] ?? GEEVE_LABEL_STANDAARD_SNELHEID['tspl'] ?? 0) ?: null),
+            $keuzes('directSnelheid-tspl', 'Printsnelheid in inch/s; het bereik hangt af van de printer (Altec TTP-343 Plus: 1-3, standaard 3)', array_combine(range(1, 12), range(1, 12)), '', isset($medium['snelheid']) ? (int) $medium['snelheid'] : null),
             $keuzes('directZwarting-tspl', 'Zwarting (0-15, hoger = zwarter); Standaard = standaard van de printer', array_combine(range(0, 15), range(0, 15)), '', isset($medium['zwarting']) ? (int) $medium['zwarting'] : null))
         . '</div>';
 }

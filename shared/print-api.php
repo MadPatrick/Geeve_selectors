@@ -56,6 +56,7 @@ if (trim($html) === '') {
 }
 
 // Optioneel: snelheid en zwarting. Brother QL: snelheid "1" = snel, zwarting 10-90 %. TSPL: snelheid 1-12, zwarting 0-15. ZPL: snelheid 2-6, zwarting 0-30.
+// De snelheid gaat daarna terug tot het bereik van het printermodel (geevePrintLabels(), GEEVE_LABEL_MODEL_SNELHEID).
 // Alles buiten het bereik of leeg wordt niet meegestuurd.
 $afdruk = [];
 $afdrukSoort = in_array($tile, GEEVE_PRINT_TILE_AFDRUK_INSTELLING, true) ? (geevePrinterList()[$queue]['taal'] ?? null) : null;

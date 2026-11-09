@@ -77,6 +77,45 @@
         Array.prototype.forEach.call(sets, function (set) {
             if (set.getAttribute('data-taal') === taal && select.value !== '') { set.removeAttribute('hidden'); } else { set.setAttribute('hidden', ''); }
         });
+        pasSnelheidAan(gekozen, taal);
+    }
+    // Snelheid volgens het gekozen printermodel (data-snelheid-* op de printeroptie, zie geevePrinterOptionsHtml()): waarden
+    // buiten het bereik verbergen, een bewaarde hogere keuze terugbrengen tot het maximum, en bij "Standaard" de echte
+    // standaard tonen (bijv. "3 (standaard)" bij de Altec TTP-343 Plus).
+    function pasSnelheidAan(printer, taal) {
+        var veld = document.getElementById('directSnelheid-' + taal);
+        if (!veld || !printer || !printer.hasAttribute('data-snelheid-max')) { return; }
+        var min = parseInt(printer.getAttribute('data-snelheid-min'), 10);
+        var max = parseInt(printer.getAttribute('data-snelheid-max'), 10);
+        var standaard = printer.getAttribute('data-snelheid-standaard') || '';
+        var leeg = veld.options[0];
+        if (!leeg.hasAttribute('data-tekst')) {
+            leeg.setAttribute('data-tekst', leeg.textContent);
+            leeg.setAttribute('data-klasse', leeg.className);
+        }
+        if (standaard !== '') {
+            leeg.textContent = standaard + ' (standaard)';
+            leeg.className = 'is-standaard';
+        } else {
+            leeg.textContent = leeg.getAttribute('data-tekst');
+            leeg.className = leeg.getAttribute('data-klasse');
+        }
+        leeg.style.fontWeight = leeg.className === 'is-standaard' ? 'bold' : '';
+        for (var i = 1; i < veld.options.length; i++) {
+            var waarde = parseInt(veld.options[i].value, 10);
+            var buiten = waarde < min || waarde > max;
+            veld.options[i].hidden = buiten;
+            veld.options[i].disabled = buiten;
+        }
+        var bewaard = null;
+        try { bewaard = window.localStorage.getItem('geeve_' + veld.id + '_' + box.getAttribute('data-tile')); } catch (e) { /* opslag niet beschikbaar */ }
+        if (bewaard !== null) { veld.value = bewaard; }
+        if (veld.value !== '') {
+            var gekozenWaarde = parseInt(veld.value, 10);
+            if (gekozenWaarde > max) { veld.value = String(max); } else if (gekozenWaarde < min) { veld.value = String(min); }
+        }
+        var optie = veld.options[veld.selectedIndex];
+        veld.style.fontWeight = optie && optie.className === 'is-standaard' ? 'bold' : '';
     }
     function instelling(naam) {
         for (var i = 0; i < sets.length; i++) {
