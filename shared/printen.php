@@ -772,7 +772,7 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     $bitmapY = 0;
     $bitmapHoogte = $height;
     $bitmapBytes = $rowBytes;
-    $eerste = null;
+    $eersteRij = null;
     $laatste_rij = null;
     $minByte = $rowBytes;
     $maxByte = -1;
@@ -781,20 +781,20 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
         if (trim($rij, "\0") === '') {
             continue;
         }
-        $eerste = $eerste ?? $y;
+        $eersteRij = $eersteRij ?? $y;
         $laatste_rij = $y;
         $links = strlen($rij) - strlen(ltrim($rij, "\0"));
         $rechts = strlen(rtrim($rij, "\0")) - 1;
         $minByte = min($minByte, $links);
         $maxByte = max($maxByte, $rechts);
     }
-    if ($eerste !== null) {
-        $bitmapY = $eerste;
-        $bitmapHoogte = $laatste_rij - $eerste + 1;
+    if ($eersteRij !== null) {
+        $bitmapY = $eersteRij;
+        $bitmapHoogte = $laatste_rij - $eersteRij + 1;
         $bitmapX = $minByte * 8;
         $bitmapBytes = $maxByte - $minByte + 1;
         $uitsnede = '';
-        for ($y = $eerste; $y <= $laatste_rij; $y++) {
+        for ($y = $eersteRij; $y <= $laatste_rij; $y++) {
             $uitsnede .= substr($data, $y * $rowBytes + $minByte, $bitmapBytes);
         }
         $data = $uitsnede;
