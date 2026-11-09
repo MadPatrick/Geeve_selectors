@@ -271,3 +271,13 @@ inc/db.php              PDO/SQL Server verbinding
 inc/queries.php          Alle SQL-queries
 .htaccess                 Blokkeert browsertoegang tot dotfiles
 ```
+
+## Kaarten uit de slangkaart-app (Hans)
+
+Nieuwe slangkaarten staan in de eigen opslag van Slangkaart.Web, niet in `2500 Slangkaarten`. `shared/slangkaartapp.php`
+leest ze alleen-lezen via `http://127.0.0.1:5288/slangkaarten/api/slangkaarten/...` (`/kaarten`, `/order-regels`,
+`/zoek-regels`, `/zoek`; zet voor de testversie `GEEVE_SLANGKAART_APP_URL` op poort 5299). De rijen hebben dezelfde
+kolomnamen als de oude views en worden samengevoegd op `ordernr` + `rgl`; de app gaat voor. Is de app niet bereikbaar, dan
+werkt alles zoals voorheen met alleen de oude database. De koppelonderdelen komen uit `Details` in het antwoord (aantal 1 per
+onderdeel is een aanname). Ook gebruikt door `stickers/slanglabels`. Niet in het antwoord: Solderen, bruto/netto per regel,
+afldat, leveranciercodes.

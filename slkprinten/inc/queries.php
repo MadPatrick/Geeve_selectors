@@ -90,6 +90,52 @@ declare(strict_types=1);
  * hierop aangepast (Zijde AA/Zijde BB staan nu voorop).
  */
 
+require_once __DIR__ . '/../../shared/slangkaartapp.php';
+
+/**
+ * Kaarten uit de slangkaart-app (zie shared/slangkaartapp.php): de koppelonderdelen die de app meegeeft worden onthouden,
+ * zodat couplingSides() ze voor de oude Zijde A/B-tabellen zet (de app gaat voor).
+ *
+ * @param array<string, mixed>|null $rij
+ * @return array{A: array, B: array}|null
+ */
+function appKoppelingen(?string $index = null, ?array $rij = null): ?array
+{
+    static $opslag = [];
+    if ($rij !== null) {
+        $hoseKey = pick($rij, HOSE_KEY_COLUMNS);
+        if ($hoseKey !== '' && is_array($rij['Details'] ?? null)) {
+            $opslag[hoseKeyIndex($hoseKey)] = slangkaartAppKoppelingen($rij);
+        }
+
+        return null;
+    }
+
+    return $opslag[(string) $index] ?? null;
+}
+
+/** Orderregels uit de app (leeg als de app niet bereikbaar is), met onthouden koppelonderdelen. */
+function appRegels(array $zoek): array
+{
+    $rijen = slangkaartAppRegels($zoek);
+    foreach ($rijen as $rij) {
+        appKoppelingen(null, $rij);
+    }
+
+    return $rijen;
+}
+
+/** Kaarten uit de app per slangnummer, met onthouden koppelonderdelen. */
+function appKaarten(array $nummers): array
+{
+    $kaarten = slangkaartAppKaarten($nummers);
+    foreach ($kaarten as $kaart) {
+        appKoppelingen(null, $kaart);
+    }
+
+    return $kaarten;
+}
+
 const ORDER_NUMBER_COLUMNS = ['ordernr', 'Ordernummer', 'OrderNr', 'Order nr', 'Order'];
 const HOSE_KEY_COLUMNS = ['GHnr', 'Slangnummer', 'Nummer', 'SlangNr', 'Slang nr'];
 const KLANT_CANDIDATES = ['nm', 'Klant', 'Klantnaam', 'Debiteurnaam', 'Naam debiteur'];
@@ -340,7 +386,10 @@ function groupRowsByHoseKey(array $rows): array
  */
 function findHoseLinesByOrder(PDO $pdo, string $orderNumber): array
 {
-    return tryColumnsQuery($pdo, '2500 Slangkaarten bij order', ORDER_NUMBER_COLUMNS, $orderNumber);
+    return slangkaartAppSamenvoegen(
+        tryColumnsQuery($pdo, '2500 Slangkaarten bij order', ORDER_NUMBER_COLUMNS, $orderNumber),
+        appRegels(['ordernr' => $orderNumber])
+    );
 }
 
 /**
@@ -360,13 +409,16 @@ function fetchCustomerOrderSummaryRows(PDO $pdo, string $customerName): array
 {
     try {
         $statement = $pdo->prepare(
-            'SELECT [ordernr], [nm], [orddat], [Uw_referentie], [ord_soort] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] LIKE :value'
+            'SELECT [ordernr], [rgl], [nm], [orddat], [Uw_referentie], [ord_soort] FROM [dbo].[2500 Slangkaarten bij order] WHERE [nm] LIKE :value'
         );
         $statement->execute(['value' => '%' . $customerName . '%']);
-        return $statement->fetchAll();
+        $oud = $statement->fetchAll();
     } catch (PDOException $exception) {
-        return tryColumnsLikeQuery($pdo, '2500 Slangkaarten bij order', KLANT_CANDIDATES, $customerName);
+        $oud = tryColumnsLikeQuery($pdo, '2500 Slangkaarten bij order', KLANT_CANDIDATES, $customerName);
     }
+
+    // Kaarten uit de slangkaart-app (zelfde klantzoek: naam bevat, afgelopen twee jaar).
+    return slangkaartAppSamenvoegen($oud, appRegels(['klant' => $customerName]));
 }
 
 /**
@@ -721,6 +773,9 @@ function findLinesByHoseNumber(PDO $pdo, string $hoseNumber): array
         ));
     }
 
+    // Kaarten uit de slangkaart-app staan niet in Exact-artikelgroep 0 van de oude bron: na het filter erbij.
+    $rows = slangkaartAppSamenvoegen($rows, appRegels(['nummer' => $hoseNumber]));
+
     usort($rows, static function (array $a, array $b): int {
         $orderNumberA = pick($a, ORDER_NUMBER_COLUMNS);
         $orderNumberB = pick($b, ORDER_NUMBER_COLUMNS);
@@ -821,6 +876,11 @@ function keysWithoutCouplings(array $hoseKeys, array $groupedA, array $groupedB)
  */
 function couplingSides(string $index, array $groupedA, array $groupedB, array $detailSides): array
 {
+    $app = appKoppelingen($index);
+    if ($app !== null && ($app['A'] !== [] || $app['B'] !== [])) {
+        return [$app['A'], $app['B']];
+    }
+
     if (isset($groupedA[$index]) || isset($groupedB[$index])) {
         return [$groupedA[$index] ?? [], $groupedB[$index] ?? []];
     }
@@ -894,6 +954,15 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
             $orderNumber
         )
         : tryColumnsInQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseKeys));
+    // Kaarten uit de slangkaart-app: de orderregels van deze order (de app gaat voor), beperkt tot de gekozen slangen.
+    if (!$cardOnly && $orderNumber !== '') {
+        $gekozen = array_flip(array_map('hoseKeyIndex', $hoseKeys));
+        $appRegels = array_values(array_filter(
+            appRegels(['ordernr' => $orderNumber]),
+            static fn(array $r): bool => isset($gekozen[hoseKeyIndex(pick($r, HOSE_KEY_COLUMNS))])
+        ));
+        $mainRows = slangkaartAppSamenvoegen($mainRows, $appRegels);
+    }
     $sideARows = tryColumnsInQuery($pdo, '93004 hv 3001 Slangonderdelen Zijde A', HOSE_KEY_COLUMNS, $hoseKeys);
     $sideBRows = tryColumnsInQuery($pdo, '93004 hv 3001 Slangonderdelen Zijde B', HOSE_KEY_COLUMNS, $hoseKeys);
     $groupedA = groupRowsByHoseKey($sideARows);
@@ -958,16 +1027,23 @@ function findSlangkaartMasterRows(PDO $pdo, array $hoseKeys): array
         return [];
     }
 
+    // Kaarten uit de slangkaart-app gaan voor; de oude database vult aan wat de app niet heeft.
+    $uitApp = appKaarten($hoseKeys);
+    $hoseKeys = array_values(array_filter($hoseKeys, static fn(string $k): bool => !isset($uitApp[trim($k)])));
+    if ($hoseKeys === []) {
+        return $uitApp;
+    }
+
     try {
         $placeholders = implode(', ', array_fill(0, count($hoseKeys), '?'));
         $statement = $pdo->prepare("SELECT * FROM [dbo].[2500 Slangkaarten] WHERE [Nummer] IN ({$placeholders})");
         $statement->execute($hoseKeys);
         $rows = $statement->fetchAll();
     } catch (PDOException $exception) {
-        return [];
+        return $uitApp;
     }
 
-    $result = [];
+    $result = $uitApp;
     foreach ($rows as $row) {
         $key = trim((string) $row['Nummer']);
         if ($key === '' || isset($result[$key])) {
@@ -1100,7 +1176,8 @@ function findHoseNumbersWithoutOrder(PDO $pdo, string $searchTerm, array $exclud
         }
         $keys += array_slice($found, 0, 50, true);
     }
-    $keys = array_slice(array_keys($keys), 0, 50);
+    // Nummers uit de slangkaart-app staan bovenaan (de app gaat voor).
+    $keys = array_slice(array_values(array_unique(array_merge(slangkaartAppZoekNummers($searchTerm, $exact), array_keys($keys)))), 0, 50);
 
     $exclude = array_flip(array_map('strtolower', array_map('trim', $excludeKeys)));
     $keys = array_values(array_filter(

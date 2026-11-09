@@ -15,6 +15,7 @@ tileApiGuard('stickers-slanglabels');
  */
 
 require_once __DIR__ . '/../../../reports/inc.php';
+require_once __DIR__ . '/../../../shared/slangkaartapp.php';
 
 function slanglabelSql(): string
 {
@@ -63,6 +64,34 @@ reportApi(function (string $nummer): array {
             $out['referentie'] = $out['artnr_kl'];
         }
         $rows[] = $out;
+    }
+
+    // Kaarten uit de slangkaart-app (zie shared/slangkaartapp.php) staan niet in de oude view: erbij, de app gaat voor
+    // (een slang die in beide staat komt maar één keer, uit de app).
+    $uitApp = [];
+    foreach (slangkaartAppRegels(['ordernr' => $nummer]) as $r) {
+        $datum = trim((string) ($r['orddat'] ?? ''));
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $datum, $m) === 1) {
+            $datum = $m[3] . '-' . $m[2] . '-' . $m[1];
+        }
+        $aantal = $r['Aantal'] ?? '';
+        $uitApp[] = [
+            'ordernummer' => trim((string) ($r['ordernr'] ?? '')),
+            'slangnummer' => trim((string) ($r['GHnr'] ?? '')),
+            'referentie' => trim((string) ($r['Uw_referentie'] ?? '')),
+            'datum' => $datum,
+            'klantnaam' => trim((string) ($r['nm'] ?? '')),
+            'aantal' => is_numeric($aantal) ? (string) (int) round((float) $aantal) : '',
+            'lengte' => trim((string) ($r['Lengte'] ?? '')),
+            'artnr_kl' => '',
+        ];
+    }
+    if ($uitApp !== []) {
+        $inApp = [];
+        foreach ($uitApp as $r) {
+            $inApp[strtoupper($r['slangnummer'])] = true;
+        }
+        $rows = array_merge($uitApp, array_values(array_filter($rows, static fn(array $r): bool => !isset($inApp[strtoupper((string) $r['slangnummer'])]))));
     }
 
     return ['rows' => $rows];
