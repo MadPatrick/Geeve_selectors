@@ -82,7 +82,8 @@ reportApi(function (string $nummer): array {
             'datum' => $datum,
             'klantnaam' => trim((string) ($r['nm'] ?? '')),
             'aantal' => is_numeric($aantal) ? (string) (int) round((float) $aantal) : '',
-            'lengte' => trim((string) ($r['Lengte'] ?? '')),
+            // De app geeft de lengte in meters (2,65), de oude view in millimeters (1700): omrekenen naar mm.
+            'lengte' => is_numeric($r['Lengte'] ?? null) ? (string) (int) round((float) $r['Lengte'] * 1000) : trim((string) ($r['Lengte'] ?? '')),
             'artnr_kl' => '',
         ];
     }
