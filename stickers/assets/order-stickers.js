@@ -26,7 +26,8 @@
     var filterToggle = document.getElementById('soFilter');
     var backorders = true; // 'Backorders' (standaard) of 'Compleet'
     var asked = '';
-    var sortBy = 'loop'; // 'loop' (looplocatie, standaard), 'alfa' (artikelnummer), 'regel' (orderregelnummer) of 'artikel' (artikelsticker, op orderregel)
+    var sortBy = 'loop'; // format/volgorde: 'loop' (looplocatie, standaard), 'regel' (orderregelnummer) of 'artikel' (artikelsticker, op orderregel)
+    var alfa = false;    // aparte schakelaar: alfabetisch op artikelnummer, voor elk format (ook de artikelsticker)
     var BC_MODULE_MM = 0.38; // breedte van één streepje in de barcode, zelfde als de artikelsticker
     var BC_MAX_MM = 96.7;    // breedte van het barcodevak
     var sortToggle = document.getElementById('soSort');
@@ -146,14 +147,13 @@
     function natural(a, b) { return String(a).localeCompare(String(b), 'nl', { numeric: true, sensitivity: 'base' }); }
     function sortRows() {
         rows.sort(function (a, b) {
-            if (sortBy === 'loop') {
+            if (alfa) { // alfabetisch op artikelnummer (natuurlijk, dus "2" voor "10"), daarbinnen op orderregel
+                var d = natural(a.artikelnummer, b.artikelnummer);
+                if (d !== 0) { return d; }
+            } else if (sortBy === 'loop') {
                 if ((a.looplocatie === '') !== (b.looplocatie === '')) { return a.looplocatie === '' ? 1 : -1; }
                 var c = natural(a.looplocatie, b.looplocatie);
                 if (c !== 0) { return c; }
-            }
-            if (sortBy === 'alfa') { // alfabetisch op artikelnummer (natuurlijk, dus "2" voor "10"), daarbinnen op orderregel
-                var d = natural(a.artikelnummer, b.artikelnummer);
-                if (d !== 0) { return d; }
             }
             return natural(a.ord_rgl, b.ord_rgl);
         });
@@ -190,6 +190,19 @@
         var maat = document.getElementById('soMaat'); // labelmaat in de titel: de artikelsticker is een ander label
         if (maat) { maat.textContent = sortBy === 'artikel' ? '70 × 25 mm' : '102 × 54 mm'; }
         Array.prototype.forEach.call(sortToggle.querySelectorAll('button'), function (b) { b.classList.toggle('is-active', b === btn); });
+        herorden();
+    });
+
+    // Alfabetisch aan/uit, naast de formatkeuze.
+    var alfaBtn = document.getElementById('soAlfa');
+    alfaBtn.addEventListener('click', function () {
+        alfa = !alfa;
+        alfaBtn.classList.toggle('is-active', alfa);
+        alfaBtn.setAttribute('aria-pressed', alfa ? 'true' : 'false');
+        herorden();
+    });
+
+    function herorden() {
         if (rows.length === 0) { return; }
         rows.forEach(function (r, i) {
             var cb = tbody.querySelector('input[data-i="' + i + '"]');
@@ -200,7 +213,7 @@
         showPage(0);
         current = 0;
         renderPreview();
-    });
+    }
 
     // Backorders: alleen de regels waarvan nog niet alles is geleverd (geleverd < besteld).
     function nogTeLeveren(r) {
