@@ -114,10 +114,25 @@ function appKoppelingen(?string $index = null, ?array $rij = null): ?array
     return $opslag[(string) $index] ?? null;
 }
 
+/**
+ * De app geeft de lengte in meters (2 = 2 m), de oude database in millimeters (2000). Rekent de lengte van een
+ * app-rij om naar mm, zodat tabel en afdruk overal mm tonen. Alleen voor rijen uit de app aanroepen.
+ */
+function appLengteNaarMm(array $rij): array
+{
+    foreach (['Lengte', 'Lengte / Prijs', 'Lengte/Prijs'] as $kolom) {
+        if (isset($rij[$kolom]) && is_numeric(str_replace(',', '.', (string) $rij[$kolom]))) {
+            $rij[$kolom] = (string) (int) round((float) str_replace(',', '.', (string) $rij[$kolom]) * 1000);
+        }
+    }
+
+    return $rij;
+}
+
 /** Orderregels uit de app (leeg als de app niet bereikbaar is), met onthouden koppelonderdelen. */
 function appRegels(array $zoek): array
 {
-    $rijen = slangkaartAppRegels($zoek);
+    $rijen = array_map('appLengteNaarMm', slangkaartAppRegels($zoek));
     foreach ($rijen as $rij) {
         appKoppelingen(null, $rij);
     }
@@ -128,7 +143,7 @@ function appRegels(array $zoek): array
 /** Kaarten uit de app per slangnummer, met onthouden koppelonderdelen. */
 function appKaarten(array $nummers): array
 {
-    $kaarten = slangkaartAppKaarten($nummers);
+    $kaarten = array_map('appLengteNaarMm', slangkaartAppKaarten($nummers));
     foreach ($kaarten as $kaart) {
         appKoppelingen(null, $kaart);
     }
