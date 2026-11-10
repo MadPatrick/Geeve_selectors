@@ -234,6 +234,7 @@
         { prefix: 'SPAS', position: 1, onderdeel: 'Lasplaat (dubbel-gestapeld)' },
         { prefix: 'SPV', position: 1, onderdeel: 'Lasplaat' },
         { prefix: 'WSP', position: 1, onderdeel: 'Lasplaat (hoek)' },
+        { prefix: 'CRA', position: 1, onderdeel: 'Lasplaat (hoek)' },
         { prefix: 'GMV', position: 1, onderdeel: 'Glijmoer' },
         { prefix: 'SM', position: 1, onderdeel: 'Glijmoer' },
         { prefix: 'DP', position: 4, onderdeel: 'Dekplaat' },
@@ -1050,6 +1051,7 @@
                     if (prefix === 'SPV') return 1;
                     if (prefix === 'WSP') return 2;
                     if (prefix === 'SPAL') return 3;
+                    if (prefix === 'CRA') return 4;
                     if (prefix === 'GMV' || prefix === 'SM') return 9;
                     return 8;
                 };
