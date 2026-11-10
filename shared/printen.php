@@ -90,6 +90,9 @@ const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 29,
  */
 const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet', 'ac-printsheet', 'pt-printsheet', 'km-printsheet'];
 
+/** Minimum aantal lege rijen (punten) tussen twee blokken die als aparte BITMAP gaan (300 dpi: 6 rijen = 0,5 mm). */
+const GEEVE_TSPL_BAND_LEEG = 6;
+
 /** Wel/niet omkeren van de bitmap voor TSPL: bij TSC is een 0-bit een zwarte punt. */
 const GEEVE_TSPL_ZWART_IS_NUL = true;
 
@@ -909,51 +912,63 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
         [$data, $width, $height] = geevePbmCanvas($data, $width, $height, $newW, $newH, $shiftX, $shiftY);
         $rowBytes = intdiv($width + 7, 8);
     }
-    // Alleen het bedrukte deel als BITMAP sturen (SIZE blijft het hele label): op een label met veel wit scheelt dat een groot
-    // deel van de data die over het netwerk naar de printer gaat en daar verwerkt moet worden. Kolommen op bytegrens.
-    $bitmapX = 0;
-    $bitmapY = 0;
-    $bitmapHoogte = $height;
-    $bitmapBytes = $rowBytes;
-    $eersteRij = null;
-    $laatste_rij = null;
-    $minByte = $rowBytes;
-    $maxByte = -1;
+    // Alleen het bedrukte deel als BITMAP sturen (SIZE blijft het hele label). De printer en zijn netwerkverbinding verwerken
+    // de bitmapdata langzaam (gemeten: een bijna leeg label gaat vlot, een vol label geeft een pauze van een halve tot een
+    // hele seconde). Daarom geen enkele bitmap met alle witruimte, maar per blok onder elkaar (gescheiden door minstens
+    // GEEVE_TSPL_BAND_LEEG lege rijen) een eigen BITMAP, elk bijgesneden tot de bedrukte kolommen van dat blok (op bytegrens).
+    // Het resultaat op het label blijft punt voor punt gelijk.
+    $blokken = [];
+    $huidig = null;
+    $leeg = 0;
     for ($y = 0; $y < $height; $y++) {
         $rij = substr($data, $y * $rowBytes, $rowBytes);
         if (trim($rij, "\0") === '') {
+            $leeg++;
             continue;
         }
-        $eersteRij = $eersteRij ?? $y;
-        $laatste_rij = $y;
         $links = strlen($rij) - strlen(ltrim($rij, "\0"));
         $rechts = strlen(rtrim($rij, "\0")) - 1;
-        $minByte = min($minByte, $links);
-        $maxByte = max($maxByte, $rechts);
-    }
-    if ($eersteRij !== null) {
-        $bitmapY = $eersteRij;
-        $bitmapHoogte = $laatste_rij - $eersteRij + 1;
-        $bitmapX = $minByte * 8;
-        $bitmapBytes = $maxByte - $minByte + 1;
-        $uitsnede = '';
-        for ($y = $eersteRij; $y <= $laatste_rij; $y++) {
-            $uitsnede .= substr($data, $y * $rowBytes + $minByte, $bitmapBytes);
+        if ($huidig !== null && $leeg < GEEVE_TSPL_BAND_LEEG) {
+            // Dezelfde band: de lege rijen ertussen horen erbij.
+            $huidig['tot'] = $y;
+            $huidig['min'] = min($huidig['min'], $links);
+            $huidig['max'] = max($huidig['max'], $rechts);
+        } else {
+            if ($huidig !== null) {
+                $blokken[] = $huidig;
+            }
+            $huidig = ['van' => $y, 'tot' => $y, 'min' => $links, 'max' => $rechts];
         }
-        $data = $uitsnede;
-        $rowBytes = $bitmapBytes;
+        $leeg = 0;
     }
-    if (GEEVE_TSPL_ZWART_IS_NUL) {
-        $data = ~$data;
-        // Opvulbits aan het eind van elke rij blijven wit (1); alleen aan de rechterkant van het hele label, niet van de uitsnede.
-        $pad = intdiv($width + 7, 8) * 8 - $width;
-        if ($pad > 0 && $bitmapX + $bitmapBytes * 8 >= $width) {
-            $mask = chr((1 << $pad) - 1);
-            for ($y = 0; $y < $bitmapHoogte; $y++) {
-                $i = $y * $rowBytes + $rowBytes - 1;
-                $data[$i] = $data[$i] | $mask;
+    if ($huidig !== null) {
+        $blokken[] = $huidig;
+    }
+    $pad = intdiv($width + 7, 8) * 8 - $width;
+    $bitmaps = '';
+    foreach ($blokken as $blok) {
+        $bytes = $blok['max'] - $blok['min'] + 1;
+        $uitsnede = '';
+        for ($y = $blok['van']; $y <= $blok['tot']; $y++) {
+            $uitsnede .= substr($data, $y * $rowBytes + $blok['min'], $bytes);
+        }
+        $hoogte = $blok['tot'] - $blok['van'] + 1;
+        if (GEEVE_TSPL_ZWART_IS_NUL) {
+            $uitsnede = ~$uitsnede;
+            // Opvulbits aan het eind van elke rij blijven wit (1); alleen als het blok tot de rechterbyte van het label loopt.
+            if ($pad > 0 && $blok['max'] === $rowBytes - 1) {
+                $mask = chr((1 << $pad) - 1);
+                for ($y = 0; $y < $hoogte; $y++) {
+                    $i = $y * $bytes + $bytes - 1;
+                    $uitsnede[$i] = $uitsnede[$i] | $mask;
+                }
             }
         }
+        $bitmaps .= 'BITMAP ' . ($blok['min'] * 8) . ',' . $blok['van'] . ',' . $bytes . ',' . $hoogte . ',0,' . $uitsnede . "\r\n";
+    }
+    if ($bitmaps === '') {
+        // Helemaal leeg label: geen bitmap sturen, alleen printen.
+        $bitmaps = '';
     }
     // 25,1 mm (afronding van de pdf-maat) wordt 25 mm; echte halve maten blijven staan.
     $mm = static fn(int $dots): float => abs($dots / $dpi * 25.4 - round($dots / $dpi * 25.4)) < 0.3 ? round($dots / $dpi * 25.4) : round($dots / $dpi * 25.4, 1);
@@ -985,8 +1000,7 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     // Formaat, tussenruimte, snelheid en zwarting gelden voor de hele opdracht: alleen bij het eerste label sturen. Bij elk
     // label opnieuw instellen kostte de printer tijd tussen de labels (bij veel stickers merkbaar).
     $kop = $eerste ? 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gapRegel . $instelling . "DIRECTION 0\r\n" : '';
-    return $kop . $gap . "CLS\r\n"
-        . 'BITMAP ' . $bitmapX . ',' . $bitmapY . ',' . $rowBytes . ',' . $bitmapHoogte . ',0,' . $data . "\r\nPRINT 1,1\r\n";
+    return $kop . $gap . "CLS\r\n" . $bitmaps . "PRINT 1,1\r\n";
 }
 
 /** De inhoud van alle "@media print { ... }"-blokken in een stylesheet (zonder de omhulling). */
