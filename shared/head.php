@@ -38,4 +38,5 @@ $headCss = $headCss ?? [];
     <?= achtergrondStijl() ?>
     <script src="<?= h(geeveAssetHref('shared/progress.js')) ?>"></script>
     <script src="<?= h(geeveAssetHref('shared/escape.js')) ?>"></script>
+    <script src="<?= h(geeveAssetHref('shared/getal.js')) ?>"></script>
     <script src="<?= h(geeveAssetHref('shared/enter-top.js')) ?>"></script>

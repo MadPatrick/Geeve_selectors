@@ -61,7 +61,7 @@ function formatWholeNumber(string $value): string
 {
     $normalized = str_replace(',', '.', trim($value));
 
-    return is_numeric($normalized) ? (string) (int) round((float) $normalized) : $value;
+    return is_numeric($normalized) ? geeveDuizendtal(round((float) $normalized)) : $value;
 }
 
 /**
@@ -72,7 +72,7 @@ function formatWholeNumber(string $value): string
  * $decimals bepaalt op hoeveel decimalen afgerond wordt (Voorraad op de
  * picklijst gebruikt hiervoor 1 i.p.v. de standaard 3).
  */
-function formatQuantity(string $value, int $decimals = 3): string
+function formatQuantity(string $value, int $decimals = 3, bool $duizendtal = false): string
 {
     $normalized = str_replace(',', '.', trim($value));
     if (!is_numeric($normalized)) {
@@ -80,6 +80,11 @@ function formatQuantity(string $value, int $decimals = 3): string
     }
 
     $formatted = rtrim(rtrim(number_format((float) $normalized, $decimals, '.', ''), '0'), '.');
+
+    // $duizendtal: punt als duizendtal (alleen op de kaart zelf; de picklijst blijft ongewijzigd).
+    if ($duizendtal) {
+        return geeveDuizendtal((float) $formatted, 0, $decimals);
+    }
 
     return ensureLeadingZero(str_replace('.', ',', $formatted));
 }
@@ -348,7 +353,7 @@ function renderExtraArtikelenTable(array $row): string
         if ($artikel === '') {
             continue;
         }
-        $rows[] = [$artikel, formatQuantity(pick($row, $slot['aantal']))];
+        $rows[] = [$artikel, formatQuantity(pick($row, $slot['aantal']), 3, true)];
     }
 
     $html = '<div class="coupling-block extra-artikelen-block"><h4>Extra artikelen</h4>';

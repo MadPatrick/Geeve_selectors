@@ -39,7 +39,7 @@
     // Aantallen uit Exact komen als "10.000000": zonder overbodige decimalen, met komma.
     function qty(v) {
         var n = Number(v);
-        return v === '' || isNaN(n) ? String(v) : n.toLocaleString('nl-NL', { maximumFractionDigits: 3, useGrouping: false });
+        return v === '' || isNaN(n) ? String(v) : GeeveGetal.duizendtal(n, 0, 3);
     }
     // Zoals in NiceLabel: "woensdag, 14 oktober 2026".
     function today() {

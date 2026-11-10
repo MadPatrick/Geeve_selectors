@@ -1844,7 +1844,7 @@
     function formatPrice(value) {
         const n = Number(String(value).replace(',', '.'));
         if (!Number.isFinite(n)) return '';
-        return `€ ${n.toFixed(2).replace('.', ',')}`;
+        return `€ ${window.GeeveGetal ? GeeveGetal.duizendtal(n, 2, 2) : n.toFixed(2).replace('.', ',')}`;
     }
 
     /**
@@ -1859,7 +1859,7 @@
         const stockNum = stock === undefined || stock === null || stock === ''
             ? null
             : Number(String(stock).replace(',', '.'));
-        return stockNum !== null && Number.isFinite(stockNum) ? String(Math.trunc(stockNum)) : '—';
+        return stockNum !== null && Number.isFinite(stockNum) ? (window.GeeveGetal ? GeeveGetal.duizendtal(Math.trunc(stockNum), 0, 0) : String(Math.trunc(stockNum))) : '—';
     }
 
     let priceDebounce = null;
