@@ -28,7 +28,7 @@
     // Aantallen als "5.490000" of 5.49: zonder overbodige decimalen, met komma.
     function qty(v) {
         var n = Number(v);
-        return v === '' || isNaN(n) ? String(v) : n.toLocaleString('nl-NL', { maximumFractionDigits: 3, useGrouping: false });
+        return v === '' || isNaN(n) ? String(v) : GeeveGetal.duizendtal(n, 0, 3);
     }
     // Printdatum, zoals op de oude sticker: "woensdag, 14 oktober 2026".
     function today() {

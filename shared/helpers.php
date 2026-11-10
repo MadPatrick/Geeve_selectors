@@ -28,3 +28,24 @@ if (!function_exists('assetVersion')) {
         return $mtime !== false ? (string) $mtime : (defined('APP_VERSION') ? (string) APP_VERSION : '0');
     }
 }
+
+if (!function_exists('geeveDuizendtal')) {
+    /**
+     * Getal voor WEERGAVE in Nederlandse notatie: punt als duizendtal, komma als decimaal (2.000 / 1.234,5).
+     * Nooit gebruiken voor waarden die naar Exact, CSV of zoekvelden gaan. Geen mb_*.
+     * $minDec/$maxDec: minimaal/maximaal aantal decimalen (overbodige nullen vallen weg tot $minDec).
+     * Zelfde uitkomst als GeeveGetal.duizendtal() in shared/getal.js.
+     */
+    function geeveDuizendtal(float $n, int $minDec = 0, int $maxDec = 0): string
+    {
+        $tekst = number_format(abs($n), $maxDec, '.', '');
+        $delen = explode('.', $tekst);
+        $dec = $delen[1] ?? '';
+        while (strlen($dec) > $minDec && substr($dec, -1) === '0') {
+            $dec = substr($dec, 0, -1);
+        }
+        $uit = number_format((float) $delen[0], 0, '', '.') . ($dec !== '' ? ',' . $dec : '');
+
+        return ($n < 0 && (float) $tekst != 0.0 ? '-' : '') . $uit;
+    }
+}

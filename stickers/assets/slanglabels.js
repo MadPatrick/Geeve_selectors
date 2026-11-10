@@ -38,8 +38,9 @@
         var n = parseInt(r.aantal, 10);
         return isNaN(n) || n < 1 ? 1 : Math.min(n, 99);
     }
-    // Lengte zoals in de oude app: "1830 MM" (alleen een getal krijgt " MM" erachter).
-    function lengte(v) { v = String(v).trim(); return /^\d+([.,]\d+)?$/.test(v) ? v + ' MM' : v; }
+    // Lengte zoals in de oude app, met punt als duizendtal: "2.000 MM" (alleen een getal krijgt " MM" erachter).
+    // Alleen weergave/afdruk (shared/getal.js); het invoerveld en de waarde in de lijst blijven zoals ze zijn.
+    function lengte(v) { return GeeveGetal.lengteMm(v); }
 
     function label(r) {
         return '<div class="slanglabel"><div class="area">' +
