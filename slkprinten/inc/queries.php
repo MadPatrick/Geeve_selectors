@@ -552,16 +552,145 @@ function findRecentOrders(PDO $pdo, int $limit = 10): array
 {
     $limit = max(1, min(50, $limit));
 
+    $orders = [];
     try {
         $orders = findRecentOrdersViaExact($pdo, $limit);
-        if ($orders !== []) {
-            return $orders;
-        }
     } catch (Throwable $exception) {
         // Geen Exact-koppeling (Config leeg): terugval hieronder.
     }
+    if ($orders === []) {
+        $orders = findRecentOrdersLocal($pdo, $limit);
+    }
 
-    return findRecentOrdersLocal($pdo, $limit);
+    return mergeRecentOrdersWithApp($orders, findRecentOrdersFromApp($limit), $limit);
+}
+
+/**
+ * Orders met kaarten uit de slangkaart-app van Hans. De oude lijst komt uit de view "2500 Slangkaarten bij order", en
+ * die kent kaarten die alleen in de app staan niet - een order met alleen app-kaarten ontbrak dus. De app heeft (nog)
+ * geen "recente orders"-adres; daarom: de slangartikelen (Items.Assortment = 0) van de nieuwste orders uit Exact
+ * (orkrg.syscreated), per slangnummer in de app navragen (kaarten) en van de orders waar de app er minstens een van kent
+ * de regels ophalen (order-regels). Is de app niet bereikbaar of Exact niet beschikbaar, dan een lege lijst.
+ * Gaat het goed, dan is het 1 Exact-query + 1 app-aanroep + 1 per gevonden order.
+ *
+ * @return array<int, array{row: array<string, mixed>, count: int}> nieuwste eerst, met row['syscreated'] uit orkrg
+ */
+function findRecentOrdersFromApp(int $limit): array
+{
+    $scan = 60;
+    $t = microtime(true);
+    try {
+        $statement = getExactPdoConnection()->query(
+            "SELECT r.[ordernr], r.[artcode], k.[syscreated] FROM [dbo].[orsrg] r " .
+            "JOIN (SELECT TOP {$scan} [ordernr], [syscreated] FROM [dbo].[orkrg] ORDER BY [syscreated] DESC) k ON k.[ordernr] = r.[ordernr] " .
+            "JOIN [dbo].[Items] i ON i.[ItemCode] = r.[artcode] WHERE i.[Assortment] = 0"
+        );
+        $lines = $statement->fetchAll();
+    } catch (Throwable $exception) {
+        return [];
+    }
+    $GLOBALS['recentOrdersTimings']['app: nieuwste orders + slangregels (Exact)'] = (int) round((microtime(true) - $t) * 1000);
+
+    $created = [];
+    $cardsByOrder = [];
+    foreach ($lines as $line) {
+        $number = trim((string) $line['ordernr']);
+        $card = trim((string) $line['artcode']);
+        if ($number === '' || $card === '') {
+            continue;
+        }
+        $created[$number] = (string) $line['syscreated'];
+        $cardsByOrder[$number][$card] = true;
+    }
+    if ($cardsByOrder === []) {
+        return [];
+    }
+
+    $t = microtime(true);
+    $allCards = [];
+    foreach ($cardsByOrder as $cards) {
+        $allCards = array_merge($allCards, array_keys($cards));
+    }
+    $inApp = slangkaartAppKaarten(array_map('strval', array_values(array_unique($allCards))));
+    $GLOBALS['recentOrdersTimings']['app: kaarten (' . count($inApp) . ' gevonden)'] = (int) round((microtime(true) - $t) * 1000);
+    if ($inApp === []) {
+        return [];
+    }
+
+    $numbers = array_keys($cardsByOrder);
+    usort($numbers, static function (string $a, string $b) use ($created): int {
+        return [$created[$b], $b] <=> [$created[$a], $a];
+    });
+
+    $orders = [];
+    $t = microtime(true);
+    foreach ($numbers as $number) {
+        $hasAppCard = false;
+        foreach (array_keys($cardsByOrder[$number]) as $card) {
+            if (isset($inApp[(string) $card])) {
+                $hasAppCard = true;
+                break;
+            }
+        }
+        if (!$hasAppCard) {
+            continue;
+        }
+        $rows = slangkaartAppRegels(['ordernr' => $number]);
+        if ($rows === []) {
+            continue;
+        }
+        $row = $rows[0];
+        $row['ordernr'] = $number;
+        $row['syscreated'] = $created[$number];
+        $orders[] = ['row' => $row, 'count' => count($rows)];
+        if (count($orders) >= $limit) {
+            break;
+        }
+    }
+    $GLOBALS['recentOrdersTimings']['app: order-regels (' . count($orders) . ' orders)'] = (int) round((microtime(true) - $t) * 1000);
+
+    return $orders;
+}
+
+/**
+ * Voegt de orders uit de oude database en uit de app samen (per ordernummer; bij beide het grootste aantal regels, de
+ * app-gegevens gaan voor) en sorteert op aanmaakmoment in Exact, nieuwste eerst. Orders zonder aanmaakmoment komen na
+ * die mét, op ordernummer.
+ *
+ * @param array<int, array{row: array<string, mixed>, count: int}> $old
+ * @param array<int, array{row: array<string, mixed>, count: int}> $app
+ * @return array<int, array{row: array<string, mixed>, count: int}>
+ */
+function mergeRecentOrdersWithApp(array $old, array $app, int $limit): array
+{
+    if ($app === []) {
+        return $old;
+    }
+
+    $byNumber = [];
+    foreach ($old as $order) {
+        $byNumber[trim((string) $order['row']['ordernr'])] = $order;
+    }
+    foreach ($app as $order) {
+        $number = trim((string) $order['row']['ordernr']);
+        if (isset($byNumber[$number])) {
+            $order['count'] = max($order['count'], $byNumber[$number]['count']);
+        }
+        $byNumber[$number] = $order;
+    }
+
+    $merged = array_values($byNumber);
+    usort($merged, static function (array $a, array $b): int {
+        $createdA = (string) ($a['row']['syscreated'] ?? '');
+        $createdB = (string) ($b['row']['syscreated'] ?? '');
+        if ($createdA !== $createdB) {
+            return strcmp($createdB, $createdA);
+        }
+
+        return strcmp((string) $b['row']['ordernr'], (string) $a['row']['ordernr']);
+    });
+
+    return array_slice($merged, 0, $limit);
 }
 
 /**
