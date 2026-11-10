@@ -90,6 +90,15 @@ const GEEVE_LABEL_MEDIUM = ['sl-printsheet' => ['breedte' => 90, 'hoogte' => 29,
  */
 const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet', 'ac-printsheet', 'pt-printsheet', 'km-printsheet'];
 
+/**
+ * Sheet-classes van tegels waarvan de Artikelsticker (70 x 25 mm) op een Altec/TSC-labelprinter met de eigen lettertypen en
+ * streepjes van de printer wordt afgedrukt in plaats van als bitmap (geeveTsplNatiefArtikelsticker()). De netwerkmodule van
+ * de TTP-343 Plus verwerkt een bitmap van ca. 10 KB per label zo langzaam dat de printer na elk label even stilstaat; deze
+ * opdracht is ca. 1 KB per label. De letters zijn de ingebouwde lettertypen van de printer (niet Arial Vet) en de barcode
+ * heeft een geheel aantal punten per streepje. Een lege lijst zet dit uit (dan gaat de sticker weer als bitmap).
+ */
+const GEEVE_TSPL_NATIEF_STICKERS = ['so-preview', 'sa-printsheet'];
+
 /** Minimum aantal lege rijen (punten) tussen twee blokken die als aparte BITMAP gaan (300 dpi: 6 rijen = 0,5 mm). */
 const GEEVE_TSPL_BAND_LEEG = 6;
 
@@ -657,6 +666,15 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
     }
     $workDir = geeveWorkDir();
     try {
+        if (($printer['taal'] ?? '') === 'tspl') {
+            // Artikelsticker (70 x 25 mm): compacte opdracht met de eigen lettertypen van de printer, zonder Chromium en bitmap.
+            $natief = geeveTsplNatiefArtikelsticker($bodyHtml, $sheetClass, $afdruk);
+            if ($natief !== null) {
+                $file = $workDir . '/labels.tspl';
+                file_put_contents($file, $natief);
+                return geeveSmbPrint($queue, $file, $title);
+            }
+        }
         $pdfFile = geeveRenderPdf($bodyHtml, $cssFiles, $title, $workDir, null, $sheetClass);
         if (($printer['taal'] ?? '') === 'brother') {
             return geeveBrotherPrint($pdfFile, $printer, $queue, $title, $workDir, in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true), $afdruk);
@@ -733,6 +751,231 @@ function geeveTsplOpdracht(array $pbms, int $dpi, string $sheetClass, array $afd
         $tspl .= $snijder . geevePbmToTspl($pbm, $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', $medium, $afdruk, $laatste, $eerste);
     }
     return $tspl;
+}
+
+/**
+ * Haalt uit het afdrukblok van de Artikelsticker (70 x 25 mm, zie stickers/assets/art-sticker.js) per sticker de omschrijving,
+ * het artikelnummer en de streepjes van de barcode. Null als het blok iets anders bevat dan alleen zulke stickers (dan gaat het
+ * als bitmap).
+ *
+ * @return list<array{desc: string, art: string, modules: int, bars: list<array{0: int, 1: int}>}>|null
+ */
+function geeveArtikelstickersUitHtml(string $bodyHtml): ?array
+{
+    if (!class_exists('DOMDocument') || strpos($bodyHtml, 'sticker--70x25') === false) {
+        return null;
+    }
+    $dom = new DOMDocument();
+    $vorige = libxml_use_internal_errors(true);
+    $dom->loadHTML('<?xml encoding="utf-8"?><body>' . $bodyHtml . '</body>', LIBXML_NOERROR | LIBXML_NOWARNING);
+    libxml_clear_errors();
+    libxml_use_internal_errors($vorige);
+    $xp = new DOMXPath($dom);
+    $klasse = static fn(string $naam): string => "contains(concat(' ', normalize-space(@class), ' '), ' " . $naam . " ')";
+    $alle = $xp->query('//div[' . $klasse('sticker') . ']');
+    $art = $xp->query('//div[' . $klasse('sticker') . ' and ' . $klasse('sticker--art') . ' and ' . $klasse('sticker--70x25') . ']');
+    if ($alle === false || $art === false || $art->length === 0 || $art->length !== $alle->length) {
+        return null;
+    }
+    $stickers = [];
+    foreach ($art as $sticker) {
+        $deel = static function (string $naam) use ($xp, $sticker, $klasse): string {
+            $node = $xp->query('.//div[' . $klasse($naam) . ']', $sticker)->item(0);
+            return $node === null ? '' : trim(preg_replace('/\s+/', ' ', $node->textContent) ?? '');
+        };
+        $modules = 0;
+        $bars = [];
+        $svg = $xp->query('.//svg', $sticker)->item(0);
+        if ($svg instanceof DOMElement) {
+            $viewBox = preg_split('/[\s,]+/', trim($svg->getAttribute('viewbox'))) ?: [];
+            $modules = isset($viewBox[2]) ? (int) round((float) $viewBox[2]) : 0;
+            // Alleen de zwarte streepjes (rect in de groep g); de eerste rect is de witte achtergrond.
+            foreach ($xp->query('.//g//rect', $svg) as $rect) {
+                $x = (float) $rect->getAttribute('x');
+                $w = (float) $rect->getAttribute('width');
+                if ($w > 0) {
+                    $bars[] = [(int) round($x), max(1, (int) round($w))];
+                }
+            }
+            // Aansluitende streepjes samenvoegen tot een.
+            $samen = [];
+            foreach ($bars as [$x, $w]) {
+                $laatste = count($samen) - 1;
+                if ($laatste >= 0 && $samen[$laatste][0] + $samen[$laatste][1] >= $x) {
+                    $samen[$laatste][1] = max($samen[$laatste][1], $x + $w - $samen[$laatste][0]);
+                } else {
+                    $samen[] = [$x, $w];
+                }
+            }
+            $bars = $samen;
+            if ($modules <= 0 && $bars !== []) {
+                $laatste = $bars[count($bars) - 1];
+                $modules = $laatste[0] + $laatste[1];
+            }
+        }
+        $stickers[] = ['desc' => $deel('desc'), 'art' => $deel('art'), 'modules' => $modules, 'bars' => $bars];
+    }
+    return $stickers;
+}
+
+/** Tekst voor een TEXT-opdracht van de printer: codetabel 850, zonder stuurtekens, aanhalingstekens als \["]. */
+function geeveTsplTekst(string $tekst): string
+{
+    $tekst = (string) preg_replace('/[\x00-\x1f\x7f]+/', ' ', $tekst);
+    $cp = function_exists('iconv') ? @iconv('UTF-8', 'CP850//TRANSLIT//IGNORE', $tekst) : false;
+    if ($cp === false) {
+        $cp = (string) preg_replace('/[^\x20-\x7e]/', '?', $tekst);
+    }
+    return str_replace(['\\', '"'], ['\\\\', '\\["]'], $cp);
+}
+
+/**
+ * Verdeelt tekst over hooguit $maxRegels regels van hooguit $cap tekens (op woordgrenzen; een te lang woord wordt gebroken).
+ * Geeft de regels, of null als het niet past.
+ *
+ * @return list<string>|null
+ */
+function geeveTekstRegels(string $tekst, int $cap, int $maxRegels): ?array
+{
+    $regels = [];
+    $regel = '';
+    foreach (preg_split('/ +/', trim($tekst)) ?: [] as $woord) {
+        while (strlen($woord) > $cap) {
+            if ($regel !== '') {
+                $regels[] = $regel;
+                $regel = '';
+            }
+            $regels[] = substr($woord, 0, $cap);
+            $woord = substr($woord, $cap);
+        }
+        if ($woord === '') {
+            continue;
+        }
+        if ($regel === '') {
+            $regel = $woord;
+        } elseif (strlen($regel) + 1 + strlen($woord) <= $cap) {
+            $regel .= ' ' . $woord;
+        } else {
+            $regels[] = $regel;
+            $regel = $woord;
+        }
+    }
+    if ($regel !== '') {
+        $regels[] = $regel;
+    }
+    return count($regels) <= $maxRegels ? $regels : null;
+}
+
+/**
+ * Maakt van de stickers uit geeveArtikelstickersUitHtml() een TSPL-opdracht voor het ALTEC-label 70 x 25 mm (300 dpi, 827 x 295
+ * punten) met de ingebouwde lettertypen (TEXT, vet nagebootst met een tweede afdruk twee punten ernaast) en de streepjes van
+ * de barcode als BAR (zelfde streepjes als in het voorbeeld, een geheel aantal punten breed). Indeling zoals art-sticker.css:
+ * omschrijving (2 regels) 1,2-8,8 mm, barcode 9,2-16,2 mm, artikelnummer 17,2-23,8 mm, alles gecentreerd met 2,5 mm marge.
+ *
+ * @param list<array{desc: string, art: string, modules: int, bars: list<array{0: int, 1: int}>}> $stickers
+ */
+function geeveTsplNatiefOpdracht(array $stickers, string $sheetClass, array $afdruk = []): string
+{
+    // Ingebouwde lettertypen van de printer: lettertype => [breedte, hoogte] in punten.
+    $lettertypen = ['2' => [12, 20], '3' => [16, 24], '4' => [24, 32], '5' => [32, 48]];
+    $labelBreedte = 827;
+    $beschikbaar = 767; // 70 mm min 2 x 2,5 mm marge
+    $snijdEinde = in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true);
+    $tekst = static function (int $x, int $y, string $font, int $mul, string $inhoud): string {
+        $d = $mul >= 2 ? 2 : 1; // vet: dezelfde tekst nog eens een of twee punten verder
+        return 'TEXT ' . $x . ',' . $y . ',"' . $font . '",0,' . $mul . ',' . $mul . ',"' . $inhoud . "\"\r\n"
+            . 'TEXT ' . ($x + $d) . ',' . $y . ',"' . $font . '",0,' . $mul . ',' . $mul . ',"' . $inhoud . "\"\r\n";
+    };
+    $aantal = count($stickers);
+    $uit = '';
+    foreach ($stickers as $i => $sticker) {
+        $eerste = $i === 0;
+        $laatste = $i === $aantal - 1;
+        if ($snijdEinde) {
+            $uit .= $laatste ? "SET CUTTER 1\r\nSET TEAR ON\r\n" : ($eerste ? "SET CUTTER OFF\r\nSET TEAR OFF\r\n" : '');
+        }
+        if ($eerste) {
+            $uit .= "SIZE 70 mm,25 mm\r\nGAP 3 mm,0 mm\r\n";
+            if (isset($afdruk['snelheid'])) {
+                $uit .= 'SPEED ' . (int) $afdruk['snelheid'] . "\r\n";
+            }
+            if (isset($afdruk['zwarting'])) {
+                $uit .= 'DENSITY ' . (int) $afdruk['zwarting'] . "\r\n";
+            }
+            $uit .= "DIRECTION 0\r\nCODEPAGE 850\r\n";
+        }
+        $uit .= "CLS\r\n";
+
+        // Omschrijving: gebied 14-104 (1,2-8,8 mm), hooguit 2 regels, grootste lettertype waarin het past.
+        $omschrijving = (string) iconv('UTF-8', 'CP850//TRANSLIT//IGNORE', $sticker['desc']);
+        if ($omschrijving === '' && $sticker['desc'] !== '') {
+            $omschrijving = (string) preg_replace('/[^\x20-\x7e]/', '?', $sticker['desc']);
+        }
+        foreach (['4', '3', '2'] as $k => $font) {
+            [$w, $h] = $lettertypen[$font];
+            $regels = geeveTekstRegels($omschrijving, intdiv($beschikbaar, $w), 2);
+            if ($regels !== null || $k === 2) {
+                if ($regels === null) {
+                    $regels = array_slice(geeveTekstRegels($omschrijving, intdiv($beschikbaar, $w), 99) ?? [], 0, 2);
+                }
+                break;
+            }
+        }
+        $regels = $regels ?? [];
+        $hoogteBlok = count($regels) * $h + max(0, count($regels) - 1) * 8;
+        $y = 14 + intdiv(90 - $hoogteBlok, 2);
+        foreach ($regels as $regel) {
+            $x = intdiv($labelBreedte - strlen($regel) * $w, 2);
+            $uit .= $tekst($x, $y, $font, 1, geeveTsplTekst(iconv('CP850', 'UTF-8', $regel) ?: $regel));
+            $y += $h + 8;
+        }
+
+        // Barcode: de streepjes uit het voorbeeld, elk streepje een geheel aantal punten; 7 mm hoog vanaf 9,2 mm.
+        if ($sticker['modules'] > 0 && $sticker['bars'] !== []) {
+            $doel = min($sticker['modules'] * 0.38 / 25.4 * 300, 65 / 25.4 * 300);
+            $n = max(1, (int) floor($doel / $sticker['modules']));
+            $x0 = intdiv($labelBreedte - $sticker['modules'] * $n, 2);
+            foreach ($sticker['bars'] as [$bx, $bw]) {
+                $uit .= 'BAR ' . ($x0 + $bx * $n) . ',109,' . ($bw * $n) . ",83\r\n";
+            }
+        }
+
+        // Artikelnummer: gebied 203-281 (17,2-23,8 mm), een regel, grootste lettertype waarin het past.
+        $artikel = (string) iconv('UTF-8', 'CP850//TRANSLIT//IGNORE', $sticker['art']);
+        if ($artikel === '' && $sticker['art'] !== '') {
+            $artikel = (string) preg_replace('/[^\x20-\x7e]/', '?', $sticker['art']);
+        }
+        if ($artikel !== '') {
+            $gekozen = ['2', 1];
+            foreach ([['4', 2], ['5', 1], ['4', 1], ['3', 1], ['2', 1]] as [$font, $mul]) {
+                $gekozen = [$font, $mul];
+                if (strlen($artikel) * $lettertypen[$font][0] * $mul <= $beschikbaar) {
+                    break;
+                }
+            }
+            [$font, $mul] = $gekozen;
+            [$w, $h] = $lettertypen[$font];
+            $cap = intdiv($beschikbaar, $w * $mul);
+            $artikel = substr($artikel, 0, $cap);
+            $x = intdiv($labelBreedte - strlen($artikel) * $w * $mul, 2);
+            $uit .= $tekst($x, 203 + intdiv(78 - $h * $mul, 2), $font, $mul, geeveTsplTekst(iconv('CP850', 'UTF-8', $artikel) ?: $artikel));
+        }
+        $uit .= "PRINT 1,1\r\n";
+    }
+    return $uit;
+}
+
+/**
+ * Artikelsticker (70 x 25 mm) op een Altec/TSC-printer als compacte opdracht met de eigen lettertypen van de printer, of null
+ * als het afdrukblok daar niet voor geschikt is (dan gaat het als bitmap, zie geevePrintLabels()).
+ */
+function geeveTsplNatiefArtikelsticker(string $bodyHtml, string $sheetClass, array $afdruk = []): ?string
+{
+    if (!in_array($sheetClass, GEEVE_TSPL_NATIEF_STICKERS, true)) {
+        return null;
+    }
+    $stickers = geeveArtikelstickersUitHtml($bodyHtml);
+    return $stickers === null ? null : geeveTsplNatiefOpdracht($stickers, $sheetClass, $afdruk);
 }
 
 /**
