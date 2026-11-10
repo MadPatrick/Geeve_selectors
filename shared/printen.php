@@ -99,6 +99,13 @@ const GEEVE_LABEL_SNIJD_EINDE = ['so-preview', 'ps-printsheet', 'sa-printsheet',
  */
 const GEEVE_TSPL_NATIEF_STICKERS = ['so-preview', 'sa-printsheet'];
 
+/**
+ * Artikelsticker op Altec/TSC: de tekst met de eigen lettertypen van de printer (true, minste data, blokkerige letters) of de
+ * echte letters (Arial vet) als bitmap van alleen de tekst, met de barcode als streepjes (false, ca. 40-60% van de data van
+ * een volledig label). Alleen van belang als GEEVE_TSPL_NATIEF_STICKERS de tegel bevat.
+ */
+const GEEVE_TSPL_NATIEF_TEKST = false;
+
 /** Minimum aantal lege rijen (punten) tussen twee blokken die als aparte BITMAP gaan (300 dpi: 6 rijen = 0,5 mm). */
 const GEEVE_TSPL_BAND_LEEG = 6;
 
@@ -683,6 +690,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
     // (30 s op de server); dan zou de print halverwege afbreken.
     @set_time_limit(180);
     $dpi = (int) ($printer['dpi'] ?? 300);
+    $streepjes = [];
     // Snelheid volgens het printermodel (bijv. Altec TTP-343 Plus: 1-3, standaard 3). Bij TSPL gaat een vaste snelheid van
     // de tegel (GEEVE_LABEL_MEDIUM, Slanglabels) voor op de standaard van het model.
     if (($printer['taal'] ?? '') !== 'brother') {
@@ -696,11 +704,20 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
     try {
         if (($printer['taal'] ?? '') === 'tspl') {
             // Artikelsticker (70 x 25 mm): compacte opdracht met de eigen lettertypen van de printer, zonder Chromium en bitmap.
-            $natief = geeveTsplNatiefArtikelsticker($bodyHtml, $sheetClass, $afdruk);
-            if ($natief !== null) {
-                $file = $workDir . '/labels.tspl';
-                file_put_contents($file, $natief);
-                return geeveSmbPrint($queue, $file, $title);
+            if (GEEVE_TSPL_NATIEF_TEKST) {
+                $natief = geeveTsplNatiefArtikelsticker($bodyHtml, $sheetClass, $afdruk);
+                if ($natief !== null) {
+                    $file = $workDir . '/labels.tspl';
+                    file_put_contents($file, $natief);
+                    return geeveSmbPrint($queue, $file, $title);
+                }
+            } elseif (in_array($sheetClass, GEEVE_TSPL_NATIEF_STICKERS, true)) {
+                // Echte letters als bitmap van alleen de tekst; de barcode (het meeste van de data) gaat als streepjes.
+                $stickers = geeveArtikelstickersUitHtml($bodyHtml);
+                if ($stickers !== null) {
+                    $streepjes = array_map('geeveTsplBarcodeStreepjes', $stickers);
+                    $bodyHtml = '<style>.sticker--art .bc svg { visibility: hidden; }</style>' . $bodyHtml;
+                }
             }
         }
         $pdfFile = geeveRenderPdf($bodyHtml, $cssFiles, $title, $workDir, null, $sheetClass);
@@ -742,7 +759,7 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
         foreach ($pages as $page) {
             $pbms[] = $factor > 1 ? geevePgmNaarPbm((string) file_get_contents($page), $factor, (int) ($medium['drempel'] ?? 128)) : (string) file_get_contents($page);
         }
-        $tspl = geeveTsplOpdracht($pbms, $dpi, $sheetClass, $afdruk);
+        $tspl = geeveTsplOpdracht($pbms, $dpi, $sheetClass, $afdruk, $streepjes);
         $file = $workDir . '/labels.tspl';
         file_put_contents($file, $tspl);
         return geeveSmbPrint($queue, $file, $title);
@@ -760,8 +777,9 @@ function geevePrintLabels(string $bodyHtml, array $cssFiles, string $queue, stri
  * volgende label weer terugtrok (de pauze tussen de stickers bij grote aantallen).
  *
  * @param list<string> $pbms
+ * @param list<string> $extra per label extra opdrachten (bijv. BAR) vlak voor PRINT
  */
-function geeveTsplOpdracht(array $pbms, int $dpi, string $sheetClass, array $afdruk = []): string
+function geeveTsplOpdracht(array $pbms, int $dpi, string $sheetClass, array $afdruk = [], array $extra = []): string
 {
     $snijdEinde = in_array($sheetClass, GEEVE_LABEL_SNIJD_EINDE, true);
     $medium = GEEVE_LABEL_MEDIUM[$sheetClass] ?? [];
@@ -776,7 +794,7 @@ function geeveTsplOpdracht(array $pbms, int $dpi, string $sheetClass, array $afd
         if ($snijdEinde) {
             $snijder = $laatste ? "SET CUTTER 1\r\nSET TEAR ON\r\n" : ($eerste ? "SET CUTTER OFF\r\nSET TEAR OFF\r\n" : '');
         }
-        $tspl .= $snijder . geevePbmToTspl($pbm, $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', $medium, $afdruk, $laatste, $eerste);
+        $tspl .= $snijder . geevePbmToTspl($pbm, $dpi, GEEVE_LABEL_DRAAI[$sheetClass] ?? '', $medium, $afdruk, $laatste, $eerste, (string) ($extra[$i] ?? ''));
     }
     return $tspl;
 }
@@ -895,6 +913,27 @@ function geeveTekstRegels(string $tekst, int $cap, int $maxRegels): ?array
 }
 
 /**
+ * De streepjes van de barcode van een Artikelsticker (70 x 25 mm) als BAR-opdrachten: dezelfde streepjes als in het voorbeeld,
+ * elk een geheel aantal punten breed (300 dpi), gecentreerd, 7 mm hoog vanaf 9,2 mm.
+ *
+ * @param array{modules: int, bars: list<array{0: int, 1: int}>} $sticker
+ */
+function geeveTsplBarcodeStreepjes(array $sticker): string
+{
+    if ($sticker['modules'] <= 0 || $sticker['bars'] === []) {
+        return '';
+    }
+    $doel = min($sticker['modules'] * 0.38 / 25.4 * 300, 65 / 25.4 * 300);
+    $n = max(1, (int) floor($doel / $sticker['modules']));
+    $x0 = intdiv(827 - $sticker['modules'] * $n, 2);
+    $uit = '';
+    foreach ($sticker['bars'] as [$bx, $bw]) {
+        $uit .= 'BAR ' . ($x0 + $bx * $n) . ',109,' . ($bw * $n) . ",83\r\n";
+    }
+    return $uit;
+}
+
+/**
  * Maakt van de stickers uit geeveArtikelstickersUitHtml() een TSPL-opdracht voor het ALTEC-label 70 x 25 mm (300 dpi, 827 x 295
  * punten) met de ingebouwde lettertypen (TEXT, vet nagebootst met een tweede afdruk twee punten ernaast) en de streepjes van
  * de barcode als BAR (zelfde streepjes als in het voorbeeld, een geheel aantal punten breed). Indeling zoals art-sticker.css:
@@ -958,15 +997,7 @@ function geeveTsplNatiefOpdracht(array $stickers, string $sheetClass, array $afd
             $y += $h + 8;
         }
 
-        // Barcode: de streepjes uit het voorbeeld, elk streepje een geheel aantal punten; 7 mm hoog vanaf 9,2 mm.
-        if ($sticker['modules'] > 0 && $sticker['bars'] !== []) {
-            $doel = min($sticker['modules'] * 0.38 / 25.4 * 300, 65 / 25.4 * 300);
-            $n = max(1, (int) floor($doel / $sticker['modules']));
-            $x0 = intdiv($labelBreedte - $sticker['modules'] * $n, 2);
-            foreach ($sticker['bars'] as [$bx, $bw]) {
-                $uit .= 'BAR ' . ($x0 + $bx * $n) . ',109,' . ($bw * $n) . ",83\r\n";
-            }
-        }
+        $uit .= geeveTsplBarcodeStreepjes($sticker);
 
         // Artikelnummer: gebied 203-281 (17,2-23,8 mm), een regel, grootste lettertype waarin het past.
         $artikel = (string) iconv('UTF-8', 'CP850//TRANSLIT//IGNORE', $sticker['art']);
@@ -1156,7 +1187,7 @@ function geevePbmToZpl(string $pbm, array $afdruk = [], bool $eerste = true, boo
 }
 
 /** Zet één PBM-pagina (P4, 1 bit per punt, 1 = zwart) om in een TSPL-label: SIZE, BITMAP, PRINT. */
-function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = [], array $afdruk = [], bool $laatste = true, bool $eerste = true): string
+function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium = [], array $afdruk = [], bool $laatste = true, bool $eerste = true, string $extra = ''): string
 {
     if (preg_match('/^P4\s+(?:#[^\n]*\n\s*)*(\d+)\s+(\d+)\s/', $pbm, $m, PREG_OFFSET_CAPTURE) !== 1) {
         throw new RuntimeException('Onverwacht afbeeldingsformaat van pdftoppm.');
@@ -1271,7 +1302,7 @@ function geevePbmToTspl(string $pbm, int $dpi, string $draai = '', array $medium
     // Formaat, tussenruimte, snelheid en zwarting gelden voor de hele opdracht: alleen bij het eerste label sturen. Bij elk
     // label opnieuw instellen kostte de printer tijd tussen de labels (bij veel stickers merkbaar).
     $kop = $eerste ? 'SIZE ' . $widthMm . ' mm,' . $heightMm . " mm\r\n" . $gapRegel . $instelling . "DIRECTION 0\r\n" : '';
-    return $kop . $gap . "CLS\r\n" . $bitmaps . "PRINT 1,1\r\n";
+    return $kop . $gap . "CLS\r\n" . $bitmaps . $extra . "PRINT 1,1\r\n";
 }
 
 /** De inhoud van alle "@media print { ... }"-blokken in een stylesheet (zonder de omhulling). */
