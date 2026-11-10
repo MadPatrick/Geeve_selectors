@@ -124,7 +124,8 @@ function appLengteNaarMm(array $rij): array
     $rij['LengteMeterApp'] = (string) ($rij['Lengte'] ?? '');
     foreach (['Lengte', 'Lengte / Prijs', 'Lengte/Prijs'] as $kolom) {
         if (isset($rij[$kolom]) && is_numeric(str_replace(',', '.', (string) $rij[$kolom]))) {
-            $rij[$kolom] = (string) (int) round((float) str_replace(',', '.', (string) $rij[$kolom]) * 1000);
+            // Zelfde weergave als de oude database: punt als duizendtal (1.700, 2.000).
+            $rij[$kolom] = number_format((float) round((float) str_replace(',', '.', (string) $rij[$kolom]) * 1000), 0, ',', '.');
         }
     }
 
