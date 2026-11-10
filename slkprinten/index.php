@@ -807,7 +807,9 @@ function buildPicklist(array $hoseCards): array
         // De slang zelf staat niet bij de koppelonderdelen (die komen uit
         // sideA/sideB) - "aantal" hiervoor is Lengte (per 1 slang) x
         // aantal slangen, net als de andere regels hieronder.
-        $addItem($items, pick($card['row'], SLANGTYPE_CANDIDATES), pick($card['row'], LENGTE_CANDIDATES), $aantalSlangen);
+        // Rijen uit de app hebben de lengte voor tabel en afdruk in mm gekregen; de picklijst blijft in meters (LengteMeterApp).
+        $lengteMeter = pick($card['row'], ['LengteMeterApp']);
+        $addItem($items, pick($card['row'], SLANGTYPE_CANDIDATES), $lengteMeter !== '' ? $lengteMeter : pick($card['row'], LENGTE_CANDIDATES), $aantalSlangen);
 
         foreach (['sideA', 'sideB'] as $side) {
             foreach ($card[$side] as $componentRow) {

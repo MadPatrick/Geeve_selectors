@@ -120,6 +120,8 @@ function appKoppelingen(?string $index = null, ?array $rij = null): ?array
  */
 function appLengteNaarMm(array $rij): array
 {
+    // De picklijst rekent met de lengte in meters (voorraadeenheid): onthoud het origineel uit de app.
+    $rij['LengteMeterApp'] = (string) ($rij['Lengte'] ?? '');
     foreach (['Lengte', 'Lengte / Prijs', 'Lengte/Prijs'] as $kolom) {
         if (isset($rij[$kolom]) && is_numeric(str_replace(',', '.', (string) $rij[$kolom]))) {
             $rij[$kolom] = (string) (int) round((float) str_replace(',', '.', (string) $rij[$kolom]) * 1000);
