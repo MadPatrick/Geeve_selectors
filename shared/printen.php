@@ -270,6 +270,33 @@ function geeveSmbPrinterType(string $share, string $driver): ?array
 function geevePrinterList(): array
 {
     static $list = null;
+    if ($list === null) {
+        $list = geevePrinterListZonderMagema(geevePrinterListOphalen());
+    }
+    return $list;
+}
+
+/**
+ * Haalt de Magema-printers (naam bevat "Magema", hoofdletterongevoelig) uit een printerlijst. Centraal, zodat het overal in de
+ * portal geldt en ook voor een oude cache die nog Magema-printers bevat. Geen mb_*: stripos is voor deze namen genoeg.
+ *
+ * @param array<string, array<string, mixed>> $printers
+ * @return array<string, array<string, mixed>>
+ */
+function geevePrinterListZonderMagema(array $printers): array
+{
+    foreach ($printers as $share => $printer) {
+        if (stripos((string) $share, 'magema') !== false || stripos((string) ($printer['name'] ?? ''), 'magema') !== false) {
+            unset($printers[$share]);
+        }
+    }
+    return $printers;
+}
+
+/** Leest de printerlijst uit de cache of haalt hem op bij de printserver (zonder Magema-filter; dat doet geevePrinterList()). */
+function geevePrinterListOphalen(): array
+{
+    static $list = null;
     if ($list !== null) {
         return $list;
     }
@@ -315,6 +342,7 @@ function geevePrinterList(): array
             $found[$share] = ['name' => $share, 'driver' => (string) $driver, 'host' => trim($parts[2] ?? '')] + $type;
         }
     }
+    $found = geevePrinterListZonderMagema($found);
     if ($found === [] && $cached !== null) {
         return $list = $cached;
     }
