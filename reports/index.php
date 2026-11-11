@@ -114,6 +114,14 @@ $csrf = csrfToken();
             <?= tileLockIcon('backorder') ?>
         </a>
         <?php endif; $tileHtml['backorder'] = ob_get_clean(); ?>
+        <?php ob_start(); if (tileVisible('order-naar-xml')): ?>
+        <a class="<?= tileClass('order-naar-xml') ?>" href="<?= h(geeveAppUrl('order-naar-xml')) ?>"<?= tileAttrs('order-naar-xml') ?>>
+            <?= tileIcon('order-naar-xml') ?>
+            <h2><?= h(tileTitle('order-naar-xml')) ?></h2>
+            <p>Verkooporder uit Exact (ordernummer) exporteren als XML-bestand om naar de klant te sturen</p>
+            <?= tileLockIcon('order-naar-xml') ?>
+        </a>
+        <?php endif; $tileHtml['order-naar-xml'] = ob_get_clean(); ?>
         <?php foreach (tileOrder('reports') as $tileId) { echo $tileHtml[$tileId] ?? ''; } ?>
     </div>
 

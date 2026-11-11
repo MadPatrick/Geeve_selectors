@@ -50,6 +50,7 @@ const GEEVE_TILE_DB = [
     'brutoprijzen' => ['exact'],
     'negatieve-voorraad' => ['exact'],
     'backorder' => ['exact'],
+    'order-naar-xml' => ['exact'],
     'artikel-marge' => ['exact'],
     // Leest de tabel [Slangkaarten].[dbo].[Slangkaarten] via de Exact-login (3-delige naam), niet via de Slangkaarten-login.
     'slangkaart-netto' => ['exact'],
