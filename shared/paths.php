@@ -141,6 +141,7 @@ const GEEVE_APP_URLS = [
     'brutoprijzen' => 'reports/brutoprijzen/',
     'negatieve-voorraad' => 'reports/negatievevoorraad/',
     'backorder' => 'reports/backorder/',
+    'order-naar-xml' => 'reports/ordernaarxml/',
     'inkooporder' => 'templates/inkooporder/',
     'order-offerte' => 'templates/orderofferte/',
     'offerte-import' => 'templates/offerteimport/',
