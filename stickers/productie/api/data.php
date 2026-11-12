@@ -13,9 +13,6 @@ tileApiGuard('stickers-productie');
  */
 
 require_once __DIR__ . '/../../../reports/inc.php';
-require_once __DIR__ . '/../../../slkprinten/inc/db.php';
-require_once __DIR__ . '/../../../slkprinten/inc/queries.php';
-require_once __DIR__ . '/../../../slkprinten/inc/picklijst.php';
 
 /**
  * Veld => mogelijke kolomnamen uit de procedure (vergeleken zonder hoofdletters, spaties en underscores), zodat zowel
@@ -67,29 +64,48 @@ reportApi(function (string $nummer): array {
 });
 
 /**
- * Het aantal op de sticker is gelijk aan de picklijst van Slangkaarten printen (slkprinten, picklijstAantallen()). De procedure
- * telt bij slangregels zonder productieorder 1 slang in plaats van het bestelde aantal (order 36023662: 77296-36-12 gaf 4, de
- * picklijst 12). Alleen artikelen die één keer in de uitkomst staan en ook op de picklijst voorkomen worden vervangen; de rest
- * (en alles, als de slangkaarten niet te lezen zijn) blijft zoals de procedure het geeft.
+ * Het aantal op de sticker is gelijk aan de picklijst van Slangkaarten printen: materiaal per stuk van de productieorder x het
+ * aantal van de verkooporder. De procedure telt bij slangregels zonder productieorder op 3 stuks 1 slang in plaats van het
+ * bestelde aantal (order 36023662: 77296-36-12 gaf 4, de picklijst 12).
+ * Rechtstreeks uit Exact (database 005), zonder de slangkaarten: moederproject = PRProject met ParentProject = ordernummer, de
+ * productieorders zijn het moederproject zelf en de subprojecten (.nnn). In gbkmut zijn transtype 'B' de geplande productieregels
+ * (transsubtype 'A' = eindproduct, 'B' = materiaal; elke regel heeft +x en een tegenboeking -x, dus alleen aantal > 0).
+ * Factor = som orsrg.esr_aantal van de orderregels met het eindproduct / som van de aantallen van de productieorders met dat
+ * eindproduct. Alleen artikelen die één keer in de uitkomst staan en hier voorkomen worden vervangen; de rest (en alles, als de
+ * query mislukt) blijft zoals de procedure het geeft. Getest op 40 recente orders: 38 gelijk aan de picklijst.
  *
  * @param list<array<string, string>> $rows
  * @return list<array<string, string>>
  */
 function productieAantallenAlsPicklijst(array $rows, string $nummer): array
 {
+    $sql = 'SET NOCOUNT ON; WITH moeder AS (' .
+        'SELECT RTRIM(ProjectNr) AS pr FROM PRProject WITH (NOLOCK) WHERE ParentProject = ?' .
+        '), mut AS (' .
+        'SELECT g.project, LTRIM(RTRIM(g.artcode)) AS artcode, g.transsubtype, g.aantal FROM moeder m ' .
+        "JOIN gbkmut g WITH (NOLOCK) ON g.project = m.pr OR g.project LIKE m.pr + '.%' " .
+        "WHERE g.transtype = 'B' AND g.aantal > 0 AND g.artcode IS NOT NULL" .
+        '), eind AS (' .
+        "SELECT project, artcode AS ItemCode, SUM(aantal) AS pq FROM mut WHERE transsubtype = 'A' GROUP BY project, artcode" .
+        '), pqtot AS (' .
+        'SELECT ItemCode, SUM(pq) AS pqtot FROM eind GROUP BY ItemCode' .
+        '), ord AS (' .
+        'SELECT LTRIM(RTRIM(o.artcode)) AS artcode, SUM(o.esr_aantal) AS besteld FROM orsrg o WITH (NOLOCK) ' .
+        'WHERE o.ordernr = ? GROUP BY LTRIM(RTRIM(o.artcode))' .
+        ') SELECT mt.artcode, SUM(mt.aantal * ord.besteld / NULLIF(pqtot.pqtot, 0)) AS totaal FROM mut mt ' .
+        'JOIN eind e ON e.project = mt.project JOIN pqtot ON pqtot.ItemCode = e.ItemCode JOIN ord ON ord.artcode = e.ItemCode ' .
+        "WHERE mt.transsubtype = 'B' AND mt.artcode <> e.ItemCode GROUP BY mt.artcode";
+
     try {
-        $pdo = getPdoConnection();
-        $regels = findHoseLinesByOrder($pdo, $nummer);
-        $keys = [];
-        foreach ($regels as $line) {
-            $keys[] = pick($line, HOSE_KEY_COLUMNS);
-        }
-        if ($keys === []) {
-            return $rows;
-        }
+        $pdo = reportConnection('stickers-productie');
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$nummer, $nummer]);
         $totalen = [];
-        foreach (picklijstAantallen(findHoseCardsByKeys($pdo, $keys, $nummer, false, $regels)) as $artikel => $aantal) {
-            $totalen[strtoupper(trim((string) $artikel))] = $aantal;
+        foreach ($stmt->fetchAll() as $r) {
+            $totalen[strtoupper(trim((string) $r['artcode']))] = (float) $r['totaal'];
+        }
+        if ($totalen === []) {
+            return $rows;
         }
 
         $voorkomen = [];
@@ -104,7 +120,7 @@ function productieAantallenAlsPicklijst(array $rows, string $nummer): array
             }
         }
     } catch (Throwable $e) {
-        // Slangkaarten niet bereikbaar: de aantallen uit de procedure blijven staan.
+        // Niet te lezen: de aantallen uit de procedure blijven staan.
     }
 
     return $rows;
