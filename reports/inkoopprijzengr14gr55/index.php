@@ -42,7 +42,7 @@ $csrf = csrfToken();
 
     <section class="panel">
         <h2>Inkoopprijzen GR14 / GR55</h2>
-        <p class="ka-empty">Per artikel van artikelgroep 14 de inkoopprijs van de hoofdleverancier (uit Exact, per stuk) en de standaard verkoopprijs, naast die van het artikel in groep 55. Het artikel is de Zoekcode van GR14; de Zoekcode van GR55 is die van GR14 met "VZ" (of "VZX") erachter. Kies RVS voor groep 77 naast groep 28: de Zoekcode van GR77 eindigt op "71", die van GR28 op "RVS"; het artikel is de Zoekcode zonder dat einde. Een artikel zonder tegenhanger heeft een lege cel. Haal de gegevens op en download ze als Excel-bestand.</p>
+        <p class="ka-empty">Per artikel van artikelgroep 14 de inkoopprijs van de hoofdleverancier (uit Exact, per stuk) en de standaard verkoopprijs, naast die van het artikel in groep 55. Het artikel is de Zoekcode van GR14; de Zoekcode van GR55 is die van GR14 met "VZ" (of "VZX") erachter. Kies RVS voor groep 77 naast groep 28: de Zoekcode van GR77 eindigt op "71", die van GR28 op "RVS"; het artikel is de Zoekcode zonder dat einde. Alleen artikelen met status Actief doen mee. Een artikel zonder tegenhanger heeft een lege cel. Haal de gegevens op en download ze als Excel-bestand.</p>
         <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="GR14 naast GR55" data-file="Inkoopprijzen">
             <!-- Staal of RVS: sp-report.js stuurt het verborgen veld "soort" mee en haalt bij een wissel opnieuw op. -->
             <input type="hidden" id="rpModus" data-field="soort" value="staal">

@@ -12,7 +12,7 @@ tileApiGuard('inkoopprijzen-gr14-gr55');
  * GR14-artikel met "VZ" (of "VZX") aan het eind. Inkoopprijs = ItemAccounts.PurchasePrice van de hoofdleverancier
  * (MainAccount = 1); gelijk aan "ink_pr per st" uit de view 1000 artikelen + standaard ink_pr, maar die view is veel te traag
  * (17 s per 500 artikelen). Verkoopprijs = standaard verkoopprijs (staffl, prijslijst "salesprice", nieuwste geldige; zelfde bron
- * als Import Artikelgegevens). Alleen lezen. Een artikel zonder tegenhanger krijgt een lege cel.
+ * als Import Artikelgegevens). Alleen actieve artikelen (Items.Condition = A; obsolete/vervallen artikelen blijven buiten beeld). Alleen lezen. Een artikel zonder tegenhanger krijgt een lege cel.
  */
 
 require_once __DIR__ . '/../../inc.php';
@@ -49,13 +49,20 @@ reportApi(function (array $in): array {
     $stmt = $pdo->prepare('SELECT name FROM sys.columns WHERE object_id = OBJECT_ID(?)');
     $stmt->execute(['Items']);
     $searchColumn = null;
+    $conditionColumn = null;
     foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $column) {
         if (strcasecmp((string) $column, 'SearchCode') === 0) {
             $searchColumn = (string) $column;
         }
+        if (strcasecmp((string) $column, 'Condition') === 0) {
+            $conditionColumn = (string) $column;
+        }
     }
     if ($searchColumn === null) {
         throw new RuntimeException('Kolom SearchCode (Zoekcode) niet gevonden op tabel Items.');
+    }
+    if ($conditionColumn === null) {
+        throw new RuntimeException('Kolom Condition (status) niet gevonden op tabel Items.');
     }
 
     // Artikelen van de twee groepen met de prijs van de hoofdleverancier (ItemAccounts.MainAccount = 1), in één snelle query.
@@ -63,7 +70,7 @@ reportApi(function (array $in): array {
         'SET NOCOUNT ON; SELECT LTRIM(RTRIM(i.Assortment)) AS g, RTRIM(i.[' . $searchColumn . ']) AS z, RTRIM(i.ItemCode) AS c, ia.PurchasePrice AS p ' .
         'FROM Items i WITH (NOLOCK) ' .
         'LEFT JOIN ItemAccounts ia WITH (NOLOCK) ON ia.ItemCode = i.ItemCode AND ia.MainAccount = 1 ' .
-        'WHERE LTRIM(RTRIM(i.Assortment)) IN (?, ?) AND LTRIM(RTRIM(ISNULL(i.[' . $searchColumn . '], \'\'))) <> \'\' ' .
+        'WHERE LTRIM(RTRIM(i.Assortment)) IN (?, ?) AND LTRIM(RTRIM(i.[' . $conditionColumn . '])) = \'A\' AND LTRIM(RTRIM(ISNULL(i.[' . $searchColumn . '], \'\'))) <> \'\' ' .
         'ORDER BY i.[' . $searchColumn . '], i.ItemCode'
     );
     $stmt->execute([$groupA, $groupB]);
