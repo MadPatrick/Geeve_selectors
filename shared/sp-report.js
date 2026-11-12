@@ -290,7 +290,7 @@
             return { wch: w };
         });
         var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, box.getAttribute('data-sheet') + (measure ? ' ' + measure : ''));
+        XLSX.utils.book_append_sheet(wb, ws, (data.sheet || box.getAttribute('data-sheet')) + (measure ? ' ' + measure : ''));
         XLSX.writeFile(wb, box.getAttribute('data-file') + '_' + asked + (measure ? '_' + measure : '') + '.xlsx');
     });
 

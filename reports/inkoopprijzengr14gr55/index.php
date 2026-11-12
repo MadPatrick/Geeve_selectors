@@ -42,10 +42,14 @@ $csrf = csrfToken();
 
     <section class="panel">
         <h2>Inkoopprijzen GR14 / GR55</h2>
-        <p class="ka-empty">Per artikel van artikelgroep 14 de inkoopprijs van de hoofdleverancier (uit Exact, per stuk) en de standaard verkoopprijs, naast die van het artikel in groep 55. Het artikel is de Zoekcode van GR14; de Zoekcode van GR55 is die van GR14 met "VZ" (of "VZX") erachter. Een artikel zonder tegenhanger heeft een lege cel. Haal de gegevens op en download ze als Excel-bestand.</p>
-        <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="GR14 naast GR55" data-file="Inkoopprijzen_GR14_GR55">
-            <!-- sp-report.js verwacht minstens één invoerveld (data-field); deze tegel heeft geen invoer. -->
-            <input type="hidden" data-field="groepen" data-optional="1" value="14,55">
+        <p class="ka-empty">Per artikel van artikelgroep 14 de inkoopprijs van de hoofdleverancier (uit Exact, per stuk) en de standaard verkoopprijs, naast die van het artikel in groep 55. Het artikel is de Zoekcode van GR14; de Zoekcode van GR55 is die van GR14 met "VZ" (of "VZX") erachter. Kies RVS voor groep 77 naast groep 28: de Zoekcode van GR77 eindigt op "71", die van GR28 op "RVS"; het artikel is de Zoekcode zonder dat einde. Een artikel zonder tegenhanger heeft een lege cel. Haal de gegevens op en download ze als Excel-bestand.</p>
+        <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="" data-sheet="GR14 naast GR55" data-file="Inkoopprijzen">
+            <!-- Staal of RVS: sp-report.js stuurt het verborgen veld "soort" mee en haalt bij een wissel opnieuw op. -->
+            <input type="hidden" id="rpModus" data-field="soort" value="staal">
+            <div class="rp-toggle" role="group" aria-label="Materiaal">
+                <button type="button" data-mode="staal" class="is-active">Staal (GR14 / GR55)</button>
+                <button type="button" data-mode="rvs">RVS (GR77 / GR28)</button>
+            </div>
             <button type="button" id="rpFetch" class="ka-button">Gegevens ophalen</button>
             <button type="button" id="rpDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
             <span id="rpStatus" class="msp-status"></span>

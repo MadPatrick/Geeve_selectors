@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../shared/tiles.php';
 tileApiGuard('inkoopprijzen-gr14-gr55');
 
 /**
- * Inkoopprijzen GR14 naast GR55: per artikel van artikelgroep 14 de standaard inkoopprijs (hoofdleverancier) naast die van het
+ * Inkoopprijzen GR14 naast GR55 (of, met soort=rvs, GR77 naast GR28): per artikel van artikelgroep 14 de standaard inkoopprijs (hoofdleverancier) naast die van het
  * bijbehorende artikel in groep 55. Koppeling op Zoekcode (Items.SearchCode): de Zoekcode van het GR55-artikel is die van het
  * GR14-artikel met "VZ" (of "VZX") aan het eind. Inkoopprijs = ItemAccounts.PurchasePrice van de hoofdleverancier
  * (MainAccount = 1); gelijk aan "ink_pr per st" uit de view 1000 artikelen + standaard ink_pr, maar die view is veel te traag
@@ -17,26 +17,33 @@ tileApiGuard('inkoopprijzen-gr14-gr55');
 
 require_once __DIR__ . '/../../inc.php';
 
-const IP_GROUP_A = '14';
-const IP_GROUP_B = '55';
-/** Achtervoegsels van de GR55-Zoekcode (langste eerst). */
-const IP_SUFFIXES = ['VZX', 'VZ'];
+/**
+ * Twee soorten: staal (GR14 naast GR55: GR55 = GR14-Zoekcode + VZ/VZX) en RVS (GR77 naast GR28: GR77-Zoekcode eindigt op 71,
+ * GR28-Zoekcode op RVS; het artikel is de Zoekcode zonder dat einde). 'a'/'b' = achtervoegsels die van de Zoekcode van groep
+ * A resp. B worden gehaald om te koppelen (langste eerst).
+ */
+const IP_SOORTEN = [
+    'staal' => ['a' => '14', 'b' => '55', 'suffixA' => [], 'suffixB' => ['VZX', 'VZ'], 'uitleg' => 'GR55 = Zoekcode met VZ of VZX erachter'],
+    'rvs' => ['a' => '77', 'b' => '28', 'suffixA' => ['71'], 'suffixB' => ['RVS'], 'uitleg' => 'GR77 = Zoekcode met 71 aan het eind, GR28 = met RVS aan het eind'],
+];
 
-/** Sleutel om GR14 en GR55 te koppelen: hoofdletters, zonder spaties, GR55 zonder "VZX"/"VZ" aan het eind. */
-function inkoopprijzenKey(string $searchCode, bool $stripSuffix): string
+/** Sleutel om groep A en B te koppelen: hoofdletters, zonder spaties, zonder het achtervoegsel van de groep aan het eind. */
+function inkoopprijzenKey(string $searchCode, array $suffixes): string
 {
     $key = strtoupper(trim($searchCode));
-    if ($stripSuffix) {
-        foreach (IP_SUFFIXES as $suffix) {
-            if (substr($key, -strlen($suffix)) === $suffix) {
-                return rtrim(substr($key, 0, -strlen($suffix)));
-            }
+    foreach ($suffixes as $suffix) {
+        if (substr($key, -strlen($suffix)) === $suffix) {
+            return rtrim(substr($key, 0, -strlen($suffix)));
         }
     }
     return $key;
 }
 
 reportApi(function (array $in): array {
+    $soortNaam = (string) ($in['soort'] ?? 'staal');
+    $soort = IP_SOORTEN[$soortNaam] ?? IP_SOORTEN['staal'];
+    $groupA = $soort['a'];
+    $groupB = $soort['b'];
     $pdo = reportConnection('inkoopprijzen-gr14-gr55');
 
     $stmt = $pdo->prepare('SELECT name FROM sys.columns WHERE object_id = OBJECT_ID(?)');
@@ -59,7 +66,7 @@ reportApi(function (array $in): array {
         'WHERE LTRIM(RTRIM(i.Assortment)) IN (?, ?) AND LTRIM(RTRIM(ISNULL(i.[' . $searchColumn . '], \'\'))) <> \'\' ' .
         'ORDER BY i.[' . $searchColumn . '], i.ItemCode'
     );
-    $stmt->execute([IP_GROUP_A, IP_GROUP_B]);
+    $stmt->execute([$groupA, $groupB]);
     $items = $stmt->fetchAll(PDO::FETCH_NUM);
 
     // Standaard verkoopprijs per artikel (staffl, prijslijst "salesprice"): de nieuwste geldige, in blokken per artikelnummer.
@@ -91,7 +98,7 @@ reportApi(function (array $in): array {
     $b = [];
     $seen = [];
     foreach ($items as $r) {
-        $isA = trim((string) $r[0]) === IP_GROUP_A;
+        $isA = trim((string) $r[0]) === $groupA;
         $item = ($isA ? 'A' : 'B') . '|' . trim((string) $r[2]);
         $price = is_numeric($r[3]) ? round((float) $r[3], 4) : null;
         if (!isset($seen[$item])) {
@@ -102,7 +109,7 @@ reportApi(function (array $in): array {
     }
     foreach ($seen as $entry) {
         [$code, $isA, $price, $sale] = $entry;
-        $key = inkoopprijzenKey($code, !$isA);
+        $key = inkoopprijzenKey($code, $isA ? $soort['suffixA'] : $soort['suffixB']);
         if ($isA) {
             $a[$key][] = [$code, $price, $sale];
         } else {
@@ -135,18 +142,19 @@ reportApi(function (array $in): array {
     }
 
     return [
-        'columns' => ['Artikel', 'Inkoop GR14', 'Inkoop GR55', 'Verkoop GR14', 'Verkoop GR55'],
+        'columns' => ['Artikel', 'Inkoop GR' . $groupA, 'Inkoop GR' . $groupB, 'Verkoop GR' . $groupA, 'Verkoop GR' . $groupB],
         'numeric' => [false, true, true, true, true],
         'dates' => [false, false, false, false, false],
-        'currency' => ['Inkoop GR14', 'Inkoop GR55', 'Verkoop GR14', 'Verkoop GR55'],
+        'currency' => ['Inkoop GR' . $groupA, 'Inkoop GR' . $groupB, 'Verkoop GR' . $groupA, 'Verkoop GR' . $groupB],
         'text' => ['Artikel'],
         'rows' => $rows,
         'kop' => [
             ['label' => 'Artikelen', 'value' => (string) count($rows)],
-            ['label' => 'Alleen in GR14', 'value' => (string) $onlyA],
-            ['label' => 'Alleen in GR55', 'value' => (string) $onlyB],
+            ['label' => 'Alleen in GR' . $groupA, 'value' => (string) $onlyA],
+            ['label' => 'Alleen in GR' . $groupB, 'value' => (string) $onlyB],
         ],
-        'titles' => ['Inkoop- en verkoopprijzen GR14 naast GR55', 'Artikel = Zoekcode van GR14 (GR55 = Zoekcode met VZ of VZX erachter)'],
-        'fileTag' => 'GR14_GR55_' . date('Y-m-d'),
+        'titles' => ['Inkoop- en verkoopprijzen GR' . $groupA . ' naast GR' . $groupB, 'Artikel = Zoekcode zonder achtervoegsel (' . $soort['uitleg'] . ')'],
+        'sheet' => 'GR' . $groupA . ' naast GR' . $groupB,
+        'fileTag' => 'GR' . $groupA . '_GR' . $groupB . '_' . date('Y-m-d'),
     ];
 }, false);
