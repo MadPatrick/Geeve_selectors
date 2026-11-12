@@ -135,25 +135,25 @@ reportApi(function (array $in): array {
                 $onlyA++;
             }
             $rows[] = [
-                $x !== null ? $x[0] : $y[0],
+                $x[0] ?? '', $y[0] ?? '',
                 $x[1] ?? '', $y[1] ?? '', $x[2] ?? '', $y[2] ?? '',
             ];
         }
     }
 
     return [
-        'columns' => ['Artikel', 'Inkoop GR' . $groupA, 'Inkoop GR' . $groupB, 'Verkoop GR' . $groupA, 'Verkoop GR' . $groupB],
-        'numeric' => [false, true, true, true, true],
-        'dates' => [false, false, false, false, false],
+        'columns' => ['Artikel GR' . $groupA, 'Artikel GR' . $groupB, 'Inkoop GR' . $groupA, 'Inkoop GR' . $groupB, 'Verkoop GR' . $groupA, 'Verkoop GR' . $groupB],
+        'numeric' => [false, false, true, true, true, true],
+        'dates' => [false, false, false, false, false, false],
         'currency' => ['Inkoop GR' . $groupA, 'Inkoop GR' . $groupB, 'Verkoop GR' . $groupA, 'Verkoop GR' . $groupB],
-        'text' => ['Artikel'],
+        'text' => ['Artikel GR' . $groupA, 'Artikel GR' . $groupB],
         'rows' => $rows,
         'kop' => [
             ['label' => 'Artikelen', 'value' => (string) count($rows)],
             ['label' => 'Alleen in GR' . $groupA, 'value' => (string) $onlyA],
             ['label' => 'Alleen in GR' . $groupB, 'value' => (string) $onlyB],
         ],
-        'titles' => ['Inkoop- en verkoopprijzen GR' . $groupA . ' naast GR' . $groupB, 'Artikel = Zoekcode zonder achtervoegsel (' . $soort['uitleg'] . ')'],
+        'titles' => ['Inkoop- en verkoopprijzen GR' . $groupA . ' naast GR' . $groupB, 'Artikelen op één rij horen bij elkaar: Zoekcode zonder achtervoegsel (' . $soort['uitleg'] . ')'],
         'sheet' => 'GR' . $groupA . ' naast GR' . $groupB,
         'fileTag' => 'GR' . $groupA . '_GR' . $groupB . '_' . date('Y-m-d'),
     ];
