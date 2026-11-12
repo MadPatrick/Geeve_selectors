@@ -37,6 +37,7 @@ register_shutdown_function(static function (): void {
         . '</div>';
 });
 require_once __DIR__ . '/inc/queries.php';
+require_once __DIR__ . '/inc/picklijst.php';
 
 /**
  * Zorgt dat een decimaal getal kleiner dan 1 altijd met een voorloop-0
@@ -168,8 +169,6 @@ const UW_REFERENTIE_CANDIDATES = ['Uw_referentie', 'Uw Referentie', 'UwReferenti
 // "Offerte" of een code) is nog niet met echte data geverifieerd.
 const ORDER_TYPE_CANDIDATES = ['ord_soort', 'Ordersoort', 'Order soort', 'Soort'];
 
-const SLANGTYPE_CANDIDATES = ['SlangType', 'Slang type', 'Slangtype', 'Type'];
-const LENGTE_CANDIDATES = ['Lengte', 'Lengte / Prijs', 'Lengte/Prijs'];
 
 const CARD_DETAIL_FIELDS = [
     ['label' => 'Referentie',      'candidates' => ['Referentie']],
@@ -191,19 +190,9 @@ const CARD_FLAG_SLOTS = [
     ['Afdoppen', 'Ja'],
 ];
 
-const AANTAL_CANDIDATES = ['Aantal', 'Aantal slangen', 'AantalSlangen'];
 const NOTITIE_CANDIDATES = ['Notitie', 'Notite', 'Opmerking', 'Opmerkingen'];
 const HOEK_CANDIDATES = ['Hoek', 'Draaihoek'];
 
-// Losse "extra artikelen" op de order zelf (max. 2 slots) - géén
-// koppelonderdeel van zijde A/B, dus een eigen kader op de kaart. Let op
-// de kolomnaam-typo "AantaExtraArtikel" (zonder "l") voor slot 1 - staat
-// zo echt in de database (bevestigd via INFORMATION_SCHEMA), slot 2 heet
-// wel "AantalExtraArtikel2".
-const EXTRA_ARTIKEL_SLOTS = [
-    ['artikel' => ['ExtraArtikel'], 'aantal' => ['AantaExtraArtikel', 'AantalExtraArtikel']],
-    ['artikel' => ['ExtraArtikel2'], 'aantal' => ['AantalExtraArtikel2']],
-];
 
 // Ordercrediteur/Afleveradres zijn geen losse tekstvelden, maar worden
 // opgebouwd uit meerdere kolommen (bevestigd tegen het echte schema).
@@ -227,14 +216,6 @@ const GEWIJZIGD_DATUM_CANDIDATES = ['sysmodified'];
 const GEWIJZIGD_NAAM_CANDIDATES = ['SMnm'];
 const GEWIJZIGD_CANDIDATES = ['Laatste gewijzigd', 'Laatst gewijzigd'];
 
-// Bevestigd via een echte SELECT * op beide tabellen: het artikel/
-// onderdeelnummer staat in "Zijde AA" (tabel Zijde A) resp. "Zijde BB"
-// (tabel Zijde B) - bijv. "10217-48-48RVS". "Coupling A"/"Coupling B"
-// bleken in de praktijk altijd leeg, en "koppeling" bevat een letterlijke
-// "0"-placeholder (geen echt artikelnummer) - allebei laten staan als
-// fallback voor het geval een andere order ze wel gebruikt.
-const ARTIKELNUMMER_CANDIDATES = ['Zijde AA', 'Zijde BB', 'Coupling A', 'Coupling B', 'koppeling', 'Artikelnummer', 'ArtikelNr', 'Artikel'];
-const QTY_CANDIDATES = ['Aantal_A', 'Aantal_B', 'Qty', 'Aantal'];
 
 /**
  * Kolommen van het selecteerbare regel-overzicht (stap voor het printen).
@@ -787,44 +768,8 @@ function findLeveringswijze(string $ordernummer): string
 function buildPicklist(array $hoseCards): array
 {
     $items = [];
-
-    $addItem = static function (array &$items, string $artikel, string $aantalRaw, float $aantalSlangen): void {
-        if ($artikel === '') {
-            return;
-        }
-
-        $normalized = str_replace(',', '.', trim($aantalRaw));
-        $aantal = is_numeric($normalized) ? (float) $normalized : 0.0;
-
-        if (!isset($items[$artikel])) {
-            $items[$artikel] = ['artikel' => $artikel, 'aantal' => 0.0, 'locatie' => '', 'voorraad' => ''];
-        }
-        $items[$artikel]['aantal'] += $aantal * $aantalSlangen;
-    };
-
-    foreach ($hoseCards as $card) {
-        // Qty/Aantal per koppelonderdeel en extra artikel staat per 1 slang -
-        // voor de picklijst (totaal benodigd voor de hele orderregel) moet
-        // dit vermenigvuldigd worden met "Aantal slangen" van die kaart.
-        $aantalSlangenRaw = str_replace(',', '.', trim(pick($card['row'], AANTAL_CANDIDATES)));
-        $aantalSlangen = is_numeric($aantalSlangenRaw) ? (float) $aantalSlangenRaw : 1.0;
-
-        // De slang zelf staat niet bij de koppelonderdelen (die komen uit
-        // sideA/sideB) - "aantal" hiervoor is Lengte (per 1 slang) x
-        // aantal slangen, net als de andere regels hieronder.
-        // Rijen uit de app hebben de lengte voor tabel en afdruk in mm gekregen; de picklijst blijft in meters (LengteMeterApp).
-        $lengteMeter = pick($card['row'], ['LengteMeterApp']);
-        $addItem($items, pick($card['row'], SLANGTYPE_CANDIDATES), $lengteMeter !== '' ? $lengteMeter : pick($card['row'], LENGTE_CANDIDATES), $aantalSlangen);
-
-        foreach (['sideA', 'sideB'] as $side) {
-            foreach ($card[$side] as $componentRow) {
-                $addItem($items, pick($componentRow, ARTIKELNUMMER_CANDIDATES), pick($componentRow, QTY_CANDIDATES), $aantalSlangen);
-            }
-        }
-
-        foreach (EXTRA_ARTIKEL_SLOTS as $slot) {
-            $addItem($items, pick($card['row'], $slot['artikel']), pick($card['row'], $slot['aantal']), $aantalSlangen);
-        }
+    foreach (picklijstAantallen($hoseCards) as $artikel => $aantal) {
+        $items[$artikel] = ['artikel' => $artikel, 'aantal' => $aantal, 'locatie' => '', 'voorraad' => ''];
     }
 
     // Locatie + voorraad voor alle artikelen in 1 keer opzoeken (zie

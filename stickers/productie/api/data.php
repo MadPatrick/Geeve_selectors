@@ -13,6 +13,9 @@ tileApiGuard('stickers-productie');
  */
 
 require_once __DIR__ . '/../../../reports/inc.php';
+require_once __DIR__ . '/../../../slkprinten/inc/db.php';
+require_once __DIR__ . '/../../../slkprinten/inc/queries.php';
+require_once __DIR__ . '/../../../slkprinten/inc/picklijst.php';
 
 /**
  * Veld => mogelijke kolomnamen uit de procedure (vergeleken zonder hoofdletters, spaties en underscores), zodat zowel
@@ -60,5 +63,48 @@ reportApi(function (string $nummer): array {
         $rows[] = $out;
     }
 
-    return ['rows' => $rows];
+    return ['rows' => productieAantallenAlsPicklijst($rows, $nummer)];
 });
+
+/**
+ * Het aantal op de sticker is gelijk aan de picklijst van Slangkaarten printen (slkprinten, picklijstAantallen()). De procedure
+ * telt bij slangregels zonder productieorder 1 slang in plaats van het bestelde aantal (order 36023662: 77296-36-12 gaf 4, de
+ * picklijst 12). Alleen artikelen die één keer in de uitkomst staan en ook op de picklijst voorkomen worden vervangen; de rest
+ * (en alles, als de slangkaarten niet te lezen zijn) blijft zoals de procedure het geeft.
+ *
+ * @param list<array<string, string>> $rows
+ * @return list<array<string, string>>
+ */
+function productieAantallenAlsPicklijst(array $rows, string $nummer): array
+{
+    try {
+        $pdo = getPdoConnection();
+        $keys = [];
+        foreach (findHoseLinesByOrder($pdo, $nummer) as $line) {
+            $keys[] = pick($line, HOSE_KEY_COLUMNS);
+        }
+        if ($keys === []) {
+            return $rows;
+        }
+        $totalen = [];
+        foreach (picklijstAantallen(findHoseCardsByKeys($pdo, $keys, $nummer)) as $artikel => $aantal) {
+            $totalen[strtoupper(trim((string) $artikel))] = $aantal;
+        }
+
+        $voorkomen = [];
+        foreach ($rows as $row) {
+            $k = strtoupper(trim($row['artikel']));
+            $voorkomen[$k] = ($voorkomen[$k] ?? 0) + 1;
+        }
+        foreach ($rows as $i => $row) {
+            $k = strtoupper(trim($row['artikel']));
+            if (($voorkomen[$k] ?? 0) === 1 && isset($totalen[$k]) && $totalen[$k] > 0) {
+                $rows[$i]['aantal'] = rtrim(rtrim(number_format($totalen[$k], 4, '.', ''), '0'), '.');
+            }
+        }
+    } catch (Throwable $e) {
+        // Slangkaarten niet bereikbaar: de aantallen uit de procedure blijven staan.
+    }
+
+    return $rows;
+}
