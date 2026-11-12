@@ -1062,7 +1062,7 @@ function renderHoseLinesForm(array $hoseLines, string $orderNumber, string $cust
                                 <input
                                     type="checkbox"
                                     name="slangnummers[]"
-                                    value="<?= h($hoseKey) ?>"
+                                    value="<?= h($hoseKey . (pick($line, REGELNUMMER_CANDIDATES) !== '' ? '|' . pick($line, REGELNUMMER_CANDIDATES) : '')) ?>"
                                     class="line-checkbox"
                                     <?= $hoseKey === '' ? 'disabled' : 'checked' ?>
                                 >
@@ -1445,6 +1445,16 @@ $selectedKeys = array_values(array_filter(array_map(
     static fn($value): string => trim((string) $value),
     $_POST['slangnummers'] ?? []
 ), static fn(string $value): bool => $value !== ''));
+// Het regel-overzicht stuurt "slangnummer|regelnummer": dezelfde slang kan op meerdere orderregels staan en alleen de
+// aangevinkte regel mag op de kaarten en de picklijst komen (order 36022346: regel 6 en 11 gaven 40 i.p.v. 20 stuks).
+$selectedLines = [];
+foreach ($selectedKeys as $i => $value) {
+    $cut = strrpos($value, '|');
+    if ($cut !== false && ctype_digit(substr($value, $cut + 1))) {
+        $selectedLines[] = (int) substr($value, $cut + 1);
+        $selectedKeys[$i] = trim(substr($value, 0, $cut));
+    }
+}
 
 $hoseLines = [];
 $hoseCards = [];
@@ -1463,6 +1473,16 @@ if ($selectedKeys !== []) {
     try {
         $pdo = getPdoConnection();
         $hoseCards = findHoseCardsByKeys($pdo, $selectedKeys, $orderNumber, ($_POST['alleen_kaart'] ?? '') === '1');
+        if ($selectedLines !== [] && $orderNumber !== '') {
+            // Alleen de aangevinkte orderregels (een kaart zonder regelnummer blijft staan).
+            $hoseCards = array_values(array_filter(
+                $hoseCards,
+                static function (array $card) use ($selectedLines): bool {
+                    $regel = pick($card['row'], REGELNUMMER_CANDIDATES);
+                    return $regel === '' || in_array((int) $regel, $selectedLines, true);
+                }
+            ));
+        }
         // Kaarten + picklijst hier al opbouwen (niet pas onderaan in de HTML),
         // zodat een fout in de gegevens van een slangkaart een nette melding
         // geeft i.p.v. een half geladen pagina zonder printvenster.
