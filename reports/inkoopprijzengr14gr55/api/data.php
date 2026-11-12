@@ -35,6 +35,10 @@ function inkoopprijzenKey(string $searchCode, array $suffixes): string
         if (substr($key, -strlen($suffix)) === $suffix) {
             return rtrim(substr($key, 0, -strlen($suffix)));
         }
+        // Achtervoegsel vóór een laatste X (AS18L71X en AS18LXRVS horen bij elkaar: beide AS18LX).
+        if (strlen($key) > strlen($suffix) + 1 && substr($key, -strlen($suffix) - 1) === $suffix . 'X') {
+            return rtrim(substr($key, 0, -strlen($suffix) - 1)) . 'X';
+        }
     }
     return $key;
 }
