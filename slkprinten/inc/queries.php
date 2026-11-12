@@ -1076,7 +1076,7 @@ function isZeroPlaceholder(string $value): bool
  * Bij een leeg ordernummer (zou niet moeten voorkomen, het regel-
  * overzicht geeft het altijd mee) wordt niet op order gefilterd.
  */
-function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = '', bool $cardOnly = false): array
+function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = '', bool $cardOnly = false, ?array $orderRegels = null): array
 {
     $hoseKeys = array_values(array_unique(array_filter(
         $hoseKeys,
@@ -1089,7 +1089,11 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
 
     // $cardOnly: zoeken op slangnummer geeft alleen de slangkaart zelf, geen orderregels; dan worden alle sleutels
     // hieronder via de "zonder order"-route opgebouwd (1 kaart per slangnummer).
-    $mainRows = $cardOnly
+    // $orderRegels: de regels van de order zijn al opgehaald (findHoseLinesByOrder) en bevatten alle gevraagde slangen; dan hoeven
+    // de order-tabel en de app niet nog een keer gelezen te worden (stickers per productieorder).
+    $mainRows = $orderRegels !== null && !$cardOnly
+        ? $orderRegels
+        : ($cardOnly
         ? []
         : ($orderNumber !== ''
         ? tryColumnsInQueryWithEquals(
@@ -1100,9 +1104,9 @@ function findHoseCardsByKeys(PDO $pdo, array $hoseKeys, string $orderNumber = ''
             ORDER_NUMBER_COLUMNS,
             $orderNumber
         )
-        : tryColumnsInQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseKeys));
+        : tryColumnsInQuery($pdo, '2500 Slangkaarten bij order', HOSE_KEY_COLUMNS, $hoseKeys)));
     // Kaarten uit de slangkaart-app: de orderregels van deze order (de app gaat voor), beperkt tot de gekozen slangen.
-    if (!$cardOnly && $orderNumber !== '') {
+    if ($orderRegels === null && !$cardOnly && $orderNumber !== '') {
         $gekozen = array_flip(array_map('hoseKeyIndex', $hoseKeys));
         $appRegels = array_values(array_filter(
             appRegels(['ordernr' => $orderNumber]),

@@ -79,15 +79,16 @@ function productieAantallenAlsPicklijst(array $rows, string $nummer): array
 {
     try {
         $pdo = getPdoConnection();
+        $regels = findHoseLinesByOrder($pdo, $nummer);
         $keys = [];
-        foreach (findHoseLinesByOrder($pdo, $nummer) as $line) {
+        foreach ($regels as $line) {
             $keys[] = pick($line, HOSE_KEY_COLUMNS);
         }
         if ($keys === []) {
             return $rows;
         }
         $totalen = [];
-        foreach (picklijstAantallen(findHoseCardsByKeys($pdo, $keys, $nummer)) as $artikel => $aantal) {
+        foreach (picklijstAantallen(findHoseCardsByKeys($pdo, $keys, $nummer, false, $regels)) as $artikel => $aantal) {
             $totalen[strtoupper(trim((string) $artikel))] = $aantal;
         }
 
