@@ -54,7 +54,7 @@ $csrf = csrfToken();
         <a class="<?= tileClass('order-offerte') ?>" href="<?= h(geeveAppUrl('order-offerte')) ?>"<?= tileAttrs('order-offerte') ?>>
             <?= tileIcon('order-offerte') ?>
             <h2><?= h(tileTitle('order-offerte')) ?></h2>
-            <p>Order- of offerteregels uit Exact ophalen en als Excel downloaden</p>
+            <p>Order- of offerteregels uit Exact ophalen en als Excel of XML downloaden</p>
             <?= tileLockIcon('order-offerte') ?>
         </a>
         <?php endif; $tileHtml['order-offerte'] = ob_get_clean(); ?>
