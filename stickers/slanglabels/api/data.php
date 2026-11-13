@@ -24,6 +24,17 @@ function slanglabelSql(): string
         . ' WHERE LTRIM(RTRIM([ordernummer])) = ? ORDER BY [ordernummer], [regel]';
 }
 
+/**
+ * Sleutel om dezelfde slang uit de oude view en uit de app te herkennen. De view 1655 geeft het slangnummer met
+ * prefix "SN " ("SN 258696"), terwijl de orderregel en de app "GH 258696" hebben. Zonder de prefix zouden beide
+ * als aparte slangen op het label komen (order 36023869: 30 + 30). Daarom wordt alleen het deel na de prefix
+ * (SN of GH) vergeleken.
+ */
+function slanglabelSleutel(string $nummer): string
+{
+    return strtoupper(trim(preg_replace('/^\s*(SN|GH)\s+/i', '', $nummer) ?? $nummer));
+}
+
 /** Kolomnaam in de bron (zonder hoofdlettergevoeligheid, ook als die met een voorvoegsel begint) => veld in de app. */
 const SLANGLABEL_COLUMNS = [
     'ordernummer' => 'ordernummer',
@@ -90,9 +101,9 @@ reportApi(function (string $nummer): array {
     if ($uitApp !== []) {
         $inApp = [];
         foreach ($uitApp as $r) {
-            $inApp[strtoupper($r['slangnummer'])] = true;
+            $inApp[slanglabelSleutel($r['slangnummer'])] = true;
         }
-        $rows = array_merge($uitApp, array_values(array_filter($rows, static fn(array $r): bool => !isset($inApp[strtoupper((string) $r['slangnummer'])]))));
+        $rows = array_merge($uitApp, array_values(array_filter($rows, static fn(array $r): bool => !isset($inApp[slanglabelSleutel((string) $r['slangnummer'])]))));
     }
 
     return ['rows' => $rows];
