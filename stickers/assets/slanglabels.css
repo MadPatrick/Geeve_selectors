@@ -8,7 +8,7 @@
 /* Rij 1: slangnummer + referentie; rij 2: lengte + datum; rij 3: klantnaam + (aantal + printen datum onder het datumveld). */
 .sl-fields > :nth-child(1), .sl-fields > :nth-child(3), .sl-fields > :nth-child(5) { grid-column: 1; }
 .sl-fields > :nth-child(2), .sl-fields > :nth-child(4), .sl-fields > :nth-child(6) { grid-column: 2; }
-.sl-refrij { display: flex; flex-direction: column; gap: 6px; }
+.sl-notitie { min-height: 44px; box-sizing: border-box; white-space: nowrap; align-self: flex-end; }
 .sl-aantalrij { display: flex; align-items: flex-end; gap: 16px; }
 .sl-fields .sl-aantal .ka-input { width: 5em; }
 .sl-printen .sl-check { min-height: 36px; box-sizing: border-box; white-space: nowrap; }

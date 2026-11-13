@@ -51,16 +51,14 @@ $csrf = csrfToken();
                     <input type="text" id="slNumber" class="ka-input" inputmode="numeric" maxlength="18" autocomplete="off" autofocus>
                 </label>
                 <button type="button" id="slFetch" class="ka-button">Gegevens ophalen</button>
+                <label class="sl-check sl-notitie"><input type="checkbox" id="slWithNotitie"> Notitie slangkaart</label>
                 <span id="slStatus" class="msp-status"></span>
             </div>
             <div id="slMessage" class="ka-message ka-message--error" hidden></div>
 
             <div class="sl-fields" id="slFields">
                 <label class="msp-field"><span>Slangnummer</span><input type="text" class="ka-input" data-field="slangnummer" maxlength="40"></label>
-                <div class="sl-refrij">
-                    <label class="sl-check"><input type="checkbox" id="slWithNotitie"> Notitie slangkaart</label>
-                    <label class="msp-field"><span>Uw referentie</span><input type="text" class="ka-input" data-field="referentie" maxlength="60"></label>
-                </div>
+                <label class="msp-field"><span>Uw referentie</span><input type="text" class="ka-input" data-field="referentie" maxlength="60"></label>
                 <label class="msp-field"><span>Lengte</span><input type="text" class="ka-input" data-field="lengte" maxlength="20"></label>
                 <label class="msp-field"><span>Datum</span><input type="date" class="ka-input" data-field="datum"></label>
                 <label class="msp-field sl-klant"><span>Klantnaam</span><input type="text" class="ka-input" data-field="klantnaam" maxlength="80"></label>
