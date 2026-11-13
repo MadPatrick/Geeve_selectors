@@ -13,6 +13,7 @@
     var printInfo = document.getElementById('slPrintInfo');
     var fields = document.querySelectorAll('#slFields [data-field]');
     var withDate = document.getElementById('slWithDate'); // met of zonder datum op het label (geldt voor alle labels)
+    var withNotitie = document.getElementById('slWithNotitie'); // notitie van de slangkaart i.p.v. Uw referentie op het label
     var FIELDS = ['slangnummer', 'referentie', 'lengte', 'datum', 'klantnaam', 'aantal'];
     var rows = [];
     var current = -1;  // aangeklikte regel; -1 = handmatig ingevuld (zonder order)
@@ -21,7 +22,7 @@
     function blank() {
         var d = new Date();
         var pad = function (n) { return (n < 10 ? '0' : '') + n; };
-        return { slangnummer: '', referentie: '', lengte: '', datum: pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + '-' + d.getFullYear(), klantnaam: '', aantal: '1', artnr_kl: '' };
+        return { slangnummer: '', referentie: '', lengte: '', datum: pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + '-' + d.getFullYear(), klantnaam: '', aantal: '1', artnr_kl: '', notitie: '' };
     }
     // Het datumveld is een kalenderkeuze (waarde jjjj-mm-dd); op het label en in de tabel staat dd-mm-jjjj.
     function naarIso(d) {
@@ -45,7 +46,7 @@
     function label(r) {
         return '<div class="slanglabel"><div class="area">' +
             '<div class="f nr">' + esc(r.slangnummer) + '</div>' +
-            '<div class="f ref">' + esc(r.referentie) + '</div>' +
+            '<div class="f ref">' + esc(withNotitie.checked ? (r.notitie || '') : r.referentie) + '</div>' +
             '<div class="f len">' + esc(lengte(r.lengte)) + '</div>' +
             (withDate.checked ? '<div class="f dat">' + esc(r.datum) + '</div>' : '') +
             '<div class="f kl">' + esc(r.klantnaam) + '</div>' +
@@ -161,6 +162,7 @@
         document.querySelector('[data-field="datum"]').disabled = !withDate.checked;
         preview();
     });
+    withNotitie.addEventListener('change', preview);
     all.addEventListener('change', function () {
         Array.prototype.forEach.call(tbody.querySelectorAll('input[type="checkbox"]'), function (cb) { cb.checked = all.checked; });
         preview();

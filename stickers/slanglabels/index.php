@@ -44,7 +44,7 @@ $csrf = csrfToken();
 
     <section class="panel sk-top">
         <div class="sk-invoer">
-            <?= stickerTitelHtml('Slanglabels', '25 × 95 mm', 'Vul een ordernummer in en haal de slangen op. Klik een regel aan om de velden te vullen; je kunt ze daarna nog aanpassen.', 'Alle regels staan aangevinkt en worden geprint (elk met het eigen aantal); vink uit wat je niet wilt. Zonder vinkjes wordt de aangeklikte regel geprint. Met het vinkje bij Datum kies je met of zonder datum op het label. Printvlak 25 × 25 mm bovenaan, de rest is plakrand.') ?>
+            <?= stickerTitelHtml('Slanglabels', '25 × 95 mm', 'Vul een ordernummer in en haal de slangen op. Klik een regel aan om de velden te vullen; je kunt ze daarna nog aanpassen.', 'Alle regels staan aangevinkt en worden geprint (elk met het eigen aantal); vink uit wat je niet wilt. Zonder vinkjes wordt de aangeklikte regel geprint. Met het vinkje bij Datum kies je met of zonder datum op het label. Met het vinkje bij Notitie slangkaart komt de notitie van de slangkaart op de plek van Uw referentie. Printvlak 25 × 25 mm bovenaan, de rest is plakrand.') ?>
             <div class="ka-actions" id="slActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>">
                 <label class="msp-field">
                     <span>Ordernummer</span>
@@ -64,6 +64,7 @@ $csrf = csrfToken();
                 <div class="sl-aantalrij">
                 <label class="msp-field sl-aantal"><span>Aantal</span><input type="number" class="ka-input" data-field="aantal" min="1" max="99"></label>
                 <div class="msp-field sl-printen"><span>Printen Datum</span><label class="sl-check"><input type="checkbox" id="slWithDate" checked> Datum op label</label></div>
+                <div class="msp-field sl-printen"><span>Notitie slangkaart</span><label class="sl-check"><input type="checkbox" id="slWithNotitie"> Notitie i.p.v. Uw referentie</label></div>
                 </div>
             </div>
         </div>
