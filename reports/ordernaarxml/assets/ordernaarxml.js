@@ -38,7 +38,8 @@
         var body = new URLSearchParams();
         body.set('csrf', app.dataset.csrf);
         body.set('nummer', nummer);
-        ophalenBtn.disabled = true;
+        var voortgang = GeeveProgress.ophalen(ophalenBtn);
+        if (!voortgang) { return; }
         exportBtn.disabled = true;
         status.textContent = 'Bezig met ophalen…';
         fetch(app.dataset.endpoint, { method: 'POST', body: body, credentials: 'same-origin' })
@@ -51,12 +52,13 @@
                 status.textContent = json.regels.length === 0 ? 'Order gevonden, maar zonder artikelregels.' : json.regels.length + ' regels opgehaald.';
             })
             .catch(function (err) {
+                voortgang.mislukt = true;
                 huidig = '';
                 result.hidden = true;
                 status.textContent = '';
                 fail(err.message);
             })
-            .then(function () { ophalenBtn.disabled = false; });
+            .then(function () { if (voortgang.mislukt) { voortgang.fail('Ophalen mislukt'); } else { voortgang.finish('Opgehaald'); } });
     }
 
     // Download: een gewoon formulier naar xml.php (antwoord is een bestand, de pagina blijft staan).

@@ -171,7 +171,7 @@
         // De voortgang (lopende balk) staat in de knop "Gegevens ophalen" zelf, tot het antwoord binnen is (shared/progress.js).
         var request = function () { return fetchRequest(body, params, number); };
         if (window.GeeveProgress) {
-            var started = GeeveProgress.run('Gegevens ophalen…', request, { button: fetchBtn, doneText: 'Opgehaald', errorText: 'Ophalen mislukt' });
+            var started = GeeveProgress.run('Gegevens ophalen…', request, { button: fetchBtn, seconds: true, doneText: 'Opgehaald', errorText: 'Ophalen mislukt' });
             if (started === null) { return; }
         } else {
             request().catch(function () {});

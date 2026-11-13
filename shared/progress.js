@@ -117,9 +117,27 @@
         if (text) { if (this.btn) { this.btn.title = text; } else { this.label(text); } }
     };
 
+    // Voor "Gegevens ophalen": de server meldt geen echte voortgang. In de knop staat "Bezig… N s" en een lichte balk die
+    // een schatting is: snel naar ~60%, dan steeds trager, nooit boven 90% tot het antwoord er is.
+    Handle.prototype.seconds = function () {
+        var self = this;
+        var start = new Date().getTime();
+        function tick() {
+            var sec = (new Date().getTime() - start) / 1000;
+            self.box.className = 'geeve-btn-progress';
+            self.fill.style.width = Math.round(90 * (1 - Math.exp(-sec / 3))) + '%';
+            setText(self.pct, 'Bezig… ' + Math.floor(sec) + ' s');
+        }
+        if (!this.btn) { return this; }
+        tick();
+        this.secTimer = setInterval(tick, 500);
+        return this;
+    };
+
     Handle.prototype.close = function () {
         if (this.closed) { return; }
         this.closed = true;
+        clearInterval(this.secTimer);
         clearTimeout(this.timer);
         if (this.box.parentNode) { this.box.parentNode.removeChild(this.box); }
         if (this.btn) {
@@ -131,12 +149,14 @@
     };
 
     Handle.prototype.finish = function (text) {
+        clearInterval(this.secTimer);
         this.set(1, 1, text || 'Klaar');
         var self = this;
         this.timer = setTimeout(function () { self.close(); }, this.btn ? 700 : 1500);
     };
 
     Handle.prototype.fail = function (text) {
+        clearInterval(this.secTimer);
         this.box.className = (this.btn ? 'geeve-btn-progress' : 'geeve-progress') + ' is-error';
         this.fill.style.width = '100%';
         if (this.btn) { setText(this.pct, 'Mislukt'); this.btn.title = text || 'Mislukt'; } else { this.label(text || 'Mislukt'); }
@@ -155,6 +175,7 @@
             var btn = opts.button || null;
             if (btn && btn.geeveBusy) { return null; }   // dubbelklik: er loopt al een balk voor deze knop
             var p = new Handle(label, btn);
+            if (opts.seconds) { p.seconds(); }
             var t0 = new Date().getTime();
             if (btn) { btn.geeveBusy = true; btn.setAttribute('aria-busy', 'true'); }
 
@@ -184,6 +205,23 @@
                     end(function () { p.finish(opts.doneText); });
                 }
             }, PAINT_DELAY);
+            return p;
+        },
+
+        // Knop "Gegevens ophalen" (eigen fetch in de tegel): geeft een handle terug met "Bezig… N s" en een lichte balk in de
+        // knop, of null als er al een ophaalactie loopt (dubbelklik). De knop blijft enabled (uitgegrijsde tekst tekent
+        // door de balk heen). Daarna p.finish('Opgehaald') of p.fail('Ophalen mislukt') aanroepen.
+        ophalen: function (btn) {
+            if (btn.geeveBusy) { return null; }
+            var p = new Handle('Gegevens ophalen…', btn).seconds();
+            btn.geeveBusy = true;
+            btn.setAttribute('aria-busy', 'true');
+            var sluit = p.close;
+            p.close = function () {
+                sluit.call(p);
+                btn.geeveBusy = false;
+                btn.removeAttribute('aria-busy');
+            };
             return p;
         },
 

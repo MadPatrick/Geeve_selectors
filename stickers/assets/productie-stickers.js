@@ -134,7 +134,8 @@
         var nummer = input.value.trim();
         message.hidden = true;
         if (nummer === '') { fail('Vul een ordernummer in.'); input.focus(); return; }
-        fetchBtn.disabled = true;
+        var voortgang = GeeveProgress.ophalen(fetchBtn);
+        if (!voortgang) { return; }
         printBtn.disabled = true;
         status.textContent = 'Bezig met ophalen…';
         var body = new FormData();
@@ -153,8 +154,8 @@
                 }
                 render();
             })
-            .catch(function (e) { fail(e.message || String(e)); })
-            .then(function () { fetchBtn.disabled = false; status.textContent = ''; });
+            .catch(function (e) { voortgang.mislukt = true; fail(e.message || String(e)); })
+            .then(function () { if (voortgang.mislukt) { voortgang.fail('Ophalen mislukt'); } else { voortgang.finish('Opgehaald'); } status.textContent = ''; });
     }
 
     fetchBtn.addEventListener('click', load);

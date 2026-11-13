@@ -131,20 +131,8 @@
         var nummer = input.value.trim();
         message.hidden = true;
         if (nummer === '') { fail('Vul een ordernummer in.'); input.focus(); return; }
-        fetchBtn.disabled = true;
-        // Voortgang in de knop: draaiend icoon en het aantal seconden dat het ophalen al duurt.
-        var knopTekst = fetchBtn.textContent;
-        var start = Date.now();
-        fetchBtn.classList.add('is-busy');
-        // De server meldt geen echte voortgang: de balk is een schatting die snel start en nooit boven 90% komt
-        // tot het antwoord er is.
-        function toonVoortgang() {
-            var sec = (Date.now() - start) / 1000;
-            fetchBtn.textContent = 'Ophalen… ' + Math.floor(sec) + ' s';
-            fetchBtn.style.setProperty('--voortgang', Math.round(90 * (1 - Math.exp(-sec / 3))) + '%');
-        }
-        toonVoortgang();
-        var timer = window.setInterval(toonVoortgang, 500);
+        var voortgang = GeeveProgress.ophalen(fetchBtn);
+        if (!voortgang) { return; }
         status.textContent = '';
         var body = new FormData();
         body.append('csrf', box.getAttribute('data-csrf'));
@@ -159,13 +147,9 @@
                 if (rows.length === 0) { fail('Geen slangen gevonden voor order ' + nummer + '.'); select(-1); return; }
                 select(0);
             })
-            .catch(function (e) { fail(e.message || String(e)); })
+            .catch(function (e) { voortgang.mislukt = true; fail(e.message || String(e)); })
             .then(function () {
-                window.clearInterval(timer);
-                fetchBtn.classList.remove('is-busy');
-                fetchBtn.style.removeProperty('--voortgang');
-                fetchBtn.textContent = knopTekst;
-                fetchBtn.disabled = false;
+                if (voortgang.mislukt) { voortgang.fail('Ophalen mislukt'); } else { voortgang.finish('Opgehaald'); }
                 status.textContent = '';
             });
     }

@@ -78,7 +78,8 @@
 
     fetchBtn.addEventListener('click', function () {
         message.hidden = true;
-        fetchBtn.disabled = true;
+        var voortgang = GeeveProgress.ophalen(fetchBtn);
+        if (!voortgang) { return; }
         downloadBtn.disabled = true;
         uploadBtn.disabled = true;
         status.textContent = 'Bezig met ophalen… dit kan even duren.';
@@ -98,11 +99,12 @@
                 status.textContent = 'Opgehaald voor ' + MONTHS[period.month - 1] + ' ' + period.year + ' om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + '.';
             })
             .catch(function (err) {
+                voortgang.mislukt = true;
                 status.textContent = '';
                 result.hidden = true;
                 fail(err.message);
             })
-            .then(function () { fetchBtn.disabled = false; });
+            .then(function () { if (voortgang.mislukt) { voortgang.fail('Ophalen mislukt'); } else { voortgang.finish('Opgehaald'); } });
     });
 
     GeeveProgress.onClick(downloadBtn, 'Excel maken…', function () {

@@ -141,7 +141,8 @@
         var nr = numberEl.value.trim();
         showMessage('');
         if (!/^\d{1,18}$/.test(nr)) { showMessage('Vul een geldig ordernummer in (alleen cijfers).'); return; }
-        fetchBtn.disabled = true;
+        var voortgang = GeeveProgress.ophalen(fetchBtn);
+        if (!voortgang) { return; }
         statusEl.textContent = 'Gegevens worden opgehaald…';
         var body = new URLSearchParams();
         body.set('csrf', csrf);
@@ -164,8 +165,8 @@
                 if (!rows.length) { resultEl.hidden = true; }
                 render();
             })
-            .catch(function (err) { resultEl.hidden = true; statusEl.textContent = ''; showMessage(err.message); })
-            .then(function () { fetchBtn.disabled = false; });
+            .catch(function (err) { voortgang.mislukt = true; resultEl.hidden = true; statusEl.textContent = ''; showMessage(err.message); })
+            .then(function () { if (voortgang.mislukt) { voortgang.fail('Ophalen mislukt'); } else { voortgang.finish('Opgehaald'); } });
     }
     fetchBtn.addEventListener('click', fetchData);
     numberEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); fetchData(); } });
