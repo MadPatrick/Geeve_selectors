@@ -49,12 +49,62 @@ function productieordersMoeders(array $projecten): array
     return $out;
 }
 
+/**
+ * Dezelfde lijst rechtstreeks uit Exact (database 005), zonder de procedure van Carl (8 tot 21 s; deze query 0,1 s). De logica is
+ * afgeleid uit de procedure (de definitie is voor het app-account niet leesbaar) en op 162 rijen rij voor rij gelijk bevonden:
+ * in gbkmut, alleen voorraadrekening 3000 (met voorloopspaties), per project: uit te geven = -som aantal transtype B/subtype B,
+ * uitgegeven = -som N/B, te Ontvangen = som B/A, ontvangen = som N/A; projectnaam = gbkmut.oms25 (transtype B). Filter: project
+ * PR... met Status A, uit te geven > 0 en ontvangen >= te Ontvangen. Niet getest: een project met te Ontvangen = 0 en
+ * ontvangen = 0, maar uit te geven > 0 komt wel in de lijst; de procedure kan dat anders doen.
+ *
+ * @return array{columns: list<string>, numeric: list<bool>, dates: list<bool>, rows: list<list<mixed>>}
+ */
+function productieordersUitExact(): array
+{
+    $sql = 'SET NOCOUNT ON; SELECT RTRIM(p.ProjectNr) AS ProjectNr, x.projectnm, p.Status, ' .
+        'x.ug AS [uit te geven], x.ugd AS [uitgegeven], x.te AS [te Ontvangen], x.ont AS [ontvangen], RTRIM(p.ParentProject) AS Moeder ' .
+        'FROM PRProject p WITH (NOLOCK) CROSS APPLY (SELECT ' .
+        "SUM(CASE WHEN g.transtype='B' AND g.transsubtype='B' THEN -g.aantal ELSE 0 END) AS ug, " .
+        "SUM(CASE WHEN g.transtype='N' AND g.transsubtype='B' THEN -g.aantal ELSE 0 END) AS ugd, " .
+        "SUM(CASE WHEN g.transtype='B' AND g.transsubtype='A' THEN g.aantal ELSE 0 END) AS te, " .
+        "SUM(CASE WHEN g.transtype='N' AND g.transsubtype='A' THEN g.aantal ELSE 0 END) AS ont, " .
+        "MAX(CASE WHEN g.transtype='B' THEN g.oms25 END) AS projectnm FROM gbkmut g WITH (NOLOCK) " .
+        "WHERE g.project = p.ProjectNr AND g.reknr = '     3000' AND g.transtype IN ('B','N') AND g.transsubtype IN ('A','B')) x " .
+        "WHERE p.Status = 'A' AND p.ProjectNr LIKE 'PR%' AND x.ug > 0 AND x.ont >= x.te ORDER BY p.ProjectNr";
+
+    $stmt = reportConnection('productieorders')->query($sql);
+    $getal = static fn (mixed $v): float => round((float) $v, 4);
+    $rows = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_NUM) as $r) {
+        $rows[] = [
+            trim((string) $r[7]), trim((string) $r[0]), trim((string) $r[1]), trim((string) $r[2]),
+            $getal($r[3]), $getal($r[4]), $getal($r[5]), $getal($r[6]),
+        ];
+    }
+
+    return [
+        'columns' => ['Moederproject', 'ProjectNr', 'projectnm', 'Status', 'uit te geven', 'uitgegeven', 'te Ontvangen', 'ontvangen'],
+        'numeric' => [false, false, false, false, true, true, true, true],
+        'dates' => array_fill(0, 8, false),
+        'rows' => $rows,
+    ];
+}
+
 reportApi(function (array $in): array {
     // Sessie niet vergrendeld houden tijdens het ophalen: anders hangen andere pagina's van dezelfde gebruiker erop.
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_write_close();
     }
     $t = microtime(true);
+    // Snelle route rechtstreeks uit Exact; mislukt die, dan de procedure van Carl zoals voorheen.
+    try {
+        $data = productieordersUitExact();
+        $data['waarschuwing'] = '';
+        $data['tijden'] = ['ophalen' => (int) round((microtime(true) - $t) * 1000)];
+        return $data;
+    } catch (Throwable $e) {
+        // Verder met de procedure.
+    }
     $data = reportCallProcedure(geeveDbNaamSql('data') . '.[dbo].[SP_SQLQuery_ProductieordersGereed_te_melden]', '', null, PRODUCTIEORDERS_KOLOMMEN, 'productieorders');
 
     // Kolom Moederproject als eerste kolom. Lukt het opzoeken niet, dan blijft de lijst werken met een lege kolom en een melding.
