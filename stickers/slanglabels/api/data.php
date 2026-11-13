@@ -96,7 +96,6 @@ reportApi(function (string $nummer): array {
     $stmt = reportConnection('stickers-slanglabels')->prepare('SET NOCOUNT ON; ' . slanglabelSql());
     $stmt->execute([$nummer]);
 
-    $notities = slanglabelNotities($nummer);
     $rows = [];
     foreach ($stmt->fetchAll() as $row) {
         $out = array_fill_keys(array_values(SLANGLABEL_COLUMNS), '');
@@ -121,7 +120,6 @@ reportApi(function (string $nummer): array {
         if ($out['artnr_kl'] !== '') {
             $out['referentie'] = $out['artnr_kl'];
         }
-        $out['notitie'] = $notities[strtoupper($out['slangnummer'])] ?? '';
         $rows[] = $out;
     }
 
@@ -133,8 +131,18 @@ reportApi(function (string $nummer): array {
         foreach ($uitApp as $r) {
             $inApp[slanglabelSleutel($r['slangnummer'])] = true;
         }
-        $rows = array_merge($uitApp, array_values(array_filter($rows, static fn(array $r): bool => !isset($inApp[slanglabelSleutel((string) $r['slangnummer'])]))));
+        $rows = array_values(array_filter($rows, static fn(array $r): bool => !isset($inApp[slanglabelSleutel((string) $r['slangnummer'])])));
     }
+
+    // De notitie van de oude slangkaarten (extra, trage query) alleen ophalen voor slangen die niet uit de app komen:
+    // de app geeft de notitie zelf mee.
+    if ($rows !== []) {
+        $notities = slanglabelNotities($nummer);
+        foreach ($rows as $i => $r) {
+            $rows[$i]['notitie'] = $notities[strtoupper((string) $r['slangnummer'])] ?? '';
+        }
+    }
+    $rows = array_merge($uitApp, $rows);
 
     return ['rows' => $rows];
 });
