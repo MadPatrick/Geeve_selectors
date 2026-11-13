@@ -5,6 +5,8 @@
     var fields = Array.prototype.slice.call(box.querySelectorAll('[data-field]'));
     var fetchBtn = document.getElementById('rpFetch');
     var downloadBtn = document.getElementById('rpDownload');
+    var xmlBtn = document.getElementById('rpXml');   // optioneel: alleen rapporten met data-xml (XML-download via formulier-POST)
+    var xmlNumber = '';
     var status = document.getElementById('rpStatus');
     var message = document.getElementById('rpMessage');
     var result = document.getElementById('rpResult');
@@ -164,6 +166,7 @@
         // Met voortgangsbalk blijft de knop zelf enabled (anders tekent de uitgegrijsde tekst door de balk heen); GeeveProgress blokkeert dubbelklikken.
         fetchBtn.disabled = !window.GeeveProgress;
         downloadBtn.disabled = true;
+        if (xmlBtn) { xmlBtn.disabled = true; }
         status.textContent = 'Bezig met ophalen…';
         var body = new URLSearchParams();
         body.set('csrf', box.getAttribute('data-csrf'));
@@ -192,6 +195,8 @@
                 }
                 render();
                 downloadBtn.disabled = data.rows.length === 0 || !!data.yearPending;
+                xmlNumber = number;
+                if (xmlBtn) { xmlBtn.disabled = downloadBtn.disabled; }
                 status.textContent = data.rows.length === 0
                     ? 'Geen regels gevonden.'
                     : 'Opgehaald om ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) + '.';
@@ -208,6 +213,26 @@
     }
 
     fetchBtn.addEventListener('click', fetchData);
+    // XML: een gewoon formulier naar data-xml (antwoord is een bestand, de pagina blijft staan).
+    if (xmlBtn) {
+        xmlBtn.addEventListener('click', function () {
+            if (!xmlNumber) { return; }
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = box.getAttribute('data-xml');
+            [['csrf', box.getAttribute('data-csrf')], ['nummer', xmlNumber]].forEach(function (p) {
+                var inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = p[0];
+                inp.value = p[1];
+                form.appendChild(inp);
+            });
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            status.textContent = 'XML-bestand gedownload.';
+        });
+    }
     (fields.length ? fields : [input]).forEach(function (el) {
         el.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); fetchData(); } });
     });

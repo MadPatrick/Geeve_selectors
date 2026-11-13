@@ -46,7 +46,7 @@ $csrf = csrfToken();
         <a class="<?= tileClass('inkooporder') ?>" href="<?= h(geeveAppUrl('inkooporder')) ?>"<?= tileAttrs('inkooporder') ?>>
             <?= tileIcon('inkooporder') ?>
             <h2><?= h(tileTitle('inkooporder')) ?></h2>
-            <p>Inkooporder met regels uit Exact ophalen en als Excel downloaden</p>
+            <p>Inkooporder met regels uit Exact ophalen en als Excel of XML downloaden</p>
             <?= tileLockIcon('inkooporder') ?>
         </a>
         <?php endif; $tileHtml['inkooporder'] = ob_get_clean(); ?>

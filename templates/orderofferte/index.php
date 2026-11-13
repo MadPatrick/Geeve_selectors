@@ -23,7 +23,7 @@ $csrf = csrfToken();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Export Order/Offerte naar Excel | Geeve Hydraulics</title>
+    <title>Export Order/Offerte naar Excel/XML | Geeve Hydraulics</title>
     <!-- Knoppen, tabel en meldingen zijn dezelfde als in Klant Artikelnummers. -->
     <?php
     $headCss = ['assets/style.css', 'shared/tabel.css', 'shared/rapport.css'];   // vanaf de portal-root, in laadvolgorde
@@ -33,7 +33,7 @@ $csrf = csrfToken();
 <body>
 <main class="page-shell page-shell--wide">
     <?php
-    $headerTitle = 'Export Order/Offerte naar Excel';
+    $headerTitle = 'Export Order/Offerte naar Excel/XML';
     $headerImagesPath = geeveUrl('images/');
     $headerHomeHref = geeveAppUrl('templates'); // tegel staat onder Templates
     $headerTopline = ''; // het versienummer staat onderaan de pagina, achter de copyright-regel
@@ -41,16 +41,17 @@ $csrf = csrfToken();
     ?>
 
     <section class="panel">
-        <h2>Export Order/Offerte naar Excel</h2>
+        <h2>Export Order/Offerte naar Excel/XML</h2>
         <p class="ka-empty">Haalt de regels van een order of offerte uit Exact op (dezelfde gegevens als het Excel-bestand "Exact Order of Offerte naar Excel"). 
-            <br>Vul het offerte- of ordernummer in, haal de gegevens op en download ze daarna als Excel-bestand.</p>
-        <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-csrf="<?= h($csrf) ?>" data-label="Offerte/ordernummer" data-sheet="orders offertes" data-file="Order_Offerte">
+            <br>Vul het offerte- of ordernummer in, haal de gegevens op en download ze daarna als Excel- of XML-bestand.</p>
+        <div class="ka-actions" id="rpActions" data-endpoint="api/data.php" data-xml="api/xml.php" data-csrf="<?= h($csrf) ?>" data-label="Offerte/ordernummer" data-sheet="orders offertes" data-file="Order_Offerte">
             <label class="msp-field">
                 <span>Offerte/ordernummer</span>
                 <input type="text" id="rpNumber" class="ka-input" inputmode="numeric" maxlength="18" autocomplete="off" autofocus>
             </label>
             <button type="button" id="rpFetch" class="ka-button">Gegevens ophalen</button>
             <button type="button" id="rpDownload" class="ka-button ka-button--secondary" disabled>Download Excel</button>
+            <button type="button" id="rpXml" class="ka-button ka-button--secondary" disabled>Download XML</button>
             <span id="rpStatus" class="msp-status"></span>
         </div>
         <div id="rpMessage" class="ka-message ka-message--error" hidden></div>

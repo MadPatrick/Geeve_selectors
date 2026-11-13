@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 // Beveiligde tegel (Config > Tegels): zonder ontgrendelen geen gegevens.
 require_once __DIR__ . '/../../../shared/tiles.php';
-tileApiGuard('order-naar-xml');
+tileApiGuard('order-offerte');
 
-/** Download van het XML-bestand (formulier-POST met ordernummer en CSRF-token). Alleen lezen. */
+/** Download van het XML-bestand van een order of offerte (formulier-POST met nummer en CSRF-token). Alleen lezen. */
 require_once __DIR__ . '/../inc.php';
 require_once __DIR__ . '/../../../shared/csrf.php';
 
@@ -20,11 +20,11 @@ csrfReleaseSession();
 
 try {
     $nummer = reportOrderNumber($_POST['nummer'] ?? '');
-    $order = orderNaarXmlOphalen($nummer);
-    if ($order === null) {
-        throw new RuntimeException('Verkooporder ' . $nummer . ' niet gevonden in Exact.');
+    $data = orderOfferteOphalen($nummer);
+    if ($data['rows'] === []) {
+        throw new RuntimeException('Geen regels gevonden voor ' . $nummer . '.');
     }
-    $xml = orderNaarXmlBouwen($order);
+    $xml = orderOfferteXmlBouwen($nummer, $data);
 } catch (Throwable $e) {
     http_response_code(500);
     header('Content-Type: text/plain; charset=utf-8');
@@ -33,7 +33,7 @@ try {
 }
 
 header('Content-Type: application/xml; charset=utf-8');
-header('Content-Disposition: attachment; filename="order-' . preg_replace('/\D/', '', $nummer) . '.xml"');
+header('Content-Disposition: attachment; filename="' . (($data['label'] ?? 'Order') === 'Offerte' ? 'offerte' : 'order') . '-' . $nummer . '.xml"');
 header('Cache-Control: no-store');
 header('Content-Length: ' . strlen($xml));
 echo $xml;
