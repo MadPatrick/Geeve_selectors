@@ -10,8 +10,10 @@ tileApiGuard('stickers-slanglabels');
  * Slanglabels: per slang van één order het slangnummer, uw referentie, lengte, datum, klantnaam en aantal.
  * Zelfde SQL Server en inloggegevens (via Config) als /stauff en de rapporten.
  *
- * Bron: de slangkaart-app plus view [1655 VW_Alle_OrdersGH] (dezelfde query als de oude rapportbouwer), net als de 1002-labelviews in database
- * Exactrapportage. ordernummer kan een char-kolom met opvulspaties zijn: daarom LTRIM/RTRIM.
+ * Bron: de slangkaart-app (nieuwe orders) plus voor oude orders de onderliggende view [9655 HV 1655 VW_Alle_OrdersGH2] in
+ * database Exactrapportage, rechtstreeks gelezen. Bewust niet via [1655 VW_Alle_OrdersGH]: die zette voor klant 546 "SN" en voor 666
+ * "VR" voor het nummer en had regels voor klanten 822, 3066 en 3372. Die klantafwijkingen gelden niet meer: het slangnummer
+ * is overal het GH-nummer uit Exact, zoals ook de app het geeft. ordernummer kan een char-kolom met opvulspaties zijn: LTRIM/RTRIM.
  */
 
 require_once __DIR__ . '/../../../reports/inc.php';
@@ -19,15 +21,17 @@ require_once __DIR__ . '/../../../shared/slangkaartapp.php';
 
 function slanglabelSql(): string
 {
-    return 'SELECT [ordernummer], [artnr_slangnummer], [UwReferentie_slangnummer2], [datum], [Klantnaam], [Aantal],'
-        . ' [Lengte_Slangnummer3], [Artnr_KL] FROM ' . geeveDbNaamSql('rapportage') . '.[dbo].[1655 VW_Alle_OrdersGH]'
+    // Kolommen en omzettingen (lengte als tekst, datum dd-mm-jjjj, aantal naar boven afgerond) zoals de view ze had, zonder de klantregels.
+    return 'SELECT [ordernummer], [artnr_slangnummer], [UwReferentie_slangnummer2], CONVERT(varchar(10), [afldat], 105) AS [datum], [Klantnaam],'
+        . ' CEILING([Aantal]) AS [Aantal], CONVERT(varchar(13), [Lengte]) AS [Lengte_Slangnummer3], [Artnr_KL] FROM '
+        . geeveDbNaamSql('rapportage') . '.[dbo].[9655 HV 1655 VW_Alle_OrdersGH2] WITH (NOLOCK)'
         . ' WHERE LTRIM(RTRIM([ordernummer])) = ? ORDER BY [ordernummer], [regel]';
 }
 
-/** Sleutel om dezelfde slang uit de view en uit de app te herkennen: het nummer zonder de prefix GH, SN of VR. */
+/** Sleutel om dezelfde slang uit de oude database en uit de app te herkennen: het nummer in hoofdletters zonder spaties aan de rand. */
 function slanglabelSleutel(string $nummer): string
 {
-    return strtoupper(trim(preg_replace('/^\s*(GH|SN|VR)\s+/i', '', $nummer) ?? $nummer));
+    return strtoupper(trim($nummer));
 }
 
 /** Kolomnaam in de bron (zonder hoofdlettergevoeligheid, ook als die met een voorvoegsel begint) => veld in de app. */
@@ -56,7 +60,6 @@ function slanglabelNotities(string $nummer): array
             . geeveDbNaamSql('slangkaarten') . '.[dbo].[2500 Slangkaarten bij order] WHERE LTRIM(RTRIM([ordernr])) = ?');
         $stmt->execute([$nummer]);
         foreach ($stmt->fetchAll() as $r) {
-            // Sleutel zonder GH/SN/VR-voorvoegsel: de view zet voor sommige klanten SN of VR voor het nummer, GHnr heeft GH.
             $sleutel = slanglabelSleutel((string) ($r['GHnr'] ?? ''));
             if ($sleutel !== '') {
                 $uit[$sleutel] = slanglabelNotitieTekst($r['Notitie'] ?? '');
@@ -128,8 +131,7 @@ reportApi(function (string $nummer): array {
     }
 
     // Een order kan half in de app en half in de oude database staan: alles tonen. Staat een slang in beide, dan alleen
-    // die uit de app. De view zet voor klant 546 "SN" en voor klant 666 "VR" voor het nummer, de app heeft "GH": met
-    // slanglabelSleutel() gelden die als dezelfde slang (order 36023869: anders 30 + 30).
+    // die uit de app (beide hebben nu hetzelfde GH-nummer).
     if ($uitApp !== []) {
         $inApp = [];
         foreach ($uitApp as $r) {
