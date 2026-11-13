@@ -47,13 +47,44 @@ const SLANGLABEL_COLUMNS = [
     'artnr_kl' => 'artnr_kl',
 ];
 
+/**
+ * Notitie van de slangkaart per slangnummer (kolom Notitie van "2500 Slangkaarten bij order", dezelfde bron als de
+ * slangkaart in Slangkaarten printen). Lukt de query niet, dan blijft de notitie leeg en werken de labels zoals voorheen.
+ *
+ * @return array<string, string> HOOFDLETTERS slangnummer => notitie
+ */
+function slanglabelNotities(string $nummer): array
+{
+    $uit = [];
+    try {
+        $stmt = reportConnection('stickers-slanglabels')->prepare('SET NOCOUNT ON; SELECT [GHnr], [Notitie] FROM '
+            . geeveDbNaamSql('slangkaarten') . '.[dbo].[2500 Slangkaarten bij order] WHERE LTRIM(RTRIM([ordernr])) = ?');
+        $stmt->execute([$nummer]);
+        foreach ($stmt->fetchAll() as $r) {
+            $uit[strtoupper(trim((string) ($r['GHnr'] ?? '')))] = slanglabelNotitieTekst($r['Notitie'] ?? '');
+        }
+    } catch (Throwable $e) {
+        return [];
+    }
+
+    return $uit;
+}
+
+/** Notitie op één regel (regeleinden en dubbele spaties worden een spatie). */
+function slanglabelNotitieTekst($v): string
+{
+    return trim((string) preg_replace('/\s+/', ' ', (string) ($v ?? '')));
+}
+
 reportApi(function (string $nummer): array {
     $stmt = reportConnection('stickers-slanglabels')->prepare('SET NOCOUNT ON; ' . slanglabelSql());
     $stmt->execute([$nummer]);
 
+    $notities = slanglabelNotities($nummer);
     $rows = [];
     foreach ($stmt->fetchAll() as $row) {
         $out = array_fill_keys(array_values(SLANGLABEL_COLUMNS), '');
+        $out['notitie'] = '';
         foreach ($row as $col => $v) {
             $key = strtolower((string) $col);
             foreach (SLANGLABEL_COLUMNS as $prefix => $field) {
@@ -74,6 +105,7 @@ reportApi(function (string $nummer): array {
         if ($out['artnr_kl'] !== '') {
             $out['referentie'] = $out['artnr_kl'];
         }
+        $out['notitie'] = $notities[strtoupper($out['slangnummer'])] ?? '';
         $rows[] = $out;
     }
 
@@ -96,6 +128,7 @@ reportApi(function (string $nummer): array {
             // De app geeft de lengte in meters (2,65), de oude view in millimeters (1700): omrekenen naar mm.
             'lengte' => is_numeric($r['Lengte'] ?? null) ? (string) (int) round((float) $r['Lengte'] * 1000) : trim((string) ($r['Lengte'] ?? '')),
             'artnr_kl' => '',
+            'notitie' => slanglabelNotitieTekst($r['Notitie'] ?? ''),
         ];
     }
     if ($uitApp !== []) {
