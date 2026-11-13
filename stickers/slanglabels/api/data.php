@@ -46,7 +46,7 @@ const SLANGLABEL_COLUMNS = [
  * Notitie van de slangkaart per slangnummer (kolom Notitie van "2500 Slangkaarten bij order", dezelfde bron als de
  * slangkaart in Slangkaarten printen). Lukt de query niet, dan blijft de notitie leeg en werken de labels zoals voorheen.
  *
- * @return array<string, string> HOOFDLETTERS slangnummer => notitie
+ * @return array<string, string> slanglabelSleutel() van het slangnummer => notitie
  */
 function slanglabelNotities(string $nummer): array
 {
@@ -56,7 +56,11 @@ function slanglabelNotities(string $nummer): array
             . geeveDbNaamSql('slangkaarten') . '.[dbo].[2500 Slangkaarten bij order] WHERE LTRIM(RTRIM([ordernr])) = ?');
         $stmt->execute([$nummer]);
         foreach ($stmt->fetchAll() as $r) {
-            $uit[strtoupper(trim((string) ($r['GHnr'] ?? '')))] = slanglabelNotitieTekst($r['Notitie'] ?? '');
+            // Sleutel zonder GH/SN/VR-voorvoegsel: de view zet voor sommige klanten SN of VR voor het nummer, GHnr heeft GH.
+            $sleutel = slanglabelSleutel((string) ($r['GHnr'] ?? ''));
+            if ($sleutel !== '') {
+                $uit[$sleutel] = slanglabelNotitieTekst($r['Notitie'] ?? '');
+            }
         }
     } catch (Throwable $e) {
         return [];
@@ -129,7 +133,10 @@ reportApi(function (string $nummer): array {
     if ($uitApp !== []) {
         $inApp = [];
         foreach ($uitApp as $r) {
-            $inApp[slanglabelSleutel($r['slangnummer'])] = true;
+            $sleutel = slanglabelSleutel($r['slangnummer']);
+            if ($sleutel !== '') {
+                $inApp[$sleutel] = true;   // een slang zonder nummer mag geen andere lege-nummer-rijen wegfilteren
+            }
         }
         $rows = array_values(array_filter($rows, static fn(array $r): bool => !isset($inApp[slanglabelSleutel((string) $r['slangnummer'])])));
     }
@@ -139,7 +146,7 @@ reportApi(function (string $nummer): array {
     if ($rows !== []) {
         $notities = slanglabelNotities($nummer);
         foreach ($rows as $i => $r) {
-            $rows[$i]['notitie'] = $notities[strtoupper((string) $r['slangnummer'])] ?? '';
+            $rows[$i]['notitie'] = $notities[slanglabelSleutel((string) $r['slangnummer'])] ?? '';
         }
     }
     $rows = array_merge($uitApp, $rows);

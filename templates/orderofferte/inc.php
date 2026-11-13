@@ -89,15 +89,39 @@ function fillFromItems(array $data): array
 
 /**
  * Eerste gevulde waarde van een van de kolommen uit de procedure (de kolomnaam van de orderkop is niet overal gelijk).
+ * Eerst de kandidaten op exacte naam, daarna zonder hoofdlettergevoeligheid, en als laatste de eerste kop_-kolom die
+ * bij $patroon past (bijv. '/dat/i'). Welke kolommen de procedure echt teruggeeft staat in $data['kopkolommen'] (zichtbaar
+ * in het antwoord van api/data.php), zodat de kandidaten daarop vastgelegd kunnen worden.
  *
  * @param list<string> $kandidaten
  */
-function orderOfferteKopWaarde(array $raw, array $kandidaten): string
+function orderOfferteKopWaarde(array $raw, array $kandidaten, string $patroon = ''): string
 {
     foreach ($kandidaten as $kolom) {
         $v = reportFirstValue($raw, $kolom);
         if ($v !== null) {
             return $v;
+        }
+    }
+    $kolommen = array_values(array_filter($raw['columns'], static fn ($c): bool => stripos((string) $c, 'kop_') === 0));
+    foreach ($kandidaten as $kandidaat) {
+        foreach ($kolommen as $kolom) {
+            if (strcasecmp((string) $kolom, $kandidaat) === 0) {
+                $v = reportFirstValue($raw, (string) $kolom);
+                if ($v !== null) {
+                    return $v;
+                }
+            }
+        }
+    }
+    if ($patroon !== '') {
+        foreach ($kolommen as $kolom) {
+            if (preg_match($patroon, (string) $kolom) === 1) {
+                $v = reportFirstValue($raw, (string) $kolom);
+                if ($v !== null) {
+                    return $v;
+                }
+            }
         }
     }
     return '';
@@ -137,14 +161,15 @@ function orderOfferteOphalen(string $nummer): array
         'Total Nett' => '{Price nett}*{Amount}',
         'Total incl. VAT' => '{Total Nett}*(1+{VAT}/100)',
     ];
+    $data['kopkolommen'] = array_values(array_filter($raw['columns'], static fn ($c): bool => stripos((string) $c, 'kop_') === 0));
     // Orderkop voor de XML. Alleen kolommen die de procedure echt teruggeeft komen erin; de rest blijft leeg.
     $data['kop'] = [
         'soort' => $label,
-        'ordernummer' => orderOfferteKopWaarde($raw, ['kop_ordernr']) ?: $nummer,
-        'datum' => orderOfferteKopWaarde($raw, ['kop_orddat', 'kop_ord_datum', 'kop_ord_date', 'kop_datum']),
-        'klantnummer' => orderOfferteKopWaarde($raw, ['kop_debnr', 'kop_ord_debtor', 'kop_ord_debtor_nr', 'kop_ord_debtor_code']),
+        'ordernummer' => orderOfferteKopWaarde($raw, ['kop_ordernr']) !== '' ? orderOfferteKopWaarde($raw, ['kop_ordernr']) : $nummer,
+        'datum' => orderOfferteKopWaarde($raw, ['kop_orddat', 'kop_ord_datum', 'kop_ord_date', 'kop_datum'], '/dat/i'),
+        'klantnummer' => orderOfferteKopWaarde($raw, ['kop_debnr', 'kop_ord_debtor', 'kop_ord_debtor_nr', 'kop_ord_debtor_code'], '/^kop_(ord_)?(debnr|debtor(_?(nr|nummer|code|number))?)$/i'),
         'klantnaam' => (string) $klant,
-        'referentie' => orderOfferteKopWaarde($raw, ['kop_refer', 'kop_ord_refer']),
+        'referentie' => orderOfferteKopWaarde($raw, ['kop_refer', 'kop_ord_refer'], '/^kop_(ord_)?(refer|reference|referentie)$/i'),
         'uw_referentie' => orderOfferteKopWaarde($raw, ['kop_docnumber']),
     ];
     return $data;
@@ -166,7 +191,11 @@ function orderOfferteXmlBouwen(array $data): string
 
     $voegToe = static function (DOMElement $ouder, string $naam, string $tekst) use ($doc): void {
         // Stuurtekens die in XML 1.0 niet mogen, eruit halen.
-        $schoon = (string) preg_replace('/[^\x{9}\x{A}\x{D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}]/u', '', $tekst);
+        // Geen geldige UTF-8 (preg geeft dan null): eerst ongeldige bytes weghalen, zodat het veld niet stilletjes leeg wordt.
+        $schoon = preg_replace('/[^\x{9}\x{A}\x{D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}]/u', '', $tekst);
+        if ($schoon === null) {
+            $schoon = (string) preg_replace('/[^\x{9}\x{A}\x{D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}]/u', '', (string) @iconv('UTF-8', 'UTF-8//IGNORE', $tekst));
+        }
         $el = $doc->createElement($naam);
         $el->appendChild($doc->createTextNode($schoon));
         $ouder->appendChild($el);

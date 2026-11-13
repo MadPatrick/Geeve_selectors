@@ -15,6 +15,6 @@ require_once __DIR__ . '/../inc.php';
 
 reportApi(function (string $nummer): array {
     $data = orderOfferteOphalen($nummer);
-    unset($data['kop']); // alleen voor de XML
+    unset($data['kop']); // alleen voor de XML ($data['kopkolommen'] blijft staan: welke kop_-kolommen de procedure geeft)
     return $data;
 });

@@ -36,7 +36,9 @@ try {
 
 geeveProgressDownloadDone();   // laat de voortgangsbalk weten dat het bestand begint
 header('Content-Type: application/xml; charset=utf-8');
-header('Content-Disposition: attachment; filename="' . $data['kop']['soort'] . '_' . preg_replace('/\D/', '', $nummer) . '.xml"');
+// Bestandsnaam zonder slash of andere tekens ("Order/Offerte" bij een onbekende soort wordt "Order").
+$soortNaam = (string) preg_replace('/[^A-Za-z0-9_-]/', '', (string) $data['kop']['soort']);
+header('Content-Disposition: attachment; filename="' . ($soortNaam !== '' ? $soortNaam : 'Order') . '_' . preg_replace('/\D/', '', $nummer) . '.xml"');
 header('Cache-Control: no-store');
 header('Content-Length: ' . strlen($xml));
 echo $xml;
