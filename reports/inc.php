@@ -234,6 +234,20 @@ function reportSelect(array $data, array $map): array
     ];
 }
 
+/** Zoektekst in losse woorden (max. 5), voor de klantkeuze van alle tegels. */
+function reportZoekWoorden(string $tekst): array
+{
+    $words = array_values(array_filter(preg_split('/\s+/', trim($tekst)) ?: [], static fn (string $w): bool => $w !== ''));
+
+    return array_slice($words, 0, 5);
+}
+
+/** LIKE-patroon '%woord%' waarin % [ en _ in de zoekterm letterlijk gelden (SQL Server). */
+function reportLikePatroon(string $woord): string
+{
+    return '%' . str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], $woord) . '%';
+}
+
 /**
  * Debiteuren zoeken op nummer of naam in Exact (cicmpy) voor de klantkeuze van Backorder en Orderhistorie. GET ?q=<tekst>
  * -> {"ok":true,"rows":[{"debnr","naam"}]}. Schrijft het JSON-antwoord en stopt; $tegel is het tegel-id van de aanroeper
@@ -241,8 +255,7 @@ function reportSelect(array $data, array $map): array
  */
 function reportKlantenZoeken(string $tegel): void
 {
-    $words = array_values(array_filter(preg_split('/\s+/', trim((string) ($_GET['q'] ?? ''))) ?: [], static fn (string $w): bool => $w !== ''));
-    $words = array_slice($words, 0, 5);
+    $words = reportZoekWoorden((string) ($_GET['q'] ?? ''));
     if ($words === []) {
         echo json_encode(['ok' => true, 'rows' => []]);
         exit;
@@ -252,8 +265,7 @@ function reportKlantenZoeken(string $tegel): void
         $where = ['c.debnr IS NOT NULL', "LTRIM(RTRIM(c.debnr)) <> ''"];
         $params = [];
         foreach ($words as $word) {
-            // % en _ in de zoekterm letterlijk nemen.
-            $like = '%' . str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], $word) . '%';
+            $like = reportLikePatroon($word);
             $where[] = '(c.cmp_name LIKE ? OR LTRIM(RTRIM(c.debnr)) LIKE ?)';
             $params[] = $like;
             $params[] = $like;

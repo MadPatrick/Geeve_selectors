@@ -16,8 +16,7 @@ require_once __DIR__ . '/../../inc.php';
  * Losse woorden in willekeurige volgorde; een getypt nummer: klantnummers die ermee beginnen eerst (100, 1000, 1001, ...), exact bovenaan.
  */
 
-$words = array_values(array_filter(preg_split('/\s+/', trim((string) ($_GET['q'] ?? ''))) ?: [], static fn (string $w): bool => $w !== ''));
-$words = array_slice($words, 0, 5);
+$words = reportZoekWoorden((string) ($_GET['q'] ?? ''));
 if ($words === []) {
     echo json_encode(['ok' => true, 'rows' => []]);
     exit;
@@ -27,8 +26,7 @@ try {
     $where = ['PrijsBerekend > 0', "LTRIM(RTRIM(Debiteur)) <> ''"];
     $params = [];
     foreach ($words as $word) {
-        // % en _ in de zoekterm letterlijk nemen.
-        $like = '%' . str_replace(['[', '%', '_'], ['[[]', '[%]', '[_]'], $word) . '%';
+        $like = reportLikePatroon($word);
         $where[] = '(DebiteurNaam LIKE ? OR LTRIM(RTRIM(Debiteur)) LIKE ?)';
         $params[] = $like;
         $params[] = $like;

@@ -49,3 +49,14 @@ if (!function_exists('geeveDuizendtal')) {
         return ($n < 0 && (float) $tekst != 0.0 ? '-' : '') . $uit;
     }
 }
+
+if (!function_exists('geeveVersie')) {
+    /**
+     * Versienummer uit version.php (root) voor APP_VERSION. Ontbreekt het bestand (bv. een subapp los gedeployed), dan
+     * 'onbekend': liever geen versie dan een verouderde vaste waarde die er echt uitziet.
+     */
+    function geeveVersie(string $pad): string
+    {
+        return is_file($pad) ? (string) require $pad : 'onbekend';
+    }
+}

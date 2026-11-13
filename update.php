@@ -7,8 +7,8 @@ require_once __DIR__ . '/shared/helpers.php';
 session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
-// rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
-define('APP_VERSION', is_file(__DIR__ . '/version.php') ? (string) require __DIR__ . '/version.php' : '0.2.1');
+// rootniveau); geeveVersie() geeft 'onbekend' als dat bestand ontbreekt.
+define('APP_VERSION', geeveVersie(__DIR__ . '/version.php'));
 require_once __DIR__ . '/shared/secure_settings.php';
 require_once __DIR__ . '/shared/sneeuw.php';
 require_once __DIR__ . '/shared/achtergrond.php';

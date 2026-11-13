@@ -5,14 +5,14 @@ declare(strict_types=1);
 require_once __DIR__ . '/../shared/helpers.php';
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
-// rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
+// rootniveau); geeveVersie() geeft 'onbekend' als dat bestand ontbreekt.
 require_once __DIR__ . '/../shared/tiles.php';
 require_once __DIR__ . '/../shared/paths.php';
 
 // Dit overzicht is zelf ook een tegel (Reports): is die beveiligd, dan eerst de code.
 tileRequirePage('reports', '../index.php');
 
-define('APP_VERSION', is_file(__DIR__ . '/../version.php') ? (string) require __DIR__ . '/../version.php' : '0.2.1');
+define('APP_VERSION', geeveVersie(__DIR__ . '/../version.php'));
 
 // Beveiligde tegels: elke keer dat dit overzicht opent, vragen ze opnieuw om de code.
 tilesRelock('reports');

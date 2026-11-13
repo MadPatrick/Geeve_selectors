@@ -13,8 +13,8 @@ require_once __DIR__ . '/../../shared/csrf.php';
 require_once __DIR__ . '/../../shared/access.php';
 
 // Eén gedeeld versienummer voor hoofdscherm + alle subapps (version.php op
-// rootniveau) - valt terug op deze waarde als dat bestand ontbreekt.
-define('APP_VERSION', is_file(__DIR__ . '/../../version.php') ? (string) require __DIR__ . '/../../version.php' : '0.2.1');
+// rootniveau); geeveVersie() geeft 'onbekend' als dat bestand ontbreekt.
+define('APP_VERSION', geeveVersie(__DIR__ . '/../../version.php'));
 
 $csrf = csrfToken();
 
