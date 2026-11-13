@@ -132,7 +132,14 @@
         message.hidden = true;
         if (nummer === '') { fail('Vul een ordernummer in.'); input.focus(); return; }
         fetchBtn.disabled = true;
-        status.textContent = 'Bezig met ophalen…';
+        // Voortgang in de knop: draaiend icoon en het aantal seconden dat het ophalen al duurt.
+        var knopTekst = fetchBtn.textContent;
+        var start = Date.now();
+        fetchBtn.classList.add('is-busy');
+        function toonVoortgang() { fetchBtn.textContent = 'Ophalen… ' + Math.floor((Date.now() - start) / 1000) + ' s'; }
+        toonVoortgang();
+        var timer = window.setInterval(toonVoortgang, 500);
+        status.textContent = '';
         var body = new FormData();
         body.append('csrf', box.getAttribute('data-csrf'));
         body.append('nummer', nummer);
@@ -147,7 +154,13 @@
                 select(0);
             })
             .catch(function (e) { fail(e.message || String(e)); })
-            .then(function () { fetchBtn.disabled = false; status.textContent = ''; });
+            .then(function () {
+                window.clearInterval(timer);
+                fetchBtn.classList.remove('is-busy');
+                fetchBtn.textContent = knopTekst;
+                fetchBtn.disabled = false;
+                status.textContent = '';
+            });
     }
 
     fetchBtn.addEventListener('click', load);
