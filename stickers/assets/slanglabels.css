@@ -111,5 +111,11 @@
     border: 2px solid currentColor; border-right-color: transparent;
     animation: sl-draai .8s linear infinite;
 }
+#slFetch.is-busy { position: relative; overflow: hidden; }
+/* Voortgangsbalk: lichte vulling van links naar rechts onder de tekst (breedte via --voortgang, gezet in slanglabels.js). */
+#slFetch.is-busy::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 0; width: var(--voortgang, 0%);
+    background: currentColor; opacity: .2; pointer-events: none; transition: width .5s linear;
+}
 #slFetch:disabled { opacity: 1; cursor: progress; }
 @keyframes sl-draai { to { transform: rotate(360deg); } }

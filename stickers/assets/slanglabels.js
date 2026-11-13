@@ -136,7 +136,13 @@
         var knopTekst = fetchBtn.textContent;
         var start = Date.now();
         fetchBtn.classList.add('is-busy');
-        function toonVoortgang() { fetchBtn.textContent = 'Ophalen… ' + Math.floor((Date.now() - start) / 1000) + ' s'; }
+        // De server meldt geen echte voortgang: de balk is een schatting die snel start en nooit boven 90% komt
+        // tot het antwoord er is.
+        function toonVoortgang() {
+            var sec = (Date.now() - start) / 1000;
+            fetchBtn.textContent = 'Ophalen… ' + Math.floor(sec) + ' s';
+            fetchBtn.style.setProperty('--voortgang', Math.round(90 * (1 - Math.exp(-sec / 3))) + '%');
+        }
         toonVoortgang();
         var timer = window.setInterval(toonVoortgang, 500);
         status.textContent = '';
@@ -157,6 +163,7 @@
             .then(function () {
                 window.clearInterval(timer);
                 fetchBtn.classList.remove('is-busy');
+                fetchBtn.style.removeProperty('--voortgang');
                 fetchBtn.textContent = knopTekst;
                 fetchBtn.disabled = false;
                 status.textContent = '';
